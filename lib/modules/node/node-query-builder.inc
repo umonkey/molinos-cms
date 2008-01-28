@@ -13,9 +13,11 @@ class NodeQueryBuilder
 
   public function __construct(array $query)
   {
-    if (!array_key_exists('deleted', $query)) {
+    if (!array_key_exists('deleted', $query))
       $query['deleted'] = 0;
-    }
+
+    if (!empty($query['tags']))
+      $query['tags'] = array_unique($query['tags']);
 
     $this->query = $query;
 
