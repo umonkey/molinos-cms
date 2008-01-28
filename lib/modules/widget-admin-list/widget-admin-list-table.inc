@@ -37,12 +37,24 @@ class DocListControl extends Control
       if (null !== $this->widget and null !== $this->sortable and in_array($key, $this->sortable)) {
         $url = bebop_split_url();
 
-        if (empty($url['args'][$this->widget]['sortmode']))
-          $url['args'][$this->widget]['sortmode'] = 'asc';
+        if (null === $sort or empty($sort[$key]) or 'asc' != strtolower($sort[$key]))
+          $dir = 'asc';
+        else
+          $dir = 'desc';
 
+        $url['args'][$this->widget]['sortmode'] = $dir;
         $url['args'][$this->widget]['sort'] = $key;
 
         $text = l($column, $url['args']);
+
+        if (null !== $sort and !empty($sort[$key])) {
+          $text .= '&nbsp;';
+
+          if (strtolower($sort[$key]) == 'desc')
+            $text .= '↑';
+          else
+            $text .= '↓';
+        }
       } else {
         $text = $column;
       }

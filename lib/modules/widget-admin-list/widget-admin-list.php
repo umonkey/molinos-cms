@@ -35,7 +35,7 @@ class ListAdminWidget extends ListWidget
     }
 
     if (null !== ($tmp = $ctx->get('sort')))
-      $options['sort'][$tmp] = $ctx->get('sortmode', 'asc');
+      $options['sort']= array($tmp => $ctx->get('sortmode', 'asc'));
 
     if (null !== ($tmp = $ctx->get('published')))
       $options['filter']['published'] = $tmp;
@@ -86,6 +86,8 @@ class ListAdminWidget extends ListWidget
 
   public function formGet($id)
   {
+    // bebop_debug($this->me->config, $this->options);
+
     switch ($id) {
     case 'document-list':
       $columns = $this->columns;
@@ -117,6 +119,7 @@ class ListAdminWidget extends ListWidget
         'columns' => $columns,
         'sortable' => $this->sortable,
         'picker' => $this->options['picker'],
+        'sort' => empty($this->options['sort']) ? array() : $this->options['sort'],
         )));
 
       $form->addControl(new DocMassControl(array(
