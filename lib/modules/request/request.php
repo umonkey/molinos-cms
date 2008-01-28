@@ -126,10 +126,12 @@ class RequestContext
     // Нормализуем идентификаторы.
 
     if (null !== $this->document and !is_numeric($this->document))
-      $this->document = PDO_Singleton::getInstance()->getResult("SELECT `id` FROM `node` WHERE `code` = :code", array(':code' => $this->document));
+      if (null === ($this->document = PDO_Singleton::getInstance()->getResult("SELECT `id` FROM `node` WHERE `code` = :code", array(':code' => $this->document))))
+          throw new PageNotFoundException();
 
     if (null !== $this->section and !is_numeric($this->section))
-      $this->section = PDO_Singleton::getInstance()->getResult("SELECT `id` FROM `node` WHERE `code` = :code", array(':code' => $this->section));
+      if (null === ($this->section = PDO_Singleton::getInstance()->getResult("SELECT `id` FROM `node` WHERE `code` = :code", array(':code' => $this->section))))
+        throw new PageNotFoundException();
 
     // Запишем информацию о запросе.
     if (BebopConfig::getInstance()->log_requests) {
