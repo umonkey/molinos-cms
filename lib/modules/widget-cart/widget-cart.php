@@ -167,7 +167,9 @@ class CartWidget extends Widget
     if (empty($_SESSION['cart']))
       return null;
 
-    return parent::formRender('cart-details');
+    $output = parent::formRender('cart-details');
+
+    return $output;
   }
 
   protected function onGetConfirm(array $options)
@@ -417,8 +419,8 @@ class CartWidget extends Widget
           'id' => $node->id,
           'name' => $node->name,
           'qty' => $qty = $_SESSION['cart'][$node->id],
-          'price' => number_format($node->price, 2),
-          'sum' => number_format($node->price * $qty, 2),
+          'price' => $node->price,
+          'sum' => $node->price * $qty,
           );
       }
     }
