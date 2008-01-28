@@ -198,25 +198,21 @@ class StaticAttachment
     if ($download)
       $headers[] = "Content-Disposition: attachment; filename=\"{$this->node['filename']}\"";
 
-    if (bebop_is_debugger()) {
-      // Клиентское кэширование, хотя не уверен, что это используется со скачиваемыми файлами.
-      if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
-        if (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= strtotime($this->node['created'])) {
-          $this->sendError(304, 'not modified');
-        }
+    // Клиентское кэширование, хотя не уверен, что это используется со скачиваемыми файлами.
+    if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+      if (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= strtotime($this->node['created'])) {
+        $this->sendError(304, 'not modified');
       }
-
-      $headers[] = "Last-Modified: ". date('r', strtotime($this->node['created']));
-      $headers[] = "Accept-Ranges: bytes";
     }
 
-    file_put_contents("/hosts/deadchannel.ru/htdocs/download.log", "from: {$from}, to: {$to}, total: {$this->node['filesize']}\n". join("\n", $headers));
+    $headers[] = "Last-Modified: ". date('r', strtotime($this->node['created']));
+    $headers[] = "Accept-Ranges: bytes";
 
     foreach ($headers as $item)
       header($item);
 
     if ('GET' == $_SERVER['REQUEST_METHOD']) {
-      if (range_from)
+      if ($range_from)
         RequestContext::logNodeAccess($this->node['id']);
 
       $f = fopen($this->source, 'rb')
