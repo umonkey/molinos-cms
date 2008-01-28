@@ -1,0 +1,6 @@
+group = admin
+classes = BebopDashboard
+interface[iWidget] = BebopDashboard
+interface[iAdminWidget] = BebopDashboard
+name[en] = Dashboard
+name[ru] = Приборная панель

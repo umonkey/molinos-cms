@@ -1,0 +1,5 @@
+group = widgets
+classes = SearchWidget
+interface[iWidget] = SearchWidget
+name[en] = Site-Wide Search
+name[ru] = Поиск по сайту

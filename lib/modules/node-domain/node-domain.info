@@ -1,0 +1,5 @@
+group = core
+classes = DomainNode
+interface[iContentType] = DomainNode
+name[en] = Domain Structure
+name[ru] = Структура доменов

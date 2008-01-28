@@ -1,0 +1,6 @@
+group = core
+classes = TypeNode, FieldControl
+interface[iContentType] = TypeNode
+interface[iFormControl] = FieldControl
+name[en] = Type Definition
+name[ru] = Тип данных

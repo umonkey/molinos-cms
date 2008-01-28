@@ -1,0 +1,5 @@
+group = widgets
+classes = TagsWidget
+interface[iWidget] = TagsWidget
+name[en] = Section Listing
+name[ru] = Список разделов

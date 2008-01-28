@@ -1,0 +1,5 @@
+group = core
+classes = TagNode
+interface[iContentType] = TagNode
+name[en] = Section Definition
+name[ru] = Раздел сайта

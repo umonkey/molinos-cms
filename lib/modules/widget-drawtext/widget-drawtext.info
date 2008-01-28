@@ -1,0 +1,5 @@
+group = widgets
+classes = DrawTextWidget
+interface[iWidget] = DrawTextWidget
+name[en] = Text rasterization widget
+name[ru] = Растеризация текста

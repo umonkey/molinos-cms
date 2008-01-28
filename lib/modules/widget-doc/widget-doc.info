@@ -1,0 +1,5 @@
+group = widgets
+classes = DocWidget
+interface[iWidget] = DocWidget
+name[en] = Single Document
+name[ru] = Отдельный документ

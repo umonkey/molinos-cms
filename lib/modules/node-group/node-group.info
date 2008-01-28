@@ -1,0 +1,5 @@
+group = core
+classes = GroupNode
+interface[iContentType] = GroupNode
+name[en] = Group Profiles
+name[ru] = Группы пользователей

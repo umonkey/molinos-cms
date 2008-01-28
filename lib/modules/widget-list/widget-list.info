@@ -1,0 +1,5 @@
+group = widgets
+classes = ListWidget
+interface[iWidget] = ListWidget
+name[en] = Document Listing
+name[ru] = Список документов

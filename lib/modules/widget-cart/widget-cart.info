@@ -1,0 +1,6 @@
+group = widgets
+classes = CartWidget, CartControl
+interface[iWidget] = CartWidget
+interface[iFormControl] = CartControl
+name[en] = Simple Shopping Cart
+name[ru] = Простая корзина для заказов

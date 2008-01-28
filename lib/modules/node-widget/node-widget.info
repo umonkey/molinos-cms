@@ -1,0 +1,5 @@
+group = core
+classes = WidgetNode
+interface[iContentType] = WidgetNode
+name[en] = Widget Definition
+name[ru] = Описание виджета

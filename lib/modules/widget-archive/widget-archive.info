@@ -1,0 +1,5 @@
+group = widgets
+classes = ArchiveWidget
+interface[iWidget] = ArchiveWidget
+name[en] = Archive Navigation
+name[ru] = Навигация по архиву

@@ -1,0 +1,4 @@
+group = core
+classes = Tagger
+name[en] = Tagger
+name[ru] = Таггер

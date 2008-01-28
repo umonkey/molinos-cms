@@ -1,0 +1,6 @@
+group = widgets
+classes = ContentFilterWidget
+interface[iAdminWidget] = ContentFilterWidget
+interface[iWidget] = ContentFilterWidget
+name[en] = Content Filter Settings
+name[ru] = Фильтрация контента

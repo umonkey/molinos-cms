@@ -1,0 +1,6 @@
+group = core
+classes = Node, iContentType, ObjectNotFoundException, ValidationError, NodeQueryBuilder, AccessControl
+interface[iContentType] = Node
+interface[iFormControl] = AccessControl
+name[en] = Simple Document
+name[ru] = Простой документ

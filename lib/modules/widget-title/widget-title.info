@@ -1,0 +1,5 @@
+group = widgets
+classes = TitleWidget
+interface[iWidget] = TitleWidget
+name[en] = Section Titles
+name[ru] = Заголовки разделов

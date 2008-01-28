@@ -1,0 +1,7 @@
+group = core
+classes = UpdateAdminWidget, UpdateManager
+interface[iWidget] = UpdateAdminWidget
+interface[iAdminWidget] = UpdateAdminWidget
+interface[iScheduler] = UpdateManager
+name[en] = Update Manager
+name[ru] = Менеджер обновлений

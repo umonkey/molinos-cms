@@ -1,0 +1,4 @@
+group = core
+classes = BebopCache, APC_Cache, MemCacheD_Cache, Local_Cache
+name[en] = Cache Engine
+name[ru] = Кэширование
