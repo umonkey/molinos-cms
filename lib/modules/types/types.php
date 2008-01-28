@@ -870,18 +870,20 @@ class EnumControl extends Control
     if (empty($this->options) and !empty($data[$key = $this->value .':options']) and is_array($data[$key]))
       $this->options = $data[$key];
 
-    if (null !== $this->default) {
-      if (!array_key_exists($this->default, $this->options))
-        $options .= self::makeHTML('option', array(
-          'value' => '',
-          ), $this->default);
+    // Если поле необязательно или дефолтного значения нет в списке допустимых -- добавляем пустое значение в начало.
+    if (!isset($this->required) or (isset($this->default) and !array_key_exists($this->default, $this->options))) {
+      $options .= self::makeHTML('option', array(
+        'value' => '',
+        ), $this->default);
     }
+
+    $current = (empty($this->options) or !array_key_exists($this->default, $this->options)) ? null : $this->default;
 
     if (is_array($this->options))
       foreach ($this->options as $k => $v) {
         $options .= self::makeHTML('option', array(
           'value' => $k,
-          'selected' => (!empty($data[$this->value]) and $data[$this->value] == $k) ? 'selected' : null,
+          'selected' => ($current == $k) ? 'selected' : null,
           ), $v);
       }
 
