@@ -572,6 +572,10 @@ function mcms_decrypt($input)
 
 class mcms
 {
+  const MEDIA_AUDIO = 1;
+  const MEDIA_VIDEO = 2;
+  const MEDIA_IMAGE = 4;
+
   public static function html($name, array $parts = null, $content = null)
   {
     $output = '<'. $name;
@@ -600,6 +604,93 @@ class mcms
     } else {
       $output .= '>'. $content .'</'. $name .'>';
     }
+
+    return $output;
+  }
+
+  public static function mediaGetPlayer(array $files, $types = null, array $custom_options = array())
+  {
+    $nodes = array();
+
+    if (null === $types)
+      $types = self::MEDIA_AUDIO | self::MEDIA_VIDEO;
+
+    foreach ($files as $k => $v) {
+      switch ($v['filetype']) {
+      case 'audio/mpeg':
+        if ($types & self::MEDIA_AUDIO)
+          $nodes[] = $v['id'];
+        break;
+      case 'video/x-flv':
+        if ($types & self::MEDIA_VIDEO)
+          $nodes[] = $v['id'];
+        break;
+      }
+    }
+
+    // Подходящих файлов нет, выходим.
+    if (empty($nodes))
+      return null;
+
+    // Параметризация проигрывателя.
+    $options = array_merge(array(
+      'file' => 'http://'. $_SERVER['HTTP_HOST'] .'/playlist/'. join(',', $nodes) .'.xspf',
+      'showdigits' => 'true',
+      'autostart' => 'false',
+      'repeat' => 'true',
+      'shuffle' => 'false',
+      'width' => 350,
+      'height' => 100,
+      'showdownload' => 'false',
+      'displayheight' => 0,
+      ), $custom_options);
+
+    $args = array();
+
+    foreach ($options as $k => $v)
+      $args[] = $k .'='. urlencode($v);
+
+    $url = 'http://'. $_SERVER['HTTP_HOST'] .'/themes/all/flash/player.swf?'. join('&', $args);
+
+    $params = mcms::html('param', array(
+      'name' => 'movie',
+      'value' => $url,
+      ));
+    $params .= mcms::html('param', array(
+      'name' => 'wmode',
+      'value' => 'transparent',
+      ));
+
+    return mcms::html('object', array(
+      'type' => 'application/x-shockwave-flash',
+      'data' => $url,
+      'width' => $options['width'],
+      'height' => $options['height'],
+      ), $params);
+  }
+
+  public static function mediaGetPlaylist(array $nids)
+  {
+    $output = '';
+    $tracks = array();
+
+    foreach ($nodes = Node::find(array('class' => 'file', 'id' => $nids)) as $node) {
+      $track = mcms::html('title', array(), $node->name);
+      $track .= mcms::html('location', array(), 'http://'. $_SERVER['HTTP_HOST'] .'/attachment/'. $node->id .'?'. $node->filename);
+      $tracks[] = mcms::html('track', array(), $track);
+    }
+
+    if (empty($tracks))
+      throw new PageNotFoundException();
+
+    header('Content-Type: application/xspf+xml; charset=utf-8');
+
+    // TODO: если запрошен один документ, и это — не файл, можно сразу возвращать все его файлы.
+
+    $output .= "<?xml version='1.0' encoding='utf-8'?>";
+    $output .= "<playlist version='1' xmlns='http://xspf.org/ns/0/'>";
+    $output .= mcms::html('trackList', array(), join('', $tracks));
+    $output .= '</playlist>';
 
     return $output;
   }

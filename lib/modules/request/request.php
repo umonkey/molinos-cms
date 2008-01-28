@@ -316,6 +316,9 @@ class RequestController
 
       $this->begin = microtime(true);
 
+      if (null !== ($tmp = $this->parseSpecialPath()))
+        return $tmp;
+
       $this->parseGet();
 
       if ($_SERVER['REQUEST_METHOD'] == 'POST')
@@ -494,6 +497,17 @@ class RequestController
 
     // Готовимся к обработке запроса.
     // $this->page->prepareSmarty(null);
+  }
+
+  private function parseSpecialPath()
+  {
+    $tmp = parse_url($_SERVER['REQUEST_URI']);
+
+    if (!empty($tmp['path']) and preg_match_all('@^/playlist/[0-9,]+\.xspf$@i', $tmp['path'], $m)) {
+      $nids = array_unique(explode(',', substr($tmp['path'], 10, -5)));
+      print mcms::mediaGetPlaylist($nids);
+      return true;
+    }
   }
 
   // Разбивает параметры GET-запроса на модули.
