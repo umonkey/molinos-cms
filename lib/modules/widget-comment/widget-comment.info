@@ -1,0 +1,5 @@
+group = widgets
+classes = CommentWidget, CommentFormWidget
+interface[iWidget] = CommentWidget, CommentFormWidget
+name[en] = Basic Comment Support
+name[ru] = Базовая поддержка комментариев

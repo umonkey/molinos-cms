@@ -1,0 +1,4 @@
+group = core
+classes = BebopMimeMail
+name[en] = HTML Mail Sender
+name[ru] = Отправка почты в HTML

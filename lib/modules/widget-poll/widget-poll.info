@@ -1,0 +1,6 @@
+group = widgets
+classes = PollWidget
+interface[iContentType] = PollWidget
+interface[iWidget] = PollWidget
+name[en] = User Polling
+name[ru] = Опрос пользователей

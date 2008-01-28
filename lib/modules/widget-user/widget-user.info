@@ -1,0 +1,5 @@
+group = widgets
+classes = UserWidget
+interface[iWidget] = UserWidget
+name[en] = User Profile
+name[ru] = Профиль пользователя

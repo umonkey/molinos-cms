@@ -1,0 +1,5 @@
+group = widgets
+classes = XmlImporter
+interface[iWidget] = XmlImporter
+name[en] = XmlImporter Widget
+name[ru] = Виджет XmlImporter

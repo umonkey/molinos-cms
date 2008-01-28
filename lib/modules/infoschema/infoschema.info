@@ -1,0 +1,4 @@
+group = core
+classes = InfoSchema
+name[en] = DB Schema Engine
+name[ru] = Работа со схемой данных

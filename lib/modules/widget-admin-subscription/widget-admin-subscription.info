@@ -1,0 +1,7 @@
+group = widgets
+classes = SubscriptionAdminWidget
+interface[iWidget] = SubscriptionAdminWidget
+interface[iAdminWidget] = SubscriptionAdminWidget
+interface[iScheduler] = SubscriptionAdminWidget
+name[en] = Subscription Management
+name[ru] = Управление почтовой рассылкой

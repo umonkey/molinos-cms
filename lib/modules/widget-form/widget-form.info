@@ -1,0 +1,5 @@
+group = widgets
+classes = FormWidget
+interface[iWidget] = FormWidget
+name[en] = Form Widget
+name[ru] = Отображение форм

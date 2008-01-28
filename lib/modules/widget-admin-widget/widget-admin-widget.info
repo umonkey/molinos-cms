@@ -1,0 +1,6 @@
+group = widgets
+classes = WidgetAdminWidget
+interface[iWidget] = WidgetAdminWidget
+interface[iAdminWidget] = WidgetAdminWidget
+name[en] = Widget Manager
+name[ru] = Управление виджетами

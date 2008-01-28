@@ -1,0 +1,5 @@
+group = widgets
+classes = BlogWidget
+interface[iWidget] = BlogWidget
+name[en] = User Blogs
+name[ru] = Блоги пользователей

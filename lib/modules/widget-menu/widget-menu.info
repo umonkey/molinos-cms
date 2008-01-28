@@ -1,0 +1,5 @@
+group = widgets
+classes = MenuWidget
+interface[iWidget] = MenuWidget
+name[en] = Navigation Menu
+name[ru] = Навигационное меню

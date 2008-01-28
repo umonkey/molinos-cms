@@ -1,0 +1,5 @@
+group = widgets
+classes = SubscriptionWidget
+interface[iWidget] = SubscriptionWidget
+name[en] = Email Subscription
+name[ru] = Подписка на обновления

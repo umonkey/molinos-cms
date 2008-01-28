@@ -1,0 +1,6 @@
+group = widgets
+classes = LogAdminWidget
+interface[iAdminWidget] = LogAdminWidget
+interface[iWidget] = LogAdminWidget
+name[en] = System Log
+name[ru] = Системный журнал

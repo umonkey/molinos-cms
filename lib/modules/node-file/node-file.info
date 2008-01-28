@@ -1,0 +1,5 @@
+group = core
+classes = FileNode
+interface[iContentType] = FileNode
+name[en] = File Attachments
+name[ru] = Прикрепляемые файлы

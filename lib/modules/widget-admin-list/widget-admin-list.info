@@ -1,0 +1,6 @@
+group = widgets
+classes = ListAdminWidget, DocListControl
+interface[iWidget] = ListAdminWidget
+interface[iFormControl] = DocListControl
+name[en] = Document Administrator (List View)
+name[ru] = Администрирование документов (список)

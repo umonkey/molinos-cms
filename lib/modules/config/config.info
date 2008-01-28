@@ -1,0 +1,4 @@
+group = core
+classes = BebopConfig
+name[en] = Configuration Storage
+name[ru] = Хранилище конфигурации

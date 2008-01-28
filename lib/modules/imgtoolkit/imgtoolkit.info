@@ -1,0 +1,4 @@
+group = core
+classes = ImageMagickGD, ImageMagick
+name[en] = Image Processor
+name[ru] = Обработка картинок

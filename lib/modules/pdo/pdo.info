@@ -1,0 +1,4 @@
+group = core
+classes = PDO_Singleton
+name[en] = DB Access
+name[ru] = Доступ к БД

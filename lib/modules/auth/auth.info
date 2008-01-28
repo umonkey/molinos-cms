@@ -1,0 +1,4 @@
+group = core
+classes = AuthCore
+name[en] = Authentication Subsystem
+name[ru] = Система авторизации

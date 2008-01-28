@@ -1,0 +1,6 @@
+group = widgets
+classes = StructureAdminWidget
+interface[iWidget] = StructureAdminWidget
+interface[iAdminWidget] = StructureAdminWidget
+name[en] = Taxonomy Administration
+name[ru] = Управление разделами

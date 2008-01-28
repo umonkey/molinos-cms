@@ -1,0 +1,4 @@
+group = core
+classes = User, AuthFailedException
+name[en] = User Classes
+name[ru] = Классы пользователей
