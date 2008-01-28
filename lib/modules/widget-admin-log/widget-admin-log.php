@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class LogAdminWidget extends Widget implements iAdminWidget
+class LogAdminWidget extends Widget implements iAdminWidget, iDashboard
 {
   public function __construct(Node $node)
   {
@@ -246,5 +246,23 @@ class LogAdminWidget extends Widget implements iAdminWidget
       return '';
 
     return ' WHERE '. join(' AND ', $where);
+  }
+
+  public static function getDashboardIcons()
+  {
+    $icons = array();
+    $user = AuthCore::getInstance()->getUser();
+
+    $images = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname(__FILE__)) .'/img/';
+
+    if ($user->hasGroup('Access Managers'))
+      $icons[] = array(
+        'img' => $images .'dashboard-task-logs.gif',
+        'href' => '/admin/logs/',
+        'title' => t('Журнал событий'),
+        'description' => t('Кто, что, когда и с чем делал.'),
+        );
+
+    return $icons;
   }
 };

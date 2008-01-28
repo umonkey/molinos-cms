@@ -3,7 +3,7 @@
 
 require_once(dirname(__FILE__) .'/widget-admin-list-table.inc');
 
-class ListAdminWidget extends ListWidget
+class ListAdminWidget extends ListWidget implements iDashboard
 {
   public function __construct(Node $node)
   {
@@ -471,5 +471,71 @@ class ListAdminWidget extends ListWidget
     }
 
     return $text;
+  }
+
+  public static function getDashboardIcons()
+  {
+    $icons = array();
+    $user = AuthCore::getInstance()->getUser();
+
+    $images = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname(__FILE__)) .'/img/';
+
+    if ($user->hasGroup('Structure Managers'))
+      $icons[] = array(
+        'img' => $images .'dashboard-task-taxonomy.gif',
+        'href' => '/admin/taxonomy/',
+        'title' => t('Карта сайта'),
+        'description' => t('Управление разделами сайта.'),
+        );
+
+    if ($user->hasGroup('Schema Managers'))
+      $icons[] = array(
+        'img' => $images .'dashboard-task-schema.gif',
+        'href' => '/admin/schema/',
+        'title' => t('Типы документов'),
+        );
+
+    if ($user->hasGroup('Content Managers'))
+      $icons[] = array(
+        'img' => $images .'dashboard-task-content.gif',
+        'href' => '/admin/content/',
+        'title' => t('Наполнение'),
+        'description' => t('Поиск, редактирование, добавление документов.'),
+        );
+
+    if ($user->hasGroup('Developers'))
+      $icons[] = array(
+        'img' => $images .'dashboard-task-builder.gif',
+        'href' => '/admin/builder/',
+        'title' => t('Конструктор'),
+        'description' => t('Управление доменами, страницами и виджетами.'),
+        );
+
+    if ($user->hasGroup('User Managers'))
+      $icons[] = array(
+        'img' => $images .'dashboard-task-users.gif',
+        'href' => '/admin/users/',
+        'title' => t('Пользователи'),
+        'description' => t('Управление профилями пользователей и группами.'),
+        );
+
+    if ($user->hasGroup('Content Managers'))
+      $icons[] = array(
+        'img' => $images .'dashboard-task-files.gif',
+        'href' => '/admin/files/',
+        'title' => t('Файлы'),
+        'description' => t('Просмотр, редактирование и добавление файлов.'),
+        );
+
+    if ($user->hasGroup('Content Managers'))
+      $icons[] = array(
+        'img' => $images .'dashboard-task-trash.gif',
+        'href' => '/admin/trash/',
+        'title' => t('Корзина'),
+        'description' => t('Просмотр и восстановление удалённых файлов.'),
+        'weight' => 10,
+        );
+
+    return $icons;
   }
 };

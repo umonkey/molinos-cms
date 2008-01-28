@@ -1,5 +1,5 @@
 group = admin
-classes = BebopDashboard
+classes = BebopDashboard, iDashboard
 interface[iWidget] = BebopDashboard
 interface[iAdminWidget] = BebopDashboard
 name[en] = Dashboard

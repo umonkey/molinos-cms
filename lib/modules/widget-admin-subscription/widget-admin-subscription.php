@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
+class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler, iDashboard
 {
   public function __construct(Node $node)
   {
@@ -281,5 +281,23 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
 
     if ($flush)
       BebopCache::getInstance()->flush();
+  }
+
+  public static function getDashboardIcons()
+  {
+    $icons = array();
+    $user = AuthCore::getInstance()->getUser();
+
+    $images = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname(__FILE__)) .'/img/';
+
+    if ($user->hasGroup('Subscription Managers'))
+      $icons[] = array(
+        'img' => $images .'dashboard-task-subscription.gif',
+        'href' => '/admin/subscription/',
+        'title' => t('Рассылка'),
+        'description' => t('Управление подпиской на новости.'),
+        );
+
+    return $icons;
   }
 };

@@ -1,6 +1,12 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
+interface iDashboard
+{
+  // Возвращает массив элементов с ключами: img, href, title.
+  public static function getDashboardIcons();
+};
+
 class BebopDashboard extends Widget implements iAdminWidget
 {
   public function __construct(Node $node)
@@ -30,65 +36,27 @@ class BebopDashboard extends Widget implements iAdminWidget
   {
     $result = array();
 
-    $user = AuthCore::getInstance()->getUser();
-
-    if ($user->getName() == 'anonymous')
-      throw new UnauthorizedException();
-
-    $tree = Tagger::getInstance()->getObjectTree(key(Node::find(array('class' => 'domain', 'name' => array('DOMAIN', 'www.DOMAIN')))), 0);
-
-    $perms = array(
-      'taxonomy' => 'Structure Managers',
-      'schema' => 'Schema Managers',
-      'builder' => 'Developers',
-      'users' => 'User Managers',
-      'subscription' => 'Subscription Managers',
-      'logs' => 'Access Managers',
-      );
-
-    foreach ($tree['children'] as $path) {
-      if ($path['name'] == 'admin') {
-        foreach ($path['children'] as $url) {
-          if (!empty($url['hidden']))
-            continue;
-
-          $pass = true;
-
-          if (array_key_exists($url['name'], $perms)) {
-            $pass = false;
-            $list = (array)$perms[$url['name']];
-
-            foreach ($list as $k => $v)
-              if ($this->user->hasGroup($v)) {
-                $pass = true;
-                break;
-              }
-          }
-
-          if ($pass) {
-            $result['list'][] = array(
-              'name' => $url['title'],
-              'class' => $url['name'],
-              'link' => "/admin/{$url['name']}/",
-              'description' => $url['description'],
-              );
-          }
+    foreach (bebop_get_interface_map('iDashboard') as $class) {
+      if (is_array($items = call_user_func(array($class, 'getDashboardIcons')))) {
+        foreach ($items as $v) {
+          if (empty($v['weight']))
+            $v['weight'] = 0;
+          $result['list'][] = $v;
         }
       }
     }
 
-    if (empty($result['list']))
-      throw new UnauthorizedException();
-
-    if (preg_match('/^((.*)\.([0-9]+))$/', BEBOP_VERSION, $m)) {
-      $result['version_major'] = $m[2];
-      $result['version_minor'] = $m[3];
-    } else {
-      $result['version_major'] = '?';
-      $result['version_minor'] = '?';
-    }
-
+    if (!empty($result['list']))
+      usort($result['list'], array('BebopDashboard', 'usort'));
 
     return $result;
+  }
+
+  private function usort(array $a, array $b)
+  {
+    if (0 !== ($tmp = $a['weight'] - $b['weight']))
+      return $tmp;
+
+    return strcmp($a['title'], $b['title']);
   }
 };

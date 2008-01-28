@@ -1,4 +1,5 @@
 <?php
+// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
 
 class TagNode extends Node implements iContentType
 {
@@ -68,5 +69,3 @@ class TagNode extends Node implements iContentType
     return $data;
   }
 };
-
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
