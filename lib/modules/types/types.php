@@ -585,7 +585,7 @@ class SetControl extends Control
         'name' => isset($this->value) ? $this->value .'[]' : null,
         'checked' => !empty($data[$this->value]) and in_array($k, $data[$this->value]),
         ));
-      $content .= mcms::html('label', array('class' => 'normal'), $inner . $v);
+      $content .= mcms::html('label', array('class' => 'normal checkbox'), $inner . $v);
     }
 
     return $this->wrapHTML($content);
