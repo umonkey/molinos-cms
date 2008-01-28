@@ -667,7 +667,7 @@ class SetControl extends Control
         'name' => isset($this->value) ? $this->value .'[]' : null,
         'checked' => !empty($data[$this->value]) and in_array($k, $data[$this->value]),
         ));
-      $content .= parent::makeHTML('label', array(), $inner . $v);
+      $content .= parent::makeHTML('label', array('class' => 'normal checkbox'), $inner . $v);
     }
 
     return $this->wrapHTML($content);
