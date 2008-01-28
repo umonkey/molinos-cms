@@ -164,7 +164,7 @@ class Tagger
         return null;
 
       foreach ($schema['fields'] as $field => $finfo)
-        if (!empty($finfo['indexed']))
+        if (!empty($finfo['indexed']) and !self::isReservedName($field))
           $fields[] = $field;
 
       return empty($fields) ? null : $fields;
@@ -728,6 +728,9 @@ class Tagger
           if (empty($info['indexed']) and empty($info['unique']))
             continue;
 
+          if (self::isReservedName($field))
+            continue;
+
           if (!class_exists($info['type']))
             continue;
 
@@ -795,7 +798,7 @@ class Tagger
         return false;
 
       foreach ($nids as $nid) {
-        $node = Node::load($nid);
+        $node = Node::load(array('id' => $nid, 'deleted' => array(0, 1)));
 
         if (empty($node->rid))
           throw new InvalidArgumentException("Node {$nid} was loaded without a revision id, SQL: {$sql}, nodes: ". join(', ', $nids));
