@@ -49,8 +49,8 @@ class CartControl extends Control
         'value' => $row['qty'],
         )) ."</td>";
 
-      $output .= "<td class='price'>{$row['price']}</td>";
-      $output .= "<td class='sum'>{$row['sum']}</td>";
+      $output .= "<td class='price'>". number_format($row['price'], 2) ."</td>";
+      $output .= "<td class='sum'>". number_format($row['sum'], 2) ."</td>";
 
       $output .= "</tr>";
 
