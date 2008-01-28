@@ -6,7 +6,6 @@
     <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/bebop.css" />
 
     <script src="<?=$prefix?>/../all/jquery/jquery.js" type="text/javascript" language="javascript"></script>
-    <script src="<?=$prefix?>/js/site.js" type="text/javascript" language="javascript"></script>
     <script src="<?=$prefix?>/js/bebop.js" type="text/javascript" language="javascript"></script>
 
     <base href="<?=$page['base']?>" />

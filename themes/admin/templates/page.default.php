@@ -13,7 +13,6 @@ $user = AuthCore::getInstance()->getUser();
     <script src="<?=$prefix?>/../all/jquery/jquery.js" type="text/javascript" language="javascript"></script>
     <script src="<?=$prefix?>/../all/jquery/plugins/jquery.formtabber.js" type="text/javascript" language="javascript"></script>
     <script src="<?=$prefix?>/../all/jquery/plugins/jquery.autogrow.js" type="text/javascript" language="javascript"></script>
-    <script src="<?=$prefix?>/js/site.js" type="text/javascript" language="javascript"></script>
     <script src="<?=$prefix?>/js/bebop.js" type="text/javascript" language="javascript"></script>
 
     <script language="javascript" type="text/javascript" src="<?=$prefix?>/tiny_mce/tiny_mce_gzip.php"></script>
