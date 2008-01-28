@@ -165,6 +165,11 @@ class StaticAttachment
   {
     $headers = array();
 
+    // Ещё раз загрузим файл для проверки прав.
+    $node = Node::load(array('class' => 'file', 'id' => $this->node['id']));
+    if (!$node->checkPermission('r'))
+      $this->sendError(40, 'access denied');
+
     // Описание фрагмента при докачке.
     $range_from = 0;
     $range_to = $this->node['filesize'];
