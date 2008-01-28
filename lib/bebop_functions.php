@@ -611,6 +611,7 @@ class mcms
   public static function mediaGetPlayer(array $files, $types = null, array $custom_options = array())
   {
     $nodes = array();
+    $havetypes = 0;
 
     if (null === $types)
       $types = self::MEDIA_AUDIO | self::MEDIA_VIDEO;
@@ -618,12 +619,17 @@ class mcms
     foreach ($files as $k => $v) {
       switch ($v['filetype']) {
       case 'audio/mpeg':
-        if ($types & self::MEDIA_AUDIO)
+        if ($types & self::MEDIA_AUDIO) {
           $nodes[] = $v['id'];
+          $havetypes |= self::MEDIA_AUDIO;
+        }
         break;
+      case 'video/flv':
       case 'video/x-flv':
-        if ($types & self::MEDIA_VIDEO)
+        if ($types & self::MEDIA_VIDEO) {
           $nodes[] = $v['id'];
+          $havetypes |= self::MEDIA_VIDEO;
+        }
         break;
       }
     }
@@ -644,6 +650,16 @@ class mcms
       'showdownload' => 'false',
       'displayheight' => 0,
       ), $custom_options);
+
+    if ($havetypes & self::MEDIA_VIDEO) {
+      $dheight = ($options['width'] / 4) * 3;
+      $options['displayheight'] = $dheight;
+
+      if (count($nodes) < 2)
+        $options['height'] = 0;
+
+      $options['height'] += $dheight;
+    }
 
     $args = array();
 
