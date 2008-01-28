@@ -20,9 +20,7 @@ if(winIE) { onresize = bodySize; }
 
 $(document).ready(function () {
   var win = window.opener ? window.opener : window.dialogArguments, c;
-  if (win) {
-    tinyMCE = win.tinyMCE;
-  }
+  if (win) { tinyMCE = win.tinyMCE; }
 
 	$("input:checked").parent().parent().addClass("current");
 
@@ -55,6 +53,9 @@ $(document).ready(function () {
   bebop_fix_files();
 
   $('.returnHref a').click(function () {
+    var win = window.opener ? window.opener : window.dialogArguments, c;
+    if (win) { tinyMCE = win.tinyMCE; }
+
     if (tinyMCE) {
       var tmp_win = tinyMCE.getWindowArg('window');
       if (tmp_win) {
@@ -139,10 +140,12 @@ function bebop_fix_files()
     var f = $('#center :file').eq(i);
     var id = f.attr('id').replace('-input', '');
 
-    var html = "<a id='"+ id +"-del-link' href='javascript:mcms_file_delete(\""+ id +"\");'>удалить</a> "
-      +"<a href='javascript:mcms_file_pick(\""+ id +"\");'>подобрать</a>";
+    var html = ""
+      +"<label style='display:inline'><input type='checkbox' value='1' id='"+id+"-delete' name='"+$('#'+id+'-input').attr('name')+"[delete]' /> удалить</label>"
+      +" или <a href='javascript:mcms_file_pick(\""+ id +"\");'>подобрать</a>"
+      ;
 
-    f.after('<p>'+ html +'</p>');
+    f.after("<p class='attctl'>"+ html +'</p>');
 
     var current = $('#center :hidden#'+ id +'-hidden').attr('value');
     if (current)
@@ -162,16 +165,6 @@ function bebop_fix_domain_defaultsection()
   default:
     $('form.node-domain-edit-form #control-node-defaultsection-wrapper').addClass('hidden');
   }
-}
-
-function mcms_file_delete(id)
-{
-  var hval = '';
-
-  if ($('#center #'+ id +'-del-link').toggleClass('bold').hasClass('bold'))
-    hval = 'deleted';
-
-  $('#center #'+ id +'-hidden').attr('value', hval);
 }
 
 function mcms_file_pick(id)
@@ -199,7 +192,7 @@ function mcms_picker_return(href)
     window.opener.jQuery('#'+ mcms_picker_id +'-hidden').attr('value', fileid);
 
     // Сбрасываем отметку об удалении.
-    window.opener.jQuery('#center #'+ mcms_picker_id +'-del-link').removeClass('bold');
+    window.opener.jQuery('#center #'+ mcms_picker_id +'-delete').attr('checked', '');
   }
 
   window.close();

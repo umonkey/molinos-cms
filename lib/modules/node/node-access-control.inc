@@ -67,7 +67,7 @@ class FileListControl extends Control
       )) ."</th></tr>";
 
     foreach ($data as $k => $v) {
-      if ($this->value == substr($k, 0, strlen($this->value))) {
+      if ($this->value == substr($k, 0, strlen($this->value)) and is_numeric(substr($k, strlen($this->value) + 1, -1))) {
         $row = '<td>'. mcms::html('a', array(
           'href' => '/attachment/'. $v['id'],
           ), mcms::html('img', array(

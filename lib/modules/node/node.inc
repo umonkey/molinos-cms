@@ -1173,10 +1173,7 @@ class NodeBase implements iFormObject
 
     if (!empty($this->files)) {
       foreach ($this->files as $key => $file) {
-        if (empty($file['__key']))
-          $data['node_content_files['. $key .']'] = $file;
-        else
-          bebop_debug($key, $file);
+        $data['node_content_files['. $key .']'] = $file;
       }
     }
 
@@ -1212,16 +1209,30 @@ class NodeBase implements iFormObject
         if (!is_array($fileinfo))
           continue;
 
-        // Загрузка нового файла.
-        if ($field == '__bebop') {
-          if (!empty($fileinfo['tmp_name'])) {
-            $fileinfo['parent_id'] = $this->id;
+        $fkey = (!is_numeric($field) and $field != '__bebop') ? $field : null;
 
-            $node = Node::create('file');
-            $node->import($fileinfo);
-          }
+        // Удаление (отвязка) прикреплённого файла.
+        if (!empty($fileinfo['delete'])) {
+          $this->linkRemoveChild(empty($fileinfo['id']) ? null : $fileinfo['id'], $field);
         }
-        
+
+        // Загрузка нового файла.
+        elseif (!empty($fileinfo['tmp_name'])) {
+          $fileinfo['parent_id'] = $this->id;
+
+          $node = Node::create('file');
+          $node->import($fileinfo);
+
+          $this->linkAddChild($node->id, $fkey);
+        }
+
+        // Подключение файла.
+        elseif (!empty($fileinfo['id'])) {
+          $this->linkAddChild($fileinfo['id'], $fkey);
+        }
+
+        // Обновление других свойств — поддерживается только для файлов в дополнительной вкладке,
+        // у которых числовые индексы; для полей типа «файл» эта возможность отсутствует.
         elseif (is_numeric($field)) {
           $file = Node::load(array('class' => 'file', 'id' => $field));
 
@@ -1238,24 +1249,6 @@ class NodeBase implements iFormObject
               $file->import($fileinfo);
 
             $file->save();
-          }
-        }
-
-        // Файлы, прикреплённые к полям.
-        else {
-          if (!empty($fileinfo['replacement'])) {
-            if ($fileinfo['replacement'] == 'delete')
-              $this->linkRemoveChild(null, $field);
-            elseif (is_numeric($fileinfo['replacement']))
-              $this->linkAddChild($fileinfo['replacement'], $field);
-          }
-
-          elseif (empty($fileinfo['error'])) {
-            $node = Node::create('file');
-            $node->import($fileinfo);
-            $node->save();
-
-            $this->linkAddChild($node->id, $field);
           }
         }
       }

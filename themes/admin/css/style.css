@@ -463,23 +463,6 @@ form textarea.resizable {
   list-style: none;
   margin-bottom: 11px;
 }
-
-.jqmw {text-align: left;}
-
-.jqmw h2 {margin-bottom: 10px;}
-
-.jqmw ul {margin-left: 15px;}
-
-.jqmw ul li {
-  list-style: none;
-  font-size: 117%;
-}
-
-.jqmw a {
-  float: none !important;
-  margin-left: 0 !important;
-  padding: 0 !important;
-}
 /*center - end*/
 
 /*footer - begin*/
@@ -547,4 +530,8 @@ form textarea.resizable {
 
 a.bold {
   font-weight: bold;
+}
+
+.control-AttachmentControl-wrapper .attctl {
+  margin: 4px 0;
 }
