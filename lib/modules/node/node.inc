@@ -336,7 +336,7 @@ class NodeBase implements iFormObject
   public function erase()
   {
     if (!$this->deleted)
-      throw new ForbiddenException(t('Невозможно удалить с концами объект, который не был помещён в корзину.'));
+      throw new ForbiddenException(t('Невозможно окончательно удалить объект, который не был помещён в корзину.'));
 
     if (!$this->checkPermission('d'))
       throw new ForbiddenException(t('У вас нет прав на удаление этого объекта.'));

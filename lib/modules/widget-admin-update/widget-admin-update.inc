@@ -1434,7 +1434,7 @@ class UpdateManager implements iScheduler
             ),
           'operations' => array(
             'undelete' => t('Восстановить'),
-            'erase' => t('Удалить с концами'),
+            'erase' => t('Удалить окончательно'),
             ),
           'selectors' => array(
             'all' => t('все'),
@@ -1814,6 +1814,13 @@ class UpdateManager implements iScheduler
                 'access' => array('Developers'),
                 'widgets' => array('BebopDashboard', 'profile', 'BebopWidgetList'),
                 ),
+              'modules' => array(
+                'title' => 'Модули',
+                'theme' => 'admin',
+                'language' => 'ru',
+                'access' => array('Developers'),
+                'widgets' => array('BebopDashboard', 'profile', 'BebopModules'),
+                ),
               ),
             ),
           'users' => array(
@@ -1899,13 +1906,6 @@ class UpdateManager implements iScheduler
             'language' => 'ru',
             'access' => array('Content Managers'),
             'widgets' => array('BebopDashboard', 'profile', 'BebopRecycleBin'),
-            ),
-          'modules' => array(
-            'title' => 'Модули',
-            'theme' => 'admin',
-            'language' => 'ru',
-            'access' => array('Developers'),
-            'widgets' => array('BebopDashboard', 'profile', 'BebopModules'),
             ),
           ),
         ),

@@ -1,6 +1,5 @@
 group = core
 classes = ModuleAdminWidget
 interface[iWidget] = ModuleAdminWidget
-interface[iDashboard] = ModuleAdminWidget
 name[en] = Module Administration
 name[ru] = Упревление модулями

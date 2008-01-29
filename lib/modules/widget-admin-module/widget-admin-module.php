@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class ModuleAdminWidget extends Widget implements iDashboard
+class ModuleAdminWidget extends Widget
 {
   public function __construct(Node $node)
   {
@@ -36,24 +36,6 @@ class ModuleAdminWidget extends Widget implements iDashboard
     // $data['xyz'] = 123;
   }
 
-  public static function getDashboardIcons()
-  {
-    $icons = array();
-    $user = AuthCore::getInstance()->getUser();
-
-    $images = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname(__FILE__)) .'/img/';
-
-    if ($user->hasGroup('Developers'))
-      $icons[] = array(
-        'img' => $images .'dashboard-task-modules.gif',
-        'href' => '/admin/modules/',
-        'title' => t('Модули'),
-        'description' => t('Включение, выключение и настройка модулей.'),
-        );
-
-    return $icons;
-  }
-
   // Препроцессор параметров.
   public function getRequestOptions(RequestContext $ctx)
   {
@@ -76,7 +58,10 @@ class ModuleAdminWidget extends Widget implements iDashboard
       $form = new Form(array(
         'title' => t('Настройка модулей'),
         'class' => 'tabbed',
-        'intro' => t('Будьте осторожны, отключая активные модули на работающем сайте: это может нарушить его работоспособность.  Дополнительную информацию о модулях можно найти в документаци (по ссылке с имени модуля).'),
+        'intro' => t('Будьте осторожны, отключая активные модули на работающем сайте: это может нарушить его работоспособность.  Дополнительную информацию о конкретном <a href=\'@modurl\'>модуле</a> можно найти в документаци (по ссылке с имени модуля), или в <a href=\'@listurl\'>общем списке модулей</a>.', array(
+          '@modurl' => 'http://code.google.com/p/molinos-cms/wiki/Modules',
+          '@listurl' => 'http://code.google.com/p/molinos-cms/w/list?q=label:Module',
+          )),
         ));
 
       foreach ($this->getModuleGroups() as $group) {
