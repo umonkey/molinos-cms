@@ -28,7 +28,7 @@ interface iContentType
 {
 };
 
-class Node extends NodeBase implements iContentType
+class Node extends NodeBase implements iContentType, iModuleConfig
 {
   // Создаём пустой объект указанного типа, проверяем тип на валидность.
   protected function __construct(array $data = null)
@@ -123,6 +123,20 @@ class Node extends NodeBase implements iContentType
     }
 
     return $data;
+  }
+
+  public static function formGetModuleConfig()
+  {
+    $form = new Form(array());
+
+    $form->addControl(new NumberControl(array(
+      'value' => 'config_archive_limit',
+      'label' => t('Количество архивных ревизий'),
+      'default' => 10,
+      'description' => t('При сохранении документов будет оставлено указанное количество архивных ревизий, все остальные будут удалены.'),
+      )));
+
+    return $form;
   }
 };
 

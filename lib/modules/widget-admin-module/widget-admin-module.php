@@ -91,15 +91,18 @@ class ModuleAdminWidget extends Widget
 
       $rator = $map[$this->options['edit']]['interface']['iModuleConfig'][0];
 
-      $form = call_user_func(array($rator, 'formGetModuleConfig'));
-      $form->intro = t('Подробности об этом модуле можно найти в <a href=\'@url\'>документации</a>.', array('@url' => 'http://code.google.com/p/molinos-cms/wiki/mod_'. str_replace('-', '_', $this->options['edit'])));
-      $form->title = t('Настройка модуля %module', array('%module' => $this->options['edit']));
+      if (null !== ($form = call_user_func(array($rator, 'formGetModuleConfig')))) {
+        $form->intro = t('Подробности об этом модуле можно найти в <a href=\'@url\'>документации</a>.', array('@url' => 'http://code.google.com/p/molinos-cms/wiki/mod_'. str_replace('-', '_', $this->options['edit'])));
+        $form->title = t('Настройка модуля %module', array('%module' => $this->options['edit']));
 
-      $form->addControl(new SubmitControl(array(
-        'text' => t('Применить'),
-        )));
+        $form->addControl(new SubmitControl(array(
+          'text' => t('Применить'),
+          )));
 
-      return $form;
+        return $form;
+      } else {
+        throw new PageNotFoundException();
+      }
     }
 
     return $form;
@@ -132,11 +135,15 @@ class ModuleAdminWidget extends Widget
       break;
 
     case 'module-edit':
-      $node = Node::load(array('class' => 'moduleinfo', 'name' => $this->options['edit']));
+      try {
+        $node = Node::load(array('class' => 'moduleinfo', 'name' => $this->options['edit']));
 
-      if (is_array($tmp = $node->config))
-        foreach ($tmp as $k => $v)
-          $data['config_'. $k] = $v;
+        if (is_array($tmp = $node->config))
+          foreach ($tmp as $k => $v)
+            $data['config_'. $k] = $v;
+      } catch (ObjectNotFoundException $e) {
+        $data = array();
+      }
 
       break;
     }

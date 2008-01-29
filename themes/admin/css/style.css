@@ -372,7 +372,7 @@ form.tabbed .tab-content {
 #center .control .form-text {
   width: 100%;
   margin-bottom: 6px;
-  padding-left: 5px;
+  padding: 4px 6px;
   border: 1px solid #a7a6aa;
 }
 #center .control .form-title {

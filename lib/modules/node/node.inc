@@ -161,6 +161,22 @@ class NodeBase implements iFormObject
 
     if ($isnew)
       $this->sendNotification();
+
+    $this->purgeRevisions();
+  }
+
+  private function purgeRevisions()
+  {
+    if (null !== ($limit = mcms::modconf('node', 'archive_limit'))) {
+      $victim = mcms::db()->getResult("SELECT `rid` FROM `node__rev` WHERE `rid` < :current ORDER BY `rid` DESC LIMIT :offset, 1", array(
+        ':current' => $this->rid,
+        ':offset' => $limit,
+        ));
+      mcms::db()->exec("DELETE FROM `node__rev` WHERE `nid` = :nid AND `rid` <= :rid", array(
+        ':nid' => $this->id,
+        ':rid' => $victim,
+        ));
+    }
   }
 
   private function sendNotification()

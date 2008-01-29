@@ -757,11 +757,11 @@ class NumberControl extends Control
       return $this->getHidden($data);
 
     $output = mcms::html('input', array(
-      'type' => 'text',
+      'type' => 'number',
       'id' => $this->id,
-      'class' => 'form-text',
+      'class' => 'form-text form-number',
       'name' => $this->value,
-      'value' => empty($data[$this->value]) ? null : $data[$this->value],
+      'value' => empty($data[$this->value]) ? $this->default : $data[$this->value],
       ));
 
     return $this->wrapHTML($output);
