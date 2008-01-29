@@ -137,6 +137,23 @@ class ListWidget extends Widget
     if (is_array($tmp = $ctx->get('sort')))
       $options['sort'] = $tmp;
 
+    elseif (!empty($this->sort) and is_string($this->sort)) {
+      foreach (explode(' ', $this->sort) as $key) {
+        $key = trim($key);
+
+        if (!empty($key)) {
+          $dir = 'asc';
+
+          if (substr($key, 0, 1) == '-') {
+            $dir = 'desc';
+            $key = substr($key, 1);
+          }
+
+          $options['sort'][$key] = $dir;
+        }
+      }
+    }
+
     elseif (!empty($this->sort['fields']) and is_array($this->sort['fields'])) {
       foreach ($this->sort['fields'] as $field) {
         $reverse = empty($this->sort['reverse']) ? array() : $this->sort['reverse'];
