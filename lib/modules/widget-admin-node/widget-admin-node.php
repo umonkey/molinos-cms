@@ -165,9 +165,9 @@ class NodeAdminWidget extends Widget implements iAdminWidget
   {
     $mode = $options['purge'] == 'drafts' ? '>' : '<';
 
-    PDO_Singleton::getInstance()->exec("DELETE FROM `node__rev` WHERE `nid` = :nid AND `rid` {$mode} (SELECT `rid` FROM `node` WHERE `id` = :id)",
+    mcms::db()->exec("DELETE FROM `node__rev` WHERE `nid` = :nid AND `rid` {$mode} (SELECT `rid` FROM `node` WHERE `id` = :id)",
       array(':nid' => $options['id'], ':id' => $options['id']));
-    BebopCache::getInstance()->flush();
+    mcms::flush();
 
     bebop_redirect($_GET['destination']);
   }
@@ -243,7 +243,7 @@ class NodeAdminWidget extends Widget implements iAdminWidget
 
       $next = $node->formProcess($data);
 
-      BebopCache::getInstance()->flush();
+      mcms::flush();
       break;
 
     default:

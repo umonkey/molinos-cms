@@ -149,7 +149,7 @@ class UpdateAdminWidget extends Widget
         $um = new UpdateManager();
         $um->runUpdates($data['options']);
 
-        BebopCache::getInstance()->flush();
+        mcms::flush();
       }
     }
 

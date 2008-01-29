@@ -38,7 +38,7 @@ class PollWidget extends Widget implements iContentType
   public static function modifyEditForm(array &$form, array $data)
   {
     if (!empty($data['id']))
-      $answers = PDO_Singleton::getInstance()->getResultsKV("nid", "count", "SELECT `nid`, COUNT(*) AS `count` FROM `node__poll` WHERE `nid` = :nid GROUP BY `nid`", array(':nid' => $data['id']));
+      $answers = mcms::db()->getResultsKV("nid", "count", "SELECT `nid`, COUNT(*) AS `count` FROM `node__poll` WHERE `nid` = :nid GROUP BY `nid`", array(':nid' => $data['id']));
 
     for ($i = 0; $i < 10; $i++) {
       $item = array(
@@ -103,7 +103,7 @@ class PollWidget extends Widget implements iContentType
         }
 
         // Возвращаем результат.
-        $answers = PDO_Singleton::getInstance()->getResultsKV("option", "count", "SELECT `option`, COUNT(*) AS `count` FROM `node__poll` WHERE `nid` = :nid GROUP BY `nid`", array(':nid' => $nid));
+        $answers = mcms::db()->getResultsKV("option", "count", "SELECT `option`, COUNT(*) AS `count` FROM `node__poll` WHERE `nid` = :nid GROUP BY `nid`", array(':nid' => $nid));
         foreach ($node['answers'] as $k => $v) {
           if (!empty($v))
             $result['status'][$k] = array('name' => $v, 'votes' => intval(@$answers[$k]));
@@ -132,7 +132,7 @@ class PollWidget extends Widget implements iContentType
       if (!empty($node['closed']))
         throw new UserErrorException("Опрос закрыт", 403, "Опрос закрыт", "Опрос &laquo;{$node['name']}&raquo; закрыт администратором, голос не может быть принят.");
 
-      $sth = PDO_Singleton::getInstance()->prepare("INSERT INTO `node__poll` (`nid`, `option`) VALUES (:nid, :answer)");
+      $sth = mcms::db()->prepare("INSERT INTO `node__poll` (`nid`, `option`) VALUES (:nid, :answer)");
       $sth->execute(array(':nid' => $nid, ':answer' => $post['answer']));
 
       $_SESSION['poll'][$nid] = true;

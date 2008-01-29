@@ -46,7 +46,7 @@ class ContentFilterWidget extends Widget implements iAdminWidget
 
       $users = array();
 
-      foreach (Node::find(array('#sort' => array('name' => 'asc'), 'class' => 'user', 'id' => $ids = PDO_Singleton::getInstance()->getResultsV("uid", "SELECT DISTINCT `uid` FROM `node` WHERE `uid` IS NOT NULL AND `uid` <> 0 AND `deleted` = 0"))) as $user)
+      foreach (Node::find(array('#sort' => array('name' => 'asc'), 'class' => 'user', 'id' => $ids = mcms::db()->getResultsV("uid", "SELECT DISTINCT `uid` FROM `node` WHERE `uid` IS NOT NULL AND `uid` <> 0 AND `deleted` = 0"))) as $user)
         $users[$user->id] = trim($user->name);
 
       foreach (Node::find(array('class' => 'type', 'type.hidden' => 0, 'type.internal' => 0, '#sort' => array('type.title' => 'ASC'))) as $type)

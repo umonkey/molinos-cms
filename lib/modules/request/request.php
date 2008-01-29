@@ -63,7 +63,7 @@ class NotInstalledException extends UserErrorException
   public function __construct($message = null)
   {
     if ($message === null) {
-      $message = count(PDO_Singleton::getInstance()->getResults("SHOW TABLES LIKE 'node%'"))
+      $message = count(mcms::db()->getResults("SHOW TABLES LIKE 'node%'"))
         ? "Отсутствует как минимум одна жизненно важная таблица.&nbsp; Это больше всего похоже на то, что &laquo;Molinos.CMS&raquo; не была установлена.&nbsp; Если этот сайт ранее был работоспособен, обратитесь к его администратору за консультацией (возможно, произошло повреждение базы данных или обновления были применены некорректно).&nbsp; Возможно также, что этот сайт был только что проинсталлирован."
         : "Таблицы, используемые &laquo;Molinos.CMS&raquo;, в базе данных отсутствуют.&nbsp; Скорее всего, архив с кодом CMS был развёрнут в каталоге сайта, но инсталляционный скрипт запущен не был.&nbsp; Обратитесь к администратору сайта за объяснением, или, если попробуйте <a href='/install.php?destination=". urlencode($_SERVER['REQUEST_URI']) ."'>запустить инсталляционный скрипт</a> через веб-интерфейс.";
     }
@@ -126,15 +126,15 @@ class RequestContext
     // Нормализуем идентификаторы.
 
     if (null !== $this->document and !is_numeric($this->document))
-      if (null === ($this->document = PDO_Singleton::getInstance()->getResult("SELECT `id` FROM `node` WHERE `code` = :code", array(':code' => $this->document))))
+      if (null === ($this->document = mcms::db()->getResult("SELECT `id` FROM `node` WHERE `code` = :code", array(':code' => $this->document))))
           throw new PageNotFoundException();
 
     if (null !== $this->section and !is_numeric($this->section))
-      if (null === ($this->section = PDO_Singleton::getInstance()->getResult("SELECT `id` FROM `node` WHERE `code` = :code", array(':code' => $this->section))))
+      if (null === ($this->section = mcms::db()->getResult("SELECT `id` FROM `node` WHERE `code` = :code", array(':code' => $this->section))))
         throw new PageNotFoundException();
 
     // Запишем информацию о запросе.
-    if (BebopConfig::getInstance()->log_requests) {
+    if (mcms::config('log_requests')) {
       try {
         if (null !== $this->document)
           self::logNodeAccess($this->document);
@@ -155,7 +155,7 @@ class RequestContext
       'referer' => empty($_SERVER['HTTP_REFERER']) ? null : $_SERVER['HTTP_REFERER'],
       );
 
-    PDO_Singleton::getInstance()->exec("INSERT INTO `node__astat` (`timestamp`, `nid`, `ip`, `referer`) "
+    mcms::db()->exec("INSERT INTO `node__astat` (`timestamp`, `nid`, `ip`, `referer`) "
       ."VALUES (UTC_TIMESTAMP(), :nid, :ip, :referer)", $params);
   }
 
@@ -290,7 +290,7 @@ class RequestController
       ini_set('session.cookie_lifetime', $session_lifetime);
       ini_set('session.gc_maxlifetime', $session_lifetime);
       ini_set('session.cache_expire', $session_lifetime);
-      ini_set('session.cookie_domain', BebopConfig::getInstance()->basedomain);
+      ini_set('session.cookie_domain', mcms::config('basedomain'));
 
       bebop_session_start();
 
@@ -360,7 +360,7 @@ class RequestController
     }
 
     // Сбрасываем кэш, если были запросы.
-    BebopCache::getInstance()->flush(true);
+    mcms::flush(mcms::FLUSH_NOW);
 
     PDO_Singleton::disconnect();
   }
@@ -376,15 +376,14 @@ class RequestController
     // Очистка кэша.
     if (!empty($_GET['flush'])) {
       if (bebop_is_debugger()) {
-        BebopCache::getInstance();
         DBCache::getInstance()->flush(true);
       }
 
       exit(bebop_redirect(bebop_combine_url(bebop_split_url(), false), 301, false));
     }
 
-    if (BebopConfig::getInstance()->path_aliases) {
-      if (null !== ($next = PDO_Singleton::getInstance()->getResult("SELECT `dst` FROM `node__path` WHERE `src` = :src", array(':src' => $_SERVER['REQUEST_URI']))))
+    if (mcms::config('path_aliases')) {
+      if (null !== ($next = mcms::db()->getResult("SELECT `dst` FROM `node__path` WHERE `src` = :src", array(':src' => $_SERVER['REQUEST_URI']))))
         bebop_redirect($next, 301);
     }
 
@@ -462,10 +461,10 @@ class RequestController
     else {
       $key = "page:{$this->page->id}:widgets";
 
-      $widgets = BebopCache::getInstance()->$key;
+      $widgets = mcms::cache($key);
       if ($widgets === false or (bebop_is_debugger() and !empty($_GET['flush']))) {
         $widgets = Node::find(array('class' => 'widget', 'id' => $this->page->linkListChildren('widget', true)));
-        BebopCache::getInstance()->$key = $widgets;
+        mcms::cache($key, $widgets);
       }
     }
 
@@ -624,7 +623,7 @@ class RequestController
 
   private function runGet()
   {
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     // Сюда складываем время выполнения виджетов.
     $profile = array('__total' => microtime(true));
@@ -737,11 +736,11 @@ class RequestController
       print "<tr style='background-color: #ddd'><td>smarty</td><td style='text-align: left'>{$data['__smarty']}</td><td>&nbsp;</td></tr>";
       print "<tr style='background-color: #ddd'><td>page total</td><td style='text-align: left'>{$data['__total']}</td><td>&nbsp;</td></tr>";
       print "<tr style='background-color: #ddd'><td>request total</td><td style='text-align: left'>{$data['__request']}</td><td>&nbsp;</td></tr>";
-      print "<tr style='background-color: #ddd'><td>SQL queries</td><td style='text-align: left'>". PDO_Singleton::getInstance()->getLogSize() ."</td><td>&nbsp;</td></tr>";
+      print "<tr style='background-color: #ddd'><td>SQL queries</td><td style='text-align: left'>". mcms::db()->getLogSize() ."</td><td>&nbsp;</td></tr>";
       print "</table>";
     }
 
-    $log = PDO_Singleton::getInstance()->getLog();
+    $log = mcms::db()->getLog();
     if (!empty($log)) {
       print "<h1>SQL Query Log</h1><ol>";
       foreach ($log as $query)
@@ -767,7 +766,7 @@ class RequestController
     else
       $form_handler = null;
 
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     foreach ($this->widgets as $name => $info) {
       $pdo->log("--- {$name}.onGet() ---");
@@ -920,7 +919,7 @@ class RequestController
         }
 
         // Разгребаем данные, найденные в кэше.
-        foreach (PDO_Singleton::getInstance()->getResultsKV("cid", "data", "SELECT `cid`, `data` FROM `node__cache` WHERE `lang` = :lang AND `cid` IN ('". join("', '", $keys) ."') -- RequestController::getCachedWidgets()", array(':lang' => $this->page->language)) as $cid => $data) {
+        foreach (mcms::db()->getResultsKV("cid", "data", "SELECT `cid`, `data` FROM `node__cache` WHERE `lang` = :lang AND `cid` IN ('". join("', '", $keys) ."') -- RequestController::getCachedWidgets()", array(':lang' => $this->page->language)) as $cid => $data) {
           $data = unserialize($data);
 
           foreach ($this->widgets as $name => $info) {
@@ -953,7 +952,7 @@ class RequestController
 
   private function renderError(Exception $e)
   {
-    if (bebop_is_debugger() and BebopConfig::getInstance()->pass_exceptions and $e->getCode() != 401 and $e->getCode() != 403)
+    if (bebop_is_debugger() and mcms::config('pass_exceptions') and $e->getCode() != 401 and $e->getCode() != 403)
       return false;
 
     if (null !== $this->page)
@@ -1020,15 +1019,13 @@ class RequestController
         $errors[] = $k;
     }
 
-    $config = BebopConfig::getInstance();
-
     if (ini_get($k = 'session.gc_maxlifetime') < 7 * 24 * 60 * 60)
       ini_set($k, 30 * 24 * 60 * 60);
 
-    if (!is_writable($config->tmpdir))
-      $messages[] = t('Каталог для временных файлов (<tt>%dir</tt>) закрыт для записи. Очень важно, чтобы в него можно было писать.', array('%dir' => $config->tmpdir));
-    if (!is_writable($config->filestorage))
-      $messages[] = t('Каталог для загружаемых пользователями файлов (<tt>%dir</tt>) закрыт для записи. Очень важно, чтобы в него можно было писать.', array('%dir' => $config->filestorage));
+    if (!is_writable(mcms::config('tmpdir')))
+      $messages[] = t('Каталог для временных файлов (<tt>%dir</tt>) закрыт для записи. Очень важно, чтобы в него можно было писать.', array('%dir' => mcms::config('tmpdir')));
+    if (!is_writable(mcms::config('filestorage')))
+      $messages[] = t('Каталог для загружаемых пользователями файлов (<tt>%dir</tt>) закрыт для записи. Очень важно, чтобы в него можно было писать.', array('%dir' => mcms::config('filestorage')));
 
     if (!empty($errors) or !empty($messages)) {
       $output = "<html><head><title>Setup Error</title></head><body>";

@@ -72,7 +72,7 @@ class User
     if ($name != 'anonymous') {
       $errormsg = t("Ошибка в логине или пароле, попробуйте ещё раз.");
 
-      PDO_Singleton::getInstance()->log("--- user {$name} auth ---");
+      mcms::db()->log("--- user {$name} auth ---");
 
       try {
         $nodes = Node::find(array('class' => 'user', 'login' => $name));
@@ -126,7 +126,7 @@ class User
   {
     try {
       if ($this->groups == null and $this->systemgroups == null) {
-        $rows = PDO_Singleton::getInstance()->getResults(
+        $rows = mcms::db()->getResults(
           "SELECT `n`.`id`, `g`.`login`, `g`.`system` "
           ."FROM `node` `n` "
           ."INNER JOIN `node_group` `g` ON `g`.`rid` = `n`.`rid` "

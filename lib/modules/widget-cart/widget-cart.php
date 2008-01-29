@@ -269,7 +269,7 @@ class CartWidget extends Widget
 
       if (!empty($this->email)) {
         $body = t("<p>Пользователь %login только что оформил заказ следующего содержания:</p>",
-            array('%login' => AuthCore::getInstance()->getUser()->getName()))
+            array('%login' => mcms::user()->getName()))
             . str_replace('<table>', '<table border=\'1\' cellspacing=\'0\' cellpadding=\'2\'>', $report);
 
         $body .= t("<p>Пользователь предоставил следующую дополнительную информацию:</p>");

@@ -312,7 +312,7 @@ class ListWidget extends Widget
 
   private function getNodePerms(array $nodes, $op)
   {
-    return PDO_Singleton::getInstance()->getResultsKV("nid", "nid", "SELECT `nid` FROM `node__access` WHERE `nid` IN ({$op}CHECK) AND `nid` IN (". join(", ", $nodes) .")");
+    return mcms::db()->getResultsKV("nid", "nid", "SELECT `nid` FROM `node__access` WHERE `nid` IN ({$op}CHECK) AND `nid` IN (". join(", ", $nodes) .")");
   }
 
   private function getTagList($root, $recurse)
@@ -323,7 +323,7 @@ class ListWidget extends Widget
     if (!$recurse)
       return array($root);
 
-    $tags = PDO_Singleton::getInstance()->getResultsV("id", "SELECT `n`.`id` FROM `node` `n`, `node` `t` "
+    $tags = mcms::db()->getResultsV("id", "SELECT `n`.`id` FROM `node` `n`, `node` `t` "
       ."WHERE `t`.`id` = :tid AND `n`.`left` >= `t`.`left` AND `n`.`right` <= `t`.`right` "
       ."AND `n`.`deleted` = 0 AND `n`.`published` = 1 "
       ."ORDER BY `n`.`left` -- ListWidget::getTagList()", array(':tid' => $root));
@@ -428,7 +428,7 @@ class ListWidget extends Widget
 
     $field = is_numeric($root) ? 'id' : 'code';
 
-    $tags = PDO_Singleton::getInstance()->getResultsV("id", "SELECT `n`.`id` FROM `node` `n`, `node` `t` "
+    $tags = mcms::db()->getResultsV("id", "SELECT `n`.`id` FROM `node` `n`, `node` `t` "
       ."WHERE `t`.`{$field}` = :root AND `n`.`left` >= `t`.`left` AND `n`.`right` <= `t`.`right` "
       ."AND `n`.`deleted` = 0 AND `n`.`published` = 1 "
       ."ORDER BY `n`.`left` -- ListWidget::getTagList()", array(':root' => $root));

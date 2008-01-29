@@ -8,7 +8,7 @@ class BebopMimeMail implements iModuleConfig
   public static function send($from, $to, $subject, $body, array $attachments = null)
   {
     if (empty($from)) {
-      if (($from = BebopConfig::getInstance()->mail_from) === null)
+      if (($from = mcms::config('mail_from')) === null)
         $from = "Molinos.CMS <no-reply@{$_SERVER['HTTP_HOST']}>";
     }
 
@@ -20,7 +20,7 @@ class BebopMimeMail implements iModuleConfig
 
     $mail = new htmlMimeMail();
 
-    $mail->setSMTPParams(BebopConfig::getInstance()->mail_server);
+    $mail->setSMTPParams(mcms::config('mail_server'));
 
     $mail->setFrom($from);
     $mail->setSubject($subject);

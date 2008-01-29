@@ -22,7 +22,7 @@ class DomainNode extends Node implements iContentType
     static $base = null;
 
     if ($base === null)
-      $base = BebopConfig::getInstance()->basedomain;
+      $base = mcms::config('basedomain');
 
     return $base;
   }
@@ -98,7 +98,7 @@ class DomainNode extends Node implements iContentType
   {
     $result = array();
 
-    $su = AuthCore::getInstance()->getUser()->hasGroup('CMS Developers');
+    $su = mcms::user()->hasGroup('CMS Developers');
     $themes = glob($_SERVER['DOCUMENT_ROOT'] .'/themes/'.'*');
 
     if (!empty($themes)) {
@@ -145,9 +145,9 @@ class DomainNode extends Node implements iContentType
     $data['lang'] = $this->language;
     $data['version'] = $this->getVersionId();
     $data['user'] = array(
-      'uid' => AuthCore::getInstance()->getUser()->getUid(),
-      'name' => AuthCore::getInstance()->getUser()->getName(),
-      'groups' => AuthCore::getInstance()->getUser()->getGroups(),
+      'uid' => mcms::user()->getUid(),
+      'name' => mcms::user()->getName(),
+      'groups' => mcms::user()->getGroups(),
       );
     $data['page'] = $this->getRaw();
 
@@ -196,7 +196,7 @@ class DomainNode extends Node implements iContentType
 
   public static function getFlatSiteMap($mode = null)
   {
-    $dev = AuthCore::getInstance()->getUser()->hasGroup('CMS Developers');
+    $dev = mcms::user()->hasGroup('CMS Developers');
 
     $result = array();
 
@@ -222,7 +222,7 @@ class DomainNode extends Node implements iContentType
   // Возвращает полную карту доменов.
   public static function getSiteMap($mode = null)
   {
-    $result = BebopCache::getInstance()->urlmap;
+    $result = mcms::cache('urlmap');
 
     if (!is_array($result)) {
       $roots = Node::find(array('class' => 'domain', 'parent_id' => null));
@@ -244,7 +244,7 @@ class DomainNode extends Node implements iContentType
         $result[$branch['id']] = $branch;
       }
 
-      BebopCache::getInstance()->urlmap = $result;
+      mcms::cache('urlmap', $result);
     }
 
     return $result;
@@ -290,7 +290,7 @@ class DomainNode extends Node implements iContentType
   // Проверка прав на объект.  Девелоперы всегда всё могут.
   public function checkPermission($perm)
   {
-    if (AuthCore::getInstance()->getUser()->hasGroup('Developers'))
+    if (mcms::user()->hasGroup('Developers'))
       return true;
     return NodeBase::checkPermission($perm);
   }
@@ -344,7 +344,7 @@ class DomainNode extends Node implements iContentType
     }
 
     $form = parent::formGet($simple);
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
 
     if ($user->hasGroup('Developers')) {
       if (null !== ($tab = $this->formGetWidgets()))
@@ -420,7 +420,7 @@ class DomainNode extends Node implements iContentType
 
     // Объект уже существовал, сохраняем дополнительные свойства.
     else {
-      $user = AuthCore::getInstance()->getUser();
+      $user = mcms::user();
 
       if ($user->hasGroup('Developers'))
         $this->linkSetChildren(empty($data['node_domain_widgets']) ? array() : $data['node_domain_widgets'], 'widget');

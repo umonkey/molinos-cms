@@ -43,7 +43,7 @@ class StatusAdminWidget extends Widget implements iAdminWidget
       'hints' => array(),
       );
 
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     if ($this->user->hasGroup('Site Managers') and $pdo->getResult("SELECT COUNT(*) FROM `node` WHERE `rid` IS NULL")) {
       $pdo->exec("DELETE FROM `node` WHERE `rid` IS NULL");
@@ -93,7 +93,7 @@ class StatusAdminWidget extends Widget implements iAdminWidget
           ));
     }
 
-    PDO_Singleton::getInstance()->commit();
+    mcms::db()->commit();
 
     if (empty($_GET['destination']))
       $_GET['destination'] = '/admin/';

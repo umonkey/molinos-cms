@@ -74,8 +74,8 @@ class RatingWidget extends Widget
   {
     $result = array();
 
-    $pdo = PDO_Singleton::getInstance();
-    $user = AuthCore::getInstance()->getUser();
+    $pdo = mcms::db();
+    $user = mcms::user();
 
     // Статистика по текущему документу.
     $stats = $pdo->getResult("SELECT AVG(`rate`) FROM `node__rating` WHERE `nid` = :nid", array(':nid' => $options['node']));
@@ -99,7 +99,7 @@ class RatingWidget extends Widget
     if ($this->checkUserHasVote())
       throw new ForbiddenException(t("Вы уже голосовали за этот документ."));
 
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     $params = array(
       ':nid' => $this->ctx->document_id,
@@ -173,9 +173,9 @@ class RatingWidget extends Widget
 
     // Анонимных пользователей считаем по IP, зарегистрированных -- по идентификатору.
     if ($this->user->getUid() == 0)
-      $status = 0 != PDO_Singleton::getInstance()->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = 0 AND `ip` = :ip", array(':nid' => $this->ctx->document_id, ':ip' => $_SERVER['REMOTE_ADDR']));
+      $status = 0 != mcms::db()->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = 0 AND `ip` = :ip", array(':nid' => $this->ctx->document_id, ':ip' => $_SERVER['REMOTE_ADDR']));
     else
-      $status = 0 != PDO_Singleton::getInstance()->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(':nid' => $this->ctx->document_id, ':uid' => $this->user->getUid()));
+      $status = 0 != mcms::db()->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(':nid' => $this->ctx->document_id, ':uid' => $this->user->getUid()));
 
     // Сохраняем в сессии для последующего быстрого доступа.
     $_SESSION[$skey] = $status;

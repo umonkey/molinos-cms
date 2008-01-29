@@ -22,7 +22,7 @@ class TypeNode extends Node implements iContentType
 
   public function save($clear = true, $forcedrev = null)
   {
-    AuthCore::getInstance()->getUser()->checkGroup('Schema Managers');
+    mcms::user()->checkGroup('Schema Managers');
 
     if (empty($this->title))
       $this->title = $this->name;
@@ -39,7 +39,7 @@ class TypeNode extends Node implements iContentType
     // Всегда сохраняем без очистки.
     parent::save(false, $forcedrev);
 
-    unset(BebopCache::getInstance()->schema);
+    mcms::cache('schema', null);
   }
 
   public function duplicate()
@@ -80,8 +80,7 @@ class TypeNode extends Node implements iContentType
   // Возвращает true, если указанный тип может содержать файлы.
   public static function checkHasFiles($class)
   {
-    $cache = BebopCache::getInstance();
-    $result = $cache->types_with_files;
+    $result = mcms::cache('types_with_files');
 
     if (!is_array($result)) {
       $result = array();
@@ -99,7 +98,7 @@ class TypeNode extends Node implements iContentType
         }
       }
 
-      $cache->types_with_files = $result;
+      mcms::cache('types_with_files', $result);
     }
 
     return in_array($class, $result);
@@ -108,15 +107,13 @@ class TypeNode extends Node implements iContentType
   // Возвращает актуальное описание схемы -- все классы, все поля.
   public static function getSchema($name = null, $reload = false)
   {
-    $cache = BebopCache::getInstance();
-
-    if ($reload or !is_array($result = $cache->schema) or empty($result)) {
+    if ($reload or !is_array($result = mcms::cache('schema')) or empty($result)) {
       $result = array();
 
       foreach (Tagger::getInstance()->getChildrenData("SELECT `n`.`id`, `n`.`rid`, `r`.`name`, `r`.`data`, `t`.* FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` LEFT JOIN `node_type` `t` ON `t`.`rid` = `r`.`rid` WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0", false, false, false) as $type)
         $result[$type['name']] = $type;
 
-      $cache->schema = $result;
+      mcms::cache('schema', $result);
     }
 
     if ($name !== null) {
@@ -184,7 +181,7 @@ class TypeNode extends Node implements iContentType
   // Проверка прав на объект.  Менеджеры схемы всегда всё могут.
   public function checkPermission($perm)
   {
-    if (AuthCore::getInstance()->getUser()->hasGroup('Schema Managers'))
+    if (mcms::user()->hasGroup('Schema Managers'))
       return true;
     return NodeBase::checkPermission($perm);
   }
@@ -194,7 +191,7 @@ class TypeNode extends Node implements iContentType
 
   public function formGet($simple = true)
   {
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
     $user->checkGroup('Schema Managers');
 
     $form = parent::formGet($simple);
@@ -294,13 +291,13 @@ class TypeNode extends Node implements iContentType
 
       $this->data['fields'] = $fields;
 
-      BebopCache::getInstance()->flush();
+      mcms::flush();
     }
 
     parent::formProcess($data);
 
     if (empty($this->fields)) {
-      PDO_Singleton::getInstance()->rollBack();
+      mcms::db()->rollBack();
       bebop_debug($this, $fields, $data);
       throw new InvalidArgumentException(t('Попытка очистить поля типа документа.'));
     }

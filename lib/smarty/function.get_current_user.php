@@ -12,7 +12,7 @@ function smarty_function_get_current_user($params, &$smarty)
     $result = &$resultx;
 
   if ($result === null) {
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
 
     if (empty($params['extended'])) {
       $result = array(

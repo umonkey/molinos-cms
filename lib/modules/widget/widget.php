@@ -62,7 +62,7 @@ abstract class Widget implements iWidget
   public function __construct(Node $node)
   {
     $this->me = $node;
-    $this->user = AuthCore::getInstance()->getUser();
+    $this->user = mcms::user();
 
     if (null === $this->me->config)
       $this->me->config = array();

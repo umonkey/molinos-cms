@@ -88,7 +88,7 @@ class UserWidget extends Widget
 
   protected function onGetDefault(array $options)
   {
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
 
     $result = array(
       'uid' => $user->getUid(),
@@ -135,7 +135,7 @@ class UserWidget extends Widget
 
   protected function onGetConfirm(array $options)
   {
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     // Найдём неутверждённого пользователя с совпадающим хэшем.
     $uid = $pdo->getResult("SELECT `id` FROM `node_user` WHERE MD5(CONCAT(`id`, ':', `email`)) = :hash", array(':hash' => $options['hash']));
@@ -153,17 +153,16 @@ class UserWidget extends Widget
     // Включаем.
     $node->linkAddParent($visitors->id);
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
 
     // Сообщаем администратору.
-    if (!empty(BebopConfig::getInstance()->modules_user_notifications)) {
-      $to = BebopConfig::getInstance()->modules_user_notifications;
+    if (null !== ($to = mcms::config('modules_user_notifications'))) {
       BebopMimeMail::send(null, $to, "Новый пользователь на сайте {$_SERVER['HTTP_HOST']}",
         "<p>На сайте {$_SERVER['HTTP_HOST']} только что успешно завершил регистрацию новый пользователь: {$node->name}.</p>");
     }
 
     // Идентифицируем пользователя.
-    AuthCore::getInstance()->userLogIn($node->login, null, true);
+    mcms::auth($node->login, null, true);
 
     // Перекидываем на текущую страницу, но без восстановления.
     $url = bebop_split_url();
@@ -206,7 +205,7 @@ class UserWidget extends Widget
 
   protected function onGetLogout(array $options)
   {
-    AuthCore::getInstance()->userLogOut();
+    mcms::auth();
 
     if (!empty($_GET['destination']))
       $url = $_GET['destination'];
@@ -257,7 +256,7 @@ class UserWidget extends Widget
 
     switch ($options['action']) {
     case 'edit':
-      $user = AuthCore::getInstance()->getUser();
+      $user = mcms::user();
 
       if ($options['uid'] != $user->getUid() and !$user->hasGroup('User Managers'))
         throw new PageNotFoundException(); // FIXME: 403
@@ -270,7 +269,7 @@ class UserWidget extends Widget
       $node->save();
       $node->publish($node->rid);
 
-      BebopCache::getInstance()->flush();
+      mcms::flush();
 
       $status = 'ok';
       break;
@@ -323,7 +322,7 @@ class UserWidget extends Widget
 
   public function formGet($id)
   {
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
 
     switch ($id) {
     case 'user-logout-form':
@@ -403,7 +402,7 @@ class UserWidget extends Widget
       $form = $profile->formGet();
 
       if (!empty($this->options['hash'])) {
-        if (AuthCore::getInstance()->getUser()->getUid())
+        if (mcms::user()->getUid())
           throw new PageNotFoundException();
 
         if ($this->options['hash'] != md5($profile->password))
@@ -470,7 +469,7 @@ class UserWidget extends Widget
       return array();
 
     case 'profile-edit-form':
-      $uid = empty($_GET['profile_uid']) ? AuthCore::getInstance()->getUser()->getUid() : $_GET['profile_uid'];
+      $uid = empty($_GET['profile_uid']) ? mcms::user()->getUid() : $_GET['profile_uid'];
       $user = Node::load(array('class' => 'user', 'id' => $uid));
       return $user->formGetData();
 
@@ -493,14 +492,14 @@ class UserWidget extends Widget
 
     switch ($id) {
     case 'user-logout-form':
-      AuthCore::getInstance()->userLogOut();
+      mcms::auth();
 
       $res['message'] = t("Сеанс работы с системой завершён, теперь вы можете <a href='@link'>продолжить работу с сайтом</a> анонимно.", array('@link' => $_SERVER['REQUEST_URI']));
       break;
 
     case 'user-login-form':
       try {
-        AuthCore::getInstance()->userLogIn($data['login'], $data['password']);
+        mcms::auth($data['login'], $data['password']);
       } catch (ForbiddenException $e) {
         $res['status'] = 'wrong';
       }
@@ -508,7 +507,7 @@ class UserWidget extends Widget
       break;
 
     case 'profile-remind-form':
-      $data = PDO_Singleton::getInstance()->getResult("SELECT `n`.`id`, `u`.* FROM `node_user` `u` INNER JOIN `node` `n` ON `n`.`rid` = `u`.`rid` WHERE `u`.`email` = :s1 OR `u`.`login` = :s2 LIMIT 1", array(':s1' => $data['identifier'], ':s2' => $data['identifier']));
+      $data = mcms::db()->getResult("SELECT `n`.`id`, `u`.* FROM `node_user` `u` INNER JOIN `node` `n` ON `n`.`rid` = `u`.`rid` WHERE `u`.`email` = :s1 OR `u`.`login` = :s2 LIMIT 1", array(':s1' => $data['identifier'], ':s2' => $data['identifier']));
 
       if (empty($data)) {
         $res['status'] = 'notfound';
@@ -538,15 +537,15 @@ class UserWidget extends Widget
 
     case 'profile-edit-form':
       if (null === ($uid = $this->options['uid']))
-        $uid = AuthCore::getInstance()->getUser()->getUid();
+        $uid = mcms::user()->getUid();
 
       $user = Node::load(array('class' => 'user', 'id' => $uid));
 
       if (!empty($this->options['uid'])) {
-        if (AuthCore::getInstance()->getUser()->getUid() == 0 and !empty($this->options['uid']) and (md5($user->password) != $this->options['hash']))
+        if (mcms::user()->getUid() == 0 and !empty($this->options['uid']) and (md5($user->password) != $this->options['hash']))
           throw new PageNotFoundException();
 
-        AuthCore::getInstance()->userLogIn($data['node_content_login'], $data['node_content_password'], true);
+        mcms::auth($data['node_content_login'], $data['node_content_password'], true);
       }
 
       $user->formProcess($data);
@@ -579,7 +578,7 @@ class UserWidget extends Widget
     $path = '';
 
     if (!empty($this->page)) {
-      $base = BebopConfig::getInstance()->basedomain;
+      $base = mcms::config('basedomain');
 
       $nodes = Node::load(array('class' => 'domain', 'id' => $this->page))->getParents();
 

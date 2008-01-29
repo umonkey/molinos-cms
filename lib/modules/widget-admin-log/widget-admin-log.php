@@ -53,7 +53,7 @@ class LogAdminWidget extends Widget implements iAdminWidget, iDashboard
 
     $result = array();
     $where = '';
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
     $params = array();
 
     if (!empty($options['operation'])) {
@@ -96,7 +96,7 @@ class LogAdminWidget extends Widget implements iAdminWidget, iDashboard
   {
     $output = "Запрос;Количество\n";
 
-    $data = PDO_Singleton::getInstance()->getResults("SELECT `query`, COUNT(`query`) AS `count` FROM `node__log` WHERE `operation` = 'search' AND `query` IS NOT NULL GROUP BY `query` ORDER BY `count` DESC");
+    $data = mcms::db()->getResults("SELECT `query`, COUNT(`query`) AS `count` FROM `node__log` WHERE `operation` = 'search' AND `query` IS NOT NULL GROUP BY `query` ORDER BY `count` DESC");
 
     foreach ($data as $row) {
       $output .= str_replace(';', ",", $row['query']) .';'. $row['count'] ."\n";
@@ -177,7 +177,7 @@ class LogAdminWidget extends Widget implements iAdminWidget, iDashboard
     case 'system-event-log-list':
       $data = array();
 
-      $pdo = PDO_Singleton::getInstance();
+      $pdo = mcms::db();
 
       $params = array();
       $where = $this->getFilter($params);
@@ -215,7 +215,7 @@ class LogAdminWidget extends Widget implements iAdminWidget, iDashboard
 
   private function isGlobal()
   {
-    return AuthCore::getInstance()->getUser()->hasGroup('Site Managers');
+    return mcms::user()->hasGroup('Site Managers');
   }
 
   private function getFilter(array &$params)
@@ -224,7 +224,7 @@ class LogAdminWidget extends Widget implements iAdminWidget, iDashboard
 
     if (!$this->isGlobal()) {
       $where[] = "`node__log`.`uid` = :uid";
-      $params[':uid'] = AuthCore::getInstance()->getUser()->getUid();
+      $params[':uid'] = mcms::user()->getUid();
     }
 
     if (null !== $this->options['operation']) {
@@ -251,7 +251,7 @@ class LogAdminWidget extends Widget implements iAdminWidget, iDashboard
   public static function getDashboardIcons()
   {
     $icons = array();
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
 
     $images = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname(__FILE__)) .'/img/';
 

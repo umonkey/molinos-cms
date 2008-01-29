@@ -48,16 +48,15 @@ class UpdateManager implements iScheduler
   public function getVersionInfo($force = false)
   {
     $result = null;
-    $cache = BebopCache::getInstance();
 
     if (!empty($_GET['nocache']) and bebop_is_debugger())
       $force = true;
 
-    if (null === $cache or !is_array($result = $cache->versioninfo) or $force)
+    if (!is_array($result = mcms::cache('versioninfo')) or $force)
       $this->parseVersionXML($result);
 
-    if (null !== $cache and is_array($result))
-      $cache->versioninfo = $result;
+    if (is_array($result))
+      mcms::cache('versioninfo', $result);
 
     return $result;
   }
@@ -95,7 +94,7 @@ class UpdateManager implements iScheduler
   // типы создаются до групп, и проставить права на типы документов невозможно).
   private function doFixAccess()
   {
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     $map = array(
       'type' => 'Schema Managers',
@@ -1261,7 +1260,7 @@ class UpdateManager implements iScheduler
   // Обновление встроенных пользователей.
   private function doUpdateUsers()
   {
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     $groups = array(
       'Access Managers' => 'Менеджеры доступа',
@@ -1941,7 +1940,7 @@ class UpdateManager implements iScheduler
   // Воссоздание ветки страниц.
   private static function doUpdateBranch(Node $root, array $urls, $depth = 0)
   {
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     foreach ($urls as $name => $info) {
       // Пытаемся найти существующую ветку.

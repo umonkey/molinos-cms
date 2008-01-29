@@ -38,7 +38,7 @@ class GroupNode extends Node implements iContentType
   // Сохранение прав на типы документов.
   private function setTypePermissions(array $perms = null)
   {
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     // Удаляем существующие права.
     $pdo->exec("DELETE FROM `node__access` WHERE `uid` = :uid AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = 'type')", array(':uid' => $this->id));
@@ -64,7 +64,7 @@ class GroupNode extends Node implements iContentType
   // Проверка прав на объект.  Менеджеры пользователей всегда всё могут.
   public function checkPermission($perm)
   {
-    if (AuthCore::getInstance()->getUser()->hasGroup('User Managers'))
+    if (mcms::user()->hasGroup('User Managers'))
       return true;
     return NodeBase::checkPermission($perm);
   }
@@ -116,7 +116,7 @@ class GroupNode extends Node implements iContentType
   {
     parent::formProcess($data);
 
-    if (AuthCore::getInstance()->getUser()->hasGroup('User Managers'))
+    if (mcms::user()->hasGroup('User Managers'))
       $this->linkSetChildren(empty($data['node_group_users']) ? array() : $data['node_group_users'], 'user');
   }
 };

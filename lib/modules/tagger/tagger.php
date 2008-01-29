@@ -13,7 +13,7 @@ class Tagger
     // Инициализация объекта.
     public function __construct(PDO_Singleton $pdo = null)
     {
-        $this->pdo = ($pdo === null) ? PDO_Singleton::getInstance() : $pdo;
+        $this->pdo = ($pdo === null) ? mcms::db() : $pdo;
     }
 
     private function logAction($operation, $nid = null, $query = null)
@@ -22,13 +22,13 @@ class Tagger
           return;
 
         $sql = "INSERT INTO `node__log` (`nid`, `uid`, `ip`, `operation`, `timestamp`, `username`, `query`) VALUES(:nid, :uid, :ip, :operation, NOW(), :username, :query)";
-        $auth = AuthCore::getInstance();
+        $user = mcms::user();
 
         $sth = $this->pdo->prepare($sql);
         $sth->execute(array(
             ':nid' => $nid,
-            ':uid' => $auth->getUser()->getUid(),
-            ':username' => $auth->getUser()->getName(),
+            ':uid' => $user->getUid(),
+            ':username' => $user->getName(),
             ':ip' => $_SERVER['REMOTE_ADDR'],
             ':operation' => $operation,
             ':query' => empty($query) ? null : $query,
@@ -68,7 +68,7 @@ class Tagger
         $result = array();
 
         if (is_string($sth)) {
-          $sth = PDO_Singleton::getInstance()->prepare($sth);
+          $sth = mcms::db()->prepare($sth);
           $sth->execute();
         }
 
@@ -389,7 +389,7 @@ class Tagger
       // Сохраняем ключевую часть ревизии.
       try {
         if (!array_key_exists('uid', $node))
-          $node['uid'] = AuthCore::getInstance()->getUser()->getUid();
+          $node['uid'] = mcms::user()->getUid();
         if (empty($node['uid']))
           $node['uid'] = null;
 
@@ -669,7 +669,7 @@ class Tagger
 
     public function expandNode($nid, $children)
     {
-      $pdo = PDO_Singleton::getInstance();
+      $pdo = mcms::db();
 
       $meta = $pdo->getResults("SELECT `left`, `right` FROM `node` WHERE `id` = :id", array(':id' => $nid));
       if (empty($meta))
@@ -1007,7 +1007,7 @@ class Tagger
     {
         if (!empty($nodes)) {
             $mode = $mode ? 1 : 0;
-            $pdo = PDO_Singleton::getInstance();
+            $pdo = mcms::db();
 
             $nids = join(", ", $nodes);
 
@@ -1053,7 +1053,7 @@ class Tagger
       if (!empty($codes))
         $where[] = "`code` IN ('". join("', '", $codes) ."')";
 
-      $sth = PDO_Singleton::getInstance()->prepare("SELECT * FROM `node` WHERE ". join(" AND ", $where));
+      $sth = mcms::db()->prepare("SELECT * FROM `node` WHERE ". join(" AND ", $where));
       $sth->execute();
       $result = $this->getChildrenData($sth);
     }
@@ -1091,12 +1091,12 @@ class Tagger
   private function getVisitorsId()
   {
     $key = 'group:visitors:id';
-    $gid = BebopCache::getInstance()->$key;
+    $gid = mcms::cache($key);
 
     if ($gid === false) {
       $node = Node::load(array('class' => 'group', 'group.login' => 'Visitors'));
       $gid = $node->id;
-      BebopCache::getInstance()->$key = $gid;
+      mcms::cache($key, $gid);
     }
 
     return $gid;

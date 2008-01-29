@@ -39,7 +39,7 @@ class TagNode extends Node implements iContentType
   // Проверка прав на объект.  Менеджеры структуры всегда всё могут.
   public function checkPermission($perm)
   {
-    if (AuthCore::getInstance()->getUser()->hasGroup('Structure Managers'))
+    if (mcms::user()->hasGroup('Structure Managers'))
       return true;
     return NodeBase::checkPermission($perm);
   }

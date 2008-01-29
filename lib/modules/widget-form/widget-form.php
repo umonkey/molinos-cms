@@ -108,7 +108,7 @@ class FormWidget extends Widget
         return null;
 
       $output = "<div class='form-widget-wrapper type-{$options['type']}-form'>". self::formRender('form-create-'. $options['type']) ."</div>";
-    } else {
+    } elseif (!empty($types)) {
       $output = '<div class=\'type-selection-form\'>';
       $output .= '<h2>'. t('Документ какого типа вы хотите создать?') .'</h2>';
       $output .= '<dl>';
@@ -171,7 +171,7 @@ class FormWidget extends Widget
       ."ORDER BY `t`.`title` "
       ;
 
-    $types = PDO_Singleton::getInstance()->getResultsKV("name", "title", $sql);
+    $types = mcms::db()->getResultsKV("name", "title", $sql);
 
     return $types;
   }
@@ -259,7 +259,7 @@ class FormWidget extends Widget
         $node->formProcess($data);
         $node->save();
 
-        BebopCache::getInstance()->flush();
+        mcms::flush();
 
         if (!empty($_GET['destination']))
           $next = $_GET['destination'];

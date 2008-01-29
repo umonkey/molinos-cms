@@ -5,14 +5,12 @@ set_exception_handler('PrettyBlueScreen');
 
 function SendBlueScreen($content, $e)
 {
-    $config = BebopConfig::getInstance();
-    if (empty($config->backtracerecipient))
+    if (null === ($to = mcms::config('backtracerecipient')))
         return false;
 
     if (bebop_is_debugger())
         return false;
 
-    $to = $config->backtracerecipient;
     $body = "<p>На сайте <a href=\"http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}\">{$_SERVER['HTTP_HOST']}</a> возникла критическая ошибка ". get_class($e) .", подробности прилагаются.&nbsp; Текст ошибки:</p>";
     $body .= "<p><em>".mcms_plain($e->getMessage())."</em></p>";
 

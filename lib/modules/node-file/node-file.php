@@ -6,7 +6,7 @@ class FileNode extends Node implements iContentType
   // Определяем размеры.
   public function save($clear = true)
   {
-    $path = BebopConfig::getInstance()->filestorage;
+    $path = mcms::config('filestorage');
     $path .= '/'. $this->filepath;
 
     if (is_readable($path) and ($info = @getimagesize($path))) {
@@ -17,7 +17,7 @@ class FileNode extends Node implements iContentType
     parent::save($clear);
 
     // Проставляем права контент-менеджерам.
-    PDO_Singleton::getInstance()->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`) "
+    mcms::db()->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`) "
       ."SELECT :nid, `n`.`id`, 0, 1, 1, 1 FROM `node` `n` INNER JOIN `node_group` `g` ON `g`.`rid` = `n`.`rid` WHERE `g`.`login` = 'Content Managers'", array(':nid' => $this->id));
 
     $this->purge();
@@ -50,7 +50,7 @@ class FileNode extends Node implements iContentType
 
     $this->purge();
 
-    if (file_exists($filename = BebopConfig::getInstance()->filestorage .'/'. $this->filepath))
+    if (file_exists($filename = mcms::config('filestorage') .'/'. $this->filepath))
       unlink($filename);
   }
 
@@ -62,7 +62,7 @@ class FileNode extends Node implements iContentType
   // Импорт файла из массива $post.
   public function import(array $file, $uploaded = true)
   {
-    $storage = BebopConfig::getInstance()->filestorage;
+    $storage = mcms::config('filestorage');
 
     // Немного валидации.
     if (empty($file['tmp_name']) or !file_exists($file['tmp_name']))
@@ -295,8 +295,8 @@ class FileNode extends Node implements iContentType
 
   public static function getFTPRoot()
   {
-    if (null === ($path = BebopConfig::getInstance()->filestorage_ftp))
-      $path = BebopConfig::getInstance()->filestorage .'/ftp';
+    if (null === ($path = mcms::config('filestorage_ftp')))
+      $path = mcms::config('filestorage') .'/ftp';
     return $path;
   }
 

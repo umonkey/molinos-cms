@@ -66,7 +66,7 @@ class UserNode extends Node implements iContentType
   // Проверка прав на объект.  Менеджеры пользователей всегда всё могут.
   public function checkPermission($perm)
   {
-    if (AuthCore::getInstance()->getUser()->hasGroup('User Managers'))
+    if (mcms::user()->hasGroup('User Managers'))
       return true;
     return NodeBase::checkPermission($perm);
   }
@@ -129,7 +129,7 @@ class UserNode extends Node implements iContentType
   {
     parent::formProcess($data);
 
-    if (AuthCore::getInstance()->getUser()->hasGroup('User Managers'))
+    if (mcms::user()->hasGroup('User Managers'))
       $this->linkSetParents(empty($data['node_user_groups']) ? array() : $data['node_user_groups'], 'group');
   }
 

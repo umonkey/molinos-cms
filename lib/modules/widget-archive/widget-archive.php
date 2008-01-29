@@ -138,7 +138,7 @@ class ArchiveWidget extends Widget
       ."AND `published` = 1 GROUP BY `year` ORDER BY `year`";
 
     // FIXME: publishing
-    foreach (PDO_Singleton::getInstance()->getResultsKV("year", "count", $sql, array(':tid' => $options['root'])) as $k => $v) {
+    foreach (mcms::db()->getResultsKV("year", "count", $sql, array(':tid' => $options['root'])) as $k => $v) {
       $url['args'][$this->host]['year'] = $k;
       $result[$k] = bebop_combine_url($url);
     }
@@ -155,7 +155,7 @@ class ArchiveWidget extends Widget
     $url['args'][$this->host]['day'] = null;
 
     // FIXME: publishing
-    foreach (PDO_Singleton::getInstance()->getResultsKV("month", "count", "SELECT MONTH(`created`) AS `month`, COUNT(*) AS `count` FROM `node` WHERE `id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) AND YEAR(`created`) = :year AND `published` = 1 GROUP BY `month` ORDER BY `month`", array(':tid' => $options['root'], ':year' => $options['year'])) as $k => $v) {
+    foreach (mcms::db()->getResultsKV("month", "count", "SELECT MONTH(`created`) AS `month`, COUNT(*) AS `count` FROM `node` WHERE `id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) AND YEAR(`created`) = :year AND `published` = 1 GROUP BY `month` ORDER BY `month`", array(':tid' => $options['root'], ':year' => $options['year'])) as $k => $v) {
       $url['args'][$this->host]['month'] = $k;
       $result[$k] = bebop_combine_url($url);
     }
@@ -179,7 +179,7 @@ class ArchiveWidget extends Widget
 
     // Список задействованных дней.
     // FIXME: publishing
-    $days = PDO_Singleton::getInstance()->getResultsKV("day", "count", "SELECT DAY(`n`.`created`) AS `day`, COUNT(*) AS `count` FROM `node` `n` WHERE `n`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) AND YEAR(`n`.`created`) = :year AND MONTH(`n`.`created`) = :month AND `n`.`published` = 1 GROUP BY `day` ORDER BY `day`", array(':tid' => $root, ':year' => $year, ':month' => $month));
+    $days = mcms::db()->getResultsKV("day", "count", "SELECT DAY(`n`.`created`) AS `day`, COUNT(*) AS `count` FROM `node` `n` WHERE `n`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) AND YEAR(`n`.`created`) = :year AND MONTH(`n`.`created`) = :month AND `n`.`published` = 1 GROUP BY `day` ORDER BY `day`", array(':tid' => $root, ':year' => $year, ':month' => $month));
 
     // Список месяцев.
     $months = array('Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь');

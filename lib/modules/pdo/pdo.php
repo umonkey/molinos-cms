@@ -27,7 +27,7 @@ class PDO_Singleton extends PDO
 
     public function __construct()
     {
-      $uri = parse_url(BebopConfig::getInstance()->dsn);
+      $uri = parse_url(mcms::config('dsn'));
 
       $dsn = $uri['scheme'] .':dbname='. trim($uri['path'], '/') .';host='. $uri['host'];
 
@@ -62,7 +62,7 @@ class PDO_Singleton extends PDO
     private static function addPermChecks($sql)
     {
       if (strstr($sql, "PERMCHECK") !== false) {
-        $user = AuthCore::getInstance()->getUser();
+        $user = mcms::user();
 
         foreach (array('c', 'C', 'r', 'R', 'u', 'U', 'd', 'D') as $k) {
           // Обычный режим: проверяем группы.

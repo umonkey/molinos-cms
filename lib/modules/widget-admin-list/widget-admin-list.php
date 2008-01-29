@@ -263,7 +263,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
   private function getNodeTree(array &$result)
   {
     $list = &$result['document_list'];
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
 
     foreach (Node::find(array('class' => $this->tree, 'parent_id' => null)) as $root) {
       $children = $root->getChildren('flat');
@@ -400,7 +400,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
                 throw new PageNotFoundException();
               }
 
-              BebopCache::getInstance()->flush();
+              mcms::flush();
             }
 
             break;
@@ -417,7 +417,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
     if ($node->class != 'file')
       return null;
 
-    $storage = rtrim(BebopConfig::getInstance()->filestorage, '/') .'/';
+    $storage = rtrim(mcms::config('filestorage'), '/') .'/';
 
     $mod = empty($this->options['picker']) ? '' : " class='returnHref'";
 
@@ -450,7 +450,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     $text = $user->login;
 
-    if (AuthCore::getInstance()->getUser()->hasGroup('User Managers'))
+    if (mcms::user()->hasGroup('User Managers'))
       $text = "<a href='/admin/node/{$user->id}/edit/?destination=". urlencode($_SERVER['REQUEST_URI']) ."' class='hint' title='". mcms_plain($user->name) ."'>{$text}</a>";
 
     return $text;
@@ -465,7 +465,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     $text = $schema['title'];
 
-    if (AuthCore::getInstance()->getUser()->hasGroup('Schema Managers')) {
+    if (mcms::user()->hasGroup('Schema Managers')) {
       $mod = empty($schema['description']) ? '' : " class='hint' title='". mcms_plain($schema['description']) ."'";
       $text = "<a{$mod} href='/admin/node/{$schema['id']}/edit/?destination=". urlencode($_SERVER['REQUEST_URI']) ."'>{$text}</a>";
     }
@@ -476,7 +476,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
   public static function getDashboardIcons()
   {
     $icons = array();
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
 
     $images = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname(__FILE__)) .'/img/';
 

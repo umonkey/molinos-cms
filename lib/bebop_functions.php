@@ -17,8 +17,8 @@ function bebop_redirect($path, $status = 301)
       throw new Exception("Статус перенаправления {$status} не определён в стандарте HTTP/1.1");
 
     bebop_session_end();
-    PDO_Singleton::getInstance()->commit();
-    BebopCache::getInstance()->flush(true);
+    mcms::db()->commit();
+    mcms::flush(mcms::FLUSH_NOW);
 
     if (substr($path, 0, 1) == '/') {
       $proto = 'http'.((array_key_exists('HTTPS', $_SERVER) and $_SERVER['HTTPS'] == 'on') ? 's' : '');
@@ -80,10 +80,11 @@ function bebop_is_debugger()
       $skip = false;
 
     else {
-      $config = BebopConfig::getInstance();
-      if (empty($config->debuggers))
+      $tmp = mcms::config('debuggers');
+
+      if (empty($tmp))
         $skip = true;
-      elseif (!in_array($_SERVER['REMOTE_ADDR'], $list = preg_split('/[, ]+/', $config->debuggers)))
+      elseif (!in_array($_SERVER['REMOTE_ADDR'], $list = preg_split('/[, ]+/', $tmp)))
         $skip = true;
     }
   }
@@ -305,7 +306,7 @@ function t($message, array $argv = array())
   static $sth = null;
 
   if (null == $sth)
-    $sth = PDO_Singleton::getInstance()->prepare("SELECT m2.* FROM `node__messages` m1 LEFT JOIN `node__messages` m2 ON m1.id = m2.id WHERE m2.lang = :lang AND m1.message = :message");
+    $sth = mcms::db()->prepare("SELECT m2.* FROM `node__messages` m1 LEFT JOIN `node__messages` m2 ON m1.id = m2.id WHERE m2.lang = :lang AND m1.message = :message");
 
   $sth->execute(array(
     ':lang' => $lang,
@@ -342,7 +343,7 @@ function bebop_is_json()
 function bebop_on_json(array $result)
 {
   if (bebop_is_json()) {
-    PDO_Singleton::getInstance()->commit();
+    mcms::db()->commit();
 
     setlocale(LC_ALL, "en_US.UTF-8");
 
@@ -465,11 +466,11 @@ function bebop_session_end()
 
 function mcms_fetch_file($url, $content = true, $cache = true)
 {
-  $outfile = BebopConfig::getInstance()->tmpdir . "/mcms-fetch.". md5($url);
+  $outfile = mcms::config('tmpdir') . "/mcms-fetch.". md5($url);
 
   // Проверяем, не вышло ли время хранения файла на диске, если истекло - удаляем файл.
   // Если время жизни кэша не определено в конфигурации, принимаем его за астрономический один час.
-  if (null === ($ttl = BebopConfig::getInstance()->file_cache_ttl))
+  if (null === ($ttl = mcms::config('file_cache_ttl')))
     $ttl = 60 * 60;
 
   if (file_exists($outfile) and (!$cache or ((time() - $ttl) > @filectime($outfile))))
@@ -484,7 +485,7 @@ function mcms_fetch_file($url, $content = true, $cache = true)
     curl_setopt($ch, CURLOPT_FILE, $fp);
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Molinos.CMS/' . BEBOP_VERSION . '; http://' . BebopConfig::getInstance()->basedomain . '/');
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Molinos.CMS/' . BEBOP_VERSION . '; http://' . mcms::config('basedomain') . '/');
 
     if (!ini_get('safe_mode'))
       curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
@@ -535,7 +536,7 @@ function mcms_log($action, $nid = null, $query = null)
   static $sth = null;
 
   if ($sth === null)
-    $sth = PDO_Singleton::getInstance()->prepare("INSERT INTO `node__log` (`nid`, `uid`, `ip`, `operation`, `timestamp`, `username`, `query`) VALUES (:nid, :uid, :ip, :operation, NOW(), :username, :query)");
+    $sth = mcms::db()->prepare("INSERT INTO `node__log` (`nid`, `uid`, `ip`, `operation`, `timestamp`, `username`, `query`) VALUES (:nid, :uid, :ip, :operation, NOW(), :username, :query)");
 
   $user = AuthCore::getInstance()->getUser();
 
@@ -557,7 +558,7 @@ function mcms_url(array $options = null)
 
 function mcms_encrypt($input)
 {
-    $textkey = BebopConfig::getInstance()->guid;
+    $textkey = mcms::config('guid');
     $securekey = hash('sha256', $textkey, true);
 
     $iv = mcrypt_create_iv(32);
@@ -567,7 +568,7 @@ function mcms_encrypt($input)
 
 function mcms_decrypt($input)
 {
-    $textkey = BebopConfig::getInstance()->guid;
+    $textkey = mcms::config('guid');
     $securekey = hash('sha256', $textkey, true);
 
     $iv = mcrypt_create_iv(32);
@@ -580,6 +581,8 @@ class mcms
   const MEDIA_AUDIO = 1;
   const MEDIA_VIDEO = 2;
   const MEDIA_IMAGE = 4;
+
+  const FLUSH_NOW = 1;
 
   public static function html($name, array $parts = null, $content = null)
   {
@@ -755,5 +758,31 @@ class mcms
       return empty($cache[$modulename][$key]) ? null : $cache[$modulename][$key];
     else
       return $cache[$modulename];
+  }
+
+  public static function flush($flags = null)
+  {
+    $cache = BebopCache::getInstance();
+    $cache->flush(true & self::FLUSH_NOW ? true : false);
+  }
+
+  public static function db()
+  {
+    return PDO_Singleton::getInstance();
+  }
+
+  public static function user()
+  {
+    return AuthCore::getInstance()->getUser();
+  }
+
+  public function auth($user = 'anonymous', $pass = null, $bypass = true)
+  {
+    $auth = AuthCore::getInstance();
+
+    if ($user == 'anonymous')
+      $auth->userLogOut();
+    else
+      $auth->userLogIn($user, $pass, $bypass);
   }
 };

@@ -31,7 +31,7 @@ class WidgetNode extends Node implements iContentType
   // Проверка прав на объект.  Девелоперы всегда всё могут.
   public function checkPermission($perm)
   {
-    if (AuthCore::getInstance()->getUser()->hasGroup('Developers'))
+    if (mcms::user()->hasGroup('Developers'))
       return true;
     return NodeBase::checkPermission($perm);
   }

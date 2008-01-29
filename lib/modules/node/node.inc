@@ -23,12 +23,11 @@ class NodeBase implements iFormObject
   private static function getCached($id)
   {
     $result = null;
-    $config = BebopConfig::getInstance();
 
-    if (null !== ($mode = $config->cache_documents)) {
+    if (null !== ($mode = mcms::config('cache_documents'))) {
       if ($mode != 'local') {
         $key = 'node:'. $id;
-        $result = BebopCache::getInstance()->$key;
+        $result = mcms::cache($key);
       } elseif ($mode == 'local') {
         $result = array_key_exists($id, self::$cache)
           ? self::$cache[$id]
@@ -42,12 +41,10 @@ class NodeBase implements iFormObject
   // Кладёт в кэш.
   private static function setCached($id, $data)
   {
-    $config = BebopConfig::getInstance();
-
-    if (null !== ($mode = $config->cache_documents)) {
+    if (null !== ($mode = mcms::config('cache_documents'))) {
       if ($mode != 'local') {
         $key = 'node:'. $id;
-        BebopCache::getInstance()->$key = $data;
+        mcms::cache($key, $data);
       } elseif ($mode == 'local') {
         self::$cache[$id] = $data;
       }
@@ -107,7 +104,7 @@ class NodeBase implements iFormObject
     else
       $sql .= ' -- Node::find()';
 
-    $sth = PDO_Singleton::getInstance()->exec($sql, $params);
+    $sth = mcms::db()->exec($sql, $params);
 
     $data = array();
     $count = 0;
@@ -130,7 +127,7 @@ class NodeBase implements iFormObject
     $qb = new NodeQueryBuilder($query);
     $qb->getCountQuery($sql, $params);
 
-    return PDO_Singleton::getInstance()->getResult($sql . " -- Node::count()", $params);
+    return mcms::db()->getResult($sql . " -- Node::count()", $params);
   }
 
   // Сохранение объекта.
@@ -153,14 +150,14 @@ class NodeBase implements iFormObject
       $this->data['published'] = 0;
 
     if ($this->id === null and null === $this->uid)
-      $this->data['uid'] = AuthCore::getInstance()->getUser()->getUid();
+      $this->data['uid'] = mcms::user()->getUid();
 
     // Рендерим документ.
     $this->data['html'] = $this->render();
 
     $tg->nodeSave($this->data, $this->forcedrev);
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
 
     if ($isnew)
       $this->sendNotification();
@@ -171,7 +168,7 @@ class NodeBase implements iFormObject
     $schema = TypeNode::getSchema($this->class);
           
     if (!empty($schema['notificationrecipients'])) {
-      $host = BebopConfig::getInstance()->basedomain;
+      $host = mcms::config('basedomain');
 
       $body = '<p>'. t('Создан новый документ типа "%type":', array('%type' => $schema['title'])) .'</p>';
       $body .= '<dl>';
@@ -197,7 +194,7 @@ class NodeBase implements iFormObject
     if (in_array($key, array('class', 'left', 'right', 'published')))
       throw new InvalidArgumentException("node.{$key} is private");
 
-    if ('uid' == $key and !empty($this->data['uid']) and $this->data['uid'] != AuthCore::getInstance()->getUser()->getUid())
+    if ('uid' == $key and !empty($this->data['uid']) and $this->data['uid'] != mcms::user()->getUid())
       throw new InvalidArgumentException(t('Нельзя изменить автора чужого документа.'));
 
     if ($key == 'parent_id' and !empty($this->data['id']))
@@ -242,13 +239,13 @@ class NodeBase implements iFormObject
   // Возвращает true, если нода успешно опубликована, false если нет.
   public function publish($rev = null)
   {
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
 
     // Публикатор.
     if ($user->hasGroup('Publishers') or ($this->class == 'moduleinfo' and $user->hasGroup('Developers'))) {
       $this->data['published'] = true;
 
-      $pdo = PDO_Singleton::getInstance();
+      $pdo = mcms::db();
 
       if ($rev === null)
         $rev = $pdo->getResult("SELECT MAX(`rid`) FROM `node__rev` WHERE `nid` = :nid", array('nid' => $this->id));
@@ -256,7 +253,7 @@ class NodeBase implements iFormObject
       $pdo->exec("UPDATE `node` SET `published` = :published, `rid` = :rid WHERE `id` = :nid",
         array('rid' => $rev, 'nid' => $this->id, 'published' => $this->published));
 
-      BebopCache::getInstance()->flush();
+      mcms::flush();
       return true;
     }
 
@@ -294,14 +291,14 @@ class NodeBase implements iFormObject
 
   public function unpublish()
   {
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
 
     if ($user->hasGroup('Publishers') or ($this->class == 'moduleinfo' and $user->hasGroup('Developers'))) {
       if (null === $this->id)
         $this->save();
 
-      PDO_Singleton::getInstance()->exec("UPDATE `node` SET `published` = 0 WHERE `id` = :id", array(':id' => $this->id));
-      BebopCache::getInstance()->flush();
+      mcms::db()->exec("UPDATE `node` SET `published` = 0 WHERE `id` = :id", array(':id' => $this->id));
+      mcms::flush();
       return true;
     }
 
@@ -318,7 +315,7 @@ class NodeBase implements iFormObject
 
       $this->save();
 
-      $pdo = PDO_Singleton::getInstance();
+      $pdo = mcms::db();
       $params = array(':new' => $this->id, ':old' => $id);
 
       // Копируем права.
@@ -331,7 +328,7 @@ class NodeBase implements iFormObject
       $pdo->exec("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
         ."SELECT `tid`, :new, `key` FROM `node__rel` WHERE `nid` = :old", $params);
 
-      BebopCache::getInstance()->flush();
+      mcms::flush();
     }
   }
 
@@ -343,7 +340,7 @@ class NodeBase implements iFormObject
     if (!$this->checkPermission('d'))
       throw new ForbiddenException(t('У вас нет прав на удаление этого объекта.'));
 
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     $meta = $pdo->getResult("SELECT `left`, `right`, `right` - `left` + 1 AS `width` FROM `node` WHERE `id` = :id", array(':id' => $this->id));
 
@@ -353,7 +350,7 @@ class NodeBase implements iFormObject
 
     mcms_log('erase', $this->id);
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
   }
 
   // Создаём новый объект.
@@ -388,12 +385,12 @@ class NodeBase implements iFormObject
         '%name' => $this->name,
         )));
 
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
     $pdo->exec("UPDATE `node` SET `deleted` = 1 WHERE id = :nid", array('nid' => $this->id));
 
     mcms_log('delete', $this->id);
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
   }
 
   public function undelete()
@@ -412,7 +409,7 @@ class NodeBase implements iFormObject
 
     mcms_log('undelete', $this->id);
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
   }
 
   // Загружает дерево дочерних объектов, формируя вложенные массивы children.
@@ -597,7 +594,7 @@ class NodeBase implements iFormObject
 
     $sql .= sprintf(" ORDER BY `r`.`order` ASC -- linkListParents(%u, %s, %d)", $this->id, $class ? $class : 'NULL', $idsonly);
 
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     if ($idsonly)
       return $pdo->getResultsV("tid", $sql, $params);
@@ -617,7 +614,7 @@ class NodeBase implements iFormObject
 
     $sql .= sprintf(" ORDER BY `r`.`order` ASC -- linkListChildren(%u, %s, %d)", $this->id, $class ? $class : 'NULL', $idsonly);
 
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     if ($idsonly)
       return $pdo->getResultsV("nid", $sql, $params);
@@ -630,7 +627,7 @@ class NodeBase implements iFormObject
     if (null === $this->id)
       $this->save();
 
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `nid` = :nid", array(':tid' => $parent_id, ':nid' => $this->id));
 
@@ -644,12 +641,12 @@ class NodeBase implements iFormObject
       ':order' => self::getNextOrder($parent_id),
       ));
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
   }
 
   public function linkAddChild($child_id, $key = null)
   {
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `nid` = :nid", array(':tid' => $this->id, ':nid' => $child_id));
 
@@ -663,33 +660,33 @@ class NodeBase implements iFormObject
       ':order' => self::getNextOrder($this->id),
       ));
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
   }
 
   public function linkRemoveParent($parent_id)
   {
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `nid` = :nid", array(':tid' => $parent_id, ':nid' => $this->id));
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
   }
 
   public function linkRemoveChild($child_id = null, $key = null)
   {
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     if (null !== $child_id)
       $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `nid` = :nid", array(':tid' => $this->id, ':nid' => $child_id));
     elseif (null !== $key)
       $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `key` = :key", array(':tid' => $this->id, ':key' => $key));
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
   }
 
   public function linkSetParents(array $list, $class = null, array $available = null)
   {
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
     $xtra = '';
 
     if (null !== $available)
@@ -722,12 +719,12 @@ class NodeBase implements iFormObject
         ."-- Node::linkSetParents({$this->id})", $params);
     }
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
   }
 
   public function linkSetChildren(array $list, $class = null)
   {
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     if (null === $class)
       $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid -- Node::linkSetChildren({$this->id})",
@@ -758,12 +755,12 @@ class NodeBase implements iFormObject
         ."-- Node::linkSetChildren({$this->id})", $params);
     }
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
   }
 
   private static function getNextOrder($tid)
   {
-    return PDO_Singleton::getInstance()->getResult("SELECT MAX(`order`) FROM `node__rel` WHERE `tid` = :tid", array(':tid' => $tid)) + 1;
+    return mcms::db()->getResult("SELECT MAX(`order`) FROM `node__rel` WHERE `tid` = :tid", array(':tid' => $tid)) + 1;
   }
 
 
@@ -772,7 +769,7 @@ class NodeBase implements iFormObject
     // Прописываем дефолтные порядки.
     $this->orderFix();
 
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
     $he = $pdo->getResult("SELECT `nid`, `tid`, `order` FROM `node__rel` WHERE `nid` >= :nid", array(':nid' => $tid));
     $me = $pdo->getResults("SELECT `nid`, `tid`, `order` FROM `node__rel` WHERE `tid` = :tid AND `order` >= :order ORDER BY `order` DESC", array(':tid' => $he['tid'], ':order' => $he['order']));
 
@@ -782,7 +779,7 @@ class NodeBase implements iFormObject
     }
     $pdo->exec('UPDATE `node__rel` SET `order` = :order WHERE `nid` = :nid', array(':nid' => $me[0]['nid'], ':order' => $orderTo));
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
   }
 
   public function moveAfter($tid)
@@ -790,7 +787,7 @@ class NodeBase implements iFormObject
     // Прописываем дефолтные порядки.
     $this->orderFix();
 
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
     $he = $pdo->getResult("SELECT `nid`, `tid`, `order` FROM `node__rel` WHERE `nid` >= :nid", array(':nid' => $tid));
     $me = $pdo->getResults("SELECT `nid`, `tid`, `order` FROM `node__rel` WHERE `tid` = :tid AND `order` <= :order ORDER BY `order` ASC", array(':tid' => $he['tid'], ':order' => $he['order']));
 
@@ -800,7 +797,7 @@ class NodeBase implements iFormObject
     }
     $pdo->exec('UPDATE `node__rel` SET `order` = :order WHERE `nid` = :nid', array(':nid' => $me[0]['nid'], ':order' => $orderTo));
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
   }
 
   // РАБОТА С ПРАВАМИ.
@@ -810,7 +807,7 @@ class NodeBase implements iFormObject
   {
     static $default = null;
 
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     // Формируем список групп.
     if ($default === null)
@@ -831,7 +828,7 @@ class NodeBase implements iFormObject
 
   public function setAccess(array $perms, $reset = true)
   {
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     if ($reset)
       $pdo->exec("DELETE FROM `node__access` WHERE `nid` = :nid", array(':nid' => $this->id));
@@ -854,7 +851,7 @@ class NodeBase implements iFormObject
       }
     }
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
   }
 
   public function checkPermission($perm)
@@ -865,11 +862,11 @@ class NodeBase implements iFormObject
     if (empty($_SERVER['HTTP_HOST']))
       return true;
 
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
     if ($user->getName() == 'root')
       return true;
 
-    $grant = PDO_Singleton::getInstance()->getResult("SELECT 1 FROM `node` WHERE `id` = :nid AND `id` IN (PERMCHECK:{$perm}) -- NodeBase::checkPermission({$perm})", array(':nid' => $this->id));
+    $grant = mcms::db()->getResult("SELECT 1 FROM `node` WHERE `id` = :nid AND `id` IN (PERMCHECK:{$perm}) -- NodeBase::checkPermission({$perm})", array(':nid' => $this->id));
 
     return $grant ? true : false;
   }
@@ -878,7 +875,7 @@ class NodeBase implements iFormObject
 
   private function orderFix()
   {
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
     $pdo->exec("UPDATE `node__rel` SET `order` = `nid` WHERE `order` IS NULL AND `tid` = :tid AND `key` IS NULL", array(':tid' => $parent));
   }
 
@@ -889,7 +886,7 @@ class NodeBase implements iFormObject
     if (null === $parent) {
       Tagger::getInstance()->nodeMoveUp($this->id);
     } elseif (null !== $this->id) {
-      $pdo = PDO_Singleton::getInstance();
+      $pdo = mcms::db();
 
       // Прописываем дефолтные порядки.
       $this->orderFix();
@@ -911,7 +908,7 @@ class NodeBase implements iFormObject
         array(':tid' => $parent, ':order' => $my, ':delta' => $my - $order));
     }
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
 
     return true;
   }
@@ -921,7 +918,7 @@ class NodeBase implements iFormObject
     if (null === $parent) {
       Tagger::getInstance()->nodeMoveDown($this->id);
     } elseif (null !== $this->id) {
-      $pdo = PDO_Singleton::getInstance();
+      $pdo = mcms::db();
 
       // Прописываем дефолтные порядки.
       $pdo->exec("UPDATE `node__rel` SET `order` = `nid` WHERE `order` IS NULL AND `tid` = :tid AND `key` IS NULL", array(':tid' => $parent));
@@ -938,7 +935,7 @@ class NodeBase implements iFormObject
         array(':tid' => $parent, ':nid' => $this->id, ':delta' => $next - $my + 1, ':order' => $next));
     }
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
 
     return true;
   }
@@ -947,7 +944,7 @@ class NodeBase implements iFormObject
 
   public function getNeighbors($parent, array $classes = null)
   {
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     if (null === ($order = $pdo->getResult("SELECT `order` FROM `node__rel` WHERE `tid` = :tid AND `nid` = :nid", array(':tid' => $parent, ':nid' => $this->id))))
       return null;
@@ -981,7 +978,7 @@ class NodeBase implements iFormObject
   public function formGet($simple = false)
   {
     $tabs = array();
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
 
     // Формируем вкладку с содержимым документа.
     $tabs['content'] = new FieldSetControl(array(
@@ -1080,7 +1077,7 @@ class NodeBase implements iFormObject
       $intro[] = t('Вы изменяете документ типа &laquo;%type&raquo;.', array('%type' => $schema['title'])) . $description;
     */
 
-    if (AuthCore::getInstance()->getUser()->hasGroup('Schema Managers') and $this->class != 'type' and substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/')
+    if (mcms::user()->hasGroup('Schema Managers') and $this->class != 'type' and substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/')
       $intro[] = t("Вы можете <a href='@typelink'>настроить этот тип</a>, добавив новые поля.", array(
         '@typelink' => "/admin/node/{$schema['id']}/edit/?destination=". urlencode($_SERVER['REQUEST_URI']),
         ));

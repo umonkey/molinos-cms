@@ -9,24 +9,21 @@ class BebopSmarty extends Smarty
 {
     public function __construct($with_debug = false)
     {
-        $config = BebopConfig::getInstance();
-
         $this->Smarty();
 
-        if (is_dir($config->smarty_plugins_dir)) {
+        if (is_dir($tmp = mcms::config('smarty_plugins_dir'))) {
           $plugins = $this->plugins_dir;
-          $plugins[] = $config->smarty_plugins_dir;
+          $plugins[] = $tmp;
           $this->plugins_dir = $plugins;
         }
 
-        // $this->template_dir = $config->smarty_template_dir;
-        $this->compile_dir = $config->smarty_compile_dir;
-        // $this->config_dir = $config->smarty_config_dir;
-        $this->cache_dir = $config->smarty_cache_dir;
+        $this->compile_dir = mcms::config('smarty_compile_dir');
+        $this->cache_dir = mcms::config('smarty_cache_dir');
 
         $this->caching = false;
-        if (isset($config->smarty_cache_lifetime))
-            $this->cache_lifetime = $config->smarty_cache_lifetime;
+
+        if (isset(mcms::config('smarty_cache_lifetime')))
+            $this->cache_lifetime = mcms::config('smarty_cache_lifetime');
 
         if ($with_debug and !empty($_GET['smarty_debug']) and (bebop_is_debugger() or in_array('Developers', (array)@$_SESSION['user']['groups'])))
             $this->debugging = true;

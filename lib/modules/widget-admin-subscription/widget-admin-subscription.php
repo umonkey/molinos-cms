@@ -53,7 +53,7 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
   protected function onGetDownload(array $options)
   {
     $output = '';
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     switch ($options['format']) {
     case 'xml':
@@ -89,7 +89,7 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
   public function onPost(array $options, array $post, array $files)
   {
     $tg = Tagger::getInstance();
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     $pdo->exec("UPDATE `node_type` SET `sendmail` = 0");
 
@@ -109,13 +109,13 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
       }
     }
 
-    BebopCache::getInstance()->flush();
+    mcms::flush();
   }
 
   // Выполнение периодических задач.
   public static function taskRun()
   {
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     // Отправка почты занимает много времени.
     if (!ini_get('safe_mode'))
@@ -280,13 +280,13 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
     }
 
     if ($flush)
-      BebopCache::getInstance()->flush();
+      mcms::flush();
   }
 
   public static function getDashboardIcons()
   {
     $icons = array();
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
 
     $images = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname(__FILE__)) .'/img/';
 

@@ -148,7 +148,7 @@ class CommentWidget extends Widget
       ."AND `n`.`deleted` = 0 AND `n`.`class` = 'comment' "
       ."ORDER BY `n`.`id` ASC LIMIT {$offset}, {$this->perpage}";
 
-    $cids = PDO_Singleton::getInstance()->getResultsV("id", $sql, array(':id' => $nid));
+    $cids = mcms::db()->getResultsV("id", $sql, array(':id' => $nid));
 
     return $cids;
   }
@@ -163,7 +163,7 @@ class CommentWidget extends Widget
   {
     $result = array();
 
-    $pdo = PDO_Singleton::getInstance();
+    $pdo = mcms::db();
 
     $total = $pdo->getResult("SELECT COUNT(*) FROM `node` `n` "
       ."INNER JOIN `node__rel` `r` ON `r`.`nid` = `n`.`id` "
@@ -202,7 +202,7 @@ class CommentWidget extends Widget
       $parents = array();
       $cids = join(', ', array_keys($result['comments']));
 
-      $map = PDO_Singleton::getInstance()->getResultsKV("nid", "tid", "SELECT `r`.`nid`, `r`.`tid` FROM `node__rel` `r` WHERE `r`.`nid` IN ({$cids})");
+      $map = mcms::db()->getResultsKV("nid", "tid", "SELECT `r`.`nid`, `r`.`tid` FROM `node__rel` `r` WHERE `r`.`nid` IN ({$cids})");
 
       $nodes = Node::find(array('id' => array_unique($map)));
 
@@ -292,7 +292,7 @@ class CommentFormWidget extends Widget
     $options = parent::getRequestOptions($ctx);
 
     $options['status'] = $ctx->get('status', 'form');
-    $options['user'] = AuthCore::getInstance()->getUser()->getUid();
+    $options['user'] = mcms::user()->getUid();
 
     if (null === ($options['doc'] = $ctx->document_id))
       throw new WidgetHaltedException();
@@ -311,7 +311,7 @@ class CommentFormWidget extends Widget
 
     switch ($id) {
     case 'comment-new':
-      $user = AuthCore::getInstance()->getUser();
+      $user = mcms::user();
       $schema = TypeNode::getSchema('comment');
       $hidden = $user->getUid() ? $this->hide_user : $this->hide_anon;
 
@@ -362,7 +362,7 @@ class CommentFormWidget extends Widget
 
     switch ($id) {
     case 'comment-new':
-      $user = AuthCore::getInstance()->getUser();
+      $user = mcms::user();
       $result['comment_node'] = $this->options['doc'];
       $result['comment_name'] = $user->getName();
       break;
@@ -375,7 +375,7 @@ class CommentFormWidget extends Widget
   {
     switch ($id) {
     case 'comment-new':
-      $user = AuthCore::getInstance()->getUser();
+      $user = mcms::user();
       $schema = TypeNode::getSchema('comment');
 
       // Добавляем IP адрес в исходные данные, если он описан в типе -- будет обработан.

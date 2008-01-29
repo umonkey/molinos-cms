@@ -45,7 +45,7 @@ class Node extends NodeBase implements iContentType
   // Проверка прав на объект.  Менеджеры контента всегда всё могут.
   public function checkPermission($perm)
   {
-    if (AuthCore::getInstance()->getUser()->hasGroup('Content Managers'))
+    if (mcms::user()->hasGroup('Content Managers'))
       return true;
     return NodeBase::checkPermission($perm);
   }
@@ -56,7 +56,7 @@ class Node extends NodeBase implements iContentType
   public function formGet($simple = true)
   {
     $form = parent::formGet($simple);
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
 
     // Добавляем вкладку с правами.
     if (!$simple and $user->hasGroup('Access Managers') and substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/') {
@@ -81,7 +81,7 @@ class Node extends NodeBase implements iContentType
 
   public function formGetData()
   {
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
 
     $data = parent::formGetData();
 
@@ -103,7 +103,7 @@ class Node extends NodeBase implements iContentType
 
     parent::formProcess($data);
 
-    $user = AuthCore::getInstance()->getUser();
+    $user = mcms::user();
 
     if ($user->hasGroup('Access Managers')) {
       $this->setAccess(empty($data['node_access']) ? array() : $data['node_access']);

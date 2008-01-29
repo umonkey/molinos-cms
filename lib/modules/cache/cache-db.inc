@@ -11,7 +11,7 @@ class DBCache implements iBebopCacheEngine
     public function __construct($lang = null)
     {
         $this->lang = $lang;
-        $this->pdo = PDO_Singleton::getInstance();
+        $this->pdo = mcms::db();
 
         if (self::$instance === null)
             self::$instance = $this;

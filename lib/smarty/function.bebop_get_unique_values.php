@@ -6,17 +6,15 @@ function smarty_function_bebop_get_unique_values($params, &$smarty)
   $message = null;
   $result = null;
 
-  $cache = BebopCache::getInstance();
-
   if (empty($params['type'])) {
     $message = t("Не указан тип документа, используйте параметр type.");
   } else {
     $key = 'bebop_unique_value_for_'. $params['type'];
 
-    if (!is_array($result = $cache->$key)) {
+    if (!is_array($result = mcms::cache($key))) {
       $result = array();
 
-      $pdo = PDO_Singleton::getInstance();
+      $pdo = mcms::db();
       $schema = TypeNode::getSchema($params['type']);
 
       foreach ($schema['fields'] as $field => $meta) {
@@ -25,7 +23,7 @@ function smarty_function_bebop_get_unique_values($params, &$smarty)
         }
       }
 
-      $cache->$key = $result;
+      mcms::cache($key, $result);
     }
   }
 

@@ -60,7 +60,7 @@ class SubscriptionWidget extends Widget
         if (!is_numeric($v))
           unset($data['sections'][$k]);
 
-      $pdo = PDO_Singleton::getInstance();
+      $pdo = mcms::db();
 
       $last = $pdo->getResult("SELECT MAX(`id`) FROM `node`");
 

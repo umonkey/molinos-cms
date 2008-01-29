@@ -19,7 +19,7 @@ class InfoSchema
     {
         static $sm = null;
         if ($sm === null)
-            $sm = new InfoSchema(PDO_Singleton::getInstance());
+            $sm = new InfoSchema(mcms::db());
         return $sm;
     }
 
@@ -27,7 +27,7 @@ class InfoSchema
     public function getDBName()
     {
         if ($this->dbname === null)
-            $this->dbname = PDO_Singleton::getInstance()->getResult("SELECT database() -- InfoSchema::getDBName()");
+            $this->dbname = mcms::db()->getResult("SELECT database() -- InfoSchema::getDBName()");
         return $this->dbname;
     }
 
