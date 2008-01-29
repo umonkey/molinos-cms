@@ -807,17 +807,22 @@ class EnumControl extends Control
       $this->options = $data[$key];
 
     // Если поле необязательно или дефолтного значения нет в списке допустимых -- добавляем пустое значение в начало.
-    if (!isset($this->required) or (null !== $this->default and !array_key_exists($this->default, $this->options))) {
+    if (!empty($this->options) and (!isset($this->required) or (null !== $this->default and !array_key_exists($this->default, $this->options)))) {
       $options .= mcms::html('option', array(
         'value' => '',
         ), $this->default);
     }
 
+    if (empty($data[$this->value]))
+      $current = (empty($this->options) or !array_key_exists($this->default, $this->options)) ? null : $this->default;
+    else
+      $current = $data[$this->value];
+
     if (is_array($this->options))
       foreach ($this->options as $k => $v) {
         $options .= mcms::html('option', array(
           'value' => $k,
-          'selected' => (!empty($data[$this->value]) and $data[$this->value] == $k) ? 'selected' : null,
+          'selected' => ($current == $k) ? 'selected' : null,
           ), $v);
       }
 
