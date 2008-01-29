@@ -743,13 +743,19 @@ class mcms
 
     if (!array_key_exists($modulename, $cache)) {
       $data = array();
+      $ckey = 'moduleinfo:'. $modulename;
 
-      try {
-        $node = Node::load(array('class' => 'moduleinfo', 'name' => $modulename));
+      if (is_array($tmp = mcms::cache($ckey)))
+        $data = $tmp;
+      else {
+        try {
+          $node = Node::load(array('class' => 'moduleinfo', 'name' => $modulename));
 
-        if (is_array($tmp = $node->config))
-          $data = $tmp;
-      } catch (ObjectNotFoundException $e) { }
+          if (is_array($tmp = $node->config)) {
+            mcms::cache($ckey, $data = $tmp);
+          }
+        } catch (ObjectNotFoundException $e) { }
+      }
 
       $cache[$modulename] = $tmp;
     }
