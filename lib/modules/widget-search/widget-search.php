@@ -20,27 +20,54 @@ class SearchWidget extends Widget
   {
     $form = parent::formGetConfig();
 
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_btngo',
-      'label' => t('Текст кнопки поиска'),
+    $form->addControl(new EnumRadioControl(array(
+      'value' => 'config_engine',
+      'label' => t('Механизм поиска'),
+      'options' => array(
+        'mg' => 'mnoGoSearch',
+        'gas' => 'Google Ajax Search',
+        ),
       )));
+
+    $form->addControl(new TextLineControl(array(
+      'value' => 'config_gas_key',
+      'label' => t('Ключ Google API'),
+      'class' => 'settings-gas',
+      'description' => t('Для работы Google Ajax Search нужно <a href=\'@url\'>получить ключ</a>, уникальный для вашего сайта (это делается бесплатно и быстро).', array('@url' => 'http://code.google.com/apis/ajaxsearch/signup.html')),
+      )));
+    $form->addControl(new TextLineControl(array(
+      'value' => 'config_gas_root',
+      'label' => t('Id блока-получателя'),
+      'class' => 'settings-gas',
+      'description' => t('Результат поиска будет помещён внутрь элемента с таким идентификатором.  Обычно это — пустой div, который при обычной работе сайта не виден, и появляется только при поиске.'),
+      )));
+
     $form->addControl(new TextLineControl(array(
       'value' => 'config_ispell',
       'label' => t('Путь к словарям'),
+      'class' => 'settings-mg',
       )));
     $form->addControl(new TextLineControl(array(
       'value' => 'config_action',
       'label' => t('Страница с результатами поиска'),
       'description' => t('По умолчанию поиск производится на текущей странице.&nbsp; Если нужно при поиске перебрасывать пользователя на другую страницу, например &mdash; /search/, введите её имя здесь.'),
+      'class' => 'settings-mg',
       )));
     $form->addControl(new TextLineControl(array(
       'value' => 'config_dsn',
       'label' => t('Параметры подключения к БД'),
       'description' => t('Строка формата mysql://mnogouser:pass@server/mnogodb/?dbmode=multi'),
+      'class' => 'settings-mg',
       )));
     $form->addControl(new NumberControl(array(
       'value' => 'config_per_page',
       'label' => t('Количество результатов на странице'),
+      'class' => 'settings-mg',
+      )));
+    $form->addControl(new TextLineControl(array(
+      'value' => 'config_btngo',
+      'label' => t('Текст кнопки поиска'),
+      'class' => 'settings-mg',
       )));
 
     return $form;
@@ -50,8 +77,16 @@ class SearchWidget extends Widget
   {
     $options = parent::getRequestOptions($ctx);
 
-    if (empty($this->dsn))
-      throw new WidgetHaltedException();
+    switch ($this->engine) {
+    case 'mg':
+      if (empty($this->dsn))
+        throw new WidgetHaltedException();
+      break;
+    case 'gas':
+      if (empty($this->gas_key))
+        throw new WidgetHaltedException();
+      break;
+    }
 
     $options['q'] = $ctx->get('q');
     $options['page'] = $ctx->get('page', 1);
@@ -62,6 +97,11 @@ class SearchWidget extends Widget
   }
 
   public function onGet(array $options)
+  {
+    return $this->dispatch(array($this->engine), $options);
+  }
+
+  protected function onGetMg(array $options)
   {
     $result = array(
       'form' => parent::formRender('search-form', array()),
@@ -76,6 +116,24 @@ class SearchWidget extends Widget
     }
 
     return $result;
+  }
+
+  protected function onGetGas(array $options)
+  {
+    if (is_readable($filename = dirname(__FILE__) .'/gas.txt')) {
+      $options = array(
+        '__APIKEY' => $this->gas_key,
+        '__HOSTNAME' => $_SERVER['HTTP_HOST'],
+        '__ROOT' => $this->gas_root,
+        );
+
+      $template = file_get_contents($filename);
+
+      foreach ($options as $k => $v)
+        $template = str_replace($k, $v, $template);
+
+      return $template;
+    }
   }
 
   private function getResults(array $options)
