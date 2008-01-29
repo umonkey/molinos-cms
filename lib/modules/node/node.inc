@@ -134,7 +134,7 @@ class NodeBase implements iFormObject
   }
 
   // Сохранение объекта.
-  public function save($clear = true, $forcedrev = null)
+  public function save($clear = false, $forcedrev = null)
   {
     $isnew = (null === $this->id);
 
@@ -210,12 +210,14 @@ class NodeBase implements iFormObject
       return;
     }
 
+    /*
     if ($key != 'parent_id' and $key != 'deleted' and $key != 'uid') {
       $schema = TypeNode::getSchema($this->class);
 
       if (empty($schema['fields'][$key]) and !bebop_skip_checks())
         throw new InvalidArgumentException("there is no {$key} property in {$this->data['class']}");
     }
+    */
 
     $this->data[$key] = $val;
   }
