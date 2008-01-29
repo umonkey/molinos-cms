@@ -1,4 +1,4 @@
-group = widgets
+group = core
 classes = ListWidget
 interface[iWidget] = ListWidget
 name[en] = Document Listing

@@ -599,7 +599,7 @@ class mcms
       }
     }
 
-    if (null === $content and $name != 'a' and $name != 'script' and $name != 'div' and $name != 'textarea') {
+    if (null === $content and !in_array($name, array('a', 'script', 'div', 'textarea', 'span'))) {
       $output .= ' />';
     } else {
       $output .= '>'. $content .'</'. $name .'>';
@@ -709,5 +709,23 @@ class mcms
     $output .= '</playlist>';
 
     return $output;
+  }
+
+  public static function cache()
+  {
+    $cache = BebopCache::getInstance();
+
+    switch (count($args = func_get_args())) {
+    case 1:
+      return $cache->$args[0];
+    case 2:
+      $cache->$args[0] = $args[1];
+      break;
+    }
+  }
+
+  public static function config($key)
+  {
+    return BebopCache::getInstance()->$key;
   }
 };

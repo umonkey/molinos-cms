@@ -1,4 +1,4 @@
-group = widgets
+group = core
 classes = ContentFilterWidget
 interface[iAdminWidget] = ContentFilterWidget
 interface[iWidget] = ContentFilterWidget

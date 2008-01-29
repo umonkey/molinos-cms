@@ -5,16 +5,18 @@ define('BEBOP_VERSION', '8.02.BUILDNUMBER');
 // We load cache before everything else because
 // it helps us reduce the metadata reading time.
 require_once(dirname(__FILE__).'/modules/cache/cache.php');
+require_once(dirname(__FILE__).'/modules/config/config.php');
+require_once(dirname(__FILE__).'/modules/pdo/pdo.php');
 
 function bebop_get_module_map()
 {
-  $cache = BebopCache::getInstance();
-
-  $map = $cache->module_map;
-  if (is_array($map) and empty($_GET['reload']))
+  if (is_array($map = mcms::cache('module_map')) and empty($_GET['reload']))
     return $map;
 
-  foreach (glob(dirname(__FILE__) .'/modules/*') as $path) {
+  // Загружаем список активных модулей.
+  $enabled = PDO_Singleton::getInstance()->getResultsV("name", "SELECT `n`.`id`, `r`.`name` FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` WHERE `n`.`class` = 'moduleinfo' AND `n`.`published` = 1");
+
+  foreach (glob(dirname(__FILE__) .'/modules/'.'*') as $path) {
     $tmp = explode('/', $path);
     $module = array_pop($tmp);
     $mpath = $path .'/'. $module;
@@ -44,11 +46,14 @@ function bebop_get_module_map()
           eval($code);
         }
       }
+
+      $map[$module]['enabled'] = ((!empty($map[$module]['group']) and 'core' == $map[$module]['group']) or in_array($module, $enabled)) ? true : false;
     }
   }
 
   ksort($map);
-  $cache->module_map = $map;
+
+  mcms::cache('module_map', $map);
 
   return $map;
 }
@@ -63,6 +68,9 @@ function bebop_autoload($class_name)
           print "Malformed metadata for {$module}:<br /><pre>";
           die(var_dump($info));
         }
+
+        if (empty($info['enabled']))
+          continue;
 
         foreach ($info['classes'] as $class)
           $arr[$class] = $info['file'];

@@ -1,4 +1,4 @@
-group = widgets
+group = core
 classes = LogAdminWidget
 interface[iAdminWidget] = LogAdminWidget
 interface[iWidget] = LogAdminWidget

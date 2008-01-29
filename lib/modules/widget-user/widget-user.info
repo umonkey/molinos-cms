@@ -1,4 +1,4 @@
-group = widgets
+group = core
 classes = UserWidget
 interface[iWidget] = UserWidget
 name[en] = User Profile

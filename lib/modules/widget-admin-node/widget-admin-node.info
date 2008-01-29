@@ -1,4 +1,4 @@
-group = widgets
+group = core
 classes = NodeAdminWidget
 interface[iWidget] = NodeAdminWidget
 name[en] = Node Editor

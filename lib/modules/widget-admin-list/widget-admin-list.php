@@ -461,7 +461,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
     $schema = TypeNode::getSchema($type);
 
     if (empty($schema['id']))
-      return null;
+      return $type;
 
     $text = $schema['title'];
 

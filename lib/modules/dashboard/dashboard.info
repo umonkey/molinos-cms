@@ -1,4 +1,4 @@
-group = admin
+group = core
 classes = BebopDashboard, iDashboard
 interface[iWidget] = BebopDashboard
 interface[iAdminWidget] = BebopDashboard

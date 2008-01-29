@@ -1,4 +1,4 @@
-group = widgets
+group = core
 classes = FormWidget
 interface[iWidget] = FormWidget
 name[en] = Form Widget

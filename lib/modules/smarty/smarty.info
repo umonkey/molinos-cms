@@ -1,4 +1,4 @@
-group = core
+group = template
 classes = SmartyException, BebopSmarty
 name[en] = Smarty Template Engine
 name[ru] = Поддержка шаблонов на Smarty

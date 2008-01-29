@@ -36,8 +36,8 @@ class BebopDashboard extends Widget implements iAdminWidget
   {
     $result = array();
 
-    foreach (bebop_get_interface_map('iDashboard') as $class) {
-      if (is_array($items = call_user_func(array($class, 'getDashboardIcons')))) {
+    foreach ($ifs = bebop_get_interface_map('iDashboard') as $class) {
+      if (class_exists($class) and is_array($items = call_user_func(array($class, 'getDashboardIcons')))) {
         foreach ($items as $v) {
           if (empty($v['weight']))
             $v['weight'] = 0;

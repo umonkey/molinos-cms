@@ -243,7 +243,7 @@ class NodeBase implements iFormObject
     $user = AuthCore::getInstance()->getUser();
 
     // Публикатор.
-    if ($user->hasGroup('Publishers')) {
+    if ($user->hasGroup('Publishers') or ($this->class == 'moduleinfo' and $user->hasGroup('Developers'))) {
       $this->data['published'] = true;
 
       $pdo = PDO_Singleton::getInstance();
@@ -292,7 +292,12 @@ class NodeBase implements iFormObject
 
   public function unpublish()
   {
-    if (AuthCore::getInstance()->getUser()->hasGroup('Publishers')) {
+    $user = AuthCore::getInstance()->getUser();
+
+    if ($user->hasGroup('Publishers') or ($this->class == 'moduleinfo' and $user->hasGroup('Developers'))) {
+      if (null === $this->id)
+        $this->save();
+
       PDO_Singleton::getInstance()->exec("UPDATE `node` SET `published` = 0 WHERE `id` = :id", array(':id' => $this->id));
       BebopCache::getInstance()->flush();
       return true;

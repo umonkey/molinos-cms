@@ -410,7 +410,7 @@ class BoolControl extends Control
 
   public function __construct(array $form)
   {
-    parent::__construct($form, array('label', 'value'));
+    parent::__construct($form, array('value'));
   }
 
   public function getHTML(array $data)
@@ -426,9 +426,10 @@ class BoolControl extends Control
       'disabled' => $this->disabled ? 'disabled' : null,
       ));
 
-    $output = mcms::html('label', array(
-      'id' => $this->id,
-      ), $output . $this->label);
+    if (isset($this->label))
+      $output = mcms::html('label', array(
+        'id' => $this->id,
+        ), $output . $this->label);
 
     return $this->wrapHTML($output, false);
   }
@@ -585,7 +586,7 @@ class SetControl extends Control
         'name' => isset($this->value) ? $this->value .'[]' : null,
         'checked' => !empty($data[$this->value]) and in_array($k, $data[$this->value]),
         ));
-      $content .= mcms::html('label', array('class' => 'normal checkbox'), $inner . $v);
+      $content .= mcms::html('label', array('class' => 'normal'), $inner . $v);
     }
 
     return $this->wrapHTML($content);
@@ -600,6 +601,11 @@ class TableControl extends Control
       'name' => t('Таблица'),
       'hidden' => true,
       );
+  }
+
+  public function getHTML(array $data)
+  {
+    bebop_debug($this, $data);
   }
 };
 
@@ -794,19 +800,17 @@ class EnumControl extends Control
       $this->options = $data[$key];
 
     // Если поле необязательно или дефолтного значения нет в списке допустимых -- добавляем пустое значение в начало.
-    if (!isset($this->required) or (isset($this->default) and !array_key_exists($this->default, $this->options))) {
+    if (!isset($this->required) or (null !== $this->default and !array_key_exists($this->default, $this->options))) {
       $options .= mcms::html('option', array(
         'value' => '',
         ), $this->default);
     }
 
-    $current = (empty($this->options) or !array_key_exists($this->default, $this->options)) ? null : $this->default;
-
     if (is_array($this->options))
       foreach ($this->options as $k => $v) {
         $options .= mcms::html('option', array(
           'value' => $k,
-          'selected' => ($current == $k) ? 'selected' : null,
+          'selected' => (!empty($data[$this->value]) and $data[$this->value] == $k) ? 'selected' : null,
           ), $v);
       }
 

@@ -1472,6 +1472,7 @@ class UpdateManager implements iScheduler
               'type',
               'tag',
               'file',
+              'moduleinfo',
               ),
             'published' => array(0, 1),
             ),
@@ -1696,6 +1697,11 @@ class UpdateManager implements iScheduler
         'class' => 'DrawTextWidget',
         'internal' => true,
         ),
+      'BebopModules' => array(
+        'title' => t('Управление модулями'),
+        'class' => 'ModuleAdminWidget',
+        'internal' => true,
+        ),
       );
 
     // Создаём отсутствующие и обновляем существующие виджеты.
@@ -1893,6 +1899,13 @@ class UpdateManager implements iScheduler
             'language' => 'ru',
             'access' => array('Content Managers'),
             'widgets' => array('BebopDashboard', 'profile', 'BebopRecycleBin'),
+            ),
+          'modules' => array(
+            'title' => 'Модули',
+            'theme' => 'admin',
+            'language' => 'ru',
+            'access' => array('Developers'),
+            'widgets' => array('BebopDashboard', 'profile', 'BebopModules'),
             ),
           ),
         ),
