@@ -1,5 +1,10 @@
 <?php
 
+interface iModuleConfig
+{
+  public static function formGetModuleConfig();
+};
+
 function bebop_redirect($path, $status = 301)
 {
     if (is_array($path))
@@ -726,6 +731,29 @@ class mcms
 
   public static function config($key)
   {
-    return BebopCache::getInstance()->$key;
+    return BebopConfig::getInstance()->$key;
+  }
+
+  public static function modconf($modulename, $key = null)
+  {
+    static $cache = array();
+
+    if (!array_key_exists($modulename, $cache)) {
+      $data = array();
+
+      try {
+        $node = Node::load(array('class' => 'moduleinfo', 'name' => $modulename));
+
+        if (is_array($tmp = $node->config))
+          $data = $tmp;
+      } catch (ObjectNotFoundException $e) { }
+
+      $cache[$modulename] = $tmp;
+    }
+
+    if (null !== $key)
+      return empty($cache[$modulename][$key]) ? null : $cache[$modulename][$key];
+    else
+      return $cache[$modulename];
   }
 };

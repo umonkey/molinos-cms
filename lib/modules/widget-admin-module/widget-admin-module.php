@@ -40,13 +40,14 @@ class ModuleAdminWidget extends Widget
   public function getRequestOptions(RequestContext $ctx)
   {
     $options = parent::getRequestOptions($ctx);
-    return $options;
+    $options['edit'] = $ctx->get('edit');
+    return $this->options = $options;
   }
 
   // Обработка GET запросов.
   public function onGet(array $options)
   {
-    return parent::formRender('module-list');
+    return parent::formRender($options['edit'] ? 'module-edit' : 'module-list');
   }
 
   public function formGet($id)
@@ -81,6 +82,24 @@ class ModuleAdminWidget extends Widget
         )));
 
       break;
+
+    case 'module-edit':
+      $map = bebop_get_module_map();
+
+      if (empty($map[$this->options['edit']]['interface']['iModuleConfig']))
+        throw new PageNotFoundException();
+
+      $rator = $map[$this->options['edit']]['interface']['iModuleConfig'][0];
+
+      $form = call_user_func(array($rator, 'formGetModuleConfig'));
+      $form->intro = t('Подробности об этом модуле можно найти в <a href=\'@url\'>документации</a>.', array('@url' => 'http://code.google.com/p/molinos-cms/wiki/mod_'. str_replace('-', '_', $this->options['edit'])));
+      $form->title = t('Настройка модуля %module', array('%module' => $this->options['edit']));
+
+      $form->addControl(new SubmitControl(array(
+        'text' => t('Применить'),
+        )));
+
+      return $form;
     }
 
     return $form;
@@ -98,12 +117,26 @@ class ModuleAdminWidget extends Widget
       foreach (Node::find(array('class' => 'moduleinfo', 'published' => 1)) as $tmp)
         $enabled[] = $tmp->name;
 
-      foreach (bebop_get_module_map() as $name => $info) {
-        $data['module_list'][$info['group']][$name] = array(
+      foreach ($mmap = bebop_get_module_map() as $name => $info) {
+        $mod = array(
           'title' => $info['name']['ru'],
-          'enabled' => $info['group'] == 'core' or in_array($name, $enabled),
+          'enabled' => ($info['group'] == 'core' or in_array($name, $enabled)) ? true : false,
           );
+
+        if (!empty($mod['enabled']) and !empty($info['interface']['iModuleConfig']))
+          $mod['config'] = true;
+
+        $data['module_list'][$info['group']][$name] = $mod;
       }
+
+      break;
+
+    case 'module-edit':
+      $node = Node::load(array('class' => 'moduleinfo', 'name' => $this->options['edit']));
+
+      if (is_array($tmp = $node->config))
+        foreach ($tmp as $k => $v)
+          $data['config_'. $k] = $v;
 
       break;
     }
@@ -141,6 +174,29 @@ class ModuleAdminWidget extends Widget
       foreach ($all as $k => $v)
         if (empty($data['module_list'][$k]))
           $v->unpublish();
+
+      break;
+
+    case 'module-edit':
+      $config = array();
+
+      foreach ($data as $k => $v)
+        if (substr($k, 0, 7) == 'config_')
+          $config[substr($k, 7)] = $v;
+
+      try {
+        $node = Node::load($f = array('class' => 'moduleinfo', 'name' => $this->options['edit']));
+      } catch (ObjectNotFoundException $e) {
+        $node = Node::create('moduleinfo', array(
+          'name' => $this->options['edit'],
+          'published' => true,
+          ));
+      }
+
+      $node->config = $config;
+      $node->save();
+
+      break;
     }
   }
 
@@ -198,12 +254,20 @@ class ModuleListControl extends Control
           'style' => 'white-space: nowrap',
           ), $k) .'</td>';
         $row .= '<td>'. mcms_plain($v['title']) .'</td>';
+
+        if (!empty($v['config']))
+          $row .= '<td>'. mcms::html('a', array(
+            'href' => '/admin/builder/modules/?BebopModules.edit='. $k .'&destination='. urlencode($_SERVER['REQUEST_URI']),
+            ), t('настроить')) .'</td>';
+        else
+          $row .= '<td>&nbsp;</td>';
+
         $rows[] = '<tr>'. $row .'</tr>';
       }
 
       if  (!empty($rows)) {
         $output = '<table class=\'highlight\'>';
-        $output .= '<tr><th>&nbsp;</th><th>Имя</th><th>Описание</th></tr>';
+        $output .= '<tr><th>&nbsp;</th><th>Имя</th><th>Описание</th><th>Действия</th></tr>';
         $output .= join('', $rows);
         $output .= '</table>';
 

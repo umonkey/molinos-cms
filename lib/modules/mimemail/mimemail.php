@@ -3,7 +3,7 @@
 
 require_once(dirname(__FILE__) .'/htmlMimeMail.php');
 
-class BebopMimeMail
+class BebopMimeMail implements iModuleConfig
 {
   public static function send($from, $to, $subject, $body, array $attachments = null)
   {
@@ -39,5 +39,17 @@ class BebopMimeMail
     }
 
     return $mail->send($to);
+  }
+
+  public static function formGetModuleConfig()
+  {
+    $form = new Form(array());
+    $form->addControl(new EmailControl(array(
+      'value' => 'config_from',
+      'label' => t('Адрес отправителя'),
+      'default' => mcms::config('mail_from'),
+      )));
+
+    return $form;
   }
 };

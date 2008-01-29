@@ -529,12 +529,19 @@ class EmailControl extends Control
 
   public function getHTML(array $data)
   {
+    if (!empty($data[$this->value]))
+      $value = $data[$this->value];
+    elseif (isset($this->default))
+      $value = $this->default;
+    else
+      $value = null;
+
     $output = mcms::html('input', array(
       'type' => 'text',
       'id' => $this->id,
       'class' => 'form-text',
       'name' => $this->value,
-      'value' => empty($data[$this->value]) ? null : $data[$this->value],
+      'value' => $value,
       ));
 
     return $this->wrapHTML($output);
