@@ -457,9 +457,9 @@ class DateControl extends Control
   public function getHTML(array $data)
   {
     $output = mcms::html('input', array(
-      'type' => 'text',
+      'type' => 'date',
       'id' => $this->id,
-      'class' => 'form-text',
+      'class' => 'form-text form-date',
       'name' => $this->value,
       'value' => empty($data[$this->value]) ? null : $data[$this->value],
       ));
@@ -497,9 +497,9 @@ class DateTimeControl extends Control
         ), $this->text);
 
     $output .= mcms::html('input', array(
-      'type' => 'text',
+      'type' => 'datetime',
       'id' => $this->id,
-      'class' => array('form-text', 'form-date'),
+      'class' => 'form-text form-datetime',
       'name' => $this->value,
       'value' => empty($data[$this->value]) ? null : $data[$this->value],
       ));
@@ -537,7 +537,7 @@ class EmailControl extends Control
       $value = null;
 
     $output = mcms::html('input', array(
-      'type' => 'text',
+      'type' => 'email',
       'id' => $this->id,
       'class' => 'form-text',
       'name' => $this->value,

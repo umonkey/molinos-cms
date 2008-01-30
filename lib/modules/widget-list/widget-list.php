@@ -116,9 +116,9 @@ class ListWidget extends Widget
       // настроек текущей страницы.
 
       if ('always' == $this->fallbackmode and !empty($this->fixed))
-        $options['filter']['tags'] = $this->fixed;
+        $options['filter']['tags'] = array($this->fixed);
       elseif (null !== ($tmp = $ctx->section_id))
-        $options['filter']['tags'] = $ctx->section_id;
+        $options['filter']['tags'] = array($ctx->section_id);
 
       if ($this->skipcurrent)
         $options['current_document'] = $ctx->document_id;
