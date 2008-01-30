@@ -21,6 +21,9 @@ function bebop_get_module_map()
     $module = array_pop($tmp);
     $mpath = $path .'/'. $module;
 
+    if (!is_readable($mpath .'.info'))
+      $mpath = $path .'/module';
+
     if (is_readable($mpath .'.info')) {
       $info = file($mpath .'.info');
 
