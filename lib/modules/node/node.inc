@@ -1162,10 +1162,14 @@ class NodeBase implements iFormObject
 
         // Подмена файла.
         if (!empty($fileinfo['error']) and !empty($fileinfo['id'])) {
+          $tmp = ('__bebop' == $field) ? null : $field;
+
           if (is_numeric($fileinfo['id']))
-            $this->linkAddChild($fileinfo['id'], $field);
-          else
+            $this->linkAddChild($fileinfo['id'], $tmp);
+          elseif (!is_numeric($tmp))
             $this->linkRemoveChild(null, $field);
+          else
+            $this->linkRemoveChild($field);
         }
 
         elseif ($field == '__bebop') {
