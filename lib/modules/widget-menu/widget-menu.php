@@ -155,6 +155,7 @@ class MenuWidget extends Widget
   {
     $output = '';
     $ndepth = $depth - 1;
+    $level = $this->depth - $depth + 1;
 
     if  (!empty($root->children)) {
       $submenu = '';
@@ -166,44 +167,38 @@ class MenuWidget extends Widget
         if (!empty($child->hidden))
           continue;
 
+        $li = $a = array();
+
         if (array_key_exists($child->id, $path))
-          $class = 'active';
-        else
-          $class = '';
+          $li['class'][] = 'active';
 
-        if ((is_numeric($myid) and $myid == $child->id) or ($myid == $child->code)) {
-          if ($class != '')
-            $class .= ' ';
-          $class .= 'current';
-        }
+        if ((is_numeric($myid) and $myid == $child->id) or ($myid == $child->code))
+          $li['class'][] = 'current';
 
-        if ($idx == 0) {
-          if ($class != '')
-            $class .= ' ';
-          $class .= 'first';
-        } elseif ($idx == count($root->children) - 1) {
-          if ($class != '')
-            $class .= ' ';
-          $class .= 'last';
-        }
+        if ($idx == 0)
+          $li['class'][] = 'first';
+        elseif ($idx == count($root->children) - 1)
+          $li['class'][] = 'last';
 
-        $mod = ($class == '') ? '' : " class='{$class}'";
+        $li['class'][] = 'level-'. $level;
 
-        if (empty($child->description))
-          $title = '';
-        else
-          $title = " title='". mcms_plain($child->description) ."'";
+        if (!empty($child->description))
+          $a['title'] = mcms_plain($child->description);
 
         if (null !== $this->external and !empty($child->{$this->external}))
           $link = $child->{$this->external};
         else
           $link = $this->prefix . $child->code .'/';
 
-        if (empty($this->hidecurrent) or (false === strstr($class, 'current')) or !empty($this->options['document'])) {
-          $submenu .= "<li{$mod}><a href='{$link}'{$title}>{$child->name}</a>";
-        } else {
-          $submenu .= "<li{$mod}>{$child->name}";
-        }
+        $a['href'] = str_replace('$tid', $child->code, $link);
+
+        if (empty($this->hidecurrent) or !in_array('current', $li['class']) or !empty($this->options['document']))
+          $submenu .= mcms::html('li', $li, mcms::html('a', $a, mcms_plain($child->name)));
+        else
+          $submenu .= mcms::html('li', $li, mcms_plain($child->name));
+
+        // Отрезаем финальный </li>.
+        $submenu = substr($submenu, 0, -5);
 
         if ($ndepth)
           $submenu .= $this->renderMenu($child, $ndepth, $path, $myid);

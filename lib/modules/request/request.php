@@ -635,7 +635,8 @@ class RequestController
     $cache = new DBCache($this->page->language);
 
     // Загружаем закэшированные виджеты.
-    $this->getCachedWidgets($cache, $blocks, $profile);
+    if (empty($_GET['widget']))
+      $this->getCachedWidgets($cache, $blocks, $profile);
 
     // Обрабатываем оставшиеся виджеты.
     foreach ($this->widgets as $name => $info) {
@@ -680,7 +681,7 @@ class RequestController
 
     if (!empty($_GET['widget'])) {
       if (!array_key_exists($_GET['widget'], $blocks['widgets'])) {
-        if (bebop_is_json() and array_key_exists($_GET['widget'], $blocks))
+        if (bebop_is_json() and array_key_exists($_GET['widget'], $blocks) and !empty($blocks[$_GET['widget']]))
           bebop_on_json($blocks[$_GET['widget']]);
 
         bebop_debug("Widget {$_GET['widget']} not found.", $blocks);

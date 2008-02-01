@@ -46,29 +46,40 @@ class RatingWidget extends Widget
     $halt = false;
 
     $options = parent::getRequestOptions($ctx);
+
     $options['#nocache'] = true;
-    $options['action'] = $ctx->get('action', 'list');
+    $options['action'] = $ctx->get('action', 'status');
     $options['vote'] = $ctx->get('vote');
 
     if (null === ($options['node'] = $ctx->document_id))
       $halt = true;
-    elseif (null !== ($node = $ctx->document)) {
-      $type = TypeNode::getSchema($node->class);
 
-      if (empty($type['hasrating']))
-        $halt = true;
-    }
+    if (null !== ($options['rate'] = $ctx->get('rate')))
+      $options['action'] = 'rate';
 
     if ($halt)
       throw new WidgetHaltedException();
 
-    return $options;
+    return $this->options = $options;
   }
 
   // Обработка GET запросов.
   public function onGet(array $options)
   {
     return $this->dispatch(array($options['action']), $options);
+  }
+
+  protected function onGetStatus(array $options)
+  {
+    $result = array(
+      'average' => mcms::db()->getResult("SELECT AVG(`rate`) FROM `node__rating` WHERE `nid` = :nid AND `rate` <> 0", array(':nid' => $this->options['node'])),
+      'count' => mcms::db()->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `rate` <> 0", array(':nid' => $this->options['node'])),
+      'user' => mcms::db()->getResult("SELECT `rate` FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(':nid' => $this->options['node'], ':uid' => mcms::user()->getUid())),
+      );
+
+    bebop_on_json($result);
+
+    return $result;
   }
 
   // Вывод статистики.
@@ -133,6 +144,22 @@ class RatingWidget extends Widget
     exit(bebop_redirect($destination));
   }
 
+  protected function onGetRate(array $options)
+  {
+    $result = array(
+      'status' => 'ok',
+      'message' => t('Your vote had been added.'),
+      );
+
+    $this->voteCast();
+
+    bebop_on_json($result);
+
+    $url = bebop_split_url();
+    $url['args'][$this->getInstanceName()] = null;
+    bebop_redirect($url);
+  }
+
   // Формирование формы со статистикой.
   private function getStatsForm($stats, $voted)
   {
@@ -189,5 +216,21 @@ class RatingWidget extends Widget
   private function setUserVoted()
   {
     $_SESSION['already_voted_with_'. $this->getInstanceName()] = true;
+  }
+
+  private function voteCast()
+  {
+    $db = mcms::db();
+
+    $db->exec("DELETE FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(
+      ':nid' => $this->options['node'],
+      ':uid' => mcms::user()->getUid(),
+      ));
+    $db->exec("INSERT INTO `node__rating` (`nid`, `uid`, `ip`, `rate`) VALUES (:nid, :uid, :ip, :rate)", array(
+      ':nid' => $this->options['node'],
+      ':uid' => mcms::user()->getUid(),
+      ':ip' => $_SERVER['REMOTE_ADDR'],
+      ':rate' => $this->options['rate'],
+      ));
   }
 };

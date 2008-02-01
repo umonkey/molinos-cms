@@ -5,12 +5,11 @@ require_once(dirname(__FILE__) .'/htmlMimeMail.php');
 
 class BebopMimeMail implements iModuleConfig
 {
-  public static function send($from, $to, $subject, $body, array $attachments = null)
+  public static function send($from, $to, $subject, $body, array $attachments = null, array $headers = null)
   {
-    if (empty($from)) {
+    if (empty($from))
       if (($from = mcms::config('mail_from')) === null)
         $from = "Molinos.CMS <no-reply@{$_SERVER['HTTP_HOST']}>";
-    }
 
     if (strstr($body, '<html>') === false)
       $body = '<html><head><title>'. mcms_plain($subject) .'</title></head><body>'. $body .'</body></html>';
@@ -37,6 +36,11 @@ class BebopMimeMail implements iModuleConfig
         $mail->addAttachment($file['data'], $file['name'], $file['type']);
       }
     }
+
+    if (null !== $headers)
+      foreach ($headers as $k => $v)
+        if (!empty($v))
+          $mail->setHeader($k, $v);
 
     return $mail->send($to);
   }

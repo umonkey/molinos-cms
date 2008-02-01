@@ -33,6 +33,7 @@ class ListWidget extends Widget
       'options' => TagNode::getTags('select'),
       'default' => t('Текущего (из пути или свойств страницы)'),
       'description' => t('В большинстве случаев нужен текущий раздел. Фиксированный используется только если список работает в отрыве от контекста запроса, например -- всегда показывает баннеры из фиксированного раздела.'),
+      'required' => true,
       )));
     $form->addControl(new EnumControl(array(
       'value' => 'config_fallbackmode',
@@ -400,6 +401,8 @@ class ListWidget extends Widget
 
       if (!empty($query['tags']) and !is_array($query['tags']))
         $query['tags'] = $this->queryGetTags($query['tags']);
+      elseif (count($query['tags']) == 1)
+        $query['tags'] = $this->queryGetTags($query['tags'][0]);
 
       // Переключаемся на дефолтный раздел, если это нужно.
       if (!empty($this->fixed) and 'empty' == $this->fallbackmode) {

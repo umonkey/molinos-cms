@@ -38,6 +38,13 @@ class DocWidget extends Widget
   {
     $options = parent::getRequestOptions($ctx);
 
+    if ($uid = mcms::user()->getUid()) {
+      $options['cachecontrol'] = $uid;
+      $options['#nocache'] = true;
+    } else {
+      $options['cachecontrol'] = array_keys(mcms::user()->getGroups());
+    }
+
     if ($this->showneighbors)
       $options['section'] = $ctx->section_id;
 

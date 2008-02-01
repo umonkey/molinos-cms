@@ -5,6 +5,12 @@ interface iModuleConfig
   public static function formGetModuleConfig();
 };
 
+interface iNodePatchHook
+{
+  public static function patchNode(Node $node);
+  public static function patchNodeList(array &$nodes);
+};
+
 function bebop_redirect($path, $status = 301)
 {
     if (is_array($path))
@@ -34,10 +40,10 @@ function bebop_redirect($path, $status = 301)
     exit();
 }
 
-function bebop_mail($from, $to, $subject, $body, array $attachments = null)
+function bebop_mail($from, $to, $subject, $body, array $attachments = null, array $headers = null)
 {
   require_once(dirname(__FILE__) .'/modules/mimemail/mimemail.php');
-  return BebopMimeMail::send($from, $to, $subject, $body, $attachments);
+  return BebopMimeMail::send($from, $to, $subject, $body, $attachments, $headers);
 }
 
 // Возвращает массив интерфейсов и реализующих их классов.
@@ -344,6 +350,7 @@ function bebop_on_json(array $result)
 {
   if (bebop_is_json()) {
     mcms::db()->commit();
+    mcms::flush(mcms::FLUSH_NOW);
 
     setlocale(LC_ALL, "en_US.UTF-8");
 
@@ -764,6 +771,11 @@ class mcms
       return empty($cache[$modulename][$key]) ? null : $cache[$modulename][$key];
     else
       return $cache[$modulename];
+  }
+
+  public static function ismodule($name)
+  {
+    return array_key_exists($name, bebop_get_module_map());
   }
 
   public static function flush($flags = null)
