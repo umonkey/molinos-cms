@@ -86,6 +86,8 @@ class SearchWidget extends Widget
       if (empty($this->gas_key))
         throw new WidgetHaltedException();
       break;
+    default:
+      throw new WidgetHaltedException();
     }
 
     $options['q'] = $ctx->get('q');
