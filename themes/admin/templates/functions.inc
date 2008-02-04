@@ -172,3 +172,10 @@ function _user_link()
 
   return $text;
 }
+
+function _admin_check_perm()
+{
+  if (mcms::user()->getUid())
+    return true;
+  throw new UnauthorizedException();
+}
