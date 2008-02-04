@@ -253,7 +253,7 @@ class LogAdminWidget extends Widget implements iAdminWidget, iDashboard
     $icons = array();
     $user = mcms::user();
 
-    $images = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname(__FILE__)) .'/img/';
+    $images = '/lib/modules/widget-admin-log/img/';
 
     if ($user->hasGroup('Access Managers'))
       $icons[] = array(

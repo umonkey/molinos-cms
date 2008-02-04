@@ -288,7 +288,7 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
     $icons = array();
     $user = mcms::user();
 
-    $images = str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname(__FILE__)) .'/img/';
+    $images = '/lib/modules/widget-admin-subscription/img/';
 
     if ($user->hasGroup('Subscription Managers'))
       $icons[] = array(
