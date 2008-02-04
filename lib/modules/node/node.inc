@@ -135,6 +135,9 @@ class NodeBase implements iFormObject
   {
     $isnew = (null === $this->id);
 
+    if (!$this->checkPermission($isnew ? 'c' : 'u'))
+      throw new ForbiddenException();
+
     $tg = Tagger::getInstance();
 
     if ($forcedrev !== null)
@@ -992,6 +995,9 @@ class NodeBase implements iFormObject
 
   public function formGet($simple = false)
   {
+    if (!$this->checkPermission('u'))
+      throw new ForbiddenException(t('У вас недостаточно прав для редактирования этого документа.'));
+
     $tabs = array();
     $user = mcms::user();
 

@@ -158,3 +158,17 @@ function _admin_actions()
   if (!empty($output))
     return "<div class='menu_block'>{$output}</div>";
 }
+
+function _user_link()
+{
+  $user = mcms::user();
+  $text = '<strong>'. mcms_plain($user->getTitle()) .'</strong>';
+
+  if ($user->getUid())
+    $text = mcms::html('a', array(
+      'href' => '/admin/node/'. $user->getUid() .'/edit/?destination='. urlencode($_SERVER['REQUEST_URI']),
+      'title' => t('Редактировать профиль'),
+      ), $text);
+
+  return $text;
+}

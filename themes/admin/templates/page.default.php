@@ -25,7 +25,7 @@ $user = AuthCore::getInstance()->getUser();
       <div id="all">
 
         <div id="top_toolbar">
-          <div class="greeting">Здравствуйте, <a href='/admin/node/<?=$user->getUid()?>/edit/?destination=<?=urlencode($_SERVER['REQUEST_URI'])?>'><strong><?=$user->getName()?></strong></a></div>
+          <div class="greeting">Здравствуйте, <?=_user_link()?></div>
           <div class="right">
             <?=_admin_check_updates();?>
             <a href="http://code.google.com/p/molinos-cms/issues/list" class="tip">Сообщить о проблеме</a>

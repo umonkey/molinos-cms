@@ -213,33 +213,33 @@ class ListAdminWidget extends ListWidget implements iDashboard
         else
           $text = mcms_plain($node->$field);
 
-        if ($link) {
-          $mod = '';
-          $classes = array();
+        $a = array(
+          'class' => array(),
+          );
 
+        if ($link) {
           if (null === $text)
             $text = t('(без названия)');
 
           if (!empty($node->description)) {
-            $mod .= ' title=\''. mcms_plain($node->description) .'\'';
-            $classes[] = 'hint';
+            $a['title'] = $node->description;
+            $a['class'][] = 'hint';
           }
 
           if (null === $this->options['picker'] or $node->class != 'file') {
-            $url = "/admin/node/{$node->id}/edit/?destination=". urlencode($_SERVER['REQUEST_URI']);
+            $a['href'] = "/admin/node/{$node->id}/edit/?destination=". urlencode($_SERVER['REQUEST_URI']);
           } else {
-            $url = "/attachment/{$node->id}";
-            $classes[] = 'returnHref';
+            $a['href'] = "/attachment/{$node->id}";
+            $a['class'][] = 'returnHref';
           }
 
-          if (!empty($classes))
-            $mod .= ' class=\''. join(' ', $classes) .'\'';
-
-          $text = "<a href='{$url}'{$mod}>{$text}</a>";
           $link = false;
         } elseif ($field == 'email' and null !== $text) {
-          $text = "<a href='mailto:{$text}'>{$text}</a>";
+          $a['href'] = 'mailto:'. $text;
         }
+
+        if ($node->checkPermission('u'))
+          $text = mcms::html('a', $a, $text);
 
         if ($field == 'name')
           $text = $this->getNodePreview($node) . $text;
