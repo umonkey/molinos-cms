@@ -133,10 +133,15 @@ class NodeBase implements iFormObject
   // Сохранение объекта.
   public function save($clear = false, $forcedrev = null)
   {
-    $isnew = (null === $this->id);
+    // Здесь хранятся идентификаторы создаваемых документов.
+    static $mydocs = array();
 
-    if (!$this->checkPermission($isnew ? 'c' : 'u'))
-      throw new ForbiddenException();
+    if ($isnew = (null === $this->id)) {
+      if (!$this->checkPermission('c'))
+        throw new ForbiddenException(t('Вы не можете создавать документы такого типа.'));
+    } elseif (!in_array($this->id, $mydocs) and !$this->checkPermission('u')) {
+      throw new ForbiddenException(t('Вы не можете изменять этот документ.'));
+    }
 
     $tg = Tagger::getInstance();
 
@@ -159,6 +164,9 @@ class NodeBase implements iFormObject
     $this->data['html'] = $this->render();
 
     $tg->nodeSave($this->data, $this->forcedrev);
+
+    if ($isnew)
+      $mydocs[] = $this->id;
 
     mcms::flush();
 
@@ -884,7 +892,13 @@ class NodeBase implements iFormObject
     if ($user->getName() == 'root')
       return true;
 
-    $grant = mcms::db()->getResult("SELECT 1 FROM `node` WHERE `id` = :nid AND `id` IN (PERMCHECK:{$perm}) -- NodeBase::checkPermission({$perm})", array(':nid' => $this->id));
+    // При проверки прав на создание новых документов обращаемся к типу документа.
+    if (null === ($nid = $this->id) and 'c' == $perm) {
+      $schema = TypeNode::getSchema($this->class);
+      $nid = $schema['id'];
+    }
+
+    $grant = mcms::db()->getResult("SELECT 1 FROM `node` WHERE `id` = :nid AND `id` IN (PERMCHECK:{$perm}) -- NodeBase::checkPermission({$perm})", array(':nid' => $nid));
 
     return $grant ? true : false;
   }
@@ -995,8 +1009,10 @@ class NodeBase implements iFormObject
 
   public function formGet($simple = false)
   {
-    if (!$this->checkPermission('u'))
+    if (null !== $this->id and !$this->checkPermission('u'))
       throw new ForbiddenException(t('У вас недостаточно прав для редактирования этого документа.'));
+    elseif (null === $this->id and !$this->checkPermission('c'))
+      throw new ForbiddenException(t('У вас недостаточно прав для создания такого документа.'));
 
     $tabs = array();
     $user = mcms::user();
