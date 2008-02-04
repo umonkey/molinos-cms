@@ -14,7 +14,11 @@ function bebop_get_module_map()
     return $map;
 
   // Загружаем список активных модулей.
-  $enabled = mcms::db()->getResultsV("name", "SELECT `n`.`id`, `r`.`name` FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` WHERE `n`.`class` = 'moduleinfo' AND `n`.`published` = 1");
+  try {
+    $enabled = mcms::db()->getResultsV("name", "SELECT `n`.`id`, `r`.`name` FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` WHERE `n`.`class` = 'moduleinfo' AND `n`.`published` = 1");
+  } catch (PDOException $e) {
+    $enabled = array();
+  }
 
   foreach (glob(dirname(__FILE__) .'/modules/'.'*') as $path) {
     $tmp = explode('/', $path);
