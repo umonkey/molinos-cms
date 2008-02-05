@@ -1,4 +1,5 @@
 group = core
-classes = InfoSchema
+classes = InfoSchema, TableInfo
+interface[iModuleConfig] = TableInfo
 name[en] = DB Schema Engine
 name[ru] = Работа со схемой данных

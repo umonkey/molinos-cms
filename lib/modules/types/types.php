@@ -748,7 +748,7 @@ class NumberControl extends Control
 
   public static function getSQL()
   {
-    return 'VARCHAR(255)';
+    return 'DECIMAL(10,2)';
   }
 
   public function getHTML(array $data)

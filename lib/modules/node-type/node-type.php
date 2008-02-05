@@ -264,37 +264,11 @@ class TypeNode extends Node implements iContentType
   // Обрабатывает подключение виджетов и полей, остальное передаёт родителю.
   public function formProcess(array $data)
   {
-    // Обрабатываем изменения в полях.
-    if (!empty($this->fields)) {
-      $fields = $this->fields;
-
-      foreach ($data['node_content_fields'] as $k => $v) {
-        if ($k == 'new-field' and !empty($v['name'])) {
-          $k = $v['name'];
-          unset($v['name']);
-        }
-
-        if (!empty($v['delete'])) {
-          if (array_key_exists($k, $fields))
-            unset($fields[$k]);
-        } else {
-          $fields[$k] = $v;
-        }
-      }
-
-      if (array_key_exists('new-field', $fields))
-        unset($fields['new-field']);
-
-      foreach (array_keys($fields) as $key)
-        if (strspn(strtolower($name), 'abcdefghijklmnopqrstuvwxyz0123456789_') != strlen($name))
-          throw new ValidationError('name', "Имя поля может содержать только буквы латинского алфавита, арабские цифры и символ подчёркивания (\"_\").");
-
-      $this->data['fields'] = $fields;
-
-      mcms::flush();
-    }
-
+    // Обновляем базовые свойства, типа имени и описания.
     parent::formProcess($data);
+
+    // Теперь, когда имя типа известно, можно обновить поля.
+    $this->updateFields($data);
 
     if (empty($this->fields)) {
       mcms::db()->rollBack();
@@ -303,9 +277,90 @@ class TypeNode extends Node implements iContentType
     }
 
     // Подключаем виджеты.
-    $this->linkSetChildren(array_key_exists('node_type_widgets', $data) ? $data['node_type_widgets'] : array(), 'widget');
+    if (mcms::user()->hasGroup('Developers'))
+      $this->linkSetChildren(array_key_exists('node_type_widgets', $data) ? $data['node_type_widgets'] : array(), 'widget');
+  }
 
-    Tagger::getInstance()->checkIndexes($this->name, true);
+  protected function updateFields(array $data)
+  {
+    $t = new TableInfo('node_'. $this->name);
+
+    if (!$t->columnExists('rid'))
+      $t->columnSet('rid', array(
+        'type' => 'int(10) unsigned',
+        'required' => true,
+        'key' => 'pri',
+        ));
+
+    $old = empty($this->fields) ? array() : $this->fields;
+    $new = empty($data['node_content_fields']) ? array() : $data['node_content_fields'];
+
+    // Удаляем поля.
+    foreach ($old as $k => $v) {
+      if (!empty($v['indexed'])) {
+        if (empty($new[$k]['indexed']) or !empty($new[$k]['delete']))
+          $t->columnDel($k);
+      }
+    }
+
+    // Обрабатываем новые поля.
+    foreach ($new as $k => $v) {
+      if (!empty($v['delete'])) {
+        unset($new[$k]);
+        continue;
+      }
+
+      if ('new-field' == $k) {
+        if (empty($v['name'])) {
+          unset($new[$k]);
+          continue;
+        } else {
+          unset($new[$k]);
+          $new[$k = $v['name']] = $v;
+
+          self::checkFieldName($k);
+        }
+      }
+
+      if (!empty($v['indexed'])) {
+        if (!empty($v['type']) and class_exists($v['type'])) {
+          $spec = array(
+            'type' => call_user_func(array($v['type'], 'getSQL')),
+            'required' => !empty($v['required']),
+            'index' => 'mul',
+            'default' => (isset($v['default']) and '' !== $v['default']) ? $v['default'] : null,
+            );
+          $t->columnSet($k, $spec);
+        }
+      }
+    }
+
+    $t->commit();
+
+    $this->data['fields'] = $new;
+
+    // Не дожидаемся сохранения извне, т.к. о нём могут забыть,
+    // а структура таблиц у нас уже изменилась.
+    $this->save();
+
+    mcms::flush();
+  }
+
+  private static function checkFieldName($name)
+  {
+    $ok = true;
+
+    if (strspn(strtolower($name), 'abcdefghijklmnopqrstuvwxyz0123456789_') != strlen($name))
+      $ok = false;
+
+    if ($ok and (substr($name, 0, 1) == '_' or substr($name, -1) == '_'))
+      $ok = false;
+
+    if ($ok and (false !== strstr($name, '__')))
+      $ok = false;
+
+    if (!$ok)
+      throw new ValidationError('name', t("Имя поля может содержать только буквы латинского алфавита, арабские цифры и символ подчёркивания (\"_\"), вы ввели: %name.", array('%name' => $name)));
   }
 
   public function getAccess()
