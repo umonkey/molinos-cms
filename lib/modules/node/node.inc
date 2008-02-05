@@ -165,6 +165,10 @@ class NodeBase implements iFormObject
 
     $tg->nodeSave($this->data, $this->forcedrev);
 
+    // Сохраняем номер ревизии для последующего повторного использования.
+    if (array_key_exists('rid', $this->data))
+      $this->forcedrev = $this->data['rid'];
+
     if ($isnew)
       $mydocs[] = $this->id;
 
