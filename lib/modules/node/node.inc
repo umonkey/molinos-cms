@@ -373,12 +373,23 @@ class NodeBase implements iFormObject
     $pdo = mcms::db();
 
     $meta = $pdo->getResult("SELECT `left`, `right`, `right` - `left` + 1 AS `width` FROM `node` WHERE `id` = :id", array(':id' => $this->id));
+    $nids = $pdo->getResultsKV("id", "class", "SELECT `id`, `class` FROM `node` WHERE `left` >= :left AND `right` <= :right", array(':left' => $meta['left'], ':right' => $meta['right']));
+
+    // Вызываем дополнительную обработку.
+    if (count($hooks = bebop_get_interface_map('iNodeHook'))) {
+      foreach ($nids as $nid => $class) {
+        $node = Node::load(array('id' => $nid, 'deleted' => 1));
+
+        foreach ($hooks as $hook)
+          call_user_func(array($hook, 'hookNodeDelete'), $node);
+
+        mcms_log('erase', $node->id);
+      }
+    }
 
     $pdo->exec("DELETE FROM `node` WHERE `left` BETWEEN :left AND :right", array(':left' => $meta['left'], ':right' => $meta['right']));
     $pdo->exec("UPDATE `node` SET `right` = `right` - :width WHERE `right` > :right ORDER BY `right` ASC", $args = array(':width' => $meta['width'], ':right' => $meta['right']));
     $pdo->exec("UPDATE `node` SET `left` = `left` - :width WHERE `left` > :right ORDER BY `left` ASC", $args);
-
-    mcms_log('erase', $this->id);
 
     mcms::flush();
   }

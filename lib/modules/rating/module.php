@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class RatingWidget extends Widget
+class RatingWidget extends Widget implements iNodeHook
 {
   public function __construct(Node $node)
   {
@@ -232,5 +232,10 @@ class RatingWidget extends Widget
       ':ip' => $_SERVER['REMOTE_ADDR'],
       ':rate' => $this->options['rate'],
       ));
+  }
+
+  public static function hookNodeDelete(Node $node)
+  {
+    mcms::db()->exec("DELETE FROM `node_rating` WHERE `nid` = :nid OR `uid` = :uid", array(':nid' => $node->id, ':uid' => $node->id));
   }
 };

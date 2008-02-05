@@ -1,7 +1,8 @@
 group = core
-classes = Node, iContentType, ObjectNotFoundException, ValidationError, NodeQueryBuilder, AccessControl, FileListControl
+classes = Node, iContentType, iNodeHook, ObjectNotFoundException, ValidationError, NodeQueryBuilder, AccessControl, FileListControl
 interface[iContentType] = Node
 interface[iFormControl] = AccessControl
 interface[iModuleConfig] = Node
+interface[iNodeHook] = Node
 name[en] = Base node functions
 name[ru] = Базовая работа с документами

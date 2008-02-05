@@ -362,6 +362,12 @@ class TableInfo implements iModuleConfig
         return array_key_exists($name, $this->columns);
     }
 
+    // Возвращает true, если таблица на данный момент существует.
+    public function exists()
+    {
+        return !$this->isnew;
+    }
+
     // Форматирует код для изменения структуры таблицы.
     protected function addSql($name, array $spec, $modify)
     {

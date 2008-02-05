@@ -1,5 +1,6 @@
 group = widgets
 classes = RatingWidget
 interface[iWidget] = RatingWidget
+interface[iNodeHook] = RatingWidget
 name[en] = Content Rating
 name[ru] = Оценка документов
