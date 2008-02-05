@@ -68,13 +68,11 @@ $user = mcms::user();
         </div>
         <div id='footer_spacer'></div>
       </div>
-    </div>
 
     <div id="footer">
       <img src="<?=$prefix?>/img/siteimage/logo_molinos_btm_ico.gif" alt="Molinos.Ru" align="middle" />
       <img src="<?=$prefix?>/img/siteimage/logo_molinos_btm.gif" alt="Molinos.Ru" align="middle" />
       <span>Версия <?=$version?></span>
     </div>
-    <div class='jqmw hidden' id='defaultPopup'></div>
   </body>
 </html>
