@@ -131,7 +131,7 @@ class NodeBase implements iFormObject
   }
 
   // Сохранение объекта.
-  public function save($clear = false, $forcedrev = null)
+  public function save($clear = false)
   {
     // Здесь хранятся идентификаторы создаваемых документов.
     static $mydocs = array();
@@ -144,9 +144,6 @@ class NodeBase implements iFormObject
     }
 
     $tg = Tagger::getInstance();
-
-    if ($forcedrev !== null)
-      $this->forcedrev = $forcedrev;
 
     if ($clear)
       $this->data = $tg->clean($this->data);

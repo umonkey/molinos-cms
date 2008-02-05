@@ -1244,17 +1244,13 @@ class UpdateManager implements iScheduler
         $type->fieldSet($k, $schema);
       }
 
-      $type->save(false, $type->rid);
+      $type->save(false);
 
       $type->publish($type->rid);
       $type->setAccess(array(
         'Schema Managers' => array('r', 'u', 'd'),
         ), false);
     }
-
-    // Проверяем индексы.
-    foreach ($classes as $k => $v)
-      Tagger::getInstance()->checkIndexes($k, $reindex);
   }
 
   // Обновление встроенных пользователей.
