@@ -689,10 +689,10 @@ class NodeBase implements iFormObject
   {
     $pdo = mcms::db();
 
-    $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `nid` = :nid", array(':tid' => $this->id, ':nid' => $child_id));
-
     if (null !== $key)
       $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `key` = :key", array(':tid' => $this->id, ':key' => $key));
+    else
+      $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `key` IS NULL", array(':tid' => $this->id));
 
     $pdo->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order)", array(
       ':tid' => $this->id,
