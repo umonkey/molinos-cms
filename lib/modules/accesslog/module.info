@@ -1,4 +1,5 @@
 group = Statistics
+version = 8.02.4782
 classes = AccessLogModule
 interface[iWidget] = AccessLogModule
 interface[iDashboard] = AccessLogModule

@@ -1,4 +1,5 @@
 group = widgets
+version = 8.02.4782
 classes = SubscriptionAdminWidget
 interface[iWidget] = SubscriptionAdminWidget
 interface[iAdminWidget] = SubscriptionAdminWidget

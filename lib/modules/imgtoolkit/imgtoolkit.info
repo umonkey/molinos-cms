@@ -1,4 +1,5 @@
 group = core
+version = 8.02.4782
 classes = ImageMagickGD, ImageMagick
 name[en] = Image Processor
 name[ru] = Обработка картинок

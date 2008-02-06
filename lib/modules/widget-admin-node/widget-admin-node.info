@@ -1,4 +1,5 @@
 group = core
+version = 8.02.4782
 classes = NodeAdminWidget
 interface[iWidget] = NodeAdminWidget
 name[en] = Node Editor

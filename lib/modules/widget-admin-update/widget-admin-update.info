@@ -1,4 +1,5 @@
 group = core
+version = 8.02.4782
 classes = UpdateAdminWidget, UpdateManager
 interface[iWidget] = UpdateAdminWidget
 interface[iAdminWidget] = UpdateAdminWidget

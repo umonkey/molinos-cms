@@ -1,4 +1,5 @@
 group = widgets
+version = 8.02.4782
 classes = PollWidget
 interface[iContentType] = PollWidget
 interface[iWidget] = PollWidget

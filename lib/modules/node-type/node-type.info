@@ -1,4 +1,5 @@
 group = core
+version = 8.02.4782
 classes = TypeNode, FieldControl
 interface[iContentType] = TypeNode
 interface[iFormControl] = FieldControl

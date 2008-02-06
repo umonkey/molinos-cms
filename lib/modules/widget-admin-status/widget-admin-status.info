@@ -1,4 +1,5 @@
 group = admin
+version = 8.02.4782
 classes = StatusAdminWidget
 interface[iAdminWidget] = StatusAdminWidget
 interface[iWidget] = StatusAdminWidget

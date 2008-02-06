@@ -1,4 +1,5 @@
 group = core
+version = 8.02.4782
 classes = UserErrorException, PageNotFoundException, UnauthorizedException, ForbiddenException, RequestController, NotInstalledException, RequestContext
 name[en] = Request Processor
 name[ru] = Обработчик запросов

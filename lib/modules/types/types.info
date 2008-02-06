@@ -1,4 +1,5 @@
 group = core
+version = 8.02.4782
 classes = Control, FieldSetControl, Form, iFormObject
 interface[iFormControl] = SubmitControl, ResetControl, HiddenControl, TextAreaControl, TextHTMLControl, TextLineControl, BoolControl, DateControl, DateTimeControl, EmailControl, URLControl, SetControl, TableControl, AttachmentControl, FieldSetControl, Form, NumberControl, FloatControl, EnumControl, PasswordControl, EnumRadioControl
 name[en] = Core Data Types
