@@ -1,0 +1,9 @@
+group = Statistics
+classes = SysLogModule
+interface[iAdminWidget] = SysLogModule
+interface[iWidget] = SysLogModule
+interface[iDashboard] = SysLogModule
+interface[iModuleConfig] = SysLogModule
+interface[iNodeHook] = SysLogModule
+name[en] = System Log
+name[ru] = Системный журнал

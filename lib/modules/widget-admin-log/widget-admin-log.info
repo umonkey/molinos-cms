@@ -1,7 +1,0 @@
-group = admin
-classes = LogAdminWidget
-interface[iAdminWidget] = LogAdminWidget
-interface[iWidget] = LogAdminWidget
-interface[iDashboard] = LogAdminWidget
-name[en] = System Log
-name[ru] = Системный журнал

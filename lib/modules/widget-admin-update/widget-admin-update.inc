@@ -1678,7 +1678,7 @@ class UpdateManager implements iScheduler
         ),
       'BebopLogs' => array(
         'title' => 'Системный журнал',
-        'class' => 'LogAdminWidget',
+        'class' => 'SysLogModule',
         'internal' => true,
         'config' => array(
           'limit' => 10,

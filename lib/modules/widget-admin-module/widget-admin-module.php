@@ -91,6 +91,12 @@ class ModuleAdminWidget extends Widget
 
       $rator = $map[$this->options['edit']]['interface']['iModuleConfig'][0];
 
+      if (!class_exists($rator))
+        throw new InvalidArgumentException(t('Настройка модуля %name невозможна: класс %class не загружен.', array(
+          '%name' => $this->options['edit'],
+          '%class' => $rator,
+          )));
+
       if (null !== ($form = call_user_func(array($rator, 'formGetModuleConfig')))) {
         $form->intro = t('Подробности об этом модуле можно найти в <a href=\'@url\'>документации</a>.', array('@url' => 'http://code.google.com/p/molinos-cms/wiki/mod_'. str_replace('-', '_', $this->options['edit'])));
         $form->title = t('Настройка модуля %module', array('%module' => $this->options['edit']));

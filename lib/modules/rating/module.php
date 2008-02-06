@@ -234,8 +234,9 @@ class RatingWidget extends Widget implements iNodeHook
       ));
   }
 
-  public static function hookNodeDelete(Node $node)
+  public static function hookNodeUpdate(Node $node, $op)
   {
-    mcms::db()->exec("DELETE FROM `node_rating` WHERE `nid` = :nid OR `uid` = :uid", array(':nid' => $node->id, ':uid' => $node->id));
+    if ($op == 'erase')
+      mcms::db()->exec("DELETE FROM `node_rating` WHERE `nid` = :nid OR `uid` = :uid", array(':nid' => $node->id, ':uid' => $node->id));
   }
 };

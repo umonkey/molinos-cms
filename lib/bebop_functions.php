@@ -538,25 +538,6 @@ function mcms_cut($text, $length)
   return $text;
 }
 
-function mcms_log($action, $nid = null, $query = null)
-{
-  static $sth = null;
-
-  if ($sth === null)
-    $sth = mcms::db()->prepare("INSERT INTO `node__log` (`nid`, `uid`, `ip`, `operation`, `timestamp`, `username`, `query`) VALUES (:nid, :uid, :ip, :operation, NOW(), :username, :query)");
-
-  $user = AuthCore::getInstance()->getUser();
-
-  $sth->execute(array(
-      ':nid' => $nid,
-      ':uid' => $user->getUid(),
-      ':username' => $user->getUid() ? $user->getName() : 'anonymous',
-      ':ip' => empty($_SERVER['REMOTE_ADDR']) ? '127.0.0.1' : $_SERVER['REMOTE_ADDR'],
-      ':operation' => $action,
-      ':query' => empty($query) ? null : $query,
-      ));
-}
-
 function mcms_url(array $options = null)
 {
   $url = array_merge(bebop_split_url(), $options);
@@ -778,6 +759,11 @@ class mcms
     return array_key_exists($name, bebop_get_module_map());
   }
 
+  public static function modpath($name)
+  {
+    return 'lib/modules/'. $name;
+  }
+
   public static function flush($flags = null)
   {
     $cache = BebopCache::getInstance();
@@ -794,7 +780,7 @@ class mcms
     return AuthCore::getInstance()->getUser();
   }
 
-  public function auth($user = 'anonymous', $pass = null, $bypass = true)
+  public static function auth($user = 'anonymous', $pass = null, $bypass = true)
   {
     $auth = AuthCore::getInstance();
 
@@ -802,5 +788,12 @@ class mcms
       $auth->userLogOut();
     else
       $auth->userLogIn($user, $pass, $bypass);
+  }
+
+  public static function invoke($interface, $method, array $args)
+  {
+    foreach (bebop_get_interface_map($interface) as $class)
+      if (class_exists($class))
+        call_user_func_array(array($class, $method), $args);
   }
 };

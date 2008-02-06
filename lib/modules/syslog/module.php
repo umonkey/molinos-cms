@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class LogAdminWidget extends Widget implements iAdminWidget, iDashboard
+class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleConfig, iNodeHook
 {
   public function __construct(Node $node)
   {
@@ -253,16 +253,62 @@ class LogAdminWidget extends Widget implements iAdminWidget, iDashboard
     $icons = array();
     $user = mcms::user();
 
-    $images = '/lib/modules/widget-admin-log/img/';
-
-    if ($user->hasGroup('Access Managers'))
+    if ($user->hasGroup('Access Managers')) {
       $icons[] = array(
-        'img' => $images .'dashboard-task-logs.gif',
+        'img' => '/'. mcms::modpath('syslog') .'/img/dashboard-task-logs.gif',
         'href' => '/admin/logs/',
         'title' => t('Журнал событий'),
         'description' => t('Кто, что, когда и с чем делал.'),
         );
+    }
 
     return $icons;
+  }
+
+  public static function formGetModuleConfig()
+  {
+    $form = new Form(array());
+    $form->addControl(new SetControl(array(
+      'value' => 'config_options',
+      'label' => t('Отслеживаемые действия над документами'),
+      'options' => array(
+        'create' => t('Добавление'),
+        'update' => t('Изменение'),
+        'delete' => t('Удаление'),
+        ),
+      )));
+
+    return $form;
+  }
+
+  // Обработка статистики
+  public static function hookNodeUpdate(Node $node, $op)
+  {
+    $conf = mcms::modconf('syslog');
+
+    if (!empty($conf['options']) and in_array($op, $conf['options'])) {
+      switch ($op) {
+        case 'create':
+        case 'update':
+        case 'delete':
+        case 'erase':
+          break;
+        case 'restore':
+          $op = 'undelete';
+          break;
+        default:
+          return;
+      }
+
+      mcms::db()->exec("INSERT INTO `node__log` (`nid`, `uid`, `username`, `ip`, `operation`, `timestamp`, `query`) "
+        ."VALUES (:nid, :uid, :username, :ip, :operation, UTC_TIMESTAMP(), :query)", array(
+        ':nid' => $node->id,
+        ':uid' => mcms::user()->getUid(),
+        ':username' => mcms::user()->getName(),
+        ':ip' => empty($_SERVER['REMOTE_ADDR']) ? null : $_SERVER['REMOTE_ADDR'],
+        ':operation' => $op,
+        ':query' => $node->name,
+        ));
+    }
   }
 };

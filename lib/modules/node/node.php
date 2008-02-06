@@ -30,7 +30,7 @@ interface iContentType
 
 interface iNodeHook
 {
-  public static function hookNodeDelete(Node $node);
+  public static function hookNodeUpdate(Node $node, $op);
 };
 
 class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
@@ -144,26 +144,31 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
     return $form;
   }
 
-  public static function hookNodeDelete(Node $node)
+  public static function hookNodeUpdate(Node $node, $op)
   {
-    // Удаляем расширенные данные.
-    $t = new TableInfo('node_'. $node->class);
-    if ($t->exists())
-      mcms::db()->exec("DELETE FROM `node_{$node->class}` WHERE `rid` IN (SELECT `rid` FROM `node__rev` WHERE `nid` = :nid)", array(':nid' => $node->id));
+    switch ($op) {
+    case 'erase':
+      // Удаляем расширенные данные.
+      $t = new TableInfo('node_'. $node->class);
+      if ($t->exists())
+        mcms::db()->exec("DELETE FROM `node_{$node->class}` WHERE `rid` IN (SELECT `rid` FROM `node__rev` WHERE `nid` = :nid)", array(':nid' => $node->id));
 
-    // Удаляем все ревизии.
-    mcms::db()->exec("DELETE FROM `node__rev` WHERE `nid` = :nid", array(':nid' => $node->id));
+      // Удаляем все ревизии.
+      mcms::db()->exec("DELETE FROM `node__rev` WHERE `nid` = :nid", array(':nid' => $node->id));
 
-    // Удаляем связи.
-    mcms::db()->exec("DELETE FROM `node__rel` WHERE `nid` = :nid OR `tid` = :tid", array(':nid' => $node->id, ':tid' => $node->id));
+      // Удаляем связи.
+      mcms::db()->exec("DELETE FROM `node__rel` WHERE `nid` = :nid OR `tid` = :tid", array(':nid' => $node->id, ':tid' => $node->id));
 
-    // Удаляем доступ.
-    mcms::db()->exec("DELETE FROM `node__access` WHERE `nid` = :nid OR `uid` = :uid", array(':nid' => $node->id, ':uid' => $node->id));
+      // Удаляем доступ.
+      mcms::db()->exec("DELETE FROM `node__access` WHERE `nid` = :nid OR `uid` = :uid", array(':nid' => $node->id, ':uid' => $node->id));
 
-    // Удаление статистики.
-    $t = new TableInfo('node__astat');
-    if ($t->exists())
-      mcms::db()->exec("DELETE FROM `node__astat` WHERE `nid` = :nid", array(':nid' => $node->id));
+      // Удаление статистики.
+      $t = new TableInfo('node__astat');
+      if ($t->exists())
+        mcms::db()->exec("DELETE FROM `node__astat` WHERE `nid` = :nid", array(':nid' => $node->id));
+
+      break;
+    }
   }
 };
 

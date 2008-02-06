@@ -171,6 +171,8 @@ class NodeBase implements iFormObject
 
     mcms::flush();
 
+    mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, $isnew ? 'create' : 'update'));
+
     if ($isnew)
       $this->sendNotification();
 
@@ -373,16 +375,7 @@ class NodeBase implements iFormObject
     $nids = $pdo->getResultsKV("id", "class", "SELECT `id`, `class` FROM `node` WHERE `left` >= :left AND `right` <= :right", array(':left' => $meta['left'], ':right' => $meta['right']));
 
     // Вызываем дополнительную обработку.
-    if (count($hooks = bebop_get_interface_map('iNodeHook'))) {
-      foreach ($nids as $nid => $class) {
-        $node = Node::load(array('id' => $nid, 'deleted' => 1));
-
-        foreach ($hooks as $hook)
-          call_user_func(array($hook, 'hookNodeDelete'), $node);
-
-        mcms_log('erase', $node->id);
-      }
-    }
+    mcms::invoke('iNodeHook', 'hookNodeDelete', array(Node::load(array('id' => $nid, 'deleted' => 1)), 'erase'));
 
     $pdo->exec("DELETE FROM `node` WHERE `left` BETWEEN :left AND :right", array(':left' => $meta['left'], ':right' => $meta['right']));
     $pdo->exec("UPDATE `node` SET `right` = `right` - :width WHERE `right` > :right ORDER BY `right` ASC", $args = array(':width' => $meta['width'], ':right' => $meta['right']));
@@ -423,10 +416,9 @@ class NodeBase implements iFormObject
         '%name' => $this->name,
         )));
 
-    $pdo = mcms::db();
-    $pdo->exec("UPDATE `node` SET `deleted` = 1 WHERE id = :nid", array('nid' => $this->id));
+    $pdo = mcms::db()->exec("UPDATE `node` SET `deleted` = 1 WHERE id = :nid", array('nid' => $this->id));
 
-    mcms_log('delete', $this->id);
+    mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'delete'));
 
     mcms::flush();
   }
@@ -445,7 +437,7 @@ class NodeBase implements iFormObject
     $this->deleted = false;
     $this->save(false);
 
-    mcms_log('undelete', $this->id);
+    mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'restore'));
 
     mcms::flush();
   }
