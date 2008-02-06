@@ -1,3 +1,4 @@
+version = 8.02.4782
 group = Statistics
 classes = SysLogModule
 interface[iAdminWidget] = SysLogModule

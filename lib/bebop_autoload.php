@@ -56,6 +56,9 @@ function bebop_get_module_map()
       }
 
       $map[$module]['enabled'] = ((!empty($map[$module]['group']) and 'core' == $map[$module]['group']) or in_array($module, $enabled)) ? true : false;
+
+      if (substr(BEBOP_VERSION, -12) != '.BUILDNUMBER' and (empty($map[$module]['version']) or version_compare(BEBOP_VERSION, $map[$module]['version']) < 0))
+        unset($map[$module]);
     }
   }
 

@@ -127,9 +127,14 @@ class ModuleAdminWidget extends Widget
         $enabled[] = $tmp->name;
 
       foreach ($mmap = bebop_get_module_map() as $name => $info) {
+        if ('core' == $info['group'])
+          $enabled = true;
+        else
+          $enabled = !empty($info['enabled']);
+
         $mod = array(
           'title' => $info['name']['ru'],
-          'enabled' => ($info['group'] == 'core' or in_array($name, $enabled)) ? true : false,
+          'enabled' => $enabled,
           );
 
         if (!empty($mod['enabled']) and !empty($info['interface']['iModuleConfig']))
