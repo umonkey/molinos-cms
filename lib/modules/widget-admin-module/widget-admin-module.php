@@ -225,6 +225,8 @@ class ModuleAdminWidget extends Widget
           $groups[] = $v['group'];
     }
 
+    sort($groups);
+
     return $groups;
   }
 };
