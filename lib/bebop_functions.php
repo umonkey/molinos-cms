@@ -11,6 +11,24 @@ interface iNodePatchHook
   public static function patchNodeList(array &$nodes);
 };
 
+// Интерфейс для работы с типами документов.
+interface iContentType
+{
+};
+
+// Интерфейс для обработки операций над документами.
+interface iNodeHook
+{
+  public static function hookNodeUpdate(Node $node, $op);
+};
+
+// Интерфейс для обработки запросов.
+interface iRequestHook
+{
+  public static function hookRequest(RequestContext $ctx);
+};
+
+
 function bebop_redirect($path, $status = 301)
 {
     if (is_array($path))

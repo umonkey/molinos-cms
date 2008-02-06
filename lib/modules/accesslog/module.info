@@ -1,0 +1,8 @@
+group = Statistics
+classes = AccessLogModule
+interface[iWidget] = AccessLogModule
+interface[iDashboard] = AccessLogModule
+interface[iModuleConfig] = AccessLogModule
+interface[iRequestHook] = AccessLogModule
+name[en] = Content Access Statistics.
+name[ru] = Статистика доступа к контенту.

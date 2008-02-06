@@ -23,16 +23,6 @@ class ValidationError extends UserErrorException
   }
 };
 
-// Интерфейс для работы с типами документов.
-interface iContentType
-{
-};
-
-interface iNodeHook
-{
-  public static function hookNodeUpdate(Node $node, $op);
-};
-
 class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
 {
   // Создаём пустой объект указанного типа, проверяем тип на валидность.

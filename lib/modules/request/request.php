@@ -132,37 +132,36 @@ class RequestContext
     if (null !== $this->section and !is_numeric($this->section))
       if (null === ($this->section = mcms::db()->getResult("SELECT `id` FROM `node` WHERE `code` = :code", array(':code' => $this->section))))
         throw new PageNotFoundException();
-
-    // Запишем информацию о запросе.
-    if (mcms::config('log_requests')) {
-      try {
-        if (null !== $this->document)
-          self::logNodeAccess($this->document);
-        if (null !== $this->section)
-          self::logNodeAccess($this->section);
-      } catch (PDOException $e) {
-        if ('23000' != $e->getCode())
-          throw $e;
-      }
-    }
-  }
-
-  public static function logNodeAccess($nid)
-  {
-    $params = array(
-      'nid' => $nid,
-      'ip' => $_SERVER['REMOTE_ADDR'],
-      'referer' => empty($_SERVER['HTTP_REFERER']) ? null : $_SERVER['HTTP_REFERER'],
-      );
-
-    mcms::db()->exec("INSERT INTO `node__astat` (`timestamp`, `nid`, `ip`, `referer`) "
-      ."VALUES (UTC_TIMESTAMP(), :nid, :ip, :referer)", $params);
   }
 
   // Запрещаем изменять свойства извне.
   public function __set($key, $value)
   {
     throw new InvalidArgumentException("RequestContext is a read-only object.");
+  }
+
+  public function __isset($key)
+  {
+    switch ($key) {
+    case 'ppath':
+    case 'apath':
+    case 'get':
+    case 'post':
+    case 'files':
+    case 'root':
+    case 'section':
+    case 'document':
+      return !empty($this->$key);
+
+    case 'section_id':
+      return !empty($this->section);
+
+    case 'document':
+      return !empty($this->document);
+
+    default:
+      return false;
+    }
   }
 
   public function __get($key)
@@ -327,6 +326,8 @@ class RequestController
         $this->parsePost();
 
       $this->parsePath();
+
+      mcms::invoke('iRequestHook', 'hookRequest', array(RequestContext::getGlobal()));
 
       switch ($_SERVER["REQUEST_METHOD"]) {
       case 'GET':
