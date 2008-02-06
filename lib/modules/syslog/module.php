@@ -268,6 +268,7 @@ class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleCo
   public static function formGetModuleConfig()
   {
     $form = new Form(array());
+
     $form->addControl(new SetControl(array(
       'value' => 'config_options',
       'label' => t('Отслеживаемые действия над документами'),
@@ -275,7 +276,16 @@ class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleCo
         'create' => t('Добавление'),
         'update' => t('Изменение'),
         'delete' => t('Удаление'),
+        'restore' => t('Восстановление из корзины'),
+        'erase' => t('Удаление из корзины'),
         ),
+      )));
+
+    $form->addControl(new NumberControl(array(
+      'value' => 'config_limit',
+      'label' => t('Максимальное количество записей в журнале'),
+      'description' => t('Если значение не указано, храниться будут все записи, однако при таком подходе журнал станет, со временем, занимать очень много места.'),
+      'default' => 1000,
       )));
 
     return $form;
@@ -309,6 +319,11 @@ class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleCo
         ':operation' => $op,
         ':query' => $node->name,
         ));
+
+      if (!empty($conf['limit'])) {
+        $last = mcms::db()->getResult("SELECT `lid` FROM `node__log` ORDER BY `lid` DESC LIMIT {$conf['limit']}, 1");
+        mcms::db()->exec("DELETE FROM `node__log` WHERE `lid` <= :last", array(':last' => $last));
+      }
     }
   }
 };
