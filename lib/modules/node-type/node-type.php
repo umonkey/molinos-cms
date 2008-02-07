@@ -3,7 +3,7 @@
 
 require_once(dirname(__FILE__) .'/node-type-control.inc');
 
-class TypeNode extends Node implements iContentType
+class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 {
   public function __construct(array $data)
   {
@@ -379,5 +379,33 @@ class TypeNode extends Node implements iContentType
     }
 
     return $data;
+  }
+
+  public static function taskRun()
+  {
+    $count = 0;
+    $sql = "SELECT x.id FROM node n INNER JOIN node__rev r ON r.rid = n.rid INNER JOIN node x ON x.class = r.name WHERE n.class = 'type' AND x.updated < n.updated AND n.deleted = 0 AND x.class NOT IN ('type', 'widget', 'domain', 'tag', 'user') LIMIT 10";
+
+    while (count($ids = mcms::db()->getResultsV('id', $sql))) {
+      $nodes = Node::find(array('id' => $ids));
+
+      foreach ($nodes as $node) {
+        $node->save();
+        $count++;
+      }
+    }
+  }
+
+  public static function formGetModuleConfig()
+  {
+    $form = new Form(array());
+
+    $form->addControl(new EmailControl(array(
+      'value' => 'config_from',
+      'label' => t('Адрес отправителя'),
+      'default' => mcms::config('mail_from'),
+      )));
+
+    return $form;
   }
 };

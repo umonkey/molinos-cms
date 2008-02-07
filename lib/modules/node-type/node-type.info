@@ -3,5 +3,7 @@ version = 8.02.4782
 classes = TypeNode, FieldControl
 interface[iContentType] = TypeNode
 interface[iFormControl] = FieldControl
+interface[iModuleConfig] = TypeNode
+interface[iScheduler] = TypeNode
 name[en] = Type Definition
 name[ru] = Тип данных

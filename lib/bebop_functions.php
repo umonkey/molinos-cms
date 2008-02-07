@@ -814,4 +814,10 @@ class mcms
       if (class_exists($class))
         call_user_func_array(array($class, $method), $args);
   }
+
+  public static function log($op, $message, $nid = null)
+  {
+    if (mcms::ismodule('syslog'))
+      SysLogModule::log($op, $message, $nid);
+  }
 };

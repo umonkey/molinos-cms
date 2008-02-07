@@ -310,20 +310,30 @@ class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleCo
           return;
       }
 
-      mcms::db()->exec("INSERT INTO `node__log` (`nid`, `uid`, `username`, `ip`, `operation`, `timestamp`, `query`) "
-        ."VALUES (:nid, :uid, :username, :ip, :operation, UTC_TIMESTAMP(), :query)", array(
-        ':nid' => $node->id,
-        ':uid' => mcms::user()->getUid(),
-        ':username' => mcms::user()->getName(),
-        ':ip' => empty($_SERVER['REMOTE_ADDR']) ? null : $_SERVER['REMOTE_ADDR'],
-        ':operation' => $op,
-        ':query' => $node->name,
-        ));
+      self::log($op, $node->name, $node->id);
+    }
+  }
 
-      if (!empty($conf['limit'])) {
-        $last = mcms::db()->getResult("SELECT `lid` FROM `node__log` ORDER BY `lid` DESC LIMIT {$conf['limit']}, 1");
-        mcms::db()->exec("DELETE FROM `node__log` WHERE `lid` <= :last", array(':last' => $last));
-      }
+  public static function log($op, $message, $nid = null)
+  {
+    static $conf = null;
+
+    if (null === $conf)
+      $conf = mcms::modconf('syslog');
+
+    mcms::db()->exec("INSERT INTO `node__log` (`nid`, `uid`, `username`, `ip`, `operation`, `timestamp`, `query`) "
+      ."VALUES (:nid, :uid, :username, :ip, :operation, UTC_TIMESTAMP(), :query)", array(
+      ':nid' => $nid,
+      ':uid' => mcms::user()->getUid(),
+      ':username' => mcms::user()->getName(),
+      ':ip' => empty($_SERVER['REMOTE_ADDR']) ? null : $_SERVER['REMOTE_ADDR'],
+      ':operation' => $op,
+      ':query' => $message,
+      ));
+
+    if (!empty($conf['limit'])) {
+      $last = mcms::db()->getResult("SELECT `lid` FROM `node__log` ORDER BY `lid` DESC LIMIT {$conf['limit']}, 1");
+      mcms::db()->exec("DELETE FROM `node__log` WHERE `lid` <= :last", array(':last' => $last));
     }
   }
 };

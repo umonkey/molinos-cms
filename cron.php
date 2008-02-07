@@ -11,7 +11,7 @@ $errormsg = null;
 
 $pdo = PDO_Singleton::getInstance();
 
-mcms_log('cron', null, t("Планировщик запущен."));
+mcms::log('cron', t('Планировщик запущен.'));
 
 foreach (bebop_get_interface_map('iScheduler') as $class) {
   if (class_exists($class)) {
@@ -33,9 +33,9 @@ foreach (bebop_get_interface_map('iScheduler') as $class) {
 }
 
 if (null === $error)
-  mcms_log('cron', null, t("Планировщик завершил работу без ошибок."));
+  mcms::log('cron', t("Планировщик завершил работу без ошибок."));
 else
-  mcms_log('cron', null, t("Планировщик прерван: ошибка в обработчике %class: %message.", array(
+  mcms::log('cron', t("Планировщик прерван: ошибка в обработчике %class: %message.", array(
     '%class' => $error,
     '%message' => $errormsg,
     )));
