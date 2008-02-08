@@ -1,0 +1,9 @@
+group = Interactive
+version = 8.02.4782
+classes = PollWidget, PollNode
+interface[iWidget] = PollWidget
+interface[iNodeHook] = PollWidget
+interface[iModuleConfig] = PollWidget
+interface[iContentType] = PollNode
+name[en] = Content Poll
+name[ru] = Опрос пользователей
