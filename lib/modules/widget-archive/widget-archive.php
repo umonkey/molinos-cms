@@ -128,6 +128,7 @@ class ArchiveWidget extends Widget
 
     $url['args'][$this->host]['month'] = null;
     $url['args'][$this->host]['day'] = null;
+    $url['path'] = $this->getUrlPath();
 
     $sql = "SELECT YEAR(`created`) AS `year`, COUNT(*) AS `count` "
       ."FROM `node` WHERE `id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) "
@@ -149,6 +150,7 @@ class ArchiveWidget extends Widget
 
     $url = bebop_split_url();
     $url['args'][$this->host]['day'] = null;
+    $url['path'] = $this->getUrlPath();
 
     // FIXME: publishing
     foreach (PDO_Singleton::getInstance()->getResultsKV("month", "count", "SELECT MONTH(`created`) AS `month`, COUNT(*) AS `count` FROM `node` WHERE `id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) AND YEAR(`created`) = :year AND `published` = 1 GROUP BY `month` ORDER BY `month`", array(':tid' => $options['root'], ':year' => $options['year'])) as $k => $v) {
@@ -172,6 +174,7 @@ class ArchiveWidget extends Widget
     require_once(dirname(__FILE__) .'/calendar.inc');
 
     $url = bebop_split_url();
+    $url['path'] = $this->getUrlPath();
 
     // Список задействованных дней.
     // FIXME: publishing
@@ -229,5 +232,16 @@ class ArchiveWidget extends Widget
 
     $result .= "</table>";
     return $result;
+  }
+
+  private function getUrlPath()
+  {
+    $path = $this->ctx->ppath;
+
+    if (null !== $this->ctx->section_id)
+      $path[] = $this->ctx->section_id;
+
+    $rc = '/'. join('/', $path) .'/';
+    return $rc;
   }
 };
