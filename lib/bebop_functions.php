@@ -25,7 +25,7 @@ interface iNodeHook
 // Интерфейс для обработки запросов.
 interface iRequestHook
 {
-  public static function hookRequest(RequestContext $ctx);
+  public static function hookRequest(RequestContext $ctx = null);
 };
 
 

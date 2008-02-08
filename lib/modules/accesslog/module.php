@@ -266,26 +266,28 @@ class AccessLogModule extends Widget implements iAdminWidget, iDashboard, iModul
   }
 
   // Обработка статистики
-  public static function hookRequest(RequestContext $ctx)
+  public static function hookRequest(RequestContext $ctx = null)
   {
-    $conf = mcms::modconf('accesslog');
+    if (null !== $ctx) {
+      $conf = mcms::modconf('accesslog');
 
-    if (!empty($conf['options']) and is_array($conf['options'])) {
-      $sth = mcms::db()->prepare("INSERT INTO `node__astat` (`nid`, `timestamp`, `ip`, `referer`) VALUES (:nid, UTC_TIMESTAMP(), :ip, :referer)");
+      if (!empty($conf['options']) and is_array($conf['options'])) {
+        $sth = mcms::db()->prepare("INSERT INTO `node__astat` (`nid`, `timestamp`, `ip`, `referer`) VALUES (:nid, UTC_TIMESTAMP(), :ip, :referer)");
 
-      $args = array(
-        ':ip' => empty($_SERVER['REMOTE_ADDR']) ? null : $_SERVER['REMOTE_ADDR'],
-        ':referer' => empty($_SERVER['HTTP_REFERER']) ? null : $_SERVER['HTTP_REFERER'],
-        );
+        $args = array(
+          ':ip' => empty($_SERVER['REMOTE_ADDR']) ? null : $_SERVER['REMOTE_ADDR'],
+          ':referer' => empty($_SERVER['HTTP_REFERER']) ? null : $_SERVER['HTTP_REFERER'],
+          );
 
-      if (in_array('section', $conf['options']) and isset($ctx->section_id)) {
-        $args[':nid'] = $ctx->section_id;
-        $sth->execute($args);
-      }
+        if (in_array('section', $conf['options']) and isset($ctx->section_id)) {
+          $args[':nid'] = $ctx->section_id;
+          $sth->execute($args);
+        }
 
-      if (in_array('document', $conf['options']) and isset($ctx->document_id)) {
-        $args[':nid'] = $ctx->document_id;
-        $sth->execute($args);
+        if (in_array('document', $conf['options']) and isset($ctx->document_id)) {
+          $args[':nid'] = $ctx->document_id;
+          $sth->execute($args);
+        }
       }
     }
   }

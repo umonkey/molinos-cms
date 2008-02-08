@@ -1,0 +1,6 @@
+group = Misc
+version = 8.02.4782
+classes = AliasModule
+interface[iRequestHook] = AliasModule
+name[en] = URL Aliasing
+name[ru] = Коррекция URL

@@ -383,10 +383,7 @@ class RequestController
       exit(bebop_redirect(bebop_combine_url(bebop_split_url(), false), 301, false));
     }
 
-    if (mcms::config('path_aliases')) {
-      if (null !== ($next = mcms::db()->getResult("SELECT `dst` FROM `node__path` WHERE `src` = :src", array(':src' => $_SERVER['REQUEST_URI']))))
-        bebop_redirect($next, 301);
-    }
+    mcms::invoke('iRequestHook', 'hookRequest', array());
 
     // Запрашиваем структуру домена.  Если запрошен несуществующий
     // домен, исключение будет брошено автоматически.
