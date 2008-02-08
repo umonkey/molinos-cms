@@ -809,7 +809,7 @@ class mcms
       $auth->userLogIn($user, $pass, $bypass);
   }
 
-  public static function invoke($interface, $method, array $args)
+  public static function invoke($interface, $method, array $args = array())
   {
     foreach (bebop_get_interface_map($interface) as $class)
       if (class_exists($class))

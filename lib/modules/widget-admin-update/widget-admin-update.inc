@@ -88,6 +88,8 @@ class UpdateManager implements iScheduler
 
     if (in_array('access', $options))
       $this->doFixAccess();
+
+    mcms::invoke('iModuleConfig', 'hookPostInstall');
   }
 
   // Последние штрихи: правим права на объекты (например потому, что при инсталляции
@@ -484,91 +486,6 @@ class UpdateManager implements iScheduler
               ),
             ),
           ),
-        'node__path' => array(
-          'columns' => array(
-            'src' => array(
-              'type' => 'varchar(255)',
-              'indexed' => true,
-              'required' => true,
-              'unique' => true,
-              ),
-            'dst' => array(
-              'type' => 'varchar(255)',
-              'indexed' => true,
-              'required' => true,
-              'unique' => true,
-              ),
-            ),
-          ),
-        'node__astat' => array(
-          'columns' => array(
-            'id' => array(
-              'type' => 'int(10) unsigned',
-              'required' => true,
-              'indexed' => true,
-              'autoincrement' => true,
-              'pk' => true,
-              ),
-            'timestamp' => array(
-              'type' => 'datetime',
-              'required' => true,
-              ),
-            'nid' => array(
-              'type' => 'int(10) unsigned',
-              'indexed' => true,
-              'required' => true,
-              ),
-            'ip' => array(
-              'type' => 'varchar(15)',
-              'required' => true,
-              ),
-            'referer' => array(
-              'type' => 'varchar(255)',
-              'required' => false,
-              'indexed' => true, // потому, что наверняка захотят группировать, считать количество
-              ),
-            ),
-          ),
-        'node__log' => array(
-          'columns' => array(
-            'lid' => array(
-              'type' => 'int(10) unsigned',
-              'required' => true,
-              'indexed' => true,
-              'autoincrement' => true,
-              'pk' => true,
-              ),
-            'nid' => array(
-              'type' => 'int(10) unsigned',
-              'indexed' => true,
-              ),
-            'uid' => array(
-              'type' => 'int(10) unsigned',
-              'required' => true,
-              'indexed' => true,
-              ),
-            'username' => array(
-              'type' => 'varchar(255)',
-              'required' => true,
-              ),
-            'ip' => array(
-              'type' => 'varchar(16)',
-              'required' => true,
-              ),
-            'operation' => array(
-              'type' => 'enum(\'create\',\'update\',\'delete\',\'undelete\',\'erase\',\'publish\',\'unpublish\',\'search\',\'cron\')',
-              'required' => true,
-              ),
-            'timestamp' => array(
-              'type' => 'datetime',
-              'required' => true,
-              ),
-            'query' => array(
-              'type' => 'varchar(255)',
-              'indexed' => true,
-              ),
-            ),
-          ),
         'node__cache' => array(
           'columns' => array(
             'cid' => array(
@@ -706,47 +623,10 @@ class UpdateManager implements iScheduler
               ),
             ),
           ),
-        'node__rating' => array(
-          'columns' => array(
-            'nid' => array(
-              'type' => 'int(10) unsigned',
-              'required' => true,
-              'indexed' => true,
-              'referenc' => array(
-                'table' => 'node',
-                'column' => 'id',
-                'update' => 'cascade',
-                'delete' => 'cascade',
-                ),
-              ),
-            'uid' => array(
-              'type' => 'int(10) unsigned',
-              'required' => true,
-              'indexed' => true,
-              'reference' => array(
-                'table' => 'node',
-                'column' => 'id',
-                'update' => 'cascade',
-                'delete' => 'null',
-                ),
-              ),
-            'ip' => array(
-              'type' => 'varchar(15)',
-              'required' => true,
-              'indexed' => true,
-              ),
-            'rate' => array(
-              'type' => 'decimal(5,4)',
-              'required' => true,
-              'indexed' => true,
-              ),
-            ),
-          ),
       );
 
-    foreach ($tables as $k => $v) {
+    foreach ($tables as $k => $v)
       InfoSchema::getInstance()->checkTable($k, $v);
-    }
   }
 
   // Обновление типов документов.
