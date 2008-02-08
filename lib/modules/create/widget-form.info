@@ -1,0 +1,6 @@
+group = core
+version = 8.02.4782
+classes = FormWidget
+interface[iWidget] = FormWidget
+name[en] = Content Creation Forms
+name[ru] = Форма создания документов
