@@ -291,6 +291,55 @@ class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleCo
     return $form;
   }
 
+  public static function hookPostInstall()
+  {
+    $t = new TableInfo('node__log');
+
+    if (!$t->exists()) {
+      $t->columnSet('lid', array(
+        'type' => 'int(10) unsigned',
+        'required' => true,
+        'key' => 'pri',
+        'autoincrement' => true,
+        ));
+      $t->columnSet('timestamp', array(
+        'type' => 'datetime',
+        'key' => 'mul',
+        'required' => true,
+        ));
+      $t->columnSet('nid', array(
+        'type' => 'int(10) unsigned',
+        'required' => false,
+        'key' => 'mul',
+        ));
+      $t->columnSet('uid', array(
+        'type' => 'int(10) unsigned',
+        'required' => false,
+        'key' => 'mul',
+        ));
+      $t->columnSet('username', array(
+        'type' => 'varchar(255)',
+        'required' => false,
+        'key' => 'mul',
+        ));
+      $t->columnSet('ip', array(
+        'type' => 'varchar(15)',
+        'required' => true,
+        'key' => 'mul',
+        ));
+      $t->columnSet('operation', array(
+        'type' => 'varchar(10)',
+        'key' => 'mul',
+        ));
+      $t->columnSet('query', array(
+        'type' => 'varchar(255)',
+        'key' => 'mul',
+        ));
+
+      $t->commit();
+    }
+  }
+
   // Обработка статистики
   public static function hookNodeUpdate(Node $node, $op)
   {

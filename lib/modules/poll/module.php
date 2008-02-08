@@ -31,36 +31,6 @@ class PollWidget extends Widget implements iNodeHook, iModuleConfig
     return $form;
   }
 
-  public function formHookConfigSaved()
-  {
-    $t = new TableInfo('node__poll');
-
-    if (!$t->exists()) {
-      $t->columnSet('nid', array(
-        'type' => 'int(10) unsigned',
-        'required' => true,
-        'key' => 'mul',
-        ));
-      $t->columnSet('uid', array(
-        'type' => 'int(10) unsigned',
-        'required' => false,
-        'key' => 'mul',
-        ));
-      $t->columnSet('ip', array(
-        'type' => 'varchar(15)',
-        'required' => true,
-        'key' => 'mul',
-        ));
-      $t->columnSet('option', array(
-        'type' => 'int(10) unsigned',
-        'required' => true,
-        'key' => 'mul',
-        ));
-
-      $t->commit();
-    }
-  }
-
   // Препроцессор параметров.
   public function getRequestOptions(RequestContext $ctx)
   {
@@ -216,6 +186,36 @@ class PollWidget extends Widget implements iNodeHook, iModuleConfig
       )));
 
     return $form;
+  }
+
+  public static function hookPostInstall()
+  {
+    $t = new TableInfo('node__poll');
+
+    if (!$t->exists()) {
+      $t->columnSet('nid', array(
+        'type' => 'int(10) unsigned',
+        'required' => true,
+        'key' => 'mul',
+        ));
+      $t->columnSet('uid', array(
+        'type' => 'int(10) unsigned',
+        'required' => false,
+        'key' => 'mul',
+        ));
+      $t->columnSet('ip', array(
+        'type' => 'varchar(15)',
+        'required' => true,
+        'key' => 'mul',
+        ));
+      $t->columnSet('option', array(
+        'type' => 'int(10) unsigned',
+        'required' => true,
+        'key' => 'mul',
+        ));
+
+      $t->commit();
+    }
   }
 };
 

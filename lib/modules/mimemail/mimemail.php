@@ -56,4 +56,8 @@ class BebopMimeMail implements iModuleConfig
 
     return $form;
   }
+
+  public static function hookPostInstall()
+  {
+  }
 };

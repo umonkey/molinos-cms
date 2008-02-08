@@ -408,4 +408,8 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     return $form;
   }
+
+  public static function hookPostInstall()
+  {
+  }
 };

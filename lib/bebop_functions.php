@@ -3,6 +3,7 @@
 interface iModuleConfig
 {
   public static function formGetModuleConfig();
+  public static function hookPostInstall();
 };
 
 interface iNodePatchHook

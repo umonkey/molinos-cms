@@ -291,4 +291,37 @@ class AccessLogModule extends Widget implements iAdminWidget, iDashboard, iModul
       }
     }
   }
+
+  public static function hookPostInstall()
+  {
+    $t = new TableInfo('node__astat');
+
+    if (!$t->exists()) {
+      $t->columnSet('id', array(
+        'type' => 'int(10) unsigned',
+        'required' => true,
+        'key' => 'pri',
+        'autoincrement' => true,
+        ));
+      $t->columnSet('timestamp', array(
+        'type' => 'datetime',
+        ));
+      $t->columnSet('nid', array(
+        'type' => 'int(10) unsigned',
+        'required' => false,
+        'key' => 'mul',
+        ));
+      $t->columnSet('ip', array(
+        'type' => 'varchar(15)',
+        'required' => true,
+        'key' => 'mul',
+        ));
+      $t->columnSet('referer', array(
+        'type' => 'varchar(255)',
+        'key' => 'mul',
+        ));
+
+      $t->commit();
+    }
+  }
 };
