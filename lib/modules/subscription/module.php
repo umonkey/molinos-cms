@@ -1,6 +1,8 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
+require_once(dirname(__FILE__) .'/admin-ui.inc');
+
 class SubscriptionWidget extends Widget
 {
   public function __construct(Node $node)

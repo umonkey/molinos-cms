@@ -1,6 +1,9 @@
 group = Interactive
 version = 8.02.4782
-classes = SubscriptionWidget
-interface[iWidget] = SubscriptionWidget
+classes = SubscriptionWidget, SubscriptionAdminWidget
+interface[iWidget] = SubscriptionWidget, SubscriptionAdminWidget
+interface[iAdminWidget] = SubscriptionAdminWidget
+interface[iScheduler] = SubscriptionAdminWidget
+interface[iDashboard] = SubscriptionAdminWidget
 name[en] = Email Subscription
 name[ru] = Рассылка новостей по почте
