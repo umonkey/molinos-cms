@@ -418,16 +418,17 @@ class TableInfo implements iModuleConfig
 
         $sql .= join(', ', $this->alter);
 
-        if ($this->isnew)
+        if ($this->isnew) {
             $sql .= ') CHARSET=utf8';
 
-        if (!is_array($conf = mcms::modconf('infoschema')))
-            $conf = array(
-                'engine' => 'InnoDB',
-                );
+            if (!is_array($conf = mcms::modconf('infoschema')))
+                $conf = array(
+                    'engine' => 'InnoDB',
+                    );
 
-        if (!empty($conf['engine']))
-            $sql .= ' ENGINE='. $conf['engine'];
+            if (!empty($conf['engine']))
+                $sql .= ' ENGINE='. $conf['engine'];
+        }
 
         return $sql;
     }
