@@ -1,6 +1,0 @@
-group = core
-version = 8.02.4782
-classes = ListWidget
-interface[iWidget] = ListWidget
-name[en] = Document Listing
-name[ru] = Список документов

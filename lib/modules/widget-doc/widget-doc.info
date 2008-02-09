@@ -1,6 +1,0 @@
-group = widgets
-version = 8.02.4782
-classes = DocWidget
-interface[iWidget] = DocWidget
-name[en] = Single Document
-name[ru] = Отдельный документ

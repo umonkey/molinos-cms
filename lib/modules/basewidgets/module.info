@@ -1,0 +1,6 @@
+group = core
+version = 8.02.4782
+classes = ListWidget, ArchiveWidget, DocWidget, ListWidget, MenuWidget, TagsWidget, TitleWidget, UserWidget
+interface[iWidget] = ListWidget, ArchiveWidget, DocWidget, ListWidget, MenuWidget, TagsWidget, TitleWidget, UserWidget
+name[en] = Base Widgets
+name[ru] = Базовые виджеты

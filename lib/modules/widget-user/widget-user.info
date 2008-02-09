@@ -1,6 +1,0 @@
-group = core
-version = 8.02.4782
-classes = UserWidget
-interface[iWidget] = UserWidget
-name[en] = User Profile
-name[ru] = Профиль пользователя
