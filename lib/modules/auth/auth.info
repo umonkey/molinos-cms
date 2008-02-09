@@ -1,5 +1,5 @@
 group = core
 version = 8.02.4782
-classes = AuthCore
+classes = AuthCore, User
 name[en] = Authentication Subsystem
 name[ru] = Система авторизации

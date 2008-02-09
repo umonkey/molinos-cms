@@ -1,5 +1,0 @@
-group = core
-version = 8.02.4782
-classes = User, AuthFailedException
-name[en] = User Classes
-name[ru] = Классы пользователей

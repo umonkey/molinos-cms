@@ -1,6 +1,0 @@
-group = core
-version = 8.02.4782
-classes = Widget, WidgetHaltedException, iAdminWidget, iWidget, iScheduler
-interface[iWidget] = Widget
-name[en] = Widget Skeleton
-name[ru] = Скелет виджета
