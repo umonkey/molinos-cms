@@ -1208,10 +1208,28 @@ class NodeBase implements iFormObject
 
     if (array_key_exists('fields', $schema) and is_array($schema['fields']))
       foreach ($schema['fields'] as $k => $v) {
-        if (mcms_ctlname($v['type']) == 'AttachmentControl')
-          $value = empty($this->files[$k]) ? null : $this->files[$k];
-        else
+        $value = null;
+
+        switch (mcms_ctlname($v['type'])) {
+        case 'AttachmentControl':
+          if (isset($this->files[$k]))
+            $value = $this->files[$k];
+          break;
+
+        case 'NodeLinkControl':
+          if (isset($v['values']) and is_string($v['values']) and isset($this->$k)) {
+            $tmp = Node::load($this->$k);
+            $parts = explode('.', $v['values'], 2);
+
+            if ($tmp->class == $parts[0])
+              $value = $tmp->$parts[1];
+          }
+
+          break;
+
+        default:
           $value = $this->$k;
+        }
 
         $data['node_content_'. $k] = $value;
       }
@@ -1236,7 +1254,24 @@ class NodeBase implements iFormObject
     if (array_key_exists('fields', $schema)) {
       foreach ($schema['fields'] as $k => $v) {
         if ($k != 'parent_id' and $k != 'fields' and $k != 'config') {
-          if (mcms_ctlname($v['type']) != 'AttachmentControl') {
+          switch (mcms_ctlname($v['type'])) {
+          case 'AttachmentControl':
+            break;
+          case 'NodeLinkControl':
+            if (empty($v['values']) or !is_string($v['values'])) {
+              $this->$k = null;
+            } else {
+              $parts = explode('.', $v['values'], 2);
+
+              if (!count($tmp = Node::find($filter = array('class' => $parts[0], $v['values'] => $data['node_content_'. $k]), 1)))
+                throw new ValidationError($k);
+
+              $this->$k = key($tmp);
+            }
+
+            break;
+
+          default:
             $key = 'node_content_'. $k;
             $this->$k = array_key_exists($key, $data) ? $data[$key] : null;
           }
