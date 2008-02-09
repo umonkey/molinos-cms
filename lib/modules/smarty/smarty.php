@@ -1,7 +1,7 @@
 <?php
 // vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4:
 
-require_once("Smarty.class.php");
+require_once('Smarty.class.php');
 
 class SmartyException extends LogicException {}
 
@@ -11,7 +11,7 @@ class BebopSmarty extends Smarty
     {
         $this->Smarty();
 
-        if (is_dir($tmp = mcms::config('smarty_plugins_dir'))) {
+        if (is_dir($tmp = dirname(__FILE__) .'/plugins')) {
           $plugins = $this->plugins_dir;
           $plugins[] = $tmp;
           $this->plugins_dir = $plugins;
