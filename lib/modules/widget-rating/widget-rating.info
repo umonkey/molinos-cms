@@ -1,6 +1,0 @@
-group = widgets
-version = 8.02.4782
-classes = RatingWidget
-interface[iWidget] = RatingWidget
-name[en] = Content Rating
-name[ru] = Оценка документов

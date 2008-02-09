@@ -3,4 +3,4 @@ version = 8.02.4782
 classes = SubscriptionWidget
 interface[iWidget] = SubscriptionWidget
 name[en] = Email Subscription
-name[ru] = Подписка на обновления
+name[ru] = Рассылка новостей по почте
