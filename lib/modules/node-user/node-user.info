@@ -1,6 +1,0 @@
-group = core
-version = 8.02.4782
-classes = UserNode
-interface[iContentType] = UserNode
-name[en] = User Profiles
-name[ru] = Профили пользователей

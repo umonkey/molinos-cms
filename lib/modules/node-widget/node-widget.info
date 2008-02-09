@@ -1,6 +1,0 @@
-group = core
-version = 8.02.4782
-classes = WidgetNode
-interface[iContentType] = WidgetNode
-name[en] = Widget Definition
-name[ru] = Описание виджета

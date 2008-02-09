@@ -1,0 +1,6 @@
+group = core
+version = 8.02.4782
+classes = BaseNode, Node, DomainNode, FileNode, GroupNode, TagNode, TypeNode, UserNode, WidgetNode
+interface[iContentType] = Node, DomainNode, FileNode, GroupNode, TagNode, TypeNode, UserNode, WidgetNode
+name[en] = Base Node Types
+name[ru] = Базовые типы документов

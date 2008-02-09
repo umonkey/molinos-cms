@@ -1,9 +1,0 @@
-group = core
-version = 8.02.4782
-classes = Node, iContentType, iNodeHook, ObjectNotFoundException, ValidationError, NodeQueryBuilder, AccessControl, FileListControl
-interface[iContentType] = Node
-interface[iFormControl] = AccessControl
-interface[iModuleConfig] = Node
-interface[iNodeHook] = Node
-name[en] = Base node functions
-name[ru] = Базовая работа с документами

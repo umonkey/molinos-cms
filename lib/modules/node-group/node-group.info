@@ -1,6 +1,0 @@
-group = core
-version = 8.02.4782
-classes = GroupNode
-interface[iContentType] = GroupNode
-name[en] = Group Profiles
-name[ru] = Группы пользователей

@@ -1,6 +1,0 @@
-group = core
-version = 8.02.4782
-classes = DomainNode
-interface[iContentType] = DomainNode
-name[en] = Domain Structure
-name[ru] = Структура доменов

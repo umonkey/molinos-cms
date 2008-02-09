@@ -1,6 +1,0 @@
-group = core
-version = 8.02.4782
-classes = TagNode
-interface[iContentType] = TagNode
-name[en] = Section Definition
-name[ru] = Раздел сайта
