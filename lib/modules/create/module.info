@@ -1,4 +1,4 @@
-group = core
+group = Interactive
 version = 8.02.4782
 classes = FormWidget
 interface[iWidget] = FormWidget

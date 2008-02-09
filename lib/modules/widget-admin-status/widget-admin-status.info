@@ -1,4 +1,4 @@
-group = admin
+group = Statistics
 version = 8.02.4782
 classes = StatusAdminWidget
 interface[iAdminWidget] = StatusAdminWidget

@@ -1,4 +1,4 @@
-group = widgets
+group = Interactive
 version = 8.02.4782
 classes = CommentWidget, CommentFormWidget
 interface[iWidget] = CommentWidget, CommentFormWidget

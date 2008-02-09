@@ -1,4 +1,4 @@
-group = widgets
+group = Misc
 version = 8.02.4782
 classes = XmlImporter
 interface[iWidget] = XmlImporter
