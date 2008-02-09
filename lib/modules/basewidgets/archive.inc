@@ -175,7 +175,7 @@ class ArchiveWidget extends Widget
     $year = $options['year'];
     $month = $options['month'];
 
-    require_once(dirname(__FILE__) .'/archive-calendar.inc');
+    require_once(BASEWIDGETS_PATH .'archive-calendar.inc');
 
     $url = bebop_split_url();
     $url['path'] = $this->getUrlPath();
