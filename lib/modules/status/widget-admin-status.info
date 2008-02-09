@@ -4,4 +4,4 @@ classes = StatusAdminWidget
 interface[iAdminWidget] = StatusAdminWidget
 interface[iWidget] = StatusAdminWidget
 name[en] = Site Status monitor
-name[ru] = Мониторинг состояния админки
+name[ru] = Мониторинг состояния системы
