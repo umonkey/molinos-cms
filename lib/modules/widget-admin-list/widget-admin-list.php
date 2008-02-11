@@ -104,6 +104,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
         'widget' => $this->getInstanceName(),
         'sections' => $this->sections ? 'document_list_search_section' : null,
         'filterform' => $this->filterform,
+        'doctype' => isset($this->filter['class']) ? $this->filter['class'] : null,
         )));
 
       $form->addControl(new DocMassControl(array(

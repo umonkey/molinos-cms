@@ -26,30 +26,19 @@ function _admin_actions()
   $actions = array();
 
   $map = array(
-    '/admin/schema/' => array(
-      '../node/create/?BebopNode.class=type&amp;' => 'Добавить тип',
-      ),
-    '/admin/content/' => array(
-      'create/?' => 'Создать документ',
-      ),
     '/admin/builder/' => array(
       '../node/create/?BebopNode.class=domain&amp;' => 'Добавить страницу',
       'widgets/' => t('Список виджетов'),
+      'modules/' => t('Список модулей'),
       ),
     '/admin/builder/widgets/' => array(
-      '/admin/node/create/?BebopNode.class=widget&amp;' => 'Добавить виджет',
       '../' => t('Список доменов и страниц'),
       ),
     '/admin/users/' => array(
-      '../node/create/?BebopNode.class=user&amp;' => 'Добавить пользователя',
       'groups/' => 'Список групп',
       ),
     '/admin/users/groups/' => array(
-      '../../node/create/?BebopNode.class=group&amp;' => 'Добавить группу',
       '../' => 'Список пользователей',
-      ),
-    '/admin/files/' => array(
-      '../node/create/?BebopNode.class=file&amp;' => 'Добавить файл',
       ),
     '/admin/logs/' => array(
       '/admin/logs/?BebopLogs.op=search&amp;BebopLogs.mode=download&amp;' => 'Скачать (Microsoft Excel)',

@@ -50,7 +50,7 @@ class WidgetNode extends Node implements iContentType
       foreach (bebop_get_interface_map('iWidget') as $classname) {
         if ($classname != 'Widget' and substr($classname, -11) != 'AdminWidget') {
           $info = Widget::getInfo($classname);
-          if (empty($info['hidden']))
+          if (empty($info['hidden']) and !empty($info['name']))
             $classes[$classname] = $info['name'];
         }
       }

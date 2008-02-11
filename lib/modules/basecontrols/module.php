@@ -990,7 +990,7 @@ class PagerControl extends Control
 
       if (!empty($pager['next']))
         $left .= "<a href='{$pager['next']}'>&rarr;</a>";
-    } elseif (null !== $this->showempty) {
+    } elseif (null !== $this->showempty and !empty($data[$this->value]['total'])) {
       $left = t('Все документы поместились на одну страницу.');
     }
 
