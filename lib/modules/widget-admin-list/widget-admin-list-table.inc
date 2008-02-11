@@ -182,12 +182,10 @@ class DocSearchControl extends Control
       ."<div class='tb_1'>"
       ."<div class='ctrl_left'>";
 
-    if (isset($this->doctype)) {
-      if (is_string($this->doctype))
-        $output .= $this->getNewLink($this->doctype);
-      elseif (is_array($this->doctype) and count($this->doctype) == 1)
-        $output .= $this->getNewLink($this->doctype[0]);
-    }
+    if (is_array($doctype = $this->doctype))
+      $doctype = $doctype[0];
+
+    $output .= $this->getNewLink($doctype);
 
     $output .= "<input type='text' name='{$this->value}' class='search_field' value='{$q}' />";
 
@@ -204,7 +202,7 @@ class DocSearchControl extends Control
     return $output;
   }
 
-  private function getNewLink($type)
+  private function getNewLink($type = null)
   {
     return t('<a class=\'newlink\' href=\'@url\'>Добавить</a> &nbsp;|&nbsp; ', array(
       '@url' => '/admin/node/create/?BebopNode.class='. $type .'&destination='. urlencode($_SERVER['REQUEST_URI']),

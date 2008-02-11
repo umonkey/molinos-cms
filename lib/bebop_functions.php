@@ -381,9 +381,14 @@ function bebop_on_json(array $result)
 }
 
 // Применяет шаблон к данным.
-function bebop_render_object($type, $name, $theme, $data)
+function bebop_render_object($type, $name, $theme = null, $data)
 {
   $__root = $_SERVER['DOCUMENT_ROOT'];
+
+  if (null === $theme) {
+    $ctx = RequestContext::getGlobal();
+    $theme = $ctx->theme;
+  }
 
   if ($data instanceof Exception) {
     $data = array('error' => array(

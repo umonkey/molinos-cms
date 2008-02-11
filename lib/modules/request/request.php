@@ -93,6 +93,9 @@ class RequestContext
   // Основной раздел для страницы.
   private $root = null;
 
+  // Шкура текущей страницы.
+  private $theme = null;
+
   // Сохраняем глобальный контекст.
   private static $global = null;
 
@@ -151,7 +154,8 @@ class RequestContext
     case 'root':
     case 'section':
     case 'document':
-      return !empty($this->$key);
+    case 'theme':
+      return isset($this->$key);
 
     case 'section_id':
       return !empty($this->section);
@@ -175,6 +179,9 @@ class RequestContext
         if ($this->$key === null)
           return array();
         return $this->$key;
+
+      case 'theme':
+        return $this->theme;
 
       case 'root':
         return empty($this->root) ? null : $this->root;
@@ -233,6 +240,8 @@ class RequestContext
 
     $ctx->ppath = $ppath;
     $ctx->apath = $apath;
+    $ctx->theme = $page->theme;
+
     $ctx->setObjectIds($page);
 
     self::$global = $ctx;

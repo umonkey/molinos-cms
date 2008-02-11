@@ -138,6 +138,9 @@ class NodeQueryBuilder
         $field = $parts[0];
       }
 
+      if (TypeNode::isReservedFieldName($field))
+        $table = 'node';
+
       // Некоторые условия обрабатываются автоматически, например -- фильтрация по тэгам.
       if (null === ($mask = $this->getMask($table, $field)))
         continue;

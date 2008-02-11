@@ -89,6 +89,23 @@ class DocWidget extends Widget
 
       $result['schema'] = TypeNode::getSchema($node->class);
 
+      if (!empty($result['schema']['fields']) and is_array($result['schema']['fields'])) {
+        foreach ($result['schema']['fields'] as $k => $v) {
+          switch ($v['type']) {
+          case 'NodeLinkControl':
+            if (empty($result['document'][$k]))
+              $result['document'][$k] = null;
+            else {
+              $parts = explode('.', $v['values'], 2);
+
+              $node = Node::find(array('class' => $parts[0], 'id' => $result['document'][$k]), 1);
+              $result['document'][$k] = $node[key($node)]->getRaw();
+            }
+            break;
+          }
+        }
+      }
+
       if ($this->showneighbors and $this->ctx->section_id !== null and in_array($this->ctx->section->id, $sections)) {
         if (null !== ($n = $node->getNeighbors($this->ctx->section->id))) {
           $result['neighbors'] = array(

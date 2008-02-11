@@ -58,8 +58,11 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   public function __set($k, $v)
   {
     // Отслеживаем изменения в полях.
-    if ('fields' === $k and null === $this->oldfields)
-      $this->oldfields = $this->fields;
+    if ('fields' === $k) {
+      if (null === $this->oldfields)
+        $this->oldfields = $this->fields;
+    }
+
     parent::__set($k, $v);
   }
 
@@ -287,9 +290,10 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     if (empty($this->fields)) {
       mcms::db()->rollBack();
-      bebop_debug($this, $fields, $data);
       throw new InvalidArgumentException(t('Попытка очистить поля типа документа.'));
     }
+
+    $this->save();
 
     // Подключаем виджеты.
     if (mcms::user()->hasGroup('Developers'))
@@ -311,11 +315,54 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
         else {
           $fields[$v['name']] = $v;
           unset($fields[$v['name']]['name']);
+          unset($fields[$k]);
         }
       }
     }
 
-    $this->data['fields'] = $new;
+    $this->fields = $fields;
+  }
+
+  private function updateTable()
+  {
+    $t = new TableInfo('node_'. $this->name);
+
+    if (!$t->columnExists('rid'))
+      $t->columnSet('rid', array(
+        'type' => 'int(10) unsigned',
+        'required' => true,
+        'key' => 'pri',
+        ));
+
+    $old = (array)$this->oldfields;
+    $new = (array)$this->fields;
+
+    // Удаляем старые поля.
+    foreach ($old as $k => $v)
+      if (!self::isReservedFieldName($k) and !empty($v['indexed']) and empty($new[$k]['indexed']))
+        $t->columnDel($k);
+
+    // Добавляем новые поля.
+    foreach ($new as $k => $v) {
+      if (self::isReservedFieldName($k))
+        $v['indexed'] = false;
+
+      elseif (!empty($v['indexed']) and empty($old[$k]['indexed'])) {
+        self::checkFieldName($k);
+
+        if (!empty($v['type']) and class_exists($v['type'])) {
+          $spec = array(
+            'type' => call_user_func(array($v['type'], 'getSQL')),
+            'required' => !empty($v['required']),
+            'key' => 'mul',
+            'default' => (isset($v['default']) and '' !== $v['default']) ? $v['default'] : null,
+            );
+          $t->columnSet($k, $spec);
+        }
+      }
+    }
+
+    $t->commit();
   }
 
   private static function checkFieldName($name)
@@ -385,42 +432,8 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   {
   }
 
-  private function updateTable()
+  public static function isReservedFieldName($field)
   {
-    $t = new TableInfo('node_'. $this->name);
-
-    if (!$t->columnExists('rid'))
-      $t->columnSet('rid', array(
-        'type' => 'int(10) unsigned',
-        'required' => true,
-        'key' => 'pri',
-        ));
-
-    $old = (array)$this->oldfields;
-    $new = (array)$this->fields;
-
-    // Удаляем старые поля.
-    foreach ($old as $k => $v)
-      if (!empty($v['indexed']) and empty($new[$k]['indexed']))
-        $t->columnDel($k);
-
-    // Добавляем новые поля.
-    foreach ($new as $k => $v) {
-      if (!empty($v['indexed']) and empty($old[$k]['indexed'])) {
-        self::checkFieldName($k);
-
-        if (!empty($v['type']) and class_exists($v['type'])) {
-          $spec = array(
-            'type' => call_user_func(array($v['type'], 'getSQL')),
-            'required' => !empty($v['required']),
-            'key' => 'mul',
-            'default' => (isset($v['default']) and '' !== $v['default']) ? $v['default'] : null,
-            );
-          $t->columnSet($k, $spec);
-        }
-      }
-    }
-
-    $t->commit();
+    return Tagger::isReservedName($field);
   }
 };

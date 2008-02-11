@@ -82,8 +82,10 @@ class NodeAdminWidget extends Widget implements iAdminWidget
       if (!empty($options['id']))
         throw new PageNotFoundException();
 
+      /*
       if (empty($options['class']))
         throw new PageNotFoundException();
+      */
 
       $options['parent'] = $ctx->get('parent');
 
@@ -145,9 +147,33 @@ class NodeAdminWidget extends Widget implements iAdminWidget
 
   protected function onGetCreate(array $options)
   {
-    $node = Node::create($options['class']);
-    $node->parent_id = $options['parent'];
-    $html = $this->formRender('node-edit-form', $node->formGetData());
+    if (null !== $options['class']) {
+      $node = Node::create($options['class']);
+      $node->parent_id = $options['parent'];
+      $html = $this->formRender('node-edit-form', $node->formGetData());
+    } else {
+      $ids = mcms::db()->getResultsV("id", "SELECT * FROM `node` WHERE `class` = 'type' AND `id` IN (PERMCHECK:c)");
+      $types = Node::find(array('class' => 'type', 'id' => $ids));
+
+      $url = bebop_split_url();
+
+      $html = '<dl>';
+
+      foreach ($types as $t) {
+        $url['args'][$this->getInstanceName()]['class'] = $t->name;
+
+        $html .= '<dt>'. l($t->title, $url['args']) .'</dt>';
+        if (!empty($t->description))
+          $html .= '<dd>'. mcms_plain($t->description) .'</dd>';
+      }
+
+      $html .= '</dl>';
+
+      bebop_on_json(array('html' => $html));
+
+      $html = '<h2>'. t('Выберите тип создаваемого документа') .'</h2>'. $html;
+    }
+
     return $html;
   }
 
