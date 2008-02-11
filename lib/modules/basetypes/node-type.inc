@@ -83,7 +83,20 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   // Изменяет (или добавляет) поле.
   public function fieldSet($name, array $data)
   {
-    $this->data['fields'][$name] = $data;
+    $fields = $this->fields;
+
+    if (!empty($fields[$name])) {
+      ksort($fields[$name]);
+      ksort($data);
+
+      if (serialize($fields[$name]) === serialize($data))
+        return false;
+    }
+
+    $fields[$name] = $data;
+    $this->fields = $fields;
+
+    return true;
   }
 
   // Удаляет поле.

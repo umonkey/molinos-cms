@@ -535,3 +535,17 @@ a.bold {
 .control-AttachmentControl-wrapper .attctl {
   margin: 4px 0;
 }
+
+.newlink {
+  margin-left: .5em;
+}
+
+#center .notification {
+  border: solid red 1px;
+  padding: 4px;
+  background-color: #ff8;
+  color: black;
+  font-style: italic;
+  font-size: 150%;
+  margin-bottom: 10px;
+}

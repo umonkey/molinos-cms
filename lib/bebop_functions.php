@@ -826,4 +826,42 @@ class mcms
     if (mcms::ismodule('syslog'))
       SysLogModule::log($op, $message, $nid);
   }
+
+  public static function resolveNodeLink($spec, $value, $string = false)
+  {
+    $parts = explode('.', $spec, 2);
+
+    if (count($nodes = Node::find(array('class' => $parts[0], 'id' => $value)))) {
+      $node = $nodes[key($nodes)];
+
+      if ($string) {
+        $output = $value;
+        $output .= ' ('. $node->$parts[1] .')';
+      } else {
+        $output = $node;
+      }
+
+      return $output;
+    }
+
+    return null;
+  }
+
+  public static function message($text = null)
+  {
+    $rc = null;
+
+    bebop_session_start();
+
+    if (null === $text) {
+      $rc = !empty($_SESSION['messages']) ? (array)$_SESSION['messages'] : null;
+      $_SESSION['messages'] = array();
+    } else {
+      $_SESSION['messages'][] = $text;
+    }
+
+    bebop_session_end();
+
+    return $rc;
+  }
 };

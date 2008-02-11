@@ -1,0 +1,7 @@
+group = Misc
+version = 8.02.4782
+classes = ModeratorModule
+interface[iModuleConfig] = ModeratorModule
+interface[iNodeHook] = ModeratorModule
+name[en] = Moderation Queue
+name[ru] = Очередь модерирования

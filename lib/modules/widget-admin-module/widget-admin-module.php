@@ -40,7 +40,10 @@ class ModuleAdminWidget extends Widget
   public function getRequestOptions(RequestContext $ctx)
   {
     $options = parent::getRequestOptions($ctx);
-    $options['edit'] = $ctx->get('edit');
+
+    if (null !== ($options['edit'] = $ctx->get('edit')))
+      $options['#nocache'] = true;
+
     return $this->options = $options;
   }
 
@@ -99,7 +102,8 @@ class ModuleAdminWidget extends Widget
 
       if (null !== ($form = call_user_func(array($rator, 'formGetModuleConfig')))) {
         $form->intro = t('Подробности об этом модуле можно найти в <a href=\'@url\'>документации</a>.', array('@url' => 'http://code.google.com/p/molinos-cms/wiki/mod_'. str_replace('-', '_', $this->options['edit'])));
-        $form->title = t('Настройка модуля %module', array('%module' => $this->options['edit']));
+        if (!isset($form->title))
+          $form->title = t('Настройка модуля %module', array('%module' => $this->options['edit']));
 
         $form->addControl(new SubmitControl(array(
           'text' => t('Применить'),

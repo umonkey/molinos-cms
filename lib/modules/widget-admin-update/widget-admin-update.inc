@@ -434,10 +434,6 @@ class UpdateManager implements iScheduler
               'type' => 'varchar(255)',
               'indexed' => true,
               ),
-            'publisher' => array(
-              'type' => 'varchar(255)',
-              'indexed' => true,
-              ),
             'system' => array(
               'type' => 'tinyint(1)',
               'indexed' => true,
@@ -1043,12 +1039,6 @@ class UpdateManager implements iScheduler
             'internal' => true,
             'indexed' => true,
             ),
-          'publisher' => array(
-            'type' => 'TextLineControl',
-            'label' => 'Выпускающий редактор',
-            'description' => 'Введите логин пользователя, являющего выпускающим редактором для текущего.',
-            'indexed' => true,
-            ),
           'system' => array(
             'type' => 'BoolControl',
             'label' => 'Встроенный пользователь',
@@ -1147,7 +1137,6 @@ class UpdateManager implements iScheduler
       'User Managers' => 'Менеджеры пользователей',
       'CMS Developers' => 'Разработчики CMS',
       'Subscription Managers' => 'Менеджеры почтовой рассылки',
-      'Publishers' => 'Публикаторы',
       'Visitors' => 'Посетители',
       );
 
@@ -1164,7 +1153,6 @@ class UpdateManager implements iScheduler
           'Developers',
           'User Managers',
           'Subscription Managers',
-          'Publishers',
           'Visitors',
           ),
         ),

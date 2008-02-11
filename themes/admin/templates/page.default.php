@@ -39,11 +39,21 @@ $user = mcms::user();
 
         <div id="content_wrapper">
           <div id="center">
-            <?php foreach ($widgets as $name => $widget) {
-              if ($name != 'BebopDashboard' and $name != 'profile')
-                print "<div id='widget-{$name}'>{$widget}</div>";
-            } ?>
-          </div>
+            <?php
+              if (null !== ($msg = mcms::message())) {
+                print '<div class=\'notification\'>';
+
+                foreach ($msg as $m)
+                  print '<p>'. $m .'</p>';
+
+                print '</div>';
+              }
+
+              foreach ($widgets as $name => $widget) {
+                if ($name != 'BebopDashboard' and $name != 'profile')
+                  print "<div id='widget-{$name}'>{$widget}</div>";
+              }
+          ?></div>
 
           <div id="left_sidebar">
             <?=_admin_actions()?>

@@ -173,9 +173,6 @@ class NodeBase implements iFormObject
 
     mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, $isnew ? 'create' : 'update'));
 
-    if ($isnew)
-      $this->sendNotification();
-
     $this->purgeRevisions();
   }
 
@@ -189,32 +186,6 @@ class NodeBase implements iFormObject
         ':nid' => $this->id,
         ':rid' => $victim,
         ));
-    }
-  }
-
-  private function sendNotification()
-  {   
-    $schema = TypeNode::getSchema($this->class);
-          
-    if (!empty($schema['notificationrecipients'])) {
-      $host = mcms::config('basedomain');
-
-      $body = '<p>'. t('Создан новый документ типа "%type":', array('%type' => $schema['title'])) .'</p>';
-      $body .= '<dl>';
-
-      foreach ($schema['fields'] as $k => $v) {
-        if (!empty($this->data[$k])) {
-          $body .= '<dt>'. htmlspecialchars($v['label']) .':</dt>';
-          $body .= '<dd>'. htmlspecialchars($this->data[$k]) .'</dd>';
-        }
-      }
-
-      $body .= '</dl>';
-      $body .= '<p>'. t('<a href=\'@link\'>Подробности</a>', array(
-        '@link' => 'http://'. $host .'/admin/node/'. $this->id .'/edit/',
-        )) .'</p>';
-
-      BebopMimeMail::send(null, $schema['notificationrecipients'], 'Новый документ на сайте '. $host, $body);
     }
   }
 
@@ -268,70 +239,39 @@ class NodeBase implements iFormObject
   // Возвращает true, если нода успешно опубликована, false если нет.
   public function publish($rev = null)
   {
-    $user = mcms::user();
+    // Документ уже опубликован.
+    if ($this->published and $this->rid == $rev)
+      return;
 
-    // Публикатор.
-    if ($user->hasGroup('Publishers') or ($this->class == 'moduleinfo' and $user->hasGroup('Developers'))) {
-      $this->data['published'] = true;
+    // Публикуем документ.
+    mcms::db()->exec("UPDATE `node` SET `published` = 1, `rid` = :rid WHERE `id` = :id", array(':rid' => $rev ? $rev : $this->rid, ':id' => $this->id));
+    $this->data['published'] = true;
 
-      $pdo = mcms::db();
+    // Даём другим модулям возможность обработать событие (например, mod_moderator).
+    mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'publish'));
 
-      if ($rev === null)
-        $rev = $pdo->getResult("SELECT MAX(`rid`) FROM `node__rev` WHERE `nid` = :nid", array('nid' => $this->id));
+    mcms::flush();
 
-      $pdo->exec("UPDATE `node` SET `published` = :published, `rid` = :rid WHERE `id` = :nid",
-        array('rid' => $rev, 'nid' => $this->id, 'published' => $this->published));
-
-      mcms::flush();
-      return true;
-    }
-
-    // Обычный пользователь.  Будем слать мыло.
-
-    // Загрузим информацию о текущем пользователе.
-    $me = Node::load(array('class' => 'user', 'login' => $user->getName()));
-
-    // Выпускающий редактор не определён -- ничего не делаем.
-    if (empty($me->publisher))
-      return false;
-
-    // Загрузим выпускающего.
-    try {
-      $boss = Node::load(array('class' => 'user', 'login' => $me->publisher));
-    } catch (ObjectNotFoundException $e) { }
-
-    // Почтовый адрес неизвестен -- ничего не делаем.
-    if (empty($boss->email))
-      return false;
-
-    // Формируем сообщение и отправляем.
-    $message = t("<p>Пользователь %user просит опубликовать документ типа &laquo;%class&raquo; с заголовком &laquo;%name&raquo;.&nbsp; Вы можете <a href='%editlink'>отредактировать</a> или сразу <a href='%publishlink'>опубликовать</a> его.</p>", array(
-      '%user' => "<a href='http://{$_SERVER['HTTP_HOST']}/admin/node/{$me->id}/edit/'>{$me->name}</a>",
-      '%class' => $this->class,
-      '%name' => $this->name,
-      '%editlink' => "http://{$_SERVER['HTTP_HOST']}/admin/node/{$this->id}/edit/?BebopNode.rev={$this->rid}",
-      '%publishlink' => "http://{$_SERVER['HTTP_HOST']}/admin/node/{$this->id}/publish/?BebopNode.rev={$this->rid}",
-      ));
-
-    BebopMimeMail::send(null, $boss->email, "Обновление на сайте {$_SERVER['HTTP_HOST']}", $message);
-
-    return false;
+    return true;
   }
 
   public function unpublish()
   {
+    if (!$this->published)
+      return;
+
+    // Скрываем документ.
+    mcms::db()->exec("UPDATE `node` SET `published` = 0 WHERE `id` = :id", array(':id' => $this->id));
+    $this->data['published'] = false;
+
     $user = mcms::user();
 
-    if ($user->hasGroup('Publishers') or ($this->class == 'moduleinfo' and $user->hasGroup('Developers'))) {
-      if (null === $this->id)
-        $this->save();
+    // Даём другим модулям возможность обработать событие (например, mod_moderator).
+    mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'unpublish'));
 
-      mcms::db()->exec("UPDATE `node` SET `published` = 0 WHERE `id` = :id", array(':id' => $this->id));
-      mcms::flush();
-      return true;
-    }
+    mcms::flush();
 
-    return false;
+    return true;
   }
 
   public function duplicate()
@@ -1263,7 +1203,7 @@ class NodeBase implements iFormObject
           case 'AttachmentControl':
             break;
           case 'NodeLinkControl':
-            if (empty($v['values']) or !is_string($v['values'])) {
+            if (empty($v['values']) or !is_string($v['values']) or (empty($v['required']) and empty($data['node_content_'. $k]))) {
               $this->$k = null;
             } else {
               $parts = explode('.', $v['values'], 2);
