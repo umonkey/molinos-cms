@@ -81,7 +81,7 @@ class DocWidget extends Widget
       $sections = array();
 
       if (count($sids = $node->linkListParents('tag', true))) {
-        foreach (Node::find(array('class' => 'tag', 'id' => $sids)) as $tag) {
+        foreach (Node::find(array('class' => 'tag', 'id' => $sids, 'published' => 1)) as $tag) {
           $sections[] = $tag->id;
           $result['tags'][] = $tag->getRaw();
         }
