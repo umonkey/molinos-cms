@@ -5,6 +5,8 @@ require_once(dirname(__FILE__) .'/node-type-control.inc');
 
 class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 {
+  private $oldfields = null;
+
   public function __construct(array $data)
   {
     if (empty($data['fields']))
@@ -22,12 +24,14 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   public function save($clear = true, $forcedrev = null)
   {
+    $isnew = (null === $this->id);
+
     mcms::user()->checkGroup('Schema Managers');
 
     if (empty($this->title))
       $this->title = $this->name;
 
-    if (null === $this->id) {
+    if ($isnew) {
       try {
         $node = Node::load(array('class' => 'type', 'name' => $this->name));
         throw new ForbiddenException(t("Тип документа со внутренним именем \"%name\" уже есть, повторное использование имени не допускается.", array('%name' => $this->name)));
@@ -39,6 +43,9 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     // Всегда сохраняем без очистки.
     parent::save(false, $forcedrev);
 
+    if ($isnew or (null !== $this->oldfields))
+      $this->updateTable();
+
     mcms::cache('schema', null);
   }
 
@@ -46,6 +53,14 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   {
     $this->name = preg_replace('/_[0-9]+$/', '', $this->name) .'_'. rand();
     parent::duplicate();
+  }
+
+  public function __set($k, $v)
+  {
+    // Отслеживаем изменения в полях.
+    if ('fields' === $k and null === $this->oldfields)
+      $this->oldfields = $this->fields;
+    parent::__set($k, $v);
   }
 
   // Возвращает информацию о типе документа, включая поля.
@@ -283,67 +298,24 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   protected function updateFields(array $data)
   {
-    $t = new TableInfo('node_'. $this->name);
+    $fields = empty($data['node_content_fields']) ? array() : $data['node_content_fields'];
 
-    if (!$t->columnExists('rid'))
-      $t->columnSet('rid', array(
-        'type' => 'int(10) unsigned',
-        'required' => true,
-        'key' => 'pri',
-        ));
-
-    $old = empty($this->fields) ? array() : $this->fields;
-    $new = empty($data['node_content_fields']) ? array() : $data['node_content_fields'];
-
-    // Удаляем поля.
-    foreach ($old as $k => $v) {
-      if (!empty($v['indexed'])) {
-        if (empty($new[$k]['indexed']) or !empty($new[$k]['delete']))
-          $t->columnDel($k);
-      }
-    }
-
-    // Обрабатываем новые поля.
-    foreach ($new as $k => $v) {
+    foreach ($fields as $k => $v) {
       if (!empty($v['delete'])) {
-        unset($new[$k]);
-        continue;
+        unset($fields[$k]);
       }
 
-      if ('new-field' == $k) {
-        if (empty($v['name'])) {
-          unset($new[$k]);
-          continue;
-        } else {
-          unset($new[$k]);
-          $new[$k = $v['name']] = $v;
-
-          self::checkFieldName($k);
-        }
-      }
-
-      if (!empty($v['indexed'])) {
-        if (!empty($v['type']) and class_exists($v['type'])) {
-          $spec = array(
-            'type' => call_user_func(array($v['type'], 'getSQL')),
-            'required' => !empty($v['required']),
-            'index' => 'mul',
-            'default' => (isset($v['default']) and '' !== $v['default']) ? $v['default'] : null,
-            );
-          $t->columnSet($k, $spec);
+      elseif ('new-field' == $k) {
+        if (empty($v['name']))
+          unset($fields[$k]);
+        else {
+          $fields[$v['name']] = $v;
+          unset($fields[$v['name']]['name']);
         }
       }
     }
-
-    $t->commit();
 
     $this->data['fields'] = $new;
-
-    // Не дожидаемся сохранения извне, т.к. о нём могут забыть,
-    // а структура таблиц у нас уже изменилась.
-    $this->save();
-
-    mcms::flush();
   }
 
   private static function checkFieldName($name)
@@ -411,5 +383,44 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   public static function hookPostInstall()
   {
+  }
+
+  private function updateTable()
+  {
+    $t = new TableInfo('node_'. $this->name);
+
+    if (!$t->columnExists('rid'))
+      $t->columnSet('rid', array(
+        'type' => 'int(10) unsigned',
+        'required' => true,
+        'key' => 'pri',
+        ));
+
+    $old = (array)$this->oldfields;
+    $new = (array)$this->fields;
+
+    // Удаляем старые поля.
+    foreach ($old as $k => $v)
+      if (!empty($v['indexed']) and empty($new[$k]['indexed']))
+        $t->columnDel($k);
+
+    // Добавляем новые поля.
+    foreach ($new as $k => $v) {
+      if (!empty($v['indexed']) and empty($old[$k]['indexed'])) {
+        self::checkFieldName($k);
+
+        if (!empty($v['type']) and class_exists($v['type'])) {
+          $spec = array(
+            'type' => call_user_func(array($v['type'], 'getSQL')),
+            'required' => !empty($v['required']),
+            'key' => 'mul',
+            'default' => (isset($v['default']) and '' !== $v['default']) ? $v['default'] : null,
+            );
+          $t->columnSet($k, $spec);
+        }
+      }
+    }
+
+    $t->commit();
   }
 };

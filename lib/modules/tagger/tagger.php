@@ -16,30 +16,6 @@ class Tagger
         $this->pdo = ($pdo === null) ? mcms::db() : $pdo;
     }
 
-    private function logAction($operation, $nid = null, $query = null)
-    {
-        if (empty($_SERVER['REQUEST_METHOD']))
-          return;
-
-        $sql = "INSERT INTO `node__log` (`nid`, `uid`, `ip`, `operation`, `timestamp`, `username`, `query`) VALUES(:nid, :uid, :ip, :operation, NOW(), :username, :query)";
-        $user = mcms::user();
-
-        $sth = $this->pdo->prepare($sql);
-        $sth->execute(array(
-            ':nid' => $nid,
-            ':uid' => $user->getUid(),
-            ':username' => $user->getName(),
-            ':ip' => $_SERVER['REMOTE_ADDR'],
-            ':operation' => $operation,
-            ':query' => empty($query) ? null : $query,
-            ));
-    }
-
-    public function logSearchQuery($query = null)
-    {
-      $this->logAction('search', 0, $query);
-    }
-
     public function flushCache()
     {
     }
@@ -279,8 +255,6 @@ class Tagger
 
       $this->nodeSave($data);
 
-      $this->logAction('create', $data['id']);
-
       return $data['id'];
     }
 
@@ -338,8 +312,6 @@ class Tagger
         $this->nodeCreate($node);
 
       $this->nodeSaveRevision($node, $rev);
-
-      $this->logAction('update', $node['id']);
     }
 
     // Сохраняет документ, создавая новую ревизию.
@@ -903,12 +875,6 @@ class Tagger
 
             // Проставляем флаг для быстрого доступа.
             $pdo->exec("UPDATE `node` SET `published` = {$mode} WHERE `id` IN ({$nids})");
-
-            // Logging.
-            foreach ($nodes as $id) {
-                $operation = (0 == $mode) ? 'unpublish' : 'publish';
-                $this->logAction($operation, $id);
-            }
         }
     }
 

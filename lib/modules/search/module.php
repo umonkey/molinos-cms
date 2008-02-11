@@ -242,8 +242,8 @@ class SearchWidget extends Widget
       throw new UserErrorException("Поиск не работает", 500, "Поиск временно недоступен", "Не удалось установить привязку к домену, требуется вмешательство администратора сайта.");
 
     // Query logging here
-    $tagger = Tagger::getInstance();
-    $tagger->logSearchQuery($query);
+    // $tagger = Tagger::getInstance();
+    // $tagger->logSearchQuery($query);
 
     if (!empty($this->ispell)) {
       $ispell_langs = array(
