@@ -101,7 +101,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
       if (null !== $this->tree)
         $doctype = $this->tree;
-      elseif (isset($this->fitler['class']))
+      elseif (isset($this->filter['class']))
         $doctype = $this->filter['class'];
       else
         $doctype = null;
