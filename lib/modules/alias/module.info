@@ -1,4 +1,4 @@
-group = Misc
+group = Service
 version = 8.02.4782
 classes = AliasModule
 interface[iRequestHook] = AliasModule

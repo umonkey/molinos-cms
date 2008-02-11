@@ -1,4 +1,4 @@
-group = core
+group = Core
 version = 8.02.4782
 classes = Tagger
 name[en] = Tagger

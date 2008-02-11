@@ -131,7 +131,7 @@ class ModuleAdminWidget extends Widget
         $enabled[] = $tmp->name;
 
       foreach ($mmap = bebop_get_module_map() as $name => $info) {
-        if ('core' == $info['group'])
+        if ('Core' == $info['group'])
           $enabled = true;
         else
           $enabled = !empty($info['enabled']);
@@ -264,7 +264,7 @@ class ModuleListControl extends Control
 
       foreach ($data[$this->value][$this->group] as $k => $v) {
         $checked = !empty($v['enabled']);
-        $disabled = ($this->group == 'core');
+        $disabled = ($this->group == 'Core');
 
         $row = '<td>'. mcms::html('input', array(
           'type' => 'checkbox',

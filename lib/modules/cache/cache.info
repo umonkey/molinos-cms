@@ -1,4 +1,4 @@
-group = core
+group = Core
 version = 8.02.4782
 classes = BebopCache, APC_Cache, MemCacheD_Cache, Local_Cache
 name[en] = Cache Engine

@@ -1,4 +1,4 @@
-group = core
+group = Core
 version = 8.02.4782
 classes = Control, FieldSetControl, Form, iFormObject, SubmitControl, ResetControl, HiddenControl, TextAreaControl, TextHTMLControl, TextLineControl, BoolControl, DateControl, DateTimeControl, EmailControl, URLControl, SetControl, TableControl, AttachmentControl, FieldSetControl, Form, NumberControl, FloatControl, EnumControl, PasswordControl, EnumRadioControl, NodeLinkControl
 interface[iFormControl] = SubmitControl, ResetControl, HiddenControl, TextAreaControl, TextHTMLControl, TextLineControl, BoolControl, DateControl, DateTimeControl, EmailControl, URLControl, SetControl, TableControl, AttachmentControl, FieldSetControl, Form, NumberControl, FloatControl, EnumControl, PasswordControl, EnumRadioControl, NodeLinkControl

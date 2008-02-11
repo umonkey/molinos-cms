@@ -1,4 +1,4 @@
-group = template
+group = Service
 version = 8.02.4782
 classes = SmartyException, BebopSmarty
 name[en] = Smarty Template Engine
