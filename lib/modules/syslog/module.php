@@ -331,8 +331,6 @@ class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleCo
       'type' => 'TEXT',
       ));
 
-    // bebop_debug($t->getSQL(), $t);
-
     $t->commit();
   }
 
@@ -380,7 +378,6 @@ class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleCo
           return;
       }
 
-      bebop_debug($op, $message);
       self::log($op, $message, $node->id);
     }
   }
