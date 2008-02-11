@@ -56,6 +56,9 @@ class TagNode extends Node implements iContentType
   {
     $form = parent::formGet($simple);
 
+    if (null === $this->parent_id and self::haveRoot())
+      mcms::message(t('Вы пытаетесь создать второй корневой раздел.  Он будет добавлен в существующий корень.  Для добавления подразделов используйте ссылку «добавить» в правой части таблицы разделов.'));
+
     $form->title = (null === $this->id)
       ? t('Добавление нового раздела')
       : t('Редактирование раздела "%name"', array('%name' => $this->name));
@@ -75,5 +78,10 @@ class TagNode extends Node implements iContentType
     }
 
     return $data;
+  }
+
+  private static function haveRoot()
+  {
+    return Node::count(array('class' => 'tag', 'parent_id' => null, 'deleted' => 0));
   }
 };
