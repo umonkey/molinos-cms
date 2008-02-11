@@ -537,7 +537,7 @@ class EmailControl extends Control
       $value = null;
 
     $output = mcms::html('input', array(
-      'type' => 'email',
+      'type' => 'text',
       'id' => $this->id,
       'class' => 'form-text',
       'name' => $this->value,
