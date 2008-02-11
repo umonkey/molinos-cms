@@ -6,8 +6,13 @@
   </head>
   <body>
     <h1><a href="http://code.google.com/p/molinos-cms/"><span><?=$error['message']?></span></a></h1>
-    <p class='main'>Доступ к этой части сайта ограничен.</p>
-    <p>Вам нужно авторизоваться, чтобы продолжить работу.</p>
+    <p class='main'><?=$error['description']?></p>
+    <p><?php
+      if (!isset($_GET['profile_status']) or 'wrong' !== $_GET['profile_status'])
+        print $error['note'];
+      else
+        print 'Введённый логин/пароль не подходит.  Возможно, ваш профиль ещё не был активирован.  Если вы регистрировались на сайте самостоятельно, вы должны были получить инструкции по активации профиля по электронной почте.';
+    ?></p>
 
     <form method='post'>
       <input type='hidden' name='form_id' value='user-login-form' />
