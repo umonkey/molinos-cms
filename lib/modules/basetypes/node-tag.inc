@@ -5,6 +5,11 @@ class TagNode extends Node implements iContentType
 {
   public function save($clear = true, $forcedrev = null)
   {
+    if (null === $this->parent_id)
+      if (Node::count(array('class' => 'tag', 'parent_id' => null, 'deleted' => 0)))
+        throw new ForbiddenException(t('Вы попытались создать второй корневой раздел.  Как так вышло, интересно?  Сообщите разработчику.'));
+
+    bebop_debug($this);
     parent::save($clear, $forcedrev);
   }
 
