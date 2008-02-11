@@ -53,7 +53,7 @@
 					
 					// находим список вкладок в текущей форме; добавляем в список текст легенды текущего филдсета; ставим обработчик на ссылку в списке;
 					$$.find('.ftabber-tabs')
-						.append('<li><a href="#">' + legendtext + '</a></li>')
+						.append('<li><a href="'+ window.location.href +'">' + legendtext + '</a></li>')
 						.find('li:last a')
 						.click(function(){
 							// прячем все филдсэты в текущей форме
