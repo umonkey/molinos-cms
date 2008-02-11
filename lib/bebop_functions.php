@@ -804,7 +804,7 @@ class mcms
     return AuthCore::getInstance()->getUser();
   }
 
-  public static function auth($user = 'anonymous', $pass = null, $bypass = true)
+  public static function auth($user = 'anonymous', $pass = null, $bypass = false)
   {
     $auth = AuthCore::getInstance();
 
