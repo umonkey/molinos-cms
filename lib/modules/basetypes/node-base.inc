@@ -1166,7 +1166,12 @@ class NodeBase implements iFormObject
 
   private function getSectionsForThisType()
   {
-    $list = Node::load(array('class' => 'type', 'name' => $this->class))->linkListParents('tag', true);
+    try {
+      $list = Node::load(array('class' => 'type', 'name' => $this->class))->linkListParents('tag', true);
+    } catch (ObjectNotFoundException $e) {
+      $list = array();
+    }
+
     return $list;
   }
 
