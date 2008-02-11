@@ -528,7 +528,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
         'description' => t('Просмотр, редактирование и добавление файлов.'),
         );
 
-    if ($user->hasGroup('Content Managers'))
+    if ($user->hasGroup('Content Managers') and Node::count(array('deleted' => 1)))
       $icons[] = array(
         'img' => $images .'dashboard-task-trash.gif',
         'href' => '/admin/trash/',
