@@ -502,6 +502,7 @@ class UserWidget extends Widget
         mcms::auth($data['login'], $data['password']);
       } catch (ForbiddenException $e) {
         $res['status'] = 'wrong';
+        // $res['reason'] = 'inactive';
       }
 
       break;
@@ -563,7 +564,11 @@ class UserWidget extends Widget
 
     if (null !== $res['status'] and 'ok' != $res['status']) {
       $url = bebop_split_url();
-      $url['args'][$this->getInstanceName()]['status'] = $res['status'];
+
+      $meargs = $res;
+      $meargs['message'] = null;
+
+      $url['args'][$this->getInstanceName()] = $meargs;
       $url['args']['destination'] = $next;
 
       $next = bebop_combine_url($url, false);

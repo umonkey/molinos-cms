@@ -96,10 +96,10 @@ class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleCo
   {
     $output = "Запрос;Количество\n";
 
-    $data = mcms::db()->getResults("SELECT `query`, COUNT(`query`) AS `count` FROM `node__log` WHERE `operation` = 'search' AND `query` IS NOT NULL GROUP BY `query` ORDER BY `count` DESC");
+    $data = mcms::db()->getResults("SELECT `message`, COUNT(`message`) AS `count` FROM `node__log` WHERE `operation` = 'search' AND `message` IS NOT NULL GROUP BY `message` ORDER BY `count` DESC");
 
     foreach ($data as $row) {
-      $output .= str_replace(';', ",", $row['query']) .';'. $row['count'] ."\n";
+      $output .= str_replace(';', ",", $row['message']) .';'. $row['count'] ."\n";
     }
 
     $output = iconv('utf-8', 'windows-1251', $output);
@@ -197,7 +197,7 @@ class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleCo
 
       foreach ($data['syslog_list'] as $k => $v) {
         if (empty($v['nid']))
-          $data['syslog_list'][$k]['title'] = mcms_plain($v['query']);
+          $data['syslog_list'][$k]['title'] = mcms_plain($v['message']);
         elseif (!empty($v['nid']) and !empty($v['title']))
           $data['syslog_list'][$k]['title'] = "<a href='/admin/node/{$v['nid']}/edit/?destination=". urlencode($_SERVER['REQUEST_URI']) ."'>". mcms_plain($v['title']) ."</a>";
 
@@ -295,49 +295,48 @@ class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleCo
   {
     $t = new TableInfo('node__log');
 
-    if (!$t->exists()) {
-      $t->columnSet('lid', array(
-        'type' => 'int(10) unsigned',
-        'required' => true,
-        'key' => 'pri',
-        'autoincrement' => true,
-        ));
-      $t->columnSet('timestamp', array(
-        'type' => 'datetime',
-        'key' => 'mul',
-        'required' => true,
-        ));
-      $t->columnSet('nid', array(
-        'type' => 'int(10) unsigned',
-        'required' => false,
-        'key' => 'mul',
-        ));
-      $t->columnSet('uid', array(
-        'type' => 'int(10) unsigned',
-        'required' => false,
-        'key' => 'mul',
-        ));
-      $t->columnSet('username', array(
-        'type' => 'varchar(255)',
-        'required' => false,
-        'key' => 'mul',
-        ));
-      $t->columnSet('ip', array(
-        'type' => 'varchar(15)',
-        'required' => true,
-        'key' => 'mul',
-        ));
-      $t->columnSet('operation', array(
-        'type' => 'varchar(10)',
-        'key' => 'mul',
-        ));
-      $t->columnSet('query', array(
-        'type' => 'varchar(255)',
-        'key' => 'mul',
-        ));
+    $t->columnSet('lid', array(
+      'type' => 'int(10) unsigned',
+      'required' => true,
+      'key' => 'pri',
+      'autoincrement' => true,
+      ));
+    $t->columnSet('timestamp', array(
+      'type' => 'datetime',
+      'key' => 'mul',
+      'required' => true,
+      ));
+    $t->columnSet('nid', array(
+      'type' => 'int(10) unsigned',
+      'required' => false,
+      'key' => 'mul',
+      ));
+    $t->columnSet('uid', array(
+      'type' => 'int(10) unsigned',
+      'required' => false,
+      'key' => 'mul',
+      ));
+    $t->columnSet('username', array(
+      'type' => 'varchar(255)',
+      'required' => false,
+      'key' => 'mul',
+      ));
+    $t->columnSet('ip', array(
+      'type' => 'varchar(15)',
+      'required' => true,
+      'key' => 'mul',
+      ));
+    $t->columnSet('operation', array(
+      'type' => 'varchar(10)',
+      'key' => 'mul',
+      ));
+    $t->columnSet('message', array(
+      'type' => 'TEXT',
+      ));
 
-      $t->commit();
-    }
+    // bebop_debug($t->getSQL(), $t);
+
+    $t->commit();
   }
 
   // Обработка статистики
@@ -370,14 +369,14 @@ class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleCo
     if (null === $conf)
       $conf = mcms::modconf('syslog');
 
-    mcms::db()->exec("INSERT INTO `node__log` (`nid`, `uid`, `username`, `ip`, `operation`, `timestamp`, `query`) "
-      ."VALUES (:nid, :uid, :username, :ip, :operation, UTC_TIMESTAMP(), :query)", array(
+    mcms::db()->exec("INSERT INTO `node__log` (`nid`, `uid`, `username`, `ip`, `operation`, `timestamp`, `message`) "
+      ."VALUES (:nid, :uid, :username, :ip, :operation, UTC_TIMESTAMP(), :message)", array(
       ':nid' => $nid,
       ':uid' => mcms::user()->getUid(),
       ':username' => mcms::user()->getName(),
       ':ip' => empty($_SERVER['REMOTE_ADDR']) ? null : $_SERVER['REMOTE_ADDR'],
       ':operation' => $op,
-      ':query' => $message,
+      ':message' => $message,
       ));
 
     if (!empty($conf['limit'])) {

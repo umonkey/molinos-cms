@@ -193,6 +193,7 @@ class ModuleAdminWidget extends Widget
         if (empty($data['module_list'][$k]))
           $v->unpublish();
 
+      mcms::invoke('iModuleConfig', 'hookPostInstall');
       break;
 
     case 'module-edit':

@@ -392,8 +392,12 @@ class TableInfo implements iModuleConfig
         if ($spec['autoincrement'])
             $sql .= ' auto_increment';
 
-        if ('pri' == $spec['key'])
-            $sql .= ' PRIMARY KEY';
+        if ('pri' == $spec['key']) {
+            if (!$modify)
+                $sql .= ' PRIMARY KEY';
+        } elseif (!empty($spec['key']) and $this->isnew) {
+            $sql .= ", KEY (`{$name}`)";
+        }
 
         $this->alter[] = $sql;
     }

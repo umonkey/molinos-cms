@@ -82,7 +82,7 @@ class NodeAdminWidget extends Widget implements iAdminWidget
       if (!empty($options['id']))
         throw new PageNotFoundException();
 
-      if (null === ($options['class'] = $ctx->get('class')))
+      if (empty($options['class']))
         throw new PageNotFoundException();
 
       $options['parent'] = $ctx->get('parent');
@@ -102,7 +102,7 @@ class NodeAdminWidget extends Widget implements iAdminWidget
         throw new PageNotFoundException();
     }
 
-    return $options;
+    return $this->options = $options;
   }
 
   // Обработка GET запросов.
