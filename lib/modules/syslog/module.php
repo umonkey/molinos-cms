@@ -196,10 +196,7 @@ class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleCo
       $data['syslog_list'] = $pdo->getResults($sql2, $params);
 
       foreach ($data['syslog_list'] as $k => $v) {
-        if (empty($v['nid']))
-          $data['syslog_list'][$k]['title'] = mcms_plain($v['message']);
-        elseif (!empty($v['nid']) and !empty($v['title']))
-          $data['syslog_list'][$k]['title'] = "<a href='/admin/node/{$v['nid']}/edit/?destination=". urlencode($_SERVER['REQUEST_URI']) ."'>". mcms_plain($v['title']) ."</a>";
+        $data['syslog_list'][$k]['title'] = mcms_plain($v['message']);
 
         $data['syslog_list'][$k]['ip'] = l($v['ip'], array($this->getInstanceName() => array('ip' => $v['ip'])));
         $data['syslog_list'][$k]['operation'] = l($v['operation'], array($this->getInstanceName() => array('op' => $v['operation'])));
@@ -345,20 +342,46 @@ class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleCo
     $conf = mcms::modconf('syslog');
 
     if (!empty($conf['options']) and in_array($op, $conf['options'])) {
+      $message = $node->name;
+
       switch ($op) {
         case 'create':
+          $message = t('Создан объект типа «%type» с именем «%name»', array(
+            '%type' => $node->class,
+            '%name' => $node->name,
+            ));
+          break;
         case 'update':
+          $message = t('Изменён объект типа «%type» с именем «%name»', array(
+            '%type' => $node->class,
+            '%name' => $node->name,
+            ));
+          break;
         case 'delete':
+          $message = t('Перемещён в корзину объект типа «%type» с именем «%name»', array(
+            '%type' => $node->class,
+            '%name' => $node->name,
+            ));
+          break;
         case 'erase':
+          $message = t('Окончательно удалён объект типа «%type» с именем «%name»', array(
+            '%type' => $node->class,
+            '%name' => $node->name,
+            ));
           break;
         case 'restore':
+          $message = t('Восстановлен из корзины объект типа «%type» с именем «%name»', array(
+            '%type' => $node->class,
+            '%name' => $node->name,
+            ));
           $op = 'undelete';
           break;
         default:
           return;
       }
 
-      self::log($op, $node->name, $node->id);
+      bebop_debug($op, $message);
+      self::log($op, $message, $node->id);
     }
   }
 
