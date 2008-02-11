@@ -434,6 +434,10 @@ class UpdateManager implements iScheduler
               'type' => 'varchar(255)',
               'indexed' => true,
               ),
+            'publisher' => array(
+              'type' => 'varchar(255)',
+              'indexed' => true,
+              ),
             'system' => array(
               'type' => 'tinyint(1)',
               'indexed' => true,
@@ -659,12 +663,6 @@ class UpdateManager implements iScheduler
           'description' => array(
             'type' => 'TextAreaControl',
             'label' => 'Описание',
-            'internal' => true,
-            ),
-          'notificationrecipients' => array(
-            'type' => 'TextLineControl',
-            'label' => 'E-mail модератора',
-            'description' => 'Один или несколько адресов, на которые будет отправляться сообщение о появлении новых документов этого типа.&nbsp; Разделитель &mdash; запятая.',
             'internal' => true,
             ),
           'internal' => array(
@@ -993,13 +991,6 @@ class UpdateManager implements iScheduler
             'description' => 'Позволяет при просмотре содержимого раздела использовать календарь для навигации.',
             'internal' => true,
             ),
-          'bebop_subscribe' => array(
-            'type' => 'BoolControl',
-            'label' => 'Разрешить подписку',
-            'description' => 'Разрешить пользователям подписываться на почтовые уведомления об обновлениях в этом разделе.',
-            'internal' => true,
-            'indexed' => true,
-            ),
           ),
         ),
       'user' => array(
@@ -1037,6 +1028,12 @@ class UpdateManager implements iScheduler
             'label' => 'Почтовый адрес',
             'description' => 'На этот адрес пользователь получает уведомления, информацию о восстановлении пароля итд.',
             'internal' => true,
+            'indexed' => true,
+            ),
+          'publisher' => array(
+            'type' => 'TextLineControl',
+            'label' => 'Выпускающий редактор',
+            'description' => 'Введите логин пользователя, являющего выпускающим редактором для текущего.',
             'indexed' => true,
             ),
           'system' => array(
@@ -1137,6 +1134,7 @@ class UpdateManager implements iScheduler
       'User Managers' => 'Менеджеры пользователей',
       'CMS Developers' => 'Разработчики CMS',
       'Subscription Managers' => 'Менеджеры почтовой рассылки',
+      'Publishers' => 'Публикаторы',
       'Visitors' => 'Посетители',
       );
 
@@ -1153,6 +1151,7 @@ class UpdateManager implements iScheduler
           'Developers',
           'User Managers',
           'Subscription Managers',
+          'Publishers',
           'Visitors',
           ),
         ),
@@ -1259,6 +1258,7 @@ class UpdateManager implements iScheduler
         'title' => 'Типы документов',
         'class' => 'ListAdminWidget',
         'config' => array(
+          'newclass' => 'type',
           'filter' => array(
             'class' => array(
               'type',
