@@ -452,7 +452,7 @@ function bebop_render_object($type, $name, $theme = null, $data)
 }
 
 // Определяет тип файла.
-function bebop_get_file_type($filename)
+function bebop_get_file_type($filename, $realname = null)
 {
   $result = 'application/octet-stream';
 
@@ -465,6 +465,24 @@ function bebop_get_file_type($filename)
       $result = finfo_file($r, $filename);
       $result = str_replace(strrchr($result, ';'), '', $result);
       finfo_close($r);
+    }
+  }
+
+  if (isset($realname) and ('application/octet-stream' == $result)) {
+    switch (strtolower(strrchr($realname, '.'))) {
+    case '.ttf':
+      $result = 'application/x-font-ttf';
+      break;
+    case '.jpg':
+    case '.jpeg':
+      $result = 'image/jpeg';
+      break;
+    case '.png':
+      $result = 'image/png';
+      break;
+    case '.gif':
+      $result = 'image/gif';
+      break;
     }
   }
 
