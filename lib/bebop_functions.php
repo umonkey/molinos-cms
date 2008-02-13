@@ -864,4 +864,10 @@ class mcms
 
     return $rc;
   }
+
+  public static function url(array $options, $inherit = false)
+  {
+    $args = $inherit ? bebop_split_url() : array();
+    return bebop_combine_url($args, $options);
+  }
 };
