@@ -2,6 +2,6 @@ group = Service
 version = 8.02.4782
 classes = AutocompleteModule
 interface[iModuleConfig] = AutocompleteModule
-interface[iRequestHook] = AutocompleteModule
+interface[iRemoteCall] = AutocompleteModule
 name[en] = File/Node Autocomplete
 name[ru] = Автоматический подбор файлов и документов

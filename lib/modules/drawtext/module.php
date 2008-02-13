@@ -7,67 +7,8 @@
 
 define( 'DRAW_TTF_BASE', 72);
 
-class DrawTextModule implements iModuleConfig, iRequestHook
+class DrawTextModule implements iModuleConfig, iRemoteCall
 {
-  private static $usageMessage = 'Usage: ?font=id&width=X&height=Y&text=...';
-
-  // Препроцессор параметров.
-  public function getRequestOptions(RequestContext $ctx)
-  {
-    $options = parent::getRequestOptions($ctx);
-    
-    if (null === ($options['font'] = $ctx->get('font'))) {
-        header('Content-Type: text/plain; charset=utf-8');
-        die(self::$usageMessage);
-    }
-
-    $options['padding'] = $ctx->get('pad', 0);
-    $options['color'] = strtolower($ctx->get('color', '0'));
-    $options['text'] = $ctx->get('text');
-    $options['size'] = $ctx->get('size', DRAW_TTF_BASE);
-
-    return $options;
-  }
-
-  // Обработка GET запросов.
-  public function onGet(array $options)
-  {
-    $padding = $options['padding'];
-    $text = base64_decode($options['text']);
-    $fontId = $options['font'];
-    $size = $options['size'];
-    $color = $options['color'];
-
-    try {
-      $fontObj = Node::load($fontId);
-      $fontFile = mcms::config('filestorage') .'/' . $fontObj->filepath;
-    } catch (ObjectNotFoundException $e) {
-      header("content-type: text/plain");
-      die("Font file {$fontId} not found");
-    }
-
-	  $bounds = ImageTTFBBox($size, 0, $fontFile, $text);
-		$width = abs($bounds[4] - $bounds[6]);
-		$height = abs($bounds[7] - $bounds[1]);
-
-    $img = imagecreatetruecolor($width + ($padding * 2) + 1, $height + ($padding * 2) + 1) or die("Could not create an image {$width}x{$height}.");
-    //$img = imagecreatetruecolor($width, $height) or die("Could not create an image {$width}x{$height}.");
-    $bg = imagecolorallocatealpha($img, 211, 161, 102, 127) or die("Could not allocate background color.");
-    imagefill($img, 0, 0, $bg);
-
-    $cR = hexdec(substr($color, 0, 2));
-    $cG = hexdec(substr($color, 2, 2));
-    $cB = hexdec(substr($color, 4, 2));
-    self::drawttftext($img, $size, 0, 0, $cR, $cG, $cB, $fontFile, $text);
-
-    imagesavealpha( $img, true );
-
-    header('Content-Type: image/png');
-    //header("content-type: text/plain");
-    imagepng( $img );
-    die();
-  }
-
 /*
 |------------------------------------------------------------
 | This function fixes an issue with imagettftext when 
@@ -208,30 +149,25 @@ class DrawTextModule implements iModuleConfig, iRequestHook
   {
   }
 
-  public static function hookRequest(RequestContext $ctx = null)
+  public static function hookRemoteCall(RequestContext $ctx)
   {
-    if (null === $ctx) {
-      $url = bebop_split_url($_SERVER['REQUEST_URI']);
+    $options = array();
+    $conf = mcms::modconf('drawtext');
 
-      if ('/drawtext.rpc' == $url['path']) {
-        $options = array();
-        $conf = mcms::modconf('drawtext');
+    if (null !== $ctx->get('font'))
+      $options['font'] = $ctx->get('font');
+    elseif (isset($conf['font']))
+      $options['font'] = $conf['font'];
+    else
+      self::usage();
 
-        if (isset($url['args']['font']) and is_numeric($url['args']['font']))
-          $options['font'] = $url['args']['font'];
-        elseif (isset($conf['font']))
-          $options['font'] = $conf['font'];
-        else
-          self::usage();
+    $options['padding'] = $ctx->get('padding', 0);
+    $options['color'] = strtolower($ctx->get('color', '000000'));
+    $options['text'] = $ctx->get('text', base64_encode('Hello, world!'));
+    $options['size'] = $ctx->get('size', DRAW_TTF_BASE);
 
-        $options['padding'] = isset($url['args']['padding']) ? $url['args']['padding'] : 0;
-        $options['color'] = isset($url['args']['color']) ? strtolower($url['args']['color']) : '000000';
-        $options['text'] = isset($url['args']['text']) ? $url['args']['text'] : base64_encode('Hello, world!');
-        $options['size'] = isset($url['args']['size']) ? $url['args']['size'] : DRAW_TTF_BASE;
-
-        self::onGet($options);
-      }
-    }
+    self::onGet($options);
+    die();
   }
 
   private static function usage()

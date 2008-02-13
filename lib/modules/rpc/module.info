@@ -1,0 +1,6 @@
+group = Core
+version = 8.02.4782
+classes = RPCHandler
+interface[iRequestHook] = RPCHandler
+name[en] = Remote Procedure Call Engine
+name[ru] = Обработчик удалённых запросов

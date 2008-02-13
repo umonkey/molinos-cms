@@ -29,6 +29,11 @@ interface iRequestHook
   public static function hookRequest(RequestContext $ctx = null);
 };
 
+// Обращение к безвиджетным модулям.
+interface iRemoteCall
+{
+  public static function hookRemoteCall(RequestContext $ctx);
+};
 
 function bebop_redirect($path, $status = 301)
 {
@@ -469,19 +474,9 @@ function bebop_get_file_type($filename, $realname = null)
   }
 
   if (isset($realname) and ('application/octet-stream' == $result)) {
-    switch (strtolower(strrchr($realname, '.'))) {
+    switch (strrchr($realname, '.')) {
     case '.ttf':
       $result = 'application/x-font-ttf';
-      break;
-    case '.jpg':
-    case '.jpeg':
-      $result = 'image/jpeg';
-      break;
-    case '.png':
-      $result = 'image/png';
-      break;
-    case '.gif':
-      $result = 'image/gif';
       break;
     }
   }

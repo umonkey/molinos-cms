@@ -231,7 +231,7 @@ class RequestContext
   }
 
   // Формирует глобальный контекст.
-  public static function setGlobal(array $ppath, array $apath, Node $page)
+  public static function setGlobal(array $ppath = null, array $apath = null, Node $page = null)
   {
     if (self::$global !== null)
       throw new InvalidArgumentException("There is a global request context already.");
@@ -240,11 +240,13 @@ class RequestContext
 
     $ctx->ppath = $ppath;
     $ctx->apath = $apath;
-    $ctx->theme = $page->theme;
 
-    $ctx->setObjectIds($page);
+    if (null !== $page) {
+      $ctx->theme = $page->theme;
+      $ctx->setObjectIds($page);
+    }
 
-    self::$global = $ctx;
+    return self::$global = $ctx;
   }
 
   // Возвращает текущий контекст.
@@ -257,9 +259,12 @@ class RequestContext
   }
 
   // Формирует контекст для виджета, из глобального.
-  public static function getWidget(array $get, array $post, array $files)
+  public static function getWidget(array $get, array $post = null, array $files = null)
   {
-    $ctx = clone(self::getGlobal());
+    if (null === self::$global)
+      $ctx = new RequestContext();
+    else
+      $ctx = clone(self::getGlobal());
 
     $ctx->get = $get;
     $ctx->post = $post;
