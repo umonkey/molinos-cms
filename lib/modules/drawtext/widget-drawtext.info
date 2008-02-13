@@ -2,5 +2,5 @@ group = Service
 version = 8.02.4782
 classes = DrawTextWidget
 interface[iWidget] = DrawTextWidget
-name[en] = Text rasterization widget
+name[en] = Text Rasterization Widget
 name[ru] = Растеризация текста

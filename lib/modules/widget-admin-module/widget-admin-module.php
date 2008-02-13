@@ -62,7 +62,7 @@ class ModuleAdminWidget extends Widget
       $form = new Form(array(
         'title' => t('Настройка модулей'),
         'class' => 'tabbed',
-        'intro' => t('Будьте осторожны, отключая активные модули на работающем сайте: это может нарушить его работоспособность.  Дополнительную информацию о конкретном <a href=\'@modurl\'>модуле</a> можно найти в документаци (по ссылке с имени модуля), или в <a href=\'@listurl\'>общем списке модулей</a>.', array(
+        'intro' => t('Информацию о конкретном <a href=\'@modurl\'>модуле</a> можно найти в документаци (по ссылке с имени модуля), или в <a href=\'@listurl\'>общем списке модулей</a>.', array(
           '@modurl' => 'http://code.google.com/p/molinos-cms/wiki/Modules',
           '@listurl' => 'http://code.google.com/p/molinos-cms/w/list?q=label:Module',
           )),
