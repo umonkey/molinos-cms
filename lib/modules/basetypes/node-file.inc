@@ -74,7 +74,7 @@ class FileNode extends Node implements iContentType
     if (!array_key_exists('name', $file))
       $file['name'] = basename($file['tmp_name']);
     if (!array_key_exists('type', $file) or 'application/octet-stream' == $file['type'])
-      $file['type'] = bebop_get_file_type($file['tmp_name']);
+      $file['type'] = bebop_get_file_type($file['tmp_name'], $file['name']);
 
     if ($this->id === null and $file['type'] == 'application/zip' and !empty($file['unzip'])) {
       if (null === ($node = $this->unzip($file['tmp_name'])))
