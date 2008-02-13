@@ -1,6 +1,7 @@
 group = Service
 version = 8.02.4782
-classes = DrawTextWidget
-interface[iWidget] = DrawTextWidget
-name[en] = Text Rasterization Widget
+classes = DrawTextModule
+interface[iModuleConfig] = DrawTextModule
+interface[iRequestHook] = DrawTextModule
+name[en] = Text Rasterization Module
 name[ru] = Растеризация текста

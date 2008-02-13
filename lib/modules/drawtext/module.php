@@ -7,22 +7,9 @@
 
 define( 'DRAW_TTF_BASE', 72);
 
-class DrawTextWidget extends Widget
+class DrawTextModule implements iModuleConfig, iRequestHook
 {
   private static $usageMessage = 'Usage: ?font=id&width=X&height=Y&text=...';
-
-  public function __construct(Node $node)
-  {
-    parent::__construct($node);
-  }
-
-  public static function getWidgetInfo()
-  {
-    return array(
-      'name' => 'Растеризатор текста',
-      'description' => 'Выдает изображение в формате png с указанными размерами и текстом.',
-      );
-  }
 
   // Препроцессор параметров.
   public function getRequestOptions(RequestContext $ctx)
@@ -53,10 +40,10 @@ class DrawTextWidget extends Widget
 
     try {
       $fontObj = Node::load($fontId);
-      $fontFile = 'attachments/' . $fontObj->filepath;
+      $fontFile = mcms::config('filestorage') .'/' . $fontObj->filepath;
     } catch (ObjectNotFoundException $e) {
-        header("content-type: text/plain");
-        die("Font file {$fontId} not found");
+      header("content-type: text/plain");
+      die("Font file {$fontId} not found");
     }
 
 	  $bounds = ImageTTFBBox($size, 0, $fontFile, $text);
@@ -71,7 +58,7 @@ class DrawTextWidget extends Widget
     $cR = hexdec(substr($color, 0, 2));
     $cG = hexdec(substr($color, 2, 2));
     $cB = hexdec(substr($color, 4, 2));
-    $this->drawttftext($img, $size, 0, 0, $cR, $cG, $cB, $fontFile, $text);
+    self::drawttftext($img, $size, 0, 0, $cR, $cG, $cB, $fontFile, $text);
 
     imagesavealpha( $img, true );
 
@@ -193,5 +180,62 @@ class DrawTextWidget extends Widget
          $des_img = $rimg;
          imagedestroy( $im );
      }
+  }
+
+  public static function formGetModuleConfig()
+  {
+    $form = new Form(array());
+
+    $fonts = array();
+
+    foreach (Node::find(array('class' => 'file', 'filetype' => 'application/x-font-ttf')) as $n)
+      $fonts[$n->id] = isset($n->name) ? $n->name : $n->filename;
+
+    $form->addControl(new EnumControl(array(
+      'value' => 'config_font',
+      'label' => t('Шрифт по умолчанию'),
+      'default' => t('(не использовать)'),
+      'options' => $fonts,
+      'description' => t('Вы можете <a href=\'@url\'>загрузить новый шрифт</a> в файловый архив.', array(
+        '@url' => '/admin/node/create/?BebopNode.class=file&destination='. urlencode($_SERVER['REQUEST_URI']),
+        )),
+      )));
+
+    return $form;
+  }
+
+  public static function hookPostInstall()
+  {
+  }
+
+  public static function hookRequest(RequestContext $ctx = null)
+  {
+    if (null === $ctx) {
+      $url = bebop_split_url($_SERVER['REQUEST_URI']);
+
+      if ('/drawtext.rpc' == $url['path']) {
+        $options = array();
+        $conf = mcms::modconf('drawtext');
+
+        if (isset($url['args']['font']) and is_numeric($url['args']['font']))
+          $options['font'] = $url['args']['font'];
+        elseif (isset($conf['font']))
+          $options['font'] = $conf['font'];
+        else
+          self::usage();
+
+        $options['padding'] = isset($url['args']['padding']) ? $url['args']['padding'] : 0;
+        $options['color'] = isset($url['args']['color']) ? strtolower($url['args']['color']) : '000000';
+        $options['text'] = isset($url['args']['text']) ? $url['args']['text'] : base64_encode('Hello, world!');
+        $options['size'] = isset($url['args']['size']) ? $url['args']['size'] : DRAW_TTF_BASE;
+
+        self::onGet($options);
+      }
+    }
+  }
+
+  private static function usage()
+  {
+    die('See http://code.google.com/p/molinos-cms/wiki/mod_drawtext');
   }
 };
