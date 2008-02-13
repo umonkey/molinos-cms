@@ -486,11 +486,10 @@ class ListAdminWidget extends ListWidget implements iDashboard
     $icons = array();
     $user = mcms::user();
 
-    $images = '/lib/modules/widget-admin-list/img/';
-
     if ($user->hasGroup('Structure Managers'))
       $icons[] = array(
-        'img' => $images .'dashboard-task-taxonomy.gif',
+        'group' => 'Structure',
+        'img' => 'img/dashboard-task-taxonomy.gif',
         'href' => '/admin/taxonomy/',
         'title' => t('Карта сайта'),
         'description' => t('Управление разделами сайта.'),
@@ -498,30 +497,47 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('Schema Managers'))
       $icons[] = array(
-        'img' => $images .'dashboard-task-schema.gif',
+        'group' => 'Structure',
+        'img' => 'img/dashboard-task-schema.gif',
         'href' => '/admin/schema/',
         'title' => t('Типы документов'),
         );
 
     if ($user->hasGroup('Content Managers'))
       $icons[] = array(
-        'img' => $images .'dashboard-task-content.gif',
+        'group' => 'Content',
+        'img' => 'img/dashboard-task-content.gif',
         'href' => '/admin/content/',
         'title' => t('Наполнение'),
         'description' => t('Поиск, редактирование, добавление документов.'),
         );
 
-    if ($user->hasGroup('Developers'))
+    if ($user->hasGroup('Developers')) {
       $icons[] = array(
-        'img' => $images .'dashboard-task-builder.gif',
+        'group' => 'Developement',
+        'img' => 'img/dashboard-task-builder.gif',
         'href' => '/admin/builder/',
         'title' => t('Конструктор'),
         'description' => t('Управление доменами, страницами и виджетами.'),
         );
+      $icons[] = array(
+        'group' => 'Developement',
+        'img' => 'img/dashboard-task-builder.gif',
+        'href' => '/admin/builder/widgets/',
+        'title' => t('Виджеты'),
+        );
+      $icons[] = array(
+        'group' => 'Developement',
+        'img' => 'img/dashboard-task-builder.gif',
+        'href' => '/admin/builder/modules/',
+        'title' => t('Модули'),
+        );
+    }
 
     if ($user->hasGroup('User Managers'))
       $icons[] = array(
-        'img' => $images .'dashboard-task-users.gif',
+        'group' => 'Access',
+        'img' => 'img/dashboard-task-users.gif',
         'href' => '/admin/users/',
         'title' => t('Пользователи'),
         'description' => t('Управление профилями пользователей и группами.'),
@@ -529,7 +545,8 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('Content Managers'))
       $icons[] = array(
-        'img' => $images .'dashboard-task-files.gif',
+        'group' => 'Content',
+        'img' => 'img/dashboard-task-files.gif',
         'href' => '/admin/files/',
         'title' => t('Файлы'),
         'description' => t('Просмотр, редактирование и добавление файлов.'),
@@ -537,7 +554,8 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('Content Managers') and Node::count(array('deleted' => 1)))
       $icons[] = array(
-        'img' => $images .'dashboard-task-trash.gif',
+        'group' => 'Content',
+        'img' => 'img/dashboard-task-trash.gif',
         'href' => '/admin/trash/',
         'title' => t('Корзина'),
         'description' => t('Просмотр и восстановление удалённых файлов.'),

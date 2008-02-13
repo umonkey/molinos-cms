@@ -288,11 +288,10 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
     $icons = array();
     $user = mcms::user();
 
-    $images = '/lib/modules/widget-admin-subscription/img/';
-
     if ($user->hasGroup('Subscription Managers'))
       $icons[] = array(
-        'img' => $images .'dashboard-task-subscription.gif',
+        'group' => 'Subscription',
+        'img' => 'img/dashboard-task-subscription.gif',
         'href' => '/admin/subscription/',
         'title' => t('Рассылка'),
         'description' => t('Управление подпиской на новости.'),

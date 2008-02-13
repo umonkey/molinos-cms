@@ -52,6 +52,8 @@ $(document).ready(function () {
 
   bebop_fix_files();
 
+  bebop_fix_dashboard();
+
   $('.returnHref a').click(function () {
     var win = window.opener ? window.opener : window.dialogArguments, c;
     if (win) { tinyMCE = win.tinyMCE; }
@@ -120,6 +122,17 @@ $(document).ready(function () {
 	$('form.tabbed').formtabber({active: 0});
   $('form textarea.resizable').autogrow();
 });
+
+function bebop_fix_dashboard()
+{
+  $('.dashboard').addClass('dashboard-js');
+
+  $('.dashboard span.icon').each(function (i) {
+    var i = $('.dashboard span.icon').eq(i);
+    var p = i.parent();
+    p.css('background', 'transparent url('+ i.html() +') no-repeat center top');
+  });
+}
 
 function bebop_fix_file_mode_selection(sel)
 {

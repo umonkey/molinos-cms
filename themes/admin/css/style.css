@@ -549,3 +549,34 @@ a.bold {
   font-size: 150%;
   margin-bottom: 10px;
 }
+
+.dashboard ul {
+  padding: 0 0 0 1em;
+  margin: 0;
+  list-style-type: none;
+}
+.dashboard .group-header {
+  font-weight: bold;
+}
+.dashboard li {
+  padding: 0;
+  margin: 0;
+  vertical-align: top;
+}
+
+/* Дэшборд при поддержке яваскрипта. */
+.dashboard-js .group-header {
+  display: none;
+}
+.dashboard-js li.item a {
+  display: block;
+  width: 100px;
+  float: left;
+  margin-right: 4px;
+  text-align: center;
+  padding-top: 50px;
+}
+.dashboard-js .separator {
+  clear: both;
+  margin-bottom: 10px;
+}

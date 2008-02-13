@@ -36,20 +36,69 @@ class BebopDashboard extends Widget implements iAdminWidget
   {
     $result = array();
 
-    foreach ($ifs = bebop_get_interface_map('iDashboard') as $class) {
-      if (class_exists($class) and is_array($items = call_user_func(array($class, 'getDashboardIcons')))) {
-        foreach ($items as $v) {
-          if (empty($v['weight']))
-            $v['weight'] = 0;
-          $result['list'][] = $v;
+    foreach (bebop_get_module_map() as $module => $info) {
+      if (!empty($info['interface']['iDashboard'])) {
+        foreach ($info['interface']['iDashboard'] as $class) {
+          if (class_exists($class) and is_array($items = call_user_func(array($class, 'getDashboardIcons')))) {
+            foreach ($items as $item) {
+              if (isset($item['img'])) {
+                if (!file_exists($img = 'lib/modules/'. $module .'/'. $item['img']))
+                  unset($item['img']);
+                else
+                  $item['img'] = '/'. $img;
+              }
+
+              $item['module'] = $module;
+
+              if (empty($item['group']))
+                $group = t('Misc');
+              else {
+                $group = $item['group'];
+                unset($item['group']);
+              }
+
+              $result[$group][] = $item;
+            }
+          }
         }
       }
     }
 
+    if (empty($result))
+      return null;
+
+    ksort($result);
+
+    // Формируем HTML код.
+    $html = '';
+
+    foreach ($result as $group => $icons) {
+      $html .= '<li><span class=\'group-header\'>'. mcms_plain($group) .'</span>';
+      $html .= '<ul>';
+
+      foreach ($icons as $icon) {
+        $img = empty($icon['img']) ? '' : mcms::html('span', array(
+          'class' => 'icon',
+          'style' => 'display:none'
+          ), $icon['img']);
+
+        $html .= '<li class=\'item\'>';
+        $html .= mcms::html('a', array(
+          'href' => $icon['href'],
+          'title' => empty($icon['description']) ? null : $icon['description'],
+          ), $img . mcms_plain($icon['title']));
+        $html .= '</li>';
+      }
+
+      $html .= '</ul>';
+    }
+    
+    return '<div class=\'dashboard\'><ul>'. $html .'</ul><div class=\'separator\'></div></div>';
+
+    /*
     if (!empty($result['list']))
       usort($result['list'], array('BebopDashboard', 'usort'));
-
-    return $result;
+    */
   }
 
   private function usort(array $a, array $b)
