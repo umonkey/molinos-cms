@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class XspfModule implements iRemoteCall
+class XspfModule implements iRemoteCall, iModuleConfig
 {
   public static function hookRemoteCall(RequestContext $ctx)
   {
@@ -31,5 +31,34 @@ class XspfModule implements iRemoteCall
 
     header('Content-Length: '. strlen($output));
     die($output);
+  }
+
+  public static function formGetModuleConfig()
+  {
+    $form = new Form(array());
+
+    $form->addControl(new SetControl(array(
+      'value' => 'config_types',
+      'label' => t('Типы обрабатываемых медиафайлов'),
+      'options' => array(
+        'mp3' => 'MP3',
+        'flv' => 'Flash Video',
+        ),
+      )));
+
+    $form->addControl(new SetControl(array(
+      'value' => 'config_options',
+      'label' => t('Дополнительные настройки'),
+      'options' => array(
+        'published' => t('Выводить только опубликованные файлы'),
+        'info' => t('Добавлять ссылку на файл, для скачивания'),
+        ),
+      )));
+
+    return $form;
+  }
+
+  public static function hookPostInstall()
+  {
   }
 };

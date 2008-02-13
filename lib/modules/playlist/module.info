@@ -2,5 +2,6 @@ group = Service
 version = 8.02.4782
 classes = XspfModule
 interface[iRemoteCall] = XspfModule
+interface[iModuleConfig] = XspfModule
 name[en] = XSPF Playlist Generator
 name[ru] = Генератор XSPF плэйлистов
