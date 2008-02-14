@@ -52,7 +52,11 @@ $(document).ready(function () {
 
   bebop_fix_files();
 
-  bebop_fix_dashboard();
+  var carousel = $('.carousel').jcarousel({
+    scroll: 5,
+    visible: 10,
+    initCallback: bebop_dashboard_init
+  });
 
   $('.returnHref a').click(function () {
     var win = window.opener ? window.opener : window.dialogArguments, c;
@@ -119,18 +123,19 @@ $(document).ready(function () {
     return false;
   });
 
-	$('form.tabbed').formtabber({active: 0});
-  $('form textarea.resizable').autogrow();
+	// $('form.tabbed').formtabber({active: 0});
+  // $('form textarea.resizable').autogrow();
 });
 
-function bebop_fix_dashboard()
+function bebop_dashboard_init(carousel)
 {
-  $('.dashboard').addClass('dashboard-js');
+  $('.carousel-control a').bind('click', function () {
+    $('.carousel-control a').removeClass('active');
+    $(this).addClass('active');
 
-  $('.dashboard span.icon').each(function (i) {
-    var i = $('.dashboard span.icon').eq(i);
-    var p = i.parent();
-    p.css('background', 'transparent url('+ i.html() +') no-repeat center top');
+    var pos = $(this).attr('href').replace('#', '');
+    carousel.scroll(jQuery.jcarousel.intval(pos));
+    return false;
   });
 }
 

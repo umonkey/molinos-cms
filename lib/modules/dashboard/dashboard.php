@@ -69,6 +69,55 @@ class BebopDashboard extends Widget implements iAdminWidget
 
     ksort($result);
 
+    return self::formatDashBoard2($result);
+
+    /*
+    if (!empty($result['list']))
+      usort($result['list'], array('BebopDashboard', 'usort'));
+    */
+  }
+
+  private static function formatDashBoard2(array $result)
+  {
+    $controls = $items = array();
+    $index = 1;
+
+    $oldgroup = null;
+
+    foreach ($result as $group => $icons) {
+      if ($oldgroup !== $group) {
+        $controls[] = mcms::html('a', array(
+          'href' => '#'. $index,
+          ), mcms_plain($group));
+      }
+
+      foreach ($icons as $icon) {
+        if (!empty($icon['img'])) {
+          $html = '<li>';
+          $html .= mcms::html('a', array(
+            'href' => $icon['href'],
+            'style' => 'display: block; background: transparent url('. $icon['img'] .') no-repeat top center; padding-top: 50px; text-align: center',
+            'description' => isset($icon['description']) ? $icon['description'] : null,
+            ), mcms_plain($icon['title']));
+          $html .= '</li>';
+
+          $items[] = $html;
+        }
+
+        $index++;
+      }
+    }
+
+    $html = '<div class=\'carousel jcarousel-skin-tango\'>';
+    $html .= '<ul>'. join('', $items) .'</ul>';
+    $html .= '<div class=\'carousel-control\'>'. join('', $controls) .'</div>';
+    $html .= '</div>';
+
+    return $html;
+  }
+
+  private static function formatDashBoard(array $result)
+  {
     // Формируем HTML код.
     $html = '';
 
@@ -94,11 +143,6 @@ class BebopDashboard extends Widget implements iAdminWidget
     }
     
     return '<div class=\'dashboard\'><ul>'. $html .'</ul><div class=\'separator\'></div></div>';
-
-    /*
-    if (!empty($result['list']))
-      usort($result['list'], array('BebopDashboard', 'usort'));
-    */
   }
 
   private function usort(array $a, array $b)

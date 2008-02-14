@@ -30,13 +30,6 @@ $(document).ready(function () {
 		$(this).parent().parent().parent().find("tr").toggleClass("current");
 	});
 
-	$(".as_link").click(function() {
-    $('.jqmw', $(this).parent()).jqm().jqmShow();
-
-    // $('.as_actions', $(this).parent()).toggleClass('hidden');
-		return(false);
-	});
-
   $('form.node-domain-create-form input.form-radio').change(function () {
     if ($(this).attr('value') == 'domain') {
       $('#domain-aliases-wrapper').removeClass('hidden');

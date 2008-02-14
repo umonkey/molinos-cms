@@ -550,33 +550,23 @@ a.bold {
   margin-bottom: 10px;
 }
 
-.dashboard ul {
-  padding: 0 0 0 1em;
-  margin: 0;
-  list-style-type: none;
+.jcarousel-skin-tango.jcarousel-container {
+  margin-bottom: 10px;
 }
-.dashboard .group-header {
-  font-weight: bold;
+.jcarousel-skin-tango.jcarousel-container-horizontal {
+  width: 90% !important;
 }
-.dashboard li {
-  padding: 0;
-  margin: 0;
-  vertical-align: top;
+.jcarousel-skin-tango .jcarousel-clip-horizontal {
+  width: 100% !important;
 }
 
-/* Дэшборд при поддержке яваскрипта. */
-.dashboard-js .group-header {
-  display: none;
-}
-.dashboard-js li.item a {
-  display: block;
-  width: 100px;
-  float: left;
-  margin-right: 4px;
+.carousel-control {
+  margin: 5px 0;
   text-align: center;
-  padding-top: 50px;
 }
-.dashboard-js .separator {
-  clear: both;
-  margin-bottom: 10px;
+.carousel-control a {
+  margin: 0 10px;
+}
+.carousel-control a.active {
+  font-weight: bold !important;
 }
