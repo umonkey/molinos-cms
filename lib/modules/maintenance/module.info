@@ -1,0 +1,8 @@
+group = Service
+version = 8.02.4782
+classes = MaintenanceModule
+interface[iModuleConfig] = MaintenanceModule
+interface[iRequestHook] = MaintenanceModule
+interface[iDashboard] = MaintenanceModule
+name[en] = Disables the Web Site for Maintenance
+name[ru] = Отключение сайта для технических работ
