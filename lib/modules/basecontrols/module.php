@@ -318,6 +318,9 @@ class TextAreaControl extends Control
         $content = join("\n", $content);
     }
 
+    if (empty($this->content) and isset($this->default))
+      $content = $this->default;
+
     $output = mcms::html('textarea', array(
       'id' => $this->id,
       'class' => array_merge($this->class, array('form-text', 'resizable')),

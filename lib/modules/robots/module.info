@@ -1,0 +1,7 @@
+group = Service
+version = 8.02.4782
+classes = RobotsModule
+interface[iModuleConfig] = RobotsModule
+interface[iRequestHook] = RobotsModule
+name[en] = Control over Web Crawlers
+name[ru] = Управление веб-роботами
