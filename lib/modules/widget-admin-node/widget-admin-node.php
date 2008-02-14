@@ -109,7 +109,7 @@ class NodeAdminWidget extends Widget implements iAdminWidget
     if (in_array($options['mode'], array('edit', 'create')) and ($options['class'] == 'domain'))
       $options['#nocache'] = true;
 
-    return $options;
+    return $this->options = $options;
   }
 
   // Обработка GET запросов.
@@ -146,7 +146,7 @@ class NodeAdminWidget extends Widget implements iAdminWidget
       bebop_session_end();
     }
 
-    $node = Node::load($options['id']);
+    $node = $this->nodeLoad();
     return $this->formRender('node-edit-form', $node->formGetData());
   }
 
@@ -215,7 +215,7 @@ class NodeAdminWidget extends Widget implements iAdminWidget
         $node = Node::create($class = $this->ctx->get('class'));
         $class = 'node-'. $class .'-create-form';
       } else {
-        $node = Node::load($this->ctx->apath[0]);
+        $node = $this->nodeLoad();
         $class = 'node-'. $node->class .'-edit-form';
       }
 
@@ -257,5 +257,15 @@ class NodeAdminWidget extends Widget implements iAdminWidget
     }
 
     return $next;
+  }
+
+  private function nodeLoad()
+  {
+    $filter = array('id' => $this->options['id']);
+
+    if (isset($this->options['rev']))
+      $filter['rid'] = $this->options['rev'];
+
+    return Node::load($filter);
   }
 };
