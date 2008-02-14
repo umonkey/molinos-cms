@@ -1,0 +1,7 @@
+group = Service
+version = 8.02.4782
+classes = CronModule
+interface[iModuleConfig] = CronModule
+interface[iRemoteCall] = CronModule
+name[en] = Task Scheduling
+name[ru] = Выполнение периодических задач
