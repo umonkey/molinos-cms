@@ -51,7 +51,7 @@ class CompressorModule implements iModuleConfig, iPageHook
         if ((false !== strstr($script, 'language="javascript"')) or (false !== strstr($script, "language='javascript'"))) {
           if (preg_match('@src="([^"]+)"@i', $script, $m) or preg_match("@src='([^']+)'@i", $script, $m)) {
             if (false !== ($tmp = realpath(getcwd() . $m[1])) and '.js' == substr($tmp, -3) and '/' == substr($tmp, 0, 1)) {
-              $scripts[] = $tmp;
+              $scripts[] = self::compressJS($tmp);
               $output = str_replace($script, '', $output);
             }
           }
@@ -59,26 +59,39 @@ class CompressorModule implements iModuleConfig, iPageHook
       }
     }
 
+    // На этот момент в массиве $script содержатся имена уже упакованных скриптов,
+    // которые нужно склеить и выдать клиенту.  Т.к. имена этих файлов формируются
+    // с учётом времени изменения, для получения имени результирующего файла можно
+    // просто склеить их и взять сумму.  Это поможет избежать лишних склеиваний.
+
     if (!empty($scripts)) {
-      $tmp = '';
+      $filename = mcms::config('filestorage') .'/mcms-'. md5(join(',', $scripts)) .'.js';
 
-      foreach ($scripts as $file)
-        $tmp .= file_get_contents($file) .';';
+      // Если файл с нужным именем не существует — создаём его.
+      if (!file_exists($filename)) {
+        $tmp = '';
 
-      self::compressJS($tmp);
+        foreach ($scripts as $f)
+          $tmp .= file_get_contents($f); // .';';
 
-      $path = mcms::config('filestorage') .'/mcms-js-'. md5($tmp) .'.js';
+        file_put_contents($filename, $tmp);
+      }
 
-      file_put_contents($path, $tmp);
-
-      $output = str_replace('</head>', "<script type='text/javascript' language='javascript' src='/{$path}'></script></head>", $output);
+      $output = str_replace('</head>', "<script type='text/javascript' language='javascript' src='/{$filename}'></script></head>", $output);
     }
   }
 
-  private static function compressJS(&$output)
+  // Упаковывает указанный файл, возвращает его имя.
+  private static function compressJS($filename)
   {
-    require_once(dirname(__FILE__) .'/jsmin-1.1.0.php');
-    $output = JSMin::minify($output);
+    $result = mcms::config('filestorage') .'/mcms-'. md5($filename .'.'. filemtime($filename)) .'.js';
+
+    if (!file_exists($result)) {
+      require_once(dirname(__FILE__) .'/jsmin-1.1.0.php');
+      file_put_contents($result, JSMin::minify(file_get_contents($filename)));
+    }
+
+    return $result;
   }
 
   private static function fixCSS(&$output)
@@ -111,7 +124,7 @@ class CompressorModule implements iModuleConfig, iPageHook
 
       $bulk = self::compressCSS($bulk);
 
-      $path = mcms::config('filestorage') .'/mcms-css-'. md5($bulk) .'.css';
+      $path = mcms::config('filestorage') .'/mcms-'. md5($bulk) .'.css';
 
       file_put_contents($path, $bulk);
 
