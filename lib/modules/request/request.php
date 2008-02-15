@@ -721,6 +721,7 @@ class RequestController
     $args = array(&$output, $this->page);
     mcms::invoke('iPageHook', 'hookPage', $args);
 
+    $this->page->sendHeaders();
     print $output;
   }
 

@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class CompressorModule implements iModuleConfig, iPageHook
+class CompressorModule implements iModuleConfig, iPageHook, iRequestHook
 {
   public static function hookPage(&$output, Node $page)
   {
@@ -33,6 +33,11 @@ class CompressorModule implements iModuleConfig, iPageHook
         'css' => t('Стили'),
         'html' => t('HTML'),
         ),
+      )));
+
+    $form->addControl(new BoolControl(array(
+      'value' => 'config_gzip',
+      'label' => t('Сжимать скрипты и стили с помощью gzip'),
       )));
 
     return $form;
@@ -183,5 +188,43 @@ class CompressorModule implements iModuleConfig, iPageHook
     }
 
     return '/'. join('/', $args);
+  }
+
+  public static function hookRequest(RequestContext $ctx = null)
+  {
+    if (null === $ctx and preg_match('@^/extras/(mcms-[0-9a-z]+\.(js|css))$@', $_SERVER['REQUEST_URI'], $m))
+      self::serveFile($m[1]);
+  }
+
+  private static function serveFile($filename)
+  {
+    if (file_exists($path = mcms::config('filestorage') .'/'. $filename)) {
+      $data = file_get_contents($path);
+
+      header('HTTP/1.1 200 OK');
+
+      if ('.css' == substr($filename, -4))
+        header('Content-Type: text/css; charset=utf-8');
+      elseif ('.js' == substr($filename, -3))
+        header('Content-Type: text/javascript; charset=utf-8');
+      else
+        return;
+
+      // Немного агрессивного кэширования, источник:
+      // http://www.thinkvitamin.com/features/webapps/serving-javascript-fast
+
+      header("Expires: ".gmdate("D, d M Y H:i:s", time()+315360000)." GMT");
+      header("Cache-Control: max-age=315360000");
+
+      if (ini_get('zlib.output_compression') or !function_exists('ob_gzhandler'))
+        die($data);
+
+      if (false === ($zipped = ob_gzhandler($data, PHP_OUTPUT_HANDLER_START)))
+        die($data);
+
+      header('Content-Length: '. strlen($zipped));
+
+      die($data);
+    }
   }
 }

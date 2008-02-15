@@ -158,6 +158,11 @@ class DomainNode extends Node implements iContentType
     if (!empty($_GET['smarty_debug']) and bebop_is_debugger())
       $this->content_type = 'text/html';
 
+    return trim(preg_replace("/^(\xEF\xBB\xBF)/", '', $output));
+  }
+
+  public function sendHeaders()
+  {
     $content_type = empty($this->content_type) ? "text/html" : $this->content_type;
     $html_charset = empty($this->html_charset) ? "utf-8" : $this->html_charset;
 
@@ -167,8 +172,6 @@ class DomainNode extends Node implements iContentType
     header("Pragma: no-cache", true);
     header("HTTP/1.1 {$this->http_code} OK");
     header("Content-Type: {$content_type}; charset={$html_charset}");
-
-    return trim(preg_replace("/^(\xEF\xBB\xBF)/", '', $output));
   }
 
   // Возвращает путь к шаблону.

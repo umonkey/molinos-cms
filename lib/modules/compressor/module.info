@@ -3,5 +3,6 @@ version = 8.02.4782
 classes = CompressorModule
 interface[iModuleConfig] = CompressorModule
 interface[iPageHook] = CompressorModule
+interface[iRequestHook] = CompressorModule
 name[en] = Extras Compressor (JS+CSS+HTML)
 name[ru] = Компрессор JS, CSS и HTML
