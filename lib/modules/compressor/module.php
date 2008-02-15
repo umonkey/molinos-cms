@@ -1,0 +1,174 @@
+<?php
+// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+
+class CompressorModule implements iModuleConfig, iPageHook
+{
+  public static function hookPage(&$output, Node $page)
+  {
+    if ('text/html' != $page->content_type)
+      return;
+
+    if ((null === ($conf = mcms::modconf('compressor'))) or empty($conf['options']) or !is_array($conf['options']))
+      return;
+
+    if (in_array('js', $conf['options']))
+      self::fixJS($output);
+
+    if (in_array('css', $conf['options']))
+      self::fixCSS($output);
+
+    if (in_array('html', $conf['options']))
+      self::fixHTML($output);
+  }
+
+  public static function formGetModuleConfig()
+  {
+    $form = new Form(array());
+
+    $form->addControl(new SetControl(array(
+      'value' => 'config_options',
+      'label' => t('Компрессируемые объекты'),
+      'options' => array(
+        'js' => t('JavaScript'),
+        'css' => t('Стили'),
+        'html' => t('HTML'),
+        ),
+      )));
+
+    return $form;
+  }
+
+  public static function hookPostInstall()
+  {
+  }
+
+  private static function fixJS(&$output)
+  {
+    $scripts = array();
+
+    if (preg_match_all('@<script\s+[^>]+></script>@i', $output, $m)) {
+      foreach ($m[0] as $script) {
+        if ((false !== strstr($script, 'language="javascript"')) or (false !== strstr($script, "language='javascript'"))) {
+          if (preg_match('@src="([^"]+)"@i', $script, $m) or preg_match("@src='([^']+)'@i", $script, $m)) {
+            if (false !== ($tmp = realpath(getcwd() . $m[1])) and '.js' == substr($tmp, -3) and '/' == substr($tmp, 0, 1)) {
+              $scripts[] = $tmp;
+              $output = str_replace($script, '', $output);
+            }
+          }
+        }
+      }
+    }
+
+    if (!empty($scripts)) {
+      $tmp = '';
+
+      foreach ($scripts as $file)
+        $tmp .= file_get_contents($file) .';';
+
+      self::compressJS($tmp);
+
+      $path = mcms::config('filestorage') .'/mcms-js-'. md5($tmp) .'.js';
+
+      file_put_contents($path, $tmp);
+
+      $output = str_replace('</head>', "<script type='text/javascript' language='javascript' src='/{$path}'></script></head>", $output);
+    }
+  }
+
+  private static function compressJS(&$output)
+  {
+    require_once(dirname(__FILE__) .'/jsmin-1.1.0.php');
+    $output = JSMin::minify($output);
+  }
+
+  private static function fixCSS(&$output)
+  {
+    $styles = array();
+
+    if (preg_match_all('@<link\s+[^>]*>@i', $output, $m)) {
+      foreach ($m[0] as $link) {
+        if ((false !== strstr($link, 'rel="stylesheet"')) or (false !== strstr($link, "rel='stylesheet'"))) {
+          if (preg_match('@href="([^"]+)"@i', $link, $m) or preg_match("@href='([^']+)'@i", $link, $m)) {
+            if (false !== ($tmp = self::fixPath($m[1], '.css'))) {
+              $styles[] = $tmp;
+              $output = str_replace($link, '', $output);
+            }
+          }
+        }
+      }
+    }
+
+    if (!empty($styles)) {
+      $bulk = '';
+
+      foreach ($styles as $file) {
+        if (file_exists($filename = getcwd() . $file)) {
+          $tmp = file_get_contents($filename);
+          $tmp = preg_replace('@(url\(([^/][^)]+)\))@i', 'url('. dirname($file) .'/\2)', $tmp);
+          $bulk .= $tmp;
+        }
+      }
+
+      $bulk = self::compressCSS($bulk);
+
+      $path = mcms::config('filestorage') .'/mcms-css-'. md5($bulk) .'.css';
+
+      file_put_contents($path, $bulk);
+
+      $output = str_replace('</head>', "<link rel='stylesheet' type='text/css' href='/{$path}' /></head>", $output);
+    }
+  }
+
+  // Code taken from Kohana.
+  private static function compressCSS($output)
+  {
+    // Remove comments
+    $output = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $output);
+
+    // Remove tabs, spaces, newlines, etc.
+    $output = preg_replace('/\s+/s', ' ', $output);
+    $output = str_replace(
+      array(' {', '{ ', ' }', '} ', ' +', '+ ', ' >', '> ', ' :', ': ', ' ;', '; ', ' ,', ', ', ';}'),
+      array('{',  '{',  '}',  '}',  '+',  '+',  '>',  '>',  ':',  ':',  ';',  ';',  ',',  ',',  '}' ),
+      $output);
+
+    // Remove empty CSS declarations
+    $output = preg_replace('/[^{}]++\{\}/', '', $output);
+
+    return $output;
+  }
+
+  private static function fixHTML(&$output)
+  {
+    $output = preg_replace('@>\s+<@i', '><', $output);
+  }
+
+  private static function fixPath($path, $ext)
+  {
+    if ('/' != substr($path, 0, 1))
+      return false;
+
+    if ($ext != substr($path, - strlen($ext)))
+      return false;
+
+    if (false === strstr($path, '..'))
+      return $path;
+
+    $args = explode('/', ltrim($path, '/'));
+
+    while (in_array('..', $args)) {
+      foreach ($args as $k => $v) {
+        if ('..' == $v) {
+          if ($k == 0)
+            return null;
+          else {
+            unset($args[$k]);
+            unset($args[$k - 1]);
+          }
+        }
+      }
+    }
+
+    return '/'. join('/', $args);
+  }
+}

@@ -718,6 +718,9 @@ class RequestController
 
     $output = str_replace('$execution_time', $profile['__request'], $output);
 
+    $args = array(&$output, $this->page);
+    mcms::invoke('iPageHook', 'hookPage', $args);
+
     print $output;
   }
 

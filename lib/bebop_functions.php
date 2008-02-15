@@ -29,6 +29,12 @@ interface iRequestHook
   public static function hookRequest(RequestContext $ctx = null);
 };
 
+// Интерфейс для обработки страниц.
+interface iPageHook
+{
+  public static function hookPage(&$output, Node $page);
+};
+
 // Обращение к безвиджетным модулям.
 interface iRemoteCall
 {
