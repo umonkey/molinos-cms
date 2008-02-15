@@ -555,7 +555,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
     $icons[] = array(
       'group' => 'Content',
       'img' => 'img/dashboard-task-trash.gif',
-      'href' => '/admin/?flush=1&destination=/admin/',
+      'href' => '/admin/?flush=1',
       'title' => t('Очистить кэш'),
       'weight' => 10,
       );
