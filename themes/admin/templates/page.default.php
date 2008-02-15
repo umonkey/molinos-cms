@@ -16,7 +16,8 @@ $user = mcms::user();
     <link rel="stylesheet" type="text/css" href="<?=$prefix?>/../all/jquery/plugins/jcarousel-skins/tango/skin.css" />
 
     <script src="<?=$prefix?>/../all/jquery/jquery.js" type="text/javascript" language="javascript"></script>
-    <script src="<?=$prefix?>/../all/jquery/plugins/jquery.jcarousel.pack.js" type="text/javascript" language="javascript"></script>
+    <script src="<?=$prefix?>/../all/jquery/plugins/jquery.jcarousel.js" type="text/javascript" language="javascript"></script>
+    <script src="<?=$prefix?>/../all/jquery/plugins/jquery.ifixpng.js" type="text/javascript" language="javascript"></script>
 
     <script src="<?=$prefix?>/../all/jquery/plugins/jquery.formtabber.js" type="text/javascript" language="javascript"></script>
     <script src="<?=$prefix?>/../all/jquery/plugins/jquery.autogrow.js" type="text/javascript" language="javascript"></script>

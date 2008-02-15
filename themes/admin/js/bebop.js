@@ -123,8 +123,8 @@ $(document).ready(function () {
     return false;
   });
 
-	// $('form.tabbed').formtabber({active: 0});
-  // $('form textarea.resizable').autogrow();
+	$('form.tabbed').formtabber({active: 0});
+  $('form textarea.resizable').autogrow();
 });
 
 function bebop_dashboard_init(carousel)
@@ -135,6 +135,7 @@ function bebop_dashboard_init(carousel)
 
     var pos = $(this).attr('href').replace('#', '');
     carousel.scroll(jQuery.jcarousel.intval(pos));
+    log(carousel.container);
     return false;
   });
 }
@@ -255,3 +256,14 @@ function bebop_content_action(name, title)
   $('#contentForm').attr('action', '/admin/node/'+ name +'/'+ url);
   $('#contentForm').submit();
 }
+
+
+/**
+ * Функция предназначена для отладки. Shortcut console.log'a.
+ * Записывает в консоль Firebug'a передаваемые в нее данные. 
+ * 
+ * @param {String} str - строка/массив для отображения в консоли
+ */
+function log(str) {
+	window.console && window.console.log(str);
+};

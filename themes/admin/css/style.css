@@ -549,24 +549,3 @@ a.bold {
   font-size: 150%;
   margin-bottom: 10px;
 }
-
-.jcarousel-skin-tango.jcarousel-container {
-  margin-bottom: 10px;
-}
-.jcarousel-skin-tango.jcarousel-container-horizontal {
-  width: 90% !important;
-}
-.jcarousel-skin-tango .jcarousel-clip-horizontal {
-  width: 100% !important;
-}
-
-.carousel-control {
-  margin: 5px 0;
-  text-align: center;
-}
-.carousel-control a {
-  margin: 0 10px;
-}
-.carousel-control a.active {
-  font-weight: bold !important;
-}
