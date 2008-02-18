@@ -534,14 +534,22 @@ class ListAdminWidget extends ListWidget implements iDashboard
         );
     }
 
-    if ($user->hasGroup('User Managers'))
+    if ($user->hasGroup('User Managers')) {
       $icons[] = array(
         'group' => 'Access',
         'img' => 'img/dashboard-task-users.gif',
         'href' => '/admin/users/',
         'title' => t('Пользователи'),
-        'description' => t('Управление профилями пользователей и группами.'),
+        'description' => t('Управление профилями пользователей.'),
         );
+      $icons[] = array(
+        'group' => 'Access',
+        'img' => 'img/dashboard-task-users.gif',
+        'href' => '/admin/users/groups/',
+        'title' => t('Группы'),
+        'description' => t('Управление группами пользователей.'),
+        );
+    }
 
     if ($user->hasGroup('Content Managers'))
       $icons[] = array(

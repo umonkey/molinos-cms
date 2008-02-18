@@ -70,6 +70,8 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook
     // просто склеить их и взять сумму.  Это поможет избежать лишних склеиваний.
 
     if (!empty($scripts)) {
+      $scripts = array_unique($scripts);
+
       $filename = mcms::config('filestorage') .'/mcms-'. md5(join(',', $scripts)) .'.js';
 
       // Если файл с нужным именем не существует — создаём его.
@@ -89,9 +91,9 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook
   // Упаковывает указанный файл, возвращает его имя.
   private static function compressJS($filename)
   {
-    $result = mcms::config('filestorage') .'/mcms-'. md5($filename .'.'. filemtime($filename)) .'.js';
+    $result = mcms::config('filestorage') .'/mcms-'. md5($filename) .'.js';
 
-    if (!file_exists($result)) {
+    if (!file_exists($result) or (filemtime($filename) > filemtime($result))) {
       require_once(dirname(__FILE__) .'/jsmin-1.1.0.php');
       file_put_contents($result, JSMin::minify(file_get_contents($filename)));
     }
@@ -107,8 +109,9 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook
       foreach ($m[0] as $link) {
         if ((false !== strstr($link, 'rel="stylesheet"')) or (false !== strstr($link, "rel='stylesheet'"))) {
           if (preg_match('@href="([^"]+)"@i', $link, $m) or preg_match("@href='([^']+)'@i", $link, $m)) {
-            if (false !== ($tmp = self::fixPath($m[1], '.css'))) {
-              $styles[] = $tmp;
+            if (false !== ($tmp = $m[1]) and '.css' == substr($tmp, -4) and '/' == substr($tmp, 0, 1)) {
+              if (null !== ($tmp = self::compressCSS($tmp)))
+                $styles[] = $tmp;
               $output = str_replace($link, '', $output);
             }
           }
@@ -119,15 +122,12 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook
     if (!empty($styles)) {
       $bulk = '';
 
-      foreach ($styles as $file) {
-        if (file_exists($filename = getcwd() . $file)) {
+      foreach (array_unique($styles) as $file) {
+        if (file_exists($filename = getcwd() .'/'. $file)) {
           $tmp = file_get_contents($filename);
-          $tmp = preg_replace('@(url\(([^/][^)]+)\))@i', 'url('. dirname($file) .'/\2)', $tmp);
           $bulk .= $tmp;
         }
       }
-
-      $bulk = self::compressCSS($bulk);
 
       $path = mcms::config('filestorage') .'/mcms-'. md5($bulk) .'.css';
 
@@ -138,22 +138,36 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook
   }
 
   // Code taken from Kohana.
-  private static function compressCSS($output)
+  private static function compressCSS($filename)
   {
-    // Remove comments
-    $output = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $output);
+    $result = mcms::config('filestorage') .'/mcms-'. md5($filename) .'.css';
 
-    // Remove tabs, spaces, newlines, etc.
-    $output = preg_replace('/\s+/s', ' ', $output);
-    $output = str_replace(
-      array(' {', '{ ', ' }', '} ', ' +', '+ ', ' >', '> ', ' :', ': ', ' ;', '; ', ' ,', ', ', ';}'),
-      array('{',  '{',  '}',  '}',  '+',  '+',  '>',  '>',  ':',  ':',  ';',  ';',  ',',  ',',  '}' ),
-      $output);
+    if (!file_exists(getcwd() . $filename))
+      return null;
 
-    // Remove empty CSS declarations
-    $output = preg_replace('/[^{}]++\{\}/', '', $output);
+    if (!file_exists($result) or (filemtime(getcwd() . $filename) > filemtime($result))) {
+      $data = file_get_contents(getcwd() . $filename);
 
-    return $output;
+      // Remove comments
+      $data = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $data);
+
+      // Remove tabs, spaces, newlines, etc.
+      $data = preg_replace('/\s+/s', ' ', $data);
+      $data = str_replace(
+        array(' {', '{ ', ' }', '} ', ' +', '+ ', ' >', '> ', ' :', ': ', ' ;', '; ', ' ,', ', ', ';}'),
+        array('{',  '{',  '}',  '}',  '+',  '+',  '>',  '>',  ':',  ':',  ';',  ';',  ',',  ',',  '}' ),
+        $data);
+
+      // Remove empty CSS declarations
+      $data = preg_replace('/[^{}]++\{\}/', '', $data);
+
+      // Fix relative url()
+      $data = preg_replace('@(url\(([^/][^)]+)\))@i', 'url('. dirname($filename) .'/\2)', $data);
+
+      file_put_contents($result, $data);
+    }
+
+    return $result;
   }
 
   private static function fixHTML(&$output)

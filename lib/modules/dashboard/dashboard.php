@@ -80,7 +80,7 @@ class BebopDashboard extends Widget implements iAdminWidget
   private static function formatDashBoard2(array $result)
   {
     $controls = $items = array();
-    $index = 1;
+    $index = $groupidx = 1;
 
     $oldgroup = null;
 
@@ -93,7 +93,7 @@ class BebopDashboard extends Widget implements iAdminWidget
 
       foreach ($icons as $icon) {
         if (!empty($icon['img'])) {
-          $html = '<li>';
+          $html = '<li class=\'group-'. $groupidx .'\'>';
           $html .= mcms::html('a', array(
             'href' => $icon['href'],
             'style' => 'display: block; background: transparent url('. $icon['img'] .') no-repeat top center; padding-top: 50px; text-align: center',
@@ -106,6 +106,8 @@ class BebopDashboard extends Widget implements iAdminWidget
 
         $index++;
       }
+
+      $groupidx++;
     }
 
     $html = '<div class=\'carousel jcarousel-skin-tango\'>';

@@ -1,30 +1,60 @@
-/*window_resize - begin*/
-var d = document;
-var winIE = (navigator.userAgent.indexOf("Opera")==-1 && (d.getElementById &&  d.documentElement.behaviorUrns))  ? true : false;
-
-function bodySize(){
-	if(winIE && d.documentElement.clientWidth) {
-		sObj = d.getElementsByTagName("body")[0].style;
-		sObj.width = (d.documentElement.clientWidth<1000) ? "1000px" : "100%";
-	}
+/**
+ * Специфические действия для IE6
+ */
+if ($.browser.msie && $.browser.version < 7 ){
+	// действия при готовности DOM
+	 $(function(){
+	 	// корректирует ширину эл-та body (min-width)
+	 	controlBodyWidth();
+	 });
+	 
+	 // действия при ресайзе окна
+	$(window).resize(function(){
+	 	// корректирует ширину эл-та body (min-width)
+	 	controlBodyWidth();
+	 });
+	 
+	 /**
+	  * Фиксирование ширины документа на 1000px (min-width)
+ 	  * @todo было бы неплохо делать это без JS, пример как это можно сделать - http://www.cssplay.co.uk/boxes/width.html
+	  */
+	 function controlBodyWidth(){
+	 	($(window).width() < 1000) ?  $('body').css('width', '1000px') : $('body').css('width', '100%');
+	 };
 }
 
-function init(){
-	if(winIE) { bodySize(); }
-}
- 
-onload = init;
-
-if(winIE) { onresize = bodySize; }
-/*window_resize - end*/
-
+/**
+ * Действия при готовности DOM
+ */
 $(document).ready(function () {
-  var win = window.opener ? window.opener : window.dialogArguments, c;
-  if (win) { tinyMCE = win.tinyMCE; }
-
+	
+	// Включение карусели в основной навигации
+	if ($('.carousel').length != 0) {
+		var carousel = $('.carousel').jcarousel({
+			scroll: 5,
+			visible: 10,
+			initCallback: bebop_dashboard_init
+		});
+	}
+	
+	// Превращение филдсетов в табы
+	if ($('form.tabbed').length != 0) {
+		$('form.tabbed').formtabber({
+			active: 0
+		});
+	}
+	
+	// Включение авторастягивания textarea
+	if ($('form textarea.resizable').length != 0) {
+	  	$('form textarea.resizable').autogrow();
+	}
+	
+	var win = window.opener ? window.opener : window.dialogArguments, c;
+  	if (win) { tinyMCE = win.tinyMCE; }
+		
 	$("input:checked").parent().parent().addClass("current");
 
-	$(":checkbox").change(function () {
+	$(":checkbox").change(function(){
 		$(this).parent().parent().toggleClass("current");
 	});
 	
@@ -51,12 +81,6 @@ $(document).ready(function () {
   bebop_fix_file_mode_selection('local');
 
   bebop_fix_files();
-
-  var carousel = $('.carousel').jcarousel({
-    scroll: 5,
-    visible: 10,
-    initCallback: bebop_dashboard_init
-  });
 
   $('.returnHref a').click(function () {
     var win = window.opener ? window.opener : window.dialogArguments, c;
@@ -85,6 +109,7 @@ $(document).ready(function () {
     return false;
   });
 
+  // обработчик формы выхода
   $('#user-logout-form').submit(function () {
     $.ajax({
       type: "POST",
@@ -122,22 +147,36 @@ $(document).ready(function () {
 
     return false;
   });
-
-	$('form.tabbed').formtabber({active: 0});
-  $('form textarea.resizable').autogrow();
 });
 
-function bebop_dashboard_init(carousel)
-{
-  $('.carousel-control a').bind('click', function () {
-    $('.carousel-control a').removeClass('active');
-    $(this).addClass('active');
 
-    var pos = $(this).attr('href').replace('#', '');
-    carousel.scroll(jQuery.jcarousel.intval(pos));
-    log(carousel.container);
-    return false;
-  });
+/**
+ * Вспомогательные функции
+ */
+
+/**
+ * Карусель в осн. навигации: цепляем действия на контролы
+ * @param {Object} carousel
+ */
+function bebop_dashboard_init(carousel){
+	// ссылка на все контролы
+	var $carouselControls = $('.carousel-control a');
+	// действия при клике
+	$carouselControls.click(function(){
+		// ссылка на контрол, по которому кликнули
+		var $$ = $(this);
+		// убираем класс со всех контролов
+		$carouselControls.removeClass('active');
+		// добавляем класс к контролу, по которому кликнули
+		$$.addClass('active');
+		// убираем классы со всех элементов карусели
+		carousel.container.find('li').removeClass('choosen');
+		// добавляем класс группе элементов карусели, сопоставленных этому контролу
+		carousel.container.find('li.group-' + parseInt($carouselControls.index(this) + 1)).addClass('choosen');
+		// вращаем карусель
+		carousel.scroll(jQuery.jcarousel.intval($$.attr('href').replace('#', '') ) );
+		return false;
+	});
 }
 
 function bebop_fix_file_mode_selection(sel)
@@ -197,7 +236,7 @@ function mcms_picker_return(href)
 
   if (mcms_picker_id == 'src') {
     if (tinyMCE) {
-      var tmp_win = tinyMCE.getWindowArg('window');
+      var tmp_win = tinyMCEPopup.getWindowArg('window');
       if (tmp_win) {
         tmp_win.document.getElementById('src').value = href;
       }
@@ -222,8 +261,7 @@ function bebop_select(table, mode)
 {
   switch (mode) {
   case 'all':
-    $('#'+ table +' tr.data input[type="checkbox"]').attr('checked', 'checked');
-    $('#'+ table +' tr.data').addClass('current');
+    $('#'+ table +' tr.data').addClass('current').find('input[type="checkbox"]').attr('checked', 'checked');
     break;
 
   case 'none':
@@ -257,6 +295,13 @@ function bebop_content_action(name, title)
   $('#contentForm').submit();
 }
 
+
+function bebopImageBrowser(field_name, url, type, win)
+{
+    if (field_name == 'src')
+      field_name += '&BebopFiles.search=image%2F';
+    window.open('/admin/files/picker/?BebopFiles.picker='+field_name, '_blank');
+}
 
 /**
  * Функция предназначена для отладки. Shortcut console.log'a.
