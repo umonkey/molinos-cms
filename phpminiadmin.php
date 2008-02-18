@@ -21,7 +21,7 @@
  );
 
 //constants
- $VERSION='1.4.070327';
+ $VERSION='1.4.080217';
  $MAX_ROWS_PER_PAGE=50; #max number of rows in select per one page
  $self=$_SERVER['PHP_SELF'];
 
@@ -98,7 +98,7 @@
        do_import();
       }elseif ($_REQUEST['dosht']){
        do_sht();
-      }elseif (!$_REQUEST['refresh'] || preg_match('/^select|show|explain/',$SQLq) ) do_sql($SQLq);#perform non-selet SQL only if not refresh (to avoid dangerous delete/drop)
+      }elseif (!$_REQUEST['refresh'] || preg_match('/^select|show|explain|desc/',$SQLq) ) do_sql($SQLq);#perform non-selet SQL only if not refresh (to avoid dangerous delete/drop)
      }else{
         $err_msg="Select DB first";
      }
@@ -119,7 +119,7 @@ function do_sql($q){
  }else{
     if ($last_sth && $last_sql){
        $SQLq=$last_sql;
-       if (preg_match("/^select|show|explain/i",$last_sql)) {
+       if (preg_match("/^select|show|explain|desc/i",$last_sql)) {
           if ($q!=$last_sql) $out_message="Results of the last select displayed:";
           display_select($last_sth,$last_sql);
        } else {
@@ -160,7 +160,7 @@ function display_select($sth,$q){
     $meta=mysql_fetch_field($sth,$i);
     $headers.="<th>".$meta->name."</th>";
  }
- if ($is_sht) $headers.="<th>show create table</th><th>explain</th><th>indexes</th><th>export</th><th>drop</th><th>truncate</th><th>optimize</th>";
+ if ($is_sht) $headers.="<th>show create table</th><th>explain</th><th>indexes</th><th>export</th><th>drop</th><th>truncate</th><th>optimize</th><th>repair</th>";
  $headers.="</tr>\n";
  $sqldr.=$headers;
  $swapper=false;
@@ -177,7 +177,11 @@ function display_select($sth,$q){
          ."<td>&#183;<a href=\"?db=$dbn&shex=1&t=$v\">e</a></td>"
          ."<td>&#183;<a href=\"?db=$dbn&q=drop+table+$v\" onclick='return ays()'>drop</a></td>"
          ."<td>&#183;<a href=\"?db=$dbn&q=truncate+table+$v\" onclick='return ays()'>trunc</a></td>"
-         ."<td>&#183;<a href=\"?db=$dbn&q=optimize+table+$v\" onclick='return ays()'>opt</a>";
+         ."<td>&#183;<a href=\"?db=$dbn&q=optimize+table+$v\" onclick='return ays()'>opt</a></td>"
+         ."<td>&#183;<a href=\"?db=$dbn&q=repair+table+$v\" onclick='return ays()'>rpr</a>";
+      }else{
+       if ($v==NULL) $v="NULL";
+       $v=htmlspecialchars($v);
       }
       if ($is_show_crt) $v="<pre>$v</pre>";
       $sqldr.="<td>$v".(!$v?"<br />":'')."</td>";
@@ -393,7 +397,8 @@ function db_disconnect(){
 
 function dbq($s){
  global $dbh;
- return mysql_real_escape_string($s,$dbh);
+ if (is_null($s)) return "NULL";
+ return "'".mysql_real_escape_string($s,$dbh)."'";
 }
 
 function db_query($sql, $dbh1=NULL, $skiperr=0){
@@ -642,6 +647,8 @@ function do_export(){
  while($row=mysql_fetch_row($sth)){
    if (!$rt||array_key_exists($row[0],$th)) do_export_table($row[0],1,$MAXI);
  }
+
+ echo "\n-- phpMiniAdmin dump end\n";
  exit;
 }
 
@@ -660,7 +667,7 @@ function do_export_table($t='',$isvar=0,$MAXI=838860){
   $sth=db_query("select * from `$t`");
   while($row=mysql_fetch_row($sth)){
     $values='';
-    foreach($row as $value) $values.=(($values)?',':'')."'".dbq($value)."'";
+    foreach($row as $v) $values.=(($values)?',':'').dbq($v);
     $exsql.=(($exsql)?',':'')."(".$values.")";
     if (strlen($exsql)>$MAXI) {
        echo "INSERT INTO `$t` VALUES $exsql;\n";$exsql='';
