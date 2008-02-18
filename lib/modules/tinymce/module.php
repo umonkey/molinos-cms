@@ -22,6 +22,26 @@ class TinyMceModule implements iModuleConfig, iPageHook
       'value' => 'config_gzip',
       'label' => t('Использовать компрессию'),
       )));
+    $tab->addControl(new EnumControl(array(
+      'value' => 'config_toolbar',
+      'label' => t('Панель инструментов'),
+      'required' => true,
+      'options' => array(
+        'topleft' => t('Сверху слева'),
+        'topcenter' => t('Сверху по центру'),
+        'bottomcenter' => t('Снизу по центру'),
+        ),
+      )));
+    $tab->addControl(new EnumControl(array(
+      'value' => 'config_path',
+      'label' => t('Текущий элемент'),
+      'required' => true,
+      'options' => array(
+        '' => t('Не показывать'),
+        'bottom' => t('Снизу'),
+        ),
+      'description' => t('При отключении пропадает также возможность изменять размер редактора мышью.'),
+      )));
     $form->addControl($tab);
 
     $tab = new FieldSetControl(array(
@@ -109,10 +129,44 @@ class TinyMceModule implements iModuleConfig, iPageHook
       $init[] = 'editor_selector:"visualEditor"';
       $init[] = 'inline_styles:true';
       $init[] = 'extended_valid_elements:"a[name|href|target|title|onclick],img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name],hr[class|width|size|noshade],font[face|size|color|style],span[class|align|style]"';
-      $init[] = 'theme_advanced_resizing:true';
-      $init[] = 'theme_advanced_buttons1:"newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,styleselect,formatselect"';
-      $init[] = 'theme_advanced_buttons2:"pastetext,pasteword,|,search,replace,|,outdent,indent,|,undo,redo,|,link,unlink,anchor,image,media,|,charmap,insertdate,|,sub,sup,hr"';
-      $init[] = 'theme_advanced_buttons3:"tablecontrols,|,removeformat,cleanup,visualaid,styleprops,code,|,spellchecker"';
+
+      switch ($config['theme']) {
+      case 'advanced':
+        $init[] = 'theme_advanced_buttons1:"newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,styleselect,formatselect"';
+        $init[] = 'theme_advanced_buttons2:"pastetext,pasteword,|,search,replace,|,outdent,indent,|,undo,redo,|,link,unlink,anchor,image,media,|,charmap,insertdate,|,sub,sup,hr"';
+        $init[] = 'theme_advanced_buttons3:"tablecontrols,|,removeformat,cleanup,visualaid,styleprops,code,|,spellchecker"';
+        break;
+      case 'simple':
+        $init[] = 'theme_simple_buttons1:"bold,italic,underline,strikethrough,cleanup,|,bullist,numlist,|,link,unlink,image,|,charmap,hr"';
+        break;
+      }
+
+      if (!empty($config['toolbar'])) {
+        switch ($config['toolbar']) {
+        case 'topleft':
+          $tmp1 = 'top';
+          $tmp2 = 'left';
+          break;
+        case 'topcenter':
+          $tmp1 = 'top';
+          $tmp2 = 'center';
+          break;
+        case 'bottomcenter':
+          $tmp1 = 'bottom';
+          $tmp2 = 'center';
+          break;
+        }
+
+        if (isset($tmp1))
+          $init[] = 'theme_'. $config['theme'] .'_toolbar_location:"'. $tmp1 .'"';
+        if (isset($tmp2))
+          $init[] = 'theme_'. $config['theme'] .'_toolbar_align:"'. $tmp2 .'"';
+      }
+
+      if (!empty($config['path'])) {
+        $init[] = 'theme_'. $config['theme'] .'_path_location:"'. $config['path'] .'"';
+        $init[] = 'theme_'. $config['theme'] .'_resizing:true';
+      }
 
       $init[] = 'spellchecker_languages:"English=en,+Русский=ru"';
       $init[] = 'paste_create_paragraphs:false';
