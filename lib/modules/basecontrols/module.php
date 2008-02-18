@@ -120,7 +120,7 @@ abstract class Control implements iFormControl
 
   public function addControl(Control $ctl)
   {
-    $this->children[] = $ctl;
+    return $this->children[] = $ctl;
   }
 
   public function findControl($value)

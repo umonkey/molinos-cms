@@ -1,0 +1,7 @@
+group = Service
+version = 8.02.4782
+classes = TinyMceModule
+interface[iModuleConfig] = TinyMceModule
+interface[iPageHook] = TinyMceModule
+name[en] = Internal WYSIWYG Editor
+name[ru] = Текстовый редактор TinyMCE

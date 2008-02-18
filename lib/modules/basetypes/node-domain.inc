@@ -197,9 +197,12 @@ class DomainNode extends Node implements iContentType
     throw new InvalidArgumentException("Шаблон для страницы {$this->name} не определён.");
   }
 
-  public static function getFlatSiteMap($mode = null)
+  public static function getFlatSiteMap($mode = null, $admin = false)
   {
-    $dev = mcms::user()->hasGroup('CMS Developers');
+    if ($admin)
+      $dev = true;
+    else
+      $dev = mcms::user()->hasGroup('CMS Developers');
 
     $result = array();
 
