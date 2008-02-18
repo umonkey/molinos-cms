@@ -26,20 +26,6 @@ function _admin_actions()
   $actions = array();
 
   $map = array(
-    '/admin/builder/' => array(
-      '../node/create/?BebopNode.class=domain&amp;' => 'Добавить страницу',
-      'widgets/' => t('Список виджетов'),
-      'modules/' => t('Список модулей'),
-      ),
-    '/admin/builder/widgets/' => array(
-      '../' => t('Список доменов и страниц'),
-      ),
-    '/admin/users/' => array(
-      'groups/' => 'Список групп',
-      ),
-    '/admin/users/groups/' => array(
-      '../' => 'Список пользователей',
-      ),
     '/admin/logs/' => array(
       '/admin/logs/?BebopLogs.op=search&amp;BebopLogs.mode=download&amp;' => 'Скачать (Microsoft Excel)',
       ),

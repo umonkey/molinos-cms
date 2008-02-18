@@ -103,23 +103,6 @@ $user = mcms::user();
 
           <div id="left_sidebar">
             <?=_admin_actions()?>
-            <div class="menu_block">
-              <h4>Ярлыки:</h4>
-              <ul><?php if ($_SERVER['HTTP_HOST'] == 'www.bspb.ru'): ?>
-                  <li><a href="/admin/content/?BebopContentList.classes%5B%5D=orderCard">Заказы пластиковых карт</a></li>
-                  <li><a href="http://www.bspb.ru/awstats/awstats.pl" target="_blank">Статистика посещения</a></li>
-                  <?php endif; ?>
-                <li><a href="/admin/logs/?BebopLogs.op=search">Поисковые запросы</a></li>
-                <li><a href="<?php
-                  $url = bebop_split_url();
-                  $url['args']['xlush'] = 1;
-                  print str_replace('xlush=1', 'flush=1', bebop_combine_url($url));
-                ?>">Очистить кэш</a></li>
-              </ul>
-              <ul class="add_remove">
-                <li><a href="#" class="tip">добавить/удалить</a></li>
-              </ul>
-            </div>
           </div>
         </div>
         <div id='footer_spacer'></div>
