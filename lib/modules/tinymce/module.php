@@ -106,7 +106,7 @@ class TinyMceModule implements iModuleConfig, iPageHook
       $init[] = 'languages:"ru"';
     } else {
       $init[] = 'mode:"textareas"';
-      $init[] = 'editor_selector:"mceEditor"';
+      $init[] = 'editor_selector:"visualEditor"';
       $init[] = 'inline_styles:true';
       $init[] = 'extended_valid_elements:"a[name|href|target|title|onclick],img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name],hr[class|width|size|noshade],font[face|size|color|style],span[class|align|style]"';
       $init[] = 'theme_advanced_resizing:true';

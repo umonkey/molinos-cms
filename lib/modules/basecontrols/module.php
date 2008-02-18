@@ -352,7 +352,7 @@ class TextHTMLControl extends Control
 
     $output = mcms::html('textarea', array(
       'id' => $this->id,
-      'class' => 'form-text mceEditor',
+      'class' => 'form-text visualEditor',
       'name' => $this->value,
       ), $content);
 
