@@ -20,43 +20,10 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
   {
     $form = parent::formGetConfig();
 
-    $form->addControl(new EnumRadioControl(array(
-      'value' => 'config_engine',
-      'label' => t('Механизм поиска'),
-      'options' => array(
-        'mg' => 'mnoGoSearch',
-        'gas' => 'Google Ajax Search',
-        ),
-      )));
-
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_gas_key',
-      'label' => t('Ключ Google API'),
-      'class' => 'settings-gas',
-      'description' => t('Для работы Google Ajax Search нужно <a href=\'@url\'>получить ключ</a>, уникальный для вашего сайта (это делается бесплатно и быстро).', array('@url' => 'http://code.google.com/apis/ajaxsearch/signup.html')),
-      )));
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_gas_root',
-      'label' => t('Id блока-получателя'),
-      'class' => 'settings-gas',
-      'description' => t('Результат поиска будет помещён внутрь элемента с таким идентификатором.  Обычно это — пустой div, который при обычной работе сайта не виден, и появляется только при поиске.'),
-      )));
-
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_ispell',
-      'label' => t('Путь к словарям'),
-      'class' => 'settings-mg',
-      )));
     $form->addControl(new TextLineControl(array(
       'value' => 'config_action',
       'label' => t('Страница с результатами поиска'),
       'description' => t('По умолчанию поиск производится на текущей странице.&nbsp; Если нужно при поиске перебрасывать пользователя на другую страницу, например &mdash; /search/, введите её имя здесь.'),
-      'class' => 'settings-mg',
-      )));
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_dsn',
-      'label' => t('Параметры подключения к БД'),
-      'description' => t('Строка формата mysql://mnogouser:pass@server/mnogodb/?dbmode=multi'),
       'class' => 'settings-mg',
       )));
     $form->addControl(new NumberControl(array(
@@ -77,19 +44,6 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
   {
     $options = parent::getRequestOptions($ctx);
 
-    switch ($this->engine) {
-    case 'mg':
-      if (empty($this->dsn))
-        throw new WidgetHaltedException();
-      break;
-    case 'gas':
-      if (empty($this->gas_key))
-        throw new WidgetHaltedException();
-      break;
-    default:
-      throw new WidgetHaltedException();
-    }
-
     $options['q'] = $ctx->get('q');
     $options['page'] = $ctx->get('page', 1);
     $options['limit'] = $this->per_page;
@@ -100,7 +54,12 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
 
   public function onGet(array $options)
   {
-    return $this->dispatch(array($this->engine), $options);
+    $config = mcms::modconf('search');
+
+    if (empty($config['engine']))
+      return null;
+
+    return $this->dispatch(array($config['engine']), $options);
   }
 
   protected function onGetMg(array $options)
@@ -206,7 +165,9 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
     if (!function_exists('udm_alloc_agent'))
       throw new UserErrorException("Поиск не работает", 500, "Поиск временно недоступен", "Функции поиска недоступны серверу, требуется вмешательство администратора сайта.");
 
-    $udm = udm_alloc_agent($this->dsn);
+    $config = mcms::modconf('search');
+
+    $udm = udm_alloc_agent($config['mg_dsn']);
     if ($udm === false or $udm === null)
       throw new UserErrorException("Поиск не работает", 500, "Поиск временно недоступен", "Не удалось подключиться к серверу MnoGoSearch, требуется вмешательство администратора сайта.");
 
@@ -241,39 +202,26 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
     if ($res == false)
       throw new UserErrorException("Поиск не работает", 500, "Поиск временно недоступен", "Не удалось установить привязку к домену, требуется вмешательство администратора сайта.");
 
-    // Query logging here
-    // $tagger = Tagger::getInstance();
-    // $tagger->logSearchQuery($query);
-
-    if (!empty($this->ispell)) {
+    if (!empty($config['mg_ispell']) and is_dir($config['mg_ispell'])) {
       $ispell_langs = array(
         'ru' => array('utf-8', 'russian'),
         'en' => array('iso-8859-1', 'english')
       );
 
-      if (!empty($this->ispell) /* $this->ispell_source == 'fs' */) {
-        if (empty($this->ispell))
-          throw new InvalidArgumentException("Не задан путь к словарям iSpell");
+      $i = 0;
+      foreach ($ispell_langs as $code => $data) {
+        $files_path = $config['mg_ispell'] .'/'. $data[1];
 
-        if (!is_dir($this->ispell))
-          throw new InvalidArgumentException("Путь {$this->ispell} не существует или не является директорией");
+        if (!file_exists($files_path.'.aff') or !file_exists($files_path.'.dict'))
+          throw new InvalidArgumentException('Не удалось обнаружить файл со словарём или аффиксами для языка "'.$code.'"');
 
-        $i = 0;
-        foreach ($ispell_langs as $code => $data) {
-          $files_path = $this->ispell.'/'.$data[1];
+        $sort = intval(++$i == count($ispell_langs)); // сортировать нужно одновременно с добавлением последнего языка
 
-          if (!file_exists($files_path.'.aff') or !file_exists($files_path.'.dict'))
-            throw new InvalidArgumentException('Не удалось обнаружить файл со словарём или аффиксами для языка "'.$code.'"');
+        if (!udm_load_ispell_data($udm, UDM_ISPELL_TYPE_AFFIX, $code, $data[0], $files_path.'.aff', 0))
+          throw new InvalidArgumentException('Ошибка загрузки аффикса "'.$files_path.'.aff": '.udm_error($udm));
 
-          $sort = intval(++$i == count($ispell_langs)); // сортировать нужно одновременно с добавлением последнего языка
-
-          if (!udm_load_ispell_data($udm, UDM_ISPELL_TYPE_AFFIX, $code, $data[0], $files_path.'.aff', 0))
-            throw new InvalidArgumentException('Ошибка загрузки аффикса "'.$files_path.'.aff": '.udm_error($udm));
-
-          if (!udm_load_ispell_data($udm, UDM_ISPELL_TYPE_SPELL, $code, $data[0], $files_path.'.dict', $sort))
-            throw new InvalidArgumentException('Ошибка загрузки словаря "'.$files_path.'.dict": '.udm_error($udm));
-
-        }
+        if (!udm_load_ispell_data($udm, UDM_ISPELL_TYPE_SPELL, $code, $data[0], $files_path.'.dict', $sort))
+          throw new InvalidArgumentException('Ошибка загрузки словаря "'.$files_path.'.dict": '.udm_error($udm));
       }
     }
 
@@ -318,8 +266,13 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
   public static function formGetModuleConfig()
   {
     $form = new Form(array());
+    $form->addClass('tabbed');
 
-    $form->addControl(new EnumControl(array(
+    $tab = new FieldSetControl(array(
+      'name' => 'main',
+      'label' => t('Режим'),
+      ));
+    $tab->addControl(new EnumControl(array(
       'value' => 'config_engine',
       'label' => t('Технология поиска'),
       'options' => array(
@@ -327,6 +280,55 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
         'mg' => t('mnoGoSearch'),
         ),
       )));
+    $form->addControl($tab);
+
+    $tab = new FieldSetControl(array(
+      'name' => 'gas',
+      'label' => t('Google'),
+      ));
+    $tab->addControl(new TextLineControl(array(
+      'value' => 'config_gas_key',
+      'label' => t('Ключ Google API'),
+      'description' => t('Для работы Google Ajax Search нужно <a href=\'@url\'>получить ключ</a>, уникальный для вашего сайта (это делается бесплатно и быстро).', array('@url' => 'http://code.google.com/apis/ajaxsearch/signup.html')),
+      )));
+    $form->addControl($tab);
+
+    $tab = new FieldSetControl(array(
+      'name' => 'mg',
+      'label' => t('mnoGoSearch'),
+      ));
+    $tab->addControl(new TextLineControl(array(
+      'value' => 'config_mg_dsn',
+      'label' => t('Параметры подключения к БД'),
+      'description' => t('Строка формата mysql://mnogouser:pass@server/mnogodb/?dbmode=multi'),
+      )));
+    $tab->addControl(new TextLineControl(array(
+      'value' => 'config_mg_ispell',
+      'label' => t('Путь к словарям'),
+      'description' => t('Введите полный путь к папке ispell.'),
+      )));
+    $tab->addControl(new TextLineControl(array(
+      'value' => 'config_mg_indexer',
+      'label' => t('Путь к индексатору'),
+      'description' => t('Введите полный путь к исполняемому файлу индексатора (что-то вроде /usr/local/bin/indexer).'),
+      )));
+    $tab->addControl(new EnumControl(array(
+      'value' => 'config_mg_indexmode',
+      'label' => t('Режим индексирования'),
+      'required' => true,
+      'options' => array(
+        'web' => t('Обход сайта (медленно)'),
+        'db' => t('По базе данных (быстро)'),
+        ),
+      )));
+    $tab->addControl(new EnumControl(array(
+      'value' => 'config_mg_results',
+      'label' => t('Страница для результатов'),
+      'required' => true,
+      'options' => DomainNode::getFlatSiteMap('select'),
+      'description' => t('Используется только в режиме индексирования базы данных.  На эту страницу будут вести ссылки, отображаемые в результатах поиска.  При индексировании в режиме обхода сайта этот параметр не используется.'),
+      )));
+    $form->addControl($tab);
 
     return $form;
   }
@@ -341,6 +343,10 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
         'required' => true,
         'key' => 'mul',
         'autoincrement' => true,
+        ));
+      $t->columnSet('url', array(
+        'type' => 'varchar(255)',
+        'required' => true,
         ));
       $t->columnSet('html', array(
         'type' => 'mediumblob',
@@ -371,7 +377,8 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
     if (!is_object($node))
       $node = Node::load(array('id' => $node));
 
-    $html = null;
+    if (in_array($node->class, TypeNode::getInternal()))
+      return;
 
     if (array_key_exists($node->class, $schema)) {
       foreach ($schema[$node->class]['fields'] as $k => $v) {
@@ -382,8 +389,28 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
       }
     }
 
+    $lang = empty($node->lang) ? 'en' : $node->lang;
+    $html = "HTTP/1.0 200 OK\nContent-Type: text/html; charset=utf-8\nContent-Language: {$lang}\n\n<html><head><title>{$node->name}</title></head><body><h1>{$node->name}</h1>{$html}</body></html>";
+
     mcms::db()->exec('DELETE FROM `node__searchindex` WHERE `nid` = :nid', array(':nid' => $node->id));
-    mcms::db()->exec('INSERT INTO `node__searchindex` (`nid`, `html`) VALUES (:nid, :html)', array(':nid' => $node->id, ':html' => $html));
+    mcms::db()->exec('INSERT INTO `node__searchindex` (`nid`, `url`, `html`) VALUES (:nid, :url, :html)', array(':nid' => $node->id, ':url' => self::getNodeUrl($node), ':html' => $html));
+  }
+
+  private static function getNodeUrl(Node $node)
+  {
+    return 'http://'. mcms::config('basedomain') .'/node/'. $node->code .'/';
+
+    $tag = mcms::db()->getResults("SELECT `id`, `code` FROM `node` `n` "
+      ."INNER JOIN `node__rel` `r` ON `r`.`tid` = `n`.`id` "
+      ."WHERE `r`.`nid` = :nid AND `n`.`class` = 'tag' AND `n`.`deleted` = 0 AND `n`.`published` = 1", array(
+        ':nid' => $node->id,
+        ));
+
+    $tag = isset($tag[0]['code']) ? $tag[0]['code'] : $tag[0]['id'];
+
+    $url = 'http://'. mcms::config('basedomain') .'/'. $tag .'/'. $node->code .'/';
+
+    return $url;
   }
 
   public static function hookNodeUpdate(Node $node, $op)
