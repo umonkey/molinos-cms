@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class SearchWidget extends Widget
+class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehook
 {
   public function __construct(Node $node)
   {
@@ -312,6 +312,94 @@ class SearchWidget extends Widget
       $url = bebop_split_url();
       $url['args'][$this->getInstanceName()]['q'] = $data['search_string'];
       bebop_redirect($url);
+    }
+  }
+
+  public static function formGetModuleConfig()
+  {
+    $form = new Form(array());
+
+    $form->addControl(new EnumControl(array(
+      'value' => 'config_engine',
+      'label' => t('Технология поиска'),
+      'options' => array(
+        'gas' => t('Google Ajax Search'),
+        'mg' => t('mnoGoSearch'),
+        ),
+      )));
+
+    return $form;
+  }
+
+  public static function hookPostInstall()
+  {
+    $t = new TableInfo('node__searchindex');
+
+    if (!$t->exists()) {
+      $t->columnSet('nid', array(
+        'type' => 'int(10) unsigned',
+        'required' => true,
+        'key' => 'mul',
+        'autoincrement' => true,
+        ));
+      $t->columnSet('html', array(
+        'type' => 'mediumblob',
+        ));
+
+      $t->commit();
+    }
+  }
+
+  public static function taskRun()
+  {
+    // 1. Проиндексировать документы, отсутствующие в индексе.
+    // 2. Удалить скрытые и удалённые.
+    // 3. Всё остальное нужно делать по hookNode().
+    $nids = mcms::db()->getResultsV("id", "SELECT `id` FROM `node` WHERE `deleted` = 0 AND `published` = 1 AND `class` NOT IN ('". join("', '", TypeNode::getInternal()) ."') AND `id` NOT IN (SELECT `nid` FROM `node__searchindex`)");
+
+    foreach (Node::find(array('id' => $nids), 100) as $node)
+      self::reindexNode($node);
+  }
+
+  private static function reindexNode($node)
+  {
+    static $schema = null;
+
+    if (null === $schema)
+      $schema = TypeNode::getSchema();
+
+    if (!is_object($node))
+      $node = Node::load(array('id' => $node));
+
+    $html = null;
+
+    if (array_key_exists($node->class, $schema)) {
+      foreach ($schema[$node->class]['fields'] as $k => $v) {
+        if (isset($node->$k)) {
+          $html .= '<strong>'. mcms_plain($v['label']) .'</strong>';
+          $html .= '<div class=\'data\'>'. $node->$k .'</div>';
+        }
+      }
+    }
+
+    mcms::db()->exec('DELETE FROM `node__searchindex` WHERE `nid` = :nid', array(':nid' => $node->id));
+    mcms::db()->exec('INSERT INTO `node__searchindex` (`nid`, `html`) VALUES (:nid, :html)', array(':nid' => $node->id, ':html' => $html));
+  }
+
+  public static function hookNodeUpdate(Node $node, $op)
+  {
+    switch ($op) {
+    case 'create':
+    case 'update':
+    case 'publish':
+    case 'restore':
+      self::reindexNode($node);
+      break;
+    case 'delete':
+    case 'erase':
+    case 'unpublish':
+      mcms::db()->exec("DELETE FROM `node__searchindex` WHERE `nid` = :nid", array(':nid' => $node->id));
+      break;
     }
   }
 };

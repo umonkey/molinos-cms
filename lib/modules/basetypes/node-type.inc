@@ -449,4 +449,9 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   {
     return Tagger::isReservedName($field);
   }
+
+  public static function getInternal()
+  {
+    return array('type', 'tag', 'widget', 'domain', 'moduleinfo', 'file', 'user', 'group');
+  }
 };
