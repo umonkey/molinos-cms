@@ -288,9 +288,6 @@ class UpdateManager implements iScheduler
               'required' => true,
               'indexed' => true,
               ),
-            'html' => array(
-              'type' => 'blob',
-              ),
             ),
           ),
         'node_type' => array(

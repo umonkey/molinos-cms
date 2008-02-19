@@ -13,10 +13,7 @@ class NodeBase implements iFormObject
 
   public function getRaw()
   {
-    $tmp = $this->data;
-    if (array_key_exists('html', $tmp))
-      unset($tmp['html']);
-    return $tmp;
+    return $this->data;
   }
 
   // Достаёт объект из кэша.
@@ -156,9 +153,6 @@ class NodeBase implements iFormObject
 
     if ($this->id === null and null === $this->uid)
       $this->data['uid'] = mcms::user()->getUid();
-
-    // Рендерим документ.
-    $this->data['html'] = $this->render();
 
     $tg->nodeSave($this->data, $this->forcedrev);
 
