@@ -1043,6 +1043,13 @@ class RequestController
         $messages[] = t('Каталог для загружаемых пользователями файлов (<tt>%dir</tt>) закрыт для записи. Очень важно, чтобы в него можно было писать.', array('%dir' => $tmp));
     }
 
+    if (!is_dir('attachment')) {
+      if (is_writable(getcwd()) and !mkdir('attachment'))
+        $messages[] = t('Каталог для кэширования прикреплённых картинок (<tt>/attachment/</tt>) отсутствует и создать его не удалось.  Сделайте это самостоятельно.');
+    } elseif (!is_writable('attachment')) {
+      $messages[] = t('Каталог для кэширования прикреплённых картинок (<tt>/attachment/</tt>) защищён от записи.  Системе <em>нужно</em> в него писать.');
+    }
+
     if (!empty($errors) or !empty($messages)) {
       $output = "<html><head><title>Setup Error</title></head><body>";
 
