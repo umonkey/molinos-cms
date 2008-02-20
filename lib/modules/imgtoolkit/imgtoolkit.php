@@ -178,7 +178,7 @@ class ImageMagickGD
         // Получаем информацию для масштабирования.
         $map = $this->getScaleInfo($width, $height, $options);
 
-        if (imageistruecolor($this->img))
+        if (true or imageistruecolor($this->img))
             $dst = imagecreatetruecolor($map['rw'], $map['rh']);
         else
             $dst = imagecreate($map['dw'], $map['dh']);
