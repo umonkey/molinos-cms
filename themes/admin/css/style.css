@@ -108,6 +108,7 @@ html>body .spacer_not_ie {
   background: url(../img/siteimage/ico_update.gif) left 2px no-repeat;
 }
 
+/* LOGOUT */
 #top_toolbar .right a#lnk_exit {color: #ff3000;}
 
 ul#top_menu {

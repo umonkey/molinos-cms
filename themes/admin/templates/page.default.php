@@ -35,7 +35,7 @@ $user = mcms::user();
           <div class="right">
             <?=_admin_check_updates();?>
             <a href="http://code.google.com/p/molinos-cms/issues/list" class="tip">Сообщить о проблеме</a>
-
+            <div><a id='lnk_exit' href='/admin/?profile.action=logout&amp;destination=%2F'>Выйти</a></div>
           </div>
         </div>
 
