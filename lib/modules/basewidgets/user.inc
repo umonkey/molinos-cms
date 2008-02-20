@@ -483,7 +483,12 @@ class UserWidget extends Widget
 
   public function formProcess($id, array $data)
   {
-    $next = empty($_GET['destination']) ? $_SERVER['REQUEST_URI'] : $_GET['destination'];
+    if (isset($data['destination']))
+      $next = $data['destination'];
+    elseif (isset($_GET['destination']))
+      $next = $_GET['destination'];
+    else
+      $next = $_SERVER['REQUEST_URI'];
 
     $res = array(
       'status' => 'ok',
