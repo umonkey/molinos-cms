@@ -1,0 +1,7 @@
+group = Statistics
+version = 8.02.4782
+classes = GoogleAnalyticsModule
+interface[iModuleConfig] = GoogleAnalyticsModule
+interface[iPageHook] = GoogleAnalyticsModule
+name[en] = Google Analytics
+name[ru] = Google Analytics
