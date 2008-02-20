@@ -6,21 +6,30 @@ google.load("search", "1");
 
 function OnLoad() {
   var dc = new google.search.WebSearch();
-  dc.setUserDefinedLabel('__HOSTNAME');
-  dc.setSiteRestriction('__HOSTNAME');
+  var gres = document.getElementById('__ROOT');
+  var gctl = document.getElementById('__FORMCTL');
 
-  var options = new GsearcherOptions();
-  options.setExpandMode(GSearchControl.EXPAND_MODE_OPEN);
-  options.setRoot(document.getElementById('__ROOT'));
+  if (gres == null)
+    alert('Google Search disabled: element #__ROOT not found.');
+  else if (gctl == null)
+    alert('Google Search disabled: element #__FORMCTL not found.');
+  else {
+    dc.setUserDefinedLabel('__HOSTNAME');
+    dc.setSiteRestriction('__HOSTNAME');
 
-  var searchControl = new google.search.SearchControl();
-  searchControl.addSearcher(dc, options);
+    var options = new GsearcherOptions();
+    options.setExpandMode(GSearchControl.EXPAND_MODE_OPEN);
+    options.setRoot(gres);
 
-  // Tell the searcher to draw itself and tell it where to attach
-  searchControl.draw(document.getElementById("searchcontrol"));
+    var searchControl = new google.search.SearchControl();
+    searchControl.addSearcher(dc, options);
 
-  // Execute an inital search
-  // searchControl.execute("Google");
+    // Tell the searcher to draw itself and tell it where to attach
+    searchControl.draw(gctl);
+
+    // Execute an inital search
+    // searchControl.execute("Google");
+  }
 }
 google.setOnLoadCallback(OnLoad);
 

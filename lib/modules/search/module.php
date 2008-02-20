@@ -18,24 +18,45 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
 
   public static function formGetConfig()
   {
+    $config = mcms::modconf('search');
+
     $form = parent::formGetConfig();
 
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_action',
-      'label' => t('Страница с результатами поиска'),
-      'description' => t('По умолчанию поиск производится на текущей странице.&nbsp; Если нужно при поиске перебрасывать пользователя на другую страницу, например &mdash; /search/, введите её имя здесь.'),
-      'class' => 'settings-mg',
-      )));
-    $form->addControl(new NumberControl(array(
-      'value' => 'config_per_page',
-      'label' => t('Количество результатов на странице'),
-      'class' => 'settings-mg',
-      )));
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_btngo',
-      'label' => t('Текст кнопки поиска'),
-      'class' => 'settings-mg',
-      )));
+    switch ($config['engine']) {
+    case 'mg':
+      $form->addControl(new TextLineControl(array(
+        'value' => 'config_action',
+        'label' => t('Страница с результатами поиска'),
+        'description' => t('По умолчанию поиск производится на текущей странице.&nbsp; Если нужно при поиске перебрасывать пользователя на другую страницу, например &mdash; /search/, введите её имя здесь.'),
+        'class' => 'settings-mg',
+        )));
+      $form->addControl(new NumberControl(array(
+        'value' => 'config_per_page',
+        'label' => t('Количество результатов на странице'),
+        'class' => 'settings-mg',
+        )));
+      $form->addControl(new TextLineControl(array(
+        'value' => 'config_btngo',
+        'label' => t('Текст кнопки поиска'),
+        'class' => 'settings-mg',
+        )));
+      break;
+
+    case 'gas':
+      $form->addControl(new TextLineControl(array(
+        'value' => 'config_gas_ctl',
+        'label' => t('Блок с формой поиска'),
+        'class' => 'settings-gas',
+        'description' => t('Введите id элемента, в который нужно помещать форму поиска.'),
+        )));
+      $form->addControl(new TextLineControl(array(
+        'value' => 'config_gas_root',
+        'label' => t('Блок с результатами Google Ajax Search'),
+        'class' => 'settings-gas',
+        'description' => t('Введите id элемента, в который нужно помещать результаты поиска.  Обычно это — пустой div, скрытый по умолчанию.'),
+        )));
+      break;
+    }
 
     return $form;
   }
@@ -81,11 +102,21 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
 
   protected function onGetGas(array $options)
   {
+    $config = mcms::modconf('search');
+
+    if (empty($config['gas_key']))
+      return "<!-- GAS disabled: site key not defined -->";
+    elseif (empty($this->gas_ctl))
+      return "<!-- GAS disabled: form parent not defined -->";
+    elseif (empty($this->gas_root))
+      return "<!-- GAS disabled: result container not defined -->";
+
     if (is_readable($filename = dirname(__FILE__) .'/gas.txt')) {
       $options = array(
-        '__APIKEY' => $this->gas_key,
+        '__APIKEY' => $config['gas_key'],
         '__HOSTNAME' => $_SERVER['HTTP_HOST'],
         '__ROOT' => $this->gas_root,
+        '__FORMCTL' => $this->gas_ctl,
         );
 
       $template = file_get_contents($filename);
