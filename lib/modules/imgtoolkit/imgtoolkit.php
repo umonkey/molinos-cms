@@ -190,7 +190,7 @@ class ImageMagickGD
         }
 
         // Заполняем белым цветом, если надо.
-        if ($options['white']) {
+        if (!empty($options['white'])) {
           $color = imagecolorallocate($dst, 255, 255, 255);
           imagefilledrectangle($dst, 0, 0, $map['rw'], $map['rh'], $color);
         }
@@ -199,6 +199,11 @@ class ImageMagickGD
         {
           imagealphablending($dst, false);
           $color = imagecolorallocatealpha($dst, 0, 0, 0, 127);
+
+          // Нормальной прозрачности для масштабированных гифов получить
+          // не удалось, принудительно сохраняем в PNG.
+          $this->mime = 'image/png';
+
           imagefilledrectangle($dst, 0, 0, $map['rw'], $map['rh'], $color);
           imagesavealpha($dst, true);
           imagealphablending($dst, true);
