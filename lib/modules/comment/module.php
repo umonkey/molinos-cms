@@ -1,5 +1,5 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 syntax=off:
+// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
 class CommentWidget extends Widget
 {
@@ -409,6 +409,8 @@ class CommentFormWidget extends Widget
         }
       }
 
+      $this->sendNotifications($node);
+
       $url = mcms_url(array(
         'args' => array(
           $this->getInstanceName() => array(
@@ -423,6 +425,58 @@ class CommentFormWidget extends Widget
       */
 
       return $url;
+    }
+  }
+
+  private function sendNotifications(Node $c)
+  {
+    if (mcms::ismodule('rating')) {
+      if ($uid = mcms::user()->getUid())
+        $me = Node::load(array('class' => 'user', 'id' => $uid));
+      else
+        $me = null;
+
+      $uids = mcms::db()->getResultsV("uid", "SELECT DISTINCT `uid` FROM `node__rating` WHERE `nid` = :nid AND `rate` > 0 AND `uid` > 0 AND `uid` <> :uid", array(
+        ':nid' => $this->options['doc'],
+        ':uid' => $me ? $me->id : -1,
+        ));
+
+      if (!empty($uids)) {
+        $prefix = 'http://'. $_SERVER['HTTP_HOST'] .'/';
+
+        if (null !== $me)
+          $message = '<p>'. t('Пользователь <a href=\'@profile\'>%user</a> только что прокомментировал тему «%title»:', array(
+            '@profile' => $prefix . 'user/'. $me->id .'/',
+            '%user' => $me->name,
+            '%title' => $this->ctx->document->name,
+            )) .'</p>';
+        else
+          $message = '<p>'. t('Пользователь %user только что прокомментировал тему «%title»:', array(
+            '%user' => $c->name,
+            '%title' => $this->ctx->document->name,
+            )) .'</p>';
+
+        $message .= t('<blockquote>%comment</blockquote>', array(
+          '%comment' => $c->body,
+          ));
+
+        $message .= '<p>'. t('Можно <a href=\'@reply\'>ответить</a> или <a href=\'@silence\'>отписаться от комментариев</a>.', array(
+          '@reply' => $prefix .'node/'. $this->ctx->document_id .'/',
+          '@silence' => $prefix .'/node/'. $this->ctx->document_id .'/?'. $this->getInstanceName() .'.silence=1',
+          )) .'</p>';
+
+        if (null !== $me)
+          $message .= '<p>'. t('Чтобы отправить пользователю личное сообщение, просто ответьте на это письмо.') .'</p>';
+
+        $headers = array(
+          'reply-to' => $me ? $me->email : null,
+          );
+
+        $emails = array();
+
+        foreach (Node::find(array('class' => 'user', 'id' => $uids)) as $user)
+          bebop_mail(null, $user->email, t('Новый комментарий на %site', array('%site' => $_SERVER['HTTP_HOST'])), $message, null, $headers);
+      }
     }
   }
 
