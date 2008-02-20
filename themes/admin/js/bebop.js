@@ -235,11 +235,25 @@ function mcms_picker_return(href)
   var fileid = href.replace('/attachment/', '');
 
   if (mcms_picker_id == 'src') {
-    if (tinyMCE) {
-      var tmp_win = tinyMCEPopup.getWindowArg('window');
-      if (tmp_win) {
-        tmp_win.document.getElementById('src').value = href;
+    var wod = window.opener.document;
+    var em = wod.getElementById(mcms_picker_id);
+
+    if (em) {
+      em.value = href;
+    } else if (em = wod.getElementById('mce_0_ifr')) {
+      var src = jQuery(em.contentDocument).find('#'+ mcms_picker_id);
+      if (src.length == 0) {
+        alert('Error accessing the parent dialog.');
+        return false;
       }
+
+      src.val(href);
+      window.close();
+
+      return false;
+    } else {
+      alert('Target control not found');
+      return false;
     }
   } else {
     // Заменяем старый предпросмотр новым.

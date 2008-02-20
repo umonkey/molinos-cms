@@ -182,6 +182,7 @@ class TinyMceModule implements iModuleConfig, iPageHook
       $init[] = 'relative_urls:false';
       $init[] = 'theme:"'. $config['theme'] .'"';
       $init[] = 'skin:"o2k7"';
+      $init[] = 'file_browser_callback:"mcms_file_pick"';
     }
 
     $html = '<script type=\'text/javascript\'>tinyMCE';
