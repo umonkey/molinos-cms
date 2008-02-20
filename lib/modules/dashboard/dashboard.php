@@ -96,7 +96,7 @@ class BebopDashboard extends Widget implements iAdminWidget
           $html = '<li class=\'group-'. $groupidx .'\'>';
           $html .= mcms::html('a', array(
             'href' => $icon['href'],
-            'style' => 'display: block; background: transparent url('. $icon['img'] .') no-repeat top center; padding-top: 50px; text-align: center',
+            'style' => 'display: block; background: transparent url('. $icon['img'] .') no-repeat top center; padding: 85px 2px 0 2px; text-align: center',
             'description' => isset($icon['description']) ? $icon['description'] : null,
             ), mcms_plain($icon['title']));
           $html .= '</li>';
