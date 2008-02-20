@@ -64,10 +64,18 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
         'name' => 'access',
         'label' => t('Доступ'),
         ));
+      $tab->addControl(new HiddenControl(array(
+        'value' => 'process_access',
+        )));
       $tab->addControl(new AccessControl(array(
         'value' => 'node_access',
         'options' => $options,
         )));
+      if ($user->hasGroup('Publishers'))
+        $tab->addControl(new BoolControl(array(
+          'value' => 'node_published',
+          'label' => t('Документ опубликован (виден на сайте)'),
+          )));
       $form->addControl($tab);
     }
 
@@ -82,6 +90,9 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
 
     if ($user->hasGroup('Access Managers'))
       $data['node_access'] = $this->getAccess();
+
+    $data['process_access'] = true;
+    $data['node_published'] = $this->published;
 
     return $data;
   }
@@ -100,9 +111,15 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
 
     $user = mcms::user();
 
-    if ($user->hasGroup('Access Managers')) {
-      $this->setAccess(empty($data['node_access']) ? array() : $data['node_access']);
-    } else {
+    if (!empty($data['process_access'])) {
+      if ($user->hasGroup('Access Managers'))
+        $this->setAccess(empty($data['node_access']) ? array() : $data['node_access']);
+      if ($user->hasGroup('Publishers')) {
+        if ($this->published and empty($data['node_published']))
+          $this->unpublish();
+        elseif (!$this->published and !empty($data['node_published']))
+          $this->publish();
+      }
     }
   }
 
