@@ -13,6 +13,7 @@ $user = mcms::user();
 
     <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/bebop.css" />
     <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/notification.css" />
     
     <link rel="stylesheet" type="text/css" href="<?=$prefix?>/../all/jquery/plugins/jquery.jcarousel.css" />
     <link rel="stylesheet" type="text/css" href="<?=$prefix?>/../all/jquery/plugins/jcarousel-skins/tango/skin.css" />

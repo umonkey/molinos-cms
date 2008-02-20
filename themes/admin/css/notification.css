@@ -1,0 +1,8 @@
+#center .notification {
+  border: solid red 1px;
+  padding: 4px;
+  background-color: #FF8080;
+  color: black;
+  margin-bottom: 10px;
+  text-align: center;
+}
