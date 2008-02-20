@@ -847,7 +847,7 @@ class mcms
     bebop_session_start();
 
     if (null === $text) {
-      $rc = !empty($_SESSION['messages']) ? (array)$_SESSION['messages'] : null;
+      $rc = !empty($_SESSION['messages']) ? array_unique((array)$_SESSION['messages']) : null;
       $_SESSION['messages'] = array();
     } else {
       $_SESSION['messages'][] = $text;

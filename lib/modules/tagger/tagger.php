@@ -373,7 +373,6 @@ class Tagger
           'name' => $node['name'],
           'data' => empty($revdata) ? null : serialize($revdata),
           'created' => 'UTC_TIMESTAMP()',
-          'html' => empty($node['html']) ? '' : $node['html'],
           );
 
         $node['rid'] = $this->rowUpdate('node__rev', 'rid', $save);

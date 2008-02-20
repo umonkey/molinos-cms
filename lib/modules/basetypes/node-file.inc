@@ -16,10 +16,6 @@ class FileNode extends Node implements iContentType
 
     parent::save($clear);
 
-    // Проставляем права контент-менеджерам.
-    mcms::db()->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`) "
-      ."SELECT :nid, `n`.`id`, 0, 1, 1, 1 FROM `node` `n` INNER JOIN `node_group` `g` ON `g`.`rid` = `n`.`rid` WHERE `g`.`login` = 'Content Managers'", array(':nid' => $this->id));
-
     $this->purge();
   }
 
@@ -271,20 +267,29 @@ class FileNode extends Node implements iContentType
               ), false);
 
             $file->save();
-
-            $file->setAccess(array(
-              'Visitors' => array('r'),
-              'Content Managers' => array('r', 'd'),
-              ));
           }
         }
+        return;
+
+      case 'local':
+        if (!empty($data['__file_node_update']['error']) or empty($data['__file_node_update']['tmp_name']))
+          throw new InvalidArgumentException(t('При загрузке файла возникла ошибка.'));
+
+        $this->import($data['__file_node_update']);
+        $this->name = $this->filename;
+        $this->data['published'] = true;
+        $this->save();
+
         return;
       }
     }
 
-    if (!empty($data['__file_node_update']) and empty($data['__file_node_update']['error'])) {
+    elseif (!empty($data['__file_node_update']) and empty($data['__file_node_update']['error'])) {
       $this->import($data['__file_node_update']);
       $this->save();
+
+      if (empty($data['node_content_name']))
+        $data['node_content_name'] = $this->filename;
     }
 
     $data['#node_override'] = array_intersect_key($this->data, array_flip(array('filename', 'filetype', 'filesize', 'filepath')));
@@ -343,5 +348,16 @@ class FileNode extends Node implements iContentType
         RequestController::killFile($filename);
       }
     }
+  }
+
+  // Работа с правами.
+  public function setAccess(array $perms, $reset = true)
+  {
+    if (empty($perms)) {
+      $perms['Content Managers'] = array('r', 'u', 'd');
+      $perms['Visitors'] = array('r');
+    }
+
+    return parent::setAccess($perms, $reset);
   }
 };

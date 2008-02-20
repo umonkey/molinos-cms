@@ -168,6 +168,11 @@ class NodeBase implements iFormObject
     mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, $isnew ? 'create' : 'update'));
 
     $this->purgeRevisions();
+
+    // Устанавливаем пустые права для новых файлов, позволяем перегруженным
+    // методам setAccess() установить права по умолчанию.
+    if ($isnew)
+      $this->setAccess(array(), true);
   }
 
   private function purgeRevisions()
@@ -309,7 +314,7 @@ class NodeBase implements iFormObject
     $nids = $pdo->getResultsKV("id", "class", "SELECT `id`, `class` FROM `node` WHERE `left` >= :left AND `right` <= :right", array(':left' => $meta['left'], ':right' => $meta['right']));
 
     // Вызываем дополнительную обработку.
-    mcms::invoke('iNodeHook', 'hookNodeDelete', array($this, 'erase'));
+    mcms::invoke('iNodeHook', 'hookNodeDelete', array(Node::load(array('id' => $nid, 'deleted' => 1)), 'erase'));
 
     $pdo->exec("DELETE FROM `node` WHERE `left` BETWEEN :left AND :right", array(':left' => $meta['left'], ':right' => $meta['right']));
     $pdo->exec("UPDATE `node` SET `right` = `right` - :width WHERE `right` > :right ORDER BY `right` ASC", $args = array(':width' => $meta['width'], ':right' => $meta['right']));
