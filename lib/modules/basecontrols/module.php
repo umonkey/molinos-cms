@@ -164,10 +164,10 @@ abstract class Control implements iFormControl
       if (substr($label = $this->label, -3) != '...')
         $label .= ':';
 
-      $output = mcms::html('label', array(
+      $output = '<div class=\'label\'>'. mcms::html('label', array(
         'for' => $this->id,
         'class' => $this->required ? 'required' : null,
-        ), $label . $star) . $output;
+        ), $label . $star) .'</div>'. $output;
     }
 
     if (isset($this->description)) {
@@ -596,7 +596,7 @@ class SetControl extends Control
         'name' => isset($this->value) ? $this->value .'[]' : null,
         'checked' => !empty($data[$this->value]) and in_array($k, $data[$this->value]),
         ));
-      $content .= mcms::html('label', array('class' => 'normal'), $inner . $v);
+      $content .= '<div class=\'form-checkbox\'>'. mcms::html('label', array('class' => 'normal'), $inner . $v) .'</div>';
     }
 
     return $this->wrapHTML($content);
