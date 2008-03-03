@@ -50,7 +50,7 @@ class NodeQueryBuilder
 
       if (!empty($schema['fields'])) {
         foreach ($schema['fields'] as $k => $v)
-          if (!empty($v['indexed']) and !in_array($k, array('name', 'code'))) {
+          if (!empty($v['indexed']) and !in_array($k, array('name', 'code', 'parent_id'))) {
             $this->addTable('node_'. $class);
             $fields[] = "`node_{$class}`.`{$k}`";
           }

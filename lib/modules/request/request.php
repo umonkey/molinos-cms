@@ -375,6 +375,7 @@ class RequestController
 
       if ($this->renderError($e))
         return;
+
       throw $e;
     }
 
@@ -969,6 +970,8 @@ class RequestController
   {
     if (bebop_is_debugger() and mcms::config('pass_exceptions') and $e->getCode() != 401 and $e->getCode() != 403)
       return false;
+
+    mcms::report($e);
 
     if (null !== $this->page)
       $theme = $this->page->theme;

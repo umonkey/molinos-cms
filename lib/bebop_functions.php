@@ -863,4 +863,30 @@ class mcms
     $args = $inherit ? bebop_split_url() : array();
     return bebop_combine_url($args, $options);
   }
+
+  public static function report(Exception $e)
+  {
+    if (null === ($recipient = mcms::config('backtracerecipient')))
+      return;
+
+    $data = array();
+
+    $data['Host'] = $_SERVER['HTTP_HOST'];
+    $data['Class'] = get_class($e);
+    $data['Code'] = $e->getCode();
+    $data['Message'] = $e->getMessage();
+    $data['File'] = $e->getFile();
+    $data['Line'] = $e->getLine();
+
+    $body = '<table cellspacing=\'0\' cellpadding=\'2\' border=\'1\'>';
+
+    foreach ($data as $k => $v)
+      $body .= '<tr><td><strong>'. mcms_plain($k) .':</td><td>'. mcms_plain($v) .'</td></tr>';
+
+    $body .= '</table>';
+
+    $subject = 'Molinos.CMS crash report for '. $_SERVER['HTTP_HOST'];
+
+    $rc = bebop_mail('cms-bugs@molinos.ru', $recipient, $subject, $body);
+  }
 };
