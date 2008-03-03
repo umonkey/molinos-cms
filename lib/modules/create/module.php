@@ -213,7 +213,11 @@ class FormWidget extends Widget
       if (!array_key_exists($type = substr($id, 12), $types))
         throw new PageNotFoundException();
 
-      $node = Node::create($type);
+      $node = Node::create($type, array(
+        'parent_id' => $this->options['parent_id'],
+        'uid' => mcms::user()->getUid(),
+        ));
+
       $form = $node->formGet($this->stripped);
 
       $form->addControl(new HiddenControl(array(
