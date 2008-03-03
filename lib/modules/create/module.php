@@ -85,6 +85,11 @@ class FormWidget extends Widget
     $options['status'] = $ctx->get('status', 'default');
     $options['stripped'] = empty($this->stripped) ? 0 : 1;
 
+    if ((null !== ($tmp = $ctx->get('parent'))) and is_numeric($tmp))
+      $options['parent_id'] = intval($tmp);
+    else
+      $options['parent_id'] = null;
+
     $this->options = $options;
 
     return $options;
@@ -226,7 +231,10 @@ class FormWidget extends Widget
     }
 
     elseif (substr($id, 0, 12) == 'form-create-') {
-      $node = Node::create(substr($id, 12));
+      $node = Node::create(substr($id, 12), array(
+        'parent_id' => $this->options['parent_id'],
+        'uid' => mcms::user()->getUid(),
+        ));
       $data = $node->formGetData();
     }
 
@@ -255,7 +263,11 @@ class FormWidget extends Widget
       if (false !== strstr($id, 'form-create-')) {
         $type = substr($id, 12);
 
-        $node = Node::create($type);
+        $node = Node::create($type, array(
+          'parent_id' => $this->options['parent_id'],
+          'uid' => mcms::user()->getUid(),
+          ));
+
         $node->formProcess($data);
         $node->save();
 
