@@ -871,6 +871,7 @@ class mcms
 
     $data = array();
 
+    $data['CMS Version'] = BEBOP_VERSION;
     $data['Host'] = $_SERVER['HTTP_HOST'];
     $data['Class'] = get_class($e);
     $data['Code'] = $e->getCode();
@@ -878,10 +879,10 @@ class mcms
     $data['File'] = $e->getFile();
     $data['Line'] = $e->getLine();
 
-    $body = '<table cellspacing=\'0\' cellpadding=\'2\' border=\'1\'>';
+    $body = '<table cellspacing=\'0\' cellpadding=\'2\' border=\'0\'>';
 
     foreach ($data as $k => $v)
-      $body .= '<tr><td><strong>'. mcms_plain($k) .':</td><td>'. mcms_plain($v) .'</td></tr>';
+      $body .= '<tr valign=\'top\'><td align=\'right\'><strong>'. mcms_plain($k) .':</td><td>'. mcms_plain($v) .'</td></tr>';
 
     $body .= '</table>';
 
