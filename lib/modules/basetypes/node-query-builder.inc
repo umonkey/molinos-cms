@@ -47,10 +47,11 @@ class NodeQueryBuilder
     // Если мы работаем с одним классом, добавляем его специальные поля в запрос сразу.
     if (null !== $fields and null !== ($class = $this->getClassName())) {
       $schema = TypeNode::getSchema($class);
+      $reserved = TypeNode::getReservedNames();
 
       if (!empty($schema['fields'])) {
         foreach ($schema['fields'] as $k => $v)
-          if (!empty($v['indexed']) and !in_array($k, array('name', 'code', 'parent_id'))) {
+          if (!empty($v['indexed']) and !in_array($k, $reserved)) {
             $this->addTable('node_'. $class);
             $fields[] = "`node_{$class}`.`{$k}`";
           }
