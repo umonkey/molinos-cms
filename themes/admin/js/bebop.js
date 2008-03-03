@@ -16,7 +16,7 @@ if ($.browser.msie && $.browser.version < 7 ){
 	 
 	 /**
 	  * Фиксирование ширины документа на 1000px (min-width)
- 	  * @todo было бы неплохо делать это без JS, пример как это можно сделать - http://www.cssplay.co.uk/boxes/width.html
+ 	  * @todo было бы неплохо делать это без JS, пример как это можно сделать - http://www.cssplay.co.uk/boxes/width2.html
 	  */
 	 function controlBodyWidth(){
 	 	($(window).width() < 1000) ?  $('body').css('width', '1000px') : $('body').css('width', '100%');
@@ -27,15 +27,6 @@ if ($.browser.msie && $.browser.version < 7 ){
  * Действия при готовности DOM
  */
 $(document).ready(function () {
-	
-	// Включение карусели в основной навигации
-	if ($('.carousel').length != 0) {
-		var carousel = $('.carousel').jcarousel({
-			scroll: 5,
-			visible: 10,
-			initCallback: bebop_dashboard_init
-		});
-	}
 	
 	// Превращение филдсетов в табы
 	if ($('form.tabbed').length != 0) {

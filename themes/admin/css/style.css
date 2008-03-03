@@ -57,7 +57,7 @@ img.png {
   height: auto;
   _height: 100%;
   min-height: 100%;
-  margin: 0 30px -65px 30px;
+  margin: 0 15px -43px 15px;
 }
 
 .spacer {
@@ -77,8 +77,8 @@ html>body .spacer_not_ie {
 
 /*top - begin*/
 #top_toolbar {
-  height: 45px;
-  padding-top: 7px;
+  height: 20px;
+  padding: 7px 15px 0;
   font-size: 93%;
 }
 
@@ -90,7 +90,7 @@ html>body .spacer_not_ie {
 }
 
 #top_toolbar .right a {
-  margin-left: 36px;
+  margin-left: 15px;
   float: left;
 }
 
@@ -146,11 +146,6 @@ ul#top_menu li.current a {
   background-color: #e4ecee;
 }
 /*top - end*/
-
-/*center - begin*/
-#content_wrapper {
-  padding-left: 222px;
-}
 
 #center {
   width: 100%;

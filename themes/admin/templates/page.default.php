@@ -31,15 +31,25 @@ $user = mcms::user();
       <div id="all">
 
         <div id="top_toolbar">
-          <div class="greeting">Здравствуйте, <?=_user_link()?></div>
           <div class="right">
-            <?=_admin_check_updates();?>
-            <a href="http://code.google.com/p/molinos-cms/issues/list" class="tip">Сообщить о проблеме</a>
+            <div class="greeting">Здравствуйте, <?=_user_name()?></div>
+            <a href="/?profile.action=edit&amp;destination=<?=urlencode($_SERVER['REQUEST_URI'])?>">Настройки</a>
             <div><a id='lnk_exit' href='/admin/?profile.action=logout&amp;destination=%2F'>Выйти</a></div>
           </div>
         </div>
 
         <?=$widgets['BebopDashboard']?>
+    
+        <script type="text/javascript">
+        // Включение карусели в основной навигации
+        if ($('.carousel').length != 0) {
+          var carousel = $('.carousel').jcarousel({
+            scroll: 5,
+            visible: 10,
+            initCallback: bebop_dashboard_init
+          });
+        }
+        </script>
 
         <div id="content_wrapper">
           <div id="center">

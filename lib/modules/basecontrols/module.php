@@ -460,7 +460,7 @@ class DateControl extends Control
   public function getHTML(array $data)
   {
     $output = mcms::html('input', array(
-      'type' => 'date',
+      'type' => 'text', // 'date', // пользоваться этим в опере невозможно
       'id' => $this->id,
       'class' => 'form-text form-date',
       'name' => $this->value,
@@ -500,7 +500,7 @@ class DateTimeControl extends Control
         ), $this->text);
 
     $output .= mcms::html('input', array(
-      'type' => 'datetime',
+      'type' => 'text', // 'datetime', // пользоваться этим в опере невозможно
       'id' => $this->id,
       'class' => 'form-text form-datetime',
       'name' => $this->value,

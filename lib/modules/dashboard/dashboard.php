@@ -110,9 +110,9 @@ class BebopDashboard extends Widget implements iAdminWidget
       $groupidx++;
     }
 
-    $html = '<div class=\'carousel jcarousel-skin-tango\'>';
+    $html = '<div class=\'carousel-control\'>'. join('', $controls) .'</div>';
+    $html .= '<div class=\'carousel jcarousel-skin-tango\'>';
     $html .= '<ul>'. join('', $items) .'</ul>';
-    $html .= '<div class=\'carousel-control\'>'. join('', $controls) .'</div>';
     $html .= '</div>';
 
     return $html;

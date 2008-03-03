@@ -1,6 +1,7 @@
 <?php
 /* vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2: */
 
+// {get_current_user assign=user}
 function smarty_function_get_current_user($params, &$smarty)
 {
   static $results = null;
@@ -14,7 +15,7 @@ function smarty_function_get_current_user($params, &$smarty)
   if ($result === null) {
     $user = mcms::user();
 
-    if (empty($params['extended'])) {
+    if (empty($params['extended']) or !$user->getUid()) {
       $result = array(
         'uid' => $user->getUid(),
         'name' => $user->getName(),

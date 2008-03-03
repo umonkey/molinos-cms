@@ -134,6 +134,14 @@ function _admin_actions()
     return "<div class='menu_block'>{$output}</div>";
 }
 
+function _user_name()
+{
+  $user = mcms::user();
+  $text = '<strong>'. mcms_plain($user->getTitle()) .'</strong>';
+
+  return $text;
+}
+
 function _user_link()
 {
   $user = mcms::user();

@@ -835,7 +835,7 @@ class NodeBase implements iFormObject
     if ($user->getName() == 'root')
       return true;
 
-    // При проверки прав на создание новых документов обращаемся к типу документа.
+    // При проверке прав на создание новых документов обращаемся к типу документа.
     if (null === ($nid = $this->id) and 'c' == $perm) {
       $schema = TypeNode::getSchema($this->class);
       $nid = $schema['id'];
