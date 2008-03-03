@@ -12,9 +12,11 @@ class AutocompleteModule implements iRemoteCall
       foreach (Node::find($filter = array('class' => $parts[0], $parts[1] => '%'. $ctx->get('q') .'%'), 10) as $n)
         $output[$n->id] = isset($n->$parts[1]) ? $n->$parts[1] : $n->name;
 
-      bebop_on_json($output);
+      $output = join("\n", array_values($output));
 
-      throw new ForbiddenException('This request can only be made in JSON mode.');
+      header('Content-Type: text/plain; charset=utf-8');
+      header('Content-Length: '. strlen($output));
+      die($output);
     }
   }
 };

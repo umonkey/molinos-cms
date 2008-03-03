@@ -1113,19 +1113,20 @@ class NodeLinkControl extends Control
     if (isset($this->hidden))
       return $this->getHidden($data);
 
-    if (null === $this->class)
-      $this->class = 'form-text';
-    else
-      $this->class = array_merge(array('form-text'), (array)$this->class);
+    $this->addClass('form-text');
+    $this->addClass('autocomplete');
 
     $output = mcms::html('input', array(
       'type' => 'text',
       'id' => $this->id,
       'class' => $this->class,
+      'autocomplete' => 'off',
       'name' => $this->value,
       'value' => empty($data[$this->value]) ? null : $data[$this->value],
       'readonly' => $this->readonly ? 'readonly' : null,
       ));
+
+    $output .= '<script language=\'javascript\'>$(\'#'. $this->id .'\').suggest(\'/autocomplete.rpc?source='. $this->values .'\');</script>';
 
     return $this->wrapHTML($output);
   }
