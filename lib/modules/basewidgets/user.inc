@@ -398,6 +398,9 @@ class UserWidget extends Widget
     case 'profile-edit-form':
       $uid = empty($this->options['uid']) ? $user->getUid() : $this->options['uid'];
 
+      if (empty($uid))
+        throw new ForbiddenException(t('Только зарегистрированные пользователи могут редактировать профиль.'));
+
       $profile = Node::load(array('class' => 'user', 'id' => $uid));
       $form = $profile->formGet();
 
