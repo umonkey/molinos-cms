@@ -143,9 +143,12 @@ abstract class Control implements iFormControl
   {
     $output = '';
 
-    foreach ($this->children as $child)
+    foreach ($this->children as $child) {
+      $child->captcha = $this->captcha;
+
       if ($child instanceof FieldSetControl)
         $output .= $child->getHTML($data);
+    }
 
     foreach ($this->children as $child)
       if (!($child instanceof FieldSetControl))
@@ -226,7 +229,20 @@ class SubmitControl extends Control
 
   public function getHTML(array $data)
   {
-    return $this->wrapHTML(mcms::html('input', array(
+    $output = '';
+
+    if ($this->captcha and null !== ($cval = mcms::captchaGen())) {
+      $key = mcms_encrypt($cval);
+
+      $output .= '<img src="/captcha/index.php?seed='. $key .'" alt="captcha" />';
+      $output .= '<div class="captchablock">';
+      $output .= '<label for="captcha-'.$this->id.'">Введите текст с картинки:</label>';
+      $output .= '<input id="captcha-'.$this->id.'" type="text" name="captcha[]" />';
+      $output .= '<input type="hidden" name="captcha[]" value="'. $key .'" />';
+      $output .= '</div>';
+    }
+
+    $output .= $this->wrapHTML(mcms::html('input', array(
       'type' => 'submit',
       'id' => $this->id,
       'class' => array('form-submit'),
@@ -234,6 +250,8 @@ class SubmitControl extends Control
       'value' => null !== $this->text ? $this->text : t('Сохранить'),
       'title' => $this->title,
       )), false);
+
+    return $output;
   }
 };
 
@@ -717,7 +735,7 @@ class Form extends Control
     if (isset($this->title)) {
       if (!in_array($header = $this->header, array('h2', 'h3', 'h4', 'h5')))
         $header = 'h2';
-      $output = "<{$header} class='form-header'>". mcms_plain($this->title) ."</{$header}>";
+      $output = "<{$header} class='form-header'><span>". mcms_plain($this->title) ."</span></{$header}>";
     }
 
     if (null != $this->intro)

@@ -18,12 +18,12 @@
 
 # See kcaptcha_config.ini for customizing
 
-require_once(dirname(__FILE__) .'/../../lib/bootstrap.php');
+require_once(dirname(__FILE__) .'/../lib/bootstrap.php');
 
-if (empty($_GET['getImage'])) {
-  die("Usage: ?getImage=encodedstring");
+if (empty($_GET['seed'])) {
+  die("Usage: ?seed=");
 } else {
-  $captcha = new Kcaptcha($_GET['getImage']);
+  $captcha = new Kcaptcha($_GET['seed']);
   $captcha->drawImage();
 }
 

@@ -869,25 +869,68 @@ class mcms
     if (null === ($recipient = mcms::config('backtracerecipient')))
       return;
 
-    $data = array();
+    switch (get_class($e)) {
+    case 'ObjectNotFoundException':
+    case 'UnauthorizedException':
+    case 'ForbiddenException':
+    case 'PageNotFoundException':
+      return;
+    }
 
-    $data['CMS Version'] = BEBOP_VERSION;
-    $data['Host'] = $_SERVER['HTTP_HOST'];
-    $data['Class'] = get_class($e);
-    $data['Code'] = $e->getCode();
-    $data['Message'] = $e->getMessage();
-    $data['File'] = $e->getFile();
-    $data['Line'] = $e->getLine();
+    $body = t('<p>%method request for %url from %ip resulted in an %class exception (code %code) with the following message:</p>', array(
+      '%method' => $_SERVER['REQUEST_METHOD'],
+      '%url' => 'http://'. $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+      '%ip' => $_SERVER['REMOTE_ADDR'],
+      '%class' => get_class($e),
+      '%code' => $e->getCode(),
+      ));
 
-    $body = '<table cellspacing=\'0\' cellpadding=\'2\' border=\'0\'>';
+    $body .= '<blockquote><em>'. mcms_plain($e->getMessage()) .'</em></blockquote>';
 
-    foreach ($data as $k => $v)
-      $body .= '<tr valign=\'top\'><td align=\'right\'><strong>'. mcms_plain($k) .':</td><td>'. mcms_plain($v) .'</td></tr>';
+    $body .= t('<p>Here is the stack trace:</p><blockquote>%stack</blockquote>', array(
+      '%stack' => str_replace("\n", '<br/>', $e->getTraceAsString()),
+      ));
 
-    $body .= '</table>';
+    if (mcms::user()->getUid())
+      $body .= t('<p>The user was identified as %user (#%uid).</p>', array(
+        '%user' => mcms::user()->getName(),
+        '%uid' => mcms::user()->getUid(),
+        ));
+    else
+      $body .= t('<p>The user responsible for this action could not be identified.</p>');
+
+    $body .= t('<p>The server runs Molinos.CMS version %version (<a href="%buglist">see the bug list</a>).</p>', array(
+      '%version' => BEBOP_VERSION,
+      '%buglist' => preg_replace('/^(\d+\.\d+)\..*$/', 'http://code.google.com/p/molinos-cms/issues/list?q=label:Milestone-R\1', BEBOP_VERSION),
+      ));
 
     $subject = 'Molinos.CMS crash report for '. $_SERVER['HTTP_HOST'];
 
     $rc = bebop_mail('cms-bugs@molinos.ru', $recipient, $subject, $body);
+  }
+
+  public static function captchaGen()
+  {
+    if (mcms::user()->getUid() != 0)
+      return null;
+
+    $result = strtolower(substr(base64_encode(rand()), 0, 6));
+    return $result;
+  }
+
+  public static function captchaCheck(array $data)
+  {
+    if (mcms::user()->getUid() != 0)
+      return true;
+
+    if (!empty($data['captcha']) and is_array($data['captcha']) and count($data['captcha']) == 2) {
+      $usr = $data['captcha'][0];
+      $ref = mcms_decrypt($data['captcha'][1]);
+
+      if (0 === strcmp($usr, $ref))
+        return true;
+    }
+
+    throw new ForbiddenException(t('Проверьте правильность ввода текста с изображения.'));
   }
 };

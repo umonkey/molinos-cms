@@ -68,9 +68,10 @@ class CommentWidget extends Widget
   {
     $form = parent::formGetConfig();
 
-    $form->addControl(new EnumRadioControl(array(
+    $form->addControl(new EnumControl(array(
       'value' => 'config_startwith',
       'label' => t('По умолчанию показывать'),
+      'required' => true,
       'options' => array(
         'first' => t('Первую страницу'),
         'last' => t('Последнюю страницу'),
@@ -83,6 +84,7 @@ class CommentWidget extends Widget
       'value' => 'config_perpage',
       'label' => t('Комментариев на странице'),
       'required' => true,
+      'default' => 10,
       )));
 
     return $form;
@@ -238,6 +240,8 @@ class CommentWidget extends Widget
 
 class CommentFormWidget extends Widget
 {
+  protected $newcomment = null;
+
   public function __construct(Node $node)
   {
     if (empty($node->config))
@@ -251,7 +255,7 @@ class CommentFormWidget extends Widget
   public static function getWidgetInfo()
   {
     return array(
-      'name' => 'Комментарии (добавление)',
+      'name' => 'Комментарий (добавление)',
       'description' => 'Позволяет пользователям оставлять комментарии.',
       );
   }
@@ -353,6 +357,8 @@ class CommentFormWidget extends Widget
         )));
     }
 
+    $form->captcha = true;
+
     return $form;
   }
 
@@ -373,6 +379,8 @@ class CommentFormWidget extends Widget
 
   public function formProcess($id, array $data)
   {
+    mcms::captchaCheck($data);
+
     switch ($id) {
     case 'comment-new':
       $user = mcms::user();
@@ -384,8 +392,26 @@ class CommentFormWidget extends Widget
       $comment = array();
 
       foreach ($schema['fields'] as $k => $v) {
-        if (!empty($data[$key = 'comment_'. $k]) and 'AttachmentControl' != mcms_ctlname($v['type']))
-          $comment[$k] = $data[$key];
+        if (empty($data[$key = 'comment_'. $k])) {
+          $comment[$k] = null;
+        } else {
+          switch (mcms_ctlname($v['type'])) {
+          case 'AttachmentControl':
+            break;
+          case 'NodeLinkControl':
+            if (!empty($v['values']) and is_string($v['values'])) {
+              $parts = explode('.', $v['values'], 2);
+
+              if (!count($tmp = Node::find($filter = array('class' => $parts[0], $v['values'] => $data[$key]), 1)))
+                throw new ValidationError($k);
+
+              $comment[$k] = key($tmp);
+            }
+            break;
+          default:
+            $comment[$k] = $data[$key];
+          }
+        }
       }
 
       $comment['published'] = !$this->moderated;
@@ -410,6 +436,9 @@ class CommentFormWidget extends Widget
       }
 
       $this->sendNotifications($node);
+
+      // Сохраняем ссылку на новый комментарий, чтоб перегружаемые классы могли получить к нему доступ.
+      $this->newcomment = $node;
 
       $url = mcms_url(array(
         'args' => array(
@@ -436,10 +465,14 @@ class CommentFormWidget extends Widget
       else
         $me = null;
 
-      $uids = mcms::db()->getResultsV("uid", "SELECT DISTINCT `uid` FROM `node__rating` WHERE `nid` = :nid AND `rate` > 0 AND `uid` > 0 AND `uid` <> :uid", array(
-        ':nid' => $this->options['doc'],
-        ':uid' => $me ? $me->id : -1,
-        ));
+      try {
+        $uids = mcms::db()->getResultsV("uid", "SELECT DISTINCT `uid` FROM `node__rating` WHERE `nid` = :nid AND `rate` > 0 AND `uid` > 0 AND `uid` <> :uid", array(
+          ':nid' => $this->options['doc'],
+          ':uid' => $me ? $me->id : -1,
+          ));
+      } catch (PDOException $e) {
+        $uids = null;
+      }
 
       if (!empty($uids)) {
         $prefix = 'http://'. $_SERVER['HTTP_HOST'] .'/';

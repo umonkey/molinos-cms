@@ -27,6 +27,8 @@ class FormWidget extends Widget
 
     asort($types);
 
+    $types = array('*' => 'Предлагать выбор') + $types;
+
     $form = parent::formGetConfig();
 
     $form->addControl(new EnumControl(array(
@@ -40,7 +42,7 @@ class FormWidget extends Widget
       'value' => 'config_type',
       'label' => t('Тип данных по умолчанию'),
       'options' => $types,
-      'default' => t('Всегда предлагать выбор'),
+      'default' => t('Не используется'),
       'description' => "<p>Если пользователь попадает в раздел, в который он может добавить документы нескольких типов, ему будет предложен список этих типов в виде ссылок, ведущих на разные формы.&nbsp; Если вы укажете тип по умолчанию, и этот тип будет в списке возможных, вместо списка ссылок пользователю автоматически покажут нужную форму.</p>"
         ."<p>Однако <strong>имейте в виду</strong>, что этот параметр виджетом рассматривается как рекоммендация, а не как условие; если вы выберете здесь, скажем, &laquo;обратную связь&raquo;, а пользователь может создавать только &laquo;вакансии&raquo;, ему всё равно покажут форму с вакансией.</p>",
       )));
@@ -49,6 +51,11 @@ class FormWidget extends Widget
       'value' => 'config_stripped',
       'label' => t('Только базовые свойства'),
       'description' => t("При установке этого флага форма будет содержать только основные поля создаваемого документа, без дополнительных вкладок (вроде настроек доступа и файловых приложений).&nbsp; Это полезно для форм с обратной связью."),
+      )));
+
+    $form->addControl(new BoolControl(array(
+      'value' => 'config_publish',
+      'label' => t('Публиковать при создании'),
       )));
 
     $form->addControl(new TextLineControl(array(
@@ -113,7 +120,7 @@ class FormWidget extends Widget
         return null;
 
       $output = "<div class='form-widget-wrapper type-{$options['type']}-form'>". self::formRender('form-create-'. $options['type']) ."</div>";
-    } elseif (!empty($types)) {
+    } elseif (!empty($types) and '*' === $tis->type) {
       $output = '<div class=\'type-selection-form\'>';
       $output .= '<h2>'. t('Документ какого типа вы хотите создать?') .'</h2>';
       $output .= '<dl>';
@@ -134,8 +141,6 @@ class FormWidget extends Widget
 
       $output .= '</dl>';
       $output .= '</div>';
-
-      // $output = self::formRender('form-create');
     }
 
     return array('html' => $output);
@@ -216,6 +221,7 @@ class FormWidget extends Widget
       $node = Node::create($type, array(
         'parent_id' => $this->options['parent_id'],
         'uid' => mcms::user()->getUid(),
+        'published' => $this->publish,
         ));
 
       $form = $node->formGet($this->stripped);
@@ -238,6 +244,7 @@ class FormWidget extends Widget
       $node = Node::create(substr($id, 12), array(
         'parent_id' => $this->options['parent_id'],
         'uid' => mcms::user()->getUid(),
+        'published' => $this->publish,
         ));
       $data = $node->formGetData();
     }
@@ -270,6 +277,7 @@ class FormWidget extends Widget
         $node = Node::create($type, array(
           'parent_id' => $this->options['parent_id'],
           'uid' => mcms::user()->getUid(),
+          'published' => $this->publish,
           ));
 
         $node->formProcess($data);
