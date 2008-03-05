@@ -246,7 +246,10 @@ class ListAdminWidget extends ListWidget implements iDashboard
           $a['href'] = 'mailto:'. $text;
         }
 
-        if ($node->checkPermission('u'))
+        if (array_key_exists('class', $a) and empty($a['class']))
+          unset($a['class']);
+
+        if ($node->checkPermission('u') and !empty($a))
           $text = mcms::html('a', $a, $text);
 
         if ($field == 'name')
