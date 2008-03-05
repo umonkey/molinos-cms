@@ -488,7 +488,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('Structure Managers'))
       $icons[] = array(
-        'group' => 'Structure',
+        'group' => 'Структура',
         'img' => 'img/taxonomy.png',
         'href' => '/admin/taxonomy/',
         'title' => t('Карта сайта'),
@@ -497,7 +497,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('Schema Managers'))
       $icons[] = array(
-        'group' => 'Structure',
+        'group' => 'Структура',
         'img' => 'img/doctype.png',
         'href' => '/admin/schema/',
         'title' => t('Типы документов'),
@@ -505,7 +505,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('Content Managers'))
       $icons[] = array(
-        'group' => 'Content',
+        'group' => 'Наполнение',
         'img' => 'img/content.png',
         'href' => '/admin/content/',
         'title' => t('Наполнение'),
@@ -514,20 +514,20 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('Developers')) {
       $icons[] = array(
-        'group' => 'Developement',
+        'group' => 'Разработка',
         'img' => 'img/constructor.png',
         'href' => '/admin/builder/',
         'title' => t('Конструктор'),
         'description' => t('Управление доменами, страницами и виджетами.'),
         );
       $icons[] = array(
-        'group' => 'Developement',
-        'img' => 'img/constructor.png',
+        'group' => 'Разработка',
+        'img' => 'img/cms-widget.png',
         'href' => '/admin/builder/widgets/',
         'title' => t('Виджеты'),
         );
       $icons[] = array(
-        'group' => 'Developement',
+        'group' => 'Разработка',
         'img' => 'img/constructor.png',
         'href' => '/admin/builder/modules/',
         'title' => t('Модули'),
@@ -536,15 +536,15 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('User Managers')) {
       $icons[] = array(
-        'group' => 'Access',
+        'group' => 'Доступ',
         'img' => 'img/user.png',
         'href' => '/admin/users/',
         'title' => t('Пользователи'),
         'description' => t('Управление профилями пользователей.'),
         );
       $icons[] = array(
-        'group' => 'Access',
-        'img' => 'img/user.png',
+        'group' => 'Доступ',
+        'img' => 'img/cms-groups.png',
         'href' => '/admin/users/groups/',
         'title' => t('Группы'),
         'description' => t('Управление группами пользователей.'),
@@ -553,7 +553,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('Content Managers'))
       $icons[] = array(
-        'group' => 'Content',
+        'group' => 'Наполнение',
         'img' => 'img/files.png',
         'href' => '/admin/files/',
         'title' => t('Файлы'),
@@ -561,7 +561,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
         );
 
     $icons[] = array(
-      'group' => 'Content',
+      'group' => 'Наполнение',
       'img' => 'img/recycle.png',
       'href' => '/admin/?flush=1',
       'title' => t('Очистить кэш'),
@@ -570,7 +570,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('Content Managers') and Node::count(array('deleted' => 1)))
       $icons[] = array(
-        'group' => 'Content',
+        'group' => 'Наполнение',
         'img' => 'img/recycle.png',
         'href' => '/admin/trash/',
         'title' => t('Корзина'),

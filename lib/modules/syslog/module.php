@@ -252,7 +252,7 @@ class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleCo
 
     if ($user->hasGroup('Access Managers')) {
       $icons[] = array(
-        'group' => 'Statistics',
+        'group' => 'Статистика',
         'img' => 'img/journal.png',
         'href' => '/admin/logs/',
         'title' => t('Журнал событий'),
