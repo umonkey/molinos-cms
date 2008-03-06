@@ -520,10 +520,16 @@ class NodeBase implements iFormObject
   // Возвращает родителей текущего объекта, опционально исключая текущий объект.
   public function getParents($current = true)
   {
+    if (null === ($tmp = $this->id))
+      $tmp = $this->parent_id;
+
+    if (null === $tmp)
+      return null;
+
     $sql = "SELECT `parent`.`id`, `parent`.`parent_id`, `parent`.`code`, `parent`.`class`, `rev`.`name`, `rev`.`data` "
       ."FROM `node` AS `self`, `node` AS `parent`, `node__rev` AS `rev` "
-      ."WHERE `self`.`left` BETWEEN `parent`.`left` AND `parent`.`right` AND `self`.`id` = {$this->id} AND `rev`.`rid` = `parent`.`rid` "
-      ."ORDER BY `parent`.`left` -- NodeBase::getParents({$this->id})";
+      ."WHERE `self`.`left` BETWEEN `parent`.`left` AND `parent`.`right` AND `self`.`id` = {$tmp} AND `rev`.`rid` = `parent`.`rid` "
+      ."ORDER BY `parent`.`left` -- NodeBase::getParents({$tmp})";
 
     $data = Tagger::getInstance()->getChildrenData($sql);
 
