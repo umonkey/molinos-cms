@@ -386,7 +386,7 @@ class NodeBase implements iFormObject
   {
     // Загружаем детей в плоский список.
     $children = Node::find(array(
-      'class' => $this->class,
+      // 'class' => $this->class,
       'left' => array('>'. $this->left, '<'. $this->right),
       '#sort' => array(
         'left' => 'asc',
@@ -1210,7 +1210,8 @@ class NodeBase implements iFormObject
               if (!count($tmp = Node::find($filter = array('class' => $parts[0], $v['values'] => $data['node_content_'. $k]), 1)))
                 throw new ValidationError($k);
 
-              $this->$k = key($tmp);
+              if ($this->$k != ($nval = key($tmp)))
+                $this->$k = $nval;
             }
 
             break;

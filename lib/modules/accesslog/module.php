@@ -241,9 +241,9 @@ class AccessLogModule extends Widget implements iAdminWidget, iDashboard, iModul
       $icons[] = array(
         'group' => 'Статистика',
         'img' => 'img/dashboard-task-logs.gif',
-        'href' => '/admin/logs/',
-        'title' => t('Журнал событий'),
-        'description' => t('Кто, что, когда и с чем делал.'),
+        'href' => '/admin/statistics/access/',
+        'title' => t('Доступ к контенту'),
+        'description' => t('Просмотр статистики доступа.'),
         );
     }
 

@@ -43,7 +43,7 @@ class BebopDashboard extends Widget implements iAdminWidget
             foreach ($items as $item) {
               if (isset($item['img'])) {
                 if (!file_exists($img = 'lib/modules/'. $module .'/'. $item['img']))
-                  unset($item['img']);
+                  $item['img'] = '/lib/modules/dashboard/img/cms-default.png';
                 else
                   $item['img'] = '/'. $img;
               }
