@@ -139,6 +139,23 @@ abstract class Control implements iFormControl
     return null;
   }
 
+  public function replaceControl($value, Control $ctl)
+  {
+    if (null === $value)
+      return false;
+
+    foreach ($this->children as $k => $v) {
+      if ($value == $v->value) {
+        $this->children[$k] = $ctl;
+        return true;
+      } elseif ($v->replaceControl($value, $ctl)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   protected function getChildrenHTML(array $data)
   {
     $output = '';
