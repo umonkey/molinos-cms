@@ -272,25 +272,34 @@ class AccessLogModule extends Widget implements iAdminWidget, iDashboard, iModul
     if (null !== $ctx) {
       $conf = mcms::modconf('accesslog');
 
-      if (!empty($conf['options']) and is_array($conf['options'])) {
-        $sth = mcms::db()->prepare("INSERT INTO `node__astat` (`nid`, `timestamp`, `ip`, `referer`) VALUES (:nid, UTC_TIMESTAMP(), :ip, :referer)");
+      try {
+        if (!empty($conf['options']) and is_array($conf['options'])) {
+          if (in_array('section', $conf['options']) and isset($ctx->section_id))
+            self::logNode($ctx->section_id);
 
-        $args = array(
-          ':ip' => empty($_SERVER['REMOTE_ADDR']) ? null : $_SERVER['REMOTE_ADDR'],
-          ':referer' => empty($_SERVER['HTTP_REFERER']) ? null : $_SERVER['HTTP_REFERER'],
-          );
-
-        if (in_array('section', $conf['options']) and isset($ctx->section_id)) {
-          $args[':nid'] = $ctx->section_id;
-          $sth->execute($args);
+          if (in_array('document', $conf['options']) and isset($ctx->document_id))
+            self::logNode($ctx->document_id);
         }
-
-        if (in_array('document', $conf['options']) and isset($ctx->document_id)) {
-          $args[':nid'] = $ctx->document_id;
-          $sth->execute($args);
-        }
+      } catch (PDOException $e) {
+        // Обычно здесь обламываемя при обращении к несуществующему урлу.
       }
     }
+  }
+
+  public static function logNode($nid)
+  {
+    static $sth = null;
+
+    if (null === $sth)
+      $sth = mcms::db()->prepare("INSERT INTO `node__astat` (`nid`, `timestamp`, `ip`, `referer`) VALUES (:nid, UTC_TIMESTAMP(), :ip, :referer)");
+
+    $args = array(
+      ':ip' => empty($_SERVER['REMOTE_ADDR']) ? null : $_SERVER['REMOTE_ADDR'],
+      ':referer' => empty($_SERVER['HTTP_REFERER']) ? null : $_SERVER['HTTP_REFERER'],
+      ':nid' => $nid,
+      );
+
+    $sth->execute($args);
   }
 
   public static function hookPostInstall()

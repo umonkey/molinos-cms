@@ -217,10 +217,8 @@ class StaticAttachment
       header($item);
 
     if ('GET' == $_SERVER['REQUEST_METHOD']) {
-      if ($range_from) {
-        // FIXME: mcms::invoke('iRequestHook', 'hookRequest', array($ctx));
-        // RequestContext::logNodeAccess($this->node['id']);
-      }
+      if (!$range_from and class_exists('AccessLogModule'))
+        AccessLogModule::logNode($this->node['id']);
 
       $f = fopen($this->source, 'rb')
         or $this->sendError(403, "could not read the file");
