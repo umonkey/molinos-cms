@@ -1040,12 +1040,12 @@ class RequestController
     if (ini_get($k = 'session.gc_maxlifetime') < 7 * 24 * 60 * 60)
       ini_set($k, 30 * 24 * 60 * 60);
 
-    if (!is_writable($tmp = realpath(mcms::config('tmpdir')))) {
+    if (!is_writable($tmp = mcms::config('tmpdir'))) {
       if (!is_writable(dirname($tmp)) or !mkdir($tmp))
         $messages[] = t('Каталог для временных файлов (<tt>%dir</tt>) закрыт для записи. Очень важно, чтобы в него можно было писать.', array('%dir' => $tmp));
     }
 
-    if (!is_writable($tmp = realpath(mcms::config('filestorage')))) {
+    if (!is_writable($tmp = mcms::config('filestorage'))) {
       if (!is_writable(dirname($tmp)) or !mkdir($tmp))
         $messages[] = t('Каталог для загружаемых пользователями файлов (<tt>%dir</tt>) закрыт для записи. Очень важно, чтобы в него можно было писать.', array('%dir' => $tmp));
     }
