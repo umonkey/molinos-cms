@@ -148,9 +148,14 @@ class NodeAdminWidget extends Widget implements iAdminWidget
   protected function onGetCreate(array $options)
   {
     if (null !== $options['class']) {
-      $node = Node::create($options['class']);
-      $node->parent_id = $options['parent'];
-      $html = $this->formRender('node-edit-form', $node->formGetData());
+      $node = Node::create($options['class'], array(
+        'parent_id' => $options['parent'],
+        ));
+      $data = $node->formGetData();
+
+      // bebop_debug($node, $data);
+
+      $html = $this->formRender('node-edit-form', $data);
     } else {
       $ids = mcms::db()->getResultsV("id", "SELECT * FROM `node` WHERE `class` = 'type' AND `id` IN (PERMCHECK:c)");
       $types = Node::find(array('class' => 'type', 'id' => $ids));
@@ -231,7 +236,9 @@ class NodeAdminWidget extends Widget implements iAdminWidget
     switch ($id) {
     case 'node-edit-form':
       if ('create' == $this->ctx->apath[0]) {
-        $node = Node::create($class = $this->ctx->get('class'));
+        $node = Node::create($class = $this->ctx->get('class'), array(
+          'parent_id' => $this->options['parent'],
+          ));
         $class = 'node-'. $class .'-create-form';
       } else {
         $node = $this->nodeLoad();

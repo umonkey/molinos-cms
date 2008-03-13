@@ -1407,6 +1407,7 @@ class UpdateManager implements iScheduler
           'columns' => array(
             'name' => 'Имя',
             'title' => 'Название',
+            'description' => 'Описание',
             'classname' => 'Тип',
             ),
           'sortable' => array(

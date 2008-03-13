@@ -325,11 +325,19 @@ class Tagger
 
       // Добавляем отсутствующие поля, описанные в схеме.
       foreach ($schema['fields'] as $field => $meta) {
-        if (mcms_ctlname($meta['type']) == 'BoolControl')
+        $ctt = mcms_ctlname($meta['type']);
+
+        if ($ctt == 'BoolControl')
           $value = empty($node[$field]) ? 0 : 1;
 
-        elseif (mcms_ctlname($meta['type']) == 'FloatControl')
+        elseif ($ctt == 'FloatControl')
           $value = floatval($node[$field]);
+
+        elseif ($ctt == 'NodeLinkControl')
+          $value = (empty($node[$field]) and empty($meta['required'])) ? null : intval($node[$field]);
+
+        elseif ($ctt == 'NumberControl')
+          $value = (empty($node[$field]) and empty($meta['required'])) ? null : $node[$field];
 
         elseif (!empty($node[$field]))
           $value = $node[$field];

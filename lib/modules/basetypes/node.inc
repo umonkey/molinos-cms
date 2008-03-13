@@ -67,15 +67,16 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
       $tab->addControl(new HiddenControl(array(
         'value' => 'process_access',
         )));
-      $tab->addControl(new AccessControl(array(
-        'value' => 'node_access',
-        'options' => $options,
-        )));
       if ($user->hasGroup('Publishers'))
         $tab->addControl(new BoolControl(array(
           'value' => 'node_published',
-          'label' => t('Документ опубликован (виден на сайте)'),
+          'label' => t('Объект опубликован (виден на сайте)'),
           )));
+      $tab->addControl(new AccessControl(array(
+        'value' => 'node_access',
+        'options' => $options,
+        'label' => t('Доступ разрешён группам'),
+        )));
       $form->addControl($tab);
     }
 
