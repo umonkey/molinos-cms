@@ -1,0 +1,6 @@
+group = Core
+version = 8.02.4782
+classes = NodeApiModule
+interface[iRemoteCall] = NodeApiModule
+name[en] = Node API
+name[ru] = API для работы с документами
