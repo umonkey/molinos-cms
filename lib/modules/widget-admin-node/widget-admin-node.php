@@ -95,7 +95,6 @@ class NodeAdminWidget extends Widget implements iAdminWidget
       break;
 
     default:
-      // bebop_debug($ctx, $options);
       throw new PageNotFoundException();
     }
 
@@ -152,8 +151,6 @@ class NodeAdminWidget extends Widget implements iAdminWidget
         'parent_id' => $options['parent'],
         ));
       $data = $node->formGetData();
-
-      // bebop_debug($node, $data);
 
       $html = $this->formRender('node-edit-form', $data);
     } else {

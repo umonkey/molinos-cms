@@ -20,6 +20,12 @@ class NodeApiModule implements iRemoteCall
         $node->unpublish();
       }
       break;
+    case 'delete':
+      if (null !== $nid) {
+        $node = Node::load($nid);
+        $node->delete();
+      }
+      break;
     }
 
     if (null !== ($next = $ctx->get('destination')))

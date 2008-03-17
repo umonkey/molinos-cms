@@ -233,6 +233,9 @@ class ListWidget extends Widget
 
   protected function onGetList(array $options)
   {
+    if ($this->onlyiflast and $this->ctx->document_id)
+      return null;
+
     if (($filter = $this->queryGet()) === null)
       return null;
 

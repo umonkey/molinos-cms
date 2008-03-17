@@ -1213,11 +1213,12 @@ class NodeBase implements iFormObject
             } else {
               $parts = explode('.', $v['values'], 2);
 
-              if (!count($tmp = Node::find($filter = array('class' => $parts[0], $v['values'] => $data['node_content_'. $k]), 1)))
-                throw new ValidationError($k);
-
-              if ($this->$k != ($nval = key($tmp)))
+              if (!count($tmp = Node::find($filter = array('class' => $parts[0], $v['values'] => $data['node_content_'. $k]), 1))) {
+                $this->$k = null;
+                // throw new ValidationError($k);
+              } elseif ($this->$k != ($nval = key($tmp))) {
                 $this->$k = $nval;
+              }
             }
 
             break;

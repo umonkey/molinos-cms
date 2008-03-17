@@ -85,6 +85,7 @@ class FormWidget extends Widget
     $options = parent::getRequestOptions($ctx);
     
     $options['type'] = $ctx->get('type', $this->type);
+    $options['default'] = $ctx->get('default', array());
 
     if (null === ($options['root'] = $ctx->section_id))
       $options['root'] = $this->section_default;
@@ -218,12 +219,7 @@ class FormWidget extends Widget
       if (!array_key_exists($type = substr($id, 12), $types))
         throw new PageNotFoundException();
 
-      $node = Node::create($type, array(
-        'parent_id' => $this->options['parent_id'],
-        'uid' => mcms::user()->getUid(),
-        'published' => $this->publish,
-        ));
-
+      $node = $this->getNode($type);
       $form = $node->formGet($this->stripped);
 
       $form->addControl(new HiddenControl(array(
@@ -234,6 +230,21 @@ class FormWidget extends Widget
     return $form;
   }
 
+  private function getNode($class)
+  {
+    $data = $this->options['default'];
+
+    if (empty($data['uid']))
+      $data['uid'] = mcms::user()->getUid();
+
+    $data['parent_id'] = $this->options['parent_id'];
+    $data['published'] = $this->publish;
+
+    $node = Node::create($class, $data);
+
+    return $node;
+  }
+
   public function formGetData($id)
   {
     if ($id == 'form-create') {
@@ -241,11 +252,7 @@ class FormWidget extends Widget
     }
 
     elseif (substr($id, 0, 12) == 'form-create-') {
-      $node = Node::create(substr($id, 12), array(
-        'parent_id' => $this->options['parent_id'],
-        'uid' => mcms::user()->getUid(),
-        'published' => $this->publish,
-        ));
+      $node = $this->getNode(substr($id, 12));
       $data = $node->formGetData();
     }
 

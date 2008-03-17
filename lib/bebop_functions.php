@@ -142,6 +142,8 @@ function bebop_debug()
   if (bebop_is_debugger()) {
     $output = array();
 
+    mcms::db()->rollback();
+
     foreach (func_get_args() as $arg) {
       $output[] = var_export($arg, true);
     }

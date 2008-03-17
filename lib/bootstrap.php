@@ -7,3 +7,4 @@ chdir(dirname(dirname(__FILE__)));
 // Загружаем основные файлы.
 require_once(dirname(__FILE__) .'/bebop_functions.php');
 require_once(dirname(__FILE__) .'/bebop_autoload.php');
+require_once(dirname(__FILE__) .'/pbs_exception_handler.php');
