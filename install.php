@@ -1,5 +1,10 @@
 <?php
 
+if (!version_compare(PHP_VERSION, "5.2.0", ">")) {
+  header('Content-Type: text/plain; charset=utf-8');
+  die("Molinos.CMS requires PHP 5.2.0 or later.");
+}
+
 require(dirname(__FILE__) .'/lib/bootstrap.php');
 
 $installer = new BebopInstaller();
