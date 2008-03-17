@@ -41,6 +41,7 @@ class BebopInstaller
     $form = new Form(array(
       'title' => t('Инсталляция Molinos CMS'),
       'description' => t("Вам нужно последовательно заполнить все поля во всех вкладках."),
+      'class' => 'tabbed',
       ));
 
     $tab = new FieldSetControl(array(
@@ -241,7 +242,11 @@ class BebopInstaller
 
   private function checkConfigDir()
   {
-    $dirname = realpath(dirname(__FILE__) .'/conf');
+    $dirname = dirname(__FILE__) .'/conf';
+
+    if (!is_dir($dirname))
+      if (is_writable(dirname($dirname)))
+        mkdir($dirname);
 
     if (!is_writable($dirname))
       return "<p>". t("Каталог с конфигурационными файлами (<code>%path</code>) защищён от записи.&nbsp; Сделайте его доступным для записи сервером, затем обновите эту страницу.", array('%path' => $dirname)) ."</p>";
