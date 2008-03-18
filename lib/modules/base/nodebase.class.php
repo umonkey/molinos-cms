@@ -1045,6 +1045,11 @@ class NodeBase implements iFormObject
       'text' => 'Сохранить',
       )));
 
+    $next = empty($_GET['destination'])
+      ? $_SERVER['REQUEST_URI']
+      : $_GET['destination'];
+    $form->action = "/nodeapi.rpc?action=edit&node={$this->id}&destination=". urlencode($next);
+
     return $form;
   }
 

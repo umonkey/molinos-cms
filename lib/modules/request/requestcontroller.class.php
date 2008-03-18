@@ -246,7 +246,12 @@ class RequestController
 
   private function parseSpecialPath()
   {
-    $tmp = parse_url($_SERVER['REQUEST_URI']);
+    $url = bebop_split_url($_SERVER['REQUEST_URI']);
+
+    if ('/admin/' == $url['path'] and mcms::class_exists('AdminUIModule')) {
+      $ctx = RequestContext::getWidget(isset($url['args']) ? $url['args'] : array());
+      return AdminUIModule::onGet($ctx);
+    }
   }
 
   // Разбивает параметры GET-запроса на модули.

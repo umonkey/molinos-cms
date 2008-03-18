@@ -691,6 +691,8 @@ class mcms
 
   public static function config($key)
   {
+    if (!class_exists('BebopConfig'))
+      die(debug_print_backtrace());
     return BebopConfig::getInstance()->$key;
   }
 
@@ -895,17 +897,18 @@ class mcms
     return $tmp['classes'];
   }
 
-  public static function getImplementors($interface)
+  public static function getImplementors($interface, $module = null)
   {
     static $map = null;
 
     if (null === $map) {
-      $tmp = self::getModuleMap();
-      $map = $tmp['interfaces'];
+      $map = self::getModuleMap();
     }
 
-    if (array_key_exists($interface, $map))
-      return $map[$interface];
+    if (null === $module and array_key_exists($interface, $map['interfaces']))
+      return $map['interfaces'][$interface];
+    elseif (!empty($map['modules'][$module]['implementors'][$interface]))
+      return $map['modules'][$module]['implementors'][$interface];
 
     return array();
   }

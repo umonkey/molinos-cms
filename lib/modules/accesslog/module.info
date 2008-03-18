@@ -1,6 +1,5 @@
 group = Statistics
 version = 8.02.4782
-classes = AccessLogModule
 docurl = http://code.google.com/p/molinos-cms/wiki/mod_accesslog
 
 [interfaces]

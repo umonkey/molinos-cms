@@ -8,7 +8,7 @@ chdir(dirname(dirname(__FILE__)));
 
 // Некоторые файлы загружаем принудительно, т.к. без них работать не получится.
 // require(dirname(__FILE__).'/modules/cache/bebopcache.class.php');
-// require(dirname(__FILE__).'/modules/config/bebopconfig.class.php');
+require(dirname(__FILE__).'/modules/config/bebopconfig.class.php');
 // require(dirname(__FILE__).'/modules/pdo/pdo_singleton.class.php');
 
 // Загружаем основные файлы.
