@@ -402,10 +402,12 @@ class ListWidget extends Widget
       if ($this->skipcurrent and null !== $this->ctx->document_id)
         $query['-id'] = $this->ctx->document_id;
 
-      if (!empty($query['tags']) and !is_array($query['tags']))
-        $query['tags'] = $this->queryGetTags($query['tags']);
-      elseif (count($query['tags']) == 1)
-        $query['tags'] = $this->queryGetTags($query['tags'][0]);
+      if (!empty($query['tags'])) {
+        if (!is_array($query['tags']))
+          $query['tags'] = $this->queryGetTags($query['tags']);
+        elseif (count($query['tags']) == 1)
+          $query['tags'] = $this->queryGetTags($query['tags'][0]);
+      }
 
       // Переключаемся на дефолтный раздел, если это нужно.
       if (!empty($this->fixed) and 'empty' == $this->fallbackmode) {
