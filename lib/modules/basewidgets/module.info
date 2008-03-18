@@ -1,9 +1,0 @@
-group = Core
-version = 8.02.4782
-
-[interfaces]
-iWidget = Widget, ListWidget, ArchiveWidget, DocWidget, ListWidget, MenuWidget, TagsWidget, TitleWidget, UserWidget
-
-[name]
-en = Base Widgets
-ru = Базовые виджеты

@@ -1,6 +1,11 @@
 group = Core
 version = 8.02.4782
 
+[interfaces]
+iFormControl = SubmitControl, ResetControl, HiddenControl, TextAreaControl, TextHTMLControl, TextLineControl, BoolControl, DateControl, DateTimeControl, EmailControl, URLControl, SetControl, TableControl, AttachmentControl, FieldSetControl, Form, NumberControl, FloatControl, EnumControl, PasswordControl, EnumRadioControl, NodeLinkControl
+iWidget = Widget, ListWidget, ArchiveWidget, DocWidget, ListWidget, MenuWidget, TagsWidget, TitleWidget, UserWidget
+iContentType = Node, DomainNode, FileNode, GroupNode, TagNode, TypeNode, UserNode, WidgetNode
+
 [name]
 en = Molinos.CMS Base
 ru = Базовые классы Molinos.CMS
