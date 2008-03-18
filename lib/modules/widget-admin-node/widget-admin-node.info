@@ -1,6 +1,0 @@
-group = Core
-version = 8.02.4782
-classes = NodeAdminWidget
-interface[iWidget] = NodeAdminWidget
-name[en] = Node Editor
-name[ru] = Редактор документов

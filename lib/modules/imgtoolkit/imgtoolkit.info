@@ -1,5 +1,0 @@
-group = Core
-version = 8.02.4782
-classes = ImageMagickGD, ImageMagick
-name[en] = Image Processing
-name[ru] = Обработка изображений

@@ -1,5 +1,0 @@
-group = Core
-version = 8.02.4782
-classes = BebopConfig
-name[en] = Configuration Storage
-name[ru] = Хранилище конфигурации

@@ -1,5 +1,0 @@
-group = Core
-version = 8.02.4782
-classes = PDO_Singleton
-name[en] = DB Access
-name[ru] = Доступ к БД

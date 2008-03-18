@@ -1,6 +1,0 @@
-group = Core
-version = 8.02.4782
-classes = InfoSchema, TableInfo
-interface[iModuleConfig] = TableInfo
-name[en] = DB Schema Engine
-name[ru] = Работа со схемой данных

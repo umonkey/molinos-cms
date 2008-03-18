@@ -1,7 +1,0 @@
-group = Core
-version = 8.02.4782
-classes = BebopDashboard, iDashboard
-interface[iWidget] = BebopDashboard
-interface[iAdminWidget] = BebopDashboard
-name[en] = Dashboard
-name[ru] = Приборная панель

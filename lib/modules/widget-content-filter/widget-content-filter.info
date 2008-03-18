@@ -1,7 +1,0 @@
-group = Core
-version = 8.02.4782
-classes = ContentFilterWidget
-interface[iAdminWidget] = ContentFilterWidget
-interface[iWidget] = ContentFilterWidget
-name[en] = Content Filter Settings
-name[ru] = Фильтрация контента

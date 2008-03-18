@@ -1,8 +1,0 @@
-group = Core
-version = 8.02.4782
-classes = UpdateAdminWidget, UpdateManager
-interface[iWidget] = UpdateAdminWidget
-interface[iAdminWidget] = UpdateAdminWidget
-interface[iScheduler] = UpdateManager
-name[en] = Update Manager
-name[ru] = Менеджер обновлений

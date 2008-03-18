@@ -1,6 +1,0 @@
-group = Core
-version = 8.02.4782
-classes = BebopMimeMail
-interface[iModuleConfig] = BebopMimeMail
-name[en] = HTML Mail Sender
-name[ru] = Отправка почты в HTML
