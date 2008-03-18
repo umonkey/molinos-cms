@@ -17,7 +17,7 @@ class RPCHandler implements iRequestHook
 
             try {
               foreach ($map[$module]['interface']['iRemoteCall'] as $class) {
-                if (class_exists($class))
+                if (mcms::class_exists($class))
                   call_user_func_array(array($class, 'hookRemoteCall'), array($ctx));
               }
             } catch (UserErrorException $e) {

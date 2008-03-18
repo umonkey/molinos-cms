@@ -89,7 +89,7 @@ class WidgetNode extends Node implements iContentType
       $form = parent::formGet($simple);
       $form->title = t('Редактирование виджета "%name"', array('%name' => $this->name));
 
-      if (class_exists($this->classname))
+      if (mcms::class_exists($this->classname))
         if (null !== ($tab = call_user_func(array($this->classname, 'formGetConfig'), $this))) {
           $tab->intro = t('Подробную информацию о настройке этого виджета можно <a href=\'@link\'>найти в документации</a>.', array(
             '@link' => 'http://code.google.com/p/molinos-cms/wiki/'. $this->classname,
@@ -133,7 +133,7 @@ class WidgetNode extends Node implements iContentType
 
     $data['config_types'] = $this->linkListParents('type', true);
 
-    if (class_exists($this->classname)) {
+    if (mcms::class_exists($this->classname)) {
       $w = new $this->classname($this);
       $w->formHookConfigData($data);
     }
@@ -155,7 +155,7 @@ class WidgetNode extends Node implements iContentType
 
     $this->config = $config;
 
-    if (class_exists($this->classname)) {
+    if (mcms::class_exists($this->classname)) {
       $w = new $this->classname($this);
       $w->formHookConfigSaved();
     }

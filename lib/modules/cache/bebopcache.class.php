@@ -23,7 +23,7 @@ class BebopCache
         $engines = array('MemCacheD_Cache', 'APC_Cache', 'Local_Cache');
 
         foreach ($engines as $engine) {
-            if (class_exists($engine) and call_user_func(array($engine, 'isAvailable'))) {
+            if (mcms::class_exists($engine) and call_user_func(array($engine, 'isAvailable'))) {
                 self::$type = $engine;
                 break;
             }

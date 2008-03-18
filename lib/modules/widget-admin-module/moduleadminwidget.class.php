@@ -94,7 +94,7 @@ class ModuleAdminWidget extends Widget
 
       $rator = $map[$this->options['edit']]['interface']['iModuleConfig'][0];
 
-      if (!class_exists($rator))
+      if (!mcms::class_exists($rator))
         throw new InvalidArgumentException(t('Настройка модуля %name невозможна: класс %class не загружен.', array(
           '%name' => $this->options['edit'],
           '%class' => $rator,

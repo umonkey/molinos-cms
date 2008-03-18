@@ -14,10 +14,12 @@ function bebop_autoload($class_name)
     } else {
       header('Content-Type: text/plain; charset=utf-8');
 
-      $output = "There was an attempt to access an undefined class {$class_name}.\n\n";
-      $output .= var_export($map, true);
+      print "There was an attempt to access an undefined class {$class_name}.\n\n";
+      print var_export($map, true) ."\n";
+      print "--- backtrace ---\n";
 
-      die($output);
+      debug_print_backtrace();
+      die();
     }
 }
 

@@ -670,15 +670,23 @@ class mcms
 
   public static function cache()
   {
-    $cache = BebopCache::getInstance();
+    $result = null;
 
-    switch (count($args = func_get_args())) {
+    if (null === ($cache = BebopCache::getInstance()))
+      return $result;
+
+    $args = func_get_args();
+
+    switch (count($args)) {
     case 1:
-      return $cache->$args[0];
+      $result = $cache->$args[0];
+      break;
     case 2:
       $cache->$args[0] = $args[1];
       break;
     }
+
+    return $result;
   }
 
   public static function config($key)
@@ -727,8 +735,8 @@ class mcms
 
   public static function flush($flags = null)
   {
-    $cache = BebopCache::getInstance();
-    $cache->flush(true & self::FLUSH_NOW ? true : false);
+    if (null !== ($cache = BebopCache::getInstance()))
+      $cache->flush(true & self::FLUSH_NOW ? true : false);
   }
 
   public static function db()
@@ -754,7 +762,7 @@ class mcms
   public static function invoke($interface, $method, array $args = array())
   {
     foreach (bebop_get_interface_map($interface) as $class)
-      if (class_exists($class))
+      if (mcms::class_exists($class))
         call_user_func_array(array($class, $method), $args);
   }
 
@@ -972,5 +980,10 @@ class mcms
     }
 
     return $result;
+  }
+
+  public static function class_exists($name)
+  {
+    return array_key_exists(strtolower($name), self::getClassMap());
   }
 };

@@ -202,38 +202,41 @@ class RequestController
       $key = "page:{$this->page->id}:widgets";
 
       $widgets = mcms::cache($key);
+
       if ($widgets === false or (bebop_is_debugger() and !empty($_GET['flush']))) {
         $widgets = Node::find(array('class' => 'widget', 'id' => $this->page->linkListChildren('widget', true)));
         mcms::cache($key, $widgets);
       }
     }
 
-    // Обрабатываем виджеты, превращая их в контроллеры.
-    foreach ($widgets as $widget) {
-      if (!class_exists($class = $widget->classname))
-        continue;
+    if (is_array($widgets)) {
+      // Обрабатываем виджеты, превращая их в контроллеры.
+      foreach ($widgets as $widget) {
+        if (!mcms::class_exists($class = $widget->classname))
+          continue;
 
-      $obj = new $class($widget);
+        $obj = new $class($widget);
 
-      // Обрабатываем только виджеты, остальной мусор, если он сюда
-      // как-то попал, пропускаем, чтобы не получить исключение.
-      if (!($obj instanceof Widget))
-        continue;
+        // Обрабатываем только виджеты, остальной мусор, если он сюда
+        // как-то попал, пропускаем, чтобы не получить исключение.
+        if (!($obj instanceof Widget))
+          continue;
 
-      // Параметризация виджета.
-      $ctx = RequestContext::getWidget(
-        array_key_exists($widget->name, $this->get_vars) ? $this->get_vars[$widget->name] : array(),
-        array_key_exists($widget->name, $this->post_vars) ? $this->post_vars[$widget->name] : array(),
-        array_key_exists($widget->name, $this->file_vars) ? $this->file_vars[$widget->name] : array()
-        );
-
-      try {
-        $this->widgets[$widget->name] = array(
-          'cache_key' => $obj->getCacheKey($ctx),
-          'options' => $obj->getRequestOptions($ctx),
-          'object' => $obj,
+        // Параметризация виджета.
+        $ctx = RequestContext::getWidget(
+          array_key_exists($widget->name, $this->get_vars) ? $this->get_vars[$widget->name] : array(),
+          array_key_exists($widget->name, $this->post_vars) ? $this->post_vars[$widget->name] : array(),
+          array_key_exists($widget->name, $this->file_vars) ? $this->file_vars[$widget->name] : array()
           );
-      } catch (WidgetHaltedException $e) { }
+
+        try {
+          $this->widgets[$widget->name] = array(
+            'cache_key' => $obj->getCacheKey($ctx),
+            'options' => $obj->getRequestOptions($ctx),
+            'object' => $obj,
+            );
+        } catch (WidgetHaltedException $e) { }
+      }
     }
 
     // Готовимся к обработке запроса.

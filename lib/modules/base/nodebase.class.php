@@ -326,7 +326,7 @@ class NodeBase implements iFormObject
   // Создаём новый объект.
   public static function create($class, array $data = null)
   {
-    if (!class_exists($host = ucfirst(strtolower($class)) .'Node'))
+    if (!mcms::class_exists($host = ucfirst(strtolower($class)) .'Node'))
       $host = 'Node';
 
     if (!is_array($data))

@@ -46,7 +46,7 @@ class MemCacheD_Cache implements iBebopCacheEngine
 
     static public function isAvailable()
     {
-        return class_exists('Memcache', false);
+        return mcms::class_exists('Memcache', false);
     }
 
     private function __get($varname)

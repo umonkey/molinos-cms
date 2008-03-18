@@ -46,7 +46,7 @@ abstract class Widget implements iWidget
   // Возвращает описание виджета.
   public static function getInfo($class)
   {
-    if (!class_exists($class))
+    if (!mcms::class_exists($class))
       return array();
     return call_user_func(array($class, 'getWidgetInfo'));
   }

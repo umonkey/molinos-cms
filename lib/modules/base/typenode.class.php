@@ -361,7 +361,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       elseif (!empty($v['indexed']) and empty($old[$k]['indexed'])) {
         self::checkFieldName($k);
 
-        if (!empty($v['type']) and class_exists($v['type'])) {
+        if (!empty($v['type']) and mcms::class_exists($v['type'])) {
           $spec = array(
             'type' => call_user_func(array($v['type'], 'getSQL')),
             'required' => !empty($v['required']),

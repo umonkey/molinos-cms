@@ -1095,17 +1095,20 @@ class UpdateManager implements iScheduler
       // Обновляем поля.
       foreach ($info['fields'] as $k => $v) {
         $v['internal'] = true;
-        $schema = array_merge((array)$type->fieldGet($k), $v);
 
-        if ($schema['type'] == 'BoolControl') {
-          $schema['required'] = true;
-          $schema['default'] = '0';
+        if (method_exists($type, 'fieldGet')) {
+          $schema = array_merge((array)$type->fieldGet($k), $v);
+
+          if ($schema['type'] == 'BoolControl') {
+            $schema['required'] = true;
+            $schema['default'] = '0';
+          }
+
+          elseif ($schema['type'] == 'HiddenControl')
+            $schema['hidden'] = true;
+
+          $type->fieldSet($k, $schema);
         }
-
-        elseif ($schema['type'] == 'HiddenControl')
-          $schema['hidden'] = true;
-
-        $type->fieldSet($k, $schema);
       }
 
       $type->save(false);
