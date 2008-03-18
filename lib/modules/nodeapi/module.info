@@ -1,6 +1,10 @@
 group = Core
 version = 8.02.4782
-classes = NodeApiModule
-interface[iRemoteCall] = NodeApiModule
-name[en] = Node API
-name[ru] = API для работы с документами
+docurl = http://code.google.com/p/molinos-cms/wiki/mod_nodeapi
+
+[interfaces]
+iRemoteCall = NodeApiModule
+
+[name]
+en = Node API
+ru = API для работы с документами
