@@ -201,7 +201,8 @@ class RequestController
     else {
       $key = "page:{$this->page->id}:widgets";
 
-      $widgets = mcms::cache($key);
+      // FIXME: почему-то в кэш мусор попадает
+      $widgets = false; // mcms::cache($key);
 
       if ($widgets === false or (bebop_is_debugger() and !empty($_GET['flush']))) {
         $widgets = Node::find(array('class' => 'widget', 'id' => $this->page->linkListChildren('widget', true)));

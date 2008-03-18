@@ -87,12 +87,28 @@ class ModuleAdminWidget extends Widget
       break;
 
     case 'module-edit':
-      $map = bebop_get_module_map();
+      $map = mcms::getModuleMap(); // bebop_get_module_map();
+      $modname = $this->options['edit'];
 
-      if (empty($map[$this->options['edit']]['interface']['iModuleConfig']))
+      if (!array_key_exists($modname, $map['modules']))
         throw new PageNotFoundException();
 
-      $rator = $map[$this->options['edit']]['interface']['iModuleConfig'][0];
+      $classes = $map['modules'][$modname]['classes'];
+      $implementors = mcms::getImplementors('iModuleConfig');
+
+      $classname = null;
+
+      foreach ($implementors as $tmp) {
+        if (in_array(strtolower($tmp), $classes)) {
+          $classname = $tmp;
+          break;
+        }
+      }
+
+      if (null === $classname)
+        throw new PageNotFoundException();
+
+      $rator = $classname; // $map[$this->options['edit']]['interface']['iModuleConfig'][0];
 
       if (!mcms::class_exists($rator))
         throw new InvalidArgumentException(t('Настройка модуля %name невозможна: класс %class не загружен.', array(
@@ -130,15 +146,18 @@ class ModuleAdminWidget extends Widget
       foreach (Node::find(array('class' => 'moduleinfo', 'published' => 1)) as $tmp)
         $enabled[] = $tmp->name;
 
-      foreach ($mmap = bebop_get_module_map() as $name => $info) {
+      $mmap = mcms::getModuleMap();
+
+      foreach ($mmap['modules'] as $name => $info) {
         if ('Core' == $info['group'])
           $enabled = true;
         else
           $enabled = !empty($info['enabled']);
 
         $mod = array(
-          'title' => $info['name']['ru'],
+          'title' => empty($info['name']['ru']) ? 'n/a' : $info['name']['ru'],
           'enabled' => $enabled,
+          'docurl' => empty($info['docurl']) ? null : $info['docurl'],
           );
 
         if (!empty($mod['enabled']) and !empty($info['interface']['iModuleConfig']))
@@ -229,8 +248,9 @@ class ModuleAdminWidget extends Widget
 
     if (null === $groups) {
       $groups = array();
+      $map = mcms::getModuleMap();
 
-      foreach (bebop_get_module_map() as $v)
+      foreach ($map['modules'] as $v)
         if (!in_array($v['group'], $groups))
           $groups[] = $v['group'];
     }

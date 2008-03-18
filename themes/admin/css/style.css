@@ -540,3 +540,7 @@ a.bold {
 
 /* выбранная группа элементов в основной навигации */
 .choosen { background:#E4ECEE; }
+
+td.nowrap {
+  white-space: nowrap;
+}

@@ -33,11 +33,16 @@ class ModuleListControl extends Control
           'checked' => $checked ? 'checked' : null,
           'disabled' => $disabled ? 'disabled' : null,
           )) .'</td>';
-        $row .= '<td>'. mcms::html('a', array(
-          'href' => 'http://code.google.com/p/molinos-cms/wiki/mod_'. str_replace('-', '_', $k),
-          'target' => '_blank',
-          'style' => 'white-space: nowrap',
-          ), $k) .'</td>';
+
+        if (empty($v['docurl']))
+          $row .= '<td class=\'nowrap\'>'. $k .'</td>';
+        else
+          $row .= '<td class=\'nowrap\'>'. mcms::html('a', array(
+            'href' => $v['docurl'], // 'http://code.google.com/p/molinos-cms/wiki/mod_'. str_replace('-', '_', $k),
+            'target' => '_blank',
+            'style' => 'white-space: nowrap',
+            ), $k) .'</td>';
+
         $row .= '<td>'. mcms_plain($v['title']) .'</td>';
 
         if (!empty($v['config']))

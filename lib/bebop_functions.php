@@ -910,7 +910,7 @@ class mcms
     return array();
   }
 
-  public static function getModuleMap()
+  public static function getModuleMap($name = null)
   {
     $result = null;
     $filename = 'tmp/.modmap.php';
@@ -921,6 +921,9 @@ class mcms
     }
 
     $result = self::getModuleMapScan();
+
+    if (null !== $name)
+      return $result['modules'][$name];
 
     if (is_writable(dirname($filename)))
       file_put_contents($filename, serialize($result));
