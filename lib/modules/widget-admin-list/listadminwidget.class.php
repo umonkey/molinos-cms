@@ -84,8 +84,6 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
   public function formGet($id)
   {
-    // bebop_debug($this->me->config, $this->options);
-
     switch ($id) {
     case 'document-list':
       $columns = $this->columns;
@@ -140,6 +138,8 @@ class ListAdminWidget extends ListWidget implements iDashboard
           'widget' => $this->getInstanceName(),
           'showempty' => true,
           )));
+
+      $form->action = '/nodeapi.rpc?action=mass&destination='. urlencode($_SERVER['REQUEST_URI']);
 
       return $form;
     }

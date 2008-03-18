@@ -915,9 +915,11 @@ class mcms
     $result = null;
     $filename = 'tmp/.modmap.php';
 
-    if (file_exists($filename) and is_readable($filename) and filesize($filename)) {
-      if (is_array($result = unserialize(file_get_contents($filename))))
-        return $result;
+    if (!bebop_is_debugger() or empty($_GET['reload'])) {
+      if (file_exists($filename) and is_readable($filename) and filesize($filename)) {
+        if (is_array($result = unserialize(file_get_contents($filename))))
+          return $result;
+      }
     }
 
     $result = self::getModuleMapScan();
@@ -974,6 +976,7 @@ class mcms
               foreach ($classes as $v) {
                 if (array_key_exists(strtolower($v), $result['classes'])) {
                   $result['interfaces'][$k][] = $v;
+                  $result['modules'][$modname]['implementors'][$k][] = $v;
                 }
               }
             }

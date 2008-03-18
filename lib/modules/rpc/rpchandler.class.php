@@ -10,13 +10,14 @@ class RPCHandler implements iRequestHook
 
       if ('.rpc' === substr($url['path'], -4)) {
         $map = mcms::getModuleMap();
+        $module = substr($url['path'], 1, -4);
 
-        if (array_key_exists($module = substr($url['path'], 1, -4), $map)) {
-          if (!empty($map[$module]['interface']['iRemoteCall'])) {
+        if (array_key_exists($module, $map['modules'])) {
+          if (!empty($map['modules'][$module]['implementors']['iRemoteCall'])) {
             $ctx = RequestContext::getWidget(isset($url['args']) ? $url['args'] : array());
 
             try {
-              foreach ($map[$module]['interface']['iRemoteCall'] as $class) {
+              foreach ($map['modules'][$module]['implementors']['iRemoteCall'] as $class) {
                 if (mcms::class_exists($class))
                   call_user_func_array(array($class, 'hookRemoteCall'), array($ctx));
               }
