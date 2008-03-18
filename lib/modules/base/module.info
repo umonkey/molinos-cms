@@ -1,5 +1,6 @@
 group = Core
 version = 8.02.4782
+docurl = http://code.google.com/p/molinos-cms/wiki/mod_base
 
 [interfaces]
 iFormControl = SubmitControl, ResetControl, HiddenControl, TextAreaControl, TextHTMLControl, TextLineControl, BoolControl, DateControl, DateTimeControl, EmailControl, URLControl, SetControl, TableControl, AttachmentControl, FieldSetControl, Form, NumberControl, FloatControl, EnumControl, PasswordControl, EnumRadioControl, NodeLinkControl
