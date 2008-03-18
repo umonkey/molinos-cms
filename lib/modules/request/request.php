@@ -914,7 +914,36 @@ class RequestController
       }
     }
 
-    throw new UserErrorException("Домен не найден", 404, "Домен &laquo;{$domain}&raquo; не обслуживается", "Запрошенное доменное имя не обслуживается этим сервером.&nbsp; Попробуйте повторить запрос через какое-то время.");
+    $message = "Запрошенное доменное имя не обслуживается этим сервером.";
+    $message .= $this->getValidDomains($tree);
+
+    throw new UserErrorException("Домен не найден", 404, "Домен &laquo;{$domain}&raquo; не обслуживается", $message);
+  }
+
+  private function getValidDomains(array $tree)
+  {
+    $list = array();
+
+    foreach ($tree as $tmp) {
+      $item = "<li><a class='hostname' href='http://{$tmp['name']}/'>{$tmp['title']}</a>";
+
+      if (!empty($tmp['description']))
+        $item .= '<br/>'. $tmp['description'];
+
+      $item .= '</li>';
+
+      $list[] = $item;
+    }
+
+    if (!empty($list)) {
+      $output = '<div class=\'domainlist\'>';
+      $output .= '<p>На данный момент обслуживаются следующие домены:</p>';
+      $output .= '<ol>'. join('', $list) .'</ol>';
+      $output .= '</div>';
+      return $output;
+    }
+
+    return '<p>На данный момент сервером не обслуживает ни один домен.&nbsp; Скорее всего, сервер не до конца настроен.</p>';
   }
 
   // Загрузка виджетов из кэша.

@@ -46,3 +46,12 @@ td.control {
   border: solid gray 1px;
   padding: 2px;
 }
+
+.domainlist {
+  width: 500px;
+  text-align: left;
+  margin: 0 auto;
+}
+.domainlist .hostname {
+  font-weight: bold;
+}
