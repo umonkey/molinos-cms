@@ -1,6 +1,11 @@
 group = Service
 version = 8.02.4782
 classes = AliasModule
-interface[iRequestHook] = AliasModule
-name[en] = URL Aliasing
-name[ru] = Коррекция URL
+docurl = http://code.google.com/p/molinos-cms/wiki/mod_alias
+
+[interfaces]
+iRequestHook = AliasModule
+
+[name]
+en = URL Aliasing
+ru = Коррекция URL

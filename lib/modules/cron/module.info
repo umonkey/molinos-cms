@@ -1,7 +1,11 @@
 group = Service
 version = 8.02.4782
-classes = CronModule
-interface[iModuleConfig] = CronModule
-interface[iRemoteCall] = CronModule
-name[en] = Task Scheduling
-name[ru] = Выполнение периодических задач
+docurl = http://code.google.com/p/molinos-cms/wiki/mod_cron
+
+[interfaces]
+iModuleConfig = CronModule
+iRemoteCall = CronModule
+
+[name]
+en = Task Scheduling
+ru = Выполнение периодических задач

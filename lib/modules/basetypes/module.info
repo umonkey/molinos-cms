@@ -1,6 +1,10 @@
 group = Core
 version = 8.02.4782
-classes = BaseNode, Node, DomainNode, FileNode, GroupNode, TagNode, TypeNode, UserNode, WidgetNode
-interface[iContentType] = Node, DomainNode, FileNode, GroupNode, TagNode, TypeNode, UserNode, WidgetNode
-name[en] = Base Node Types
-name[ru] = Базовые типы документов
+docurl = http://code.google.com/p/molinos-cms/wiki/mod_basetypes
+
+[interfaces]
+iContentType = Node, DomainNode, FileNode, GroupNode, TagNode, TypeNode, UserNode, WidgetNode
+
+[name]
+en = Base Node Types
+ru = Базовые типы документов

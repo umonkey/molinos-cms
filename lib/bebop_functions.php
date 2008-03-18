@@ -1,45 +1,5 @@
 <?php
-
-interface iModuleConfig
-{
-  public static function formGetModuleConfig();
-  public static function hookPostInstall();
-};
-
-interface iNodePatchHook
-{
-  public static function patchNode(Node $node);
-  public static function patchNodeList(array &$nodes);
-};
-
-// Интерфейс для работы с типами документов.
-interface iContentType
-{
-};
-
-// Интерфейс для обработки операций над документами.
-interface iNodeHook
-{
-  public static function hookNodeUpdate(Node $node, $op);
-};
-
-// Интерфейс для обработки запросов.
-interface iRequestHook
-{
-  public static function hookRequest(RequestContext $ctx = null);
-};
-
-// Интерфейс для обработки страниц.
-interface iPageHook
-{
-  public static function hookPage(&$output, Node $page);
-};
-
-// Обращение к безвиджетным модулям.
-interface iRemoteCall
-{
-  public static function hookRemoteCall(RequestContext $ctx);
-};
+// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
 function bebop_redirect($path, $status = 301)
 {
@@ -72,29 +32,13 @@ function bebop_redirect($path, $status = 301)
 
 function bebop_mail($from, $to, $subject, $body, array $attachments = null, array $headers = null)
 {
-  require_once(dirname(__FILE__) .'/modules/mimemail/mimemail.php');
   return BebopMimeMail::send($from, $to, $subject, $body, $attachments, $headers);
 }
 
 // Возвращает массив интерфейсов и реализующих их классов.
-function bebop_get_interface_map($name = null)
+function bebop_get_interface_map($name)
 {
-  $map = array();
-
-  foreach (bebop_get_module_map() as $module) {
-    if (!empty($module['interface']))
-      foreach ($module['interface'] as $k => $v) {
-        if (empty($map[$k]))
-          $map[$k] = $v;
-        else
-          $map[$k] = array_merge($map[$k], $v);
-      }
-  }
-
-  if ($name !== null)
-    return empty($map[$name]) ? array() : $map[$name];
-
-  return $map;
+  return mcms::getImplementors($name);
 }
 
 // Проверяет, является ли пользователь отладчиком.
@@ -141,8 +85,6 @@ function bebop_debug()
 {
   if (bebop_is_debugger()) {
     $output = array();
-
-    mcms::db()->rollback();
 
     foreach (func_get_args() as $arg) {
       $output[] = var_export($arg, true);
@@ -934,5 +876,101 @@ class mcms
     }
 
     throw new ForbiddenException(t('Проверьте правильность ввода текста с изображения.'));
+  }
+
+  // Возвращает список доступных классов и файлов, в которых они описаны.
+  // Информация о классах кэшируется в tmp/.classes.php или -- если доступен
+  // класс BebopCache -- в более быстром кэше.
+  public static function getClassMap()
+  {
+    $tmp = self::getModuleMap();
+    return $tmp['classes'];
+  }
+
+  public static function getImplementors($interface)
+  {
+    static $map = null;
+
+    if (null === $map) {
+      $tmp = self::getModuleMap();
+      $map = $tmp['interfaces'];
+    }
+
+    if (array_key_exists($interface, $map))
+      return $map[$interface];
+
+    return array();
+  }
+
+  public static function getModuleMap()
+  {
+    $result = null;
+    $filename = 'tmp/.modmap.php';
+
+    if (file_exists($filename) and is_readable($filename) and filesize($filename)) {
+      if (is_array($result = unserialize(file_get_contents($filename))))
+        return $result;
+    }
+
+    $result = self::getModuleMapScan();
+
+    if (is_writable(dirname($filename)))
+      file_put_contents($filename, serialize($result));
+
+    return $result;
+  }
+
+  private static function getModuleMapScan()
+  {
+    $root = dirname(__FILE__) .'/modules/';
+
+    $result = array(
+      'modules' => array(),
+      'classes' => array(),
+      'interfaces' => array(),
+      );
+
+    foreach ($modules = glob($root .'*') as $path) {
+      $modname = basename($path);
+
+      if (file_exists($modinfo = $path .'/module.info')) {
+        if (is_array($ini = parse_ini_file($modinfo, true))) {
+          // Копируем базовые свойства.
+          foreach (array('group', 'version', 'name', 'docurl') as $k)
+            if (array_key_exists($k, $ini))
+              $result['modules'][$modname][$k] = $ini[$k];
+
+          // Составляем список доступных классов.
+          foreach (glob($path .'/'. '*.class.php') as $classpath) {
+            if (is_readable($classpath)) {
+              $classname = substr(basename($classpath), 0, -10);
+
+              // Добавляем в список только первый найденный класс.
+              if (!array_key_exists($classname, $result['classes'])) {
+                $result['classes'][$classname] = $classpath;
+                $result['modules'][$modname]['classes'][] = $classname;
+              }
+            }
+          }
+
+          // Сохраняем информацию об интерфейсах.
+          if (!empty($ini['interfaces'])) {
+            $result['modules'][$modname]['interfaces'] = array_keys($ini['interfaces']);
+
+            foreach ($ini['interfaces'] as $k => $v) {
+              $classes = explode(',', str_replace(' ', '', $v));
+
+              foreach ($classes as $v) {
+                if (array_key_exists(strtolower($v), $result['classes'])) {
+                  $result['interfaces'][$k][] = $v;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return $result;
   }
 };

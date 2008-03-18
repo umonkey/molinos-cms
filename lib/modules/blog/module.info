@@ -1,6 +1,10 @@
 group = Service
 version = 8.02.4782
-classes = BlogWidget
-interface[iWidget] = BlogWidget
-name[en] = User Blogs
-name[ru] = Блоги пользователей
+docurl = http://code.google.com/p/molinos-cms/wiki/mod_blog
+
+[interfaces]
+iWidget = BlogWidget
+
+[name]
+en = User Blogs
+ru = Блоги пользователей

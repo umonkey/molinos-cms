@@ -1,7 +1,11 @@
 group = Interactive
 version = 8.02.4782
-classes = RatingWidget
-interface[iWidget] = RatingWidget
-interface[iNodeHook] = RatingWidget
-name[en] = Content Rating
-name[ru] = Оценка документов
+docurl = http://code.google.com/p/molinos-cms/wiki/mod_rating
+
+[interfaces]
+iWidget = RatingWidget
+iNodeHook = RatingWidget
+
+[name]
+en = Content Rating
+ru = Оценка документов

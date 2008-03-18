@@ -1,0 +1,8 @@
+group = Core
+version = 8.02.4782
+classes = AuthCore, User
+docurl = http://code.google.com/p/molinos-cms/wiki/mod_auth
+
+[name]
+en = Authentication Subsystem
+ru = Система авторизации

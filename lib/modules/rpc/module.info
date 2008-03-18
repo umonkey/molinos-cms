@@ -1,6 +1,10 @@
 group = Core
 version = 8.02.4782
-classes = RPCHandler
-interface[iRequestHook] = RPCHandler
-name[en] = Remote Procedure Call Engine
-name[ru] = Обработчик удалённых запросов
+docurl = http://code.google.com/p/molinos-cms/wiki/mod_rpc
+
+[interfaces]
+iRequestHook = RPCHandler
+
+[name]
+en = Remote Procedure Call Engine
+ru = Обработчик удалённых запросов

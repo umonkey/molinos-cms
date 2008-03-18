@@ -1,0 +1,9 @@
+group = Core
+version = 8.02.4782
+
+[interfaces]
+iWidget = ModuleAdminWidget
+
+[name]
+en = Module Administration
+ru = Упревление модулями

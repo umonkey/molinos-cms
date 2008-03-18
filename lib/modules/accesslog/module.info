@@ -1,9 +1,13 @@
 group = Statistics
 version = 8.02.4782
 classes = AccessLogModule
-interface[iWidget] = AccessLogModule
-interface[iDashboard] = AccessLogModule
-interface[iModuleConfig] = AccessLogModule
-interface[iRequestHook] = AccessLogModule
-name[en] = Content Access Statistics.
-name[ru] = Статистика доступа к контенту.
+
+[interfaces]
+iWidget = AccessLogModule
+iDashboard = AccessLogModule
+iModuleConfig = AccessLogModule
+iRequestHook = AccessLogModule
+
+[name]
+en = Content Access Statistics.
+ru = Статистика доступа к контенту.

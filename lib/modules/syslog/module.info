@@ -1,10 +1,14 @@
 group = Statistics
 version = 8.02.4782
-classes = SysLogModule
-interface[iAdminWidget] = SysLogModule
-interface[iWidget] = SysLogModule
-interface[iDashboard] = SysLogModule
-interface[iModuleConfig] = SysLogModule
-interface[iNodeHook] = SysLogModule
-name[en] = System Log
-name[ru] = Системный журнал
+docurl = http://code.google.com/p/molinos-cms/wiki/mod_syslog
+
+[interfaces]
+iAdminWidget = SysLogModule
+iWidget = SysLogModule
+iDashboard = SysLogModule
+iModuleConfig = SysLogModule
+iNodeHook = SysLogModule
+
+[name]
+en = System Log
+ru = Системный журнал

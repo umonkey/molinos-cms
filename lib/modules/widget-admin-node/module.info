@@ -1,0 +1,9 @@
+group = Core
+version = 8.02.4782
+
+[interfaces]
+iWidget = NodeAdminWidget
+
+[name]
+en = Node Editor
+ru = Редактор документов

@@ -1,9 +1,13 @@
 group = Interactive
 version = 8.02.4782
-classes = SearchWidget
-interface[iWidget] = SearchWidget
-interface[iNodeHook] = SearchWidget
-interface[iModuleConfig] = SearchWidget
-interface[iScheduler] = SearchWidget
-name[en] = Site-Wide Search
-name[ru] = Поиск по сайту
+docurl = http://code.google.com/p/molinos-cms/wiki/mod_search
+
+[interfaces]
+iWidget = SearchWidget
+iNodeHook = SearchWidget
+iModuleConfig = SearchWidget
+iScheduler = SearchWidget
+
+[name]
+en = Site-Wide Search
+ru = Поиск по сайту

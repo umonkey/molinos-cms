@@ -1,6 +1,10 @@
 group = Interactive
 version = 8.02.4782
-classes = CommentWidget, CommentFormWidget
-interface[iWidget] = CommentWidget, CommentFormWidget
-name[en] = Basic Comment Support
-name[ru] = Базовая поддержка комментариев
+docurl = http://code.google.com/p/molinos-cms/wiki/mod_comment
+
+[interfaces]
+iWidget = CommentWidget, CommentFormWidget
+
+[name]
+en = Basic Comment Support
+ru = Базовая поддержка комментариев

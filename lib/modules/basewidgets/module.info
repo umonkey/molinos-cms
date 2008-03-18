@@ -1,6 +1,9 @@
 group = Core
 version = 8.02.4782
-classes = Widget, WidgetHaltedException, iAdminWidget, iWidget, iScheduler, ListWidget, ArchiveWidget, DocWidget, ListWidget, MenuWidget, TagsWidget, TitleWidget, UserWidget
-interface[iWidget] = Widget, ListWidget, ArchiveWidget, DocWidget, ListWidget, MenuWidget, TagsWidget, TitleWidget, UserWidget
-name[en] = Base Widgets
-name[ru] = Базовые виджеты
+
+[interfaces]
+iWidget = Widget, ListWidget, ArchiveWidget, DocWidget, ListWidget, MenuWidget, TagsWidget, TitleWidget, UserWidget
+
+[name]
+en = Base Widgets
+ru = Базовые виджеты

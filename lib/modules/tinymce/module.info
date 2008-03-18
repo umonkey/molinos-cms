@@ -1,7 +1,11 @@
 group = Service
 version = 8.02.4782
-classes = TinyMceModule
-interface[iModuleConfig] = TinyMceModule
-interface[iPageHook] = TinyMceModule
-name[en] = Internal WYSIWYG Editor
-name[ru] = Текстовый редактор TinyMCE
+docurl = http://code.google.com/p/molinos-cms/wiki/mod_tinymce
+
+[interfaces]
+iModuleConfig = TinyMceModule
+iPageHook = TinyMceModule
+
+[name]
+en = Internal WYSIWYG Editor
+ru = Текстовый редактор TinyMCE

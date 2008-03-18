@@ -1,0 +1,11 @@
+group = widgets
+version = 8.02.4782
+docurl = http://code.google.com/p/molinos-cms/wiki/mod_cart
+
+[interfaces]
+iWidget = CartWidget
+iFormControl = CartControl
+
+[name]
+en = Simple Shopping Cart
+ru = Простая корзина для заказов

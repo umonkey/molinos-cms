@@ -1,0 +1,9 @@
+group = Service
+version = 8.02.4782
+
+[interfaces]
+iWidget = XmlImporter
+
+[name]
+en = XmlImporter Widget
+ru = Виджет XmlImporter

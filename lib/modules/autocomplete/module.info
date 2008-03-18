@@ -1,6 +1,10 @@
 group = Service
 version = 8.02.4782
-classes = AutocompleteModule
-interface[iRemoteCall] = AutocompleteModule
-name[en] = File/Node Autocomplete
-name[ru] = Автоматический подбор файлов и документов
+docurl = http://code.google.com/p/molinos-cms/wiki/mod_autocomplete
+
+[interfaces]
+iRemoteCall = AutocompleteModule
+
+[name]
+en = File/Node Autocomplete
+ru = Автоматический подбор файлов и документов

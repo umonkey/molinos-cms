@@ -1,6 +1,9 @@
 group = Interactive
 version = 8.02.4782
-classes = FormWidget
-interface[iWidget] = FormWidget
-name[en] = Content Creation Forms
-name[ru] = Форма создания документов
+
+[interfaces]
+iWidget = FormWidget
+
+[name]
+en = Content Creation Forms
+ru = Форма создания документов

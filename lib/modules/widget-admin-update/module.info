@@ -1,0 +1,11 @@
+group = Core
+version = 8.02.4782
+
+[interfaces]
+iWidget = UpdateAdminWidget
+iAdminWidget = UpdateAdminWidget
+iScheduler = UpdateManager
+
+[name]
+en = Update Manager
+ru = Менеджер обновлений

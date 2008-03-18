@@ -1,0 +1,11 @@
+group = Core
+version = 8.02.4782
+
+[interfaces]
+iWidget = ListAdminWidget
+iFormControl = DocListControl
+iDashboard = ListAdminWidget
+
+[name]
+en = "Document Administrator (List View)"
+ru = "Администрирование документов (список)"

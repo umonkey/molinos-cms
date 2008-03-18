@@ -1,7 +1,10 @@
 group = Service
 version = 8.02.4782
-classes = DrawTextModule
-interface[iModuleConfig] = DrawTextModule
-interface[iRemoteCall] = DrawTextModule
-name[en] = Text Rasterization Module
-name[ru] = Растеризация текста
+
+[interfaces]
+iModuleConfig = DrawTextModule
+iRemoteCall = DrawTextModule
+
+[name]
+en = Text Rasterization Module
+ru = Растеризация текста
