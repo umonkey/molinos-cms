@@ -115,6 +115,11 @@ class AdminUIModule implements iAdminUI
         'clone',
         );
     default:
+      if ($ctx->get('deleted'))
+        return array(
+          'undelete',
+          'erase',
+          );
       return array(
         'delete',
         'publish',

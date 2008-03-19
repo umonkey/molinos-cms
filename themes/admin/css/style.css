@@ -544,3 +544,7 @@ a.bold {
 td.nowrap {
   white-space: nowrap;
 }
+
+.jsonly {
+  display: none;
+}

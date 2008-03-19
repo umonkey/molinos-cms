@@ -138,6 +138,24 @@ $(document).ready(function () {
 
     return false;
   });
+
+  $('.jsonly').css('display', 'block');
+
+  // Массовые операции над документами.
+  $('.select-all').click(function () {
+    $('table.nodelist :checkbox').attr('checked', 'checked');
+  });
+  $('.select-none').click(function () {
+    $('table.nodelist :checkbox').attr('checked', '');
+  });
+  $('.select-published').click(function () {
+    $('table.nodelist :checkbox').attr('checked', '');
+    $('table.nodelist tr.published :checkbox').attr('checked', 'checked');
+  });
+  $('.select-unpublished').click(function () {
+    $('table.nodelist :checkbox').attr('checked', '');
+    $('table.nodelist tr.unpublished :checkbox').attr('checked', 'checked');
+  });
 });
 
 

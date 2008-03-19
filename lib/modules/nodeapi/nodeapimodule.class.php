@@ -77,6 +77,22 @@ class NodeApiModule implements iRemoteCall
       $node->save();
       break;
 
+    case 'undelete':
+      $node = Node::load(array(
+        'id' => $nid,
+        'deleted' => 1,
+        ));
+      $node->undelete();
+      break;
+
+    case 'erase':
+      $node = Node::load(array(
+        'id' => $nid,
+        'deleted' => 1,
+        ));
+      $node->erase();
+      break;
+
     default:
       bebop_debug($ctx, $_POST);
     }

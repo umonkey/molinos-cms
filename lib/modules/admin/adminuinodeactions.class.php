@@ -46,7 +46,7 @@ class AdminUINodeActions extends Control
     foreach ($map as $k => $v)
       $list[] = "<u class='fakelink select-{$k}'>{$v}</u>";
 
-    return mcms::html('div', array('class' => 'ctrl_left'), t('Выбрать') .': '. join(', ', $list) .'.');
+    return mcms::html('div', array('class' => 'jsonly ctrl_left'), t('Выбрать') .': '. join(', ', $list) .'.');
   }
 
   private function getActions(array $actions)
@@ -58,6 +58,8 @@ class AdminUINodeActions extends Control
       'publish' => t('опубликовать'),
       'unpublish' => t('скрыть'),
       'clone' => t('клонировать'),
+      'undelete' => t('восстановить'),
+      'erase' => t('удалить окончательно'),
       );
 
     $options .= mcms::html('option', array(

@@ -79,9 +79,9 @@ function render_username()
       <div id="top_toolbar">
         <div class="right">
           <div class="greeting">Здравствуйте, <?php print render_username(); ?></div>
-          <a href="/">Настройки</a>
+          <a href="/admin/?mode=edit&id=<?php print mcms::user()->getUid(); ?>&destination=<?php print urlencode($_SERVER['REQUEST_URI']) ?>">Настройки</a>
           <div>
-            <a id="lnk_exit" href="/">Выйти</a>
+            <a id="lnk_exit" href="/admin/?mode=logout&amp;destination=%2F">Выйти</a>
           </div>
         </div>
       </div><!-- id=top_toolbar -->
