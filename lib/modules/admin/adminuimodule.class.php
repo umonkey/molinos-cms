@@ -208,14 +208,18 @@ class AdminUIModule implements iAdminUI
       return $form->getHTML($node->formGetData());
     }
 
-    $types = Node::find(array('class' => 'type', '#sort' => array('type.title' => 'asc')));
+    $types = Node::find(array(
+      'class' => 'type',
+      '-name' => array('type', 'widget', 'user', 'group', 'domain', 'tag', 'file'),
+      '#sort' => array('type.title' => 'asc'),
+      ));
 
     $output = '<dl>';
 
     foreach ($types as $type) {
       $output .= '<dt>';
       $output .= mcms::html('a', array(
-        'href' => "/admin/?mode=create&type={$type->name}&destination=". $_GET['destination'],
+        'href' => "/admin/?mode=create&type={$type->name}&destination=". urlencode($_GET['destination']),
         ), $type->title);
       $output .= '</dt>';
 

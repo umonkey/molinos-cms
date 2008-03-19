@@ -20,35 +20,49 @@ class NodeApiModule implements iRemoteCall
       foreach ($_POST['action'] as $action) {
         if (!empty($action)) {
           foreach ($_POST['nodes'] as $nid)
-            self::doSingleAction($action, $nid);
+            self::doSingleAction($ctx, $action, $nid);
           break;
         }
       }
     }
   }
 
-  private static function doSingleAction(RequestContext $ctx)
+  private static function doSingleAction(RequestContext $ctx, $action = null, $nid = null)
   {
-    switch ($ctx->get('action')) {
+    if (null === $action)
+      $action = $ctx->get('action');
+
+    if (null === $nid)
+      $nid = $ctx->get('node');
+
+    switch ($action) {
     case 'publish':
-      if (null !== ($nid = $ctx->get('node'))) {
+      if (null !== $nid) {
         $node = Node::load($nid);
         $node->publish();
       }
       break;
 
     case 'unpublish':
-      if (null !== ($nid = $ctx->get('node'))) {
+      if (null !== $nid) {
         $node = Node::load($nid);
         $node->unpublish();
       }
       break;
 
     case 'delete':
-      if (null !== ($nid = $ctx->get('node'))) {
+      if (null !== $nid) {
         $node = Node::load($nid);
         $node->delete();
       }
+      break;
+
+    case 'clone':
+      $node = Node::load(array(
+        'id' => $nid,
+        'deleted' => array(0, 1),
+        ));
+      $node->duplicate();
       break;
 
     case 'create':
