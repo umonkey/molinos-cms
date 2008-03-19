@@ -46,9 +46,11 @@ class AdminUIList extends Control
         $row .= "<td class='field-{$field}'>";
         $value = $node->$field;
 
-        if (empty($value))
+        if ('thumbnail' == $field and 'file' == $node->class)
+          $row .= "<a href='/attachment/{$node->id}' title='Скачать'><img src='/attachment/{$node->id},48,48' alt='{$node->filepath}' /></a>";
+        elseif (empty($value))
           $row .= '&nbsp;';
-        elseif ($field == 'name')
+        elseif ('name' == $field)
           $row .= mcms::html('a', array(
             'href' => '/admin/?mode=edit&id='. $node->id .'&destination='. urlencode($_SERVER['REQUEST_URI']),
             ), $node->$field);
@@ -84,6 +86,7 @@ class AdminUIList extends Control
       'filesize' => t('Размер'),
       'class' => t('Тип'),
       'uid' => t('Автор'),
+      'thumbnail' => t('Образец'),
       );
 
     $output = '<tr>';

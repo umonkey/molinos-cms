@@ -995,4 +995,29 @@ class mcms
   {
     return array_key_exists(strtolower($name), self::getClassMap());
   }
+
+  public static function getFiles(array $data = null)
+  {
+    if ('POST' != $_SERVER['REQUEST_METHOD'])
+      return null;
+
+    if (null === ($result = $data))
+      $result = array();
+
+    foreach ($_FILES as $field => $fileinfo) {
+      if (is_array($fileinfo['name'])) {
+        foreach (array_keys($fileinfo) as $key) {
+          foreach ($fileinfo[$key] as $k => $v)
+            $result[$field][$k][$key] = $v;
+        }
+      }
+
+      else {
+        foreach ($fileinfo as $k => $v)
+          $result[$field][$k] = $v;
+      }
+    }
+
+    return $result;
+  }
 };

@@ -13,7 +13,6 @@ class RequestContext
   // Относящиеся к виджету параметры и файлы.
   private $get = null;
   private $post = null;
-  private $files = null;
 
   // Текущий раздел и документ.
   private $section = null;
@@ -79,7 +78,6 @@ class RequestContext
     case 'apath':
     case 'get':
     case 'post':
-    case 'files':
     case 'root':
     case 'section':
     case 'document':
@@ -104,7 +102,6 @@ class RequestContext
       case 'apath':
       case 'get':
       case 'post':
-      case 'files':
         if ($this->$key === null)
           return array();
         return $this->$key;
@@ -188,7 +185,7 @@ class RequestContext
   }
 
   // Формирует контекст для виджета, из глобального.
-  public static function getWidget(array $get, array $post = null, array $files = null)
+  public static function getWidget(array $get, array $post = null)
   {
     if (null === self::$global)
       $ctx = new RequestContext();
@@ -197,7 +194,6 @@ class RequestContext
 
     $ctx->get = $get;
     $ctx->post = $post;
-    $ctx->files = $files;
 
     return $ctx;
   }

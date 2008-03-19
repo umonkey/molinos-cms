@@ -207,9 +207,11 @@ class AdminUIModule implements iAdminUI
   private static function onGetCreate(RequestContext $ctx)
   {
     if (null !== $ctx->get('type')) {
-      $node = Node::create($ctx->get('type'));
+      $node = Node::create($type = $ctx->get('type'));
 
       $form = $node->formGet(false);
+      $form->action = "/nodeapi.rpc?action=create&type={$type}&destination=". urlencode($_GET['destination']);
+
       return $form->getHTML($node->formGetData());
     }
 

@@ -9,7 +9,6 @@ class RequestController
 
   private $get_vars = array();
   private $post_vars = array();
-  private $file_vars = array();
 
   private $context = null;
 
@@ -58,13 +57,13 @@ class RequestController
 
       $this->begin = microtime(true);
 
-      if (null !== ($tmp = $this->parseSpecialPath()))
-        return $tmp;
-
       $this->parseGet();
 
       if ($_SERVER['REQUEST_METHOD'] == 'POST')
         $this->parsePost();
+
+      if (null !== ($tmp = $this->parseSpecialPath()))
+        return $tmp;
 
       $this->parsePath();
 
@@ -77,7 +76,6 @@ class RequestController
         break;
 
       case 'POST':
-        $this->parseFiles();
         $this->runPost();
         break;
 
@@ -227,7 +225,7 @@ class RequestController
         $ctx = RequestContext::getWidget(
           array_key_exists($widget->name, $this->get_vars) ? $this->get_vars[$widget->name] : array(),
           array_key_exists($widget->name, $this->post_vars) ? $this->post_vars[$widget->name] : array(),
-          array_key_exists($widget->name, $this->file_vars) ? $this->file_vars[$widget->name] : array()
+          array()
           );
 
         try {
@@ -249,7 +247,10 @@ class RequestController
     $url = bebop_split_url($_SERVER['REQUEST_URI']);
 
     if ('/admin/' == $url['path'] and mcms::class_exists('AdminUIModule')) {
-      $ctx = RequestContext::getWidget(isset($url['args']) ? $url['args'] : array());
+      $ctx = RequestContext::getWidget(
+        isset($url['args']) ? $url['args'] : array(),
+        $this->post_vars
+        );
       return AdminUIModule::onGet($ctx);
     }
   }
@@ -285,62 +286,10 @@ class RequestController
     }
   }
 
-  private function parseFiles()
-  {
-    $this->file_vars = array();
-
-    foreach ($_FILES as $k => $v) {
-      $point = strpos($k, '_', 1);
-
-      if ($point !== false) {
-        $module_name = substr($k, 0, $point);
-        $var_name = substr($k, $point + 1);
-
-        if (!array_key_exists($module_name, $this->file_vars))
-          $this->file_vars[$module_name] = array();
-
-        $this->file_vars[$module_name][$var_name] = array();
-
-        if (is_array($v['error'])) {
-          foreach ($v['error'] as $index => $error) {
-            if ($error > UPLOAD_ERR_OK) {
-              // место для первичной обработки ошибок
-            }
-
-            if (!is_uploaded_file($v['tmp_name'][$index])) {
-              // возможно хакерская атака!
-              // место для обработки ошибки
-              continue;
-            }
-
-            $arr = array(
-              'name' => $v['name'][$index],
-              'type' => $v['type'][$index],
-              'size' => $v['size'][$index],
-              'tmp_name' => $v['tmp_name'][$index],
-              'error' => $error
-            );
-            $this->file_vars[$module_name][$var_name][] = $arr;
-          }
-        } else {
-          if ($v['error'] > UPLOAD_ERR_OK) {
-            // место для первичной обработки ошибок
-          }
-
-          if (!is_uploaded_file($v['tmp_name'])) {
-            // возможно хакерская атака!
-            // место для обработки ошибки
-            continue;
-          }
-
-          $this->file_vars[$module_name][$var_name][] = $v;
-        }
-      }
-    }
-  }
-
   private function cleanFiles()
   {
+    return;
+
     foreach ($this->file_vars as $module => $files) {
       foreach ($files as $group) {
         foreach ($group as $file) {

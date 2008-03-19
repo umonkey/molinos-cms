@@ -247,6 +247,8 @@ class FileNode extends Node implements iContentType
   // из них вручную.  После импорта файл снова сохраняется.
   public function formProcess(array $data)
   {
+    $data = mcms::getFiles($data);
+
     if (null === $this->id) {
       switch ($data['__file_mode']) {
       case 'ftp':

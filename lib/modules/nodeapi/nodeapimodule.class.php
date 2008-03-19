@@ -37,6 +37,7 @@ class NodeApiModule implements iRemoteCall
 
     switch ($action) {
     case 'publish':
+    case 'enable':
       if (null !== $nid) {
         $node = Node::load($nid);
         $node->publish();
@@ -44,6 +45,7 @@ class NodeApiModule implements iRemoteCall
       break;
 
     case 'unpublish':
+    case 'disable':
       if (null !== $nid) {
         $node = Node::load($nid);
         $node->unpublish();
