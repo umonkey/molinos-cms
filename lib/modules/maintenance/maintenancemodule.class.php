@@ -51,7 +51,7 @@ class MaintenanceModule implements iModuleConfig, iRequestHook
       $icons[] = array(
         'group' => 'Разработка',
         'img' => 'img/cms-maintenance.png',
-        'href' => '/admin/builder/modules/?BebopModules.edit=maintenance&destination='. urlencode($_SERVER['REQUEST_URI']),
+        'href' => '/admin/?mode=modules&action=config&name=maintenance&destination='. urlencode($_SERVER['REQUEST_URI']),
         'title' => t('Технические работы'),
         'description' => t('Позволяет временно закрыть сайт для проведения технических работ.'),
         );

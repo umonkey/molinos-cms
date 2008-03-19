@@ -163,8 +163,8 @@ class AdminUIModule implements iAdminUI
 
   private static function onGetModules(RequestContext $ctx)
   {
-    if (null !== ($tmp = $ctx->get('info')))
-      return self::onGetModuleInfo($tmp);
+    if ($ctx->get('action') == 'info' or $ctx->get('action') == 'config')
+      return self::onGetModuleInfo($ctx->get('name'));
 
     $map = self::onGetModulesGroups();
 
