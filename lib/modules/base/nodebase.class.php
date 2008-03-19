@@ -1048,7 +1048,11 @@ class NodeBase implements iFormObject
     $next = empty($_GET['destination'])
       ? $_SERVER['REQUEST_URI']
       : $_GET['destination'];
-    $form->action = "/nodeapi.rpc?action=edit&node={$this->id}&destination=". urlencode($next);
+
+    if ($this->id)
+      $form->action = "/nodeapi.rpc?action=edit&node={$this->id}&destination=". urlencode($next);
+    else
+      $form->action = "/nodeapi.rpc?action=create&type={$this->class}&destination=". urlencode($next);
 
     return $form;
   }

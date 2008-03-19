@@ -538,7 +538,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
       $icons[] = array(
         'group' => 'Разработка',
         'img' => 'img/constructor.png',
-        'href' => '/admin/builder/modules/',
+        'href' => '/admin/?mode=modules',
         'title' => t('Модули'),
         );
     }

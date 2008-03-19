@@ -26,10 +26,13 @@ class AdminUIModule implements iAdminUI
 
   private static function onGetInternal(RequestContext $ctx)
   {
-    switch ($mode = $ctx->get('mode')) {
+    switch ($mode = $ctx->get('mode', 'status')) {
     case 'list':
     case 'edit':
     case 'create':
+    case 'logout':
+    case 'status':
+    case 'modules':
       $method = 'onGet'. ucfirst(strtolower($mode));
       return call_user_func_array(array('AdminUIModule', $method), array($ctx));
     default:
@@ -223,5 +226,96 @@ class AdminUIModule implements iAdminUI
     $output .= '</dl>';
 
     return '<h2>Какой документ вы хотите создать?</h2>'. $output;
+  }
+
+  private static function onGetLogout(RequestContext $ctx)
+  {
+    mcms::user()->authorize();
+    bebop_redirect($_GET['destination']);
+  }
+
+  private static function onGetStatus(RequestContext $ctx)
+  {
+    return 'Система в порядке.';
+  }
+
+  private static function onGetModules(RequestContext $ctx)
+  {
+    if (null !== ($tmp = $ctx->get('info')))
+      return self::onGetModuleInfo($tmp);
+
+    $map = self::onGetModulesGroups();
+
+    $output = '';
+
+    foreach ($map as $group => $modules) {
+      $output .= "<tr class='modgroup'><th colspan='4'>{$group}</th></tr>";
+
+      foreach ($modules as $modname => $module) {
+        $output .= '<tr>';
+        $output .= "<td><input type='checkbox' name='selected[]' value='{$modname}' /></td>";
+        $output .= "<td><a href='/admin/?mode=modules&action=info&name={$modname}'>{$modname}</a></td>";
+        $output .= "<td>{$module['name']['ru']}</td>";
+
+        if (!empty($module['implementors']['iModuleConfig']))
+          $output .= "<td><a href='/admin/?mode=modules&action=config&name={$modname}'>настроить</a></td>";
+        else
+          $output .= "<td>&nbsp;</td>";
+
+        $output .= '</tr>';
+      }
+    }
+
+    $output = mcms::html('table', array(
+      'class' => 'modlist',
+      ), $output);
+
+    $output .= mcms::html('input', array(
+      'type' => 'submit',
+      'value' => t('Сохранить'),
+      ));
+
+    return mcms::html('form', array(
+      'method' => 'post',
+      'action' => $_SERVER['REQUEST_URI'],
+      ), $output);
+  }
+
+  private static function onGetModuleInfo($name)
+  {
+    $map = mcms::getModuleMap();
+
+    if (empty($map['modules'][$name]))
+      throw new PageNotFoundException();
+
+    $module = $map['modules'][$name];
+
+    $output = "<h2>Информация о модуле mod_{$name}</h2>";
+    $output .= '<table class=\'modinfo\'>';
+    $output .= '<tr><th>Описание:</th><td>'. $module['name']['ru'] .'</td></tr>';
+    $output .= '<tr><th>Классы:</th><td>'. join(', ', $module['classes']) .'</td></tr>';
+    $output .= '<tr><th>Интерфейсы:</th><td>'. join(', ', $module['interfaces']) .'</td></tr>';
+    $output .= '<tr><th>Минимальная версия CMS:</th><td>'. $module['version'] .'</td></tr>';
+
+    if (!empty($module['docurl']))
+      $output .= '<tr><th>Документация:</th><td><a href=\''. $module['docurl'] .'\'>есть</td></tr>';
+
+    $output .= '</table>';
+
+    return $output;
+
+    bebop_debug($name, $module);
+  }
+
+  private static function onGetModulesGroups()
+  {
+    $map = mcms::getModuleMap();
+
+    $groups = array();
+
+    foreach ($map['modules'] as $modname => $module)
+      $groups[$module['group']][$modname] = $module;
+
+    return $groups;
   }
 };

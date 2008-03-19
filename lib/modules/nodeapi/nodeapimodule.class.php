@@ -7,8 +7,8 @@ class NodeApiModule implements iRemoteCall
   {
     if ($ctx->get('action') == 'mass')
       self::doMassAction($ctx);
-    elseif (null !== ($nid = $ctx->get('node')))
-      self::doSingleAction($ctx->get('action'), $nid);
+    else
+      self::doSingleAction($ctx);
 
     if (null !== ($next = $ctx->get('destination')))
       bebop_redirect($next);
@@ -27,32 +27,44 @@ class NodeApiModule implements iRemoteCall
     }
   }
 
-  private static function doSingleAction($action, $nid)
+  private static function doSingleAction(RequestContext $ctx)
   {
-    switch ($action) {
+    switch ($ctx->get('action')) {
     case 'publish':
-      if (null !== $nid) {
+      if (null !== ($nid = $ctx->get('node'))) {
         $node = Node::load($nid);
         $node->publish();
       }
       break;
 
     case 'unpublish':
-      if (null !== $nid) {
+      if (null !== ($nid = $ctx->get('node'))) {
         $node = Node::load($nid);
         $node->unpublish();
       }
       break;
 
     case 'delete':
-      if (null !== $nid) {
+      if (null !== ($nid = $ctx->get('node'))) {
         $node = Node::load($nid);
         $node->delete();
       }
       break;
 
+    case 'create':
+      $node = Node::create($ctx->get('type'));
+      $node->formProcess($_POST);
+      $node->save();
+      break;
+
+    case 'edit':
+      $node = Node::load($ctx->get('node'));
+      $node->formProcess($_POST);
+      $node->save();
+      break;
+
     default:
-      bebop_debug($action, $nid, $_POST);
+      bebop_debug($ctx, $_POST);
     }
   }
 };

@@ -26,74 +26,9 @@ class AccessLogModule extends Widget implements iAdminWidget, iDashboard, iModul
   }
 
   // Обработка GET запросов.
-  public function onGet(array $options)
+  public function onGet(RequestContext $ctx)
   {
-    return $this->dispatch(array($options['mode']), $options);
-  }
-
-  protected function onGetDefault(array $options)
-  {
-    return parent::formRender('system-event-log-list');
-
-    $result = array();
-    $where = '';
-    $pdo = mcms::db();
-    $params = array();
-
-    if (!empty($options['operation'])) {
-      $where = 'WHERE `l`.`operation` = :op';
-      $params['op'] = $options['operation'];
-    }
-
-    // Выбираем записи
-    $sql = "SELECT `l`.*, `node`.`class`, `nr`.`name` AS `title` FROM `node__log` `l` "
-      ."LEFT JOIN `node` ON `node`.`id` = `l`.`nid` "
-      ."LEFT JOIN `node__rev` `nr` ON `node`.`rid` = `nr`.`rid` {$where} ORDER BY `l`.`lid` DESC";
-
-    $pagerSql = "SELECT COUNT(*) FROM `node__log` `l` {$where}";
-
-    // Поиск по полям
-    if (!empty($options['search'])) {
-      // Критерий
-      $searchStr = "CONCAT(title, ip, operation, username) LIKE :search";
-      $params['search'] = '%'. $options['search'] .'%';
-
-      // Обновляем запрос в соответствии с критериями
-      $sql = "SELECT * FROM ({$sql}) AS `log_list` WHERE {$searchStr}";
-      // Пейджер тоже должен показывать страницы по результатам поиска
-      $pagerSql = "SELECT COUNT(*) FROM ({$sql}) AS `log_list`";
-    }
-    $sql .= " LIMIT ". ($options['page'] - 1) * $options['limit'] .", {$options['limit']}";
-
-    // Общее количество записей среди результатов поиска
-    $count = $pdo->getResult($pagerSql, $params);
-
-    // Выводим пэйджер.
-    $result['pager'] = $this->getPager($count, $options['page'], $options['limit']);
-
-    $result['entries'] = $pdo->getResults($sql, $params);
-
-    return $result;
-  }
-
-  protected function onGetDownload(array $options)
-  {
-    $output = "Запрос;Количество\n";
-
-    $data = mcms::db()->getResults("SELECT `query`, COUNT(`query`) AS `count` FROM `node__log` WHERE `operation` = 'search' AND `query` IS NOT NULL GROUP BY `query` ORDER BY `count` DESC");
-
-    foreach ($data as $row) {
-      $output .= str_replace(';', ",", $row['query']) .';'. $row['count'] ."\n";
-    }
-
-    $output = iconv('utf-8', 'windows-1251', $output);
-
-    ini_set('zlib.output_compression', 0);
-    header('Content-Type: application/vnd.ms-excel; charset=windows-1251');
-    header('Content-Length: '. strlen($output));
-    header('Content-Disposition: attachment; filename="Search Queries for '. $_SERVER['HTTP_HOST'] .'.csv"');
-
-    die($output);
+    bebop_debug($ctx);
   }
 
   // РАБОТА С ФОРМАМИ.
@@ -241,7 +176,7 @@ class AccessLogModule extends Widget implements iAdminWidget, iDashboard, iModul
       $icons[] = array(
         'group' => 'Статистика',
         'img' => 'img/dashboard-task-logs.gif',
-        'href' => '/admin/statistics/access/',
+        'href' => '/admin/?module=accesslog',
         'title' => t('Доступ к контенту'),
         'description' => t('Просмотр статистики доступа.'),
         );
