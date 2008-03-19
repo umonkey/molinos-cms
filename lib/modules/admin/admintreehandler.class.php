@@ -22,9 +22,7 @@ class AdminTreeHandler
     $output .= $this->getTableHeader();
 
     foreach ($data as $nid => $node) {
-      $row = '';
-
-      $row .= "<td class='selector'><input type='checkbox' name='nodes[]' value='{$nid}' /></td>";
+      $row = "<td class='selector'><input type='checkbox' name='nodes[]' value='{$nid}' /></td>";
 
       foreach ($this->columns as $field) {
         $value = array_key_exists($field, $node) ? $node[$field] : null;
@@ -38,6 +36,17 @@ class AdminTreeHandler
 
         $row .= '</td>';
       }
+
+      $parent = empty($node['parent_id']) ? null : $node['parent_id'];
+
+      $row .= '<td class=\'actions\'>';
+      $row .= mcms::html('a', array(
+        'href' => "/nodeapi.rpc?action=raise&node={$nid}&parent={$parent}&destination=". urlencode($_SERVER['REQUEST_URI'])
+        ), 'поднять');
+      $row .= mcms::html('a', array(
+        'href' => "/nodeapi.rpc?action=sink&node={$nid}&parent={$parent}&destination=". urlencode($_SERVER['REQUEST_URI'])
+        ), 'опустить');
+      $row .= '</td>';
 
       $output .= mcms::html('tr', array(
         'class' => empty($node['published']) ? 'unpublished' : 'published',
@@ -85,6 +94,9 @@ class AdminTreeHandler
     $list = array();
     $user = mcms::user();
 
+    $columns = $this->columns;
+    $columns[] = 'parent_id';
+
     foreach (Node::find(array('class' => $this->type, 'parent_id' => null)) as $root) {
       $children = $root->getChildren('flat');
 
@@ -99,7 +111,7 @@ class AdminTreeHandler
 
         $link = true;
 
-        foreach ($this->columns as $field) {
+        foreach ($columns as $field) {
           if ($field == 'actions')
             continue;
 
@@ -158,6 +170,8 @@ class AdminTreeHandler
         'class' => 'field-'. $col,
         ), $col);
     }
+
+    $output .= '<th>Действия</th>';
 
     return $output .= '</tr>';
   }
