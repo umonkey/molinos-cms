@@ -581,7 +581,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
       $icons[] = array(
         'group' => 'Наполнение',
         'img' => 'img/recycle.png',
-        'href' => '/admin/trash/',
+        'href' => '/admin/?mode=list&deleted=1&columns=name,class,uid,updated,created',
         'title' => t('Корзина'),
         'description' => t('Просмотр и восстановление удалённых файлов.'),
         'weight' => 10,

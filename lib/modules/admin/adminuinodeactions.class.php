@@ -21,6 +21,36 @@ class AdminUINodeActions extends Control
     if (!count($actions = $this->filterActions()))
       return null;
 
+    $output = $this->getSelectors();
+    $output .= $this->getActions($actions);
+
+    $output .= mcms::html('div', array('class' => 'spacer_not_ie'));
+    $output = mcms::html('div', array('class' => 'tb_2_inside'), $output);
+
+    $this->addClass('tb_2');
+
+    return mcms::html('div', array('class' => $this->class), $output);
+  }
+
+  private function getSelectors()
+  {
+    $map = array(
+      'all' => 'все',
+      'none' => 'ни одного',
+      'published' => 'опубликованные',
+      'unpublished' => 'скрытые',
+      );
+
+    $list = array();
+
+    foreach ($map as $k => $v)
+      $list[] = "<u class='fakelink select-{$k}'>{$v}</u>";
+
+    return mcms::html('div', array('class' => 'ctrl_left'), t('Выбрать') .': '. join(', ', $list) .'.');
+  }
+
+  private function getActions(array $actions)
+  {
     $options = '';
 
     $strings = array(
@@ -51,7 +81,7 @@ class AdminUINodeActions extends Control
       'value' => 'OK',
       ));
 
-    return $output;
+    return mcms::html('div', array('class' => 'action_select'), $output);
   }
 
   private function filterActions()

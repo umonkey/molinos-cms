@@ -2,7 +2,7 @@ group = Core
 version = 8.02.4782
 
 [interfaces]
-iControl = AdminUIList, AdminUINodeActions
+iControl = AdminUIList, AdminUINodeActions, AdminUISearch
 
 [name]
 en = Molinos.CMS Administragive UI

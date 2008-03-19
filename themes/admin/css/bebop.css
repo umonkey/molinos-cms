@@ -62,3 +62,16 @@ td.r, th.r {
   left: 19px;
   margin: 0 !important;
 }
+
+tr.even {
+  background-color: #efefef;
+}
+
+u.fakelink {
+  color: blue;
+  cursor: pointer;
+}
+
+form.inline {
+  display: inline;
+}

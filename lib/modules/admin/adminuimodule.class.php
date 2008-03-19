@@ -29,6 +29,7 @@ class AdminUIModule implements iAdminUI
     switch ($mode = $ctx->get('mode')) {
     case 'list':
     case 'edit':
+    case 'create':
       $method = 'onGet'. ucfirst(strtolower($mode));
       return call_user_func_array(array('AdminUIModule', $method), array($ctx));
     default:
@@ -40,10 +41,10 @@ class AdminUIModule implements iAdminUI
   {
     $actions = self::onGetListActions($ctx);
 
-    $output = self::getSearchForm($ctx);
+    $output = '<h2>'. self::onGetListTitle($ctx) .'</h2>';
+    $output .= self::getSearchForm($ctx);
 
     $form = new Form(array(
-      'title' => t('Список документов'),
       'action' => '/nodeapi.rpc?action=mass&destination='. urlencode($_SERVER['REQUEST_URI']),
       ));
     $form->addControl(new AdminUINodeActions(array(
@@ -120,6 +121,68 @@ class AdminUIModule implements iAdminUI
     }
   }
 
+  private function onGetListTitle(RequestContext $ctx)
+  {
+    switch ($type = $ctx->get('type')) {
+    case 'widget':
+      return t('Список виджетов');
+    case 'type':
+      return t('Список типов документов');
+    case 'files':
+      return t('Список файлов');
+    case 'user':
+      return t('Список пользователей');
+    case 'group':
+      return t('Список групп');
+    default:
+      if (null === $type) {
+        if ('0' === $ctx->get('published'))
+          return t('Документы в модерации');
+        elseif ($ctx->get('deleted'))
+          return t('Удалённые документы');
+      }
+
+      return t('Список документов');
+    }
+  }
+
+  private static function getSearchForm(RequestContext $ctx)
+  {
+    $form = new Form(array(
+      'action' => $_SERVER['REQUEST_URI'],
+      'method' => 'post',
+      ));
+    $form->addControl(new AdminUISearch(array(
+      'q' => $ctx->get('search'),
+      'type' => $ctx->get('type'),
+      )));
+    return $form->getHTML(array());
+  }
+
+  private static function getDashboardIcons()
+  {
+    $result = array();
+
+    $classes = mcms::getClassMap();
+    $rootlen = strlen(dirname(dirname(dirname(dirname(__FILE__)))));
+
+    foreach (mcms::getImplementors('iDashboard') as $class) {
+      $icons = call_user_func(array($class, 'getDashboardIcons'));
+
+      if (is_array($icons) and !empty($icons))
+        foreach ($icons as $icon) {
+          if (!empty($icon['img'])) {
+            $classpath = dirname($classes[strtolower($class)]);
+            $icon['img'] = substr($classpath, $rootlen) .'/'. $icon['img'];
+          }
+
+          $result[$icon['group']][] = $icon;
+        }
+    }
+
+    return $result;
+  }
+
   private static function onGetEdit(RequestContext $ctx)
   {
     if (null === ($nid = $ctx->get('id')))
@@ -133,23 +196,32 @@ class AdminUIModule implements iAdminUI
     return $form->getHTML($node->formGetData());
   }
 
-  private static function getSearchForm(RequestContext $ctx)
+  private static function onGetCreate(RequestContext $ctx)
   {
-  }
+    if (null !== $ctx->get('type')) {
+      $node = Node::create($ctx->get('type'));
 
-  private static function getDashboardIcons()
-  {
-    $result = array();
-
-    foreach (mcms::getImplementors('iDashboard') as $class) {
-      $icons = call_user_func(array($class, 'getDashboardIcons'));
-
-      if (is_array($icons) and !empty($icons))
-        foreach ($icons as $icon) {
-          $result[$icon['group']][] = $icon;
-        }
+      $form = $node->formGet(false);
+      return $form->getHTML($node->formGetData());
     }
 
-    return $result;
+    $types = Node::find(array('class' => 'type', '#sort' => array('type.title' => 'asc')));
+
+    $output = '<dl>';
+
+    foreach ($types as $type) {
+      $output .= '<dt>';
+      $output .= mcms::html('a', array(
+        'href' => "/admin/?mode=create&type={$type->name}&destination=". $_GET['destination'],
+        ), $type->title);
+      $output .= '</dt>';
+
+      if (isset($type->description))
+        $output .= '<dd>'. $type->description .'</dd>';
+    }
+
+    $output .= '</dl>';
+
+    return '<h2>Какой документ вы хотите создать?</h2>'. $output;
   }
 };
