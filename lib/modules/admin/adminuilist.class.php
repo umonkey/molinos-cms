@@ -34,7 +34,7 @@ class AdminUIList extends Control
       else
         $output .= '<tr class=\'even\'>';
 
-      $row = '<td>';
+      $row = '<td class=\'selector\'>';
       $row .= mcms::html('input', array(
         'type' => 'checkbox',
         'name' => 'nodes[]',
@@ -90,7 +90,7 @@ class AdminUIList extends Control
       );
 
     $output = '<tr>';
-    $output .= '<th>&nbsp;</th>';
+    $output .= '<th class=\'selector\'>&nbsp;</th>';
 
     foreach ($this->columns as $col) {
       $output .= "<th class='field-{$col}'>";

@@ -564,7 +564,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
       $icons[] = array(
         'group' => 'Наполнение',
         'img' => 'img/files.png',
-        'href' => '/admin/?mode=list&type=file&columns=name,filename,filetype,filesize',
+        'href' => '/admin/?mode=list&type=file&columns=thumbnail,name,filename,filetype,filesize',
         'title' => t('Файлы'),
         'description' => t('Просмотр, редактирование и добавление файлов.'),
         );
