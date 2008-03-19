@@ -12,6 +12,9 @@ class AdminListHandler
   public $title;
   public $actions;
 
+  protected $limit;
+  protected $offset;
+
   public function __construct(RequestContext $ctx)
   {
     $this->ctx = $ctx;
@@ -28,6 +31,9 @@ class AdminListHandler
     $this->columns = explode(',', $ctx->get('columns', 'name'));
 
     $this->title = t('Список документов');
+
+    $this->limit = $ctx->get('limit');
+    $this->offset = $ctx->get('offset');
   }
 
   protected function getData()
@@ -45,7 +51,7 @@ class AdminListHandler
     else
       $filter['-class'] = array('domain', 'widget', 'user', 'group', 'type', 'file');
 
-    return Node::find($filter, $this->ctx->get('limit'), $this->ctx->get('offset'));
+    return Node::find($filter, $this->limit, $this->offset);
   }
 
   public function getHTML($preset = null)
@@ -113,11 +119,13 @@ class AdminListHandler
         $this->types = array('type');
         $this->title = t('Типы документов');
         $this->columns = array('name', 'title', 'description', 'created');
+        $this->limit = $this->offset = null;
         break;
       case 'widgets':
         $this->types = array('widget');
         $this->title = t('Список виджетов');
         $this->columns = array('name', 'title', 'classname', 'description', 'created');
+        $this->limit = $this->offset = null;
         break;
       }
     }
