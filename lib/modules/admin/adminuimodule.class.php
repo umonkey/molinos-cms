@@ -33,6 +33,8 @@ class AdminUIModule implements iAdminUI
     case 'logout':
     case 'status':
     case 'modules':
+    case 'drafts':
+    case 'trash':
       $method = 'onGet'. ucfirst(strtolower($mode));
       return call_user_func_array(array('AdminUIModule', $method), array($ctx));
     default:
@@ -42,61 +44,8 @@ class AdminUIModule implements iAdminUI
 
   private static function onGetList(RequestContext $ctx)
   {
-    $actions = self::onGetListActions($ctx);
-
-    $output = '<h2>'. self::onGetListTitle($ctx) .'</h2>';
-    $output .= self::getSearchForm($ctx);
-
-    $form = new Form(array(
-      'action' => '/nodeapi.rpc?action=mass&destination='. urlencode($_SERVER['REQUEST_URI']),
-      ));
-    $form->addControl(new AdminUINodeActions(array(
-      'actions' => $actions,
-      )));
-    $form->addControl(new AdminUIList(array(
-      'columns' => explode(',', $ctx->get('columns', 'name')),
-      )));
-    $form->addControl(new AdminUINodeActions(array(
-      'actions' => $actions,
-      )));
-
-    $output .= $form->getHTML(array(
-      'nodes' => self::onGetListNodes($ctx),
-      ));
-
-    return $output;
-  }
-
-  private static function onGetListNodes(RequestContext $ctx)
-  {
-    $limit = null;
-    $offset = 0;
-    $filter = array();
-
-    if ($ctx->get('deleted'))
-      $filter['deleted'] = 1;
-    else {
-      if (null !== ($class = $ctx->get('type')))
-        $filter['class'] = explode(',', $class);
-      else
-        $filter['-class'] = array('domain', 'widget', 'user', 'group', 'type', 'file');
-    }
-
-    if ($ctx->get('published') === '0')
-      $filter['published'] = 0;
-
-    foreach (explode(',', $ctx->get('sort', '-id')) as $field) {
-      if (substr($field, 0, 1) == '-') {
-        $mode = 'desc';
-        $field = substr($field, 1);
-      } else {
-        $mode = 'asc';
-      }
-
-      $filter['#sort'][$field] = $mode;
-    }
-
-    return Node::find($filter, $limit, $offset);
+    $tmp = new AdminListHandler($ctx);
+    return $tmp->getHTML($ctx->get('preset'));
   }
 
   private static function onGetListActions(RequestContext $ctx)
@@ -127,44 +76,6 @@ class AdminUIModule implements iAdminUI
         'clone',
         );
     }
-  }
-
-  private function onGetListTitle(RequestContext $ctx)
-  {
-    switch ($type = $ctx->get('type')) {
-    case 'widget':
-      return t('Список виджетов');
-    case 'type':
-      return t('Список типов документов');
-    case 'files':
-      return t('Список файлов');
-    case 'user':
-      return t('Список пользователей');
-    case 'group':
-      return t('Список групп');
-    default:
-      if (null === $type) {
-        if ('0' === $ctx->get('published'))
-          return t('Документы в модерации');
-        elseif ($ctx->get('deleted'))
-          return t('Удалённые документы');
-      }
-
-      return t('Список документов');
-    }
-  }
-
-  private static function getSearchForm(RequestContext $ctx)
-  {
-    $form = new Form(array(
-      'action' => $_SERVER['REQUEST_URI'],
-      'method' => 'post',
-      ));
-    $form->addControl(new AdminUISearch(array(
-      'q' => $ctx->get('search'),
-      'type' => $ctx->get('type'),
-      )));
-    return $form->getHTML(array());
   }
 
   private static function getDashboardIcons()

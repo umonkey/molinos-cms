@@ -500,7 +500,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
       $icons[] = array(
         'group' => 'Структура',
         'img' => 'img/doctype.png',
-        'href' => '/admin/?mode=list&type=type&columns=name,title,created&sort=name',
+        'href' => '/admin/?mode=list&preset=schema',
         'title' => t('Типы документов'),
         );
 
@@ -515,7 +515,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
       $icons[] = array(
         'group' => 'Наполнение',
         'img' => 'img/content.png',
-        'href' => '/admin/?mode=list&published=0&columns=name,class,uid,updated&sort=-updated',
+        'href' => '/admin/?mode=list&preset=drafts',
         'title' => t('В модерации'),
         'description' => t('Поиск, редактирование, добавление документов.'),
         );
@@ -532,7 +532,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
       $icons[] = array(
         'group' => 'Разработка',
         'img' => 'img/cms-widget.png',
-        'href' => '/admin/?mode=list&type=widget&columns=name,title,classname,created&sort=name',
+        'href' => '/admin/?mode=list&preset=widgets',
         'title' => t('Виджеты'),
         );
       $icons[] = array(
@@ -547,14 +547,14 @@ class ListAdminWidget extends ListWidget implements iDashboard
       $icons[] = array(
         'group' => 'Доступ',
         'img' => 'img/user.png',
-        'href' => '/admin/?mode=list&type=user&columns=name,login,email,created&sort=name',
+        'href' => '/admin/?mode=list&preset=users',
         'title' => t('Пользователи'),
         'description' => t('Управление профилями пользователей.'),
         );
       $icons[] = array(
         'group' => 'Доступ',
         'img' => 'img/cms-groups.png',
-        'href' => '/admin/?mode=list&type=group&columns=name,login,created&sort=name',
+        'href' => '/admin/?mode=list&preset=groups',
         'title' => t('Группы'),
         'description' => t('Управление группами пользователей.'),
         );
@@ -564,7 +564,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
       $icons[] = array(
         'group' => 'Наполнение',
         'img' => 'img/files.png',
-        'href' => '/admin/?mode=list&type=file&columns=thumbnail,name,filename,filetype,filesize',
+        'href' => '/admin/?mode=list&preset=files',
         'title' => t('Файлы'),
         'description' => t('Просмотр, редактирование и добавление файлов.'),
         );
@@ -581,7 +581,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
       $icons[] = array(
         'group' => 'Наполнение',
         'img' => 'img/recycle.png',
-        'href' => '/admin/?mode=list&deleted=1&columns=name,class,uid,updated,created',
+        'href' => '/admin/?mode=list&preset=trash',
         'title' => t('Корзина'),
         'description' => t('Просмотр и восстановление удалённых файлов.'),
         'weight' => 10,

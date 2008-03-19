@@ -75,3 +75,17 @@ u.fakelink {
 form.inline {
   display: inline;
 }
+
+.nodelist .field-filesize {
+  text-align: right !important;
+}
+.nodelist .field-thumbnail {
+  width: 50px;
+  text-align: center !important;
+}
+.nodelist .selector {
+  width: 10px;
+}
+.nodelist td.field-created, .nodelist td.field-updated {
+  white-space: nowrap;
+}

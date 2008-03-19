@@ -33,7 +33,10 @@ class AdminUISearch extends Control
 
   private function getCreateHTML()
   {
-    $type = $this->type;
+    if (count($this->type) == 1)
+      $type = $this->type[0];
+    else
+      $type = null;
 
     $output = mcms::html('a', array(
       'class' => 'newlink',

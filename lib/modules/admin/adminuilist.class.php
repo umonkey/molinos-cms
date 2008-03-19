@@ -87,6 +87,8 @@ class AdminUIList extends Control
       'class' => t('Тип'),
       'uid' => t('Автор'),
       'thumbnail' => t('Образец'),
+      'classname' => t('Класс'),
+      'description' => t('Описание'),
       );
 
     $output = '<tr>';
