@@ -491,7 +491,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
       $icons[] = array(
         'group' => 'Структура',
         'img' => 'img/taxonomy.png',
-        'href' => '/admin/taxonomy/',
+        'href' => '/admin/?mode=tree&preset=taxonomy',
         'title' => t('Карта сайта'),
         'description' => t('Управление разделами сайта.'),
         );

@@ -27,7 +27,7 @@ class AdminUIList extends Control
       $classes = array();
 
       $classes[] = $odd ? 'odd' : 'even';
-      $classes[] = $node->published ? 'published' : 'unpublished';
+      $classes[] = empty($node['published']) ? 'unpublished' : 'published';
 
       if ($odd)
         $output .= '<tr class=\'odd\'>';
@@ -35,27 +35,32 @@ class AdminUIList extends Control
         $output .= '<tr class=\'even\'>';
 
       $row = '<td class=\'selector\'>';
-      $row .= mcms::html('input', array(
-        'type' => 'checkbox',
-        'name' => 'nodes[]',
-        'value' => $node->id,
-        ));
+      if (empty($node['id']))
+        $row .= '&nbsp;';
+      else
+        $row .= mcms::html('input', array(
+          'type' => 'checkbox',
+          'name' => 'nodes[]',
+          'value' => $node['id'],
+          ));
       $row .= '</td>';
 
       foreach ($this->columns as $field) {
         $row .= "<td class='field-{$field}'>";
-        $value = $node->$field;
+        $value = array_key_exists($field, $node) ? $node[$field] : null;
 
-        if ('thumbnail' == $field and 'file' == $node->class)
-          $row .= "<a href='/attachment/{$node->id}' title='Скачать'><img src='/attachment/{$node->id},48,48' alt='{$node->filepath}' /></a>";
+        if ('thumbnail' == $field and 'file' == $node['class'])
+          $row .= "<a href='/attachment/{$node['id']}' title='Скачать'><img src='/attachment/{$node['id']},48,48' alt='{$node['filepath']}' /></a>";
         elseif (empty($value))
           $row .= '&nbsp;';
+        elseif (null !== ($tmp = $this->resolveField($field, $value)))
+          $row .= $tmp;
         elseif ('name' == $field)
           $row .= mcms::html('a', array(
-            'href' => '/admin/?mode=edit&id='. $node->id .'&destination='. urlencode($_SERVER['REQUEST_URI']),
-            ), $node->$field);
+            'href' => '/admin/?mode=edit&id='. $node['id'] .'&destination='. urlencode($_SERVER['REQUEST_URI']),
+            ), $value);
         else
-          $row .= $node->$field;
+          $row .= $value;
 
         $row .= '</td>';
       }
@@ -77,7 +82,7 @@ class AdminUIList extends Control
     $map = array(
       'name' => t('Название'),
       'title' => t('Заголовок'),
-      'login' => t('Имя'),
+      'login' => t('Внутреннее имя'),
       'email' => t('E-mail'),
       'created' => t('Дата создания'),
       'updated' => t('Дата изменения'),
@@ -106,5 +111,30 @@ class AdminUIList extends Control
     }
 
     return $output .'</tr>';
+  }
+
+  private function resolveField($field, $value)
+  {
+    switch ($field) {
+    case 'class':
+      return $value;
+    case 'uid':
+      return $this->getUserLink($value);
+    }
+  }
+
+  private function getUserLink($uid)
+  {
+    static $users = array();
+
+    if (!array_key_exists($uid, $users))
+      $users[$uid] = Node::load(array('class' => 'user', 'id' => $uid));
+
+    if (mcms::user()->hasGroup('User Managers'))
+      return mcms::html('a', array(
+        'href' => "/admin/?mode=edit&id={$uid}&destination=". urlencode($_SERVER['REQUEST_URI']),
+        ), $users[$uid]->name);
+
+    return $users[$uid]->name;
   }
 };

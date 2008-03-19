@@ -36,24 +36,6 @@ class AdminListHandler
     $this->offset = $ctx->get('offset');
   }
 
-  protected function getData()
-  {
-    $filter = array();
-
-    if (null !== $this->deleted)
-      $filter['deleted'] = $this->deleted;
-
-    if (null !== $this->published)
-      $filter['published'] = $this->published;
-
-    if (null !== $this->types)
-      $filter['class'] = $this->types;
-    else
-      $filter['-class'] = array('domain', 'widget', 'user', 'group', 'type', 'file');
-
-    return Node::find($filter, $this->limit, $this->offset);
-  }
-
   public function getHTML($preset = null)
   {
     $this->setUp($preset);
@@ -81,6 +63,19 @@ class AdminListHandler
     return $output;
   }
 
+  private function getSearchForm()
+  {
+    $form = new Form(array(
+      'action' => $_SERVER['REQUEST_URI'],
+      'method' => 'post',
+      ));
+    $form->addControl(new AdminUISearch(array(
+      'q' => $this->ctx->get('search'),
+      'type' => $this->types,
+      )));
+    return $form->getHTML(array());
+  }
+
   protected function setUp($preset = null)
   {
     // Некоторые заготовки.
@@ -95,20 +90,23 @@ class AdminListHandler
       case 'trash':
         $this->deleted = 1;
         $this->title = t('Удалённые документы');
-        $this->columns = array('name', 'class', 'uid', 'updated', 'created');
+        $this->columns = array('created', 'name', 'class', 'uid', 'updated');
         $this->actions = array('undelete', 'erase');
         break;
       case 'groups':
         $this->types = array('group');
         $this->title = t('Список групп');
-        $this->columns = array('name', 'title', 'description');
+        $this->columns = array('name', 'login', 'description', 'created');
         $this->actions = array('delete', 'clone');
+        $this->limit = $this->offset = null;
+        $this->sort = array('name');
         break;
       case 'users':
         $this->types = array('user');
         $this->title = t('Список пользователей');
         $this->columns = array('name', 'login', 'email', 'created');
         $this->actions = array('delete', 'clone');
+        $this->sort = array('name');
         break;
       case 'files':
         $this->types = array('file');
@@ -120,12 +118,14 @@ class AdminListHandler
         $this->title = t('Типы документов');
         $this->columns = array('name', 'title', 'description', 'created');
         $this->limit = $this->offset = null;
+        $this->sort = array('name');
         break;
       case 'widgets':
         $this->types = array('widget');
         $this->title = t('Список виджетов');
         $this->columns = array('name', 'title', 'classname', 'description', 'created');
         $this->limit = $this->offset = null;
+        $this->sort = array('name');
         break;
       }
     }
@@ -160,16 +160,41 @@ class AdminListHandler
         );
   }
 
-  private function getSearchForm()
+  protected function getData()
   {
-    $form = new Form(array(
-      'action' => $_SERVER['REQUEST_URI'],
-      'method' => 'post',
-      ));
-    $form->addControl(new AdminUISearch(array(
-      'q' => $this->ctx->get('search'),
-      'type' => $this->types,
-      )));
-    return $form->getHTML(array());
+    $result = $filter = array();
+
+    if (null !== $this->deleted)
+      $filter['deleted'] = $this->deleted;
+
+    if (null !== $this->published)
+      $filter['published'] = $this->published;
+
+    if (null !== $this->types)
+      $filter['class'] = $this->types;
+    else
+      $filter['-class'] = array('domain', 'widget', 'user', 'group', 'type', 'file');
+
+    if (!empty($this->sort)) {
+      foreach ($this->sort as $field) {
+        if (substr($field, 0, 1) == '-') {
+          $mode = 'desc';
+          $field = substr($field, 1);
+        } else {
+          $mode = 'asc';
+        }
+
+        $filter['#sort'][$field] = $mode;
+      }
+    } else {
+      $filter['#sort'] = array(
+        'id' => 'desc',
+        );
+    }
+
+    foreach (Node::find($filter, $this->limit, $this->offset) as $node)
+      $result[] = $node->getRaw();
+
+    return $result;
   }
 };

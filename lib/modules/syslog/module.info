@@ -8,6 +8,7 @@ iWidget = SysLogModule
 iDashboard = SysLogModule
 iModuleConfig = SysLogModule
 iNodeHook = SysLogModule
+iAdminUI = SysLogModule
 
 [name]
 en = System Log

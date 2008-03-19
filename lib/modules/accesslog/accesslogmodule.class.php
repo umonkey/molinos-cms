@@ -28,7 +28,8 @@ class AccessLogModule extends Widget implements iAdminWidget, iDashboard, iModul
   // Обработка GET запросов.
   public function onGet(RequestContext $ctx)
   {
-    bebop_debug($ctx);
+    $tmp = new AccessLogListHandler($ctx);
+    return $tmp->getHTML();
   }
 
   // РАБОТА С ФОРМАМИ.

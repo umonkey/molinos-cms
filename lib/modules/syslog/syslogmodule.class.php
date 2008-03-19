@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleConfig, iNodeHook
+class SysLogModule implements iAdminUI, iDashboard, iModuleConfig, iNodeHook
 {
   public function __construct(Node $node)
   {
@@ -42,9 +42,10 @@ class SysLogModule extends Widget implements iAdminWidget, iDashboard, iModuleCo
   }
 
   // Обработка GET запросов.
-  public function onGet(array $options)
+  public static function onGet(RequestContext $ctx)
   {
-    return $this->dispatch(array($options['mode']), $options);
+    $tmp = new SyslogListHandler($ctx);
+    return $tmp->getHTML();
   }
 
   protected function onGetDefault(array $options)
