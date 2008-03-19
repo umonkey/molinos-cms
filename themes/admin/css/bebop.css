@@ -76,6 +76,9 @@ form.inline {
   display: inline;
 }
 
+.nodelist {
+  width: 100%;
+}
 .nodelist .field-filesize {
   text-align: right !important;
 }
@@ -83,9 +86,25 @@ form.inline {
   width: 50px;
   text-align: center !important;
 }
-.nodelist .selector {
+.nodelist .selector,
+.nodelist .field-updated,
+.nodelist .field-created {
   width: 10px;
+  font-style: normal;
 }
-.nodelist td.field-created, .nodelist td.field-updated {
+.nodelist .field-created,
+.nodelist .field-updated {
   white-space: nowrap;
+}
+
+table.modinfo {
+  margin-top: 1em;
+}
+table.modinfo th {
+  text-align: right;
+}
+
+.modlist th {
+  background-color: #efefef;
+  padding: 4px;
 }

@@ -320,7 +320,6 @@ form.tabbed .tab-content {
 }
 
 #center table {
-  width: 100%;
   border-collapse: collapse;
   border-left: 1px solid #FFFFFF;
 }
@@ -329,20 +328,24 @@ form.tabbed .tab-content {
 
 #center table.highlight tr:hover td {background-color: #ecf1f2;}
 
-#center table th,
-#center table td {
+#center table.nodelist th,
+#center table.nodelist td {
   text-align: left;
   border-left: 1px dashed #e3e2e1;
 }
 
-#center table th {
+#cecnter table th {
   padding: 3px 10px 4px 10px;
+}
+#center table.nodelist th {
   font-weight: bold;
   border-bottom: 1px solid #333333;
 }
 
 #center table td {
   padding: 4px 10px 7px 10px;
+}
+#center table.nodelist td {
   border-bottom: 3px solid #FFFFFF;
 }
 

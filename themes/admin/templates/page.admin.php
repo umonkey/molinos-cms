@@ -81,7 +81,7 @@ function render_username()
           <div class="greeting">Здравствуйте, <?php print render_username(); ?></div>
           <a href="/admin/?mode=edit&id=<?php print mcms::user()->getUid(); ?>&destination=<?php print urlencode($_SERVER['REQUEST_URI']) ?>">Настройки</a>
           <div>
-            <a id="lnk_exit" href="/admin/?mode=logout&amp;destination=%2F">Выйти</a>
+            <a id="lnk_exit" href="/base.rpc?action=logout&amp;destination=%2F">Выйти</a>
           </div>
         </div>
       </div><!-- id=top_toolbar -->

@@ -5,6 +5,9 @@ class AdminUIModule implements iAdminUI
 {
   public static function onGet(RequestContext $ctx)
   {
+    if (!mcms::user()->hasGroup('Content Managers'))
+      throw new ForbiddenException();
+
     $result = array();
 
     if (null === ($module = $ctx->get('module')))
@@ -28,6 +31,7 @@ class AdminUIModule implements iAdminUI
   {
     switch ($mode = $ctx->get('mode', 'status')) {
     case 'list':
+    case 'tree':
     case 'edit':
     case 'create':
     case 'logout':
@@ -48,58 +52,10 @@ class AdminUIModule implements iAdminUI
     return $tmp->getHTML($ctx->get('preset'));
   }
 
-  private static function onGetListActions(RequestContext $ctx)
+  private static function onGetTree(RequestContext $ctx)
   {
-    switch ($ctx->get('type')) {
-    case 'user':
-      return array(
-        'delete',
-        'enable',
-        'disable',
-        'clone',
-        );
-    case 'group':
-      return array(
-        'delete',
-        'clone',
-        );
-    default:
-      if ($ctx->get('deleted'))
-        return array(
-          'undelete',
-          'erase',
-          );
-      return array(
-        'delete',
-        'publish',
-        'unpublish',
-        'clone',
-        );
-    }
-  }
-
-  private static function getDashboardIcons()
-  {
-    $result = array();
-
-    $classes = mcms::getClassMap();
-    $rootlen = strlen(dirname(dirname(dirname(dirname(__FILE__)))));
-
-    foreach (mcms::getImplementors('iDashboard') as $class) {
-      $icons = call_user_func(array($class, 'getDashboardIcons'));
-
-      if (is_array($icons) and !empty($icons))
-        foreach ($icons as $icon) {
-          if (!empty($icon['img'])) {
-            $classpath = dirname($classes[strtolower($class)]);
-            $icon['img'] = substr($classpath, $rootlen) .'/'. $icon['img'];
-          }
-
-          $result[$icon['group']][] = $icon;
-        }
-    }
-
-    return $result;
+    $tmp = new AdminTreeHandler($ctx);
+    return $tmp->getHTML($ctx->get('preset'));
   }
 
   private static function onGetEdit(RequestContext $ctx)
@@ -239,5 +195,29 @@ class AdminUIModule implements iAdminUI
       $groups[$module['group']][$modname] = $module;
 
     return $groups;
+  }
+
+  private static function getDashboardIcons()
+  {
+    $result = array();
+
+    $classes = mcms::getClassMap();
+    $rootlen = strlen(dirname(dirname(dirname(dirname(__FILE__)))));
+
+    foreach (mcms::getImplementors('iDashboard') as $class) {
+      $icons = call_user_func(array($class, 'getDashboardIcons'));
+
+      if (is_array($icons) and !empty($icons))
+        foreach ($icons as $icon) {
+          if (!empty($icon['img'])) {
+            $classpath = dirname($classes[strtolower($class)]);
+            $icon['img'] = substr($classpath, $rootlen) .'/'. $icon['img'];
+          }
+
+          $result[$icon['group']][] = $icon;
+        }
+    }
+
+    return $result;
   }
 };

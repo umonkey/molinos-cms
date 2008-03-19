@@ -14,10 +14,7 @@
         print 'Введённый логин/пароль не подходит.  Возможно, ваш профиль ещё не был активирован.  Если вы регистрировались на сайте самостоятельно, вы должны были получить инструкции по активации профиля по электронной почте.';
     ?></p>
 
-    <form method='post'>
-      <input type='hidden' name='form_id' value='user-login-form' />
-      <input type='hidden' name='form_handler' value='profile' />
-      <input type='hidden' name='destination' value='<?=htmlspecialchars($_SERVER['REQUEST_URI'])?>' />
+    <form method='post' action='/base.rpc?action=login&destination=<?php print urlencode($_SERVER['REQUEST_URI']) ?>' class='tabbed'>
       <table align='center' border='0' cellspacing='0' cellpadding='4'>
         <tr>
           <td class='label'>
