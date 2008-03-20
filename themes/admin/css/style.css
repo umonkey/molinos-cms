@@ -321,7 +321,6 @@ form.tabbed .tab-content {
 
 #center table {
   border-collapse: collapse;
-  border-left: 1px solid #FFFFFF;
 }
 
 #center table.highlight tr.current {background-color: #f4f4f2;}

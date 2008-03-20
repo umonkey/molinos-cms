@@ -140,6 +140,12 @@ class AdminListHandler
         $this->page = 1;
         $this->sort = array('name');
         break;
+      case 'comments':
+        $this->types = array('comment');
+        $this->title = t('Список комментариев');
+        $this->columns = array('uid', 'text', 'created');
+        $this->sort = array('-id');
+        break;
       }
     }
 
@@ -186,7 +192,7 @@ class AdminListHandler
     if (null !== $this->types)
       $filter['class'] = $this->types;
     else
-      $filter['-class'] = array('domain', 'widget', 'user', 'group', 'type', 'file');
+      $filter['-class'] = array('domain', 'widget', 'user', 'group', 'type', 'file', 'comment');
 
     if (!empty($this->sort)) {
       foreach ($this->sort as $field) {

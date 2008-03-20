@@ -18,7 +18,7 @@ class AdminUIList extends Control
 
   public function getHTML(array $data)
   {
-    $output = '<table class=\'nodelist\' border=\'1\'>';
+    $output = '<table class=\'nodelist\' border=\'0\'>';
     $output .= $this->getTableHeader();
 
     $odd = true;
