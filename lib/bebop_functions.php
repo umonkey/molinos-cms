@@ -727,7 +727,8 @@ class mcms
 
   public static function ismodule($name)
   {
-    return array_key_exists($name, bebop_get_module_map());
+    $tmp = mcms::getModuleMap();
+    return array_key_exists($name, $tmp['modules']);
   }
 
   public static function modpath($name)
