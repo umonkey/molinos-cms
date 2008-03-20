@@ -90,7 +90,9 @@ class FormWidget extends Widget
     if (null === ($options['root'] = $ctx->section_id))
       $options['root'] = $this->section_default;
 
-    $options['status'] = $ctx->get('status', 'default');
+    if ('edit' == ($options['status'] = $ctx->get('status', 'default')))
+      $options['node'] = $ctx->get('node');
+
     $options['stripped'] = empty($this->stripped) ? 0 : 1;
 
     if ((null !== ($tmp = $ctx->get('parent'))) and is_numeric($tmp))
@@ -106,6 +108,11 @@ class FormWidget extends Widget
   public function onGet(array $options)
   {
     return $this->dispatch(array($options['status']), $options);
+  }
+
+  public function onGetEdit(array $options)
+  {
+    return parent::formRender('form-create-edit');
   }
 
   protected function onGetDefault(array $options)
@@ -194,7 +201,19 @@ class FormWidget extends Widget
     $form = null;
     $types = $this->getTypeList($this->options['root']);
 
-    if ($id == 'form-create') {
+    if ($id == 'form-create-edit') {
+      if (empty($this->options['node']))
+        throw new PageNotFoundException();
+
+      $node = Node::load($this->options['node']);
+
+      if (!$node->checkPermission('u'))
+        throw new ForbiddenException();
+
+      return $node->formGet();
+    }
+
+    elseif ($id == 'form-create') {
       $form = new Form(array(
         'title' => t('Добавление объекта'),
         ));
@@ -247,7 +266,12 @@ class FormWidget extends Widget
 
   public function formGetData($id)
   {
-    if ($id == 'form-create') {
+    if ($id == 'form-create-edit') {
+      $node = Node::load($this->options['node']);
+      return $node->formGetData();
+    }
+
+    elseif ($id == 'form-create') {
       $data = array();
     }
 
@@ -266,16 +290,11 @@ class FormWidget extends Widget
     $next = null;
 
     switch ($id) {
-    /*
-    case 'form-create':
-      $url = bebop_split_url();
-      $url['args'][$this->getInstanceName()] = array(
-        'type' => $data['node_content_class'],
-        );
-
-      $next = bebop_combine_url($url, false);
-      break;
-    */
+    case 'form-create-edit':
+      $node = Node::load($this->options['node']);
+      $node->formProcess($data);
+      $node->save();
+      return $_GET['destination'];
 
     default:
       if (false !== strstr($id, 'form-create-')) {
@@ -289,8 +308,6 @@ class FormWidget extends Widget
 
         $node->formProcess($data);
         $node->save();
-
-        mcms::flush();
 
         if (!empty($_GET['destination']))
           $next = $_GET['destination'];
