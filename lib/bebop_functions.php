@@ -960,15 +960,14 @@ class mcms
 
             $classname = null;
 
-            switch ($parts[0]) {
+            switch ($type = $parts[0]) {
             case 'class':
               $classname = $parts[1];
               break;
             case 'control':
-              $classname .= $parts[1] .'control';
-              break;
             case 'node':
-              $classname = $parts[1] .'node';
+            case 'widget':
+              $classname = $parts[1] . $type;
               break;
             case 'interface':
               $classname = 'i'. $parts[1];
@@ -1002,6 +1001,8 @@ class mcms
         }
       }
     }
+
+    ksort($result['classes']);
 
     // bebop_debug($result);
 

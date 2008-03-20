@@ -49,14 +49,14 @@ class AdminListHandler
     $form = new Form(array(
       'action' => '/nodeapi.rpc?action=mass&destination='. urlencode($_SERVER['REQUEST_URI']),
       ));
-    $form->addControl(new AdminUINodeActions(array(
+    $form->addControl(new AdminUINodeActionsControl(array(
       'actions' => $this->actions,
       )));
-    $form->addControl(new AdminUIList(array(
+    $form->addControl(new AdminUIListControl(array(
       'columns' => $this->columns,
       'selectors' => $this->selectors,
       )));
-    $form->addControl(new AdminUINodeActions(array(
+    $form->addControl(new AdminUINodeActionsControl(array(
       'actions' => $this->actions,
       )));
     $form->addControl(new PagerControl(array(
@@ -77,7 +77,7 @@ class AdminListHandler
       'action' => $_SERVER['REQUEST_URI'],
       'method' => 'post',
       ));
-    $form->addControl(new AdminUISearch(array(
+    $form->addControl(new AdminUISearchControl(array(
       'q' => $this->ctx->get('search'),
       'type' => $this->types,
       'value' => 'search',
