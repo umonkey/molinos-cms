@@ -35,12 +35,6 @@ function bebop_mail($from, $to, $subject, $body, array $attachments = null, arra
   return BebopMimeMail::send($from, $to, $subject, $body, $attachments, $headers);
 }
 
-// Возвращает массив интерфейсов и реализующих их классов.
-function bebop_get_interface_map($name)
-{
-  return mcms::getImplementors($name);
-}
-
 // Проверяет, является ли пользователь отладчиком.
 function bebop_is_debugger()
 {
@@ -764,7 +758,7 @@ class mcms
 
   public static function invoke($interface, $method, array $args = array())
   {
-    foreach (bebop_get_interface_map($interface) as $class)
+    foreach (mcms::getImplementors($interface) as $class)
       if (mcms::class_exists($class))
         call_user_func_array(array($class, $method), $args);
   }

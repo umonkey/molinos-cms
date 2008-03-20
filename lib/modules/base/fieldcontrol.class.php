@@ -101,7 +101,7 @@ class FieldControl extends Control
     if (null !== $current)
       $current = mcms_ctlname($current);
 
-    foreach (bebop_get_interface_map('iFormControl') as $class) {
+    foreach (mcms::getImplementors('iFormControl') as $class) {
       if (mcms::class_exists($class)) {
         $info = call_user_func(array($class, 'getInfo'));
         if (empty($info['hidden']))

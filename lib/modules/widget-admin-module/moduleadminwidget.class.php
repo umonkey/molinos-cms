@@ -87,7 +87,7 @@ class ModuleAdminWidget extends Widget
       break;
 
     case 'module-edit':
-      $map = mcms::getModuleMap(); // bebop_get_module_map();
+      $map = mcms::getModuleMap();
       $modname = $this->options['edit'];
 
       if (!array_key_exists($modname, $map['modules']))

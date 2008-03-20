@@ -47,7 +47,7 @@ class WidgetNode extends Node implements iContentType
     if (null === $this->id) {
       $classes = array();
 
-      foreach (bebop_get_interface_map('iWidget') as $classname) {
+      foreach (mcms::getImplementors('iWidget') as $classname) {
         if ($classname != 'Widget' and substr($classname, -11) != 'AdminWidget') {
           $info = Widget::getInfo($classname);
           if (empty($info['hidden']) and !empty($info['name']))
