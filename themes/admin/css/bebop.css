@@ -1,4 +1,4 @@
-tr.unpublished {
+tr.unpublished a {
   font-style: italic;
 }
 
@@ -88,9 +88,8 @@ form.inline {
 }
 .nodelist .selector,
 .nodelist .field-updated,
-.nodelist .field-created {
+.nodelist .field-created .field-filetype {
   width: 10px;
-  font-style: normal;
 }
 .nodelist .field-created,
 .nodelist .field-updated {
