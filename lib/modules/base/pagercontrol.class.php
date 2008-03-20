@@ -13,7 +13,7 @@ class PagerControl extends Control
 
   public function __construct(array $form)
   {
-    parent::__construct($form, array('value', 'widget'));
+    parent::__construct($form, array('value'));
   }
 
   public function getHTML(array $data)
@@ -44,8 +44,14 @@ class PagerControl extends Control
 
     foreach (array(10, 30, 60) as $x) {
       $url = bebop_split_url();
-      $url['args'][$this->widget]['limit'] = $x;
-      $url['args'][$this->widget]['page'] = null;
+
+      if (null === $this->widget) {
+        $url['args']['limit'] = $x;
+        $url['args']['page'] = null;
+      } else {
+        $url['args'][$this->widget]['limit'] = $x;
+        $url['args'][$this->widget]['page'] = null;
+      }
 
       $right .= mcms::html('a', array('href' => bebop_combine_url($url, false)), $x);
     }
@@ -58,6 +64,9 @@ class PagerControl extends Control
 
   private function getPagerData(array $input)
   {
+    if (null === $this->widget)
+      return $input;
+
     if (empty($input['limit']))
       return null;
 
@@ -83,7 +92,10 @@ class PagerControl extends Control
       $url = bebop_split_url();
 
       for ($i = $beg; $i <= $end; $i++) {
-        $url['args'][$this->widget]['page'] = ($i == 1) ? null : $i;
+        if (null === $this->widget)
+          $url['args']['page'] = ($i == 1) ? null : $i;
+        else
+          $url['args'][$this->widget]['page'] = ($i == 1) ? null : $i;
         $output['list'][$i] = ($i == $output['current']) ? null : bebop_combine_url($url);
       }
 

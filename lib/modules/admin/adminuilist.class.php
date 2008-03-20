@@ -49,12 +49,10 @@ class AdminUIList extends Control
         $row .= "<td class='field-{$field}'>";
         $value = array_key_exists($field, $node) ? $node[$field] : null;
 
-        if ('thumbnail' == $field and 'file' == $node['class'])
-          $row .= "<a href='/attachment/{$node['id']}' title='Скачать'><img src='/attachment/{$node['id']},48,48' alt='{$node['filepath']}' /></a>";
+        if (null !== ($tmp = $this->resolveField($field, $value, $node)))
+          $row .= $tmp;
         elseif (empty($value))
           $row .= '&nbsp;';
-        elseif (null !== ($tmp = $this->resolveField($field, $value)))
-          $row .= $tmp;
         elseif ('name' == $field)
           $row .= mcms::html('a', array(
             'href' => '/admin/?mode=edit&id='. $node['id'] .'&destination='. urlencode($_SERVER['REQUEST_URI']),
@@ -113,13 +111,19 @@ class AdminUIList extends Control
     return $output .'</tr>';
   }
 
-  private function resolveField($field, $value)
+  private function resolveField($field, $value, array $node = null)
   {
     switch ($field) {
     case 'class':
       return $value;
     case 'uid':
       return $this->getUserLink($value);
+    case 'thumbnail':
+      if (null !== $node and !empty($node['class']) and $node['class'] == 'file') {
+        if (file_exists($path = mcms::config('filestorage') .'/'. $node['filepath']))
+          return "<a href='/attachment/{$node['id']}' title='Скачать'><img src='/attachment/{$node['id']},48,48' alt='{$node['filepath']}' /></a>";
+      }
+      break;
     }
   }
 

@@ -1020,4 +1020,49 @@ class mcms
 
     return $result;
   }
+
+  public static function pager($total, $current, $limit, $paramname = 'page', $default = 1)
+  {
+    $result = array();
+
+    if (empty($limit))
+      return null;
+
+    $result['documents'] = $total;
+    $result['pages'] = $pages = ceil($total / $limit);
+    $result['perpage'] = intval($limit);
+    $result['current'] = $current;
+
+    if ('last' == $current)
+      $result['current'] = $current = $pages;
+
+    if ('last' == $default)
+      $default = $pages;
+
+    if ($pages > 0) {
+      // Немного валидации.
+      if ($current > $pages or $current <= 0)
+        throw new UserErrorException("Страница не найдена", 404, "Страница не найдена", "Вы обратились к странице {$current} списка, содержащего {$pages} страниц.&nbsp; Это недопустимо.");
+
+      // С какой страницы начинаем список?
+      $beg = max(1, $current - 5);
+      // На какой заканчиваем?
+      $end = min($pages, $current + 5);
+
+      // Расщеплённый текущий урл.
+      $url = bebop_split_url();
+
+      for ($i = $beg; $i <= $end; $i++) {
+        $url['args'][$paramname] = ($i == $default) ? '' : $i;
+        $result['list'][$i] = ($i == $current) ? '' : bebop_combine_url($url);
+      }
+
+      if (!empty($result['list'][$current - 1]))
+        $result['prev'] = $result['list'][$current - 1];
+      if (!empty($result['list'][$current + 1]))
+        $result['next'] = $result['list'][$current + 1];
+    }
+
+    return $result;
+  }
 };

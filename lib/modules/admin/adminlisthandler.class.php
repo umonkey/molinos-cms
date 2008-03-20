@@ -13,7 +13,7 @@ class AdminListHandler
   public $actions;
 
   protected $limit;
-  protected $offset;
+  protected $page;
 
   public function __construct(RequestContext $ctx)
   {
@@ -32,8 +32,8 @@ class AdminListHandler
 
     $this->title = t('Список документов');
 
-    $this->limit = $ctx->get('limit');
-    $this->offset = $ctx->get('offset');
+    $this->limit = $ctx->get('limit', 10);
+    $this->page = $ctx->get('page', 1);
   }
 
   public function getHTML($preset = null)
@@ -55,9 +55,13 @@ class AdminListHandler
     $form->addControl(new AdminUINodeActions(array(
       'actions' => $this->actions,
       )));
+    $form->addControl(new PagerControl(array(
+      'value' => '__pager',
+      )));
 
     $output .= $form->getHTML(array(
       'nodes' => $this->getData(),
+      '__pager' => $this->getPager(),
       ));
 
     return $output;
@@ -74,6 +78,11 @@ class AdminListHandler
       'type' => $this->types,
       )));
     return $form->getHTML(array());
+  }
+
+  private function getPager()
+  {
+    return mcms::pager($this->getCount(), $this->page, $this->limit);
   }
 
   protected function setUp($preset = null)
@@ -98,7 +107,8 @@ class AdminListHandler
         $this->title = t('Список групп');
         $this->columns = array('name', 'login', 'description', 'created');
         $this->actions = array('delete', 'clone');
-        $this->limit = $this->offset = null;
+        $this->limit = null;
+        $this->page = 1;
         $this->sort = array('name');
         break;
       case 'users':
@@ -117,14 +127,16 @@ class AdminListHandler
         $this->types = array('type');
         $this->title = t('Типы документов');
         $this->columns = array('name', 'title', 'description', 'created');
-        $this->limit = $this->offset = null;
+        $this->limit = null;
+        $this->page = 1;
         $this->sort = array('name');
         break;
       case 'widgets':
         $this->types = array('widget');
         $this->title = t('Список виджетов');
         $this->columns = array('name', 'title', 'classname', 'description', 'created');
-        $this->limit = $this->offset = null;
+        $this->limit = null;
+        $this->page = 1;
         $this->sort = array('name');
         break;
       }
@@ -160,9 +172,9 @@ class AdminListHandler
         );
   }
 
-  protected function getData()
+  protected function getNodeFilter()
   {
-    $result = $filter = array();
+    $filter = array();
 
     if (null !== $this->deleted)
       $filter['deleted'] = $this->deleted;
@@ -192,9 +204,21 @@ class AdminListHandler
         );
     }
 
-    foreach (Node::find($filter, $this->limit, $this->offset) as $node)
+    return $filter;
+  }
+
+  protected function getData()
+  {
+    $result = array();
+
+    foreach (Node::find($this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit) as $node)
       $result[] = $node->getRaw();
 
     return $result;
+  }
+
+  protected function getCount()
+  {
+    return Node::count($this->getNodeFilter());
   }
 };
