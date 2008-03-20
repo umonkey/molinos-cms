@@ -8,11 +8,14 @@ class AccessLogListHandler extends AdminListHandler
     $this->title = t('Статистика доступа');
     $this->columns = array('timestamp', 'nid', 'ip', 'referer');
     $this->actions = array();
+    $this->selectors = false;
   }
 
   protected function getData()
   {
-    $data = mcms::db()->getResults("SELECT * FROM `node__astat` ORDER BY `id` DESC");
+    $offset = ($this->page - 1) * $this->limit;
+
+    $data = mcms::db()->getResults("SELECT * FROM `node__astat` ORDER BY `id` DESC LIMIT {$offset}, {$this->limit}");
 
     return $data;
   }

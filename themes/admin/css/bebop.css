@@ -88,11 +88,14 @@ form.inline {
 }
 .nodelist .selector,
 .nodelist .field-updated,
-.nodelist .field-created .field-filetype {
+.nodelist .field-created .field-filetype,
+.nodelist .field-timestamp,
+.nodelist .field-ip {
   width: 10px;
 }
 .nodelist .field-created,
-.nodelist .field-updated {
+.nodelist .field-updated,
+.nodelist .field-timestamp {
   white-space: nowrap;
 }
 
