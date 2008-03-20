@@ -11,6 +11,7 @@ class AdminListHandler
   public $columns;
   public $title;
   public $actions;
+  protected $selectors;
 
   protected $limit;
   protected $page;
@@ -18,6 +19,8 @@ class AdminListHandler
   public function __construct(RequestContext $ctx)
   {
     $this->ctx = $ctx;
+
+    $this->selectors = true;
 
     if (null !== ($tmp = $ctx->get('deleted')))
       $this->deleted = $tmp;
@@ -51,6 +54,7 @@ class AdminListHandler
       )));
     $form->addControl(new AdminUIList(array(
       'columns' => $this->columns,
+      'selectors' => $this->selectors,
       )));
     $form->addControl(new AdminUINodeActions(array(
       'actions' => $this->actions,

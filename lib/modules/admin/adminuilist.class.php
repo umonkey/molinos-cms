@@ -34,16 +34,20 @@ class AdminUIList extends Control
       else
         $output .= '<tr class=\'even\'>';
 
-      $row = '<td class=\'selector\'>';
-      if (empty($node['id']))
-        $row .= '&nbsp;';
-      else
-        $row .= mcms::html('input', array(
-          'type' => 'checkbox',
-          'name' => 'nodes[]',
-          'value' => $node['id'],
-          ));
-      $row .= '</td>';
+      $row = '';
+
+      if ($this->selectors) {
+        $row .= '<td class=\'selector\'>';
+        if (empty($node['id']))
+          $row .= '&nbsp;';
+        else
+          $row .= mcms::html('input', array(
+            'type' => 'checkbox',
+            'name' => 'nodes[]',
+            'value' => $node['id'],
+            ));
+        $row .= '</td>';
+      }
 
       foreach ($this->columns as $field) {
         $row .= "<td class='field-{$field}'>";
@@ -92,10 +96,17 @@ class AdminUIList extends Control
       'thumbnail' => t('Образец'),
       'classname' => t('Класс'),
       'description' => t('Описание'),
+      'timestamp' => t('Время'),
+      'username' => t('Пользователь'),
+      'operation' => t('Действие'),
+      'message' => t('Сообщение'),
+      'ip' => t('IP адрес'),
       );
 
     $output = '<tr>';
-    $output .= '<th class=\'selector\'>&nbsp;</th>';
+
+    if ($this->selectors)
+      $output .= '<th class=\'selector\'>&nbsp;</th>';
 
     foreach ($this->columns as $col) {
       $output .= "<th class='field-{$col}'>";
