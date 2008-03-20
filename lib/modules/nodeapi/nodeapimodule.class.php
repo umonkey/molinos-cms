@@ -88,11 +88,15 @@ class NodeApiModule implements iRemoteCall
       break;
 
     case 'erase':
-      $node = Node::load(array(
-        'id' => $nid,
-        'deleted' => 1,
-        ));
-      $node->erase();
+      try {
+        $node = Node::load(array(
+          'id' => $nid,
+          'deleted' => 1,
+          ));
+        $node->erase();
+      } catch (ObjectNotFoundException $e) {
+        // случается при рекурсивном удалении вложенных объектов
+      }
       break;
 
     default:

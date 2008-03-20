@@ -314,7 +314,10 @@ class NodeBase implements iFormObject
     $nids = $pdo->getResultsKV("id", "class", "SELECT `id`, `class` FROM `node` WHERE `left` >= :left AND `right` <= :right", array(':left' => $meta['left'], ':right' => $meta['right']));
 
     // Вызываем дополнительную обработку.
-    mcms::invoke('iNodeHook', 'hookNodeDelete', array(Node::load(array('id' => $nid, 'deleted' => 1)), 'erase'));
+    try {
+      mcms::invoke('iNodeHook', 'hookNodeDelete', array(Node::load(array('id' => $nid, 'deleted' => array(0, 1))), 'erase'));
+    } catch (Exception $e) {
+    }
 
     $pdo->exec("DELETE FROM `node` WHERE `left` BETWEEN :left AND :right", array(':left' => $meta['left'], ':right' => $meta['right']));
     $pdo->exec("UPDATE `node` SET `right` = `right` - :width WHERE `right` > :right ORDER BY `right` ASC", $args = array(':width' => $meta['width'], ':right' => $meta['right']));

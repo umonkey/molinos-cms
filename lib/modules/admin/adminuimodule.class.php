@@ -199,6 +199,9 @@ class AdminUIModule implements iAdminUI
 
   private static function getDashboardIcons()
   {
+    if (is_array($result = mcms::cache($key = 'dashboardicons')))
+      return $result;
+
     $result = array();
 
     $classes = mcms::getClassMap();
@@ -217,6 +220,8 @@ class AdminUIModule implements iAdminUI
           $result[$icon['group']][] = $icon;
         }
     }
+
+    mcms::cache($key, $result);
 
     return $result;
   }
