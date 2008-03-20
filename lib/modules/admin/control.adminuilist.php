@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class AdminUIList extends Control
+class AdminUIListControl extends Control
 {
   public static function getInfo()
   {

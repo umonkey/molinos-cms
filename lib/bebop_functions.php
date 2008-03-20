@@ -952,10 +952,30 @@ class mcms
               $result['modules'][$modname][$k] = $ini[$k];
 
           // Составляем список доступных классов.
-          foreach (glob($path .'/'. '*.class.php') as $classpath) {
-            if (is_readable($classpath)) {
-              $classname = substr(basename($classpath), 0, -10);
+          foreach (glob($path .'/'. '*.*.php') as $classpath) {
+            $parts = explode('.', basename($classpath), 3);
 
+            if (count($parts) != 3 or $parts[2] != 'php')
+              continue;
+
+            $classname = null;
+
+            switch ($parts[0]) {
+            case 'class':
+              $classname = $parts[1];
+              break;
+            case 'control':
+              $classname .= $parts[1] .'control';
+              break;
+            case 'node':
+              $classname = $parts[1] .'node';
+              break;
+            case 'interface':
+              $classname = 'i'. $parts[1];
+              break;
+            }
+
+            if (null !== $classname and is_readable($classpath)) {
               // Добавляем в список только первый найденный класс.
               if (!array_key_exists($classname, $result['classes'])) {
                 $result['classes'][$classname] = $classpath;
@@ -982,6 +1002,8 @@ class mcms
         }
       }
     }
+
+    // bebop_debug($result);
 
     return $result;
   }
