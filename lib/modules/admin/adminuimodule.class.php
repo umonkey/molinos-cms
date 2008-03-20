@@ -29,6 +29,12 @@ class AdminUIModule implements iAdminUI
 
   private static function onGetInternal(RequestContext $ctx)
   {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+      $url = bebop_split_url();
+      $url['args']['search'] = empty($_POST['search']) ? null : $_POST['search'];
+      bebop_redirect($url);
+    }
+
     switch ($mode = $ctx->get('mode', 'status')) {
     case 'list':
     case 'tree':
@@ -77,6 +83,7 @@ class AdminUIModule implements iAdminUI
       $node = Node::create($type = $ctx->get('type'));
 
       $form = $node->formGet(false);
+      $form->addClass('tabbed');
       $form->action = "/nodeapi.rpc?action=create&type={$type}&destination=". urlencode($_GET['destination']);
 
       return $form->getHTML($node->formGetData());

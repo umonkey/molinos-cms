@@ -76,6 +76,7 @@ class AdminListHandler
     $form->addControl(new AdminUISearch(array(
       'q' => $this->ctx->get('search'),
       'type' => $this->types,
+      'value' => 'search',
       )));
     return $form->getHTML(array());
   }
@@ -203,6 +204,9 @@ class AdminListHandler
         'id' => 'desc',
         );
     }
+
+    if (null !== ($tmp = $this->ctx->get('search')))
+      $filter['#search'] = $tmp;
 
     return $filter;
   }

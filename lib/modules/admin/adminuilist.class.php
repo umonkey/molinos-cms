@@ -120,8 +120,19 @@ class AdminUIList extends Control
       return $this->getUserLink($value);
     case 'thumbnail':
       if (null !== $node and !empty($node['class']) and $node['class'] == 'file') {
-        if (file_exists($path = mcms::config('filestorage') .'/'. $node['filepath']))
+        if (file_exists($path = mcms::config('filestorage') .'/'. $node['filepath']) and substr($node['filetype'], 0, 6) == 'image/')
           return "<a href='/attachment/{$node['id']}' title='Скачать'><img src='/attachment/{$node['id']},48,48' alt='{$node['filepath']}' /></a>";
+      }
+      break;
+    case 'text':
+      if (null !== $node and $node['class'] == 'comment') {
+        if (!empty($node['text']))
+          $text = $node['text'];
+        elseif (!empty($node['body']))
+          $text = $node['body'];
+        else
+          $text = 'n/a';
+        return $text;
       }
       break;
     }

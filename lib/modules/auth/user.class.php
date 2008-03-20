@@ -127,7 +127,7 @@ class User
     try {
       if ($this->groups == null and $this->systemgroups == null) {
         $rows = mcms::db()->getResults(
-          "SELECT `n`.`id`, `g`.`login`, `g`.`system` "
+          "SELECT `n`.`id`, `g`.`login` "
           ."FROM `node` `n` "
           ."INNER JOIN `node_group` `g` ON `g`.`rid` = `n`.`rid` "
           ."WHERE `n`.`lang` = 'ru' "
@@ -135,12 +135,8 @@ class User
           ."AND `n`.`id` IN (SELECT `r`.`tid` FROM `node__rel` `r` INNER JOIN `node` ON `node`.`id` = `r`.`nid` INNER JOIN `node_user` ON `node_user`.`rid` = `node`.`rid` WHERE `node_user`.`login` = :login) -- User::loadGroups({$this->name})",
           array(':login' => $this->name));
 
-        foreach ($rows as $row) {
-          if (empty($row['system']))
-            $this->groups[$row['id']] = $row['login'];
-          else
-            $this->systemgroups[$row['id']] = $row['login'];
-        }
+        foreach ($rows as $row)
+          $this->groups[$row['id']] = $row['login'];
       }
     }
 

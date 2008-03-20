@@ -52,7 +52,7 @@ class AdminUISearch extends Control
 
     $output = mcms::html('input', array(
       'type' => 'text',
-      'name' => 'search',
+      'name' => $this->value,
       'class' => 'search_field',
       'value' => $this->q,
       ));
