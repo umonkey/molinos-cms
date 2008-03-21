@@ -253,7 +253,7 @@ class SysLogModule implements iAdminUI, iDashboard, iModuleConfig, iNodeHook
 
     if ($user->hasGroup('Access Managers')) {
       $icons[] = array(
-        'group' => 'Статистика',
+        'group' => 'statistics',
         'img' => 'img/journal.png',
         'href' => '/admin/?module=syslog&mode=list',
         'title' => t('Журнал событий'),

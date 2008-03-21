@@ -48,9 +48,8 @@ td.r, th.r {
   height: 120px;
   overflow: hidden;
   width: 100%;
-  border-top: 1px solid #CECECD;
-  border-bottom: 1px solid #CECECD;
-  margin-bottom: 8px;
+  margin: 1px 0;
+  background-color: #faf5ec;
 }
 .carousel ul { list-style:none; list-style-position:outside; }
 .carousel ul li { float:left; }
@@ -88,14 +87,11 @@ form.inline {
 }
 .nodelist .selector,
 .nodelist .field-updated,
-.nodelist .field-created .field-filetype,
-.nodelist .field-timestamp,
-.nodelist .field-ip {
+.nodelist .field-created .field-filetype {
   width: 10px;
 }
 .nodelist .field-created,
-.nodelist .field-updated,
-.nodelist .field-timestamp {
+.nodelist .field-updated {
   white-space: nowrap;
 }
 

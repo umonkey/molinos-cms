@@ -1,44 +1,8 @@
 <?php
 
-function render_dashboard(array $result)
+function render_dashboard($result)
 {
-  $controls = $items = array();
-  $index = $groupidx = 1;
-
-  $oldgroup = null;
-
-  foreach ($result as $group => $icons) {
-    if ($oldgroup !== $group) {
-      $controls[] = mcms::html('a', array(
-        'href' => '#'. $index,
-        ), mcms_plain($group));
-    }
-
-    foreach ($icons as $icon) {
-      if (!empty($icon['img'])) {
-        $html = '<li class=\'group-'. $groupidx .'\'>';
-        $html .= mcms::html('a', array(
-          'href' => $icon['href'],
-          'style' => 'display: block; background: transparent url('. $icon['img'] .') no-repeat top center; padding: 85px 2px 0 2px; text-align: center',
-          'description' => isset($icon['description']) ? $icon['description'] : null,
-          ), mcms_plain($icon['title']));
-        $html .= '</li>';
-
-        $items[] = $html;
-      }
-
-      $index++;
-    }
-
-    $groupidx++;
-  }
-
-  $html = '<div class=\'carousel-control\'>'. join('', $controls) .'</div>';
-  $html .= '<div class=\'carousel jcarousel-skin-tango\'>';
-  $html .= '<ul>'. join('', $items) .'</ul>';
-  $html .= '</div>';
-
-  return $html;
+  return '<div id=\'top_menu_controls\'>'. $result .'</div>';
 }
 
 function render_notifications()
@@ -76,6 +40,8 @@ function render_username()
     <div id="preloaded_images"></div>
 
     <div id="all">
+      <?php print render_dashboard($dashboard); ?>
+  
       <div id="top_toolbar">
         <div class="right">
           <div class="greeting">Здравствуйте, <?php print render_username(); ?></div>
@@ -84,18 +50,7 @@ function render_username()
         </div>
       </div><!-- id=top_toolbar -->
 
-      <?php print render_dashboard($dashboard); ?>
-  
-      <script type="text/javascript">
-      // Включение карусели в основной навигации
-      if ($('.carousel').length != 0) {
-        var carousel = $('.carousel').jcarousel({
-          scroll: 5,
-          visible: 10,
-          initCallback: bebop_dashboard_init
-        });
-      }
-      </script>
+      <div id="top_menu_controls_bottom"></div>
 
       <div id="content_wrapper">
         <div id="center">

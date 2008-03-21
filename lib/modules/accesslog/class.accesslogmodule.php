@@ -175,7 +175,7 @@ class AccessLogModule extends Widget implements iWidget, iAdminWidget, iDashboar
 
     if ($user->hasGroup('Access Managers')) {
       $icons[] = array(
-        'group' => 'Статистика',
+        'group' => 'statistics',
         'img' => 'img/dashboard-task-logs.gif',
         'href' => '/admin/?module=accesslog',
         'title' => t('Доступ к контенту'),
