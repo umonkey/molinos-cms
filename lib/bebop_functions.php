@@ -946,6 +946,12 @@ class mcms
 
       if (file_exists($modinfo = $path .'/module.info')) {
         if (is_array($ini = parse_ini_file($modinfo, true))) {
+          $result['modules'][$modname] = array(
+            'classes' => array(),
+            'interfaces' => array(),
+            'implementors' => array(),
+            );
+
           // Копируем базовые свойства.
           foreach (array('group', 'version', 'name', 'docurl') as $k)
             if (array_key_exists($k, $ini))
@@ -981,20 +987,16 @@ class mcms
                 $result['classes'][$classname] = $classpath;
                 $result['modules'][$modname]['classes'][] = $classname;
               }
-            }
-          }
 
-          // Сохраняем информацию об интерфейсах.
-          if (!empty($ini['interfaces'])) {
-            $result['modules'][$modname]['interfaces'] = array_keys($ini['interfaces']);
-
-            foreach ($ini['interfaces'] as $k => $v) {
-              $classes = explode(',', str_replace(' ', '', $v));
-
-              foreach ($classes as $v) {
-                if (array_key_exists(strtolower($v), $result['classes'])) {
-                  $result['interfaces'][$k][] = $v;
-                  $result['modules'][$modname]['implementors'][$k][] = $v;
+              // Строим список интерфейсов.
+              if ($type !== 'interface') {
+                if (preg_match('@^\s*class\s.*implements\s+(.*)$@im', file_get_contents($classpath), $m)) {
+                  foreach ($interfaces = explode(',', str_replace(' ', '', $m[1])) as $i) {
+                    if (!in_array($i, $result['modules'][$modname]['interfaces']))
+                      $result['modules'][$modname]['interfaces'][] = $i;
+                    $result['modules'][$modname]['implementors'][$i][] = $classname;
+                    $result['interfaces'][$i][] = $classname;
+                  }
                 }
               }
             }
