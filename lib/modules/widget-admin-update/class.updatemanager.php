@@ -81,10 +81,8 @@ class UpdateManager implements iScheduler
     if (in_array('users', $options))
       $this->doUpdateUsers();
 
-    if (in_array('ui', $options)) {
-      $this->doUpdateWidgets();
+    if (in_array('ui', $options))
       $this->doUpdatePages();
-    }
 
     if (in_array('access', $options))
       $this->doFixAccess();
@@ -314,12 +312,6 @@ class UpdateManager implements iScheduler
               'default' => '0',
               'indexed' => true,
               ),
-            'internal' => array(
-              'type' => 'tinyint(1)',
-              'required' => true,
-              'default' => '0',
-              'indexed' => true,
-              ),
             'notags' => array(
               'type' => 'tinyint(1)',
               'required' => true,
@@ -398,12 +390,6 @@ class UpdateManager implements iScheduler
               'indexed' => true,
               'required' => true,
               ),
-            'system' => array(
-              'type' => 'tinyint(1)',
-              'indexed' => true,
-              'required' => true,
-              'default' => '0',
-              ),
             ),
           ),
         'node_user' => array(
@@ -434,12 +420,6 @@ class UpdateManager implements iScheduler
             'publisher' => array(
               'type' => 'varchar(255)',
               'indexed' => true,
-              ),
-            'system' => array(
-              'type' => 'tinyint(1)',
-              'indexed' => true,
-              'required' => true,
-              'default' => '0',
               ),
             ),
           ),
@@ -633,49 +613,31 @@ class UpdateManager implements iScheduler
       'type' => array(
         'title' => 'Тип документа',
         'description' => 'Описание структуры документов.&nbsp; Этого объекта не должно быть здесь видно!',
-        'internal' => true,
         'hidden' => true,
         'notags' => false,
         'nodrafts' => true,
         'nopreview' => true,
-        'widgets' => array(
-          'BebopSchema',
-          ),
         'fields' => array(
           'name' => array(
             'type' => 'TextLineControl',
             'label' => 'Внутреннее имя',
             'description' => "Может содержать только буквы латинского алфавита, арабские цифры и символ подчёркивания («_»).",
             'required' => true,
-            'internal' => true,
             ),
           'title' => array(
             'type' => 'TextLineControl',
             'label' => 'Название типа',
             'description' => "Короткое, максимально информативное описание название документа.&nbsp; Хорошо: &laquo;Статья&raquo;, &laquo;Баннер 85x31&raquo;, плохо: &laquo;Текстовый документ для отображения на сайте&raquo;, &laquo;Баннер справа сверху под тем другим баннером&raquo;.",
             'required' => true,
-            'internal' => true,
             'indexed' => true,
             ),
           'description' => array(
             'type' => 'TextAreaControl',
             'label' => 'Описание',
-            'internal' => true,
-            ),
-          'internal' => array(
-            'type' => 'BoolControl',
-            'label' => 'Внутренний',
-            'hidden' => true,
-            'internal' => true,
-            'readonly' => true,
-            'indexed' => true,
-            'required' => true,
-            'default' => '0',
             ),
           'hidden' => array(
             'type' => 'BoolControl',
             'label' => 'Скрытый',
-            'internal' => true,
             'readonly' => true,
             'indexed' => true,
             'hidden' => true,
@@ -683,7 +645,6 @@ class UpdateManager implements iScheduler
           'notags' => array(
             'type' => 'BoolControl',
             'label' => 'Не работает с разделами',
-            'internal' => true,
             'readonly' => true,
             'indexed' => true,
             ),
@@ -691,7 +652,6 @@ class UpdateManager implements iScheduler
             'type' => 'BoolControl',
             'label' => 'Не использовать черновики в работе',
             'description' => "Изменения будут активированы при сохранении (если пользователь не является выпускающим редактором &mdash; будет автоматически отправлено сообщение модератору).&nbsp; Возможность откатиться на предыдущую ревизию останется.",
-            'internal' => true,
             'readonly' => false,
             'indexed' => true,
             ),
@@ -699,7 +659,6 @@ class UpdateManager implements iScheduler
             'type' => 'BoolControl',
             'label' => 'Не использовать предварительный просмотр',
             'description' => "Форма редактирования и создания документа не будет содержать кнопку предварительного просмотра.",
-            'internal' => true,
             'readonly' => false,
             'indexed' => true,
             ),
@@ -707,14 +666,12 @@ class UpdateManager implements iScheduler
             'type' => 'BoolControl',
             'label' => 'Разрешить прикрепление произвольных файлов',
             'description' => 'Если эта опция включена, при редактировании документа пользователю будет доступна вкладка для добавления произвольных файлов в любом количестве.&nbsp; Без этой опции файлы можно будет добавлять только в специально созданные для этого поля.',
-            'internal' => true,
             'readonly' => false,
             'indexed' => false,
             ),
           'sendmail' => array(
             'type' => 'BoolControl',
             'label' => 'Разрешить подписку по почте',
-            'internal' => true,
             'indexed' => true,
             ),
           ),
@@ -722,7 +679,6 @@ class UpdateManager implements iScheduler
       'widget' => array(
         'title' => 'Виджет',
         'description' => 'Содержит информацию о виджете.',
-        'internal' => true,
         'hidden' => true,
         'notags' => true,
         'nodrafts' => true,
@@ -733,14 +689,12 @@ class UpdateManager implements iScheduler
             'label' => 'Внутреннее имя',
             'description' => 'Используется для идентификации виджета внутри шаблонов, а также для поиска шаблонов для виджета.',
             'required' => true,
-            'internal' => true,
             ),
           'title' => array(
             'type' => 'TextLineControl',
             'label' => 'Название',
             'description' => 'Человеческое название виджета.',
             'required' => true,
-            'internal' => true,
             'indexed' => true,
             ),
           'description' => array(
@@ -748,34 +702,22 @@ class UpdateManager implements iScheduler
             'label' => 'Описание',
             'description' => 'Краткое описание выполняемых виджетом функций и особенностей его работы.',
             'required' => false,
-            'internal' => true,
             ),
           'classname' => array(
             'type' => 'TextLineControl',
             'label' => 'Используемый класс',
             'required' => true,
-            'internal' => true,
             'indexed' => true,
             'hidden' => true,
             ),
           'config' => array(
             'type' => 'HiddenControl',
-            'internal' => true,
-            ),
-          'internal' => array(
-            'type' => 'BoolControl',
-            'label' => t('Виден только группе CMS Developers'),
-            'internal' => true,
-            'hidden' => true,
-            'required' => true,
-            'indexed' => true,
             ),
           ),
         ),
       'domain' => array(
         'title' => 'Домен или урл',
         'description' => 'Описывает домен или урл, используется для формирования структуры сайта (не путать со структурой данных).',
-        'internal' => true,
         'hidden' => true,
         'notags' => true,
         'nodrafts' => true,
@@ -786,31 +728,26 @@ class UpdateManager implements iScheduler
             'label' => 'Имя',
             'description' => 'Имя домена или элемента пути.&nbsp; Для главной страницы это поле должно содержать имя домена.',
             'required' => true,
-            'internal' => true,
             ),
           'title' => array(
             'type' => 'TextLineControl',
             'label' => 'Заголовок',
             'description' => 'Используется в качестве заголовка страницы.',
             'required' => true,
-            'internal' => true,
             ),
           'description' => array(
             'type' => 'TextAreaControl',
             'label' => 'Описание',
             'description' => 'Описание страницы, используется в тэгах META (для SEO) и в административном интерфейсе.&nbsp; Может использоваться шаблонами для других целей.',
-            'internal' => true,
             ),
           'parent_id' => array(
             'type' => 'EnumControl',
             'label' => 'Родительский объект',
-            'internal' => true,
             ),
           'aliases' => array(
             'type' => 'TextAreaControl',
             'label' => 'Дополнительные адреса',
             'description' => 'Список дополнительных адресов, на которые откликается этот домен, по одному в строке.',
-            'internal' => true,
             ),
           'language' => array(
             'type' => 'EnumControl',
@@ -818,7 +755,6 @@ class UpdateManager implements iScheduler
             'description' => 'Язык, применяемый к этому пути, например, &laquo;en&raquo; или &laquo;ru&raquo;.',
             'default' => 'en',
             'required' => true,
-            'internal' => true,
             'options' => array(
               'en' => t('Английский (en)'),
               'ru' => t('Русский (ru)'),
@@ -830,14 +766,12 @@ class UpdateManager implements iScheduler
             'label' => 'Шкура',
             'description' => 'Применяемая к странице тема.',
             'required' => true,
-            'internal' => true,
             ),
           'content_type' => array(
             'type' => 'EnumControl',
             'label' => 'Тип контента',
             'description' => 'Обычно здесь пишут &laquo;text/html&raquo;, но иногда нужны другие значения, например, &laquo;text/xml&raquo; для страниц, возвращающих XML.',
             'required' => true,
-            'internal' => true,
             'options' => array(
               'text/html' => t('HTML (text/html)'),
               'application/xml' => t('XML (application/xml)'),
@@ -851,7 +785,6 @@ class UpdateManager implements iScheduler
             'description' => 'Для обычных страниц используется значение 200, другие значения зарезервированы для страниц обработки ошибок.',
             'default' => '200',
             'required' => true,
-            'internal' => true,
             'hidden' => true,
           ),
           'html_charset' => array(
@@ -859,13 +792,11 @@ class UpdateManager implements iScheduler
             'label' => 'Кодировка результата',
             'default' => 'utf-8',
             'required' => true,
-            'internal' => true,
             'hidden' => true,
             ),
           'hidden' => array(
             'type' => 'BoolControl',
             'label' => 'Скрытый',
-            'internal' => true,
             'readonly' => true,
             'indexed' => true,
             'hidden' => true,
@@ -877,7 +808,6 @@ class UpdateManager implements iScheduler
             'values' => "sec+doc = /раздел/докумен/\nsec = /раздел/\ndoc = /документ/",
             'default' => 'без параметров',
             'required' => true,
-            'internal' => true,
             'indexed' => false,
             ),
           'defaultsection' => array(
@@ -885,7 +815,6 @@ class UpdateManager implements iScheduler
             'label' => t('Раздел по умолчанию'),
             'description' => t('Выберите раздел, который будет использоваться этой страницей, если пользователь в явном виде никакой раздел не запросил.'),
             'default' => t('(не использовать)'),
-            'internal' => true,
             'indexed' => false,
             ),
           ),
@@ -893,7 +822,6 @@ class UpdateManager implements iScheduler
       'file' => array(
         'title' => 'Файл',
         'description' => 'Этот тип используется для закачки на сайт картинок, архивов и других документов, отображаемых на сайте или скачиваемых пользователем.',
-        'internal' => true,
         'notags' => true,
         'nodrafts' => true,
         'nopreview' => true,
@@ -903,19 +831,16 @@ class UpdateManager implements iScheduler
             'label' => 'Название файла',
             'description' => 'Человеческое название файла, например: &laquo;Финансовый отчёт за 2007-й год&raquo;',
             'required' => true,
-            'internal' => true,
             ),
           'filename' => array(
             'type' => 'TextLineControl',
             'label' => 'Оригинальное имя',
             'description' => 'Имя, которое было у файла, когда пользователь добавлял его на сайт.&nbsp; Под этим же именем файл будет сохранён, если пользователь попытается его сохранить.&nbsp; Рекомендуется использовать только латинский алфавит: Internet Explorer некорректно обрабатывает кириллицу в именах файлов при скачивании файлов.',
             'required' => true,
-            'internal' => true,
             'indexed' => true,
             ),
           'filetype' => array(
             'type' => 'TextLineControl',
-            'internal' => true,
             'label' => 'Тип MIME',
             'description' => 'Используется для определения способов обработки файла.&nbsp; Проставляется автоматически при закачке.',
             'required' => true,
@@ -925,7 +850,6 @@ class UpdateManager implements iScheduler
             ),
           'filesize' => array(
             'type' => 'NumberControl',
-            'internal' => true,
             'label' => 'Размер в байтах',
             'required' => true,
             'readonly' => true,
@@ -936,7 +860,6 @@ class UpdateManager implements iScheduler
             ),
           'filepath' => array(
             'type' => 'TextLineControl',
-            'internal' => true,
             'label' => 'Локальный путь к файлу',
             'required' => true,
             'readonly' => true,
@@ -945,7 +868,6 @@ class UpdateManager implements iScheduler
             ),
           'width' => array(
             'type' => 'NumberControl',
-            'internal' => true,
             'label' => 'Ширина',
             'description' => 'Проставляется только для картинок и SWF объектов.',
             'readonly' => true,
@@ -953,7 +875,6 @@ class UpdateManager implements iScheduler
             ),
           'height' => array(
             'type' => 'NumberControl',
-            'internal' => true,
             'label' => 'Высота',
             'description' => 'Проставляется только для картинок и SWF объектов.',
             'readonly' => true,
@@ -964,7 +885,6 @@ class UpdateManager implements iScheduler
       'tag' => array(
         'title' => 'Раздел сайта',
         'description' => 'Используется для формирования структуры сайта.&nbsp; Использовать этот тип напрямую в наполнении сайта невозможно.&nbsp; Он вообще не должен здесь отображаться.',
-        'internal' => true,
         'notags' => true,
         'nodrafts' => true,
         'nopreview' => true,
@@ -973,43 +893,36 @@ class UpdateManager implements iScheduler
             'type' => 'TextLineControl',
             'label' => 'Имя раздела',
             'required' => true,
-            'internal' => true,
             ),
           'code' => array(
             'type' => 'TextLineControl',
             'label' => 'Внутренний код',
             'description' => 'Может использоваться для доступа к объектам, наравне с числовым идентификатором.&nbsp; Значения должны быть уникальны в пределах всей базы данных.&nbsp; Использовать прямой слэш нельзя (да и обратный не рекомендуется).',
-            'internal' => true,
             'length' => 16,
             ),
           'archive' => array(
             'type' => 'BoolControl',
             'label' => 'Использовать навигацию по архиву',
             'description' => 'Позволяет при просмотре содержимого раздела использовать календарь для навигации.',
-            'internal' => true,
             ),
           ),
         ),
       'user' => array(
         'title' => 'Профиль пользователя',
         'description' => 'Определяет структуру профиля пользователя.',
-        'internal' => true,
         'notags' => true,
         'nodrafts' => true,
         'nopreview' => true,
-        'widgets' => array('BebopUsers'),
         'fields' => array(
           'name' => array(
             'type' => 'TextLineControl',
             'label' => 'Имя',
             'description' => 'Полное имя пользователя, используется в приветствиях, почтовых рассылках и других подобных местах.',
-            'internal' => true,
             ),
           'login' => array(
             'type' => 'TextLineControl',
             'label' => 'Логин',
             'description' => 'Используется для входа в систему, может состоять только из латинских букв, цифр и пунктуации.',
-            'internal' => true,
             'required' => true,
             'indexed' => true,
             ),
@@ -1017,14 +930,12 @@ class UpdateManager implements iScheduler
             'type' => 'PasswordControl',
             'label' => 'Пароль',
             'description' => 'Используется для входа в систему, хранится в зашифрованном виде.&nbsp; Чтобы изменить, введите новое значение.',
-            'internal' => true,
             'indexed' => true,
             ),
           'email' => array(
             'type' => 'EmailControl',
             'label' => 'Почтовый адрес',
             'description' => 'На этот адрес пользователь получает уведомления, информацию о восстановлении пароля итд.',
-            'internal' => true,
             'indexed' => true,
             ),
           'publisher' => array(
@@ -1039,33 +950,21 @@ class UpdateManager implements iScheduler
       'group' => array(
         'title' => 'Группа пользователей',
         'description' => 'Определяет структуру групп пользователя.',
-        'internal' => true,
         'notags' => true,
         'nodrafts' => true,
         'nopreview' => true,
-        'widgets' => array('BebopGroups'),
         'fields' => array(
           'name' => array(
             'type' => 'TextLineControl',
             'label' => 'Имя',
             'description' => 'Название группы, используемое в приветствиях, почтовых рассылках и других подобных местах.',
-            'internal' => true,
             ),
           // Сюда копируется name, для форсирования уникальности.
           'login' => array(
             'type' => 'TextLineControl',
             'hidden' => true,
-            'internal' => true,
             'indexed' => true,
             'required' => true,
-            ),
-          'system' => array(
-            'type' => 'BoolControl',
-            'label' => 'Встроенная группа',
-            'internal' => true,
-            'readonly' => true,
-            'indexed' => true,
-            'hidden' => true,
             ),
           ),
         ),
@@ -1080,15 +979,13 @@ class UpdateManager implements iScheduler
       }
 
       // Обновляем базовые свойства.
-      foreach (array('title', 'description', 'hidden', 'internal', 'notags', 'nodrafts', 'nopreview') as $field) {
+      foreach (array('title', 'description', 'hidden', 'notags', 'nodrafts', 'nopreview') as $field) {
         if (array_key_exists($field, $info))
           $type->$field = $info[$field];
       }
 
       // Обновляем поля.
       foreach ($info['fields'] as $k => $v) {
-        $v['internal'] = true;
-
         if (method_exists($type, 'fieldGet')) {
           $schema = array_merge((array)$type->fieldGet($k), $v);
 
@@ -1135,7 +1032,6 @@ class UpdateManager implements iScheduler
       'root' => array(
         'name' => 'Самый Главный',
         'password' => md5(microtime()),
-        'system' => true,
         'groups' => array(
           'Access Managers',
           'Content Managers',
@@ -1162,7 +1058,6 @@ class UpdateManager implements iScheduler
       }
 
       $node->name = $title;
-      $node->system = !($login == 'Visitors');
       $node->save(false);
 
       $node->publish($node->rid);
@@ -1200,389 +1095,6 @@ class UpdateManager implements iScheduler
     }
   }
 
-  // Обновление административных виджетов.
-  private function doUpdateWidgets()
-  {
-    // Структура виджетов.
-    $widgets = array(
-      'BebopDashboard' => array(
-        'title' => 'Панель',
-        'class' => 'BebopDashboard',
-        'internal' => true,
-        ),
-      'BebopStatus' => array(
-        'title' => 'Состояние системы',
-        'class' => 'StatusAdminWidget',
-        'internal' => true,
-        ),
-      'BebopUpdates' => array(
-        'title' => 'Обновление системы',
-        'class' => 'UpdateAdminWidget',
-        'internal' => true,
-        ),
-      'profile' => array(
-        'title' => 'Профиль пользователя',
-        'class' => 'UserWidget',
-        ),
-      'BebopStructure' => array(
-        'title' => 'Список разделов сайта',
-        'class' => 'ListAdminWidget',
-        'config' => array(
-          'tree' => 'tag',
-          'columns' => array(
-            'name' => t('Название'),
-            'code' => t('Код'),
-            'updated' => t('Изменён'),
-            'created' => t('Создан'),
-            'actions' => t('Действия'),
-            ),
-          ),
-        'internal' => true,
-        ),
-      'BebopSchema' => array(
-        'title' => 'Типы документов',
-        'class' => 'ListAdminWidget',
-        'config' => array(
-          'newclass' => 'type',
-          'filter' => array(
-            'class' => array(
-              'type',
-              ),
-            'published' => array(0, 1),
-            ),
-          'selectors' => array(
-            'all' => t('все'),
-            'none' => t('ни одного'),
-            ),
-          'columns' => array(
-            'title' => t('Название'),
-            'name' => t('Внутреннее'),
-            'updated' => t('Изменён'),
-            'created' => t('Добавлен'),
-            ),
-          'sortable' => array(
-            'name',
-            'title',
-            'updated',
-            'created',
-            ),
-          'sort' => 'type.title',
-          'limit' => 10,
-          'pager' => true,
-          ),
-        'internal' => true,
-        ),
-      'BebopRecycleBin' => array(
-        'title' => 'Список удалённых объектов',
-        'class' => 'ListAdminWidget',
-        'config' => array(
-          'filter' => array(
-            'deleted' => 1,
-            'published' => array(0, 1),
-            ),
-          'operations' => array(
-            'undelete' => t('Восстановить'),
-            'erase' => t('Удалить окончательно'),
-            ),
-          'selectors' => array(
-            'all' => t('все'),
-            'none' => t('ни одного'),
-            ),
-          'columns' => array(
-            'name' => t('Название'),
-            'class' => t('Тип'),
-            'uid' => t('Автор'),
-            'updated' => t('Изменён'),
-            'created' => t('Создан'),
-            ),
-          'sortable' => array(
-            'name',
-            'updated',
-            'created',
-            ),
-          'limit' => 10,
-          'pager' => true,
-          ),
-        'internal' => true,
-        ),
-      'BebopContentList' => array(
-        'title' => 'Список документов',
-        'class' => 'ListAdminWidget',
-        'internal' => true,
-        'config' => array(
-          'filter' => array(
-            'deleted' => 0,
-            '-class' => array(
-              'user',
-              'group',
-              'domain',
-              'widget',
-              'type',
-              'tag',
-              'file',
-              'moduleinfo',
-              ),
-            'published' => array(0, 1),
-            ),
-          'columns' => array(
-            'name' => t('Название'),
-            'class' => t('Тип'),
-            'uid' => t('Автор'),
-            'updated' => t('Изменён'),
-            'created' => t('Создан'),
-            ),
-          'sortable' => array(
-            'name',
-            'updated',
-            'created',
-            ),
-          'sections' => true,
-          'filterform' => '/admin/content/filter/',
-          'limit' => 10,
-          'pager' => true,
-          'sort' => '-id',
-          ),
-        ),
-      'BebopContentFilterSettings' => array(
-        'title' => 'Настройка фильтра',
-        'class' => 'ContentFilterWidget',
-        'internal' => true,
-        'config' => array(
-          ),
-        ),
-      'BebopContentCreate' => array(
-        'title' => 'Создание документа',
-        'class' => 'FormWidget',
-        'internal' => true,
-        'config' => array(
-          'showall' => true,
-          'createlabel' => '$type',
-          'next' => '/admin/content/',
-          ),
-        ),
-      'BebopWidgets' => array(
-        'title' => 'Конструктор',
-        'class' => 'ListAdminWidget',
-        'internal' => true,
-        'config' => array(
-          'tree' => 'domain',
-          'selectors' => array(
-            'all' => t('все'),
-            'none' => t('ни одного'),
-            ),
-          'columns' => array(
-            'name' => t('Название'),
-            'title' => t('Заголовок'),
-            'params' => t('Параметры'),
-            'content_type' => t('Тип'),
-            'theme' => t('Шкура'),
-            'language' => t('Язык'),
-            ),
-          ),
-        ),
-      'BebopWidgetList' => array(
-        'title' => 'Список виджетов',
-        'class' => 'ListAdminWidget',
-        'internal' => true,
-        'config' => array(
-          'filter' => array(
-            'class' => array(
-              'widget',
-              ),
-            'internal' => 0,
-            'published' => array(0, 1),
-            ),
-          'columns' => array(
-            'name' => 'Имя',
-            'title' => 'Название',
-            'description' => 'Описание',
-            'classname' => 'Тип',
-            ),
-          'sortable' => array(
-            'name',
-            'title',
-            'type',
-            ),
-          'sort' => 'widget.title',
-          'limit' => 10,
-          'pager' => 10,
-          ),
-        ),
-      'BebopFiles' => array(
-        'title' => 'Файловый архив',
-        'class' => 'ListAdminWidget',
-        'internal' => true,
-        'config' => array(
-          'filter' => array(
-            'class' => 'file',
-            'deleted' => 0,
-            'published' => array(0, 1),
-            ),
-          'operations' => array(
-            'delete' => t('Удалить'),
-            'publish' => t('Опубликовать'),
-            'unpublish' => t('Скрыть'),
-            ),
-          'columns' => array(
-            'name' => t('Название'),
-            'filetype' => t('Тип'),
-            'filesize' => t('Размер'),
-            'uid' => t('Автор'),
-            'updated' => t('Изменён'),
-            'created' => t('Добавлен'),
-            ),
-          'sortable' => array(
-            'name',
-            'filetype',
-            'filesize',
-            'updated',
-            'created',
-            ),
-          'sort' => '-id',
-          'limit' => 10,
-          'pager' => true,
-          ),
-        ),
-      'BebopFilesRedux' => array(
-        'title' => 'Файловый архив (AJAX)',
-        'class' => 'ListWidget',
-        'internal' => true,
-        'config' => array(
-          'showall' => true,
-          'types' => array('file'),
-          'limit' => 20,
-          'sort' => array(
-            'fields' => array('id'),
-            'reverse' => array('id'),
-            ),
-          ),
-        ),
-      'BebopNode' => array(
-        'title' => 'Свойства документа',
-        'class' => 'NodeAdminWidget',
-        'internal' => true,
-        ),
-      'BebopUsers' => array(
-        'title' => 'Список пользователей',
-        'class' => 'ListAdminWidget',
-        'internal' => true,
-        'config' => array(
-          'filter' => array(
-            'class' => array(
-              'user',
-              ),
-            'published' => array(0, 1),
-            ),
-          'columns' => array(
-            'name' => t('Имя'),
-            'login' => t('Логин'),
-            'email' => t('Почта'),
-            'updated' => t('Изменён'),
-            'created' => t('Добавлен'),
-            ),
-          'sortable' => array(
-            'name',
-            'login',
-            'email',
-            'updated',
-            'created',
-            ),
-          'sort' => 'name',
-          'limit' => 10,
-          'pager' => true,
-          ),
-        ),
-      'BebopGroups' => array(
-        'title' => 'Список групп',
-        'class' => 'ListAdminWidget',
-        'internal' => true,
-        'config' => array(
-          'filter' => array(
-            'class' => array(
-              'group',
-              ),
-            'published' => array(0, 1),
-            ),
-          'columns' => array(
-            'name' => t('Название'),
-            'login' => t('Внутреннее'),
-            'updated' => t('Изменена'),
-            'created' => t('Добавлена'),
-            ),
-          'sortable' => array(
-            'name',
-            'login',
-            'updated',
-            'created',
-            ),
-          'sort' => 'name',
-          'limit' => 10,
-          'pager' => true,
-          ),
-        ),
-      'BebopSubscription' => array(
-        'title' => 'Управление подпиской',
-        'class' => 'SubscriptionAdminWidget',
-        'internal' => true,
-        'config' => array(
-          'groups' => array(
-            'Subscription Managers',
-            ),
-          ),
-        ),
-      'BebopLogs' => array(
-        'title' => 'Системный журнал',
-        'class' => 'SysLogModule',
-        'internal' => true,
-        'config' => array(
-          'limit' => 10,
-          'groups' => array(
-            'Site Managers',
-            ),
-          ),
-        ),
-      'BebopDrawText' => array(
-        'title' => 'Рендеринг надписей в PNG',
-        'class' => 'DrawTextWidget',
-        'internal' => true,
-        ),
-      'BebopModules' => array(
-        'title' => t('Управление модулями'),
-        'class' => 'ModuleAdminWidget',
-        'internal' => true,
-        ),
-      );
-
-    // Создаём отсутствующие и обновляем существующие виджеты.
-    foreach ($widgets as $k => $v) {
-      $nodes = Node::find(array('class' => 'widget', 'name' => $k));
-
-      if (empty($nodes)) {
-        $node = Node::create('widget');
-        // printf("  creating widget %s\n", $k);
-      } else {
-        $node = array_shift($nodes);
-      }
-
-      $nid = $node->id;
-      $node->name = $k;
-      $node->title = $v['title'];
-      $node->classname = $v['class'];
-      $node->config = empty($v['config']) ? null : $v['config'];
-      $node->internal = !empty($v['internal']);
-
-      try {
-        $node->save();
-
-        if ($nid === null) {
-          // printf("    saved.\n");
-        }
-      } catch (PDOException $e) {
-        // printf("    could not save: %s\n", $e->getMessage());
-      }
-    }
-  }
-
   // Обновление административных страниц.
   private function doUpdatePages()
   {
@@ -1594,169 +1106,6 @@ class UpdateManager implements iScheduler
         'theme' => 'admin',
         'language' => 'ru',
         'access' => array('Content Managers', 'Structure Managers', 'Schema Managers', 'Developers', 'User Managers'),
-        'widgets' => array('BebopDashboard', 'profile', 'BebopStatus'),
-        'pages' => array(
-          'taxonomy' => array(
-            'title' => 'Карта сайта',
-            'description' => 'Управление разделами, структурой данных.',
-            'http_code' => 200,
-            'theme' => 'admin',
-            'language' => 'ru',
-            'access' => array('Structure Managers'),
-            'widgets' => array('BebopDashboard', 'profile', 'BebopStructure'),
-            'params' => 'sec',
-            ),
-          'schema' => array(
-            'title' => 'Типы документов',
-            'description' => 'Типы документов, используемые на сайте.',
-            'http_code' => 200,
-            'theme' => 'admin',
-            'language' => 'ru',
-            'access' => array('Schema Managers'),
-            'widgets' => array('BebopDashboard', 'profile', 'BebopSchema'),
-            ),
-          'content' => array(
-            'title' => 'Наполнение',
-            'description' => 'Наполнение сайта.&nbsp; Поиск, редактирование, добавление документов.',
-            'http_code' => 200,
-            'theme' => 'admin',
-            'language' => 'ru',
-            'access' => array('Content Managers'),
-            'widgets' => array('BebopDashboard', 'profile', 'BebopContentList'),
-            'params' => 'sec',
-            'pages' => array(
-              'filter' => array(
-                'title' => 'Настройка фильтра',
-                'description' => 'Здесь можно настроить выборку документов.',
-                'http_code' => 200,
-                'theme' => 'admin',
-                'language' => 'ru',
-                'access' => array('Content Managers'),
-                'widgets' => array('BebopDashboard', 'profile', 'BebopContentFilterSettings'),
-                ),
-              'create' => array(
-                'title' => 'Добавление объекта',
-                'description' => 'Здесь можно создать новый документ.',
-                'http_code' => 200,
-                'theme' => 'admin',
-                'language' => 'ru',
-                'access' => array('Content Managers'),
-                'widgets' => array('BebopDashboard', 'profile', 'BebopContentCreate'),
-                ),
-              ),
-            ),
-          'builder' => array(
-            'title' => 'Конструктор',
-            'description' => 'Управление доменами, страницами, виджетами.',
-            'http_code' => 200,
-            'theme' => 'admin',
-            'language' => 'ru',
-            'access' => array('Developers'),
-            'widgets' => array('BebopDashboard', 'profile', 'BebopWidgets'),
-            'pages' => array(
-              'widgets' => array(
-                'title' => 'Виджеты',
-                'description' => 'Общий список виджетов',
-                'http_code' => 200,
-                'theme' => 'admin',
-                'language' => 'ru',
-                'access' => array('Developers'),
-                'widgets' => array('BebopDashboard', 'profile', 'BebopWidgetList'),
-                ),
-              'modules' => array(
-                'title' => 'Модули',
-                'theme' => 'admin',
-                'language' => 'ru',
-                'access' => array('Developers'),
-                'widgets' => array('BebopDashboard', 'profile', 'BebopModules'),
-                ),
-              ),
-            ),
-          'users' => array(
-            'title' => 'Пользователи',
-            'description' => 'Управление профилями пользователей и группами.',
-            'http_code' => 200,
-            'theme' => 'admin',
-            'language' => 'ru',
-            'access' => array('User Managers'),
-            'widgets' => array('BebopDashboard', 'profile', 'BebopUsers'),
-            'pages' => array(
-              'groups' => array(
-                'title' => 'Группы',
-                'http_code' => 200,
-                'theme' => 'admin',
-                'language' => 'ru',
-                'access' => array('User Managers'),
-                'widgets' => array('BebopDashboard', 'profile', 'BebopGroups'),
-                ),
-              ),
-            ),
-          'update' => array(
-            'title' => 'Обновление',
-            'description' => 'Позволяет администраторам обновлять системую',
-            'http_code' => 200,
-            'theme' => 'admin',
-            'language' => 'ru',
-            'access' => array('Site Managers'),
-            'widgets' => array('BebopDashboard', 'profile', 'BebopUpdates'),
-            'hidden' => 1,
-            ),
-          'logs' => array(
-            'title' => 'Журнал событий',
-            'description' => 'Журнал: кто, что, когда и с каким документом делал.',
-            'http_code' => 200,
-            'theme' => 'admin',
-            'language' => 'ru',
-            'access' => array('Access Managers'),
-            'widgets' => array('BebopDashboard', 'profile', 'BebopLogs'),
-            ),
-          'files' => array(
-            'title' => 'Файлы',
-            'description' => 'Список задействованных в наполнении файлов.',
-            'http_code' => 200,
-            'theme' => 'admin',
-            'language' => 'ru',
-            'access' => array('Content Managers'),
-            'widgets' => array('BebopDashboard', 'profile', 'BebopFiles'),
-            'pages' => array(
-              'picker' => array(
-                'title' => 'Выбиралка',
-                'description' => 'Список задействованных в наполнении файлов.',
-                'http_code' => 200,
-                'theme' => 'admin',
-                'language' => 'ru',
-                'access' => array('Content Managers'),
-                'widgets' => array('BebopFiles'),
-                ),
-              ),
-            ),
-          'subscription' => array(
-            'title' => 'Рассылка',
-            'description' => 'Управление подпиской на новости.',
-            'http_code' => 200,
-            'theme' => 'admin',
-            'language' => 'ru',
-            'access' => array('Subscription Managers'),
-            'widgets' => array('BebopDashboard', 'profile', 'BebopSubscription'),
-            ),
-          'node' => array(
-            'title' => 'Редактирование объекта',
-            'http_code' => 200,
-            'theme' => 'admin',
-            'language' => 'ru',
-            'access' => array('Visitors'),
-            'widgets' => array('BebopDashboard', 'profile', 'BebopNode'),
-            'hidden' => true,
-            ),
-          'trash' => array(
-            'title' => 'Корзина',
-            'http_code' => 200,
-            'theme' => 'admin',
-            'language' => 'ru',
-            'access' => array('Content Managers'),
-            'widgets' => array('BebopDashboard', 'profile', 'BebopRecycleBin'),
-            ),
-          ),
         ),
       );
 
