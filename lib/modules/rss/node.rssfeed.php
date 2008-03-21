@@ -6,7 +6,7 @@ class RssfeedNode extends Node
   public function formGet($simple = false)
   {
     $form = parent::formGet($simple);
-    $form->title = $this->id ? t('Добавление новой RSS ленты') : t('Настройка RSS ленты');
+    $form->title = $this->id ? t('Настройка RSS ленты') : t('Добавление новой RSS ленты');
     return $form;
   }
 
