@@ -9,12 +9,14 @@ function bebop_redirect($path, $status = 301)
     if ($_SERVER['REQUEST_METHOD'] == 'POST')
       $status = 303;
 
-    if (!in_array($status, array('301', '302', '303', '307')))
-      throw new Exception("Статус перенаправления {$status} не определён в стандарте HTTP/1.1");
+    if (empty($_GET['reload'])) {
+      if (!in_array($status, array('301', '302', '303', '307')))
+        throw new Exception("Статус перенаправления {$status} не определён в стандарте HTTP/1.1");
 
-    bebop_session_end();
-    mcms::db()->commit();
-    mcms::flush(mcms::FLUSH_NOW);
+      bebop_session_end();
+      mcms::db()->commit();
+      mcms::flush(mcms::FLUSH_NOW);
+    }
 
     if (substr($path, 0, 1) == '/') {
       $proto = 'http'.((array_key_exists('HTTPS', $_SERVER) and $_SERVER['HTTPS'] == 'on') ? 's' : '');
@@ -927,6 +929,9 @@ class mcms
 
     if (is_writable(dirname($filename)))
       file_put_contents($filename, serialize($result));
+
+    if (!empty($_GET['reload']))
+      bebop_redirect('/admin/?flush=1');
 
     return $result;
   }

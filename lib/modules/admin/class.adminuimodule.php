@@ -8,6 +8,13 @@ class AdminUIModule implements iAdminUI
     if (!mcms::user()->hasGroup('Content Managers'))
       throw new ForbiddenException();
 
+    if (bebop_is_debugger() and !empty($_GET['flush'])) {
+      mcms::flush(false);
+      mcms::flush(true);
+
+      bebop_redirect(bebop_split_url());
+    }
+
     $result = array();
 
     if (null === ($module = $ctx->get('module')))
