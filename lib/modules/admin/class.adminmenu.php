@@ -67,10 +67,9 @@ class AdminMenu implements iAdminMenu
 
       if (is_array($icons) and !empty($icons)) {
         foreach ($icons as $icon) {
-          if (!empty($icon['img'])) {
-            $classpath = dirname($classes[strtolower($class)]);
-            $icon['img'] = substr($classpath, $rootlen) .'/'. $icon['img'];
-          }
+          $tmp = bebop_split_url($icon['href']);
+          $tmp['args']['cgroup'] = $icon['group'];
+          $icon['href'] = bebop_combine_url($tmp, false);
 
           $result[$icon['group']][] = $icon;
         }
@@ -90,7 +89,6 @@ class AdminMenu implements iAdminMenu
     if ($user->hasGroup('Structure Managers'))
       $icons[] = array(
         'group' => 'structure',
-        'img' => 'img/taxonomy.png',
         'href' => '/admin/?mode=tree&preset=taxonomy',
         'title' => t('Карта сайта'),
         'description' => t('Управление разделами сайта.'),
@@ -99,7 +97,6 @@ class AdminMenu implements iAdminMenu
     if ($user->hasGroup('Schema Managers'))
       $icons[] = array(
         'group' => 'structure',
-        'img' => 'img/doctype.png',
         'href' => '/admin/?mode=list&preset=schema',
         'title' => t('Типы документов'),
         );
@@ -107,7 +104,6 @@ class AdminMenu implements iAdminMenu
     if ($user->hasGroup('Content Managers')) {
       $icons[] = array(
         'group' => 'content',
-        'img' => 'img/content.png',
         'href' => '/admin/?mode=list&columns=name,class,uid,created',
         'title' => t('Документы'),
         'description' => t('Поиск, редактирование, добавление документов.'),
@@ -115,7 +111,6 @@ class AdminMenu implements iAdminMenu
       if (Node::count(array('published' => 0, '-class' => TypeNode::getInternal())))
         $icons[] = array(
           'group' => 'content',
-          'img' => 'img/content.png',
           'href' => '/admin/?mode=list&preset=drafts',
           'title' => t('В модерации'),
           'description' => t('Поиск, редактирование, добавление документов.'),
@@ -125,20 +120,17 @@ class AdminMenu implements iAdminMenu
     if ($user->hasGroup('Developers')) {
       $icons[] = array(
         'group' => 'developement',
-        'img' => 'img/constructor.png',
         'href' => '/admin/?mode=tree&preset=pages',
         'title' => t('Конструктор'),
         'description' => t('Управление доменами, страницами и виджетами.'),
         );
       $icons[] = array(
         'group' => 'developement',
-        'img' => 'img/cms-widget.png',
         'href' => '/admin/?mode=list&preset=widgets',
         'title' => t('Виджеты'),
         );
       $icons[] = array(
         'group' => 'developement',
-        'img' => 'img/constructor.png',
         'href' => '/admin/?mode=modules',
         'title' => t('Модули'),
         );
@@ -147,14 +139,12 @@ class AdminMenu implements iAdminMenu
     if ($user->hasGroup('User Managers')) {
       $icons[] = array(
         'group' => 'access',
-        'img' => 'img/user.png',
         'href' => '/admin/?mode=list&preset=users',
         'title' => t('Пользователи'),
         'description' => t('Управление профилями пользователей.'),
         );
       $icons[] = array(
         'group' => 'access',
-        'img' => 'img/cms-groups.png',
         'href' => '/admin/?mode=list&preset=groups',
         'title' => t('Группы'),
         'description' => t('Управление группами пользователей.'),
@@ -164,7 +154,6 @@ class AdminMenu implements iAdminMenu
     if ($user->hasGroup('Content Managers'))
       $icons[] = array(
         'group' => 'content',
-        'img' => 'img/files.png',
         'href' => '/admin/?mode=list&preset=files',
         'title' => t('Файлы'),
         'description' => t('Просмотр, редактирование и добавление файлов.'),
@@ -173,7 +162,6 @@ class AdminMenu implements iAdminMenu
     if ($user->hasGroup('Content Managers') and Node::count(array('deleted' => 1, '-class' => TypeNode::getInternal())))
       $icons[] = array(
         'group' => 'content',
-        'img' => 'img/recycle.png',
         'href' => '/admin/?mode=list&preset=trash',
         'title' => t('Корзина'),
         'description' => t('Просмотр и восстановление удалённых файлов.'),

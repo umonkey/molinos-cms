@@ -117,6 +117,7 @@ class RequestController
     // Очистка кэша.
     if (!empty($_GET['flush'])) {
       if (bebop_is_debugger()) {
+        DBCache::getInstance()->flush(false);
         DBCache::getInstance()->flush(true);
       }
 
