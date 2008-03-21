@@ -43,6 +43,11 @@ class AdminListHandler
   {
     $this->setUp($preset);
 
+    $data = $this->getData();
+
+    if (empty($data) and count($this->types) == 1)
+      bebop_redirect("/admin/?mode=create&type={$this->types[0]}&destination=". urlencode($_SERVER['REQUEST_URI']));
+
     $output = '<h2>'. $this->title .'</h2>';
     $output .= $this->getSearchForm();
 
@@ -65,7 +70,7 @@ class AdminListHandler
       )));
 
     $output .= $form->getHTML(array(
-      'nodes' => $this->getData(),
+      'nodes' => $data,
       '__pager' => $this->getPager(),
       ));
 
