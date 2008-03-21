@@ -11,6 +11,21 @@ class NodeBase
   // Номер ревизии, в который принудительно сохраняемся.
   protected $forcedrev = null;
 
+  // Проверяет наличие других объектов с таким именем.
+  protected function checkUnique($field, $message = null)
+  {
+    $filter = array(
+      'class' => $this->class,
+      $field => $this->$field,
+      );
+
+    if ($this->id)
+      $filter['-id'] = $this->id;
+
+    if (Node::count($filter))
+      throw new ValidationException($field, $message ? $message : t('Такой объект уже существует.'));
+  }
+
   public function getRaw()
   {
     return $this->data;
