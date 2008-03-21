@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class SysLogModule implements iAdminUI, iDashboard, iModuleConfig, iNodeHook
+class SysLogModule implements iAdminUI, iAdminMenu, iModuleConfig, iNodeHook
 {
   public function __construct(Node $node)
   {
@@ -246,7 +246,7 @@ class SysLogModule implements iAdminUI, iDashboard, iModuleConfig, iNodeHook
     return ' WHERE '. join(' AND ', $where);
   }
 
-  public static function getDashboardIcons()
+  public static function getMenuIcons()
   {
     $icons = array();
     $user = mcms::user();
@@ -254,7 +254,6 @@ class SysLogModule implements iAdminUI, iDashboard, iModuleConfig, iNodeHook
     if ($user->hasGroup('Access Managers')) {
       $icons[] = array(
         'group' => 'statistics',
-        'img' => 'img/journal.png',
         'href' => '/admin/?module=syslog&mode=list',
         'title' => t('Журнал событий'),
         'description' => t('Кто, что, когда и с чем делал.'),

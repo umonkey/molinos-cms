@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler, iDashboard
+class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler, iAdminMenu
 {
   public function __construct(Node $node)
   {
@@ -283,7 +283,7 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
       mcms::flush();
   }
 
-  public static function getDashboardIcons()
+  public static function getMenuIcons()
   {
     $icons = array();
     $user = mcms::user();
@@ -291,7 +291,6 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
     if ($user->hasGroup('Subscription Managers'))
       $icons[] = array(
         'group' => 'content',
-        'img' => 'img/dashboard-task-subscription.gif',
         'href' => '/admin/subscription/',
         'title' => t('Рассылка'),
         'description' => t('Управление подпиской на новости.'),

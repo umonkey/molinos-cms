@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class AccessLogModule extends Widget implements iWidget, iAdminWidget, iDashboard, iModuleConfig, iRequestHook
+class AccessLogModule extends Widget implements iWidget, iAdminWidget, iAdminMenu, iModuleConfig, iRequestHook
 {
   public function __construct(Node $node)
   {
@@ -168,7 +168,7 @@ class AccessLogModule extends Widget implements iWidget, iAdminWidget, iDashboar
     return ' WHERE '. join(' AND ', $where);
   }
 
-  public static function getDashboardIcons()
+  public static function getMenuIcons()
   {
     $icons = array();
     $user = mcms::user();
@@ -176,7 +176,6 @@ class AccessLogModule extends Widget implements iWidget, iAdminWidget, iDashboar
     if ($user->hasGroup('Access Managers')) {
       $icons[] = array(
         'group' => 'statistics',
-        'img' => 'img/dashboard-task-logs.gif',
         'href' => '/admin/?module=accesslog',
         'title' => t('Доступ к контенту'),
         'description' => t('Просмотр статистики доступа.'),
