@@ -990,13 +990,35 @@ class mcms
 
               // Строим список интерфейсов.
               if ($type !== 'interface') {
-                if (preg_match('@^\s*class\s.*implements\s+(.*)$@im', file_get_contents($classpath), $m)) {
-                  foreach ($interfaces = explode(',', str_replace(' ', '', $m[1])) as $i) {
+                if (preg_match('@^\s*(abstract\s+){0,1}class\s+([^\s]+)(\s+extends\s+([^\s]+))*(\s+implements\s+(\w+))*@im', file_get_contents($classpath), $m)) {
+                  $classname = $m[2];
+
+                  if (!empty($m[6]))
+                    $interfaces = explode(',', str_replace(' ', '', $m[6]));
+                  else
+                    $interfaces = array();
+
+                  switch ($m[4]) {
+                  case 'Control':
+                    $interfaces[] = 'iFormControl';
+                    break;
+                  case 'Widget':
+                    $interfaces[] = 'iWidget';
+                    break;
+                  case 'Node':
+                  case 'NodeBase':
+                    $interfaces[] = 'iContentType';
+                    break;
+                  }
+
+                  foreach ($interfaces as $i) {
                     if (!in_array($i, $result['modules'][$modname]['interfaces']))
                       $result['modules'][$modname]['interfaces'][] = $i;
                     $result['modules'][$modname]['implementors'][$i][] = $classname;
                     $result['interfaces'][$i][] = $classname;
                   }
+                } else {
+                  bebop_debug(time(), $classname, $classpath, $m, $result);
                 }
               }
             }
@@ -1006,8 +1028,6 @@ class mcms
     }
 
     ksort($result['classes']);
-
-    // bebop_debug($result);
 
     return $result;
   }
