@@ -46,6 +46,10 @@ class AdminTreeHandler
     case 'taxonomy':
     case 'pages':
       $data = self::getNodeTree();
+
+      if (empty($data))
+        bebop_redirect("/admin/?mode=create&type={$this->type}&destination=". urlencode($_SERVER['REQUEST_URI']));
+
       return $data;
     default:
       bebop_debug($this->ctx);
