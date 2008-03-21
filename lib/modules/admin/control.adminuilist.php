@@ -81,27 +81,7 @@ class AdminUIListControl extends Control
 
   private function getTableHeader()
   {
-    $map = array(
-      'name' => t('Название'),
-      'title' => t('Заголовок'),
-      'login' => t('Внутреннее имя'),
-      'email' => t('E-mail'),
-      'created' => t('Дата создания'),
-      'updated' => t('Дата изменения'),
-      'filename' => t('Имя файла'),
-      'filetype' => t('Тип содержимого'),
-      'filesize' => t('Размер'),
-      'class' => t('Тип'),
-      'uid' => t('Автор'),
-      'thumbnail' => t('Образец'),
-      'classname' => t('Класс'),
-      'description' => t('Описание'),
-      'timestamp' => t('Время'),
-      'username' => t('Пользователь'),
-      'operation' => t('Действие'),
-      'message' => t('Сообщение'),
-      'ip' => t('IP адрес'),
-      );
+    $map = $this->getColumnTitles();
 
     $output = '<tr>';
 
@@ -172,5 +152,33 @@ class AdminUIListControl extends Control
         ), $users[$uid]->name);
 
     return $users[$uid]->name;
+  }
+
+  private function getColumnTitles()
+  {
+    if (is_array($this->columntitles))
+      return $this->columntitles;
+
+    return array(
+      'name' => t('Название'),
+      'title' => t('Заголовок'),
+      'login' => t('Внутреннее имя'),
+      'email' => t('E-mail'),
+      'created' => t('Дата создания'),
+      'updated' => t('Дата изменения'),
+      'filename' => t('Имя файла'),
+      'filetype' => t('Тип содержимого'),
+      'filesize' => t('Размер'),
+      'class' => t('Тип'),
+      'uid' => t('Автор'),
+      'thumbnail' => t('Образец'),
+      'classname' => t('Класс'),
+      'description' => t('Описание'),
+      'timestamp' => t('Время'),
+      'username' => t('Пользователь'),
+      'operation' => t('Действие'),
+      'message' => t('Сообщение'),
+      'ip' => t('IP адрес'),
+      );
   }
 };

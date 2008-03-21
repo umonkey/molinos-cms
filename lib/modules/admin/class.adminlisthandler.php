@@ -55,6 +55,7 @@ class AdminListHandler
     $form->addControl(new AdminUIListControl(array(
       'columns' => $this->columns,
       'selectors' => $this->selectors,
+      'columntitles' => $this->columntitles,
       )));
     $form->addControl(new AdminUINodeActionsControl(array(
       'actions' => $this->actions,

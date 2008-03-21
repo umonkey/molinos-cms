@@ -160,4 +160,30 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
   public static function hookPostInstall()
   {
   }
+
+  public function getDefaultSchema()
+  {
+    return array(
+      'title' => 'Без названия',
+      'lang' => 'ru',
+      'fields' => array(
+        'name' => array(
+          'label' => t('Заголовок'),
+          'type' => 'TextLineControl',
+          'required' => true,
+          ),
+        'created' => array(
+          'label' => t('Дата создания'),
+          'type' => 'DateTimeControl',
+          'required' => false,
+          ),
+        'uid' => array(
+          'label' => t('Автор'),
+          'type' => 'NodeLinkControl',
+          'required' => false,
+          'values' => 'user.name',
+          ),
+        ),
+      );
+  }
 };
