@@ -1000,17 +1000,19 @@ class mcms
               else
                 $interfaces = array();
 
-              switch ($m[4]) {
-              case 'Control':
-                $interfaces[] = 'iFormControl';
-                break;
-              case 'Widget':
-                $interfaces[] = 'iWidget';
-                break;
-              case 'Node':
-              case 'NodeBase':
-                $interfaces[] = 'iContentType';
-                break;
+              if (!empty($m[4])) {
+                switch ($m[4]) {
+                case 'Control':
+                  $interfaces[] = 'iFormControl';
+                  break;
+                case 'Widget':
+                  $interfaces[] = 'iWidget';
+                  break;
+                case 'Node':
+                case 'NodeBase':
+                  $interfaces[] = 'iContentType';
+                  break;
+                }
               }
 
               foreach ($interfaces as $i) {

@@ -160,6 +160,9 @@ class AdminUIListControl extends Control
   {
     static $users = array();
 
+    if (empty($uid))
+      return 'anonymous';
+
     if (!array_key_exists($uid, $users))
       $users[$uid] = Node::load(array('class' => 'user', 'id' => $uid));
 

@@ -62,7 +62,7 @@ class AdminTreeHandler
     case 'taxonomy':
       $this->type = 'tag';
       $this->parent = null;
-      $this->columns = array('name', 'description', 'created');
+      $this->columns = array('name', 'created');
       $this->actions = array('publish', 'unpublish', 'delete', 'clone');
       $this->title = t('Карта разделов сайта');
       break;

@@ -14,12 +14,12 @@ class AdminUIModule implements iAdminUI
       $result['content'] = self::onGetInternal($ctx);
 
     elseif (!count($classes = mcms::getImplementors('iAdminUI', $module))) {
-      bebop_debug(mcms::getModuleMap());
       throw new PageNotFoundException();
     }
 
-    else
+    else {
       $result['content'] = call_user_func_array(array($classes[0], 'onGet'), array($ctx));
+    }
 
     $tmp = new AdminMenu();
     $result['dashboard'] = $tmp->getHTML();
@@ -163,7 +163,7 @@ class AdminUIModule implements iAdminUI
       'value' => t('Сохранить'),
       ));
 
-    return mcms::html('form', array(
+    return '<h2>Список модулей</h2>'. mcms::html('form', array(
       'method' => 'post',
       'action' => $_SERVER['REQUEST_URI'],
       ), $output);
