@@ -209,7 +209,7 @@ class AdminUIModule implements iAdminUI, iDashboard
 
   private static function getAllDashboardIcons()
   {
-    if (is_array($result = mcms::cache($key = 'dashboardicons')))
+    if (false and is_array($result = mcms::cache($key = 'dashboardicons')))
       return $result;
 
     $result = array();
@@ -266,13 +266,14 @@ class AdminUIModule implements iAdminUI, iDashboard
         'title' => t('Наполнение'),
         'description' => t('Поиск, редактирование, добавление документов.'),
         );
-      $icons[] = array(
-        'group' => 'Наполнение',
-        'img' => 'img/content.png',
-        'href' => '/admin/?mode=list&preset=drafts',
-        'title' => t('В модерации'),
-        'description' => t('Поиск, редактирование, добавление документов.'),
-        );
+      if (Node::count(array('published' => 0, '-class' => TypeNode::getInternal())))
+        $icons[] = array(
+          'group' => 'Наполнение',
+          'img' => 'img/content.png',
+          'href' => '/admin/?mode=list&preset=drafts',
+          'title' => t('В модерации'),
+          'description' => t('Поиск, редактирование, добавление документов.'),
+          );
     }
 
     if ($user->hasGroup('Developers')) {
@@ -331,7 +332,7 @@ class AdminUIModule implements iAdminUI, iDashboard
       'weight' => 10,
       );
 
-    if ($user->hasGroup('Content Managers') and Node::count(array('deleted' => 1)))
+    if ($user->hasGroup('Content Managers') and Node::count(array('deleted' => 1, '-class' => TypeNode::getInternal())))
       $icons[] = array(
         'group' => 'Наполнение',
         'img' => 'img/recycle.png',

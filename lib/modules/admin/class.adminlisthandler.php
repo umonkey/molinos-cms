@@ -196,7 +196,7 @@ class AdminListHandler
     if (null !== $this->types)
       $filter['class'] = $this->types;
     else
-      $filter['-class'] = array('domain', 'widget', 'user', 'group', 'type', 'file', 'comment');
+      $filter['-class'] = TypeNode::getInternal(); // array('domain', 'widget', 'user', 'group', 'type', 'file', 'comment');
 
     if (!empty($this->sort)) {
       foreach ($this->sort as $field) {
@@ -233,6 +233,9 @@ class AdminListHandler
 
   protected function getCount()
   {
-    return Node::count($this->getNodeFilter());
+    $filter = $this->getNodeFilter();
+    $count = Node::count($filter);
+
+    return $count;
   }
 };

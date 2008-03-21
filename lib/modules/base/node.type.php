@@ -450,7 +450,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   public static function getInternal()
   {
-    return array('type', 'tag', 'widget', 'domain', 'moduleinfo', 'file', 'user', 'group');
+    return array('type', 'tag', 'widget', 'domain', 'moduleinfo', 'file', 'user', 'group', 'comment');
   }
 
   public static function getReservedNames()
