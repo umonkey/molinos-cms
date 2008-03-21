@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class ListAdminWidget extends ListWidget implements iDashboard
+class ListAdminWidget extends ListWidget
 {
   public function __construct(Node $node)
   {
@@ -480,113 +480,5 @@ class ListAdminWidget extends ListWidget implements iDashboard
     }
 
     return $text;
-  }
-
-  public static function getDashboardIcons()
-  {
-    $icons = array();
-    $user = mcms::user();
-
-    if ($user->hasGroup('Structure Managers'))
-      $icons[] = array(
-        'group' => 'Структура',
-        'img' => 'img/taxonomy.png',
-        'href' => '/admin/?mode=tree&preset=taxonomy',
-        'title' => t('Карта сайта'),
-        'description' => t('Управление разделами сайта.'),
-        );
-
-    if ($user->hasGroup('Schema Managers'))
-      $icons[] = array(
-        'group' => 'Структура',
-        'img' => 'img/doctype.png',
-        'href' => '/admin/?mode=list&preset=schema',
-        'title' => t('Типы документов'),
-        );
-
-    if ($user->hasGroup('Content Managers')) {
-      $icons[] = array(
-        'group' => 'Наполнение',
-        'img' => 'img/content.png',
-        'href' => '/admin/?mode=list&columns=name,class,uid,created',
-        'title' => t('Наполнение'),
-        'description' => t('Поиск, редактирование, добавление документов.'),
-        );
-      $icons[] = array(
-        'group' => 'Наполнение',
-        'img' => 'img/content.png',
-        'href' => '/admin/?mode=list&preset=drafts',
-        'title' => t('В модерации'),
-        'description' => t('Поиск, редактирование, добавление документов.'),
-        );
-    }
-
-    if ($user->hasGroup('Developers')) {
-      $icons[] = array(
-        'group' => 'Разработка',
-        'img' => 'img/constructor.png',
-        'href' => '/admin/?mode=tree&preset=pages',
-        'title' => t('Конструктор'),
-        'description' => t('Управление доменами, страницами и виджетами.'),
-        );
-      $icons[] = array(
-        'group' => 'Разработка',
-        'img' => 'img/cms-widget.png',
-        'href' => '/admin/?mode=list&preset=widgets',
-        'title' => t('Виджеты'),
-        );
-      $icons[] = array(
-        'group' => 'Разработка',
-        'img' => 'img/constructor.png',
-        'href' => '/admin/?mode=modules',
-        'title' => t('Модули'),
-        );
-    }
-
-    if ($user->hasGroup('User Managers')) {
-      $icons[] = array(
-        'group' => 'Доступ',
-        'img' => 'img/user.png',
-        'href' => '/admin/?mode=list&preset=users',
-        'title' => t('Пользователи'),
-        'description' => t('Управление профилями пользователей.'),
-        );
-      $icons[] = array(
-        'group' => 'Доступ',
-        'img' => 'img/cms-groups.png',
-        'href' => '/admin/?mode=list&preset=groups',
-        'title' => t('Группы'),
-        'description' => t('Управление группами пользователей.'),
-        );
-    }
-
-    if ($user->hasGroup('Content Managers'))
-      $icons[] = array(
-        'group' => 'Наполнение',
-        'img' => 'img/files.png',
-        'href' => '/admin/?mode=list&preset=files',
-        'title' => t('Файлы'),
-        'description' => t('Просмотр, редактирование и добавление файлов.'),
-        );
-
-    $icons[] = array(
-      'group' => 'Наполнение',
-      'img' => 'img/recycle.png',
-      'href' => '/admin/?flush=1',
-      'title' => t('Очистить кэш'),
-      'weight' => 10,
-      );
-
-    if ($user->hasGroup('Content Managers') and Node::count(array('deleted' => 1)))
-      $icons[] = array(
-        'group' => 'Наполнение',
-        'img' => 'img/recycle.png',
-        'href' => '/admin/?mode=list&preset=trash',
-        'title' => t('Корзина'),
-        'description' => t('Просмотр и восстановление удалённых файлов.'),
-        'weight' => 10,
-        );
-
-    return $icons;
   }
 };

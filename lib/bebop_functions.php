@@ -992,7 +992,7 @@ class mcms
 
           // Строим список интерфейсов.
           if ($type !== 'interface') {
-            if (preg_match('@^\s*(abstract\s+){0,1}class\s+([^\s]+)(\s+extends\s+([^\s]+))*(\s+implements\s+(\w+))*@im', file_get_contents($classpath), $m)) {
+            if (preg_match('@^\s*(abstract\s+){0,1}class\s+([^\s]+)(\s+extends\s+([^\s]+))*(\s+implements\s+(.+))*@im', file_get_contents($classpath), $m)) {
               $classname = $m[2];
 
               if (!empty($m[6]))
@@ -1108,5 +1108,30 @@ class mcms
     }
 
     return $result;
+  }
+
+  public static function fatal()
+  {
+    $output = array();
+
+    foreach (func_get_args() as $arg) {
+      $output[] = var_export($arg, true);
+    }
+
+    bebop_on_json(array('args' => $output));
+
+    ob_end_clean();
+
+    if (!empty($_SERVER['REQUEST_METHOD']))
+      header("Content-Type: text/plain; charset=utf-8");
+
+    print join(";\n\n", $output) .";\n\n";
+
+    if (!empty($_SERVER['REMOTE_ADDR'])) {
+      print "--- backtrace ---\n";
+      debug_print_backtrace();
+    }
+
+    die();
   }
 };

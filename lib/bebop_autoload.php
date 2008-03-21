@@ -11,15 +11,17 @@ function bebop_autoload($class_name)
 
     if (array_key_exists($k, $map)) {
       include($map[$k]);
-    } else {
-      header('Content-Type: text/plain; charset=utf-8');
 
-      print "There was an attempt to access an undefined class {$class_name}.\n\n";
-      print var_export($map, true) ."\n";
-      print "--- backtrace ---\n";
+      $isif = (substr($class_name, 0, 1) === 'i');
 
-      debug_print_backtrace();
-      die();
+      if ($isif and !in_array($class_name, get_declared_interfaces()))
+        mcms::fatal("There is no {$class_name} interface in {$map[$k]}");
+      elseif (!$isif and !in_array($class_name, get_declared_classes()))
+        mcms::fatal("There is no {$class_name} class in {$map[$k]}");
+    }
+
+    else {
+      mcms::fatal("There was an attempt to access an undefined class {$class_name}.");
     }
 }
 
