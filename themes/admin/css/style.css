@@ -160,10 +160,10 @@ html>body .spacer_not_ie {
 	font-size: 83%;
 }
 
-#top_menu_controls ul li.current ul a {color: blue; text-decoration: underline;}
+#top_menu_controls ul li.current ul a {color: black;}
 
 #top_menu_controls ul li.current ul li:hover a,
-#top_menu_controls ul li.current ul li.current a {color: blue; text-decoration: underline;}
+#top_menu_controls ul li.current ul li.current a {color: black;}
 
 #top_menu_controls_bottom {
 	width: 100%;
