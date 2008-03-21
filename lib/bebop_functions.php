@@ -930,8 +930,12 @@ class mcms
     if (is_writable(dirname($filename)))
       file_put_contents($filename, serialize($result));
 
-    if (!empty($_GET['reload']))
-      bebop_redirect('/admin/?flush=1');
+    if (!empty($_GET['reload'])) {
+      $url = bebop_split_url();
+      $url['args']['reload'] = null;
+      $url['args']['FLUSH'] = 1;
+      bebop_redirect(str_replace('FLUSH', 'flush', bebop_combine_url($url, false)));
+    }
 
     return $result;
   }
