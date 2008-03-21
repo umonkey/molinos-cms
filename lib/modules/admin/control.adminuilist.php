@@ -55,12 +55,12 @@ class AdminUIListControl extends Control
 
         if (null !== ($tmp = $this->resolveField($field, $value, $node)))
           $row .= $tmp;
-        elseif (empty($value))
-          $row .= '&nbsp;';
         elseif ('name' == $field)
           $row .= mcms::html('a', array(
             'href' => '/admin/?mode=edit&id='. $node['id'] .'&destination='. urlencode($_SERVER['REQUEST_URI']),
-            ), $value);
+            ), empty($value) ? '(без названия)' : $value);
+        elseif (empty($value))
+          $row .= '&nbsp;';
         else
           $row .= $value;
 
