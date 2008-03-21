@@ -116,6 +116,9 @@ class AdminTreeHandler
           'internal' => !empty($node['internal']),
           );
 
+        if (!empty($node['depth']))
+          $item['depth'] = $node['depth'];
+
         $link = true;
 
         foreach ($columns as $field) {
@@ -136,12 +139,9 @@ class AdminTreeHandler
 
             $mod = empty($node['description']) ? '' : " class='hint' title='". mcms_plain($node['description']) ."'";
 
-            $text = "<a{$mod} href='/admin/node/{$node['id']}/edit/?destination=". urlencode($_SERVER['REQUEST_URI']) ."'>{$text}</a>";
+            $text = "<a{$mod} href='/admin/?mode=edit&amp;id={$node['id']}&amp;destination=". urlencode($_SERVER['REQUEST_URI']) ."'>{$text}</a>";
             $link = false;
           }
-
-          if ($field == 'name')
-            $text = str_repeat('&nbsp;', 4 * $node['depth']) . $text;
 
           $item[$field] = $text;
         }
