@@ -5,6 +5,11 @@ class AdminMenu implements iAdminMenu
 {
   public function getHTML()
   {
+    $cgroup = empty($_GET['cgroup']) ? 'content' : $_GET['cgroup'];
+
+    if ($tmp = BebopCache::getInstance()->{'adminmenu:'. $cgroup})
+      return $tmp;
+
     $trans = array(
       'access' => t('Доступ'),
       'content' => t('Наполнение'),
@@ -14,8 +19,6 @@ class AdminMenu implements iAdminMenu
       );
 
     $menu = $this->getIcons();
-
-    $cgroup = empty($_GET['cgroup']) ? 'content' : $_GET['cgroup'];
 
     $output = '<ul>';
 
@@ -46,6 +49,8 @@ class AdminMenu implements iAdminMenu
     }
 
     $output .= '</ul>';
+
+    BebopCache::getInstance()->{'adminmenu:'. $cgroup} = $output;
 
     return $output;
   }
