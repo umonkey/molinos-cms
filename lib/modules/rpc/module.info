@@ -2,9 +2,6 @@ group = Core
 version = 8.02.4782
 docurl = http://code.google.com/p/molinos-cms/wiki/mod_rpc
 
-[interfaces]
-iRequestHook = RPCHandler
-
 [name]
 en = Remote Procedure Call Engine
 ru = Обработчик удалённых запросов

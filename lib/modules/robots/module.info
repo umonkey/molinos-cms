@@ -2,10 +2,6 @@ group = Service
 version = 8.02.4782
 docurl = http://code.google.com/p/molinos-cms/wiki/mod_robots
 
-[interfaces]
-iModuleConfig = RobotsModule
-iRequestHook = RobotsModule
-
 [name]
 en = Control over Web Crawlers
 ru = Управление веб-роботами

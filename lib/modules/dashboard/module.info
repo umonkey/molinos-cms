@@ -2,10 +2,6 @@ group = Core
 version = 8.02.4782
 docurl = http://code.google.com/p/molinos-cms/wiki/mod_dashboard
 
-[interfaces]
-iWidget = BebopDashboard
-iAdminWidget = BebopDashboard
-
 [name]
 en = Dashboard
 ru = Приборная панель

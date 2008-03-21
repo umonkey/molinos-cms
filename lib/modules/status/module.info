@@ -1,10 +1,6 @@
 group = Statistics
 version = 8.02.4782
 
-[interfaces]
-iAdminWidget = StatusAdminWidget
-iWidget = StatusAdminWidget
-
 [name]
 en = Site Status monitor
 ru = Мониторинг состояния системы

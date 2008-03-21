@@ -2,9 +2,6 @@ group = Core
 version = 8.02.4782
 docurl = http://code.google.com/p/molinos-cms/wiki/mod_cache
 
-[interfaces]
-iBebopCacheEngine = APC_Cache, DBCache, Local_Cache, MemCacheD_Cache
-
 [name]
 en = Cache Engine
 ru = Кэширование данных

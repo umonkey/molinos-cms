@@ -3,9 +3,6 @@ version = 8.02.4782
 classes = AliasModule
 docurl = http://code.google.com/p/molinos-cms/wiki/mod_alias
 
-[interfaces]
-iRequestHook = AliasModule
-
 [name]
 en = URL Aliasing
 ru = Коррекция URL

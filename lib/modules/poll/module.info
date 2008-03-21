@@ -2,12 +2,6 @@ group = Interactive
 version = 8.02.4782
 docurl = http://code.google.com/p/molinos-cms/wiki/mod_poll
 
-[interfaces]
-iWidget = PollWidget
-iNodeHook = PollWidget
-iModuleConfig = PollWidget
-iContentType = PollNode
-
 [name]
 en = Content Poll
 ru = Опрос пользователей

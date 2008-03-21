@@ -2,11 +2,6 @@ group = Service
 version = 8.02.4782
 docurl = http://code.google.com/p/molinos-cms/wiki/mod_maintenance
 
-[interfaces]
-iModuleConfig = MaintenanceModule
-iRequestHook = MaintenanceModule
-iDashboard = MaintenanceModule
-
 [name]
 en = Disables the Web Site for Maintenance
 ru = Отключение сайта для технических работ

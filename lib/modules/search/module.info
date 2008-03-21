@@ -2,12 +2,6 @@ group = Interactive
 version = 8.02.4782
 docurl = http://code.google.com/p/molinos-cms/wiki/mod_search
 
-[interfaces]
-iWidget = SearchWidget
-iNodeHook = SearchWidget
-iModuleConfig = SearchWidget
-iScheduler = SearchWidget
-
 [name]
 en = Site-Wide Search
 ru = Поиск по сайту

@@ -1,12 +1,6 @@
 group = Interactive
 version = 8.02.4782
 
-[interfaces]
-iWidget = SubscriptionWidget, SubscriptionAdminWidget
-iAdminWidget = SubscriptionAdminWidget
-iScheduler = SubscriptionAdminWidget
-iDashboard = SubscriptionAdminWidget
-
 [name]
 en = Email Subscription
 ru = Рассылка новостей по почте

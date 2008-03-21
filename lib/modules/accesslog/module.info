@@ -2,13 +2,6 @@ group = Statistics
 version = 8.02.4782
 docurl = http://code.google.com/p/molinos-cms/wiki/mod_accesslog
 
-[interfaces]
-iWidget = AccessLogModule
-iDashboard = AccessLogModule
-iModuleConfig = AccessLogModule
-iRequestHook = AccessLogModule
-iAdminUI = AccessLogModule
-
 [name]
 en = Content Access Statistics.
 ru = Статистика доступа к контенту.

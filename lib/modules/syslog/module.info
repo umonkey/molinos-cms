@@ -2,14 +2,6 @@ group = Statistics
 version = 8.02.4782
 docurl = http://code.google.com/p/molinos-cms/wiki/mod_syslog
 
-[interfaces]
-iAdminWidget = SysLogModule
-iWidget = SysLogModule
-iDashboard = SysLogModule
-iModuleConfig = SysLogModule
-iNodeHook = SysLogModule
-iAdminUI = SysLogModule
-
 [name]
 en = System Log
 ru = Системный журнал

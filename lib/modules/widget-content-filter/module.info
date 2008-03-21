@@ -1,10 +1,6 @@
 group = Core
 version = 8.02.4782
 
-[interface]
-iAdminWidget = ContentFilterWidget
-iWidget = ContentFilterWidget
-
 [name]
 en = Content Filter Settings
 ru = Фильтрация контента

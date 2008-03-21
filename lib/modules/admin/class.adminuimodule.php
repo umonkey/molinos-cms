@@ -71,7 +71,7 @@ class AdminUIModule implements iAdminUI
 
     $node = Node::load(array('id' => $nid));
 
-    $form = $node->formGet();
+    $form = $node->formGet(false);
     $form->addClass('tabbed');
 
     return $form->getHTML($node->formGetData());
@@ -179,7 +179,10 @@ class AdminUIModule implements iAdminUI
     $output .= '<table class=\'modinfo\'>';
     $output .= '<tr><th>Описание:</th><td>'. $module['name']['ru'] .'</td></tr>';
     $output .= '<tr><th>Классы:</th><td>'. join(', ', $module['classes']) .'</td></tr>';
-    $output .= '<tr><th>Интерфейсы:</th><td>'. join(', ', $module['interfaces']) .'</td></tr>';
+
+    if (!empty($module['interfaces']))
+      $output .= '<tr><th>Интерфейсы:</th><td>'. join(', ', $module['interfaces']) .'</td></tr>';
+
     $output .= '<tr><th>Минимальная версия CMS:</th><td>'. $module['version'] .'</td></tr>';
 
     if (!empty($module['docurl']))

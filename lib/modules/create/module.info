@@ -2,9 +2,6 @@ group = Interactive
 version = 8.02.4782
 docurl = http://code.google.com/p/molinos-cms/wiki/mod_create
 
-[interfaces]
-iWidget = FormWidget
-
 [name]
 en = Content Creation Forms
 ru = Форма создания документов
