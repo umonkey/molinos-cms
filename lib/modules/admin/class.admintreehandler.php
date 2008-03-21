@@ -69,12 +69,9 @@ class AdminTreeHandler
   {
     switch ($this->ctx->get('preset')) {
     case 'taxonomy':
-      $data = TagNode::getTags('flat');
-      return $data;
     case 'pages':
-      $tmp = self::getNodeTree();
-      return $tmp;
-
+      $data = self::getNodeTree();
+      return $data;
     default:
       bebop_debug($this->ctx);
     }
