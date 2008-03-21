@@ -16,6 +16,13 @@ function render_username()
   return $user->getName();
 }
 
+function render_reboot_link()
+{
+  $url = bebop_split_url();
+  $url['args']['reload'] = 1;
+  return bebop_combine_url($url, true);
+}
+
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -45,7 +52,8 @@ function render_username()
       <div id="top_toolbar">
         <div class="right">
           <div class="greeting">Здравствуйте, <?php print render_username(); ?></div>
-          <a href="/admin/?cgroup=access&amp;mode=edit&amp;id=<?php print mcms::user()->getUid(); ?>&amp;destination=<?php print urlencode($_SERVER['REQUEST_URI']) ?>">Настройки</a>
+          <a href="/admin/?cgroup=access&amp;mode=edit&amp;id=<?php print mcms::user()->getUid(); ?>&amp;destination=<?php print urlencode($_SERVER['REQUEST_URI']) ?>" title="Редактировать свой профиль">Настройки</a>
+          <a href="<?php print render_reboot_link(); ?>" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
           <a id="lnk_exit" href="/base.rpc?action=logout&amp;destination=%2F">Выйти</a>
         </div>
       </div><!-- id=top_toolbar -->
