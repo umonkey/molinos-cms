@@ -6,14 +6,14 @@ class RSSListHandler extends AdminListHandler
   protected function setUp($preset = null)
   {
     $this->types = array('rssfeed');
-    $this->title = t('Исходящие RSS потоки');
+    $this->title = t('Исходящие RSS ленты');
     $this->columns = array('feedicon', 'feedcheck', 'name', 'title', 'uid', 'created');
     $this->actions = array('publish', 'unpublish', 'delete');
 
     $this->columntitles = array(
       'feedicon' => '&nbsp;',
       'feedcheck' => '&nbsp;',
-      'name' => t('Имя потока'),
+      'name' => t('Имя ленты'),
       'title' => t('Заголовок'),
       'uid' => t('Создатель'),
       'created' => t('Дата добавления'),
