@@ -94,6 +94,10 @@ form.inline {
 .nodelist .field-updated {
   white-space: nowrap;
 }
+.nodelist .actions a {
+  margin-right: 4px;
+  font-style: normal;
+}
 
 table.modinfo {
   margin-top: 1em;

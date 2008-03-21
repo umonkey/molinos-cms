@@ -29,10 +29,17 @@ class AdminTreeHandler
 
         $row .= "<td class='field-{$field}'>";
 
-        if (empty($value))
+        if (empty($value)) {
           $row .= '&nbsp;';
-        else
+        } elseif ('name' == $field) {
+          $link = mcms::html('a', array(
+            'href' => "/admin/?mode=edit&id={$node['id']}&destination=". urlencode($_SERVER['REQUEST_URI']),
+            'style' => empty($node['depth']) ? null : 'margin-left:'. ($node['depth'] * 10) .'px',
+            ), $value);
+          $row .= $link;
+        } else {
           $row .= $value;
+        }
 
         $row .= '</td>';
       }
