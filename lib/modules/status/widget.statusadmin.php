@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class StatusAdminWidget extends Widget implements iAdminWidget
+class StatusAdminWidget extends Widget
 {
   public function __construct(Node $node)
   {

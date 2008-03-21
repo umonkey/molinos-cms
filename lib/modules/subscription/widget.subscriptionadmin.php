@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler, iAdminMenu
+class SubscriptionAdminWidget extends Widget implements iScheduler, iAdminMenu
 {
   public function __construct(Node $node)
   {
