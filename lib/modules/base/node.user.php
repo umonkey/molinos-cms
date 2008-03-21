@@ -10,9 +10,6 @@ class UserNode extends Node implements iContentType
   {
     $this->origpassword = empty($data['password']) ? null : $data['password'];
     parent::__construct($data);
-
-    if ($this->login == 'root' or $this->login == 'anonymous')
-      $this->data['internal'] = true;
   }
 
   // Шифруем пароль.
@@ -75,7 +72,6 @@ class UserNode extends Node implements iContentType
   {
     $this->login = preg_replace('/_[0-9]+$/', '', $this->login) .'_'. rand();
     $this->email = null;
-    $this->internal = false;
 
     parent::duplicate();
   }
@@ -135,9 +131,6 @@ class UserNode extends Node implements iContentType
 
   public function delete()
   {
-    if (!empty($this->internal))
-      throw new ForbiddenException("Системных пользователей нельзя удалять.");
-
     return parent::delete();
   }
 };
