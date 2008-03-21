@@ -13,8 +13,10 @@ class AdminUIModule implements iAdminUI
     if (null === ($module = $ctx->get('module')))
       $result['content'] = self::onGetInternal($ctx);
 
-    elseif (!count($classes = mcms::getImplementors('iAdminUI', $module)))
+    elseif (!count($classes = mcms::getImplementors('iAdminUI', $module))) {
+      bebop_debug(mcms::getModuleMap());
       throw new PageNotFoundException();
+    }
 
     else
       $result['content'] = call_user_func_array(array($classes[0], 'onGet'), array($ctx));

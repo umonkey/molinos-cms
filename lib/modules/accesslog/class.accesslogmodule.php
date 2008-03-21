@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class AccessLogModule extends Widget implements iWidget, iAdminMenu, iModuleConfig, iRequestHook
+class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequestHook, iAdminUI
 {
   public function __construct(Node $node)
   {
@@ -26,7 +26,7 @@ class AccessLogModule extends Widget implements iWidget, iAdminMenu, iModuleConf
   }
 
   // Обработка GET запросов.
-  public function onGet(RequestContext $ctx)
+  public static function onGet(RequestContext $ctx)
   {
     $tmp = new AccessLogListHandler($ctx);
     return $tmp->getHTML();
