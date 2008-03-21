@@ -85,7 +85,7 @@ class RssfeedNode extends Node
     $output .= '<description>'. mcms_plain($this->description) .'</description>';
 
     if (isset($this->link)) {
-      $output .= '<link>'. $this->link .'</link>';
+      $output .= '<link>'. str_replace('HOSTNAME', mcms::config('basedomain'), $this->link) .'</link>';
       $output .= '<atom:link href=\'http://'. $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] .'\' rel=\'self\' type=\'application/rss+xml\' />';
     }
 
