@@ -967,6 +967,7 @@ class mcms
             case 'control':
             case 'node':
             case 'widget':
+            case 'exception':
               $classname = $parts[1] . $type;
               break;
             case 'interface':
