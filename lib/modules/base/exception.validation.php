@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
 
-class ValidationError extends UserErrorException
+class ValidationException extends UserErrorException
 {
   public function __construct($name, $message = null)
   {

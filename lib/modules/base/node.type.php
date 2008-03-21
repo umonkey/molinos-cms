@@ -390,7 +390,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       $ok = false;
 
     if (!$ok)
-      throw new ValidationError('name', t("Имя поля может содержать только буквы латинского алфавита, арабские цифры и символ подчёркивания (\"_\"), вы ввели: %name.", array('%name' => $name)));
+      throw new ValidationException('name', t("Имя поля может содержать только буквы латинского алфавита, арабские цифры и символ подчёркивания (\"_\"), вы ввели: %name.", array('%name' => $name)));
   }
 
   public function getAccess()

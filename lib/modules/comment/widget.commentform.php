@@ -166,7 +166,7 @@ class CommentFormWidget extends Widget
               $parts = explode('.', $v['values'], 2);
 
               if (!count($tmp = Node::find($filter = array('class' => $parts[0], $v['values'] => $data[$key]), 1)))
-                throw new ValidationError($k);
+                throw new ValidationException($k);
 
               $comment[$k] = key($tmp);
             }

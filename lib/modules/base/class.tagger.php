@@ -662,9 +662,9 @@ class Tagger
     public static function checkClassName($name)
     {
         if (empty($name))
-          throw new ValidationError('name');
+          throw new ValidationException('name');
         if (strspn(strtolower($name), 'abcdefghijklmnopqrstuvwxyz0123456789_') != strlen($name))
-          throw new ValidationError('name', "Внутреннее имя типа документа может содержать только буквы латинского алфавита, арабские цифры и символ подчёркивания (&laquo;_&raquo;).");
+          throw new ValidationException('name', "Внутреннее имя типа документа может содержать только буквы латинского алфавита, арабские цифры и символ подчёркивания (&laquo;_&raquo;).");
     }
 
     // Получение списка возможных классов.

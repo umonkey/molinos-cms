@@ -103,9 +103,11 @@ class FieldControl extends Control
 
     foreach (mcms::getImplementors('iFormControl') as $class) {
       if (mcms::class_exists($class)) {
-        $info = call_user_func(array($class, 'getInfo'));
-        if (empty($info['hidden']))
-          $types[$class] = $info['name'];
+        if ('Control' != $class) {
+          $info = call_user_func(array($class, 'getInfo'));
+          if (empty($info['hidden']))
+            $types[$class] = $info['name'];
+        }
       }
     }
 

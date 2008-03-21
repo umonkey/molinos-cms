@@ -3,12 +3,15 @@
 
 class PageNotFoundException extends UserErrorException
 {
-  public function __construct($page = null, $description = null)
+  public function __construct($page = null, $description = null, $text = null)
   {
     $description .= 'Попробуйте поискать требуемую информацию на <a href="/">главной странице</a> сайта.';
 
+    if (null === $text)
+      $text = t('Страница не найдена');
+
     parent::__construct(
-      'Страница не найдена',
+      $text,
       404,
       'Такой <span class="highlight">страницы нет</span> на этом сайте',
       $description);
