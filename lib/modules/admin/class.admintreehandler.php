@@ -20,6 +20,7 @@ class AdminTreeHandler
     $output = '<h2>'. $this->title .'</h2>';
 
     $form = new Form(array(
+      'id' => 'nodelist-form',
       'action' => '/nodeapi.rpc?action=mass&destination='. urlencode($_SERVER['REQUEST_URI']),
       ));
     $form->addControl(new AdminUINodeActionsControl(array(

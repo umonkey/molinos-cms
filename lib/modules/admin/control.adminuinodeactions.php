@@ -46,7 +46,22 @@ class AdminUINodeActionsControl extends Control
     foreach ($map as $k => $v)
       $list[] = "<u class='fakelink select-{$k}'>{$v}</u>";
 
-    return mcms::html('div', array('class' => 'jsonly ctrl_left'), t('Выбрать') .': '. join(', ', $list) .'.');
+    $output = t('Выбрать') .': '. join(', ', $list);
+
+    if (!empty($this->actions)) {
+      $output .= ' &nbsp; и &nbsp; ';
+
+      $list = array();
+
+      foreach ($this->actions as $action)
+        $list[] = "<u class='fakelink' onclick='javascript:bebop_selected_action(\"{$action}\");'>". $this->getActionName($action) ."</u>";
+
+      $output .= join(', ', $list);
+    }
+
+    $output .= '.';
+
+    return mcms::html('div', array('class' => 'jsonly ctrl_left'), $output);
   }
 
   private function getActions(array $actions)
@@ -54,12 +69,6 @@ class AdminUINodeActionsControl extends Control
     $options = '';
 
     $strings = array(
-      'delete' => t('удалить'),
-      'publish' => t('опубликовать'),
-      'unpublish' => t('скрыть'),
-      'clone' => t('клонировать'),
-      'undelete' => t('восстановить'),
-      'erase' => t('удалить окончательно'),
       );
 
     $options .= mcms::html('option', array(
@@ -67,7 +76,7 @@ class AdminUINodeActionsControl extends Control
       ), t('Выберите действие'));
 
     foreach ($actions as $action) {
-      $name = array_key_exists($action, $strings) ? $strings[$action] : $action;
+      $name = $this->getActionName($action);
 
       $options .= mcms::html('option', array(
         'value' => $action,
@@ -83,7 +92,27 @@ class AdminUINodeActionsControl extends Control
       'value' => 'OK',
       ));
 
-    return mcms::html('div', array('class' => 'action_select'), $output);
+    return mcms::html('div', array('class' => 'action_select nojs'), $output);
+  }
+
+  private function getActionName($action)
+  {
+    switch ($action) {
+    case 'publish':
+      return t('опубликовать');
+    case 'unpublish':
+      return t('скрыть');
+    case 'delete':
+      return t('удалить');
+    case 'clone':
+      return t('клонировать');
+    case 'undelete':
+      return t('восстановить');
+    case 'erase':
+      return t('удалить окончательно');
+    default:
+      return $action;
+    }
   }
 
   private function filterActions()

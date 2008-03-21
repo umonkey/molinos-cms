@@ -140,6 +140,7 @@ $(document).ready(function () {
   });
 
   $('.jsonly').css('display', 'block');
+  $('.nojs').css('display', 'none');
 
   // Массовые операции над документами.
   $('.select-all').click(function () {
@@ -335,3 +336,9 @@ function bebopImageBrowser(field_name, url, type, win)
 function log(str) {
 	window.console && window.console.log(str);
 };
+
+function bebop_selected_action(action)
+{
+  $('.action_select option[value="'+ action +'"]').attr('selected', 'selected');
+  $('form#nodelist-form').submit();
+}
