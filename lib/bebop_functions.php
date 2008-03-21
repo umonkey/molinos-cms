@@ -944,87 +944,90 @@ class mcms
     foreach ($modules = glob($root .'*') as $path) {
       $modname = basename($path);
 
+      $result['modules'][$modname] = array(
+        'classes' => array(),
+        'interfaces' => array(),
+        'implementors' => array(),
+        );
+
       if (file_exists($modinfo = $path .'/module.info')) {
         if (is_array($ini = parse_ini_file($modinfo, true))) {
-          $result['modules'][$modname] = array(
-            'classes' => array(),
-            'interfaces' => array(),
-            'implementors' => array(),
-            );
-
           // Копируем базовые свойства.
           foreach (array('group', 'version', 'name', 'docurl') as $k)
             if (array_key_exists($k, $ini))
               $result['modules'][$modname][$k] = $ini[$k];
+        }
+      }
 
-          // Составляем список доступных классов.
-          foreach (glob($path .'/'. '*.*.php') as $classpath) {
-            $parts = explode('.', basename($classpath), 3);
+      // Составляем список доступных классов.
+      foreach (glob($path .'/'. '*.*.php') as $classpath) {
+        $parts = explode('.', basename($classpath), 3);
 
-            if (count($parts) != 3 or $parts[2] != 'php')
-              continue;
+        if (count($parts) != 3 or $parts[2] != 'php')
+          continue;
 
-            $classname = null;
+        $classname = null;
 
-            switch ($type = $parts[0]) {
-            case 'class':
-              $classname = $parts[1];
-              break;
-            case 'control':
-            case 'node':
-            case 'widget':
-            case 'exception':
-              $classname = $parts[1] . $type;
-              break;
-            case 'interface':
-              $classname = 'i'. $parts[1];
-              break;
-            }
+        switch ($type = $parts[0]) {
+        case 'class':
+          $classname = $parts[1];
+          break;
+        case 'control':
+        case 'node':
+        case 'widget':
+        case 'exception':
+          $classname = $parts[1] . $type;
+          break;
+        case 'interface':
+          $classname = 'i'. $parts[1];
+          break;
+        }
 
-            if (null !== $classname and is_readable($classpath)) {
-              // Добавляем в список только первый найденный класс.
-              if (!array_key_exists($classname, $result['classes'])) {
-                $result['classes'][$classname] = $classpath;
-                $result['modules'][$modname]['classes'][] = $classname;
+        if (null !== $classname and is_readable($classpath)) {
+          // Добавляем в список только первый найденный класс.
+          if (!array_key_exists($classname, $result['classes'])) {
+            $result['classes'][$classname] = $classpath;
+            $result['modules'][$modname]['classes'][] = $classname;
+          }
+
+          // Строим список интерфейсов.
+          if ($type !== 'interface') {
+            if (preg_match('@^\s*(abstract\s+){0,1}class\s+([^\s]+)(\s+extends\s+([^\s]+))*(\s+implements\s+(\w+))*@im', file_get_contents($classpath), $m)) {
+              $classname = $m[2];
+
+              if (!empty($m[6]))
+                $interfaces = explode(',', str_replace(' ', '', $m[6]));
+              else
+                $interfaces = array();
+
+              switch ($m[4]) {
+              case 'Control':
+                $interfaces[] = 'iFormControl';
+                break;
+              case 'Widget':
+                $interfaces[] = 'iWidget';
+                break;
+              case 'Node':
+              case 'NodeBase':
+                $interfaces[] = 'iContentType';
+                break;
               }
 
-              // Строим список интерфейсов.
-              if ($type !== 'interface') {
-                if (preg_match('@^\s*(abstract\s+){0,1}class\s+([^\s]+)(\s+extends\s+([^\s]+))*(\s+implements\s+(\w+))*@im', file_get_contents($classpath), $m)) {
-                  $classname = $m[2];
-
-                  if (!empty($m[6]))
-                    $interfaces = explode(',', str_replace(' ', '', $m[6]));
-                  else
-                    $interfaces = array();
-
-                  switch ($m[4]) {
-                  case 'Control':
-                    $interfaces[] = 'iFormControl';
-                    break;
-                  case 'Widget':
-                    $interfaces[] = 'iWidget';
-                    break;
-                  case 'Node':
-                  case 'NodeBase':
-                    $interfaces[] = 'iContentType';
-                    break;
-                  }
-
-                  foreach ($interfaces as $i) {
-                    if (!in_array($i, $result['modules'][$modname]['interfaces']))
-                      $result['modules'][$modname]['interfaces'][] = $i;
-                    $result['modules'][$modname]['implementors'][$i][] = $classname;
-                    $result['interfaces'][$i][] = $classname;
-                  }
-                } else {
-                  bebop_debug(time(), $classname, $classpath, $m, $result);
-                }
+              foreach ($interfaces as $i) {
+                if (!in_array($i, $result['modules'][$modname]['interfaces']))
+                  $result['modules'][$modname]['interfaces'][] = $i;
+                $result['modules'][$modname]['implementors'][$i][] = $classname;
+                $result['interfaces'][$i][] = $classname;
               }
+            } else {
+              bebop_debug(time(), $classname, $classpath, $m, $result);
             }
           }
         }
       }
+
+      if (empty($result['modules'][$modname]['classes']))
+        unset($result['modules'][$modname]);
     }
 
     ksort($result['classes']);
