@@ -16,51 +16,26 @@ class AdminTreeHandler
   public function getHTML($preset = null)
   {
     $this->setUp($preset);
-    $data = $this->getData();
 
-    $output = '<table class=\'nodelist\'>';
-    $output .= $this->getTableHeader();
+    $output = '<h2>'. $this->title .'</h2>';
 
-    foreach ($data as $nid => $node) {
-      $row = "<td class='selector'><input type='checkbox' name='nodes[]' value='{$nid}' /></td>";
+    $form = new Form(array(
+      'action' => '/nodeapi.rpc?action=mass&destination='. urlencode($_SERVER['REQUEST_URI']),
+      ));
+    $form->addControl(new AdminUINodeActionsControl(array(
+      'actions' => $this->actions,
+      )));
+    $form->addControl(new AdminUITreeControl(array(
+      'columns' => $this->columns,
+      'selectors' => $this->selectors,
+      )));
+    $form->addControl(new AdminUINodeActionsControl(array(
+      'actions' => $this->actions,
+      )));
 
-      foreach ($this->columns as $field) {
-        $value = array_key_exists($field, $node) ? $node[$field] : null;
-
-        $row .= "<td class='field-{$field}'>";
-
-        if (empty($value)) {
-          $row .= '&nbsp;';
-        } elseif ('name' == $field) {
-          $link = mcms::html('a', array(
-            'href' => "/admin/?mode=edit&id={$node['id']}&destination=". urlencode($_SERVER['REQUEST_URI']),
-            'style' => empty($node['depth']) ? null : 'margin-left:'. ($node['depth'] * 10) .'px',
-            ), $value);
-          $row .= $link;
-        } else {
-          $row .= $value;
-        }
-
-        $row .= '</td>';
-      }
-
-      $parent = empty($node['parent_id']) ? null : $node['parent_id'];
-
-      $row .= '<td class=\'actions\'>';
-      $row .= mcms::html('a', array(
-        'href' => "/nodeapi.rpc?action=raise&node={$nid}&parent={$parent}&destination=". urlencode($_SERVER['REQUEST_URI'])
-        ), 'поднять');
-      $row .= mcms::html('a', array(
-        'href' => "/nodeapi.rpc?action=sink&node={$nid}&parent={$parent}&destination=". urlencode($_SERVER['REQUEST_URI'])
-        ), 'опустить');
-      $row .= '</td>';
-
-      $output .= mcms::html('tr', array(
-        'class' => empty($node['published']) ? 'unpublished' : 'published',
-        ), $row);
-    }
-
-    $output .= '</table>';
+    $output .= $form->getHTML(array(
+      'nodes' => $this->getData(),
+      ));
 
     return $output;
   }
@@ -83,12 +58,16 @@ class AdminTreeHandler
     case 'taxonomy':
       $this->type = 'tag';
       $this->parent = null;
-      $this->columns = array('name', 'title', 'created');
+      $this->columns = array('name', 'description', 'created');
+      $this->actions = array('publish', 'unpublish', 'delete', 'clone');
+      $this->title = t('Карта разделов сайта');
       break;
     case 'pages':
       $this->type = 'domain';
       $this->parent = null;
-      $this->columns = array('name', 'title', 'theme');
+      $this->columns = array('name', 'title', 'language', 'params', 'theme');
+      $this->actions = array('publish', 'unpublish', 'delete', 'clone');
+      $this->title = t('Типовые страницы');
       break;
     }
   }
@@ -111,6 +90,8 @@ class AdminTreeHandler
         $item = array(
           'published' => !empty($node['published']),
           'internal' => !empty($node['internal']),
+          'class' => $node['class'],
+          'parent_id' => $node['parent_id'],
           );
 
         if (!empty($node['depth']))
@@ -162,21 +143,5 @@ class AdminTreeHandler
     }
 
     return $list;
-  }
-
-  private function getTableHeader()
-  {
-    $output = '<tr>';
-    $output .= '<th class=\'selector\'>&nbsp;</th>';
-
-    foreach ($this->columns as $col) {
-      $output .= mcms::html('th', array(
-        'class' => 'field-'. $col,
-        ), $col);
-    }
-
-    $output .= '<th>Действия</th>';
-
-    return $output .= '</tr>';
   }
 };
