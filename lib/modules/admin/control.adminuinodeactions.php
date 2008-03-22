@@ -61,7 +61,7 @@ class AdminUINodeActionsControl extends Control
 
     $output .= '.';
 
-    return mcms::html('div', array('class' => 'jsonly ctrl_left'), $output);
+    return mcms::html('div', array('class' => 'jsonly ctrl_left doc_selector'), $output);
   }
 
   private function getActions(array $actions)

@@ -339,6 +339,10 @@ function log(str) {
 
 function bebop_selected_action(action)
 {
-  $('.action_select option[value="'+ action +'"]').attr('selected', 'selected');
-  $('form#nodelist-form').submit();
+  if (!$('.nodelist :checked').size()) {
+    alert('Документы не выбраны.');
+  } else {
+    $('.action_select option[value="'+ action +'"]').attr('selected', 'selected');
+    $('form#nodelist-form').submit();
+  }
 }
