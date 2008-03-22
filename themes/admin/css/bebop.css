@@ -87,7 +87,10 @@ form.inline {
 }
 .nodelist .selector,
 .nodelist .field-updated,
-.nodelist .field-created .field-filetype {
+.nodelist .field-created .field-filetype,
+.nodelist .field-feedicon,
+.nodelist .field-feedcheck
+{
   width: 10px;
 }
 .nodelist .field-created,
