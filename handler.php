@@ -3,10 +3,6 @@
 
 require(dirname(__FILE__) .'/lib/bootstrap.php');
 
-if (bebop_is_debugger() and $_SERVER['REQUEST_URI'] == '/info.php') {
-  die(phpinfo());
-}
-
 $me = new RequestController();
 
 $output = $me->getContent();

@@ -247,6 +247,10 @@ class RequestController
   {
     $url = bebop_split_url($_SERVER['REQUEST_URI']);
 
+    if ('/info.php' == $url['path'] and bebop_is_debugger()) {
+      die(phpinfo());
+    }
+
     if ('/admin/' == $url['path'] and mcms::class_exists('AdminUIModule')) {
       $ctx = RequestContext::getWidget(
         isset($url['args']) ? $url['args'] : array(),
