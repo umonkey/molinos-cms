@@ -144,9 +144,16 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       } else {
         $def = Node::create($name)->getDefaultSchema();
 
-        $tmp = Node::create('type', $def);
-        $tmp->name = $name;
-        $tmp->save();
+        try {
+          $tmp = Node::create('type', $def);
+          $tmp->name = $name;
+          $tmp->save();
+
+          $result[$name] = $def;
+
+          mcms::cache('schema', $result);
+        } catch (ValidationException $e) {
+        }
       }
     }
 
