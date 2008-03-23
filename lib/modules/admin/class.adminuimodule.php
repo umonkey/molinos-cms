@@ -101,7 +101,7 @@ class AdminUIModule implements iAdminUI
 
     $types = Node::find(array(
       'class' => 'type',
-      '-name' => array('type', 'widget', 'user', 'group', 'domain', 'tag', 'file'),
+      '-name' => TypeNode::getInternal(),
       '#sort' => array('type.title' => 'asc'),
       ));
 
