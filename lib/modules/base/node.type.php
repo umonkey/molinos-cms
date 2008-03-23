@@ -29,14 +29,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if (empty($this->title))
       $this->title = $this->name;
 
-    if ($isnew) {
-      try {
-        $node = Node::load(array('class' => 'type', 'name' => $this->name));
-        throw new ForbiddenException(t("Тип документа со внутренним именем \"%name\" уже есть, повторное использование имени не допускается.", array('%name' => $this->name)));
-      } catch (ObjectNotFoundException $e) {
-        $this->data['published'] = true;
-      }
-    }
+    parent::checkUnique('name', t('Тип документа со внутренним именем %name уже есть.', array('%name' => $this->name)));
 
     // Всегда сохраняем без очистки.
     parent::save(false, $forcedrev);
@@ -456,7 +449,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   public static function getInternal()
   {
-    return array('type', 'tag', 'widget', 'domain', 'moduleinfo', 'file', 'user', 'group', 'comment');
+    return array('type', 'tag', 'widget', 'domain', 'moduleinfo', 'file', 'user', 'group', 'comment', 'moduleinfo');
   }
 
   public static function getReservedNames()
