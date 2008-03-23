@@ -165,7 +165,15 @@ function PrettyBlueScreen($e) {
   <h1><?php $o($desc);?></h1>
   <h2><?php
     if ( $e->getCode() ) { $o($e->getCode()). ' : '; }
-    ?> <?php $o($e->getMessage()); ?></h2>
+    ?> <?php $o($e->getMessage());
+    ?></h2>
+    <?php
+    if ($e instanceof UserErrorException) {
+        print '<h3>';
+        print $e->getDescription() .': '. $e->getNote();
+        print '</h3>';
+    }
+    ?>
   <table>
     <tr>
       <th>PHP</th>
