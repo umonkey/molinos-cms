@@ -133,6 +133,8 @@ class AdminUIListControl extends Control
         return $text;
       }
       break;
+    case 'filesize':
+      return number_format($value, 0);
     }
   }
 
