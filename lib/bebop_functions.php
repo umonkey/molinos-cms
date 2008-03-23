@@ -52,7 +52,7 @@ function bebop_is_debugger()
       $skip = false;
     }
 
-    elseif (!empty($_SESSION['user']['systemgroups']) and in_array('Developers', $_SESSION['user']['systemgroups']))
+    elseif (!empty($_SESSION['user']['groups']) and in_array('Developers', $_SESSION['user']['groups']))
       $skip = false;
 
     else {
