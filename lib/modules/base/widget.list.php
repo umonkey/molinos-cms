@@ -22,8 +22,9 @@ class ListWidget extends Widget
   {
     $types = array();
 
-    foreach (Node::find(array('class' => 'type', 'internal' => 0, '#sort' => array('type.title' => 'asc'))) as $type)
-      $types[$type->id] = $type->title;
+    foreach (Node::find(array('class' => 'type', '#sort' => array('type.title' => 'asc'))) as $type)
+      // if (!in_array($type->name, TypeNode::getInternal()))
+        $types[$type->id] = $type->title;
 
     $form = parent::formGetConfig();
 
@@ -239,6 +240,9 @@ class ListWidget extends Widget
     if (empty($filter['tags']))
       return null;
 
+    if ($this->getInstanceName() == 'tracker')
+      unset($filter['tags']);
+
     $result = array(
       'path' => array(),
       'sections' => array(),
@@ -266,7 +270,7 @@ class ListWidget extends Widget
     }
 
     // Формируем список документов.
-    foreach (Node::find($filter, $options['limit'], $options['offset']) as $node) {
+    foreach ($nodes = Node::find($filter, $options['limit'], $options['offset']) as $node) {
       $result['documents'][] = $node->getRaw();
       $result['keys'][] = $node->id;
 
