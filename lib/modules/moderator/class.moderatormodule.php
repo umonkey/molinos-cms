@@ -116,7 +116,7 @@ class ModeratorModule implements iModuleConfig, iNodeHook
     }
 
     $body = '<p>'. t($prepend, array(
-      '%user' => mcms::user()->getTitle(),
+      '%user' => mcms::user()->name,
       '%type' => isset($schema['title']) ? $schema['title'] : $node->class,
       )) .'</p>'. self::getNodeBody($node);
 
@@ -171,7 +171,7 @@ class ModeratorModule implements iModuleConfig, iNodeHook
     $config = mcms::modconf('moderator');
     $list = isset($config['super']) ? preg_split('/, */', $config['super']) : array();
 
-    $tmp = Node::load(array('class' => 'user', 'id' => mcms::user()->getUid()));
+    $tmp = Node::load(array('class' => 'user', 'id' => mcms::user()->id));
     if (!empty($tmp->publisher) and is_numeric($tmp->publisher)) {
       try {
         $tmp = Node::load(array('class' => 'user', 'id' => $tmp->publisher));

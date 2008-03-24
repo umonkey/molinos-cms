@@ -261,7 +261,7 @@ class CartWidget extends Widget
 
       if (!empty($this->email)) {
         $body = t("<p>Пользователь %login только что оформил заказ следующего содержания:</p>",
-            array('%login' => mcms::user()->getName()))
+            array('%login' => mcms::user()->login))
             . str_replace('<table>', '<table border=\'1\' cellspacing=\'0\' cellpadding=\'2\'>', $report);
 
         $body .= t("<p>Пользователь предоставил следующую дополнительную информацию:</p>");

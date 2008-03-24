@@ -144,7 +144,7 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
 
     if (!$this->isGlobal()) {
       $where[] = "`node__log`.`uid` = :uid";
-      $params[':uid'] = mcms::user()->getUid();
+      $params[':uid'] = mcms::user()->id;
     }
 
     if (null !== $this->options['operation']) {

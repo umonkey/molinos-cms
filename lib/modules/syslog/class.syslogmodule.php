@@ -222,7 +222,7 @@ class SysLogModule implements iAdminUI, iAdminMenu, iModuleConfig, iNodeHook
 
     if (!$this->isGlobal()) {
       $where[] = "`node__log`.`uid` = :uid";
-      $params[':uid'] = mcms::user()->getUid();
+      $params[':uid'] = mcms::user()->id;
     }
 
     if (null !== $this->options['operation']) {
@@ -393,8 +393,8 @@ class SysLogModule implements iAdminUI, iAdminMenu, iModuleConfig, iNodeHook
     mcms::db()->exec("INSERT INTO `node__log` (`nid`, `uid`, `username`, `ip`, `operation`, `timestamp`, `message`) "
       ."VALUES (:nid, :uid, :username, :ip, :operation, UTC_TIMESTAMP(), :message)", array(
       ':nid' => $nid,
-      ':uid' => mcms::user()->getUid(),
-      ':username' => mcms::user()->getName(),
+      ':uid' => mcms::user()->id,
+      ':username' => mcms::user()->name,
       ':ip' => empty($_SERVER['REMOTE_ADDR']) ? null : $_SERVER['REMOTE_ADDR'],
       ':operation' => $op,
       ':message' => $message,

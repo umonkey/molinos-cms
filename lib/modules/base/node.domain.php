@@ -145,8 +145,8 @@ class DomainNode extends Node implements iContentType
     $data['lang'] = $this->language;
     $data['version'] = $this->getVersionId();
     $data['user'] = array(
-      'uid' => mcms::user()->getUid(),
-      'name' => mcms::user()->getName(),
+      'uid' => mcms::user()->id,
+      'name' => mcms::user()->name,
       'groups' => mcms::user()->getGroups(),
       );
     $data['page'] = $this->getRaw();

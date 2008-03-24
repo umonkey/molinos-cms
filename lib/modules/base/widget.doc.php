@@ -38,7 +38,7 @@ class DocWidget extends Widget
   {
     $options = parent::getRequestOptions($ctx);
 
-    if ($uid = mcms::user()->getUid()) {
+    if ($uid = mcms::user()->id) {
       $options['cachecontrol'] = $uid;
       $options['#nocache'] = true;
     } else {

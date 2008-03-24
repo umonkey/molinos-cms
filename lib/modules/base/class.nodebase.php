@@ -167,7 +167,7 @@ class NodeBase
       $this->data['published'] = 0;
 
     if ($this->id === null and null === $this->uid)
-      $this->data['uid'] = mcms::user()->getUid();
+      $this->data['uid'] = mcms::user()->id;
 
     $tg->nodeSave($this->data, $this->forcedrev);
 
@@ -208,7 +208,7 @@ class NodeBase
     if (in_array($key, array('class', 'left', 'right', 'published')))
       throw new InvalidArgumentException("node.{$key} is private");
 
-    if ('uid' == $key and !empty($this->data['uid']) and $this->data['uid'] != mcms::user()->getUid())
+    if ('uid' == $key and !empty($this->data['uid']) and $this->data['uid'] != mcms::user()->id)
       throw new InvalidArgumentException(t('Нельзя изменить автора чужого документа.'));
 
     if ($key == 'parent_id' and !empty($this->data['id']))

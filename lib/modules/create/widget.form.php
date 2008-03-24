@@ -254,7 +254,7 @@ class FormWidget extends Widget
     $data = $this->options['default'];
 
     if (empty($data['uid']))
-      $data['uid'] = mcms::user()->getUid();
+      $data['uid'] = mcms::user()->id;
 
     $data['parent_id'] = $this->options['parent_id'];
     $data['published'] = $this->publish;
@@ -302,7 +302,7 @@ class FormWidget extends Widget
 
         $node = Node::create($type, array(
           'parent_id' => $this->options['parent_id'],
-          'uid' => mcms::user()->getUid(),
+          'uid' => mcms::user()->id,
           'published' => $this->publish,
           ));
 

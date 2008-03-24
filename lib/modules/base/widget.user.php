@@ -405,7 +405,7 @@ class UserWidget extends Widget
       $form = $profile->formGet();
 
       if (!empty($this->options['hash'])) {
-        if (mcms::user()->getUid())
+        if (mcms::user()->id)
           throw new PageNotFoundException();
 
         if ($this->options['hash'] != md5($profile->password))
@@ -472,7 +472,7 @@ class UserWidget extends Widget
       return array();
 
     case 'profile-edit-form':
-      $uid = empty($_GET['profile_uid']) ? mcms::user()->getUid() : $_GET['profile_uid'];
+      $uid = empty($_GET['profile_uid']) ? mcms::user()->id : $_GET['profile_uid'];
       $user = Node::load(array('class' => 'user', 'id' => $uid));
       return $user->formGetData();
 
@@ -546,12 +546,12 @@ class UserWidget extends Widget
 
     case 'profile-edit-form':
       if (null === ($uid = $this->options['uid']))
-        $uid = mcms::user()->getUid();
+        $uid = mcms::user()->id;
 
       $user = Node::load(array('class' => 'user', 'id' => $uid));
 
       if (!empty($this->options['uid'])) {
-        if (mcms::user()->getUid() == 0 and !empty($this->options['uid']) and (md5($user->password) != $this->options['hash']))
+        if (mcms::user()->id == 0 and !empty($this->options['uid']) and (md5($user->password) != $this->options['hash']))
           throw new PageNotFoundException();
 
         mcms::auth($data['node_content_login'], $data['node_content_password'], true);

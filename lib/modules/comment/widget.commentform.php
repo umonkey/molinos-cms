@@ -59,7 +59,7 @@ class CommentFormWidget extends Widget
     $options = parent::getRequestOptions($ctx);
 
     $options['status'] = $ctx->get('status', 'form');
-    $options['user'] = mcms::user()->getUid();
+    $options['user'] = mcms::user()->id;
 
     if (null === ($options['doc'] = $ctx->document_id))
       throw new WidgetHaltedException();
@@ -80,7 +80,7 @@ class CommentFormWidget extends Widget
     case 'comment-new':
       $user = mcms::user();
       $schema = TypeNode::getSchema('comment');
-      $hidden = $user->getUid() ? $this->hide_user : $this->hide_anon;
+      $hidden = $user->id ? $this->hide_user : $this->hide_anon;
 
       $form = new Form(array(
         'title' => t('Добавить комментарий'),
@@ -179,8 +179,8 @@ class CommentFormWidget extends Widget
 
       $comment['published'] = !$this->moderated;
 
-      if ($user->getUid()) {
-        $comment['uid'] = $user->getUid();
+      if ($user->id) {
+        $comment['uid'] = $user->id;
         $comment['name'] = $user->getName();
       }
 
@@ -223,7 +223,7 @@ class CommentFormWidget extends Widget
   private function sendNotifications(Node $c)
   {
     if (mcms::ismodule('rating')) {
-      if ($uid = mcms::user()->getUid())
+      if ($uid = mcms::user()->id)
         $me = Node::load(array('class' => 'user', 'id' => $uid));
       else
         $me = null;

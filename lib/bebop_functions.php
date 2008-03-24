@@ -799,10 +799,10 @@ class mcms
       '%stack' => str_replace("\n", '<br/>', $e->getTraceAsString()),
       ));
 
-    if (mcms::user()->getUid())
+    if (mcms::user()->id)
       $body .= t('<p>The user was identified as %user (#%uid).</p>', array(
-        '%user' => mcms::user()->getName(),
-        '%uid' => mcms::user()->getUid(),
+        '%user' => mcms::user()->name,
+        '%uid' => mcms::user()->id,
         ));
     else
       $body .= t('<p>The user responsible for this action could not be identified.</p>');
@@ -819,7 +819,7 @@ class mcms
 
   public static function captchaGen()
   {
-    if (mcms::user()->getUid() != 0)
+    if (mcms::user()->id != 0)
       return null;
 
     $result = strtolower(substr(base64_encode(rand()), 0, 6));
@@ -828,7 +828,7 @@ class mcms
 
   public static function captchaCheck(array $data)
   {
-    if (mcms::user()->getUid() != 0)
+    if (mcms::user()->id != 0)
       return true;
 
     if (!empty($data['captcha']) and is_array($data['captcha']) and count($data['captcha']) == 2) {

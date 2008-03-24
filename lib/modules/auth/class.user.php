@@ -72,6 +72,20 @@ class User
     return $this->node->$key;
   }
 
+  public function getGroups()
+  {
+    static $result = null;
+
+    if (null === $result) {
+      $result = array();
+
+      foreach ($this->groups as $g)
+        $result[$g->id] = $g->login;
+    }
+
+    return $result;
+  }
+
   public function hasGroup($name)
   {
     if (bebop_skip_checks())

@@ -369,7 +369,7 @@ class Tagger
       // Сохраняем ключевую часть ревизии.
       try {
         if (!array_key_exists('uid', $node))
-          $node['uid'] = mcms::user()->getUid();
+          $node['uid'] = mcms::user()->id;
         if (empty($node['uid']))
           $node['uid'] = null;
 
