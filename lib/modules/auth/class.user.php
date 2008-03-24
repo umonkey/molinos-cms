@@ -11,13 +11,11 @@ class User
 
   protected function __construct()
   {
-    if (null === ($this->session = SessionData::load())) {
+    if (null === ($this->session = SessionData::load()) or null === ($uid = $this->session->uid)) {
       $this->node = Node::create('user', array(
         'name' => 'anonymous',
         ));
     } else {
-      $uid = $this->session->uid;
-
       if (is_string($tmp = mcms::cache($key = 'userprofile:'. $uid)))
         $this->node = unserialize($tmp);
       else
@@ -59,7 +57,7 @@ class User
       $node = Node::load(array('class' => 'user', 'login' => $args[0]));
 
       if ($node->password != md5($args[1]))
-        throw new ValidationError('password', t('Введён неверный пароль.'));
+        throw new ValidationException('password', t('Введён неверный пароль.'));
 
       if (!$node->published)
         throw new ForbiddenException(t('Ваш профиль заблокирован.'));
