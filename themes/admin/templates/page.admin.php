@@ -11,9 +11,7 @@ function render_notifications()
 
 function render_username()
 {
-  $user = mcms::user();
-
-  return $user->getName();
+  return mcms::user()->name;
 }
 
 function render_reboot_link()
@@ -52,7 +50,7 @@ function render_reboot_link()
       <div id="top_toolbar">
         <div class="right">
           <div class="greeting">Здравствуйте, <?php print render_username(); ?></div>
-          <a href="/admin/?cgroup=access&amp;mode=edit&amp;id=<?php print mcms::user()->getUid(); ?>&amp;destination=<?php print urlencode($_SERVER['REQUEST_URI']) ?>" title="Редактировать свой профиль">Настройки</a>
+          <a href="/admin/?cgroup=access&amp;mode=edit&amp;id=<?php print mcms::user()->id; ?>&amp;destination=<?php print urlencode($_SERVER['REQUEST_URI']) ?>" title="Редактировать свой профиль">Настройки</a>
           <a href="<?php print render_reboot_link(); ?>" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
           <a id="lnk_exit" href="/base.rpc?action=logout&amp;destination=%2F">Выйти</a>
         </div>

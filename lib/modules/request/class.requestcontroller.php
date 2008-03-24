@@ -678,8 +678,6 @@ class RequestController
 
   private function renderError(Exception $e)
   {
-    return false;
-
     if (bebop_is_debugger() and mcms::config('pass_exceptions') and $e->getCode() != 401 and $e->getCode() != 403)
       return false;
 

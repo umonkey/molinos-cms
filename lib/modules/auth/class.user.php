@@ -67,8 +67,11 @@ class User
 
   public function __get($key)
   {
-    if ('session' === $key)
-      return $this->session();
+    if ('session' === $key) {
+      if (null === $this->session)
+        throw new ForbiddenException();
+      return $this->session->$key;
+    }
     return $this->node->$key;
   }
 
@@ -108,7 +111,7 @@ class User
   }
 
   // Возвращает указатель на сессию текущего пользователя.
-  private function session($sid, array $data = null)
+  private static function session($sid, array $data = null)
   {
     try {
       if (null !== $data) {
@@ -143,7 +146,7 @@ class User
             ));
           $t->commit();
 
-          return $this->session($sid, $data);
+          return self::session($sid, $data);
         }
       }
 
