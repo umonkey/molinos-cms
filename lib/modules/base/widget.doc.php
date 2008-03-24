@@ -38,6 +38,8 @@ class DocWidget extends Widget
   {
     $options = parent::getRequestOptions($ctx);
 
+    $options['action'] = $ctx->get('action', 'view');
+
     if ($uid = mcms::user()->id) {
       $options['cachecontrol'] = $uid;
       $options['#nocache'] = true;
@@ -53,10 +55,15 @@ class DocWidget extends Widget
     else
       $options['root'] = $this->fixed;
 
-    return $options;
+    return $this->options = $options;
   }
 
   public function onGet(array $options)
+  {
+    return $this->dispatch(array($options['action']), $options);
+  }
+
+  protected function onGetView(array $options)
   {
     $result = array(
       'document' => array(),
@@ -122,8 +129,13 @@ class DocWidget extends Widget
     return $result;
   }
 
-  public function onPost(array $options)
+  protected function onGetEdit(array $options)
   {
-    $this->onGet($options);
+    $node = Node::load($options['root']);
+
+    $form = $node->formGet(false);
+    $form->addClass('tabbed');
+
+    return $form->getHTML($node->formGetData());
   }
 };
