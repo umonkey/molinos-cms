@@ -196,8 +196,10 @@ class RatingWidget extends Widget implements iNodeHook
   {
     $skey = 'already_voted_with_'. $this->getInstanceName();
 
+    $session =& mcms::user()->session;
+
     // Мы кэшируем состояние в сессии для всех пользователей, поэтому проверяем в первую очередь.
-    if (!empty($_SESSION[$skey]))
+    if (!empty($session[$skey]))
       return true;
 
     // Анонимных пользователей считаем по IP, зарегистрированных -- по идентификатору.
@@ -207,7 +209,7 @@ class RatingWidget extends Widget implements iNodeHook
       $status = 0 != mcms::db()->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(':nid' => $this->ctx->document_id, ':uid' => $this->user->getUid()));
 
     // Сохраняем в сессии для последующего быстрого доступа.
-    $_SESSION[$skey] = $status;
+    $session[$skey] = $status;
 
     return $status;
   }
@@ -215,7 +217,9 @@ class RatingWidget extends Widget implements iNodeHook
   // Запрещаем повторное голосование.
   private function setUserVoted()
   {
-    $_SESSION['already_voted_with_'. $this->getInstanceName()] = true;
+    $session =& mcms::user()->session;
+
+    $session['already_voted_with_'. $this->getInstanceName()] = true;
   }
 
   private function voteCast()

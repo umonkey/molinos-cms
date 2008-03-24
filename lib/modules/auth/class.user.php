@@ -3,168 +3,85 @@
 
 class User
 {
-  private $uid;
-  private $name;
-  private $title;
-  private $password;
-  private $groups = null;
-  private $systemgroups = null;
+  private $node = null;
+  private $groups = array();
+  private $session = null;
 
-  protected function __construct($uid, $name, $password = null, $title = null)
+  private static $instance = null;
+
+  protected function __construct()
   {
-    $this->uid = $uid;
-    $this->name = $name;
-    $this->password = $password;
-    $this->title = empty($title) ? $name : $title;
-  }
-
-  public static function restore(array $data)
-  {
-    $defaults = array(
-      'uid' => 0,
-      'name' => 'anonymous',
-      'groups' => array('Visitors'),
-      );
-
-    $data = array_merge($defaults, $data);
-
-    if ($data['name'] != 'anonymous') {
-      $user = self::authorize($data['name'], null, true);
+    if (null === ($this->session = SessionData::load())) {
+      $this->node = Node::create('user', array(
+        'name' => 'anonymous',
+        ));
     } else {
-      $user = new User($data['uid'], $data['name'], null, @$data['title']);
-      $user->groups = $data['groups'];
-      $user->systemgroups = @$data['systemgroups'];
-    }
-
-    return $user;
-  }
-
-  public function store()
-  {
-    bebop_session_start();
-
-    $_SESSION['user'] = array(
-      'uid' => $this->uid,
-      'name' => $this->name,
-      'title' => empty($this->title) ? $this->name : $this->title,
-      'groups' => $this->groups,
-      'systemgroups' => $this->systemgroups,
-      );
-
-    bebop_session_end();
-  }
-
-  static private function anonymize()
-  {
-    return array(
-      'id' => 0,
-      'name' => 'anonymous',
-      'title' => 'anonymous',
-      'password' => '',
-      );
-  }
-
-  // factory
-  static public final function authorize($name = 'anonymous', $pass = null, $bypass = false)
-  {
-    $data = null;
-
-    if ($name != 'anonymous') {
-      $errormsg = t("Ошибка в логине или пароле, попробуйте ещё раз.");
-
-      mcms::db()->log("--- user {$name} auth ---");
-
-      try {
-        $nodes = Node::find(array('class' => 'user', 'login' => $name));
-
-        if (count($nodes) != 1)
-          throw new ForbiddenException($errormsg);
-
-        $node = array_pop($nodes);
-
-        if (empty($node->published))
-          throw new ForbiddenException(t('Ваш профиль не активирован.&nbsp; Проверьте почту и следуйте содержащимся в ней инструкциям.'));
-
-        if (!$bypass and $node->password != md5($pass))
-          throw new ForbiddenException($errormsg);
-
-        $data = array(
-          'id' => $node->id,
-          'name' => $node->login,
-          'title' => $node->name,
-          'password' => '',
-          );
-      } catch (PDOException $e) { }
-    }
-
-    if (null === $data)
-      $data = self::anonymize();
-
-    $user = new User($data['id'], $data['name'], $data['password'], @$data['title']);
-    $user->loadGroups();
-    $user->store();
-
-    return $user;
-  }
-
-  public function getName()
-  {
-    return $this->name;
-  }
-
-  public function getTitle()
-  {
-    return empty($this->title) ? $this->name : $this->title;
-  }
-
-  public function getUid()
-  {
-    return $this->uid;
-  }
-
-  private function loadGroups()
-  {
-    try {
-      if ($this->groups == null and $this->systemgroups == null) {
-        $rows = mcms::db()->getResults(
-          "SELECT `n`.`id`, `g`.`login` "
-          ."FROM `node` `n` "
-          ."INNER JOIN `node_group` `g` ON `g`.`rid` = `n`.`rid` "
-          ."WHERE `n`.`lang` = 'ru' "
-          ."AND `n`.`class` = 'group' "
-          ."AND `n`.`id` IN (SELECT `r`.`tid` FROM `node__rel` `r` INNER JOIN `node` ON `node`.`id` = `r`.`nid` INNER JOIN `node_user` ON `node_user`.`rid` = `node`.`rid` WHERE `node_user`.`login` = :login) -- User::loadGroups({$this->name})",
-          array(':login' => $this->name));
-
-        foreach ($rows as $row)
-          $this->groups[$row['id']] = $row['login'];
-      }
-    }
-
-    // Пропускаем ошибки при загрузке групп анонимного пользователя
-    // во время инсталляции, когда таблиц ещё нет.
-    catch (Exception $e) {
-      if ($this->name != 'anonymous' or !bebop_skip_checks())
-        throw $e;
+      $this->node = Node::load(array('class' => 'user', 'id' => $this->session->uid));
+      $this->groups = Node::find(array('class' => 'group', 'published' => 1, 'tagged' => array($this->node->id)));
     }
   }
 
-  public function getGroups($system = false)
+  // ОСНОВНОЙ ИНТЕРФЕЙС
+
+  // Восстановление пользователя из сессии.  Если пользователь не идентифицирован,
+  // будет загружен обычный анонимный профиль, без поддержки сессий.
+  public static function identify()
   {
-    $this->loadGroups();
+    if (null === self::$instance)
+      self::$instance = new User();
 
-    $result = (array)$this->groups;
+    return self::$instance;
+  }
 
-    if ($system and $this->systemgroups !== null)
-      $result += $this->systemgroups;
+  // Идентифицирует или разлогинивает пользователя.
+  public static function authorize()
+  {
+    $args = func_get_args();
 
-    return $result;
+    if (empty($args)) {
+      setcookie('mcmsid', '');
+    }
+
+    elseif (2 == count($args)) {
+      $node = Node::load(array('class' => 'user', 'login' => $args[0]));
+
+      if ($node->password != md5($args[1]))
+        throw new ValidationError('password', t('Введён неверный пароль.'));
+
+      if (!$node->published)
+        throw new ForbiddenException(t('Ваш профиль заблокирован.'));
+
+      // Создаём уникальный идентификатор сессии.
+      $sid = md5($node->login . $node->password . time() . $_SERVER['HTTP_HOST']);
+
+      // Сохраняем сессию в БД.
+      self::session($sid, array('uid' => $node->id));
+
+      setcookie('mcmsid', $sid, time() + 60*60*24*30);
+    }
+
+    else {
+      throw new InvalidArgumentException(t('Метод User::authorize() принимает либо два параметра, либо ни одного.'));
+    }
+  }
+
+  public function __get($key)
+  {
+    if ('session' === $key)
+      return $this->session();
+    return $this->node->$key;
   }
 
   public function hasGroup($name)
   {
     if (bebop_skip_checks())
       return true;
-    return in_array($name, $this->getGroups(true));
+
+    foreach ($this->groups as $g)
+      if ($name == $g->login)
+        return true;
+
+    return false;
   }
 
   public function checkGroup($name)
@@ -174,5 +91,49 @@ class User
 
     if (!$this->hasGroup($name) and !bebop_skip_checks())
       throw new ForbiddenException();
+  }
+
+  // Возвращает указатель на сессию текущего пользователя.
+  private function session($sid, array $data = null)
+  {
+    try {
+      if (null !== $data) {
+        mcms::db()->exec("INSERT INTO `node__session` (`sid`, `created`, `data`) VALUES (:sid, UTC_TIMESTAMP(), :data)", array(
+          ':sid' => $sid,
+          ':data' => serialize($data),
+          ));
+      } else {
+        $tmp = mcms::db()->getResult("SELECT `data` FROM `node__session` WHERE `sid` = :sid", array(
+          ':sid' => $sid,
+          ));
+        return (null === $tmp) ? array() : unserialize($tmp);
+      }
+    } catch (PDOException $e) {
+      if ('42S02' == $e->getCode()) {
+        $t = new TableInfo('node__session');
+
+        if (!$t->exists()) {
+          $t->columnSet('sid', array(
+            'type' => 'char(32)',
+            'required' => true,
+            'key' => 'pri',
+            ));
+          $t->columnSet('created', array(
+            'type' => 'datetime',
+            'required' => true,
+            'key' => 'mul',
+            ));
+          $t->columnSet('data', array(
+            'type' => 'blob',
+            'required' => true,
+            ));
+          $t->commit();
+
+          return $this->session($sid, $data);
+        }
+      }
+
+      throw $e;
+    }
   }
 }

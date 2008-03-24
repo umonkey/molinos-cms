@@ -135,11 +135,8 @@ class NodeAdminWidget extends Widget
 
   protected function onGetEdit(array $options)
   {
-    if (empty($options['retry']) and !empty($_SESSION['draft'])) {
-      bebop_session_start();
+    if (empty($options['retry']) and !empty($_SESSION['draft']))
       unset($_SESSION['draft']);
-      bebop_session_end();
-    }
 
     $node = $this->nodeLoad();
     return $this->formRender('node-edit-form', $node->formGetData());

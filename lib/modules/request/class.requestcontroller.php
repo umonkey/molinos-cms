@@ -19,6 +19,8 @@ class RequestController
   {
     ob_start();
 
+    User::identify();
+
     self::checkServerSettings();
 
     set_error_handler('RequestController::errorHandler', substr(BEBOP_VERSION, 0, 6) == 'trunk.' ? E_ALL : E_ERROR|E_WARNING|E_PARSE);
@@ -30,13 +32,6 @@ class RequestController
       ini_set('session.gc_maxlifetime', $session_lifetime);
       ini_set('session.cache_expire', $session_lifetime);
       ini_set('session.cookie_domain', mcms::config('basedomain'));
-
-      bebop_session_start();
-
-      if ($_SERVER['REQUEST_METHOD'] != 'POST' and !empty($_SESSION['user']['systemgroups']) and (in_array('CMS Developers', $_SESSION['user']['systemgroups']) or bebop_is_debugger()))
-        ini_set('display_errors', 1);
-
-      bebop_session_end();
     }
 
     $this->run();
@@ -683,6 +678,8 @@ class RequestController
 
   private function renderError(Exception $e)
   {
+    return false;
+
     if (bebop_is_debugger() and mcms::config('pass_exceptions') and $e->getCode() != 401 and $e->getCode() != 403)
       return false;
 

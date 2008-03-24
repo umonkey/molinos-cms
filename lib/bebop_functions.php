@@ -13,7 +13,6 @@ function bebop_redirect($path, $status = 301)
       if (!in_array($status, array('301', '302', '303', '307')))
         throw new Exception("Статус перенаправления {$status} не определён в стандарте HTTP/1.1");
 
-      bebop_session_end();
       mcms::db()->commit();
       mcms::flush(mcms::FLUSH_NOW);
     }
@@ -43,14 +42,8 @@ function bebop_is_debugger()
   static $skip = false;
 
   if ($skip === false) {
-    if (empty($_SESSION)) {
-      bebop_session_start();
-      bebop_session_end();
-    }
-
-    if (empty($_SERVER['REQUEST_METHOD'])) {
+    if (empty($_SERVER['REQUEST_METHOD']))
       $skip = false;
-    }
 
     elseif (!empty($_SESSION['user']['groups']) and in_array('Developers', $_SESSION['user']['groups']))
       $skip = false;
@@ -430,30 +423,6 @@ function bebop_get_file_type($filename, $realname = null)
   return $result;
 }
 
-static $bebop_session_status = false;
-
-function bebop_session_start($check = false)
-{
-  global $bebop_session_status;
-
-  if (!$check and !$bebop_session_status) {
-    session_start();
-    $bebop_session_status = true;
-  }
-
-  return $bebop_session_status;
-}
-
-function bebop_session_end()
-{
-  global $bebop_session_status;
-
-  if ($bebop_session_status) {
-    session_write_close();
-    $bebop_session_status = false;
-  }
-}
-
 function mcms_fetch_file($url, $content = true, $cache = true)
 {
   $outfile = mcms::config('tmpdir') . "/mcms-fetch.". md5($url);
@@ -745,17 +714,7 @@ class mcms
 
   public static function user()
   {
-    return AuthCore::getInstance()->getUser();
-  }
-
-  public static function auth($user = 'anonymous', $pass = null, $bypass = false)
-  {
-    $auth = AuthCore::getInstance();
-
-    if ($user == 'anonymous')
-      $auth->userLogOut();
-    else
-      $auth->userLogIn($user, $pass, $bypass);
+    return User::identify();
   }
 
   public static function invoke($interface, $method, array $args = array())
@@ -795,16 +754,14 @@ class mcms
   {
     $rc = null;
 
-    bebop_session_start();
+    $session =& mcms::user()->session;
 
     if (null === $text) {
-      $rc = !empty($_SESSION['messages']) ? array_unique((array)$_SESSION['messages']) : null;
-      $_SESSION['messages'] = array();
+      $rc = !empty($session['messages']) ? array_unique((array)$session['messages']) : null;
+      $session['messages'] = array();
     } else {
-      $_SESSION['messages'][] = $text;
+      $session['messages'][] = $text;
     }
-
-    bebop_session_end();
 
     return $rc;
   }

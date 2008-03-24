@@ -23,7 +23,7 @@ class BebopSmarty extends Smarty
         if (null !== ($tmp = mcms::config('smarty_cache_lifetime')))
             $this->cache_lifetime = $tmp;
 
-        if ($with_debug and !empty($_GET['smarty_debug']) and (bebop_is_debugger() or in_array('Developers', (array)@$_SESSION['user']['groups'])))
+        if ($with_debug and !empty($_GET['smarty_debug']) and (bebop_is_debugger()))
             $this->debugging = true;
         else
             $this->debugging = false;

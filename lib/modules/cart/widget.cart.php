@@ -128,15 +128,14 @@ class CartWidget extends Widget
 
     parent::checkDocType($node);
 
-    bebop_session_start();
+    $session =& mcms::user()->session;
 
-    if (empty($_SESSION['cart'][$node->id]))
+    if (empty($session['cart'][$node->id]))
       $count = 0;
     else
-      $count = $_SESSION['cart'][$node->id];
+      $count = $session['cart'][$node->id];
 
-    $_SESSION['cart'][$node->id] = ++$count;
-    bebop_session_end();
+    $session['cart'][$node->id] = ++$count;
 
     $url = bebop_split_url();
     $url['args'][$this->getInstanceName()]['add'] = null;
@@ -145,12 +144,10 @@ class CartWidget extends Widget
 
   protected function onGetPurge(array $options)
   {
-    bebop_session_start();
+    $session =& mcms::user()->session;
 
-    if (array_key_exists('cart', $_SESSION))
-      unset($_SESSION['cart']);
-
-    bebop_session_end();
+    if (array_key_exists('cart', $session))
+      unset($session['cart']);
 
     $url = bebop_split_url();
     $url['args'][$this->getInstanceName()] = null;
@@ -159,10 +156,9 @@ class CartWidget extends Widget
 
   protected function onGetDetails(array $options)
   {
-    bebop_session_start();
-    bebop_session_end();
+    $session =& mcms::user()->session;
 
-    if (empty($_SESSION['cart']))
+    if (empty($session['cart']))
       return null;
 
     $output = parent::formRender('cart-details');
@@ -230,21 +226,19 @@ class CartWidget extends Widget
     switch ($id) {
     case 'cart-details':
       if ($data['action'] == 'refresh') {
-        bebop_session_start();
+        $session =& mcms::user()->session;
 
         foreach ($data['cart'] as $k => $v) {
-          if (empty($v['qty']) and array_key_exists($k, $_SESSION['cart']))
-            unset($_SESSION['cart'][$k]);
+          if (empty($v['qty']) and array_key_exists($k, $session['cart']))
+            unset($session['cart'][$k]);
           else
-            $_SESSION['cart'][$k] = $v['qty'];
+            $session['cart'][$k] = $v['qty'];
         }
 
         if (!empty($data['cart_checked']))
-          foreach ($_SESSION['cart'] as $k => $v)
+          foreach ($session['cart'] as $k => $v)
             if (in_array($k, $data['cart_checked']))
-              unset($_SESSION['cart'][$k]);
-
-        bebop_session_end();
+              unset($session['cart'][$k]);
       } else {
         $url = bebop_split_url();
         $url['args'][$this->getInstanceName()] = array('mode' => 'confirm');
@@ -254,7 +248,7 @@ class CartWidget extends Widget
       break;
 
     case 'cart-confirm':
-      if (empty($_SESSION['cart']))
+      if (empty($session['cart']))
         throw new PageNotFoundException();
 
       $report = $this->getCartReport();
@@ -276,9 +270,7 @@ class CartWidget extends Widget
         bebop_mail(null, $this->email, t('Заказ на сайте %host', array('%host' => $_SERVER['HTTP_HOST'])), $body);
       }
 
-      bebop_session_start();
-      unset($_SESSION['cart']);
-      bebop_session_end();
+      unset($session['cart']);
 
       $url = bebop_split_url();
       $url['args'][$this->getInstanceName()] = array('mode' => 'ok');
@@ -408,15 +400,12 @@ class CartWidget extends Widget
   {
     $result = array();
 
-    bebop_session_start();
-    bebop_session_end();
-
-    if (!empty($_SESSION['cart']) and count($nodes = Node::find(array('id' => array_keys($_SESSION['cart']))))) {
+    if (!empty($session['cart']) and count($nodes = Node::find(array('id' => array_keys($session['cart']))))) {
       foreach ($nodes as $node) {
         $result[] = array(
           'id' => $node->id,
           'name' => $node->name,
-          'qty' => $qty = $_SESSION['cart'][$node->id],
+          'qty' => $qty = $session['cart'][$node->id],
           'price' => $node->price,
           'sum' => $node->price * $qty,
           );

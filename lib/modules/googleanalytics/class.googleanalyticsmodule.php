@@ -81,7 +81,7 @@ class GoogleAnalyticsModule implements iModuleConfig, iPageHook
       $html .= "_uacct = '{$config['account']}';";
 
       if (!empty($config['log_uids']))
-        $html .= "__utmSetVar('". mcms_plain(AuthCore::getInstance()->getUser()->getName()) ."');";
+        $html .= "__utmSetVar('". mcms_plain(mcms::user()->getName()) ."');";
 
       $html .= "urchinTracker();";
       $html .= '</script>';

@@ -9,8 +9,10 @@ class AdminListHandler
   public $deleted;
   public $published;
   public $columns;
+  public $columntitles;
   public $title;
   public $actions;
+
   protected $selectors;
 
   protected $limit;
