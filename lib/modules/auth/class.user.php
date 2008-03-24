@@ -16,8 +16,18 @@ class User
         'name' => 'anonymous',
         ));
     } else {
-      $this->node = Node::load(array('class' => 'user', 'id' => $this->session->uid));
-      $this->groups = Node::find(array('class' => 'group', 'published' => 1, 'tagged' => array($this->node->id)));
+      $uid = $this->session->uid;
+
+      if (is_string($tmp = mcms::cache($key = 'userprofile:'. $uid)))
+        $this->node = unserialize($tmp);
+      else
+        mcms::cache($key, serialize($this->node = Node::load(array('class' => 'user', 'id' => $uid))));
+
+      if (is_string($tmp = mcms::cache($key = 'usergroups:'. $uid)))
+        $this->groups = unserialize($tmp);
+      else {
+        mcms::cache($key, serialize($this->groups = Node::find(array('class' => 'group', 'published' => 1, 'tagged' => array($uid)))));
+      }
     }
   }
 
@@ -39,7 +49,10 @@ class User
     $args = func_get_args();
 
     if (empty($args)) {
-      setcookie('mcmsid', '');
+      if (array_key_exists('mcmsid', $_COOKIE)) {
+        SessionData::db($_COOKIE['mcmsid'], array());
+        setcookie('mcmsid', '');
+      }
     }
 
     elseif (2 == count($args)) {
@@ -55,7 +68,7 @@ class User
       $sid = md5($node->login . $node->password . time() . $_SERVER['HTTP_HOST']);
 
       // Сохраняем сессию в БД.
-      self::session($sid, array('uid' => $node->id));
+      SessionData::db($sid, array('uid' => $node->id));
 
       setcookie('mcmsid', $sid, time() + 60*60*24*30);
     }
@@ -108,49 +121,5 @@ class User
 
     if (!$this->hasGroup($name) and !bebop_skip_checks())
       throw new ForbiddenException();
-  }
-
-  // Возвращает указатель на сессию текущего пользователя.
-  private static function session($sid, array $data = null)
-  {
-    try {
-      if (null !== $data) {
-        mcms::db()->exec("INSERT INTO `node__session` (`sid`, `created`, `data`) VALUES (:sid, UTC_TIMESTAMP(), :data)", array(
-          ':sid' => $sid,
-          ':data' => serialize($data),
-          ));
-      } else {
-        $tmp = mcms::db()->getResult("SELECT `data` FROM `node__session` WHERE `sid` = :sid", array(
-          ':sid' => $sid,
-          ));
-        return (null === $tmp) ? array() : unserialize($tmp);
-      }
-    } catch (PDOException $e) {
-      if ('42S02' == $e->getCode()) {
-        $t = new TableInfo('node__session');
-
-        if (!$t->exists()) {
-          $t->columnSet('sid', array(
-            'type' => 'char(32)',
-            'required' => true,
-            'key' => 'pri',
-            ));
-          $t->columnSet('created', array(
-            'type' => 'datetime',
-            'required' => true,
-            'key' => 'mul',
-            ));
-          $t->columnSet('data', array(
-            'type' => 'blob',
-            'required' => true,
-            ));
-          $t->commit();
-
-          return self::session($sid, $data);
-        }
-      }
-
-      throw $e;
-    }
   }
 }

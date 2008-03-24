@@ -13,14 +13,13 @@ class SessionData
   public static function load()
   {
     if (array_key_exists('mcmsid', $_COOKIE)) {
-      try {
-        $data = mcms::db()->getResult("SELECT `data` FROM `node__session` WHERE `sid` = :sid", array(':sid' => $_COOKIE['mcmsid']));
+      $sid = $_COOKIE['mcmsid'];
 
-        if (null !== $data)
-          return new SessionData(unserialize($data));
-      } catch (Exception $e) {
-        bebop_debug($e);
-      }
+      if (is_array($tmp = mcms::cache('session:'. $sid)))
+        return $tmp;
+
+      if (null !== ($tmp = self::db($sid)))
+        return new SessionData($tmp);
     }
 
     return null;
@@ -45,5 +44,67 @@ class SessionData
   {
     if (array_key_exists($key, $this->data))
       unset($this->data[$key]);
+  }
+
+  public static function db($sid, array $data = null)
+  {
+    try {
+      $cache = BebopCache::getInstance();
+
+      // Чтение сессии.
+      if (null === $data) {
+        if (is_array($tmp = $cache->{'session:'. $sid}))
+          return $tmp;
+
+        $tmp = mcms::db()->getResult("SELECT `data` FROM `node__session` WHERE `sid` = :sid", array(
+          ':sid' => $sid,
+          ));
+
+        return (null === $tmp) ? null : unserialize($tmp);
+      }
+
+      // Удаление сессии.
+      elseif (empty($data)) {
+        unset($cache->{'session:'. $sid});
+
+        mcms::db()->exec("DELETE FROM `node__session` WHERE `sid` = :sid", array(':sid' => $sid));
+      }
+
+      // Обновление сессии.
+      else {
+        mcms::db()->exec("REPLACE INTO `node__session` (`sid`, `created`, `data`) VALUES (:sid, UTC_TIMESTAMP(), :data)", array(
+          ':sid' => $sid,
+          ':data' => serialize($data),
+          ));
+
+        $cache->{'session:'. $sid} = $data;
+      }
+    } catch (PDOException $e) {
+      if ('42S02' == $e->getCode()) {
+        $t = new TableInfo('node__session');
+
+        if (!$t->exists()) {
+          $t->columnSet('sid', array(
+            'type' => 'char(32)',
+            'required' => true,
+            'key' => 'pri',
+            ));
+          $t->columnSet('created', array(
+            'type' => 'datetime',
+            'required' => true,
+            'key' => 'mul',
+            ));
+          $t->columnSet('data', array(
+            'type' => 'blob',
+            'required' => true,
+            ));
+          $t->commit();
+
+          return self::db($sid, $data);
+        }
+      }
+
+      throw $e;
+    }
   }
 };
