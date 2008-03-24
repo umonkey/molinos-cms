@@ -15,16 +15,16 @@ function smarty_function_get_current_user($params, &$smarty)
   if ($result === null) {
     $user = mcms::user();
 
-    if (empty($params['extended']) or !$user->getUid()) {
+    if (empty($params['extended']) or !$user->id) {
       $result = array(
-        'uid' => $user->getUid(),
-        'name' => $user->getName(),
-        'title' => $user->getTitle(),
+        'uid' => $user->id,
+        'name' => $user->login,
+        'title' => $user->name,
         'groups' => $user->getGroups(),
         );
     } else {
       // Основная информация о пользователе.
-      $node = Node::load($user->getUid());
+      $node = Node::load($user->id);
       $result = $node->getRaw();
       unset($result['password']);
 

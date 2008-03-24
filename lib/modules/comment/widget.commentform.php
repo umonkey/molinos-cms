@@ -133,7 +133,7 @@ class CommentFormWidget extends Widget
     case 'comment-new':
       $user = mcms::user();
       $result['comment_node'] = $this->options['doc'];
-      $result['comment_name'] = $user->getName();
+      $result['comment_name'] = $user->name;
       break;
     }
 
@@ -181,7 +181,7 @@ class CommentFormWidget extends Widget
 
       if ($user->id) {
         $comment['uid'] = $user->id;
-        $comment['name'] = $user->getName();
+        $comment['name'] = $user->name;
       }
 
       $node = Node::create('comment', $comment);

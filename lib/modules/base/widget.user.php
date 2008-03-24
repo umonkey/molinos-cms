@@ -61,7 +61,7 @@ class UserWidget extends Widget
   {
     $options = parent::getRequestOptions($ctx);
 
-    $options['login'] = $this->user->getName();
+    $options['login'] = $this->user->login;
     $options['root'] = join('/', $ctx->ppath) .'/';
     $options['action'] = $ctx->get('action', 'default');
     $options['status'] = $ctx->get('status');
@@ -91,7 +91,7 @@ class UserWidget extends Widget
     $user = mcms::user();
 
     $result = array(
-      'uid' => $user->getUid(),
+      'uid' => $user->id,
       'name' => $options['login'],
       'groups' => $user->getGroups(true),
       'form' => null,
@@ -114,7 +114,7 @@ class UserWidget extends Widget
 
   protected function onGetRegister(array $options)
   {
-    if ($this->user->getUid())
+    if ($this->user->id)
       throw new UserErrorException("Вы уже авторизованы", 400, "Вы уже авторизованы", "Регистрация возможна только для анонимных пользователей.");
 
     switch ($options['status']) {
@@ -258,7 +258,7 @@ class UserWidget extends Widget
     case 'edit':
       $user = mcms::user();
 
-      if ($options['uid'] != $user->getUid() and !$user->hasGroup('User Managers'))
+      if ($options['uid'] != $user->id and !$user->hasGroup('User Managers'))
         throw new PageNotFoundException(); // FIXME: 403
 
       $node = Node::load($options['uid']);
@@ -335,9 +335,9 @@ class UserWidget extends Widget
         $form->header = $this->header;
       }
 
-      if ($user->getUid())
+      if ($user->id)
         $form->addControl(new InfoControl(array(
-          'text' => t('Вы идентифицированы как %login', array('%login' => $user->getName())),
+          'text' => t('Вы идентифицированы как %login', array('%login' => $user->login)),
           )));
 
       $form->addControl(new HiddenControl(array(
@@ -396,7 +396,7 @@ class UserWidget extends Widget
       return $form;
 
     case 'profile-edit-form':
-      $uid = empty($this->options['uid']) ? $user->getUid() : $this->options['uid'];
+      $uid = empty($this->options['uid']) ? $user->id : $this->options['uid'];
 
       if (empty($uid))
         throw new ForbiddenException(t('Только зарегистрированные пользователи могут редактировать профиль.'));

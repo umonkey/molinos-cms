@@ -856,7 +856,7 @@ class NodeBase
       return true;
 
     $user = mcms::user();
-    if ($user->getName() == 'root')
+    if ($user->login == 'root')
       return true;
 
     // При проверке прав на создание новых документов обращаемся к типу документа.
