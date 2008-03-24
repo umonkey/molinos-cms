@@ -38,7 +38,8 @@ class AdminUIListControl extends Control
 
       if ($this->selectors) {
         $row .= '<td class=\'selector\'>';
-        if (empty($node['id']))
+
+        if (empty($node['id']) or !empty($node['_protected']))
           $row .= '&nbsp;';
         else
           $row .= mcms::html('input', array(

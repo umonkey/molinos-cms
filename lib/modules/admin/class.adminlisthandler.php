@@ -232,8 +232,14 @@ class AdminListHandler
   {
     $result = array();
 
-    foreach (Node::find($this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit) as $node)
-      $result[] = $node->getRaw();
+    foreach (Node::find($this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit) as $node) {
+      $tmp = $node->getRaw();
+
+      if ('type' == $tmp['class'] and in_array($tmp['name'], TypeNode::getInternal()))
+        $tmp['_protected'] = true;
+
+      $result[] = $tmp;
+    }
 
     return $result;
   }
