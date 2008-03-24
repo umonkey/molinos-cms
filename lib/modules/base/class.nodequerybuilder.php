@@ -357,6 +357,9 @@ class NodeQueryBuilder
   // Добавляет выборку по разделам.
   private function addTagFilter()
   {
+    if (!empty($this->query['tagged']))
+      $this->where[] = "`node`.id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` IN (". join(', ', $this->query['tagged']) ."))";
+
     // Выборка по одному разделу -- используем обычную связку,
     // чтобы можно было отсортировать по ручному порядку.
     if (!is_array($this->query['tags']) or count($this->query['tags']) < 2) {
@@ -376,6 +379,32 @@ class NodeQueryBuilder
         unset($tags[$k]);
 
     $this->where[] = "`node`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` IN (". join(', ', $tags) ."))";
+
+    return null;
+  }
+
+  // Добавляет выборку по разделам.
+  private function addTaggedFilter()
+  {
+    // Выборка по одному разделу -- используем обычную связку,
+    // чтобы можно было отсортировать по ручному порядку.
+    if (!is_array($this->query['tagged']) or count($this->query['tagged']) < 2) {
+      if (!in_array('node__rel', $this->tables)) {
+        $this->tables[] = 'node__rel';
+        $this->where[] = "`node__rel`.`tid` = `node`.`id`";
+      }
+
+      return "`node__rel`.`nid`";
+    }
+
+    // Выборка по нескольким разделам.
+    $tags = $this->query['tagged'];
+
+    foreach ($tags as $k => $v)
+      if (!is_numeric($v))
+        unset($tags[$k]);
+
+    $this->where[] = "`node`.`id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` IN (". join(', ', $tags) ."))";
 
     return null;
   }
@@ -417,6 +446,11 @@ class NodeQueryBuilder
 
       case 'tags':
         if (null === ($mask = $this->addTagFilter()))
+          return $mask;
+        break;
+
+      case 'tagged':
+        if (null === ($mask = $this->addTaggedFilter()))
           return $mask;
         break;
 
