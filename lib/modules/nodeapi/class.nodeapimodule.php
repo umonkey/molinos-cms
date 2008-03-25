@@ -73,8 +73,10 @@ class NodeApiModule implements iRemoteCall
       if ('POST' != $_SERVER['REQUEST_METHOD'])
         throw new BadRequestException();
 
+      $parent = $ctx->post('node_content_parent_id');
+
       $node = Node::create($ctx->get('type'), array(
-        'parent_id' => $ctx->post('node_content_parent_id'),
+        'parent_id' => empty($parent) ? null : $parent,
         ));
 
       $node->formProcess($_POST);
