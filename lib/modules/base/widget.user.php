@@ -61,16 +61,14 @@ class UserWidget extends Widget
   {
     $options = parent::getRequestOptions($ctx);
 
+    $options['uid'] = $ctx->get('uid');
     $options['login'] = $this->user->login;
     $options['root'] = join('/', $ctx->ppath) .'/';
     $options['action'] = $ctx->get('action', 'default');
     $options['status'] = $ctx->get('status');
     $options['hash'] = $ctx->get('hash');
 
-    if ($options['action'] == 'edit')
-      $options['uid'] = $ctx->get('uid');
-
-    if ($options['login'] == 'anonymous')
+    if (empty($options['uid']))
       $options['#nocache'] = true;
 
     return $this->options = $options;
@@ -98,7 +96,7 @@ class UserWidget extends Widget
       );
 
     // Добавка для вошедших.
-    if ($result['name'] != 'anonymous') {
+    if (!empty($result['uid'])) {
       $result['mode'] = 'logout';
       $result['form'] = $this->getLogoutForm($options);
     }
@@ -327,7 +325,7 @@ class UserWidget extends Widget
     switch ($id) {
     case 'user-logout-form':
       $form = new Form(array(
-        'action' => $this->getActionUrl(),
+        'action' => '/base.rpc?action=logout',
         ));
 
       if (null !== $this->header) {
@@ -353,7 +351,7 @@ class UserWidget extends Widget
     case 'user-login-form':
       $form = new Form(array(
         'title' => t('Вход'),
-        'action' => $this->getActionUrl(),
+        'action' => '/base.rpc?action=login',
         ));
 
       if (null !== $this->header) {
