@@ -125,12 +125,17 @@ class AdminUIListControl extends Control
     case 'thumbnail':
       if (null !== $node and !empty($node['class']) and $node['class'] == 'file') {
         if (file_exists($path = mcms::config('filestorage') .'/'. $node['filepath'])) {
-          $tmp = "<a href='/attachment/{$node['id']}' title='Скачать'>";
           if (substr($node['filetype'], 0, 6) == 'image/')
-            $tmp .= "<img src='/attachment/{$node['id']},48,48' alt='{$node['filepath']}' />";
+            $tmp = "<img src='/attachment/{$node['id']},48,48' alt='{$node['filepath']}' />";
           else
-            $tmp .= '<img src=\'/themes/admin/img/media-floppy.png\' alt=\'download\' width=\'16\' height=\'16\' />';
-          $tmp .= "</a>";
+            $tmp = '<img src=\'/themes/admin/img/media-floppy.png\' alt=\'download\' width=\'16\' height=\'16\' />';
+
+          $tmp = mcms::html('a', array(
+            'title' => 'Скачать',
+            'href' => "/attachment/{$node['id']}",
+            'class' => isset($this->picker) ? 'returnHref' : null,
+            ), $tmp);
+
           return $tmp;
         }
       }
