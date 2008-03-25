@@ -25,15 +25,6 @@ class RequestController
 
     set_error_handler('RequestController::errorHandler', substr(BEBOP_VERSION, 0, 6) == 'trunk.' ? E_ALL : E_ERROR|E_WARNING|E_PARSE);
 
-    if (!empty($_SERVER['REQUEST_METHOD'])) {
-      // Куки на неделю.
-      $session_lifetime = 3600 * 24 * 7;
-      ini_set('session.cookie_lifetime', $session_lifetime);
-      ini_set('session.gc_maxlifetime', $session_lifetime);
-      ini_set('session.cache_expire', $session_lifetime);
-      ini_set('session.cookie_domain', mcms::config('basedomain'));
-    }
-
     $this->run();
   }
 
