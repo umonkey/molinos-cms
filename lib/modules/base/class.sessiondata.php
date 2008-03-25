@@ -16,7 +16,7 @@ class SessionData
       $sid = $_COOKIE['mcmsid'];
 
       if (is_array($tmp = mcms::cache('session:'. $sid)))
-        return $tmp;
+        return new SessionData($tmp);
 
       if (null !== ($tmp = self::db($sid)))
         return new SessionData($tmp);
