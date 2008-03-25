@@ -45,6 +45,7 @@ function render_reboot_link()
     <div id="preloaded_images"></div>
 
     <div id="all">
+      <?php if (empty($_GET['picker'])): ?>
       <?php print render_dashboard($dashboard); ?>
   
       <div id="top_toolbar">
@@ -57,6 +58,7 @@ function render_reboot_link()
       </div><!-- id=top_toolbar -->
 
       <div id="top_menu_controls_bottom"></div>
+      <?php endif; ?>
 
       <div id="content_wrapper">
         <div id="center">
@@ -70,13 +72,17 @@ function render_reboot_link()
 
       </div><!-- id="content_wrapper" -->
 
-      <div id="footer_spacer"></div>
+      <?php if (empty($_GET['picker'])): ?>
+        <div id="footer_spacer"></div>
+      <?php endif; ?>
     </div><!-- all -->
 
+    <?php if (empty($_GET['picker'])): ?>
     <div id="footer">
       <img src="/themes/admin/img/siteimage/logo_molinos_btm_ico.gif" alt="Molinos.Ru" align="middle" />
       <img src="/themes/admin/img/siteimage/logo_molinos_btm.gif" alt="Molinos.Ru" align="middle" />
       <span>Версия <?php print BEBOP_VERSION ?></span>
     </div>
+    <?php endif; ?>
   </body>
 </html>

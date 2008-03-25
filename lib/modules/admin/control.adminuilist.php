@@ -18,7 +18,14 @@ class AdminUIListControl extends Control
 
   public function getHTML(array $data)
   {
-    $output = '<table class=\'nodelist\' border=\'0\'>';
+    $output = '';
+
+    if (null !== $this->picker) {
+      $this->selectors = null;
+      $output .= "<script language='javascript'>var mcms_picker_id = '{$this->picker}';</script>";
+    }
+
+    $output .= '<table class=\'nodelist\' border=\'0\'>';
     $output .= $this->getTableHeader();
 
     $odd = true;
@@ -56,11 +63,16 @@ class AdminUIListControl extends Control
 
         if (null !== ($tmp = $this->resolveField($field, $value, $node)))
           $row .= $tmp;
-        elseif ('name' == $field)
+        elseif ('name' == $field) {
+          $href = isset($this->picker)
+            ? "/attachment/{$node['id']}"
+            : '/admin/?mode=edit&id='. $node['id'] .'&destination='. urlencode($_SERVER['REQUEST_URI']);
+
           $row .= mcms::html('a', array(
-            'href' => '/admin/?mode=edit&id='. $node['id'] .'&destination='. urlencode($_SERVER['REQUEST_URI']),
+            'href' => $href,
+            'class' => isset($this->picker) ? 'returnHref' : null,
             ), empty($value) ? '(без названия)' : $value);
-        elseif (empty($value))
+        } elseif (empty($value))
           $row .= '&nbsp;';
         else
           $row .= $value;

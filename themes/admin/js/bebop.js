@@ -237,7 +237,7 @@ function bebop_fix_domain_defaultsection()
 
 function mcms_file_pick(id)
 {
-  window.open('/admin/files/picker/?BebopFiles.picker='+ id, '_blank');
+  window.open('/admin/?cgroup=content&mode=list&preset=files&picker='+ id, '_blank');
 }
 
 function mcms_picker_return(href)

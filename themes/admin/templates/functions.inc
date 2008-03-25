@@ -158,7 +158,7 @@ function _user_link()
 
 function _admin_check_perm()
 {
-  if (mcms::user()->getUid())
+  if (mcms::user()->id)
     return true;
   throw new UnauthorizedException();
 }

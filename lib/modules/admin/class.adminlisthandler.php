@@ -57,17 +57,20 @@ class AdminListHandler
       'id' => 'nodelist-form',
       'action' => '/nodeapi.rpc?action=mass&destination='. urlencode($_SERVER['REQUEST_URI']),
       ));
-    $form->addControl(new AdminUINodeActionsControl(array(
-      'actions' => $this->actions,
-      )));
+    if (empty($_GET['picker']))
+      $form->addControl(new AdminUINodeActionsControl(array(
+        'actions' => $this->actions,
+        )));
     $form->addControl(new AdminUIListControl(array(
       'columns' => $this->columns,
+      'picker' => $this->ctx->get('picker'),
       'selectors' => $this->selectors,
       'columntitles' => $this->columntitles,
       )));
-    $form->addControl(new AdminUINodeActionsControl(array(
-      'actions' => $this->actions,
-      )));
+    if (empty($_GET['picker']))
+      $form->addControl(new AdminUINodeActionsControl(array(
+        'actions' => $this->actions,
+        )));
     $form->addControl(new PagerControl(array(
       'value' => '__pager',
       )));
