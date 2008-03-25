@@ -14,7 +14,7 @@ class RPCHandler implements iRequestHook
 
         if (array_key_exists($module, $map['modules'])) {
           if (!empty($map['modules'][$module]['implementors']['iRemoteCall'])) {
-            $ctx = RequestContext::getWidget(isset($url['args']) ? $url['args'] : array());
+            $ctx = RequestContext::getWidget(isset($url['args']) ? $url['args'] : array(), $_POST);
 
             try {
               foreach ($map['modules'][$module]['implementors']['iRemoteCall'] as $class) {
