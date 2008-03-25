@@ -88,10 +88,11 @@ class AdminMenu implements iAdminMenu
 
     if ($user->hasGroup('Structure Managers'))
       $icons[] = array(
-        'group' => 'structure',
+        'group' => 'content',
         'href' => '/admin/?mode=tree&preset=taxonomy',
-        'title' => t('Карта сайта'),
+        'title' => t('Разделы'),
         'description' => t('Управление разделами сайта.'),
+        'weight' => -1,
         );
 
     if ($user->hasGroup('Schema Managers'))
@@ -119,18 +120,18 @@ class AdminMenu implements iAdminMenu
 
     if ($user->hasGroup('Developers')) {
       $icons[] = array(
-        'group' => 'developement',
+        'group' => 'structure',
         'href' => '/admin/?mode=tree&preset=pages',
-        'title' => t('Конструктор'),
+        'title' => t('Домены и страницы'),
         'description' => t('Управление доменами, страницами и виджетами.'),
         );
       $icons[] = array(
-        'group' => 'developement',
+        'group' => 'structure',
         'href' => '/admin/?mode=list&preset=widgets',
         'title' => t('Виджеты'),
         );
       $icons[] = array(
-        'group' => 'developement',
+        'group' => 'structure',
         'href' => '/admin/?mode=modules',
         'title' => t('Модули'),
         );
