@@ -15,6 +15,7 @@ class User
       $this->node = Node::create('user', array(
         'name' => 'anonymous',
         ));
+      $this->groups[] = Node::load(array('class' => 'group', 'login' => 'Visitors'));
     } else {
       if (is_string($tmp = mcms::cache($key = 'userprofile:'. $uid)))
         $this->node = unserialize($tmp);
@@ -81,7 +82,7 @@ class User
     if ('session' === $key) {
       if (null === $this->session)
         throw new ForbiddenException();
-      return $this->session->$key;
+      return $this->session;
     }
     return $this->node->$key;
   }
