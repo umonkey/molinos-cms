@@ -142,6 +142,9 @@ class NodeBase implements iFormObject
 
     $tg = Tagger::getInstance();
 
+    if (array_key_exists('files', $this->data))
+      unset($this->data['files']);
+
     if ($clear)
       $this->data = $tg->clean($this->data);
 
