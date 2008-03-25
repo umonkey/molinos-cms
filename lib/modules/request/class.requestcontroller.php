@@ -476,20 +476,6 @@ class RequestController
               unset($data['form_id']);
               unset($data['form_handler']);
 
-              foreach ($_FILES as $field => $fileinfo) {
-                if (is_array($fileinfo['name'])) {
-                  foreach (array_keys($fileinfo) as $key) {
-                    foreach ($fileinfo[$key] as $k => $v)
-                      $data[$field][$k][$key] = $v;
-                  }
-                }
-
-                else {
-                  foreach ($fileinfo as $k => $v)
-                    $data[$field][$k] = $v;
-                }
-              }
-
               $res = $info['object']->formProcess($_POST['form_id'], $data);
             } else {
               throw new InvalidArgumentException(t("Form did not validate."));

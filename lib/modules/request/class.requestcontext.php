@@ -27,6 +27,9 @@ class RequestContext
   // Сохраняем глобальный контекст.
   private static $global = null;
 
+  // POST data.
+  private static $postdata = null;
+
   // Запрещаем создавать объекты напрямую.
   private function __construct()
   {
@@ -101,10 +104,12 @@ class RequestContext
       case 'ppath':
       case 'apath':
       case 'get':
-      case 'post':
         if ($this->$key === null)
           return array();
         return $this->$key;
+
+      case 'post':
+        return self::getPostData();
 
       case 'theme':
         return $this->theme;
@@ -151,8 +156,10 @@ class RequestContext
   // Упрощённое обращение к параметрам $_POST.
   public function post($key, $default = null)
   {
-    if ($this->post !== null and array_key_exists($key, $this->post))
-      return $this->post[$key];
+    $data = self::getPostData();
+
+    if (array_key_exists($key, $data))
+      return $data[$key];
     return $default;
   }
 
@@ -196,5 +203,35 @@ class RequestContext
     $ctx->post = $post;
 
     return $ctx;
+  }
+
+  private static function getPostData()
+  {
+    if ('POST' != $_SERVER['REQUEST_METHOD'])
+      throw new InvalidArgumentException(t('POST data is only available during POST requests.'));
+
+    if (null === self::$postdata) {
+      self::$postdata = $_POST;
+      self::getFiles(self::$postdata);
+    }
+
+    return self::$postdata;
+  }
+
+  private static function getFiles(array &$data)
+  {
+    foreach ($_FILES as $field => $fileinfo) {
+      if (is_array($fileinfo['name'])) {
+        foreach (array_keys($fileinfo) as $key) {
+          foreach ($fileinfo[$key] as $k => $v)
+            $data[$field][$k][$key] = $v;
+        }
+      }
+
+      else {
+        foreach ($fileinfo as $k => $v)
+          $data[$field][$k] = $v;
+      }
+    }
   }
 };
