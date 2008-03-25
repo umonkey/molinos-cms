@@ -24,7 +24,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   {
     $isnew = (null === $this->id);
 
-    mcms::user()->checkGroup('Schema Managers');
+    // mcms::user()->checkGroup('Schema Managers');
 
     if (empty($this->title))
       $this->title = $this->name;
