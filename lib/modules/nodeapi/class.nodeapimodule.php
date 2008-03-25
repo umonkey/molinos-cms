@@ -85,7 +85,6 @@ class NodeApiModule implements iRemoteCall
     case 'edit':
       $node = Node::load($ctx->get('node'));
       $node->formProcess($ctx->post);
-      $node->save();
       break;
 
     case 'undelete':
