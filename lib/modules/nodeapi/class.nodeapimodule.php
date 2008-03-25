@@ -10,8 +10,10 @@ class NodeApiModule implements iRemoteCall
     else
       self::doSingleAction($ctx);
 
-    if (null !== ($next = $ctx->get('destination')))
-      bebop_redirect($next);
+    if (null === ($next = $ctx->get('destination')))
+      $next = '/';
+
+    bebop_redirect($next);
   }
 
   private static function doMassAction(RequestContext $ctx)
@@ -68,7 +70,13 @@ class NodeApiModule implements iRemoteCall
       break;
 
     case 'create':
-      $node = Node::create($ctx->get('type'));
+      if ('POST' != $_SERVER['REQUEST_METHOD'])
+        throw new BadRequestException();
+
+      $node = Node::create($ctx->get('type'), array(
+        'parent_id' => $ctx->post('node_content_parent_id'),
+        ));
+
       $node->formProcess($_POST);
       $node->save();
       break;
