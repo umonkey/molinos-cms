@@ -20,6 +20,16 @@ class DocWidget extends Widget
   {
     $form = parent::formGetConfig();
 
+    $form->addControl(new EnumControl(array(
+      'value' => 'config_mode',
+      'label' => t('Режим работы'),
+      'required' => true,
+      'options' => array(
+        'view' => t('Просмотр'),
+        'edit' => t('Редактирование'),
+        ),
+      )));
+
     $form->addControl(new NumberControl(array(
       'value' => 'config_fixed',
       'label' => t('Фиксированный документ'),
@@ -38,11 +48,12 @@ class DocWidget extends Widget
   {
     $options = parent::getRequestOptions($ctx);
 
-    $options['action'] = $ctx->get('action', 'view');
+    if (null === ($options['action'] = $ctx->get('action', $this->mode)))
+      $options['action'] = 'view';
 
     if ($uid = mcms::user()->id) {
       $options['cachecontrol'] = $uid;
-      $options['#nocache'] = true;
+      $options['uid'] = $uid;
     } else {
       $options['cachecontrol'] = array_keys(mcms::user()->getGroups());
     }
