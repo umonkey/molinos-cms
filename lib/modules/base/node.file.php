@@ -269,6 +269,8 @@ class FileNode extends Node implements iContentType
               ), false);
 
             $file->save();
+          } else {
+            throw new InvalidArgumentException(t('Не удалось загрузить указанный файл.'));
           }
         }
         return;

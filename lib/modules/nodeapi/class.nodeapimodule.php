@@ -80,7 +80,6 @@ class NodeApiModule implements iRemoteCall
         ));
 
       $node->formProcess($_POST);
-      $node->save();
       break;
 
     case 'edit':
