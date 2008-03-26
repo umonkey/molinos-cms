@@ -83,6 +83,15 @@ class AdminListHandler
         ));
     }
 
+    elseif (null !== $this->ctx->get('search')) {
+      $tmp = bebop_split_url();
+      $tmp['args']['search'] = null;
+
+      $output .= '<p>'. t('Нет документов, удовлетворяющих запросу.  <a href=\'@url\'>Отмените поиск</a> или поищите что-нибудь другое.', array(
+        '@url' => bebop_combine_url($tmp, false),
+        )) .'</p>';
+    }
+
     return $output;
   }
 
