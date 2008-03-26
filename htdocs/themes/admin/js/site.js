@@ -68,7 +68,7 @@ function bebop_fix_files()
 
     var current = $('#center :hidden#'+ id +'-hidden').attr('value');
     if (current)
-      f.before("<img id='"+ id +"-preview' src='/attachment/"+ current +",100,100,d' alt='preview' style='margin: 0 4px 4px 0; float: left;' />");
+      f.before("<a href='/attachment/"+ current +"' target='_blank'><img id='"+ id +"-preview' src='/attachment/"+ current +",100,100,d' alt='preview' style='margin: 0 4px 4px 0; float: left;' /></a>");
 
     $('#center #'+ id +'-input').parent().after("<div style='clear: both;'></div>");
   });
