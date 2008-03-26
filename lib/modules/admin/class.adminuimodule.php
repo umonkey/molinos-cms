@@ -198,14 +198,17 @@ class AdminUIModule implements iAdminUI
 
     $output .= '<tr><th>Минимальная версия CMS:</th><td>'. $module['version'] .'</td></tr>';
 
-    if (!empty($module['docurl']))
-      $output .= '<tr><th>Документация:</th><td><a href=\''. $module['docurl'] .'\'>есть</td></tr>';
+    if (!empty($module['docurl'])) {
+      $tmp = bebop_split_url($module['docurl']);
+
+      $output .= '<tr><th>Документация:</th><td><a href=\''. $module['docurl'] .'\'>'
+        .str_replace('www.', '', $tmp['host'])
+        .'</td></tr>';
+    }
 
     $output .= '</table>';
 
     return $output;
-
-    bebop_debug($name, $module);
   }
 
   private static function onGetModulesGroups()
