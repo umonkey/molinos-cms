@@ -425,19 +425,22 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
   private function getNodePreview(Node $node)
   {
-    if ($node->class != 'file')
-      return null;
+    $output = '';
 
-    $storage = rtrim(mcms::config('filestorage'), '/') .'/';
+    if ($node->class == 'file') {
+      $mod = empty($this->options['picker']) ? '' : " class='returnHref'";
 
-    $mod = empty($this->options['picker']) ? '' : " class='returnHref'";
+      if (substr($node->filetype, 0, 6) == 'image/') {
+        $storage = rtrim(BebopConfig::getInstance()->filestorage, '/') .'/';
 
-    if ('image/' != substr($node->filetype, 0, 6)) {
-      $output = "<a href='/attachment/{$node->id}' title='". t('Скачать файл') ."'><img src='/themes/admin/img/media-floppy.png' alt='download' width='16' height='16' class='filepreview' /></a>";
-    } elseif (file_exists($storage . $node->filepath)) {
-      $output = "<a{$mod} title='". mcms_plain(t('Просмотреть в натуральную величину')) ."' href='/attachment/{$node->id}'><img src='/attachment/{$node->id},16,16,cdw' alt='preview' width='16' height='16' class='filepreview' /></a>";
-    } else {
-      $output = "<img title='". mcms_plain(t('Файл отсутствует в файловой системе')) ."' src='/themes/admin/img/brokenimage.png' alt='broken' width='16' height='16' class='filepreview' />";
+        if (file_exists($storage . $node->filepath)) {
+          $output = "<a{$mod} title='". mcms_plain(t('Просмотреть в натуральную величину')) ."' href='/attachment/{$node->id}'><img src='/attachment/{$node->id},16,16,cdw' alt='preview' width='16' height='16' class='filepreview' /></a>";
+        } else {
+          $output = "<img title='". mcms_plain(t('Файл отсутствует в файловой системе')) ."' src='/themes/admin/img/brokenimage.png' alt='broken' width='16' height='16' class='filepreview' />";
+        }
+      } else {
+        $output = "<a href='/attachment/{$node->id}'><img src='/themes/all/img/media-floppy.png' alt='download' width='16' height='16' class='filepreview' /></a>";
+      }
     }
 
     return $output;
