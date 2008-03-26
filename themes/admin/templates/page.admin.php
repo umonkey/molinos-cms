@@ -28,6 +28,8 @@ function render_reboot_link()
     <link rel="stylesheet" type="text/css" href="/themes/admin/css/bebop.css" />
     <link rel="stylesheet" type="text/css" href="/themes/admin/css/style.css" />
     <link rel="stylesheet" type="text/css" href="/themes/admin/css/notification.css" />
+    <link rel="stylesheet" type="text/css" href="/themes/admin/css/topmenu.css" />
+    <link rel="stylesheet" type="text/css" href="/themes/admin/css/colors-green.css" />
 
     <link rel="stylesheet" type="text/css" href="/themes/all/jquery/plugins/jquery.jcarousel.css" />
     <link rel="stylesheet" type="text/css" href="/themes/all/jquery/plugins/jquery.suggest.css" />
@@ -48,16 +50,18 @@ function render_reboot_link()
       <?php if (empty($_GET['picker'])): ?>
       <?php print render_dashboard($dashboard); ?>
   
-      <div id="top_toolbar">
-        <div class="right">
-          <div class="greeting">Здравствуйте, <?php print render_username(); ?></div>
-          <a href="/admin/?cgroup=access&amp;mode=edit&amp;id=<?php print mcms::user()->id; ?>&amp;destination=<?php print urlencode($_SERVER['REQUEST_URI']) ?>" title="Редактировать свой профиль">Настройки</a>
-          <a href="<?php print render_reboot_link(); ?>" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
-          <a id="lnk_exit" href="/base.rpc?action=logout&amp;destination=%2F">Выйти</a>
-        </div>
-      </div><!-- id=top_toolbar -->
+      <div id="navbar">
+        <div id="top_toolbar">
+          <div class="right">
+            <div class="greeting">Здравствуйте, <?php print render_username(); ?>.</div>
+            <a href="/admin/?cgroup=access&amp;mode=edit&amp;id=<?php print mcms::user()->id; ?>&amp;destination=<?php print urlencode($_SERVER['REQUEST_URI']) ?>" title="Редактировать свой профиль">Настройки</a>
+            <a href="<?php print render_reboot_link(); ?>" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
+            <a id="lnk_exit" href="/base.rpc?action=logout&amp;destination=%2F">Выйти</a>
+          </div>
+        </div><!-- id=top_toolbar -->
 
-      <div id="top_menu_controls_bottom"></div>
+        <div id="top_menu_controls_bottom"></div>
+      </div>
       <?php endif; ?>
 
       <div id="content_wrapper">

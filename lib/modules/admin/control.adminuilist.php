@@ -36,10 +36,8 @@ class AdminUIListControl extends Control
       $classes[] = $odd ? 'odd' : 'even';
       $classes[] = empty($node['published']) ? 'unpublished' : 'published';
 
-      if ($odd)
-        $output .= '<tr class=\'odd\'>';
-      else
-        $output .= '<tr class=\'even\'>';
+      if (empty($node['id']) or !empty($node['_protected']))
+        $classes[] = 'disabled';
 
       $row = '';
 

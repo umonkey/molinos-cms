@@ -1,7 +1,3 @@
-tr.unpublished a {
-  font-style: italic;
-}
-
 .hint {
   padding-right: 20px;
   background: transparent url(/themes/admin/img/help.gif) no-repeat center right;
@@ -30,44 +26,7 @@ td.r, th.r {
   margin-right: 10px;
 }
 
-.grayout {
-  background-color: #ccc;
-}
-.grayout a {
-  color: gray;
-}
-	
-
-/*  Карусель
-------------------------------------------------------------------------------------------------------------------- */
-.carousel {
-  /* Дима???
-  height: 14.68em;
-  */
-
-  height: 120px;
-  overflow: hidden;
-  width: 100%;
-  margin: 1px 0;
-  background-color: #faf5ec;
-}
-.carousel ul { list-style:none; list-style-position:outside; }
-.carousel ul li { float:left; }
-/* ---------------------------------------------------------------------------------------------------------------- */			
-
-.carousel-control {
-  position: absolute;
-  top: 6px;
-  left: 19px;
-  margin: 0 !important;
-}
-
-tr.even {
-  background-color: #efefef;
-}
-
 u.fakelink {
-  color: blue;
   cursor: pointer;
 }
 
@@ -110,6 +69,5 @@ table.modinfo th {
 }
 
 .modlist th {
-  background-color: #efefef;
   padding: 4px;
 }

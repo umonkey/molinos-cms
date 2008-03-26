@@ -47,38 +47,41 @@ class AdminListHandler
 
     $data = $this->getData();
 
-    if (empty($data) and count($this->types) == 1)
+    if (empty($data) and count($this->types) == 1 and null === $this->ctx->get('search')) {
       bebop_redirect("/admin/?mode=create&type={$this->types[0]}&destination=". urlencode($_SERVER['REQUEST_URI']));
+    }
 
     $output = '<h2>'. $this->title .'</h2>';
     $output .= $this->getSearchForm();
 
-    $form = new Form(array(
-      'id' => 'nodelist-form',
-      'action' => '/nodeapi.rpc?action=mass&destination='. urlencode($_SERVER['REQUEST_URI']),
-      ));
-    if (empty($_GET['picker']))
-      $form->addControl(new AdminUINodeActionsControl(array(
-        'actions' => $this->actions,
+    if (!empty($data)) {
+      $form = new Form(array(
+        'id' => 'nodelist-form',
+        'action' => '/nodeapi.rpc?action=mass&destination='. urlencode($_SERVER['REQUEST_URI']),
+        ));
+      if (empty($_GET['picker']))
+        $form->addControl(new AdminUINodeActionsControl(array(
+          'actions' => $this->actions,
+          )));
+      $form->addControl(new AdminUIListControl(array(
+        'columns' => $this->columns,
+        'picker' => $this->ctx->get('picker'),
+        'selectors' => $this->selectors,
+        'columntitles' => $this->columntitles,
         )));
-    $form->addControl(new AdminUIListControl(array(
-      'columns' => $this->columns,
-      'picker' => $this->ctx->get('picker'),
-      'selectors' => $this->selectors,
-      'columntitles' => $this->columntitles,
-      )));
-    if (empty($_GET['picker']))
-      $form->addControl(new AdminUINodeActionsControl(array(
-        'actions' => $this->actions,
+      if (empty($_GET['picker']))
+        $form->addControl(new AdminUINodeActionsControl(array(
+          'actions' => $this->actions,
+          )));
+      $form->addControl(new PagerControl(array(
+        'value' => '__pager',
         )));
-    $form->addControl(new PagerControl(array(
-      'value' => '__pager',
-      )));
 
-    $output .= $form->getHTML(array(
-      'nodes' => $data,
-      '__pager' => $this->getPager(),
-      ));
+      $output .= $form->getHTML(array(
+        'nodes' => $data,
+        '__pager' => $this->getPager(),
+        ));
+    }
 
     return $output;
   }
