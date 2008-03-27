@@ -38,7 +38,7 @@ $user = mcms::user();
           <div class="right">
             <div class="greeting">Здравствуйте, <?=_user_name()?></div>
             <a href="/?profile.action=edit&amp;destination=<?=urlencode($_SERVER['REQUEST_URI'])?>">Настройки</a>
-            <div><a id='lnk_exit' href='/admin/?profile.action=logout&amp;destination=%2F'>Выйти</a></div>
+            <a id='lnk_exit' href='/admin/?profile.action=logout&amp;destination=%2F'>Выйти</a>
           </div>
         </div>
 
