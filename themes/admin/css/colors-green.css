@@ -127,5 +127,5 @@ ul#top_menu li.current a {
 .nodelist tr.unpublished .field-name,
 .nodelist tr.disabled .field-name
 {
-  opacity: 0.5;
+  color: #7f99ff;
 }
