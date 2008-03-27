@@ -135,7 +135,7 @@ class BebopDashboard extends Widget implements iAdminWidget
 
         $tmp = mcms::html('a', array(
           'href' => bebop_combine_url($url, false),
-          'title' => $icon['description'],
+          'title' => empty($icon['description']) ? null : $icon['description'],
           ), $icon['title']);
         $output .= mcms::html('li', array(), $tmp);
       }
