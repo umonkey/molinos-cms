@@ -64,6 +64,12 @@ class StatusAdminWidget extends Widget implements iAdminWidget
         array('@link' => "http://{$_SERVER['HTTP_HOST']}/cron.php",
           '@cron' => 'http://ru.wikipedia.org/wiki/Cron'));
 
+    if (!ini_get('session.save_path')) {
+      $result['hints'][] = t('Каталог для хранения сессий не определён. Это приведёт к тому, что сессии будут закрываться преждевременно, а в некоторых случаях — к неожиданной авторизации на других сайтах, работающих на этом сервере. Для устранения этой проблемы нужно добавить в файл .htaccess следующую запись:<br />php_value session.save_path %path', array(
+        '%path' => getcwd() .'/tmp/sessions',
+        ));
+    }
+
     /*
     $ncount = $pdo->getResult("SELECT COUNT(*) FROM `node`");
     $rcount = $pdo->getResult("SELECT COUNT(*) FROM `node__rev`");
