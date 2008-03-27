@@ -16,7 +16,7 @@ class NodeQueryBuilder
     if (!array_key_exists('deleted', $query))
       $query['deleted'] = 0;
 
-    if (!empty($query['tags']))
+    if (!empty($query['tags']) and is_array($query['tags']))
       $query['tags'] = array_unique($query['tags']);
 
     $this->query = $query;
