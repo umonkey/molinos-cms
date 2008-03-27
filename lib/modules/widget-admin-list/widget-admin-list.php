@@ -246,10 +246,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
           $a['href'] = 'mailto:'. $text;
         }
 
-        if (array_key_exists('class', $a) and empty($a['class']))
-          unset($a['class']);
-
-        if ($node->checkPermission('u') and !empty($a))
+        if ($node->checkPermission('u'))
           $text = mcms::html('a', $a, $text);
 
         if ($field == 'name')
@@ -425,22 +422,19 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
   private function getNodePreview(Node $node)
   {
-    $output = '';
+    if ($node->class != 'file')
+      return null;
 
-    if ($node->class == 'file') {
-      $mod = empty($this->options['picker']) ? '' : " class='returnHref'";
+    $storage = rtrim(mcms::config('filestorage'), '/') .'/';
 
-      if (substr($node->filetype, 0, 6) == 'image/') {
-        $storage = rtrim(BebopConfig::getInstance()->filestorage, '/') .'/';
+    $mod = empty($this->options['picker']) ? '' : " class='returnHref'";
 
-        if (file_exists($storage . $node->filepath)) {
-          $output = "<a{$mod} title='". mcms_plain(t('Просмотреть в натуральную величину')) ."' href='/attachment/{$node->id}'><img src='/attachment/{$node->id},16,16,cdw' alt='preview' width='16' height='16' class='filepreview' /></a>";
-        } else {
-          $output = "<img title='". mcms_plain(t('Файл отсутствует в файловой системе')) ."' src='/themes/admin/img/brokenimage.png' alt='broken' width='16' height='16' class='filepreview' />";
-        }
-      } else {
-        $output = "<a href='/attachment/{$node->id}'><img src='/themes/all/img/media-floppy.png' alt='download' width='16' height='16' class='filepreview' /></a>";
-      }
+    if ('image/' != substr($node->filetype, 0, 6)) {
+      $output = "<a href='/attachment/{$node->id}' title='". t('Скачать файл') ."'><img src='/themes/admin/img/media-floppy.png' alt='download' width='16' height='16' class='filepreview' /></a>";
+    } elseif (file_exists($storage . $node->filepath)) {
+      $output = "<a{$mod} title='". mcms_plain(t('Просмотреть в натуральную величину')) ."' href='/attachment/{$node->id}'><img src='/attachment/{$node->id},16,16,cdw' alt='preview' width='16' height='16' class='filepreview' /></a>";
+    } else {
+      $output = "<img title='". mcms_plain(t('Файл отсутствует в файловой системе')) ."' src='/themes/admin/img/brokenimage.png' alt='broken' width='16' height='16' class='filepreview' />";
     }
 
     return $output;
@@ -494,16 +488,16 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('Structure Managers'))
       $icons[] = array(
-        'group' => 'Структура',
+        'group' => 'Content',
         'img' => 'img/taxonomy.png',
         'href' => '/admin/taxonomy/',
-        'title' => t('Карта сайта'),
+        'title' => t('Разделы'),
         'description' => t('Управление разделами сайта.'),
         );
 
     if ($user->hasGroup('Schema Managers'))
       $icons[] = array(
-        'group' => 'Структура',
+        'group' => 'Structure',
         'img' => 'img/doctype.png',
         'href' => '/admin/schema/',
         'title' => t('Типы документов'),
@@ -511,7 +505,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('Content Managers'))
       $icons[] = array(
-        'group' => 'Наполнение',
+        'group' => 'Content',
         'img' => 'img/content.png',
         'href' => '/admin/content/',
         'title' => t('Наполнение'),
@@ -520,20 +514,20 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('Developers')) {
       $icons[] = array(
-        'group' => 'Разработка',
+        'group' => 'Structure',
         'img' => 'img/constructor.png',
         'href' => '/admin/builder/',
         'title' => t('Конструктор'),
         'description' => t('Управление доменами, страницами и виджетами.'),
         );
       $icons[] = array(
-        'group' => 'Разработка',
-        'img' => 'img/cms-widget.png',
+        'group' => 'Structure',
+        'img' => 'img/constructor.png',
         'href' => '/admin/builder/widgets/',
         'title' => t('Виджеты'),
         );
       $icons[] = array(
-        'group' => 'Разработка',
+        'group' => 'Structure',
         'img' => 'img/constructor.png',
         'href' => '/admin/builder/modules/',
         'title' => t('Модули'),
@@ -542,15 +536,15 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('User Managers')) {
       $icons[] = array(
-        'group' => 'Доступ',
+        'group' => 'Access',
         'img' => 'img/user.png',
         'href' => '/admin/users/',
         'title' => t('Пользователи'),
         'description' => t('Управление профилями пользователей.'),
         );
       $icons[] = array(
-        'group' => 'Доступ',
-        'img' => 'img/cms-groups.png',
+        'group' => 'Access',
+        'img' => 'img/user.png',
         'href' => '/admin/users/groups/',
         'title' => t('Группы'),
         'description' => t('Управление группами пользователей.'),
@@ -559,7 +553,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('Content Managers'))
       $icons[] = array(
-        'group' => 'Наполнение',
+        'group' => 'Content',
         'img' => 'img/files.png',
         'href' => '/admin/files/',
         'title' => t('Файлы'),
@@ -567,7 +561,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
         );
 
     $icons[] = array(
-      'group' => 'Наполнение',
+      'group' => 'Content',
       'img' => 'img/recycle.png',
       'href' => '/admin/?flush=1',
       'title' => t('Очистить кэш'),
@@ -576,7 +570,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     if ($user->hasGroup('Content Managers') and Node::count(array('deleted' => 1)))
       $icons[] = array(
-        'group' => 'Наполнение',
+        'group' => 'Content',
         'img' => 'img/recycle.png',
         'href' => '/admin/trash/',
         'title' => t('Корзина'),

@@ -79,10 +79,12 @@ class DocListControl extends Control
       else
         $check = '&nbsp;';
 
-      $row = mcms::html('td', array(), $check);
+      $row = mcms::html('td', array('class' => 'selector'), $check);
 
       foreach ($this->columns as $col => $title) {
-        $row .= mcms::html('td', array(), empty($doc[$col]) ? '&nbsp;' : $doc[$col]);
+        $row .= mcms::html('td', array(
+          'class' => 'field-'. $col,
+          ), empty($doc[$col]) ? '&nbsp;' : $doc[$col]);
       }
 
       $class = array(empty($doc['published']) ? 'unpublished' : 'published');

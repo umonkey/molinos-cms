@@ -49,8 +49,8 @@ class MaintenanceModule implements iModuleConfig, iRequestHook
 
     if ($user->hasGroup('Developers') or $user->hasGroup('Site Managers'))
       $icons[] = array(
-        'group' => 'Разработка',
-        'img' => 'img/cms-maintenance.png',
+        'group' => 'Access',
+        'img' => 'img/dashboard.gif',
         'href' => '/admin/builder/modules/?BebopModules.edit=maintenance&destination='. urlencode($_SERVER['REQUEST_URI']),
         'title' => t('Технические работы'),
         'description' => t('Позволяет временно закрыть сайт для проведения технических работ.'),

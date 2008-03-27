@@ -14,13 +14,12 @@ $user = mcms::user();
     <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/bebop.css" />
     <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/style.css" />
     <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/notification.css" />
+    <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/topmenu.css" />
+    <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/colors-green.css" />
     
-    <link rel="stylesheet" type="text/css" href="<?=$prefix?>/../all/jquery/plugins/jquery.jcarousel.css" />
     <link rel="stylesheet" type="text/css" href="<?=$prefix?>/../all/jquery/plugins/jquery.suggest.css" />
-    <link rel="stylesheet" type="text/css" href="<?=$prefix?>/../all/jquery/plugins/jcarousel-skins/tango/skin.css" />
 
     <script type="text/javascript" language="javascript" src="<?=$prefix?>/../all/jquery/jquery.js"></script>
-    <script type="text/javascript" language="javascript" src="<?=$prefix?>/../all/jquery/plugins/jquery.jcarousel.js" ></script>
     <script type="text/javascript" language="javascript" src="<?=$prefix?>/../all/jquery/plugins/jquery.ifixpng.js" ></script>
     <script type="text/javascript" language="javascript" src="<?=$prefix?>/../all/jquery/plugins/jquery.formtabber.js"></script>
     <script type="text/javascript" language="javascript" src="<?=$prefix?>/../all/jquery/plugins/jquery.autogrow.js" ></script>
@@ -32,6 +31,9 @@ $user = mcms::user();
     <div id="preloaded_images"></div>
       <div id="all">
 
+      <div id="top_menu_controls"><?=$widgets['BebopDashboard']?></div>
+
+      <div id="navbar">
         <div id="top_toolbar">
           <div class="right">
             <div class="greeting">Здравствуйте, <?=_user_name()?></div>
@@ -40,18 +42,8 @@ $user = mcms::user();
           </div>
         </div>
 
-        <?=$widgets['BebopDashboard']?>
-    
-        <script type="text/javascript">
-        // Включение карусели в основной навигации
-        if ($('.carousel').length != 0) {
-          var carousel = $('.carousel').jcarousel({
-            scroll: 5,
-            visible: 10,
-            initCallback: bebop_dashboard_init
-          });
-        }
-        </script>
+        <div id="top_menu_controls_bottom"></div>
+      </div>
 
         <div id="content_wrapper">
           <div id="center">

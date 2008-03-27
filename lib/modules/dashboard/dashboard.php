@@ -25,10 +25,20 @@ class BebopDashboard extends Widget implements iAdminWidget
   // Препроцессор параметров.
   public function getRequestOptions(RequestContext $ctx)
   {
+    $tmp = bebop_split_url();
+    if ('/admin/' == $tmp['path'])
+      bebop_redirect('/admin/content/?cgroup=content');
+
     $options = array_merge(parent::getRequestOptions($ctx), array(
       'groups' => $this->user->getGroups(true),
+      'cgroup' => $_GET['cgroup'],
+      '#nocache' => true,
       ));
-    return $options;
+
+    if (empty($options['cgroup']))
+      $options['cgroup'] = 'content';
+
+    return $this->options = $options;
   }
 
   // Обработка запросов.  Возвращает список действий, предоставляемых административными виджетами.
@@ -43,7 +53,7 @@ class BebopDashboard extends Widget implements iAdminWidget
             foreach ($items as $item) {
               if (isset($item['img'])) {
                 if (!file_exists($img = 'lib/modules/'. $module .'/'. $item['img']))
-                  $item['img'] = '/lib/modules/dashboard/img/cms-default.png';
+                  unset($item['img']);
                 else
                   $item['img'] = '/'. $img;
               }
@@ -69,82 +79,61 @@ class BebopDashboard extends Widget implements iAdminWidget
 
     ksort($result);
 
-    return self::formatDashBoard2($result);
-
-    /*
-    if (!empty($result['list']))
-      usort($result['list'], array('BebopDashboard', 'usort'));
-    */
-  }
-
-  private static function formatDashBoard2(array $result)
-  {
-    $controls = $items = array();
-    $index = $groupidx = 1;
-
-    $oldgroup = null;
-
-    foreach ($result as $group => $icons) {
-      if ($oldgroup !== $group) {
-        $controls[] = mcms::html('a', array(
-          'href' => '#'. $index,
-          ), mcms_plain($group));
-      }
-
-      foreach ($icons as $icon) {
-        if (!empty($icon['img'])) {
-          $html = '<li class=\'group-'. $groupidx .'\'>';
-          $html .= mcms::html('a', array(
-            'href' => $icon['href'],
-            'style' => 'display: block; background: transparent url('. $icon['img'] .') no-repeat top center; padding: 85px 2px 0 2px; text-align: center',
-            'description' => isset($icon['description']) ? $icon['description'] : null,
-            ), mcms_plain($icon['title']));
-          $html .= '</li>';
-
-          $items[] = $html;
-        }
-
-        $index++;
-      }
-
-      $groupidx++;
-    }
-
-    $html = '<div class=\'carousel-control\'>'. join('', $controls) .'</div>';
-    $html .= '<div class=\'carousel jcarousel-skin-tango\'>';
-    $html .= '<ul>'. join('', $items) .'</ul>';
-    $html .= '</div>';
+    $html = $this->getHTML($result);
 
     return $html;
   }
 
-  private static function formatDashBoard(array $result)
+  public function getHTML(array $menu)
   {
-    // Формируем HTML код.
-    $html = '';
+    $cgroup = $this->options['cgroup'];
 
-    foreach ($result as $group => $icons) {
-      $html .= '<li><span class=\'group-header\'>'. mcms_plain($group) .'</span>';
-      $html .= '<ul>';
+    $trans = array(
+      'access' => t('Доступ'),
+      'content' => t('Наполнение'),
+      'developement' => t('Разработка'),
+      'statistics' => t('Статистика'),
+      'structure' => t('Структура'),
+      );
+
+    $output = '<ul>';
+
+    foreach ($menu as $group => $icons) {
+      $group = strtolower($group);
+
+      $url = bebop_split_url($icons[0]['href']);
+      $url['args']['cgroup'] = $group;
+
+      if ($group == $cgroup)
+        $output .= '<li class=\'current\'>';
+      else
+        $output .= '<li>';
+
+      $output .= mcms::html('a', array(
+        'href' => bebop_combine_url($url, false),
+        ), array_key_exists($group, $trans) ? $trans[$group] : $group);
+
+      $output .= '<ul>';
 
       foreach ($icons as $icon) {
-        $img = empty($icon['img']) ? '' : mcms::html('span', array(
-          'class' => 'icon',
-          'style' => 'display:none'
-          ), $icon['img']);
+        $url = bebop_split_url($icon['href']);
+        $url['args']['cgroup'] = $group;
 
-        $html .= '<li class=\'item\'>';
-        $html .= mcms::html('a', array(
-          'href' => $icon['href'],
-          'title' => empty($icon['description']) ? null : $icon['description'],
-          ), $img . mcms_plain($icon['title']));
-        $html .= '</li>';
+        $tmp = mcms::html('a', array(
+          'href' => bebop_combine_url($url, false),
+          'title' => $icon['description'],
+          ), $icon['title']);
+        $output .= mcms::html('li', array(), $tmp);
       }
 
-      $html .= '</ul>';
+      $output .= '</ul></li>';
     }
-    
-    return '<div class=\'dashboard\'><ul>'. $html .'</ul><div class=\'separator\'></div></div>';
+
+    $output .= '</ul>';
+
+    BebopCache::getInstance()->{'adminmenu:'. $cgroup} = $output;
+
+    return $output;
   }
 
   private function usort(array $a, array $b)
