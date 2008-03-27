@@ -95,6 +95,7 @@ class NodeAdminWidget extends Widget implements iAdminWidget
       break;
 
     default:
+      // bebop_debug($ctx, $options);
       throw new PageNotFoundException();
     }
 
@@ -147,12 +148,9 @@ class NodeAdminWidget extends Widget implements iAdminWidget
   protected function onGetCreate(array $options)
   {
     if (null !== $options['class']) {
-      $node = Node::create($options['class'], array(
-        'parent_id' => $options['parent'],
-        ));
-      $data = $node->formGetData();
-
-      $html = $this->formRender('node-edit-form', $data);
+      $node = Node::create($options['class']);
+      $node->parent_id = $options['parent'];
+      $html = $this->formRender('node-edit-form', $node->formGetData());
     } else {
       $ids = mcms::db()->getResultsV("id", "SELECT * FROM `node` WHERE `class` = 'type' AND `id` IN (PERMCHECK:c)");
       $types = Node::find(array('class' => 'type', 'id' => $ids));
