@@ -31,7 +31,7 @@ class BebopDashboard extends Widget implements iAdminWidget
 
     $options = array_merge(parent::getRequestOptions($ctx), array(
       'groups' => $this->user->getGroups(true),
-      'cgroup' => $_GET['cgroup'],
+      'cgroup' => empty($_GET['cgroup']) ? 'content' : $_GET['cgroup'],
       '#nocache' => true,
       ));
 
