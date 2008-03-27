@@ -141,8 +141,6 @@ class PollWidget extends Widget implements iContentType
 
   public function getRequestOptions(RequestContext $ctx)
   {
-    throw new InvalidArgumentException("FIXME");
-
     $options = parent::getRequestOptions($ctx);
     $options['pollid'] = intval(@$ctx->apath[$this->pollid - 1]);
     $options['sid'] = session_id();
