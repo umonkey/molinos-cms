@@ -14,6 +14,9 @@ class FileNode extends Node implements iContentType
       $this->height = $info[1];
     }
 
+    if (empty($this->name))
+      $this->name = basename($this->filename);
+
     parent::save($clear);
 
     // Проставляем права контент-менеджерам.
@@ -189,7 +192,7 @@ class FileNode extends Node implements iContentType
   // из них вручную.  После импорта файл снова сохраняется.
   public function formProcess(array $data)
   {
-    if (!empty($data['__file_node_update'])) {
+    if (!empty($data['__file_node_update']) and empty($data['__file_node_update']['error'])) {
       $this->import($data['__file_node_update']);
       $this->save();
     }
