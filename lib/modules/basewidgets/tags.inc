@@ -46,9 +46,23 @@ class TagsWidget extends Widget
       $result['sections'] = $root->getChildren('nested');
       $result['path'] = array_values($root->getParents());
       $result['dynamic'] = $options['dynamic'];
+
+      $this->filterPublished($result['sections']);
     }
 
     return $result;
+  }
+
+  private function filterPublished(array &$node)
+  {
+    if (!empty($node['children'])) {
+      foreach ($node['children'] as $k => $v) {
+        if (empty($v['published']))
+          unset($node['children'][$k]);
+        else
+          $this->filterPublished($node['children'][$k]);
+      }
+    }
   }
 
   private function tagsFilterPublished(array &$tree)
