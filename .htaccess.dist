@@ -1,19 +1,5 @@
 AddDefaultCharset utf-8
 
-<IfModule mod_php5.c>
-    php_flag zend.ze1_compatibility_mode 0
-    php_flag display_errors 0
-    php_flag log_errors 1
-
-    php_value mbstring.internal_encoding UTF-8
-    php_value mbstring.script_encoding UTF-8
-
-    <Files handler.php>
-        php_flag zlib.output_compression on
-        php_value zlib.output_compression_level 6
-    </Files>
-</IfModule>
-
 <IfModule mod_deflate.c>
     AddOutputFilterByType DEFLATE application/javascript text/css
 </IfModule>

@@ -713,6 +713,8 @@ class RequestController
       'magic_quotes_gpc' => 0,
       'magic_quotes_runtime' => 0,
       'magic_quotes_sybase' => 0,
+      'mbstring.internal_encoding' => 'UTF-8',
+      'mbstring.script_encoding' => 'UTF-8',
       );
 
     $errors = $messages = array();
