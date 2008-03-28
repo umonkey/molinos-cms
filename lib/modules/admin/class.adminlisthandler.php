@@ -258,6 +258,19 @@ class AdminListHandler
       $result[] = $tmp;
     }
 
+    if ('schema' == $this->ctx->get('preset')) {
+      $tmp = array();
+
+      foreach ($result as $v)
+        if (empty($v['_protected']))
+          $tmp[] = $v;
+      foreach ($result as $v)
+        if (!empty($v['_protected']))
+          $tmp[] = $v;
+
+      $result = $tmp;
+    }
+
     return $result;
   }
 
