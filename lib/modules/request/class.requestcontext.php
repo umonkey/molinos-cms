@@ -57,6 +57,11 @@ class RequestContext
       break;
     }
 
+    if (null === $this->root) {
+      if (null === $this->section and is_numeric($page->defaultsection))
+        $this->root = $this->section = $page->defaultsection;
+    }
+
     // Нормализуем идентификаторы.
 
     if (null !== $this->document and !is_numeric($this->document))
