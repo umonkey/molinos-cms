@@ -152,11 +152,11 @@ class AdminUIModule implements iAdminUI
       foreach ($modules as $modname => $module) {
         $output .= '<tr>';
         $output .= "<td><input type='checkbox' name='selected[]' value='{$modname}' /></td>";
-        $output .= "<td><a href='/admin/?mode=modules&action=info&name={$modname}'>{$modname}</a></td>";
+        $output .= "<td><a href='/admin/?mode=modules&amp;action=info&amp;name={$modname}&amp;cgroup={$_GET['cgroup']}'>{$modname}</a></td>";
         $output .= "<td>{$module['name']['ru']}</td>";
 
         if (!empty($module['implementors']['iModuleConfig']))
-          $output .= "<td><a href='/admin/?mode=modules&action=config&name={$modname}'>настроить</a></td>";
+          $output .= "<td><a href='/admin/?mode=modules&amp;action=config&amp;name={$modname}&amp;cgroup={$_GET['cgroup']}'>настроить</a></td>";
         else
           $output .= "<td>&nbsp;</td>";
 

@@ -117,12 +117,22 @@ class AdminTreeHandler
             $text = null;
 
           if ($link) {
+            $args = array(
+              'class' => array(),
+              'href' => "/admin/?mode=edit&cgroup={$_GET['cgroup']}&id={$node['id']}&destination=". urlencode($_SERVER['REQUEST_URI']),
+              'style' => empty($node['depth']) ? null : 'margin-left:'. ($node['depth'] * 10) .'px',
+              );
+
             if (empty($text))
               $text = t('(без названия)');
 
-            $mod = empty($node['description']) ? '' : " class='hint' title='". mcms_plain($node['description']) ."'";
+            if (!empty($node['description'])) {
+              $args['title'] = $node['description'];
+              $args['class'][] = 'hint';
+            }
 
-            $text = "<a{$mod} href='/admin/?mode=edit&amp;id={$node['id']}&amp;destination=". urlencode($_SERVER['REQUEST_URI']) ."'>{$text}</a>";
+            $text = mcms::html('a', $args, $text);
+
             $link = false;
           }
 

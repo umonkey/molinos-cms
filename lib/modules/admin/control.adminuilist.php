@@ -64,7 +64,7 @@ class AdminUIListControl extends Control
         elseif ('name' == $field) {
           $href = isset($this->picker)
             ? "/attachment/{$node['id']}"
-            : '/admin/?mode=edit&id='. $node['id'] .'&destination='. urlencode($_SERVER['REQUEST_URI']);
+            : '/admin/?mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination='. urlencode($_SERVER['REQUEST_URI']);
 
           $row .= mcms::html('a', array(
             'href' => $href,
@@ -126,6 +126,7 @@ class AdminUIListControl extends Control
 
     case 'uid':
       return $this->getUserLink($value);
+
     case 'thumbnail':
       if (null !== $node and !empty($node['class']) and $node['class'] == 'file') {
         if (file_exists($path = mcms::config('filestorage') .'/'. $node['filepath'])) {
@@ -144,6 +145,7 @@ class AdminUIListControl extends Control
         }
       }
       break;
+
     case 'text':
       if (null !== $node and $node['class'] == 'comment') {
         if (!empty($node['text']))
@@ -155,6 +157,7 @@ class AdminUIListControl extends Control
         return $text;
       }
       break;
+
     case 'filesize':
       return number_format($value, 0);
     }
