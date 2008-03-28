@@ -117,7 +117,13 @@ class AdminUIListControl extends Control
   {
     switch ($field) {
     case 'class':
-      return $value;
+      $schema = TypeNode::getSchema($value);
+
+      if (empty($schema['title']))
+        return $value;
+
+      return mb_strtolower($schema['title']);
+
     case 'uid':
       return $this->getUserLink($value);
     case 'thumbnail':
