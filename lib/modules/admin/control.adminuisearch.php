@@ -38,9 +38,19 @@ class AdminUISearchControl extends Control
     else
       $type = null;
 
+    $tmp = array(
+      'path' => '/admin/',
+      'args' => array(
+        'mode' => 'create',
+        'type' => $type,
+        'destination' => $_SERVER['REQUEST_URI'],
+        'cgroup' => $_GET['cgroup'],
+        ),
+      );
+
     $output = mcms::html('a', array(
       'class' => 'newlink',
-      'href' => "/admin/?mode=create&type={$type}&destination=". urlencode($_SERVER['REQUEST_URI']),
+      'href' => bebop_combine_url($tmp, false),
       ), 'Добавить');
 
     return $output;
