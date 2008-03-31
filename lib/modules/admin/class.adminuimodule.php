@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class AdminUIModule implements iAdminUI
+class AdminUIModule implements iAdminUI, iRemoteCall
 {
   public static function onGet(RequestContext $ctx)
   {
@@ -179,5 +179,42 @@ class AdminUIModule implements iAdminUI
     $output .= '</table>';
 
     return $output;
+  }
+
+  public static function hookRemoteCall(RequestContext $ctx)
+  {
+    switch ($ctx->get('action')) {
+    case 'modlist':
+      mcms::db()->beginTransaction();
+
+      // Список сохранённых конфигураций.
+      $existing = mcms::db()->getResultsKV("name", "id", "SELECT `n`.`id`, `r`.`name` FROM `node__rev` `r` INNER JOIN `node` `n` ON `n`.`rid` = `r`.`rid` WHERE `n`.`class` = 'moduleinfo' AND `n`.`deleted` = 0");
+
+      // Создаём нужные новые конфигурации.
+      foreach ($ctx->post('selected') as $name) {
+        if (!array_key_exists($name, $existing)) {
+          $tmp = Node::create('moduleinfo', array(
+            'name' => $name,
+            'published' => 1,
+            ));
+          $tmp->save();
+        }
+      }
+
+      // Меняем публикацию для существовавших объектов.
+      foreach ($existing as $k => $v) {
+        mcms::db()->exec("UPDATE `node` SET `published` = :p WHERE `class` = 'moduleinfo' AND `id` = :id", $args = array(
+          ':p' => in_array($k, $ctx->post('selected')) ? 1 : 0,
+          ':id' => $v,
+          ));
+      }
+
+      mcms::db()->commit();
+
+      if (file_exists($tmp = 'tmp/.modmap.php') and is_writable(dirname($tmp)))
+        unlink($tmp);
+    }
+
+    bebop_redirect($ctx->get('destination', '/'));
   }
 };

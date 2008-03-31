@@ -79,12 +79,17 @@ table.modinfo th {
 .modlist th {
   padding: 4px;
 }
-.modlist .configure span {
+.modlist a.icon span {
   display: none;
 }
-.modlist .configure {
+.modlist a.icon {
   display: block;
   width: 16px;
   height: 16px;
+}
+.modlist .configure {
   background: transparent url(/themes/admin/img/configure.png) no-repeat top left;
+}
+.modlist .information {
+  background: transparent url(/themes/admin/img/information.png) no-repeat top left;
 }

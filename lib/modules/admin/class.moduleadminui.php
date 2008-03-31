@@ -10,7 +10,7 @@ class ModuleAdminUI
     $output = '';
 
     foreach ($map as $group => $modules) {
-      $output .= "<tr class='modgroup'><th colspan='4'>{$group}</th></tr>";
+      $output .= "<tr class='modgroup'><th colspan='5'>{$group}</th></tr>";
 
       foreach ($modules as $modname => $module) {
         $output .= '<tr>';
@@ -24,7 +24,15 @@ class ModuleAdminUI
           )) ."</td>";
 
         if (!empty($module['implementors']['iModuleConfig']) and !empty($module['enabled']))
-          $output .= "<td><a class='configure' href='/admin/?mode=modules&amp;action=config&amp;name={$modname}&amp;cgroup={$_GET['cgroup']}'><span>настроить</span></a></td>";
+          $output .= "<td><a class='icon configure' href='/admin/?mode=modules&amp;action=config&amp;name={$modname}&amp;cgroup={$_GET['cgroup']}'><span>настроить</span></a></td>";
+        else
+          $output .= "<td>&nbsp;</td>";
+
+        if (!empty($module['docurl']))
+          $output .= "<td>". mcms::html('a', array(
+            'class' => 'icon information',
+            'href' => $module['docurl'],
+            ), "<span>информация</span>") ."</td>";
         else
           $output .= "<td>&nbsp;</td>";
 
@@ -46,7 +54,7 @@ class ModuleAdminUI
 
     return '<h2>Список модулей</h2>'. mcms::html('form', array(
       'method' => 'post',
-      'action' => $_SERVER['REQUEST_URI'],
+      'action' => "/admin.rpc?action=modlist&destination=". urlencode($_SERVER['REQUEST_URI']),
       ), $output);
   }
 

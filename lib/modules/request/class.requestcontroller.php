@@ -198,15 +198,17 @@ class RequestController
     if (is_array($widgets)) {
       // Обрабатываем виджеты, превращая их в контроллеры.
       foreach ($widgets as $widget) {
-        if (!mcms::class_exists($class = $widget->classname))
+        if (!mcms::class_exists($class = $widget->classname)) {
+          // bebop_debug($class);
           continue;
+        }
 
         $obj = new $class($widget);
 
         // Обрабатываем только виджеты, остальной мусор, если он сюда
         // как-то попал, пропускаем, чтобы не получить исключение.
         if (!($obj instanceof Widget))
-          continue;
+          bebop_debug($obj);
 
         // Параметризация виджета.
         $ctx = RequestContext::getWidget(
@@ -221,7 +223,8 @@ class RequestController
             'options' => $obj->getRequestOptions($ctx),
             'object' => $obj,
             );
-        } catch (WidgetHaltedException $e) { }
+        } catch (WidgetHaltedException $e) {
+        }
       }
     }
 
@@ -713,8 +716,6 @@ class RequestController
       'magic_quotes_gpc' => 0,
       'magic_quotes_runtime' => 0,
       'magic_quotes_sybase' => 0,
-      'mbstring.internal_encoding' => 'UTF-8',
-      'mbstring.script_encoding' => 'UTF-8',
       );
 
     $errors = $messages = array();

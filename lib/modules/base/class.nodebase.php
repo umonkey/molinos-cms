@@ -64,7 +64,7 @@ class NodeBase
   }
 
   // Читаем объект.
-  public static function load($id)
+  public static function load($id, $first = false)
   {
     if (!is_array($id))
       $id = array('id' => $id);
@@ -74,7 +74,7 @@ class NodeBase
     if (empty($data))
       throw new ObjectNotFoundException();
 
-    elseif (count($data) > 1)
+    elseif (count($data) > 1 and !$first)
       throw new InvalidArgumentException("Выборка объекта по условию вернула более одного объекта. Условие: ". var_export($id, true));
 
     $node = array_shift($data);

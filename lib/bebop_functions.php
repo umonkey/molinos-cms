@@ -673,7 +673,7 @@ class mcms
         $data = $tmp;
       else {
         try {
-          $node = Node::load(array('class' => 'moduleinfo', 'name' => $modulename));
+          $node = Node::load(array('class' => 'moduleinfo', 'name' => $modulename), true);
 
           if (is_array($tmp = $node->config)) {
             mcms::cache($ckey, $data = $tmp);
