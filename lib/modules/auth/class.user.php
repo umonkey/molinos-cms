@@ -22,8 +22,8 @@ class User
       else
         mcms::cache($key, serialize($this->node = Node::load(array('class' => 'user', 'id' => $uid))));
 
-      if (is_string($tmp = mcms::cache($key = 'usergroups:'. $uid)))
-        $this->groups = unserialize($tmp);
+      if (is_string($tmp = mcms::cache($key = 'usergroups:'. $uid)) and is_array($tmp = unserialize($tmp) and !empty($tmp)))
+        $this->groups = $tmp;
       else {
         mcms::cache($key, serialize($this->groups = Node::find(array('class' => 'group', 'published' => 1, 'tagged' => array($uid)))));
       }
