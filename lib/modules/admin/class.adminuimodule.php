@@ -142,41 +142,8 @@ class AdminUIModule implements iAdminUI
     if ($ctx->get('action') == 'info' or $ctx->get('action') == 'config')
       return self::onGetModuleInfo($ctx->get('name'));
 
-    $map = self::onGetModulesGroups();
-
-    $output = '';
-
-    foreach ($map as $group => $modules) {
-      $output .= "<tr class='modgroup'><th colspan='4'>{$group}</th></tr>";
-
-      foreach ($modules as $modname => $module) {
-        $output .= '<tr>';
-        $output .= "<td><input type='checkbox' name='selected[]' value='{$modname}' /></td>";
-        $output .= "<td><a href='/admin/?mode=modules&amp;action=info&amp;name={$modname}&amp;cgroup={$_GET['cgroup']}'>{$modname}</a></td>";
-        $output .= "<td>{$module['name']['ru']}</td>";
-
-        if (!empty($module['implementors']['iModuleConfig']))
-          $output .= "<td><a href='/admin/?mode=modules&amp;action=config&amp;name={$modname}&amp;cgroup={$_GET['cgroup']}'>настроить</a></td>";
-        else
-          $output .= "<td>&nbsp;</td>";
-
-        $output .= '</tr>';
-      }
-    }
-
-    $output = mcms::html('table', array(
-      'class' => 'modlist',
-      ), $output);
-
-    $output .= mcms::html('input', array(
-      'type' => 'submit',
-      'value' => t('Сохранить'),
-      ));
-
-    return '<h2>Список модулей</h2>'. mcms::html('form', array(
-      'method' => 'post',
-      'action' => $_SERVER['REQUEST_URI'],
-      ), $output);
+    $tmp = new ModuleAdminUI();
+    return $tmp->getList();
   }
 
   private static function onGetModuleInfo($name)
@@ -188,15 +155,18 @@ class AdminUIModule implements iAdminUI
 
     $module = $map['modules'][$name];
 
+    $classes = $module['classes'];
+    sort($classes);
+
     $output = "<h2>Информация о модуле mod_{$name}</h2>";
     $output .= '<table class=\'modinfo\'>';
     $output .= '<tr><th>Описание:</th><td>'. $module['name']['ru'] .'</td></tr>';
-    $output .= '<tr><th>Классы:</th><td>'. join(', ', $module['classes']) .'</td></tr>';
+    $output .= '<tr><th>Классы:</th><td>'. join(', ', $classes) .'</td></tr>';
 
     if (!empty($module['interfaces']))
       $output .= '<tr><th>Интерфейсы:</th><td>'. join(', ', $module['interfaces']) .'</td></tr>';
 
-    $output .= '<tr><th>Минимальная версия CMS:</th><td>'. $module['version'] .'</td></tr>';
+    $output .= '<tr><th>Версия CMS:</th><td>≥'. $module['version'] .'</td></tr>';
 
     if (!empty($module['docurl'])) {
       $tmp = bebop_split_url($module['docurl']);
@@ -209,17 +179,5 @@ class AdminUIModule implements iAdminUI
     $output .= '</table>';
 
     return $output;
-  }
-
-  private static function onGetModulesGroups()
-  {
-    $map = mcms::getModuleMap();
-
-    $groups = array();
-
-    foreach ($map['modules'] as $modname => $module)
-      $groups[$module['group']][$modname] = $module;
-
-    return $groups;
   }
 };

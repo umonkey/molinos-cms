@@ -901,6 +901,11 @@ class mcms
   {
     $root = dirname(__FILE__) .'/modules/';
 
+    if (in_array('PDO_Singleton', get_declared_classes()))
+      $enabled = mcms::db()->getResultsV("name", "SELECT `r`.`name` FROM `node__rev` `r` INNER JOIN `node` `n` ON `n`.`rid` = `r`.`rid` WHERE `n`.`class` = 'moduleinfo' AND `n`.`published` = 1 AND `n`.`deleted` = 0");
+    else
+      $enabled = array();
+
     $result = array(
       'modules' => array(),
       'classes' => array(),
@@ -914,14 +919,20 @@ class mcms
         'classes' => array(),
         'interfaces' => array(),
         'implementors' => array(),
+        'enabled' => $modok = in_array($modname, $enabled),
         );
 
       if (file_exists($modinfo = $path .'/module.info')) {
         if (is_array($ini = parse_ini_file($modinfo, true))) {
           // Копируем базовые свойства.
-          foreach (array('group', 'version', 'name', 'docurl') as $k)
-            if (array_key_exists($k, $ini))
+          foreach (array('group', 'version', 'name', 'docurl') as $k) {
+            if (array_key_exists($k, $ini)) {
               $result['modules'][$modname][$k] = $ini[$k];
+
+              if ('group' == $k and 'core' == strtolower($ini[$k]))
+                $modok = $result['modules'][$modname]['enabled'] = true;
+            }
+          }
         }
       }
 
@@ -951,15 +962,18 @@ class mcms
 
         if (null !== $classname and is_readable($classpath)) {
           // Добавляем в список только первый найденный класс.
-          if (!array_key_exists($classname, $result['classes'])) {
+          if ($modok and !array_key_exists($classname, $result['classes'])) {
             $result['classes'][$classname] = $classpath;
-            $result['modules'][$modname]['classes'][] = $classname;
           }
+
+          // $result['modules'][$modname]['classes'][] = $classname;
 
           // Строим список интерфейсов.
           if ($type !== 'interface') {
             if (preg_match('@^\s*(abstract\s+){0,1}class\s+([^\s]+)(\s+extends\s+([^\s]+))*(\s+implements\s+(.+))*@im', file_get_contents($classpath), $m)) {
               $classname = $m[2];
+
+              $result['modules'][$modname]['classes'][] = $classname;
 
               if (!empty($m[6]))
                 $interfaces = explode(',', str_replace(' ', '', $m[6]));
@@ -985,7 +999,9 @@ class mcms
                 if (!in_array($i, $result['modules'][$modname]['interfaces']))
                   $result['modules'][$modname]['interfaces'][] = $i;
                 $result['modules'][$modname]['implementors'][$i][] = $classname;
-                $result['interfaces'][$i][] = $classname;
+
+                if ($modok)
+                  $result['interfaces'][$i][] = $classname;
               }
             } else {
               bebop_debug(time(), $classname, $classpath, $m, $result);

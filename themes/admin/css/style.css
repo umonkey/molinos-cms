@@ -111,8 +111,6 @@ html>body .spacer_not_ie {
   position: relative;
 }
 
-#center h2 {font-size: 177%;}
-
 #center .star {
 	width: 15px;
 	height: 15px;
@@ -471,7 +469,6 @@ td.nowrap {
 #content_wrapper {
   padding-top: 10px;
 }
-
 
 #center h2 {
   font-weight: normal;

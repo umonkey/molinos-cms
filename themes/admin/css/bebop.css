@@ -66,8 +66,25 @@ table.modinfo {
 }
 table.modinfo th {
   text-align: right;
+  white-space: nowrap;
+}
+table.modinfo td,
+table.modinfo th {
+  vertical-align: top;
 }
 
+.modlist {
+  margin-bottom: .5em;
+}
 .modlist th {
   padding: 4px;
+}
+.modlist .configure span {
+  display: none;
+}
+.modlist .configure {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background: transparent url(/themes/admin/img/configure.png) no-repeat top left;
 }

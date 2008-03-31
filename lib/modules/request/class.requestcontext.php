@@ -57,10 +57,12 @@ class RequestContext
       break;
     }
 
-    if (null === $this->root) {
-      if (null === $this->section and is_numeric($page->defaultsection))
+    if (null === $this->root and is_numeric($page->defaultsection)) {
+      if (null === $this->section)
         $this->root = $this->section = $page->defaultsection;
     }
+
+    // bebop_debug($this, $page);
 
     // Нормализуем идентификаторы.
 

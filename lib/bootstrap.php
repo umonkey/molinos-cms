@@ -7,9 +7,9 @@ define('BEBOP_VERSION', '8.05.BUILDNUMBER');
 chdir(dirname(dirname(__FILE__)));
 
 // Некоторые файлы загружаем принудительно, т.к. без них работать не получится.
-// require(dirname(__FILE__).'/modules/cache/bebopcache.class.php');
+// require(dirname(__FILE__).'/modules/cache/class.bebopcache.php');
 require(dirname(__FILE__).'/modules/config/class.bebopconfig.php');
-// require(dirname(__FILE__).'/modules/pdo/pdo_singleton.class.php');
+require(dirname(__FILE__).'/modules/pdo/class.pdo_singleton.php');
 
 // Загружаем основные файлы.
 require(dirname(__FILE__) .'/bebop_functions.php');
