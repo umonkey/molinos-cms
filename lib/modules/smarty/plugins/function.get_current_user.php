@@ -18,7 +18,7 @@ function smarty_function_get_current_user($params, &$smarty)
     if (empty($params['extended']) or !$user->id) {
       $result = array(
         'uid' => $user->id,
-        'name' => $user->login,
+        'name' => $user->id ? $user->login : $user->name,
         'title' => $user->name,
         'groups' => $user->getGroups(),
         );
