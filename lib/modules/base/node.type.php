@@ -24,8 +24,6 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   {
     $isnew = (null === $this->id);
 
-    // mcms::user()->checkGroup('Schema Managers');
-
     if (empty($this->title))
       $this->title = $this->name;
 
@@ -38,13 +36,49 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       $this->updateTable();
 
     // Обновляем кэш.
-    self::getSchema(null, true);
+    $this->flush();
   }
 
   public function duplicate()
   {
     $this->name = preg_replace('/_[0-9]+$/', '', $this->name) .'_'. rand();
+
     parent::duplicate();
+
+    $this->flush();
+  }
+
+  public function publish($rev = null)
+  {
+    $rc = parent::publish($rev);
+    $this->flush();
+    return $rc;
+  }
+
+  public function unpublish()
+  {
+    $rc = parent::unpublish($rev);
+    $this->flush();
+    return $rc;
+  }
+
+  public function delete()
+  {
+    $rc = parent::delete();
+    $this->flush();
+    return $rc;
+  }
+
+  public function undelete()
+  {
+    $rc = parent::undelete();
+    $this->flush();
+    return $rc;
+  }
+
+  private function flush()
+  {
+    self::getSchema(null, true);
   }
 
   public function __set($k, $v)
