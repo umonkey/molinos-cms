@@ -159,6 +159,9 @@ class NodeQueryBuilder
 
     // Специальные запросы тоже обрабатываются всегда.
     $this->addSpecialQueries();
+
+    // Добавляем проверку прав.
+    $this->addPermissionCheck();
   }
 
   // Разберает контекстный поиск.
@@ -351,6 +354,13 @@ class NodeQueryBuilder
     case 'lost':
       $this->where[] = "`node`.`id` NOT IN (SELECT `nid` FROM `node__access` WHERE `r` = 1)";
       break;
+    }
+  }
+
+  private function addPermissionCheck()
+  {
+    if (!empty($this->query['#permcheck']) and !mcms::config('bypass_permcheck')) {
+      $this->where[] = "`node`.`class` IN (PERMCHECK:r)";
     }
   }
 

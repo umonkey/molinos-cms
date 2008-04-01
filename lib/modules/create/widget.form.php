@@ -179,11 +179,9 @@ class FormWidget extends Widget
     $sql = "SELECT `v`.`name`, `t`.`title` FROM `node` `n` "
       ."INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
       ."INNER JOIN `node_type` `t` ON `t`.`rid` = `n`.`rid` "
-      ."WHERE `n`.`id` IN (PERMCHECK:{$mode}) "
+      ."WHERE `v`.`name` IN (PERMCHECK:{$mode}) "
       ."AND `n`.`class` = 'type' "
       ."AND `n`.`deleted` = 0 "
-      ."AND `t`.`hidden` = 0 "
-      ."AND `t`.`internal` = 0 "
       ."AND `v`.`name` <> 'comment' "
       .(($this->showall or empty($root)) ? "" : "AND ({$all} OR {$current}) ")
       ."ORDER BY `t`.`title` "

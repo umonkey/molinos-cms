@@ -424,6 +424,8 @@ class ListWidget extends Widget
       // $query['#sort'] = array('id' => 'desc');
     }
 
+    $query['#permcheck'] = true;
+
     return $query;
   }
 

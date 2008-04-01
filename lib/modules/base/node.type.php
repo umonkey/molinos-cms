@@ -242,7 +242,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   }
 
   // Сохранение фиксированных прав.
-  public function setAccess(array $perms, $reset = true)
+  public function XsetAccess(array $perms, $reset = true)
   {
     $perms['Schema Managers'] = array('r', 'u', 'd');
     return parent::setAccess($perms, $reset);

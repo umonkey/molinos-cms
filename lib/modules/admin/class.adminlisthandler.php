@@ -242,6 +242,8 @@ class AdminListHandler
     if (null !== ($tmp = $this->ctx->get('search')))
       $filter['#search'] = $tmp;
 
+    $filter['#permcheck'] = true;
+
     return $filter;
   }
 

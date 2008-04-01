@@ -145,6 +145,8 @@ class NodeBase
   // Сохранение объекта.
   public function save($clear = false)
   {
+    $isnew = !isset($this->id);
+
     // Здесь хранятся идентификаторы создаваемых документов.
     static $mydocs = array();
 
@@ -870,7 +872,9 @@ class NodeBase
       $nid = $schema['id'];
     }
 
-    $grant = mcms::db()->getResult("SELECT 1 FROM `node` WHERE `id` = :nid AND `id` IN (PERMCHECK:{$perm}) -- NodeBase::checkPermission({$perm})", array(':nid' => $nid));
+    $grant = mcms::db()->getResult("SELECT 1 FROM `node` "
+      ."WHERE `id` = :nid AND `class` IN (PERMCHECK:{$perm}) "
+      ."-- NodeBase::checkPermission({$perm})", array(':nid' => $nid));
 
     return $grant ? true : false;
   }
@@ -959,13 +963,13 @@ class NodeBase
       $filter = " AND `n`.`class` IN ('". join("', '", $classes) ."')";
 
     $left = $pdo->getResult($sql1 = "SELECT `n`.`id` FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`nid` "
-      ."WHERE `tid` = :tid{$filter} AND `n`.`deleted` = 0 AND `n`.`published` = 1 AND `n`.`id` IN (PERMCHECK:r) "
+      ."WHERE `tid` = :tid{$filter} AND `n`.`deleted` = 0 AND `n`.`published` = 1 AND `n`.`class` IN (PERMCHECK:r) "
       ."AND `n`.`class` = :class "
       ."AND `r`.`order` < :order ORDER BY `r`.`order` DESC LIMIT 1",
       array(':tid' => $parent, ':order' => $order, ':class' => $this->class));
 
     $right = $pdo->getResult($sql2 = "SELECT `n`.`id` FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`nid` "
-      ."WHERE `tid` = :tid{$filter} AND `n`.`deleted` = 0 AND `n`.`published` = 1 AND `n`.`id` IN (PERMCHECK:r) "
+      ."WHERE `tid` = :tid{$filter} AND `n`.`deleted` = 0 AND `n`.`published` = 1 AND `n`.`class` IN (PERMCHECK:r) "
       ."AND `n`.`class` = :class "
       ."AND `r`.`order` > :order ORDER BY `r`.`order` ASC LIMIT 1",
       array(':tid' => $parent, ':order' => $order, ':class' => $this->class));

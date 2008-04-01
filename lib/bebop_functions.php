@@ -794,7 +794,9 @@ class mcms
       $rc = !empty($session['messages']) ? array_unique((array)$session['messages']) : null;
       $session['messages'] = array();
     } else {
-      $session['messages'][] = $text;
+      $msg = $session->messages;
+      $msg[] = $text;
+      $session->messages = $msg;
     }
 
     return $rc;
