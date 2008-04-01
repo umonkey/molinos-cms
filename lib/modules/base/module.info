@@ -1,0 +1,6 @@
+group = Core
+version = 8.02.4782
+classes = BaseModule
+interface[iRemoteCall] = BaseModule
+name[en] = Core Interaction
+name[ru] = Базовые вызовы

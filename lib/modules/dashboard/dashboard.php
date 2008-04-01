@@ -55,7 +55,7 @@ class BebopDashboard extends Widget implements iAdminWidget
     $cache = BebopCache::getInstance();
     $key = 'dashboard:'. $this->options['cgroup'];
 
-    if (is_array($result = $cache->$key))
+    if (false and is_array($result = $cache->$key))
       return $result;
 
     $result = array();

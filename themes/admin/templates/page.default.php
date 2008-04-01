@@ -37,8 +37,8 @@ $user = mcms::user();
         <div id="top_toolbar">
           <div class="right">
             <div class="greeting">Здравствуйте, <?=_user_name()?></div>
-            <a href="/?profile.action=edit&amp;destination=<?=urlencode($_SERVER['REQUEST_URI'])?>">Настройки</a>
-            <a id='lnk_exit' href='/admin/?profile.action=logout&amp;destination=%2F'>Выйти</a>
+            <a href="/admin/node/<?php print $user->getUid(); ?>/edit/?destination=<?=urlencode($_SERVER['REQUEST_URI'])?>">Настройки</a>
+            <a id='lnk_exit' href='/base.rpc?action=logout'>Выйти</a>
           </div>
         </div>
 
