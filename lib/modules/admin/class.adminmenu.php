@@ -40,7 +40,7 @@ class AdminMenu implements iAdminMenu
       foreach ($icons as $icon) {
         $tmp = mcms::html('a', array(
           'href' => $icon['href'],
-          'title' => $icon['description'],
+          'title' => empty($icon['description']) ? null : $icon['description'],
           ), $icon['title']);
         $output .= mcms::html('li', array(), $tmp);
       }

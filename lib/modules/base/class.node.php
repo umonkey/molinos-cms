@@ -41,9 +41,11 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
       $tab = new FieldSetControl(array(
         'name' => 'access',
         'label' => t('Доступ'),
+        'value' => 'tab_access',
+        'intro' => t('Укажите группы пользователей, которые могут создавать (C), читать (R), изменять (U) и удалять (D) документы этого типа.  Эти права используются в дополнение к правам на конкретный объект.'),
         ));
       $tab->addControl(new HiddenControl(array(
-        'value' => 'process_access',
+        'value' => 'reset_access',
         )));
       if ($user->hasGroup('Publishers'))
         $tab->addControl(new BoolControl(array(
@@ -70,7 +72,7 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
     if ($user->hasGroup('Access Managers'))
       $data['node_access'] = $this->getAccess();
 
-    $data['process_access'] = true;
+    $data['reset_access'] = 1;
     $data['node_published'] = $this->published;
 
     return $data;
@@ -90,7 +92,7 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
 
     $user = mcms::user();
 
-    if (!empty($data['process_access'])) {
+    if (!empty($data['reset_access'])) {
       if ($user->hasGroup('Access Managers'))
         $this->setAccess(empty($data['node_access']) ? array() : $data['node_access']);
       if ($user->hasGroup('Publishers')) {

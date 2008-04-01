@@ -231,6 +231,9 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     $form = parent::formGet($simple);
 
+    if (null !== ($tmp = $form->findControl('node_tags')))
+      $tmp->label = t('Документы этого типа можно помещать в разделы');
+
     if (null !== ($tab = $this->formGetFields()))
       $form->addControl($tab);
 
@@ -273,11 +276,24 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   {
     $options = array();
 
-    foreach (Node::find(array('class' => 'widget', 'classname' => array('DocWidget', 'ListWidget'))) as $w)
+    $filter = array(
+      'class' => 'widget',
+      'classname' => array('DocWidget', 'ListWidget'),
+      '#sort' => array(
+        'widget.title' => 'asc',
+        ),
+      );
+
+    foreach (Node::find($filter) as $w)
       if (substr($w->name, 0, 5) != 'Bebop')
         $options[$w->id] = $w->title;
 
-    $tab = new FieldSetControl(array('name' => 'widgets', 'label' => t('Виджеты')));
+    $tab = new FieldSetControl(array(
+      'name' => 'widgets',
+      'label' => t('Виджеты'),
+      'intro' => t('Укажите виджеты, которые будут работать с документами этого типа.'),
+      ));
+
     $tab->addControl(new SetControl(array(
       'value' => 'node_type_widgets',
       'label' => 'Обрабатываемые виджеты',

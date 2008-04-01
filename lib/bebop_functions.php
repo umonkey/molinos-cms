@@ -1093,4 +1093,9 @@ class mcms
 
     die();
   }
+
+  public static function mail($to, $text, $subject = null)
+  {
+    return MsgModule::send(null, $to, $subject, $text);
+  }
 };

@@ -1125,6 +1125,7 @@ class NodeBase
     $tab = new FieldSetControl(array(
       'name' => 'files',
       'label' => t('Файлы'),
+      'value' => 'tab_files',
       ));
 
     $tab->addControl(new FileListControl(array(
@@ -1168,7 +1169,12 @@ class NodeBase
     $tab = new FieldSetControl(array(
       'name' => 'sections',
       'label' => t('Разделы'),
+      'value' => 'tab_sections',
       ));
+    $tab->addControl(new HiddenControl(array(
+      'value' => 'reset_rel',
+      'default' => 1,
+      )));
     $tab->addControl(new SetControl(array(
       'value' => 'node_tags',
       'label' => t('Поместить документ в разделы'),
@@ -1186,6 +1192,7 @@ class NodeBase
       'node_content_id' => $this->id,
       'node_content_class' => $this->class,
       'node_content_parent_id' => $this->parent_id,
+      'reset_rel' => 1,
       );
 
     if (array_key_exists('fields', $schema) and is_array($schema['fields']))
@@ -1317,7 +1324,7 @@ class NodeBase
       }
     }
 
-    if (empty($schema['notags'])) {
+    if (!empty($data['reset_rel'])) {
       $sections = $this->getSectionsForThisType();
 
       if (count($sections) == 1)

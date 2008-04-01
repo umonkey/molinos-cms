@@ -1,0 +1,5 @@
+group = Service
+
+[name]
+en = Internal Messaging Subsystem
+ru = Система внутренних сообщений

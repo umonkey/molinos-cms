@@ -7,6 +7,7 @@ class AdminTreeHandler
   protected $type;
   protected $parent;
   protected $columns;
+  protected $selectors;
 
   public function __construct(RequestContext $ctx)
   {

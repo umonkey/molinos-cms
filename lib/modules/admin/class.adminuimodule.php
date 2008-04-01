@@ -166,7 +166,8 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     if (!empty($module['interfaces']))
       $output .= '<tr><th>Интерфейсы:</th><td>'. join(', ', $module['interfaces']) .'</td></tr>';
 
-    $output .= '<tr><th>Версия CMS:</th><td>≥'. $module['version'] .'</td></tr>';
+    if (!empty($module['version']))
+      $output .= '<tr><th>Версия CMS:</th><td>≥'. $module['version'] .'</td></tr>';
 
     if (!empty($module['docurl'])) {
       $tmp = bebop_split_url($module['docurl']);
@@ -185,6 +186,8 @@ class AdminUIModule implements iAdminUI, iRemoteCall
   {
     switch ($ctx->get('action')) {
     case 'modlist':
+      mcms::user()->checkGroup('Developers');
+
       mcms::db()->beginTransaction();
 
       // Список сохранённых конфигураций.
