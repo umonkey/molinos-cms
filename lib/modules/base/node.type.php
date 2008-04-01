@@ -244,7 +244,40 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       ? t('Добавление типа документа')
       : t('Редактирование типа "%title"', array('%name' => $this->name, '%title' => $this->title));
 
+    if (null !== ($tmp = $this->getAccessTab()))
+      $form->addControl($tmp);
+
     return $form;
+  }
+
+  private function getAccessTab()
+  {
+    $user = mcms::user();
+
+    // Добавляем вкладку с правами.
+    if ($user->hasGroup('Access Managers') and substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/') {
+      $options = array();
+
+      foreach ($this->getAccess() as $k => $v)
+        $options[$k] = $v['name'];
+
+      $tab = new FieldSetControl(array(
+        'name' => 'access',
+        'label' => t('Доступ'),
+        'value' => 'tab_access',
+        'intro' => t('Укажите группы пользователей, которые могут создавать (C), читать (R), изменять (U) и удалять (D) документы этого типа.'),
+        ));
+      $tab->addControl(new HiddenControl(array(
+        'value' => 'reset_access',
+        )));
+      $tab->addControl(new AccessControl(array(
+        'value' => 'node_access',
+        'options' => $options,
+        'label' => t('Доступ разрешён группам'),
+        )));
+
+      return $tab;
+    }
   }
 
   private function formGetFields()

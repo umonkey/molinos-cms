@@ -25,44 +25,6 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
 
   // РАБОТА С ФОРМАМИ.
 
-  // Дополняет стандартную форму редактирования объекта.
-  public function formGet($simple = true)
-  {
-    $form = parent::formGet($simple);
-    $user = mcms::user();
-
-    // Добавляем вкладку с правами.
-    if (!$simple and $user->hasGroup('Access Managers') and substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/') {
-      $options = array();
-
-      foreach ($this->getAccess() as $k => $v)
-        $options[$k] = $v['name'];
-
-      $tab = new FieldSetControl(array(
-        'name' => 'access',
-        'label' => t('Доступ'),
-        'value' => 'tab_access',
-        'intro' => t('Укажите группы пользователей, которые могут создавать (C), читать (R), изменять (U) и удалять (D) документы этого типа.  Эти права используются в дополнение к правам на конкретный объект.'),
-        ));
-      $tab->addControl(new HiddenControl(array(
-        'value' => 'reset_access',
-        )));
-      if ($user->hasGroup('Publishers'))
-        $tab->addControl(new BoolControl(array(
-          'value' => 'node_published',
-          'label' => t('Объект опубликован (виден на сайте)'),
-          )));
-      $tab->addControl(new AccessControl(array(
-        'value' => 'node_access',
-        'options' => $options,
-        'label' => t('Доступ разрешён группам'),
-        )));
-      $form->addControl($tab);
-    }
-
-    return $form;
-  }
-
   public function formGetData()
   {
     $user = mcms::user();

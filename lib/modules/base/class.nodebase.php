@@ -1157,6 +1157,13 @@ class NodeBase
   {
     $options = array();
 
+    if ('type' == $this->class) {
+      if (in_array($this->name, array('comment', 'file')))
+        return;
+      if (!empty($this->notags))
+        return;
+    }
+
     switch (count($enabled = $this->getSectionsForThisType())) {
     case 0:
       break;
