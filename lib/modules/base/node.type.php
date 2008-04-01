@@ -37,7 +37,8 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if ($isnew or (null !== $this->oldfields))
       $this->updateTable();
 
-    mcms::cache('schema', null);
+    // Обновляем кэш.
+    self::getSchema(null, true);
   }
 
   public function duplicate()
@@ -129,7 +130,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   // Возвращает актуальное описание схемы -- все классы, все поля.
   public static function getSchema($name = null, $reload = false)
   {
-    if (!is_array($result = mcms::pcache('schema')) or empty($result)) {
+    if ($reload or (!is_array($result = mcms::pcache('schema')) or empty($result))) {
       $result = array();
 
       foreach (Tagger::getInstance()->getChildrenData("SELECT `n`.`id`, `n`.`rid`, `r`.`name`, `r`.`data`, `t`.* FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` LEFT JOIN `node_type` `t` ON `t`.`rid` = `r`.`rid` WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0", false, false, false) as $type)
