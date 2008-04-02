@@ -44,10 +44,8 @@ class BebopDashboard extends Widget implements iAdminWidget
   // Обработка запросов.  Возвращает список действий, предоставляемых административными виджетами.
   public function onGet(array $options)
   {
-    $result = $this->getIcons();
-    $html = $this->getHTML($result);
-
-    return $html;
+    if (is_array($result = $this->getIcons()) and !empty($result))
+      return $this->getHTML($result);
   }
 
   private function getIcons()
