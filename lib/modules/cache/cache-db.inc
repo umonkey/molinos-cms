@@ -17,7 +17,7 @@ class DBCache implements iBebopCacheEngine
             self::$instance = $this;
 
         if (bebop_is_debugger() and !empty($_GET['flush']))
-            $this->pdo->exec("TRUNCATE `node__cache`");
+            $this->pdo->exec("DELETE FROM `node__cache`");
     }
 
     static public function getInstance()
