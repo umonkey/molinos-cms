@@ -1,5 +1,15 @@
 <?php
 // vim: expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+//
+// Входные параметры:
+//   value   = имя массива с данными.
+//   options = соответствие внутренних ключей отображаемым,
+//             например: "Content Managers" => "Менеджеры контента",
+//             ключи используются для формирования имён чекбоксов.
+//
+// Формат входного массива данных:
+//   Ключ => (c => ?, r => ?, u => ?, d => ?),
+// Ключи соответствуют ключам параметра options.
 
 class AccessControl extends Control
 {
@@ -13,7 +23,7 @@ class AccessControl extends Control
 
   public function __construct(array $form)
   {
-    parent::__construct($form, array('value'));
+    parent::__construct($form, array('value', 'options'));
   }
 
   public function getHTML(array $data)

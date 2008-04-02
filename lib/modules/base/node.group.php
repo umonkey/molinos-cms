@@ -79,11 +79,39 @@ class GroupNode extends Node implements iContentType
     if (null !== ($tab = $this->formGetUsers()))
       $form->addControl($tab);
 
+    if (null !== ($tab = $this->formGetTypes()))
+      $form->addControl($tab);
+
     $form->title = (null === $this->id)
       ? t('Добавление новой группы')
-      : t('Редактирование группы %login', array('%login' => $this->login));
+      : t('Редактирование группы %name', array('%name' => $this->name));
 
     return $form;
+  }
+
+  private function formGetTypes()
+  {
+    $options = array();
+
+    foreach (TypeNode::getSchema() as $k => $v)
+      $options[$k] = $v['title'];
+
+    asort($options);
+
+    $tab = new FieldSetControl(array(
+      'name' => 'tab_perm',
+      'label' => t('Права'),
+      'intro' => t('Ниже приведены типы документов, которые эта группа может создавать (C), читать (R), изменять (U) и удалять (D).'),
+      ));
+    $tab->addControl(new HiddenControl(array(
+      'value' => 'reset_group_perm',
+      )));
+    $tab->addControl(new AccessControl(array(
+      'value' => 'perm',
+      'options' => $options,
+      )));
+
+    return $tab;
   }
 
   private function formGetUsers()
@@ -110,6 +138,23 @@ class GroupNode extends Node implements iContentType
   {
     $data = parent::formGetData();
     $data['node_group_users'] = $this->linkListChildren('user', true);
+
+    $data['reset_group_perm'] = 1;
+
+    if (isset($this->id)) {
+      $tmp = mcms::db()->getResultsK("name", "SELECT `v`.`name`, `a`.`c`, `a`.`r`, `a`.`u`, `a`.`d` FROM "
+        ."`node` `n` INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
+        ."INNER JOIN `node__access` `a` ON `a`.`nid` = `n`.`id` "
+        ."WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0 AND `a`.`uid` = :id", array(
+          ':id' => $this->id,
+          ));
+
+      foreach ($tmp as $k => $v) {
+        unset($v['name']);
+        $data['perm'][$k] = $v;
+      }
+    }
+
     return $data;
   }
 
@@ -119,5 +164,26 @@ class GroupNode extends Node implements iContentType
 
     if (mcms::user()->hasGroup('User Managers'))
       $this->linkSetChildren(empty($data['node_group_users']) ? array() : $data['node_group_users'], 'user');
+
+    if (!empty($data['reset_group_perm']))
+      $this->formProcessPerm($data);
+  }
+
+  private function formProcessPerm(array $data)
+  {
+    mcms::db()->exec("DELETE FROM `node__access` WHERE `uid` = :id", array(':id' => $this->id));
+
+    $schema = TypeNode::getSchema();
+
+    foreach ($data['perm'] as $k => $v) {
+      mcms::db()->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`) VALUES (:nid, :uid, :c, :r, :u, :d)", array(
+        ':nid' => $schema[$k]['id'],
+        ':uid' => $this->id,
+        ':c' => in_array('c', $v) ? 1 : 0,
+        ':r' => in_array('r', $v) ? 1 : 0,
+        ':u' => in_array('u', $v) ? 1 : 0,
+        ':d' => in_array('d', $v) ? 1 : 0,
+        ));
+    }
   }
 };

@@ -985,10 +985,12 @@ class NodeBase
 
   public function formGet($simple = false)
   {
-    if (null !== $this->id and !$this->checkPermission('u'))
-      throw new ForbiddenException(t('У вас недостаточно прав для редактирования этого документа.'));
-    elseif (null === $this->id and !$this->checkPermission('c'))
+    if (null !== $this->id and !$this->checkPermission('u')) {
+      if (mcms::user()->id != $this->id)
+        throw new ForbiddenException(t('У вас недостаточно прав для редактирования этого документа.'));
+    } elseif (null === $this->id and !$this->checkPermission('c')) {
       throw new ForbiddenException(t('У вас недостаточно прав для создания такого документа.'));
+    }
 
     $tabs = array();
     $user = mcms::user();

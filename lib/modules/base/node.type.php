@@ -27,6 +27,8 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if (empty($this->title))
       $this->title = $this->name;
 
+    $this->data['published'] = 1;
+
     parent::checkUnique('name', t('Тип документа со внутренним именем %name уже есть.', array('%name' => $this->name)));
 
     // Всегда сохраняем без очистки.
