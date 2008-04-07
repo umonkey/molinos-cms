@@ -31,11 +31,6 @@ function bebop_redirect($path, $status = 301)
     exit();
 }
 
-function bebop_mail($from, $to, $subject, $body, array $attachments = null, array $headers = null)
-{
-  return BebopMimeMail::send($from, $to, $subject, $body, $attachments, $headers);
-}
-
 // Проверяет, является ли пользователь отладчиком.
 function bebop_is_debugger()
 {
@@ -853,7 +848,7 @@ class mcms
 
     $subject = 'Molinos.CMS crash report for '. $_SERVER['HTTP_HOST'];
 
-    $rc = bebop_mail('cms-bugs@molinos.ru', $recipient, $subject, $body);
+    $rc = BebopMimeMail::send('cms-bugs@molinos.ru', $recipient, $subject, $body);
   }
 
   public static function captchaGen()
