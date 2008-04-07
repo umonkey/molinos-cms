@@ -46,7 +46,7 @@ class NodeLinkControl extends Control
       ));
 
     if (!$this->readonly)
-      $output .= '<script language=\'javascript\'>$(\'#'. $this->id .'\').suggest(\'/autocomplete.rpc?source='. $this->values .'\');</script>';
+      $output .= '<script language=\'javascript\' type=\'text/javascript\'>$(function(){$(\'#'. $this->id .'\').suggest(\'/autocomplete.rpc?source='. $this->values .'\');});</script>';
 
     return $this->wrapHTML($output);
   }
