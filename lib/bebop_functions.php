@@ -911,6 +911,9 @@ class mcms
     $result = null;
     $filename = 'tmp/.modmap.php';
 
+    if (file_exists($filename) and (filemtime($filename) < filemtime('lib/modules')))
+      unlink($filename);
+
     if (!bebop_is_debugger() or empty($_GET['reload'])) {
       if (file_exists($filename) and is_readable($filename) and filesize($filename)) {
         if (is_array($result = unserialize(file_get_contents($filename))))
