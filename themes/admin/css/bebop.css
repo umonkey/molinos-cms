@@ -93,3 +93,11 @@ table.modinfo th {
 .modlist .information {
   background: transparent url(/themes/admin/img/information.png) no-repeat top left;
 }
+
+form.tabbed fieldset {
+  border: 0;
+  padding: 0;
+}
+form.tabbed fieldset legend {
+  display: none;
+}

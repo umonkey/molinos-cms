@@ -39,7 +39,8 @@ function render_reboot_link()
     <script type="text/javascript" language="javascript" src="/themes/all/jquery/plugins/jquery.jcarousel.js" ></script>
     <script type="text/javascript" language="javascript" src="/themes/all/jquery/plugins/jquery.ifixpng.js" ></script>
     <script type="text/javascript" language="javascript" src="/themes/all/jquery/plugins/jquery.formtabber.js"></script>
-    <script type="text/javascript" language="javascript" src="/themes/all/jquery/plugins/jquery.autogrow.js" ></script>
+    <script type="text/javascript" language="javascript" src="/themes/all/jquery/plugins/jquery.dimensions.js" ></script>
+    <script type="text/javascript" language="javascript" src="/themes/all/jquery/plugins/jquery.bgiframe.js" ></script>
     <script type="text/javascript" language="javascript" src="/themes/all/jquery/plugins/jquery.suggest.js" ></script>
     <script type="text/javascript" language="javascript" src="/themes/admin/js/bebop.js" ></script>
   </head>

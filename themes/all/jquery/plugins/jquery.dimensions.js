@@ -2,8 +2,8 @@
  * Dual licensed under the MIT (http://www.opensource.org/licenses/mit-license.php)
  * and GPL (http://www.opensource.org/licenses/gpl-license.php) licenses.
  *
- * $LastChangedDate: 2007-10-06 18:11:15 +0000 (Sat, 06 Oct 2007) $
- * $Rev: 3581 $
+ * $LastChangedDate$
+ * $Rev$
  *
  * Version: @VERSION
  *
@@ -26,7 +26,7 @@ $.each( [ 'Height', 'Width' ], function(i, name){
 		var torl = name == 'Height' ? 'Top'    : 'Left',  // top or left
 		    borr = name == 'Height' ? 'Bottom' : 'Right'; // bottom or right
 		
-		return num( this, name.toLowerCase() ) + num(this, 'padding' + torl) + num(this, 'padding' + borr);
+		return this.css('display') != 'none' ? this[0]['client' + name] : num( this, name.toLowerCase() ) + num(this, 'padding' + torl) + num(this, 'padding' + borr);
 	};
 	
 	// outerHeight and outerWidth
@@ -38,10 +38,13 @@ $.each( [ 'Height', 'Width' ], function(i, name){
 		
 		options = $.extend({ margin: false }, options || {});
 		
-		return num( this, name.toLowerCase() )
-				+ num(this, 'border' + torl + 'Width') + num(this, 'border' + borr + 'Width')
-				+ num(this, 'padding' + torl) + num(this, 'padding' + borr)
-				+ (options.margin ? (num(this, 'margin' + torl) + num(this, 'margin' + borr)) : 0);
+		var val = this.css('display') != 'none' ? 
+				this[0]['offset' + name] : 
+				num( this, name.toLowerCase() )
+					+ num(this, 'border' + torl + 'Width') + num(this, 'border' + borr + 'Width')
+					+ num(this, 'padding' + torl) + num(this, 'padding' + borr);
+		
+		return val + (options.margin ? (num(this, 'margin' + torl) + num(this, 'margin' + borr)) : 0);
 	};
 });
 
@@ -110,7 +113,7 @@ $.fn.extend({
 });
 
 function num(el, prop) {
-	return parseInt($.css(el.jquery?el[0]:el,prop))||0;
+	return parseInt($.curCSS(el.jquery?el[0]:el,prop,true))||0;
 };
 
 })(jQuery);

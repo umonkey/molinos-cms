@@ -35,11 +35,6 @@ $(document).ready(function () {
 		});
 	}
 	
-	// Включение авторастягивания textarea
-	if ($('form textarea.resizable').length != 0) {
-	  	$('form textarea.resizable').autogrow();
-	}
-	
 	var win = window.opener ? window.opener : window.dialogArguments, c;
   	if (win) { tinyMCE = win.tinyMCE; }
 		
