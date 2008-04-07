@@ -3,8 +3,9 @@
   <head>
     <title><?=$title?></title>
 
-    <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/style.css" />
     <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/bebop.css" />
+    <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/colors-green.css" />
 
     <script src="<?=$prefix?>/../all/jquery/jquery.js" type="text/javascript" language="javascript"></script>
     <script src="<?=$prefix?>/../all/jquery/plugins/jquery.formtabber.js" type="text/javascript" language="javascript"></script>
