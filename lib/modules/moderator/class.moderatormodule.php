@@ -120,8 +120,8 @@ class ModeratorModule implements iModuleConfig, iNodeHook
       '%type' => isset($schema['title']) ? $schema['title'] : $node->class,
       )) .'</p>'. self::getNodeBody($node);
 
-    $rc = bebop_mail(
-      empty($config['from']) ? null : $config['from'],
+    $rc = mcms::mail(
+      null,
       $to = self::getRecipients(),
       t('Редакторская активность на сайте %site', array('%site' => mcms::config('basedomain'))),
       $body

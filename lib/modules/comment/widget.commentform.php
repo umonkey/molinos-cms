@@ -271,7 +271,7 @@ class CommentFormWidget extends Widget
         $emails = array();
 
         foreach (Node::find(array('class' => 'user', 'id' => $uids)) as $user)
-          bebop_mail(null, $user->email, t('Новый комментарий на %site', array('%site' => $_SERVER['HTTP_HOST'])), $message, null, $headers);
+          mcms::mail(null, $user, t('Новый комментарий на %site', array('%site' => $_SERVER['HTTP_HOST'])), $message, null, $headers);
       }
     }
   }
