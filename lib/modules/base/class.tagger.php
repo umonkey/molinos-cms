@@ -339,6 +339,9 @@ class Tagger
         elseif ($ctt == 'NumberControl')
           $value = (empty($node[$field]) and empty($meta['required'])) ? null : $node[$field];
 
+        elseif ($ctt == 'DateTimeControl')
+          $value = (empty($node[$field]) and empty($meta['required'])) ? null : $node[$field];
+
         elseif (!empty($node[$field]))
           $value = $node[$field];
 

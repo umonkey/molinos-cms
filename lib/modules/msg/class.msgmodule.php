@@ -19,6 +19,7 @@ class MsgModule
       're' => $to,
       'name' => $subject,
       'text' => $text,
+      'received' => null,
       ));
 
     $msg->save();
