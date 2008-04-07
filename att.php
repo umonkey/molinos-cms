@@ -15,10 +15,14 @@ class StaticAttachment
   var $nh;
   var $options = array();
   var $node = null;
+  var $realname = null;
 
   public function __construct($get)
   {
-    $args = explode(',', $get['q']);
+    if (count($path = explode('/', $get['q'])) > 1)
+      $this->realname = $path[1];
+
+    $args = explode(',', $path[0]);
 
     if (null === ($storage = BebopConfig::getInstance()->filestorage))
       $storage = 'storage';
@@ -78,6 +82,7 @@ class StaticAttachment
     $codes = array(
       '200' => 'OK',
       '400' => 'Bad Request',
+      '403' => 'Access Denied',
       '404' => 'Not Found',
       '415' => 'Bad Media Type',
       '500' => 'Internal Server Error',
@@ -165,10 +170,13 @@ class StaticAttachment
   {
     $headers = array();
 
+    if (null === $this->realname or $this->realname != $this->node['filename'])
+      bebop_redirect("/attachment/{$this->node['id']}/". urlencode($this->node['filename']));
+
     // Ещё раз загрузим файл для проверки прав.
     $node = Node::load(array('class' => 'file', 'id' => $this->node['id']));
     if (!$node->checkPermission('r'))
-      $this->sendError(40, 'access denied');
+      $this->sendError(403, 'access denied');
 
     // Описание фрагмента при докачке.
     $range_from = 0;
