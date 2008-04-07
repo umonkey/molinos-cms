@@ -86,7 +86,7 @@ function render_reboot_link()
     <div id="footer">
       <img src="/themes/admin/img/siteimage/logo_molinos_btm_ico.gif" alt="Molinos.Ru" align="middle" />
       <img src="/themes/admin/img/siteimage/logo_molinos_btm.gif" alt="Molinos.Ru" align="middle" />
-      <span>Версия <?php print BEBOP_VERSION ?></span>
+      <span>Версия <?php print mcms::version(); ?></span>
     </div>
     <?php endif; ?>
   </body>

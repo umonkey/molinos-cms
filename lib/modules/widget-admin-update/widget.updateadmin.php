@@ -53,7 +53,7 @@ class UpdateAdminWidget extends Widget
   protected function onGetSuccess(array $options)
   {
     $output = "<h2>". t("Обновление прошло успешно") ."</h2>";
-    $output .= "<p>". t("Текущая версия CMS: %version.", array('%version' => BEBOP_VERSION)) ."</p>";
+    $output .= "<p>". t("Текущая версия CMS: %version.", array('%version' => mcms::version())) ."</p>";
     $output .= "<p>". t("<a href='@nextlink'>Продолжить работу</a>", array('@nextlink' => '/admin/')) ."</p>";
 
     return array('html' => $output);

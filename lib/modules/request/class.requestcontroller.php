@@ -23,7 +23,7 @@ class RequestController
 
     self::checkServerSettings();
 
-    set_error_handler('RequestController::errorHandler', substr(BEBOP_VERSION, 0, 6) == 'trunk.' ? E_ALL : E_ERROR|E_WARNING|E_PARSE);
+    set_error_handler('RequestController::errorHandler', E_ERROR|E_WARNING|E_PARSE);
 
     $this->run();
   }

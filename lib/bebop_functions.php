@@ -444,7 +444,7 @@ function mcms_fetch_file($url, $content = true, $cache = true)
     curl_setopt($ch, CURLOPT_FILE, $fp);
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Molinos.CMS/' . BEBOP_VERSION . '; http://' . mcms::config('basedomain') . '/');
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Molinos.CMS/' . mcms::version() . '; http://' . mcms::config('basedomain') . '/');
 
     if (!ini_get('safe_mode'))
       curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
@@ -847,8 +847,8 @@ class mcms
       $body .= t('<p>The user responsible for this action could not be identified.</p>');
 
     $body .= t('<p>The server runs Molinos.CMS version %version (<a href="%buglist">see the bug list</a>).</p>', array(
-      '%version' => BEBOP_VERSION,
-      '%buglist' => preg_replace('/^(\d+\.\d+)\..*$/', 'http://code.google.com/p/molinos-cms/issues/list?q=label:Milestone-R\1', BEBOP_VERSION),
+      '%version' => mcms::version(),
+      '%buglist' => preg_replace('/^(\d+\.\d+)\..*$/', 'http://code.google.com/p/molinos-cms/issues/list?q=label:Milestone-R\1', mcms::version()),
       ));
 
     $subject = 'Molinos.CMS crash report for '. $_SERVER['HTTP_HOST'];
@@ -1142,5 +1142,19 @@ class mcms
   public static function mail($to, $text, $subject = null)
   {
     return MsgModule::send(null, $to, $subject, $text);
+  }
+
+  public static function version()
+  {
+    static $version = null;
+
+    if (null === $version) {
+      if (is_readable($fname = 'lib/version.info'))
+        $version = file_get_contents($fname);
+      else
+        $version = 'trunk';
+    }
+
+    return $version;
   }
 };

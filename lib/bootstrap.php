@@ -1,8 +1,6 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2
 
-define('BEBOP_VERSION', '8.05.BUILDNUMBER');
-
 // Выходим на корневой каталог админки.
 chdir(dirname(dirname(__FILE__)));
 

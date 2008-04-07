@@ -7,7 +7,7 @@ class UpdateManager implements iScheduler
 
   public function __construct()
   {
-    $this->rel = str_replace(strrchr(BEBOP_VERSION, '.'), '', BEBOP_VERSION);
+    $this->rel = str_replace(strrchr(mcms::version(), '.'), '', mcms::version());
   }
 
   // Возвращает ссылку на файл с информацией о последнем билде конкретного релиза.
@@ -21,8 +21,8 @@ class UpdateManager implements iScheduler
   {
     $result = array(
       'release' => $this->rel,
-      'current_build' => substr(strrchr(BEBOP_VERSION, '.'), 1),
-      'latest_build' => substr(strrchr(BEBOP_VERSION, '.'), 1),
+      'current_build' => substr(strrchr(mcms::version(), '.'), 1),
+      'latest_build' => substr(strrchr(mcms::version(), '.'), 1),
       'download_url' => null,
       );
 
@@ -43,7 +43,7 @@ class UpdateManager implements iScheduler
     }
   }
 
-  // Возвращает последнюю доступную версию.  Имеет тот же формат, что и BEBOP_VERSION,
+  // Возвращает последнюю доступную версию.  Имеет тот же формат, что и mcms::version(),
   // то есть проверить, последняя ли у нас версия, можно сравнив результат с этой константой.
   public function getVersionInfo($force = false)
   {

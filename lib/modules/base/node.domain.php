@@ -117,7 +117,7 @@ class DomainNode extends Node implements iContentType
   // Возвращает идентификатор версии.
   private function getVersionId()
   {
-    $vid = (BEBOP_VERSION == 'BUILDNUMBER') ? t('из SVN') : BEBOP_VERSION;
+    $vid = mcms::version();
     $vid .= ' ['. ini_get('memory_limit');
 
     // Формируем номер версии.
