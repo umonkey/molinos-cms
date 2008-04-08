@@ -85,7 +85,7 @@ function bebop_debug()
     print join(";\n\n", $output) .";\n\n";
 
     if (!empty($_SERVER['REMOTE_ADDR'])) {
-      print "--- backtrace ---\n";
+      printf("--- backtrace (time: %s) ---\n", microtime());
       debug_print_backtrace();
     }
 
@@ -947,6 +947,7 @@ class mcms
       } catch (PDOException $e) {
         if ('42S02' != $e->getCode())
           throw $e;
+        $enabled = array();
       }
     } else {
       $enabled = array();
