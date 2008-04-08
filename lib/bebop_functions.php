@@ -76,7 +76,8 @@ function bebop_debug()
 
     bebop_on_json(array('args' => $output));
 
-    ob_end_clean();
+    if (ob_get_length())
+      ob_end_clean();
 
     if (!empty($_SERVER['REQUEST_METHOD']))
       header("Content-Type: text/plain; charset=utf-8");

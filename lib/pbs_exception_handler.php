@@ -24,6 +24,9 @@ function SendBlueScreen($content, $e)
 }
 
 function PrettyBlueScreen($e) {
+    if (ob_get_length())
+        ob_end_clean();
+
   ob_start();
 
   $o = create_function('$in','echo htmlspecialchars($in);');
