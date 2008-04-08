@@ -17,15 +17,24 @@ class User
         ));
       $this->groups[] = Node::load(array('class' => 'group', 'login' => 'Visitors'));
     } else {
-      if (is_string($tmp = mcms::cache($key = 'userprofile:'. $uid)))
-        $this->node = unserialize($tmp);
-      else
-        mcms::cache($key, serialize($this->node = Node::load(array('class' => 'user', 'id' => $uid))));
+      try {
+        if (is_string($tmp = mcms::cache($key = 'userprofile:'. $uid)))
+          $this->node = unserialize($tmp);
+        else
+          mcms::cache($key, serialize($this->node = Node::load(array('class' => 'user', 'id' => $uid))));
 
-      if (is_string($tmp = mcms::cache($key = 'usergroups:'. $uid)) and is_array($tmp = unserialize($tmp) and !empty($tmp)))
-        $this->groups = $tmp;
-      else {
-        mcms::cache($key, serialize($this->groups = Node::find(array('class' => 'group', 'published' => 1, 'tagged' => array($uid)))));
+        if (is_string($tmp = mcms::cache($key = 'usergroups:'. $uid)) and is_array($tmp = unserialize($tmp) and !empty($tmp)))
+          $this->groups = $tmp;
+        else {
+          mcms::cache($key, serialize($this->groups = Node::find(array('class' => 'group', 'published' => 1, 'tagged' => array($uid)))));
+        }
+      }
+
+      // Пользователь удалён.
+      catch (ObjectNotFoundException $e) {
+        $this->node = Node::create('user', array(
+          'name' => 'anonymous',
+          ));
       }
     }
   }
