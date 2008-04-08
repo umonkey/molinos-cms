@@ -144,7 +144,6 @@ class AdminListHandler
         $this->types = array('user');
         $this->title = t('Список пользователей');
         $this->columns = array('name', 'login', 'email', 'created');
-        $this->actions = array('delete', 'clone');
         $this->sort = array('name');
         break;
       case 'files':
