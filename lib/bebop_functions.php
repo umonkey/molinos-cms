@@ -432,7 +432,7 @@ function bebop_render_object($type, $name, $theme = null, $data)
 
       ob_start();
 
-      if (substr($__filename, -4) == '.tpl') {
+      if (substr($__filename, -4) == '.tpl' and class_exists('BebopSmarty')) {
         $__smarty = new BebopSmarty($type == 'page');
         $__smarty->template_dir = ($__dir = dirname($__fullpath));
 
@@ -452,6 +452,9 @@ function bebop_render_object($type, $name, $theme = null, $data)
 
         error_reporting($old);
       }
+
+      elseif (substr($__filename, -4) == '.tpl')
+        continue;
 
       elseif (substr($__filename, -4) == '.php') {
         extract($data, EXTR_SKIP);

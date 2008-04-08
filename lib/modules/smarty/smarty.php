@@ -17,8 +17,15 @@ class BebopSmarty extends Smarty
           $this->plugins_dir = $plugins;
         }
 
-        $this->compile_dir = mcms::config('smarty_compile_dir');
-        $this->cache_dir = mcms::config('smarty_cache_dir');
+        $tmpdir = mcms::config('tmpdir');
+
+        if (!is_dir($this->compile_dir = $tmpdir .'/smarty_compile_dir'))
+            if (!mkdir($this->compile_dir))
+                throw new Exception(t('Не удалось создать временный каталог для компиляции шаблонов Smarty.'));
+
+        if (!is_dir($this->cache_dir = $tmpdir .'/smarty_cache_dir'))
+            if (!mkdir($this->cache_dir))
+                throw new Exception(t('Не удалось создать временный каталог для кэширования шаблонов Smarty.'));
 
         $this->caching = false;
 
