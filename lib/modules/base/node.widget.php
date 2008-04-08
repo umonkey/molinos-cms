@@ -9,11 +9,6 @@ class WidgetNode extends Node implements iContentType
     if ($isnew = (null === $this->id))
       $this->data['published'] = true;
 
-    if (empty($this->description)) {
-      $info = Widget::getInfo($this->classname);
-      $this->description = $info['description'];
-    }
-
     if ($this->parent_id !== null)
       throw new InvalidArgumentException("Виджет не может быть дочерним объектом.");
 
