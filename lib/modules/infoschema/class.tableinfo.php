@@ -117,11 +117,13 @@ class TableInfo implements iModuleConfig
     // Форматирует код для изменения структуры таблицы.
     protected function addSql($name, array $spec, $modify)
     {
+        $sql = '';
+
         if (!$this->isnew) {
             if ($modify)
-                $sql = "MODIFY COLUMN ";
+                $sql .= "MODIFY COLUMN ";
             else
-                $sql = "ADD COLUMN ";
+                $sql .= "ADD COLUMN ";
         }
 
         $sql .= "`{$name}` ";
@@ -171,7 +173,7 @@ class TableInfo implements iModuleConfig
         if ($this->isnew) {
             $sql .= ') CHARSET=utf8';
 
-            if (!is_array($conf = mcms::modconf('infoschema')))
+            // if (!is_array($conf = mcms::modconf('infoschema')))
                 $conf = array(
                     'engine' => 'InnoDB',
                     );
