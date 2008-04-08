@@ -24,6 +24,7 @@ class RequestController
     self::checkServerSettings();
 
     set_error_handler('RequestController::errorHandler', E_ERROR|E_WARNING|E_PARSE);
+    register_shutdown_function('RequestController::onShutdown');
 
     $this->run();
   }
@@ -70,6 +71,9 @@ class RequestController
         break;
       }
     } catch (Exception $e) {
+      if (ob_get_length())
+        ob_end_clean();
+
       if ($e instanceof UserErrorException)
         $message = $e->getDescription();
       else
@@ -797,6 +801,37 @@ class RequestController
       header('Content-Type: text/plain; charset=utf-8');
       header('Content-Length: '. strlen($output));
       die($output);
+    }
+  }
+
+  public static function onShutdown()
+  {
+    mcms::db()->rollback();
+
+    if (null !== ($e = error_get_last()) and ($e['type'] & (E_ERROR|E_RECOVERABLE_ERROR))) {
+      if (null !== ($re = mcms::config('backtracerecipient'))) {
+        $message = t('<p>На сайте <a href=\'@url\'>%host</a> возникла <em>фатальная</em> ошибка #%code в строке %line файла <code>%file</code>.  Текст ошибки: %text.</p><p>Стэк вызова, к сожалению, недоступен.</p><p>Molinos.CMS v%version</p>', array(
+          '%host' => $_SERVER['HTTP_HOST'],
+          '@url' => "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}",
+          '%code' => $e['type'],
+          '%line' => $e['line'],
+          '%file' => $e['file'],
+          '%text' => $e['message'],
+          '%version' => mcms::version(),
+          ));
+
+        $subject = t('Фатальная ошибка на %host', array('%host' => $_SERVER['HTTP_HOST']));
+
+        BebopMimeMail::send(null, $re, $subject, $message);
+
+        if (ob_get_length())
+          ob_end_clean();
+
+        header('HTTP/1.1 500 Internal Server Error');
+        header('Content-Type: text/plain; charset=utf-8');
+
+        die("Случилось что-то страшное.  Администрация сервера поставлена в известность, скоро всё должно снова заработать.");
+      }
     }
   }
 }

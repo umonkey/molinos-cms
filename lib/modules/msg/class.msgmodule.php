@@ -5,23 +5,28 @@ class MsgModule
 {
   public static function send($from, $to, $subject, $text)
   {
-    if (null === $from)
-      $from = mcms::user()->id;
-    elseif ($from instanceof Node)
-      $from = $from->id;
-    elseif (!is_numeric($from))
-      throw new InvalidArgumentException(t('Получатель сообщения должен быть объектом или числовым идентификатором.'));
-
     $schema = TypeNode::getSchema('message');
 
     $msg = Node::create('message', array(
-      'uid' => $from,
-      're' => $to,
+      'uid' => self::getUid($from),
+      're' => self::getUid($to),
       'name' => $subject,
       'text' => $text,
       'received' => null,
       ));
 
     $msg->save();
+  }
+
+  private static function getUid($re)
+  {
+    if (null === $re)
+      return mcms::user()->id;
+    elseif ($re instanceof Node)
+      return $re->id;
+    elseif (is_numeric($re))
+      return intval($re);
+
+    throw new InvalidArgumentException(t('Получатель сообщения должен быть указан числом или объектом Node.'));
   }
 }

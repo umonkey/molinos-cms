@@ -1138,9 +1138,9 @@ class mcms
     die();
   }
 
-  public static function mail($to, $text, $subject = null)
+  public static function mail($from = null, $to, $text, $subject = null)
   {
-    return MsgModule::send(null, $to, $subject, $text);
+    return MsgModule::send($from, $to, $subject, $text);
   }
 
   public static function version()

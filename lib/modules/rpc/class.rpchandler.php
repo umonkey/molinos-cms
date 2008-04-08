@@ -24,7 +24,15 @@ class RPCHandler implements iRequestHook
             } catch (UserErrorException $e) {
               header("HTTP/1.1 {$e->getCode()} Error");
               header('Content-Type: text/plain; charset=utf-8');
-              die($e->getMessage());
+
+              printf("%s: %s\n", $e->getMessage(), $e->getNote());
+
+              if (bebop_is_debugger()) {
+                print "\n--- стэк вызова (виден только разработчикам) ---\n";
+                print $e->getTraceAsString();
+              }
+
+              die();
             }
 
             header('HTTP/1.1 200 OK');

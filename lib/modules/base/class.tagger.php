@@ -333,14 +333,17 @@ class Tagger
         elseif ($ctt == 'FloatControl')
           $value = floatval($node[$field]);
 
+        elseif (empty($meta['required']) and empty($node[$field]))
+          $value = null;
+
         elseif ($ctt == 'NodeLinkControl')
-          $value = (empty($node[$field]) and empty($meta['required'])) ? null : intval($node[$field]);
+          $value = empty($node[$field]) ? 0 : intval($node[$field]);
 
         elseif ($ctt == 'NumberControl')
-          $value = (empty($node[$field]) and empty($meta['required'])) ? null : $node[$field];
+          $value = empty($node[$field]) ? 0 : $node[$field];
 
         elseif ($ctt == 'DateTimeControl')
-          $value = (empty($node[$field]) and empty($meta['required'])) ? null : $node[$field];
+          $value = empty($node[$field])  ? null : $node[$field];
 
         elseif (!empty($node[$field]))
           $value = $node[$field];

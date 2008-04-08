@@ -150,15 +150,6 @@ class NodeBase
     // Здесь хранятся идентификаторы создаваемых документов.
     static $mydocs = array();
 
-    /*
-    if ($isnew = (null === $this->id)) {
-      if (!$this->checkPermission('c'))
-        throw new ForbiddenException(t('Вы не можете создавать документы такого типа.'));
-    } elseif (!in_array($this->id, $mydocs) and !$this->checkPermission('u')) {
-      throw new ForbiddenException(t('Вы не можете изменять этот документ.'));
-    }
-    */
-
     $tg = Tagger::getInstance();
 
     if (array_key_exists('files', $this->data))

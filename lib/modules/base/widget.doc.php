@@ -89,10 +89,10 @@ class DocWidget extends Widget
         throw new PageNotFoundException();
 
       if (!$node->published)
-        throw new ForbiddenException();
+        throw new ForbiddenException(t('Документ не опубликован.'));
 
       if (!$node->checkPermission('r'))
-        throw new ForbiddenException();
+        throw new ForbiddenException(t('У вас нет доступа к этому документу.'));
 
       $result['document'] = $node->getRaw();
 
