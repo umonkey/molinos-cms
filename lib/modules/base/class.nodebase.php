@@ -1174,7 +1174,10 @@ class NodeBase
     case 0:
       break;
     case 1:
-      return null;
+      return new HiddenControl(array(
+        'value' => 'reset_rel',
+        'default' => 1,
+        ));
     default:
       $options['enabled'] = $enabled;
     }
