@@ -169,26 +169,38 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if ($reload or (!is_array($result = mcms::pcache('schema')) or empty($result))) {
       $result = array();
 
-      foreach (Tagger::getInstance()->getChildrenData("SELECT `n`.`id`, `n`.`rid`, `r`.`name`, `r`.`data`, `t`.* FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` LEFT JOIN `node_type` `t` ON `t`.`rid` = `r`.`rid` WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0", false, false, false) as $type)
-        $result[$type['name']] = $type;
-
-      mcms::pcache('schema', $result);
+      try {
+        foreach (Tagger::getInstance()->getChildrenData("SELECT `n`.`id`, `n`.`rid`, `r`.`name`, `r`.`data`, `t`.* FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` LEFT JOIN `node_type` `t` ON `t`.`rid` = `r`.`rid` WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0", false, false, false) as $type)
+          $result[$type['name']] = $type;
+          mcms::pcache('schema', $result);
+      } catch (PDOException $e) {
+        bebop_debug($e);
+        // Надо ловить отсутствие таблицы — это случается при инсталляции.
+      }
     }
 
     if ($name !== null) {
       if (!empty($result[$name])) {
-        $result = $result[$name];
+        return $result[$name];
       } else {
         $def = Node::create($name)->getDefaultSchema();
 
         try {
           $tmp = Node::create('type', $def);
           $tmp->name = $name;
-          $tmp->save();
+
+          // FIXME: временно отключил сохранение, т.к. при пустой базе (в момент инсталляции)
+          // возникает мёртвый цикл: при сохранении запрашиваем схему, при формировании схемы
+          // сохраняем объект.  Это — отключение — нормально, только надо убедиться, чтобы
+          // никто нигде не использовал id после получения схемы.
+
+          // $tmp->save();
 
           $result[$name] = $def;
 
           mcms::pcache('schema', $result);
+
+          return $resut[$name];
         } catch (ValidationException $e) {
         }
       }
