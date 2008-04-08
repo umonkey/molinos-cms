@@ -190,6 +190,7 @@ class NodeBase
 
   private function purgeRevisions()
   {
+    /* FIXME: переписать modconf() на прямой доступ, иначе не работает запись в пустую базу.
     if (0 !== ($limit = intval(mcms::modconf('node', 'archive_limit')))) {
       $victim = mcms::db()->getResult("SELECT `rid` FROM `node__rev` WHERE `rid` < :current ORDER BY `rid` DESC LIMIT {$limit}, 1", array(
         ':current' => $this->rid,
@@ -199,6 +200,7 @@ class NodeBase
         ':rid' => $victim,
         ));
     }
+    */
   }
 
   public function __set($key, $val)
