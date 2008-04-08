@@ -360,24 +360,26 @@ function bebop_render_object($type, $name, $theme = null, $data)
       ob_start();
 
       if (substr($__filename, -4) == '.tpl') {
-        $__smarty = new BebopSmarty($type == 'page');
-        $__smarty->template_dir = ($__dir = dirname($__fullpath));
+        if (class_exists('BebopSmarty')) {
+          $__smarty = new BebopSmarty($type == 'page');
+          $__smarty->template_dir = ($__dir = dirname($__fullpath));
 
-        if (is_dir($__dir .'/plugins')) {
-          $__plugins = $__smarty->plugins_dir;
-          $__plugins[] = $__dir .'/plugins';
-          $__smarty->plugins_dir = $__plugins;
+          if (is_dir($__dir .'/plugins')) {
+            $__plugins = $__smarty->plugins_dir;
+            $__plugins[] = $__dir .'/plugins';
+            $__smarty->plugins_dir = $__plugins;
+          }
+
+          foreach ($data as $k => $v)
+            $__smarty->assign($k, $v);
+
+          error_reporting(($old = error_reporting()) & ~E_NOTICE);
+
+          $compile_id = md5($__fullpath);
+          $__smarty->display($__fullpath, $compile_id, $compile_id);
+
+          error_reporting($old);
         }
-
-        foreach ($data as $k => $v)
-          $__smarty->assign($k, $v);
-
-        error_reporting(($old = error_reporting()) & ~E_NOTICE);
-
-        $compile_id = md5($__fullpath);
-        $__smarty->display($__fullpath, $compile_id, $compile_id);
-
-        error_reporting($old);
       }
 
       elseif (substr($__filename, -4) == '.php') {
@@ -1138,7 +1140,7 @@ class mcms
     die();
   }
 
-  public static function mail($from = null, $to, $text, $subject = null)
+  public static function mail($from = null, $to, $subject, $text)
   {
     return MsgModule::send($from, $to, $subject, $text);
   }
