@@ -294,13 +294,10 @@ class Tagger
           ));
     }
 
-    public function nodeSave(&$node, $rev = null)
+    public function nodeSave(array &$node, $rev = null)
     {
       if (empty($node['lang']))
         throw new InvalidArgumentException("Trying to save a node ({$node['id']}) which does not have a language id; data: ". var_export($node, true));
-
-      if (!is_array($node))
-        throw new InvalidArgumentException("Tagger::nodeSave() was passed not an array: ". var_export($node, true));
 
       if (empty($node['class']) and !empty($node['id']))
           $node['class'] = $this->getObjectClass($node['id']);
@@ -321,40 +318,40 @@ class Tagger
       $revdata = array();
 
       $extra = array('fields' => array('rid'), 'params' => array('rid' => null));
+
       $schema = TypeNode::getSchema($node['class']);
 
       // Добавляем отсутствующие поля, описанные в схеме.
-      foreach ($schema['fields'] as $field => $meta) {
-        $ctt = mcms_ctlname($meta['type']);
+      if (!empty($schema['fields'])) {
+        foreach ($schema['fields'] as $field => $meta) {
+          $ctt = mcms_ctlname($meta['type']);
 
-        if ($ctt == 'BoolControl')
-          $value = empty($node[$field]) ? 0 : 1;
+          if ($ctt == 'BoolControl')
+            $value = empty($node[$field]) ? 0 : 1;
 
-        elseif ($ctt == 'FloatControl')
-          $value = floatval($node[$field]);
+          elseif ($ctt == 'FloatControl')
+            $value = floatval($node[$field]);
 
-        elseif (empty($meta['required']) and empty($node[$field]))
-          $value = null;
+          elseif ($ctt == 'NodeLinkControl')
+            $value = (empty($node[$field]) and empty($meta['required'])) ? null : intval($node[$field]);
 
-        elseif ($ctt == 'NodeLinkControl')
-          $value = empty($node[$field]) ? 0 : intval($node[$field]);
+          elseif ($ctt == 'NumberControl')
+            $value = (empty($node[$field]) and empty($meta['required'])) ? null : $node[$field];
 
-        elseif ($ctt == 'NumberControl')
-          $value = empty($node[$field]) ? 0 : $node[$field];
+          elseif ($ctt == 'DateTimeControl')
+            $value = (empty($node[$field]) and empty($meta['required'])) ? null : $node[$field];
 
-        elseif ($ctt == 'DateTimeControl')
-          $value = empty($node[$field])  ? null : $node[$field];
+          elseif (!empty($node[$field]))
+            $value = $node[$field];
 
-        elseif (!empty($node[$field]))
-          $value = $node[$field];
+          elseif (array_key_exists('default', $meta))
+            $value = $meta['default'];
 
-        elseif (array_key_exists('default', $meta))
-          $value = $meta['default'];
+          else
+            $value = null;
 
-        else
-          $value = null;
-
-        $node[$field] = $value;
+          $node[$field] = $value;
+        }
       }
 
       // Раскладываем поля объекта по полочкам.
@@ -374,8 +371,6 @@ class Tagger
 
       // Сохраняем ключевую часть ревизии.
       try {
-        if (!array_key_exists('uid', $node))
-          $node['uid'] = mcms::user()->id;
         if (empty($node['uid']))
           $node['uid'] = null;
 
