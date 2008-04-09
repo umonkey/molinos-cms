@@ -261,14 +261,16 @@ class NodeBase
     if ($this->published and $this->rid == $rev)
       return;
 
-    // Публикуем документ.
-    mcms::db()->exec("UPDATE `node` SET `published` = 1, `rid` = :rid WHERE `id` = :id", array(':rid' => $rev ? $rev : $this->rid, ':id' => $this->id));
     $this->data['published'] = true;
 
-    // Даём другим модулям возможность обработать событие (например, mod_moderator).
-    mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'publish'));
+    if (isset($this->id)) {
+      mcms::db()->exec("UPDATE `node` SET `published` = 1, `rid` = :rid WHERE `id` = :id", array(':rid' => $rev ? $rev : $this->rid, ':id' => $this->id));
 
-    mcms::flush();
+      // Даём другим модулям возможность обработать событие (например, mod_moderator).
+      mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'publish'));
+
+      mcms::flush();
+    }
 
     return true;
   }
