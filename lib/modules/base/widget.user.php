@@ -349,9 +349,13 @@ class UserWidget extends Widget
       return $form;
 
     case 'user-login-form':
+      $tmp = bebop_split_url();
+      $tmp['args'][$this->getInstanceName()]['action'] = 'retry';
+      $tmp['args']['destination'] = $this->ctx->get('destination');
+
       $form = new Form(array(
         'title' => t('Вход'),
-        'action' => '/base.rpc?action=login',
+        'action' => '/base.rpc?action=login&destination='. urlencode(bebop_combine_url($tmp, false)),
         ));
 
       if (null !== $this->header) {
