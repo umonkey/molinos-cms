@@ -44,52 +44,8 @@ class PDO_Singleton extends PDO
         self::$instance = null;
     }
 
-    private function addPermChecks($sql)
-    {
-      if (strstr($sql, "PERMCHECK") !== false) {
-        $user = mcms::user();
-
-        foreach (array('c', 'C', 'r', 'R', 'u', 'U', 'd', 'D') as $k) {
-          $uids = array();
-
-          // Обычный режим: проверяем группы.
-          if ($k === strtolower($k)) {
-            $published = 0;
-
-            if (!count($uids = array_keys($user->getGroups())))
-              $uids[] = 0;
-          }
-
-          // Режим проверки анонимного пользователя.
-          else {
-            $published = 0; // всё ломается, когда не опубликован тип 'type', надо разобраться.
-
-            if (false === ($gid = mcms::cache($key = 'group:visitors')))
-              mcms::cache($key, $gid = $this->getResult("SELECT `n`.`id` FROM `node` `n` INNER JOIN `node_group` `g` ON `g`.`rid` = `n`.`rid` WHERE `g`.`login` = 'Visitors'"));
-
-            $uids[] = $gid;
-
-            $k = strtolower($k);
-          }
-
-          $uidstr = join(', ', $uids);
-
-          $sql = str_replace('PERMCHECK:'. $k, "SELECT `r`.`name` "
-            ."FROM `node` `n` "
-            ."INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` "
-            ."WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0 AND `n`.`published` >= {$published} "
-            ."AND `n`.`id` IN (SELECT `nid` FROM `node__access` WHERE `{$k}` = 1 AND `uid` IN ({$uidstr}))",
-            $sql);
-        }
-      }
-
-      return $sql;
-    }
-
     public function prepare($sql)
     {
-        $sql = $this->addPermChecks($sql);
-
         $hash = hash('crc32', $sql);
 
         if (!array_key_exists($hash, $this->prepared_queries)) {

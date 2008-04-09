@@ -146,7 +146,6 @@ class SubscriptionAdminWidget extends Widget implements iScheduler, iAdminMenu
         ."WHERE `n`.`class` IN ('". join("', '", $types) ."') AND `n`.`id` IN "
         ."(SELECT `nid` FROM `node__rel` WHERE `tid` IN (". join(", ", $tags) .")) "
         ."AND `n`.`id` > :last "
-        ."AND `n`.`id` IN (PERMCHECK:R) "
         ."ORDER BY `n`.`id`", array(':last' => $row['last']));
 
       // Отправляем документы.

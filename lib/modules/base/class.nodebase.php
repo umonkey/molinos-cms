@@ -949,13 +949,13 @@ class NodeBase
       $filter = " AND `n`.`class` IN ('". join("', '", $classes) ."')";
 
     $left = $pdo->getResult($sql1 = "SELECT `n`.`id` FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`nid` "
-      ."WHERE `tid` = :tid{$filter} AND `n`.`deleted` = 0 AND `n`.`published` = 1 AND `n`.`class` IN (PERMCHECK:r) "
+      ."WHERE `tid` = :tid{$filter} AND `n`.`deleted` = 0 AND `n`.`published` = 1 "
       ."AND `n`.`class` = :class "
       ."AND `r`.`order` < :order ORDER BY `r`.`order` DESC LIMIT 1",
       array(':tid' => $parent, ':order' => $order, ':class' => $this->class));
 
     $right = $pdo->getResult($sql2 = "SELECT `n`.`id` FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`nid` "
-      ."WHERE `tid` = :tid{$filter} AND `n`.`deleted` = 0 AND `n`.`published` = 1 AND `n`.`class` IN (PERMCHECK:r) "
+      ."WHERE `tid` = :tid{$filter} AND `n`.`deleted` = 0 AND `n`.`published` = 1 "
       ."AND `n`.`class` = :class "
       ."AND `r`.`order` > :order ORDER BY `r`.`order` ASC LIMIT 1",
       array(':tid' => $parent, ':order' => $order, ':class' => $this->class));

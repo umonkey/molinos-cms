@@ -12,6 +12,11 @@ class BaseModule implements iRemoteCall
       try {
         mcms::user()->authorize($_POST['login'], $_POST['password']);
       } catch (ObjectNotFoundException $e) {
+        bebop_on_json(array(
+          'status' => 'wrong',
+          'message' => 'Неверный пароль или имя пользователя.',
+          ));
+
         if (null !== ($tmp = $ctx->get('onerror')))
           $next = $tmp;
       }
@@ -20,6 +25,8 @@ class BaseModule implements iRemoteCall
       mcms::user()->authorize();
       break;
     }
+
+    bebop_on_json(array('status' => 'ok'));
 
     bebop_redirect($next);
   }

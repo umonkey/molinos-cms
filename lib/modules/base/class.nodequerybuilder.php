@@ -359,9 +359,8 @@ class NodeQueryBuilder
 
   private function addPermissionCheck()
   {
-    if (!empty($this->query['#permcheck']) and !mcms::config('bypass_permcheck')) {
-      $this->where[] = "`node`.`class` IN (PERMCHECK:r)";
-    }
+    if (!empty($this->query['#permcheck']) and !mcms::config('bypass_permcheck'))
+      $this->query['class'] = array_intersect((array)$this->query['class'], mcms::user()->getAccess('r'));
   }
 
   // Добавляет выборку по разделам.
