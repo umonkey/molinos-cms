@@ -81,8 +81,6 @@ class PDO_Singleton extends PDO
             ."AND `n`.`id` IN (SELECT `nid` FROM `node__access` WHERE `{$k}` = 1 AND `uid` IN ({$uidstr}))",
             $sql);
         }
-
-        // bebop_debug($sql);
       }
 
       return $sql;

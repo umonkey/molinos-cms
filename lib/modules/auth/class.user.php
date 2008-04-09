@@ -5,6 +5,7 @@ class User
 {
   private $node = null;
   private $groups = array();
+  private $access = null;
   private $session = null;
 
   private static $instance = null;
@@ -17,26 +18,60 @@ class User
         ));
       $this->groups[] = Node::load(array('class' => 'group', 'login' => 'Visitors'));
     } else {
-      try {
-        if (is_string($tmp = mcms::cache($key = 'userprofile:'. $uid)))
-          $this->node = unserialize($tmp);
-        else
-          mcms::cache($key, serialize($this->node = Node::load(array('class' => 'user', 'id' => $uid))));
+      if (is_string($tmp = mcms::cache($key = 'userprofile:'. $uid)))
+        $this->node = unserialize($tmp);
+      else
+        mcms::cache($key, serialize($this->node = Node::load(array('class' => 'user', 'id' => $uid))));
 
-        if (is_string($tmp = mcms::cache($key = 'usergroups:'. $uid)) and is_array($tmp = unserialize($tmp) and !empty($tmp)))
-          $this->groups = $tmp;
-        else {
-          mcms::cache($key, serialize($this->groups = Node::find(array('class' => 'group', 'published' => 1, 'tagged' => array($uid)))));
+      if (is_string($tmp = mcms::cache($key = 'usergroups:'. $uid)) and is_array($tmp = unserialize($tmp) and !empty($tmp)))
+        $this->groups = $tmp;
+      else {
+        mcms::cache($key, serialize($this->groups = Node::find(array('class' => 'group', 'published' => 1, 'tagged' => array($uid)))));
+      }
+    }
+  }
+
+  public function hasAccess($mode, $type)
+  {
+    $map = $this->loadAccess();
+
+    if (array_key_exists($mode, $map) and in_array($type, $map[$mode]))
+      return true;
+
+    return false;
+  }
+
+  public function getAccess($mode)
+  {
+    $map = $this->loadAccess();
+
+    if (array_key_exists($mode, $map))
+      return $map[$mode];
+
+    return array();
+  }
+
+  // Загружаем информацию о правах.
+  private function loadAccess()
+  {
+    if (null === $this->access) {
+      $result = array();
+
+      if (count($groups = array_keys($this->getGroups()))) {
+        $data = mcms::db()->getResults($sql = "SELECT `v`.`name`, MAX(`a`.`c`) AS `c`, MAX(`a`.`r`) AS `r`, MAX(`a`.`u`) AS `u`, MAX(`a`.`d`) AS `d` FROM `node` `n` INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` INNER JOIN `node__access` `a` ON `a`.`nid` = `n`.`id` WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0 AND `a`.`uid` IN (". join(', ', $groups) .") GROUP BY `v`.`name`");
+        $mask = array('c', 'r', 'u', 'd');
+
+        foreach ($data as $row) {
+          foreach ($mask as $mode)
+            if (!empty($row[$mode]))
+              $result[$mode][] = $row['name'];
         }
       }
 
-      // Пользователь удалён.
-      catch (ObjectNotFoundException $e) {
-        $this->node = Node::create('user', array(
-          'name' => 'anonymous',
-          ));
-      }
+      $this->access = $result;
     }
+
+    return $this->access;
   }
 
   // ОСНОВНОЙ ИНТЕРФЕЙС

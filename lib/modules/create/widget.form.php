@@ -86,6 +86,7 @@ class FormWidget extends Widget
     
     $options['type'] = $ctx->get('type', $this->type);
     $options['default'] = $ctx->get('default', array());
+    $options['#nocache'] = true;
 
     if (null === ($options['root'] = $ctx->section_id))
       $options['root'] = $this->section_default;
@@ -242,6 +243,16 @@ class FormWidget extends Widget
       $form->addControl(new HiddenControl(array(
         'value' => 'referer',
         )));
+
+      if (!empty($this->options['default'])) {
+        foreach (array_keys($this->options['default']) as $k) {
+          $tmp = 'node_content_'. $k;
+
+          $form->replaceControl($tmp, new HiddenControl(array(
+            'value' => $tmp,
+            )));
+        }
+      }
     }
 
     return $form;

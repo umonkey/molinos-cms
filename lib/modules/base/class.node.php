@@ -16,7 +16,7 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
   }
 
   // Проверка прав на объект.  Менеджеры контента всегда всё могут.
-  public function checkPermission($perm)
+  public function XXXcheckPermission($perm)
   {
     if (mcms::user()->hasGroup('Content Managers'))
       return true;

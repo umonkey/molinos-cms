@@ -116,6 +116,9 @@ class NodeBase
     else
       $sql .= ' -- Node::find()';
 
+    if (!empty($query['#debug']))
+      bebop_debug($query, $sql, $params);
+
     $sth = mcms::db()->exec($sql, $params);
 
     $data = array();
@@ -138,6 +141,9 @@ class NodeBase
 
     $qb = new NodeQueryBuilder($query);
     $qb->getCountQuery($sql, $params);
+
+    if (!empty($query['#debug']))
+      bebop_debug($query, $sql, $params);
 
     return mcms::db()->getResult($sql . " -- Node::count()", $params);
   }
@@ -190,7 +196,6 @@ class NodeBase
 
   private function purgeRevisions()
   {
-    /* FIXME: переписать modconf() на прямой доступ, иначе не работает запись в пустую базу.
     if (0 !== ($limit = intval(mcms::modconf('node', 'archive_limit')))) {
       $victim = mcms::db()->getResult("SELECT `rid` FROM `node__rev` WHERE `rid` < :current ORDER BY `rid` DESC LIMIT {$limit}, 1", array(
         ':current' => $this->rid,
@@ -200,7 +205,6 @@ class NodeBase
         ':rid' => $victim,
         ));
     }
-    */
   }
 
   public function __set($key, $val)
@@ -344,6 +348,9 @@ class NodeBase
   // Создаём новый объект.
   public static function create($class, array $data = null)
   {
+    if (!is_string($class))
+      throw new InvalidArgumentException(t('Тип создаваемого объекта должен быть строкой.'));
+
     if (!mcms::class_exists($host = ucfirst(strtolower($class)) .'Node'))
       $host = 'Node';
 
@@ -855,21 +862,7 @@ class NodeBase
     if (empty($_SERVER['HTTP_HOST']))
       return true;
 
-    $user = mcms::user();
-    if ($user->login == 'root')
-      return true;
-
-    // При проверке прав на создание новых документов обращаемся к типу документа.
-    if (null === ($nid = $this->id) and 'c' == $perm) {
-      $schema = TypeNode::getSchema($this->class);
-      $nid = $schema['id'];
-    }
-
-    $grant = mcms::db()->getResult("SELECT 1 FROM `node` "
-      ."WHERE `id` = :nid AND `class` IN (PERMCHECK:{$perm}) "
-      ."-- NodeBase::checkPermission({$perm})", array(':nid' => $nid));
-
-    return $grant ? true : false;
+    return mcms::user()->hasAccess($perm, $this->class);
   }
 
   // Если есть ноды с пустым `order`, надо бы их починить
