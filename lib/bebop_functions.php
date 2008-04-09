@@ -68,6 +68,9 @@ function bebop_skip_checks()
 function bebop_debug()
 {
   if (bebop_is_debugger()) {
+    if (ob_get_length())
+      ob_end_clean();
+
     $output = array();
 
     foreach (func_get_args() as $arg) {
@@ -939,6 +942,7 @@ class mcms
 
   private static function getModuleMapScan()
   {
+    $enabled = null;
     $root = dirname(__FILE__) .'/modules/';
 
     if (in_array('PDO_Singleton', get_declared_classes())) {
@@ -947,11 +951,11 @@ class mcms
       } catch (PDOException $e) {
         if ('42S02' != $e->getCode())
           throw $e;
-        $enabled = array();
       }
-    } else {
-      $enabled = array();
     }
+
+    if (!is_array($enabled))
+      $enabled = array();
 
     $result = array(
       'modules' => array(),

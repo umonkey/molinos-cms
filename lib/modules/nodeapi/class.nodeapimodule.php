@@ -38,6 +38,10 @@ class NodeApiModule implements iRemoteCall
       $nid = $ctx->get('node');
 
     switch ($action) {
+    case 'dump':
+      bebop_debug(Node::load(array('id' => $nid, 'deleted' => array(0, 1))));
+      break;
+
     case 'publish':
     case 'enable':
       if (null !== $nid) {
