@@ -62,14 +62,6 @@ class GroupNode extends Node implements iContentType
     }
   }
 
-  // Проверка прав на объект.  Менеджеры пользователей всегда всё могут.
-  public function checkPermission($perm)
-  {
-    if (mcms::user()->hasGroup('User Managers'))
-      return true;
-    return NodeBase::checkPermission($perm);
-  }
-
   // РАБОТА С ФОРМАМИ.
 
   public function formGet($simple = true)
@@ -94,7 +86,7 @@ class GroupNode extends Node implements iContentType
     $options = array();
 
     foreach (TypeNode::getSchema() as $k => $v)
-      $options[$k] = empty($v['title']) ? $v['name'] : $v['title'];
+      $options[$k] = $v['title'];
 
     asort($options);
 

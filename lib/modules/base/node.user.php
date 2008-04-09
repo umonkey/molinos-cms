@@ -60,14 +60,6 @@ class UserNode extends Node implements iContentType
     return $data;
   }
 
-  // Проверка прав на объект.  Менеджеры пользователей всегда всё могут.
-  public function checkPermission($perm)
-  {
-    if (mcms::user()->hasGroup('User Managers'))
-      return true;
-    return NodeBase::checkPermission($perm);
-  }
-
   public function duplicate()
   {
     $this->login = preg_replace('/_[0-9]+$/', '', $this->login) .'_'. rand();

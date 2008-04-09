@@ -44,14 +44,6 @@ class TagNode extends Node implements iContentType
     return parent::setAccess($perms, $reset);
   }
 
-  // Проверка прав на объект.  Менеджеры структуры всегда всё могут.
-  public function checkPermission($perm)
-  {
-    if (mcms::user()->hasGroup('Structure Managers'))
-      return true;
-    return NodeBase::checkPermission($perm);
-  }
-
   public function formGet($simple = true)
   {
     $form = parent::formGet($simple);

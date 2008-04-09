@@ -23,14 +23,6 @@ class WidgetNode extends Node implements iContentType
     return parent::save(false);
   }
 
-  // Проверка прав на объект.  Девелоперы всегда всё могут.
-  public function checkPermission($perm)
-  {
-    if (mcms::user()->hasGroup('Developers'))
-      return true;
-    return NodeBase::checkPermission($perm);
-  }
-
   public function duplicate()
   {
     $this->name = preg_replace('/_[0-9]+$/', '', $this->name) .'_'. rand();

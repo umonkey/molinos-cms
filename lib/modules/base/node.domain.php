@@ -293,14 +293,6 @@ class DomainNode extends Node implements iContentType
     return $data;
   }
 
-  // Проверка прав на объект.  Девелоперы всегда всё могут.
-  public function checkPermission($perm)
-  {
-    if (mcms::user()->hasGroup('Developers'))
-      return true;
-    return NodeBase::checkPermission($perm);
-  }
-
   // РАБОТА С ФОРМАМИ.
 
   public function formGet($simple = true)

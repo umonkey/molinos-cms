@@ -250,14 +250,6 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     return parent::setAccess($perms, $reset);
   }
 
-  // Проверка прав на объект.  Менеджеры схемы всегда всё могут.
-  public function XXXcheckPermission($perm)
-  {
-    if (mcms::user()->hasGroup('Schema Managers'))
-      return true;
-    return parent::checkPermission($perm);
-  }
-
   // РАБОТА С ФОРМАМИ.
   // Документация: http://code.google.com/p/molinos-cms/wiki/Forms
 

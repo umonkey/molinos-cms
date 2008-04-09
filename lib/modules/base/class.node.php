@@ -15,14 +15,6 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
     return bebop_render_object("class", $this->class, "all", $this->data);
   }
 
-  // Проверка прав на объект.  Менеджеры контента всегда всё могут.
-  public function XXXcheckPermission($perm)
-  {
-    if (mcms::user()->hasGroup('Content Managers'))
-      return true;
-    return NodeBase::checkPermission($perm);
-  }
-
   // РАБОТА С ФОРМАМИ.
 
   public function formGetData()
