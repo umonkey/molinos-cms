@@ -55,6 +55,12 @@ class User
   private function loadAccess()
   {
     if (null === $this->access) {
+      $keys = array_keys($this->getGroups());
+      sort($keys);
+
+      if (is_array($result = mcms::cache($ckey = 'access:'. join(',', $keys))))
+        return $this->access = $result;
+
       $result = array();
 
       if (count($groups = array_keys($this->getGroups()))) {
@@ -68,7 +74,7 @@ class User
         }
       }
 
-      $this->access = $result;
+      mcms::cache($ckey, $this->access = $result);
     }
 
     return $this->access;
