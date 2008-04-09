@@ -5,16 +5,21 @@ class BaseModule implements iRemoteCall
 {
   public static function hookRemoteCall(RequestContext $ctx)
   {
+    $next = $ctx->get('destination', '/');
+
     switch ($ctx->get('action')) {
     case 'login':
-      mcms::user()->authorize($_POST['login'], $_POST['password']);
+      try {
+        mcms::user()->authorize($_POST['login'], $_POST['password']);
+      } catch (ObjectNotFoundException $e) {
+        if (null !== ($tmp = $ctx->get('onerror')))
+          $next = $tmp;
+      }
       break;
     case 'logout':
       mcms::user()->authorize();
       break;
     }
-
-    $next = $ctx->get('destination', '/');
 
     bebop_redirect($next);
   }
