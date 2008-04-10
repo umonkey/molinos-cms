@@ -395,7 +395,7 @@ class SysLogModule implements iAdminUI, iAdminMenu, iModuleConfig, iNodeHook
       ':nid' => $nid,
       ':uid' => mcms::user()->id,
       ':username' => mcms::user()->name,
-      ':ip' => empty($_SERVER['REMOTE_ADDR']) ? null : $_SERVER['REMOTE_ADDR'],
+      ':ip' => empty($_SERVER['REMOTE_ADDR']) ? '127.0.0.1' : $_SERVER['REMOTE_ADDR'],
       ':operation' => $op,
       ':message' => $message,
       ));
