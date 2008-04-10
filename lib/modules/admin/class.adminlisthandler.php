@@ -48,7 +48,7 @@ class AdminListHandler
     $data = $this->getData();
 
     if (empty($data) and count($this->types) == 1 and null === $this->ctx->get('search')) {
-      bebop_redirect("/admin/?mode=create&type={$this->types[0]}&destination=". urlencode($_SERVER['REQUEST_URI']));
+      bebop_redirect("/admin/?mode=create&cgroup=". $_GET['cgroup'] ."&type={$this->types[0]}&destination=". urlencode($_SERVER['REQUEST_URI']));
     }
 
     $output = '<h2>'. $this->title .'</h2>';
@@ -134,7 +134,7 @@ class AdminListHandler
       case 'groups':
         $this->types = array('group');
         $this->title = t('Список групп');
-        $this->columns = array('name', 'login', 'description', 'created');
+        $this->columns = array('name', 'description', 'created');
         $this->actions = array('delete', 'clone');
         $this->limit = null;
         $this->page = 1;
@@ -143,7 +143,7 @@ class AdminListHandler
       case 'users':
         $this->types = array('user');
         $this->title = t('Список пользователей');
-        $this->columns = array('name', 'login', 'email', 'created');
+        $this->columns = array('name', 'email', 'created');
         $this->sort = array('name');
         break;
       case 'files':

@@ -119,6 +119,8 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
 
   public function getDefaultSchema()
   {
+    return null;
+
     return array(
       'title' => 'Без названия',
       'lang' => 'ru',

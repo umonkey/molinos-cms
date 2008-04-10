@@ -110,7 +110,7 @@ class GroupNode extends Node implements iContentType
   {
     $options = array();
 
-    foreach (Node::find(array('class' => 'user', '#sort' => array('name' => 'ASC'))) as $u)
+    foreach ($nodes = Node::find(array('class' => 'user', '#sort' => array('name' => 'ASC'))) as $u)
       $options[$u->id] = $u->name;
 
     $tab = new FieldSetControl(array(
@@ -167,15 +167,17 @@ class GroupNode extends Node implements iContentType
 
     $schema = TypeNode::getSchema();
 
-    foreach ($data['perm'] as $k => $v) {
-      mcms::db()->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`) VALUES (:nid, :uid, :c, :r, :u, :d)", array(
-        ':nid' => $schema[$k]['id'],
-        ':uid' => $this->id,
-        ':c' => in_array('c', $v) ? 1 : 0,
-        ':r' => in_array('r', $v) ? 1 : 0,
-        ':u' => in_array('u', $v) ? 1 : 0,
-        ':d' => in_array('d', $v) ? 1 : 0,
-        ));
+    if (!empty($data['perm'])) {
+      foreach ($data['perm'] as $k => $v) {
+        mcms::db()->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`) VALUES (:nid, :uid, :c, :r, :u, :d)", array(
+          ':nid' => $schema[$k]['id'],
+          ':uid' => $this->id,
+          ':c' => in_array('c', $v) ? 1 : 0,
+          ':r' => in_array('r', $v) ? 1 : 0,
+          ':u' => in_array('u', $v) ? 1 : 0,
+          ':d' => in_array('d', $v) ? 1 : 0,
+          ));
+      }
     }
   }
 };

@@ -5,7 +5,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 {
   public static function onGet(RequestContext $ctx)
   {
-    if (!mcms::user()->hasAccess('u', 'moduleinfo'))
+    if (!count(mcms::user()->getAccess('u')))
       throw new ForbiddenException();
 
     if (bebop_is_debugger() and !empty($_GET['flush'])) {
@@ -186,7 +186,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
   {
     switch ($ctx->get('action')) {
     case 'modlist':
-      mcms::user()->checkGroup('Developers');
+      mcms::user()->checkAccess('u', 'moduleinfo');
 
       mcms::db()->beginTransaction();
 
@@ -194,7 +194,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       $existing = mcms::db()->getResultsKV("name", "id", "SELECT `n`.`id`, `r`.`name` FROM `node__rev` `r` INNER JOIN `node` `n` ON `n`.`rid` = `r`.`rid` WHERE `n`.`class` = 'moduleinfo' AND `n`.`deleted` = 0");
 
       // Создаём нужные новые конфигурации.
-      foreach ($ctx->post('selected') as $name) {
+      foreach ($ctx->post('selected', array()) as $name) {
         if (!array_key_exists($name, $existing)) {
           $tmp = Node::create('moduleinfo', array(
             'name' => $name,
@@ -207,7 +207,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       // Меняем публикацию для существовавших объектов.
       foreach ($existing as $k => $v) {
         mcms::db()->exec("UPDATE `node` SET `published` = :p WHERE `class` = 'moduleinfo' AND `id` = :id", $args = array(
-          ':p' => in_array($k, $ctx->post('selected')) ? 1 : 0,
+          ':p' => in_array($k, $ctx->post('selected', array())) ? 1 : 0,
           ':id' => $v,
           ));
       }

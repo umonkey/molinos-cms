@@ -813,12 +813,21 @@ class NodeBase
 
     // Формируем список групп.
     if ($default === null)
-      $default = $pdo->getResultsK("login", "SELECT `g`.`login`, CASE WHEN `r`.`name` IS NULL THEN `g`.`login` ELSE `r`.`name` END AS `name`, 0 AS `c`, 0 AS `r`, 0 AS `u`, 0 AS `d` FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` INNER JOIN `node_group` `g` ON `g`.`rid` = `n`.`rid` WHERE `n`.`class` = 'group' AND `n`.`deleted` = 0 ORDER BY `r`.`name`");
+      $default = $pdo->getResultsK("name", "SELECT `r`.`name` FROM `node` `n` "
+        ."INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` "
+        ."WHERE `n`.`class` = 'group' AND `n`.`deleted` = 0 ORDER BY `r`.`name`");
 
     $data = $default;
 
+    $sql = "SELECT `r`.`name`, `a`.* FROM `node__access` `a` "
+      ."INNER JOIN `node` `n` ON `n`.`id` = `a`.`uid` "
+      ."INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` "
+      ."WHERE `a`.`nid` = :nid AND `n`.`class` = 'group'";
+
+    // die($sql);
+
     // Формируем таблицу с правами.
-    foreach ($pdo->getResultsK("login", "SELECT `g`.`login`, `a`.* FROM `node__access` `a` INNER JOIN `node` `n` ON `n`.`id` = `a`.`uid` INNER JOIN `node_group` `g` ON `g`.`rid` = `n`.`rid` WHERE `a`.`nid` = :nid", array(':nid' => $this->id)) as $group => $perms) {
+    foreach ($pdo->getResultsK("name", $sql, array(':nid' => $this->id)) as $group => $perms) {
       $data[$group]['c'] = $perms['c'];
       $data[$group]['r'] = $perms['r'];
       $data[$group]['u'] = $perms['u'];
@@ -849,7 +858,11 @@ class NodeBase
         $pdo->exec($sql = "REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`) VALUES (:nid, :uid, :c, :r, :u, :d)", $args);
       } else {
         $args[':name'] = $uid;
-        $pdo->exec($sql = "REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`) SELECT :nid, `n`.`id`, :c, :r, :u, :d FROM `node` `n` INNER JOIN `node_group` `g` ON `g`.`rid` = `n`.`rid` WHERE `g`.`login` = :name", $args);
+        $pdo->exec($sql = "REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`) "
+          ."SELECT :nid, `n`.`id`, :c, :r, :u, :d "
+          ."FROM `node` `n` "
+          ."INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
+          ."WHERE `n`.`class` = 'group'  AND `n`.`deleted` = 0 AND `v`.`name` = :name", $args);
       }
     }
 
@@ -974,7 +987,7 @@ class NodeBase
   public function formGet($simple = false)
   {
     if (null !== $this->id and !$this->checkPermission('u')) {
-      if (mcms::user()->id != $this->id)
+      if (mcms::user()->id != $this->id and !bebop_is_debugger())
         throw new ForbiddenException(t('У вас недостаточно прав для редактирования этого документа.'));
     } elseif (null === $this->id and !$this->checkPermission('c')) {
       throw new ForbiddenException(t('У вас недостаточно прав для создания такого документа.'));

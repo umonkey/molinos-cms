@@ -137,7 +137,8 @@ class AdminUIListControl extends Control
   {
     switch ($field) {
     case 'class':
-      $schema = TypeNode::getSchema($value);
+      if (null === ($schema = TypeNode::getSchema($value)))
+        return $value .'(???)';
 
       if (empty($schema['title']))
         return $value;
@@ -195,8 +196,13 @@ class AdminUIListControl extends Control
     if (empty($uid))
       return 'anonymous';
 
-    if (!array_key_exists($uid, $users))
-      $users[$uid] = Node::load(array('class' => 'user', 'id' => $uid));
+    if (!array_key_exists($uid, $users)) {
+      try {
+        $users[$uid] = Node::load(array('class' => 'user', 'id' => $uid));
+      } catch (ObjectNotFoundException $e) {
+        return '???';
+      }
+    }
 
     if (mcms::user()->hasAccess('u', 'user'))
       return mcms::html('a', array(

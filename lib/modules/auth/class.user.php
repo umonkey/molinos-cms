@@ -16,17 +16,25 @@ class User
       $this->node = Node::create('user', array(
         'name' => 'anonymous',
         ));
-      $this->groups[] = Node::load(array('class' => 'group', 'login' => 'Visitors'));
+      foreach (Node::find(array('class' => 'group')) as $tmp)
+        if ($tmp->login == 'nobody')
+          $this->groups[] = $tmp;
     } else {
-      if (is_string($tmp = mcms::cache($key = 'userprofile:'. $uid)))
-        $this->node = unserialize($tmp);
-      else
-        mcms::cache($key, serialize($this->node = Node::load(array('class' => 'user', 'id' => $uid))));
+      try {
+        if (is_string($tmp = mcms::cache($key = 'userprofile:'. $uid)))
+          $this->node = unserialize($tmp);
+        else
+          mcms::cache($key, serialize($this->node = Node::load(array('class' => 'user', 'id' => $uid))));
 
-      if (is_string($tmp = mcms::cache($key = 'usergroups:'. $uid)) and is_array($tmp = unserialize($tmp) and !empty($tmp)))
-        $this->groups = $tmp;
-      else {
-        mcms::cache($key, serialize($this->groups = Node::find(array('class' => 'group', 'published' => 1, 'tagged' => array($uid)))));
+        if (is_string($tmp = mcms::cache($key = 'usergroups:'. $uid)) and is_array($tmp = unserialize($tmp) and !empty($tmp)))
+          $this->groups = $tmp;
+        else {
+          mcms::cache($key, serialize($this->groups = Node::find(array('class' => 'group', 'published' => 1, 'tagged' => array($uid)))));
+        }
+      } catch (ObjectNotFoundException $e) {
+        $this->node = Node::create('user', array(
+          'name' => 'anonymous',
+          ));
       }
     }
   }
@@ -39,6 +47,12 @@ class User
       return true;
 
     return false;
+  }
+
+  public function checkAccess($mode, $type)
+  {
+    if (!$this->hasAccess($mode, $type))
+      throw new ForbiddenException();
   }
 
   public function getAccess($mode)
@@ -105,7 +119,7 @@ class User
     }
 
     elseif (2 == count($args)) {
-      $node = Node::load(array('class' => 'user', 'login' => $args[0]));
+      $node = Node::load(array('class' => 'user', 'name' => $args[0]));
 
       if ($node->password != md5($args[1]))
         throw new ValidationException('password', t('Введён неверный пароль.'));

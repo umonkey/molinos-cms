@@ -169,18 +169,14 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if ($reload or (!is_array($result = mcms::pcache('schema')) or empty($result))) {
       $result = array();
 
-      foreach (Tagger::getInstance()->getChildrenData("SELECT `n`.`id`, `n`.`rid`, `r`.`name`, `r`.`data`, `t`.* FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` LEFT JOIN `node_type` `t` ON `t`.`rid` = `r`.`rid` WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0", false, false, false) as $type)
+      foreach (Tagger::getInstance()->getChildrenData("SELECT `n`.`id`, `n`.`rid`, `r`.`name`, `r`.`data` FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0", false, false, false) as $type)
         $result[$type['name']] = $type;
 
       mcms::pcache('schema', $result);
     }
 
-    if ($name !== null) {
-      if (!empty($result[$name])) {
-        $result = $result[$name];
-      } else {
-        $def = Node::create($name)->getDefaultSchema();
-
+    if ($name !== null and empty($result[$name])) {
+      if (null !== ($def = Node::create($name)->getDefaultSchema())) {
         try {
           $tmp = Node::create('type', $def);
           $tmp->name = $name;
@@ -193,6 +189,9 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
         }
       }
     }
+
+    if (null !== $name)
+      return empty($result[$name]) ? null : $result[$name];
 
     return $result;
   }
@@ -243,20 +242,15 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     $array = $data;
   }
 
-  // Сохранение фиксированных прав.
-  public function XsetAccess(array $perms, $reset = true)
-  {
-    $perms['Schema Managers'] = array('r', 'u', 'd');
-    return parent::setAccess($perms, $reset);
-  }
-
   // РАБОТА С ФОРМАМИ.
   // Документация: http://code.google.com/p/molinos-cms/wiki/Forms
 
   public function formGet($simple = true)
   {
     $user = mcms::user();
-    $user->checkGroup('Schema Managers');
+
+    if (!mcms::user()->hasAccess('u', 'type'))
+      throw new ForbiddenException();
 
     $form = parent::formGet($simple);
 
@@ -340,29 +334,30 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     $filter = array(
       'class' => 'widget',
-      'classname' => array('DocWidget', 'ListWidget'),
       '#sort' => array(
-        'widget.title' => 'asc',
+        'name' => 'asc',
         ),
       );
 
     foreach (Node::find($filter) as $w)
-      if (substr($w->name, 0, 5) != 'Bebop')
+      if (in_array($w->classname, array('DocWidget', 'ListWidget')))
         $options[$w->id] = $w->title;
 
-    $tab = new FieldSetControl(array(
-      'name' => 'widgets',
-      'label' => t('Виджеты'),
-      'intro' => t('Укажите виджеты, которые будут работать с документами этого типа.'),
-      ));
+    if (!empty($options)) {
+      $tab = new FieldSetControl(array(
+        'name' => 'widgets',
+        'label' => t('Виджеты'),
+        'intro' => t('Укажите виджеты, которые будут работать с документами этого типа.'),
+        ));
 
-    $tab->addControl(new SetControl(array(
-      'value' => 'node_type_widgets',
-      'label' => 'Обрабатываемые виджеты',
-      'options' => $options,
-      )));
+      $tab->addControl(new SetControl(array(
+        'value' => 'node_type_widgets',
+        'label' => 'Обрабатываемые виджеты',
+        'options' => $options,
+        )));
 
-    return $tab;
+      return $tab;
+    }
   }
 
   public function formGetData()
@@ -475,24 +470,6 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     if (!$ok)
       throw new ValidationException('name', t("Имя поля может содержать только буквы латинского алфавита, арабские цифры и символ подчёркивания (\"_\"), вы ввели: %name.", array('%name' => $name)));
-  }
-
-  public function getAccess()
-  {
-    $data = parent::getAccess();
-
-    if (null === $this->id) {
-      $data['Visitors']['r'] = 1;
-      $data['Content Managers']['c'] = 1;
-      $data['Content Managers']['r'] = 1;
-      $data['Content Managers']['u'] = 1;
-      $data['Content Managers']['d'] = 1;
-      $data['Schema Managers']['r'] = 1;
-      $data['Schema Managers']['u'] = 1;
-      $data['Schema Managers']['d'] = 1;
-    }
-
-    return $data;
   }
 
   public static function taskRun()
