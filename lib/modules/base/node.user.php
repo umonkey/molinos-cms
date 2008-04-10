@@ -95,6 +95,10 @@ class UserNode extends Node implements iContentType
       'name' => 'groups',
       'label' => t('Членство в группах'),
       ));
+    $tab->addControl(new HiddenControl(array(
+      'value' => 'reset_groups',
+      'default' => true,
+      )));
     $tab->addControl(new SetControl(array(
       'value' => 'node_user_groups',
       'label' => t('Группы, в которых состоит пользователь'),
@@ -117,7 +121,7 @@ class UserNode extends Node implements iContentType
   {
     parent::formProcess($data);
 
-    if (mcms::user()->hasAccess('u', 'group'))
+    if (mcms::user()->hasAccess('u', 'group') and !empty($data['reset_groups']))
       $this->linkSetParents(empty($data['node_user_groups']) ? array() : $data['node_user_groups'], 'group');
   }
 
