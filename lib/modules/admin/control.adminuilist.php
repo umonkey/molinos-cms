@@ -55,6 +55,23 @@ class AdminUIListControl extends Control
         $row .= '</td>';
       }
 
+      if (bebop_is_debugger()) {
+        $tmp = mcms::html('img', array(
+          'src' => '/lib/modules/admin/img/debug.gif',
+          'width' => 16,
+          'height' => 16,
+          'alt' => 'debug',
+          ));
+        $tmp = mcms::html('a', array(
+          'href' => "/nodeapi.rpc?action=dump&node=". $node['id'],
+          'title' => t('Просмотреть внутренности'),
+          ), $tmp);
+        $row .= mcms::html('td', array(
+          'width' => 1,
+          'class' => 'debug',
+          ), $tmp);
+      }
+
       foreach ($this->columns as $field) {
         $row .= "<td class='field-{$field}'>";
         $value = array_key_exists($field, $node) ? $node[$field] : null;
@@ -99,6 +116,9 @@ class AdminUIListControl extends Control
     if ($this->selectors)
       $output .= '<th class=\'selector\'>&nbsp;</th>';
 
+    if (bebop_is_debugger())
+      $output .= mcms::html('th', array('class' => 'debug'), '&nbsp;');
+
     foreach ($this->columns as $col) {
       $output .= "<th class='field-{$col}'>";
 
@@ -131,7 +151,7 @@ class AdminUIListControl extends Control
       if (null !== $node and !empty($node['class']) and $node['class'] == 'file') {
         if (file_exists($path = mcms::config('filestorage') .'/'. $node['filepath'])) {
           if (substr($node['filetype'], 0, 6) == 'image/')
-            $tmp = "<img src='/attachment/{$node['id']},48,48' alt='{$node['filepath']}' />";
+            $tmp = "<img src='/attachment/{$node['id']},48,48,c' width='48' height='48' alt='{$node['filepath']}' />";
           else
             $tmp = '<img src=\'/themes/admin/img/media-floppy.png\' alt=\'download\' width=\'16\' height=\'16\' />';
 

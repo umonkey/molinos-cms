@@ -50,7 +50,7 @@ class MessageListWidget extends Widget
 
   public function onGet(array $options)
   {
-    $result = array();
+    $result = array('list' => array());
 
     $filter = array(
       'class' => 'message',
@@ -61,9 +61,11 @@ class MessageListWidget extends Widget
         ),
       );
 
-    foreach (Node::find($filter, $options['limit']) as $n) {
+    foreach (Node::find($filter, $options['limit']) as $n)
       $result['list'][] = $n->getRaw();
-    }
+
+    $result['count'] = Node::count($filter);
+    $result['left'] = $result['count'] - count($result['list']);
 
     return $result;
   }
