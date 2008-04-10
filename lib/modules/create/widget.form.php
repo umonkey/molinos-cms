@@ -6,8 +6,6 @@ class FormWidget extends Widget
   public function __construct(Node $node)
   {
     parent::__construct($node);
-
-    $this->groups = array('Visitors');
   }
 
   public static function getWidgetInfo()
@@ -168,26 +166,12 @@ class FormWidget extends Widget
   // Возвращает список типов, доступных пользователю.
   private function getTypeList($root = null)
   {
-    $mode = $this->anonymous ? 'C' : 'c';
+    $types = array();
 
-    // Типы, не привязанные к разделам.
-    $all = "`n`.`id` NOT IN (SELECT `nid` FROM `node__rel` INNER JOIN `node` ON `node`.`id` = `node__rel`.`tid` WHERE `node`.`class` = 'tag')";
-
-    // Типы, привязанные к текущему разделу.
-    $current = "`n`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = ". intval($root) .")";
-
-    // Запрос списка типов.
-    $sql = "SELECT `v`.`name`, `t`.`title` FROM `node` `n` "
-      ."INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
-      ."INNER JOIN `node_type` `t` ON `t`.`rid` = `n`.`rid` "
-      ."WHERE `n`.`class` = 'type' "
-      ."AND `n`.`deleted` = 0 "
-      ."AND `v`.`name` <> 'comment' "
-      .(($this->showall or empty($root)) ? "" : "AND ({$all} OR {$current}) ")
-      ."ORDER BY `t`.`title` "
-      ;
-
-    $types = mcms::db()->getResultsKV("name", "title", $sql);
+    foreach (TypeNode::getSchema() as $k => $v) {
+      if (mcms::user()->hasAccess('c', $k))
+        $types[$k] = $v['title'];
+    }
 
     return $types;
   }
