@@ -262,6 +262,10 @@ class AdminListHandler
     if ('schema' == $this->ctx->get('preset')) {
       $tmp = array();
 
+      foreach ($result as $k => $v)
+        if (in_array($v['name'], array('domain', 'file', 'moduleinfo', 'type', 'widget')))
+          unset($result[$k]);
+
       foreach ($result as $v)
         if (empty($v['_protected']))
           $tmp[] = $v;
