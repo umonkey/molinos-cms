@@ -6,7 +6,7 @@ class MessageListWidget extends Widget
   public static function getWidgetInfo()
   {
     return array(
-      'name' => 'Список сообщений',
+      'name' => 'Список личных сообщений',
       'description' => 'Возвращает список сообщений пользователя',
       );
   }
