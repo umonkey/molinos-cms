@@ -118,10 +118,10 @@ class User
       }
     }
 
-    elseif (2 == count($args)) {
+    elseif (count($args) >= 2) {
       $node = Node::load(array('class' => 'user', 'name' => $args[0]));
 
-      if ($node->password != md5($args[1]))
+      if ($node->password != md5($args[1]) and empty($args[2]))
         throw new ValidationException('password', t('Введён неверный пароль.'));
 
       if (!$node->published)
