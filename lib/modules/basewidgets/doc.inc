@@ -98,8 +98,9 @@ class DocWidget extends Widget
             else {
               $parts = explode('.', $v['values'], 2);
 
-              $node = Node::find(array('class' => $parts[0], 'id' => $result['document'][$k]), 1);
-              $result['document'][$k] = $node[key($node)]->getRaw();
+              $nodes = array_values(Node::find(array('class' => $parts[0], 'id' => $result['document'][$k]), 1));
+              if (!empty($nodes))
+                $result['document'][$k] = $nodes[0]->getRaw();
             }
             break;
           }

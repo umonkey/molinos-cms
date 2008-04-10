@@ -1173,11 +1173,15 @@ class NodeBase implements iFormObject
 
         case 'NodeLinkControl':
           if (isset($v['values']) and is_string($v['values']) and isset($this->$k)) {
-            $tmp = Node::load($this->$k);
-            $parts = explode('.', $v['values'], 2);
+            try {
+              $tmp = Node::load($this->$k);
+              $parts = explode('.', $v['values'], 2);
 
-            if ($tmp->class == $parts[0])
-              $value = $tmp->$parts[1];
+              if ($tmp->class == $parts[0])
+                $value = $tmp->$parts[1];
+            } catch (ObjectNotFoundException $e) {
+              $value = null;
+            }
           }
 
           break;
