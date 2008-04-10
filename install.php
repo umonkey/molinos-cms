@@ -39,6 +39,7 @@ class BebopInstaller
       bebop_redirect('/admin/');
 
     $data = array();
+    $plist = ExchangeModule::getProfileList();
 
     if (null !== ($data['form'] = $this->checkConfigDir()))
       return $data;
@@ -107,6 +108,27 @@ class BebopInstaller
     $form->addControl($tab);
 
     $tab = new FieldSetControl(array(
+      'name' => 'profiles',
+      'label' => t('Профили')
+      ));
+
+    $options = array();
+
+    for ($i = 0; $i < count($plist); $i++) {
+      $pr = $plist[$i];
+      $options[$pr['filename']] = $pr['name'];
+    }
+
+    $tab->addControl(new EnumControl(array(
+      'value' => 'profile',
+      'label' => t('Выберите профиль'),
+      'required' => true,
+      'options' => $options,
+      )));
+
+    $form->addControl($tab);
+
+    $tab = new FieldSetControl(array(
       'name' => 'confirm',
       'label' => t('Подтверждение'),
       ));
@@ -137,8 +159,8 @@ class BebopInstaller
   {
     $pdo = null;
 
-    // Очищаем информацию о пользователе, чтобы AuthCore не лез в базу.
-    User::authorize('anonymous', null, true);
+    // Сбрасываем авторизацию.
+    User::authorize();
 
     $data = array(
       'title' => 'Инсталляция Molinos CMS',
@@ -161,14 +183,26 @@ class BebopInstaller
     if (null !== $pdo)
       $pdo->commit();
 
+    // Импортируем профиль.
+    if (!empty($_POST['profile']))
+      ExchangeModule::import("lib/modules/exchange/profiles/{$profile}", true);
+
     // Логинимся в качестве рута.
-    AuthCore::getInstance()->userLogIn('root', null, true);
+    User::authorize('root', null, true);
 
     BebopCache::getInstance()->flush(true);
 
     $data['form'] .= '<p>'. t("Вы были автоматически идентифицированы как пользователь &laquo;%username&raquo;.&nbsp; Пароль для этого пользователя был сгенерирован случайным образом, поэтому сейчас лучше всего <a href='@editlink'>изменить пароль</a> на какой-нибудь, который Вы знаете, а потом уже продолжить <a href='/admin/'>пользоваться системой</a>.", array(
       '%username' => 'root',
-      '@editlink' => '/admin/node/'. AuthCore::getInstance()->getUser()->getUid() .'/edit/?destination=%2Fadmin%2F',
+      '@editlink' => bebop_combine_url(array(
+        'path' => '/admin/',
+        'args' => array(
+          'mode' => 'edit',
+          'cgroup' => 'access',
+          'id' => mcms::user()->id,
+          'destination' => '/admin/',
+          ),
+        ), false),
       )) .'</p>';
 
     return $data;
@@ -224,21 +258,194 @@ class BebopInstaller
 
   private function runScripts()
   {
-    $um = new UpdateManager();
-    $um->runUpdates(array(
-      'tables',
-      'types',
-      'reindex',
-      'users',
-      'ui',
-      'access',
-      ));
+    $t = new TableInfo('node');
+
+    if (!$t->exists()) {
+      $t->columnSet('id', array(
+        'type' => 'int unsigned',
+        'required' => true,
+        'key' => 'mul',
+        ));
+      $t->columnSet('lang', array(
+        'type' => 'char(4)',
+        'required' => true,
+        'key' => 'mul',
+        ));
+      $t->columnSet('rid', array(
+        'type' => 'int unsigned',
+        'required' => 0,
+        'key' => 'mul',
+        ));
+      $t->columnSet('parent_id', array(
+        'type' => 'int unsigned',
+        'required' => 0,
+        ));
+      $t->columnSet('class', array(
+        'type' => 'varchar(16)',
+        'required' => 1,
+        'key' => 'mul'
+        ));
+      $t->columnSet('code', array(
+        'type' => 'varchar(16)',
+        'required' => 0,
+        'key' => 'uni'
+        ));
+      $t->columnSet('left', array(
+        'type' => 'int unsigned',
+        'required' => 1,
+        'key' => 'uni'
+        ));
+      $t->columnSet('right', array(
+        'type' => 'int unsigned',
+        'required' => 1,
+        'key' => 'uni'
+        ));
+      $t->columnSet('uid', array(
+        'type' => 'int unsigned',
+        'required' => 0,
+        'key' => 'mul'
+        ));
+      $t->columnSet('created', array(
+        'type' => 'datetime',
+        'required' => 0,
+        'key' => 'mul'
+        ));
+      $t->columnSet('updated', array(
+        'type' => 'datetime',
+        'required' => 0,
+        'key' => 'mul'
+        ));
+      $t->columnSet('published', array(
+        'type' => 'tinyint(1)',
+        'required' => 1,
+        'default' => 0,
+        'key' => 'mul'
+        ));
+      $t->columnSet('deleted', array(
+        'type' => 'tinyint(1)',
+        'required' => 1,
+        'default' => 0,
+        'key' => 'mul'
+        ));
+       $t->commit();
+     }
+
+    $t = new TableInfo('node__rel');
+    if (!$t->exists()) {
+      $t->columnSet('nid', array(
+        'type' => 'int unsigned',
+        'required' => 1,
+        'key' => 'mul'
+        ));
+      $t->columnSet('tid', array(
+        'type' => 'int unsigned',
+        'required' => 1,
+        'key' => 'mul'
+        ));
+      $t->columnSet('key', array(
+        'type' => 'varchar(255)',
+        'required' => 0,
+        'key' =>'mul'
+        ));
+      $t->columnSet('order', array(
+        'type' => 'int unsigned',
+        'required' => 0,
+        'key' =>'mul'
+        ));
+        $t->commit();
+    }
+
+    $t = new TableInfo('node__rev');
+    if (!$t->exists()) {
+      $t->columnSet('rid', array(
+        'type' => 'int unsigned',
+        'required' => 1,
+        'key' => 'pri',
+        'autoincrement' => 1,
+        ));
+      $t->columnSet('nid', array(
+        'type' => 'int unsigned',
+        'required' => 0,
+        'key' => 'mul'
+        ));
+      $t->columnSet('uid', array(
+        'type' => 'int unsigned',
+        'required' => 0,
+        'key' =>'mul'
+        ));
+      $t->columnSet('name', array(
+        'type' => 'varchar(255)',
+        'required' => 0,
+        'key' =>'mul'
+        ));
+      $t->columnSet('data', array(
+        'type' => 'mediumblob',
+        'required' => 0,
+        ));
+      $t->columnSet('created', array(
+        'type' => 'datetime',
+        'required' => 1,
+         'key' =>'mul'
+        ));
+      $t->commit();
+    }
+
+    $t = new TableInfo('node__access');
+    if (!$t->exists()) {
+      $t->columnSet('nid', array(
+        'type' => 'int unsigned',
+        'required' => 1,
+        'key' => 'mul',
+        ));
+      $t->columnSet('uid', array(
+        'type' => 'int unsigned',
+        'required' => 1,
+        'key' => 'mul'
+        ));
+      $t->columnSet('c', array(
+        'type' => 'tinyint(1)',
+        'required' => 1,
+        'default' => 0,
+        ));
+      $t->columnSet('r', array(
+        'type' => 'tinyint(1)',
+        'required' => 1,
+        'default' => 0,
+        ));
+      $t->columnSet('u', array(
+        'type' => 'tinyint(1)',
+        'required' => 1,
+        'default' => 0,
+        ));
+      $t->columnSet('d', array(
+        'type' => 'tinyint(1)',
+        'required' => 1,
+        'default' => 0,
+        ));
+        $t->commit();
+    }
+
+    $t = new TableInfo('node__cache');
+    if (!$t->exists()) {
+      $t->columnSet('cid', array(
+        'type' => 'char(32)',
+        'required' => true,
+        ));
+      $t->columnSet('lang', array(
+        'type' => 'char(2)',
+        'required' => true,
+        ));
+      $t->columnSet('data', array(
+        'type' => 'mediumblob',
+        ));
+      $t->commit();
+    }
   }
 
   private function checkInstalled()
   {
     try {
-      $root = Node::load(array('class' => 'user', 'login' => 'root'));
+      $root = Node::load(array('class' => 'user', 'name' => 'root'));
       return true;
     } catch (Exception $e) {
       return false;

@@ -10,9 +10,6 @@ class GroupNode extends Node implements iContentType
       $this->login = $this->name;
 
     if ($this->id === null) {
-      if (Node::count(array('class' => 'group', 'login' => $this->login)))
-        throw new UserErrorException("Имя занято", 400, "Имя занято", "Группа с логином &laquo;{$this->login}&raquo; уже существует.");
-
       if (Node::count(array('class' => 'group', 'name' => $this->name)))
         throw new UserErrorException("Имя занято", 400, "Имя занято", "Группа с названием &laquo;{$this->name}&raquo; уже существует.");
     }
