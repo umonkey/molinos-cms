@@ -178,6 +178,11 @@ class AdminUIListControl extends Control
       }
       break;
 
+    case 'email':
+      if (!empty($value))
+        return mcms::html('a', array('href' => 'mailto:'. str_replace(' ', '', $value)), $value);
+      break;
+
     case 'filesize':
       return number_format($value, 0);
     }
