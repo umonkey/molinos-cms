@@ -284,7 +284,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     $user = mcms::user();
 
     // Добавляем вкладку с правами.
-    if ($user->hasGroup('Access Managers') and substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/') {
+    if ($user->hasAccess('u', 'user') and substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/') {
       $options = array();
 
       foreach ($this->getAccess() as $k => $v)
@@ -391,7 +391,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     $this->save();
 
     // Подключаем виджеты.
-    if (mcms::user()->hasGroup('Developers'))
+    if (mcms::user()->hasAccess('u', 'widget'))
       $this->linkSetChildren(array_key_exists('node_type_widgets', $data) ? $data['node_type_widgets'] : array(), 'widget');
   }
 

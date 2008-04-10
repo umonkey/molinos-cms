@@ -1089,7 +1089,7 @@ class NodeBase
       $intro[] = t('Вы изменяете документ типа &laquo;%type&raquo;.', array('%type' => $schema['title'])) . $description;
     */
 
-    if (mcms::user()->hasGroup('Schema Managers') and $this->class != 'type' and substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/')
+    if (mcms::user()->hasAccess('u', 'type') and $this->class != 'type' and substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/')
       $intro[] = t("Вы можете <a href='@typelink'>настроить этот тип</a>, добавив новые поля.", array(
         '@typelink' => "/admin/?mode=edit&id={$schema['id']}&destination=". urlencode($_SERVER['REQUEST_URI']),
         ));

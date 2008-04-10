@@ -287,7 +287,7 @@ class SubscriptionAdminWidget extends Widget implements iScheduler, iAdminMenu
     $icons = array();
     $user = mcms::user();
 
-    if ($user->hasGroup('Subscription Managers'))
+    if ($user->hasAccess('u', 'user'))
       $icons[] = array(
         'group' => 'content',
         'href' => '/admin/subscription/',

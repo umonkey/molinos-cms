@@ -23,7 +23,7 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
 
     $data = parent::formGetData();
 
-    if ($user->hasGroup('Access Managers'))
+    if ($user->hasAccess('u', 'user'))
       $data['node_access'] = $this->getAccess();
 
     $data['reset_access'] = 1;
@@ -47,9 +47,9 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
     $user = mcms::user();
 
     if (!empty($data['reset_access'])) {
-      if ($user->hasGroup('Access Managers'))
+      if ($user->hasAccess('u', 'user'))
         $this->setAccess(empty($data['node_access']) ? array() : $data['node_access']);
-      if ($user->hasGroup('Publishers')) {
+      if (count($user->getAccess('u'))) {
         if ($this->published and empty($data['node_published']))
           $this->unpublish();
         elseif (!$this->published and !empty($data['node_published']))

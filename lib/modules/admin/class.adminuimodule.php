@@ -5,7 +5,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 {
   public static function onGet(RequestContext $ctx)
   {
-    if (!mcms::user()->hasGroup('Content Managers'))
+    if (!mcms::user()->hasAccess('u', 'moduleinfo'))
       throw new ForbiddenException();
 
     if (bebop_is_debugger() and !empty($_GET['flush'])) {

@@ -98,7 +98,7 @@ class DomainNode extends Node implements iContentType
   {
     $result = array();
 
-    $su = mcms::user()->hasGroup('CMS Developers');
+    $su = mcms::user()->hasAccess('u', 'domain');
     $themes = glob($_SERVER['DOCUMENT_ROOT'] .'/themes/'.'*');
 
     if (!empty($themes)) {
@@ -202,7 +202,7 @@ class DomainNode extends Node implements iContentType
     if ($admin)
       $dev = true;
     else
-      $dev = mcms::user()->hasGroup('CMS Developers');
+      $dev = mcms::user()->hasAccess('u', 'domain');
 
     $result = array();
 
@@ -344,7 +344,7 @@ class DomainNode extends Node implements iContentType
     $form = parent::formGet($simple);
     $user = mcms::user();
 
-    if ($user->hasGroup('Developers')) {
+    if ($user->hasAccess('u', 'domain')) {
       if (null !== ($tab = $this->formGetWidgets()))
         $form->addControl($tab);
     }
@@ -420,7 +420,7 @@ class DomainNode extends Node implements iContentType
     else {
       $user = mcms::user();
 
-      if ($user->hasGroup('Developers'))
+      if ($user->hasAccess('u', 'domain'))
         $this->linkSetChildren(empty($data['node_domain_widgets']) ? array() : $data['node_domain_widgets'], 'widget');
     }
   }

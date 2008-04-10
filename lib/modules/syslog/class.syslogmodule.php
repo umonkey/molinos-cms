@@ -213,7 +213,7 @@ class SysLogModule implements iAdminUI, iAdminMenu, iModuleConfig, iNodeHook
 
   private function isGlobal()
   {
-    return mcms::user()->hasGroup('Site Managers');
+    return mcms::user()->hasAccess('u', 'user');
   }
 
   private function getFilter(array &$params)
@@ -251,7 +251,7 @@ class SysLogModule implements iAdminUI, iAdminMenu, iModuleConfig, iNodeHook
     $icons = array();
     $user = mcms::user();
 
-    if ($user->hasGroup('Access Managers')) {
+    if ($user->hasAccess('u', 'user')) {
       $icons[] = array(
         'group' => 'statistics',
         'href' => '/admin/?module=syslog&mode=list',

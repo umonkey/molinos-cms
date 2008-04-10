@@ -198,7 +198,7 @@ class AdminUIListControl extends Control
     if (!array_key_exists($uid, $users))
       $users[$uid] = Node::load(array('class' => 'user', 'id' => $uid));
 
-    if (mcms::user()->hasGroup('User Managers'))
+    if (mcms::user()->hasAccess('u', 'user'))
       return mcms::html('a', array(
         'href' => "/admin/?mode=edit&id={$uid}&destination=". urlencode($_SERVER['REQUEST_URI']),
         ), $users[$uid]->name);

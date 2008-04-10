@@ -256,7 +256,7 @@ class UserWidget extends Widget
     case 'edit':
       $user = mcms::user();
 
-      if ($options['uid'] != $user->id and !$user->hasGroup('User Managers'))
+      if ($options['uid'] != $user->id and !$user->hasAccess('u', 'user'))
         throw new PageNotFoundException(); // FIXME: 403
 
       $node = Node::load($options['uid']);

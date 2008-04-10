@@ -47,7 +47,7 @@ class MaintenanceModule implements iModuleConfig, iRequestHook
     $icons = array();
     $user = mcms::user();
 
-    if ($user->hasGroup('Developers') or $user->hasGroup('Site Managers'))
+    if ($user->hasAccess('u', 'domain'))
       $icons[] = array(
         'group' => 'Разработка',
         'img' => 'img/cms-maintenance.png',

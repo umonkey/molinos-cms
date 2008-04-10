@@ -135,7 +135,7 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
 
   private function isGlobal()
   {
-    return mcms::user()->hasGroup('Site Managers');
+    return mcms::user()->hasAccess('u', 'moduleinfo');
   }
 
   private function getFilter(array &$params)
@@ -173,7 +173,7 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
     $icons = array();
     $user = mcms::user();
 
-    if ($user->hasGroup('Access Managers')) {
+    if ($user->hasAccess('u', 'user')) {
       $icons[] = array(
         'group' => 'statistics',
         'href' => '/admin/?module=accesslog',

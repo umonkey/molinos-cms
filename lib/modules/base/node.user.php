@@ -117,7 +117,7 @@ class UserNode extends Node implements iContentType
   {
     parent::formProcess($data);
 
-    if (mcms::user()->hasGroup('User Managers'))
+    if (mcms::user()->hasAccess('u', 'group'))
       $this->linkSetParents(empty($data['node_user_groups']) ? array() : $data['node_user_groups'], 'group');
   }
 

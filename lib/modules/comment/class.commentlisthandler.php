@@ -23,7 +23,7 @@ class CommentListHandler extends AdminListHandler implements iAdminUI, iAdminMen
   {
     $icons = array();
 
-    if (mcms::user()->hasGroup('Comment Managers') and Node::count(array('class' => 'comment')))
+    if (mcms::user()->hasAccess('u', 'comment') and Node::count(array('class' => 'comment')))
       $icons[] = array(
         'group' => 'content',
         'href' => '/admin/?module=comment',

@@ -121,7 +121,7 @@ class AdminUINodeActionsControl extends Control
 
     $user = mcms::user();
 
-    if (!$user->hasGroup('Publishers')) {
+    if (!count($user->getAccess('u'))) {
       if (array_key_exists('publish', $actions))
         unset($actions['publish']);
       if (array_key_exists('unpublish', $actions))

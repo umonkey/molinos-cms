@@ -86,7 +86,7 @@ class AdminMenu implements iAdminMenu
     $icons = array();
     $user = mcms::user();
 
-    if ($user->hasGroup('Structure Managers'))
+    if ($user->hasAccess('u', 'tag'))
       $icons[] = array(
         'group' => 'content',
         'href' => '/admin/?mode=tree&preset=taxonomy',
@@ -95,14 +95,14 @@ class AdminMenu implements iAdminMenu
         'weight' => -1,
         );
 
-    if ($user->hasGroup('Schema Managers'))
+    if ($user->hasAccess('u', 'type'))
       $icons[] = array(
         'group' => 'structure',
         'href' => '/admin/?mode=list&preset=schema',
         'title' => t('Типы документов'),
         );
 
-    if ($user->hasGroup('Content Managers')) {
+    if (count($user->getAccess('u'))) {
       $icons[] = array(
         'group' => 'content',
         'href' => '/admin/?mode=list&columns=name,class,uid,created',
@@ -118,7 +118,7 @@ class AdminMenu implements iAdminMenu
           );
     }
 
-    if ($user->hasGroup('Developers')) {
+    if ($user->hasAccess('u', 'domain')) {
       $icons[] = array(
         'group' => 'structure',
         'href' => '/admin/?mode=tree&preset=pages',
@@ -137,22 +137,22 @@ class AdminMenu implements iAdminMenu
         );
     }
 
-    if ($user->hasGroup('User Managers')) {
+    if ($user->hasAccess('u', 'user'))
       $icons[] = array(
         'group' => 'access',
         'href' => '/admin/?mode=list&preset=users',
         'title' => t('Пользователи'),
         'description' => t('Управление профилями пользователей.'),
         );
+    if ($user->hasAccess('u', 'group'))
       $icons[] = array(
         'group' => 'access',
         'href' => '/admin/?mode=list&preset=groups',
         'title' => t('Группы'),
         'description' => t('Управление группами пользователей.'),
         );
-    }
 
-    if ($user->hasGroup('Content Managers'))
+    if ($user->hasAccess('u', 'file'))
       $icons[] = array(
         'group' => 'content',
         'href' => '/admin/?mode=list&preset=files',
@@ -160,7 +160,7 @@ class AdminMenu implements iAdminMenu
         'description' => t('Просмотр, редактирование и добавление файлов.'),
         );
 
-    if ($user->hasGroup('Content Managers') and Node::count(array('deleted' => 1, '-class' => TypeNode::getInternal())))
+    if (count($user->getAccess('u')) and Node::count(array('deleted' => 1, '-class' => TypeNode::getInternal())))
       $icons[] = array(
         'group' => 'content',
         'href' => '/admin/?mode=list&preset=trash',

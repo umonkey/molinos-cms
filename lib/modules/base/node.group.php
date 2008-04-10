@@ -154,7 +154,7 @@ class GroupNode extends Node implements iContentType
   {
     parent::formProcess($data);
 
-    if (mcms::user()->hasGroup('User Managers'))
+    if (mcms::user()->hasAccess('u', 'group'))
       $this->linkSetChildren(empty($data['node_group_users']) ? array() : $data['node_group_users'], 'user');
 
     if (!empty($data['reset_group_perm']))

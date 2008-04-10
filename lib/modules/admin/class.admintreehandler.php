@@ -90,7 +90,7 @@ class AdminTreeHandler
       $children = $root->getChildren('flat');
 
       foreach ($children as $node) {
-        if ($this->type == 'pages' and $node['theme'] == 'admin' and !$user->hasGroup('CMS Developers'))
+        if ($this->type == 'pages' and $node['theme'] == 'admin' and !$user->hasAccess('u', 'moduleinfo'))
           continue;
 
         $item = array(
