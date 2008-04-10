@@ -83,7 +83,7 @@ class GroupNode extends Node implements iContentType
     $options = array();
 
     foreach (TypeNode::getSchema() as $k => $v)
-      $options[$k] = $v['title'];
+      $options[$k] = empty($v['title']) ? $k : $v['title'];
 
     asort($options);
 
