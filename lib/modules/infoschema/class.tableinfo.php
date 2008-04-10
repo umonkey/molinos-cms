@@ -42,6 +42,11 @@ class TableInfo implements iModuleConfig
         }
     }
 
+    public function columnCount()
+    {
+        return count($this->columns);
+    }
+
     public function columnSet($name, array $options = null)
     {
         $spec = array(

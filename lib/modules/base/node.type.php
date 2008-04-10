@@ -452,6 +452,10 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       }
     }
 
+    // Если таблица создаётся, и колонка всего одна — rid — пропускаем.
+    if (!$t->exists() and $t->columnCount() == 1 and $t->columnExists('rid'))
+      return;
+
     $t->commit();
   }
 
