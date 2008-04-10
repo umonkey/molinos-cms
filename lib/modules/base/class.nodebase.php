@@ -822,7 +822,7 @@ class NodeBase
     $sql = "SELECT `r`.`name`, `a`.* FROM `node__access` `a` "
       ."INNER JOIN `node` `n` ON `n`.`id` = `a`.`uid` "
       ."INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` "
-      ."WHERE `a`.`nid` = :nid AND `n`.`class` = 'group'";
+      ."WHERE `a`.`nid` = :nid AND `n`.`class` = 'group' AND `n`.`deleted` = 0";
 
     // die($sql);
 
