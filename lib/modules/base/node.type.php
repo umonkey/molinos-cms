@@ -281,8 +281,8 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if ($user->hasAccess('u', 'user') and substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/') {
       $options = array();
 
-      foreach ($this->getAccess() as $k => $v)
-        $options[$k] = $v['name'];
+      foreach ($acc = $this->getAccess() as $k => $v)
+        $options[$k] = empty($v['name']) ? $k : $v['name'];
 
       $tab = new FieldSetControl(array(
         'name' => 'access',
@@ -314,7 +314,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       $field = new FieldControl(array(
         'name' => $k,
         'value' => 'node_content_fields',
-        'label' => $v['label'],
+        'label' => empty($v['label']) ? $k : $v['label'],
         ));
 
       $form->addControl($field);
