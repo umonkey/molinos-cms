@@ -221,7 +221,7 @@ abstract class Widget implements iWidget
   // Чтение конфигурации.
   public function __get($key)
   {
-    if (array_key_exists($key, $this->me->config))
+    if (isset($this->me->config) and array_key_exists($key, $this->me->config))
       return $this->me->config[$key];
     return null;
   }
