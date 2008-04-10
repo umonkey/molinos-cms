@@ -143,13 +143,13 @@ class AdminListHandler
       case 'users':
         $this->types = array('user');
         $this->title = t('Список пользователей');
-        $this->columns = array('name', 'email', 'created');
+        $this->columns = array('name', 'login', 'email', 'created');
         $this->sort = array('name');
         break;
       case 'files':
         $this->types = array('file');
         $this->title = t('Файловый архив');
-        $this->columns = array('thumbnail', 'name', 'filename', 'filetype', 'filesize', 'created');
+        $this->columns = array('thumbnail', 'name', 'filename', 'filetype', 'filesize', 'uid', 'created');
         break;
       case 'schema':
         $this->types = array('type');
