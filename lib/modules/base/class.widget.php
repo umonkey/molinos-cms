@@ -233,7 +233,7 @@ abstract class Widget implements iWidget
 
   public function __isset($key)
   {
-    return array_key_exists($key, $this->me->config);
+    return isset($this->me->config) and array_key_exists($key, $this->me->config);
   }
 
   protected function emitNotFound($description = null)
