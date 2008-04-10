@@ -57,6 +57,7 @@ function render_reboot_link()
             <div class="greeting">Здравствуйте, <?php print render_username(); ?>.</div>
             <a href="/admin/?cgroup=access&amp;mode=edit&amp;id=<?php print mcms::user()->id; ?>&amp;destination=<?php print urlencode($_SERVER['REQUEST_URI']) ?>" title="Редактировать свой профиль">Настройки</a>
             <a href="<?php print render_reboot_link(); ?>" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
+            <?php if (bebop_is_debugger()): ?><a href="/phpminiadmin.php?showcfg=1">DB</a><?php endif; ?>
             <a id="lnk_exit" href="/base.rpc?action=logout&amp;destination=%2F">Выйти</a>
           </div>
         </div><!-- id=top_toolbar -->
