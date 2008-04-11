@@ -72,52 +72,60 @@ class CommentFormWidget extends Widget
     return array('html' => parent::formRender('comment-new'));
   }
 
+  protected function getNewForm($strip = true)
+  {
+    $user = mcms::user();
+    $schema = TypeNode::getSchema('comment');
+    $hidden = $user->id ? $this->hide_user : $this->hide_anon;
+
+    $form = new Form(array(
+      'title' => t('Добавить комментарий'),
+      ));
+
+    $welcome = null;
+
+    switch ($this->options['status']) {
+      case 'pending':
+        $welcome = t('Ваш комментарий добавлен, но на сайте будет показан только после одобрения модератором.');
+        break;
+      case 'published':
+        $welcome = t('Ваш комментарий добавлен.');
+        break;
+    }
+
+    if (null !== $welcome)
+      $form->addControl(new InfoControl(array(
+        'text' => $welcome,
+        )));
+
+    foreach ($schema['fields'] as $k => $v) {
+      if (!in_array($k, (array)$hidden) or !$strip) {
+        $v['value'] = 'comment_'. $k;
+
+        if (null !== ($ctl = Control::make($v)))
+          $form->addControl($ctl);
+      }
+    }
+
+    $form->addControl(new HiddenControl(array(
+      'value' => 'comment_node',
+      )));
+
+    $form->addControl(new SubmitControl(array(
+      'text' => t('Отправить'),
+      )));
+
+    return $form;
+  }
+
   public function formGet($id)
   {
     $form = null;
 
     switch ($id) {
     case 'comment-new':
-      $user = mcms::user();
-      $schema = TypeNode::getSchema('comment');
-      $hidden = $user->id ? $this->hide_user : $this->hide_anon;
-
-      $form = new Form(array(
-        'title' => t('Добавить комментарий'),
-        ));
-
-      $welcome = null;
-
-      switch ($this->options['status']) {
-        case 'pending':
-          $welcome = t('Ваш комментарий добавлен, но на сайте будет показан только после одобрения модератором.');
-          break;
-        case 'published':
-          $welcome = t('Ваш комментарий добавлен.');
-          break;
-      }
-
-      if (null !== $welcome)
-        $form->addControl(new InfoControl(array(
-          'text' => $welcome,
-          )));
-
-      foreach ($schema['fields'] as $k => $v) {
-        if (!in_array($k, (array)$hidden)) {
-          $v['value'] = 'comment_'. $k;
-
-          if (null !== ($ctl = Control::make($v)))
-            $form->addControl($ctl);
-        }
-      }
-
-      $form->addControl(new HiddenControl(array(
-        'value' => 'comment_node',
-        )));
-
-      $form->addControl(new SubmitControl(array(
-        'text' => t('Отправить'),
-        )));
+      $form = $this->getNewForm();
+      break;
     }
 
     $form->captcha = true;
