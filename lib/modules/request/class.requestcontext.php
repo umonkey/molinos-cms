@@ -50,11 +50,22 @@ class RequestContext
       if (null === ($this->section = empty($this->apath[0]) ? null : $this->apath[0]))
         $this->section = $this->root;
 
+      if (count($this->apath) > 1)
+        throw new PageNotFoundException();
+
       break;
 
     case 'doc':
       $this->document = empty($this->apath[0]) ? null : $this->apath[0];
+
+      if (count($this->apath) > 1)
+        throw new PageNotFoundException();
+
       break;
+
+    default:
+      if (!empty($this->apath))
+        throw new PageNotFoundException();
     }
 
     if (null === $this->root and is_numeric($page->defaultsection)) {
