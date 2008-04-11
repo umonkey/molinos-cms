@@ -681,7 +681,11 @@ class mcms
           unlink($fname);
         unset($cache->$key);
       } else {
-        file_put_contents($fname, serialize($args[1]));
+        if (is_writable(dirname($fname))) {
+          if (file_exists($fname))
+            unlink($fname);
+          file_put_contents($fname, serialize($args[1]));
+        }
         $cache->$key = $args[1];
       }
 
