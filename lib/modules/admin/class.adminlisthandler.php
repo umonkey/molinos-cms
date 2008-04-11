@@ -218,8 +218,14 @@ class AdminListHandler
 
     if (null !== $this->types)
       $filter['class'] = $this->types;
-    else
-      $filter['-class'] = TypeNode::getInternal(); // array('domain', 'widget', 'user', 'group', 'type', 'file', 'comment');
+    else {
+      $filter['class'] = array();
+
+      foreach (TypeNode::getSchema() as $k => $v) {
+        if (empty($v['adminmodule']) or !mcms::ismodule($v['adminmodule']))
+          $filter['class'][] = $k;
+      }
+    }
 
     if (!empty($this->sort)) {
       foreach ($this->sort as $field) {

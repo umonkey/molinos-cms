@@ -14,4 +14,31 @@ class CommentNode extends Node
 
     return $form;
   }
+
+  public function getDefaultSchema()
+  {
+    return array(
+      'name' => 'comment',
+      'title' => t('Комментарий'),
+      'lang' => 'ru',
+      'adminmodule' => 'comment',
+      'notags' => 1,
+      'fields' => array(
+        'name' => array(
+          'label' => 'Заголовок',
+          'type' => 'TextLineControl',
+          'description' => 'Отображается в списках документов как в административном интерфейсе, так и на самом сайте.',
+          'required' => '1',
+          ),
+        'author' => array(
+          'label' => 'Автор',
+          'type' => 'TextLineControl',
+          ),
+        'text' => array(
+          'label' => 'Текст',
+          'type' => 'TextHTMLControl',
+          ),
+      ),
+    );
+  }
 };

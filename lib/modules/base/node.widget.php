@@ -23,6 +23,50 @@ class WidgetNode extends Node implements iContentType
     return parent::save(false);
   }
 
+  public function getDefaultSchema()
+  {
+    return array(
+      'name' => 'widget',
+      'title' => t('Виджет'),
+      'description' => t('Блоки, из которых строятся страницы.'),
+      'lang' => 'ru',
+      'adminmodule' => 'admin',
+      'fields' => array(
+        'name' => array(
+          'label' => 'Внутреннее имя',
+          'type' => 'TextLineControl',
+          'description' => 'Используется для идентификации виджета внутри шаблонов, а также для поиска шаблонов для виджета.',
+          'default' => '',
+          'values' => '',
+          'required' => '1',
+          ),
+        'title' => array(
+          'label' => 'Название',
+          'type' => 'TextLineControl',
+          'description' => 'Человеческое название виджета.',
+          'default' => '',
+          'values' => '',
+          'required' => '1',
+          ),
+        'description' => array(
+          'label' => 'Описание',
+          'type' => 'TextAreaControl',
+          'description' => 'Краткое описание выполняемых виджетом функций и особенностей его работы.',
+          'default' => '',
+          'values' => '',
+          ),
+        'classname' => array(
+          'label' => 'Используемый класс',
+          'type' => 'TextLineControl',
+          'description' => '',
+          'default' => '',
+          'values' => '',
+          'required' => '1',
+          ),
+        ),
+      );
+  }
+
   public function duplicate()
   {
     $this->name = preg_replace('/_[0-9]+$/', '', $this->name) .'_'. rand();

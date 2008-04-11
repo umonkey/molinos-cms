@@ -27,6 +27,7 @@ class MessageNode extends Node
       'title' => t('Сообщение'),
       'description' => t('Используется для обмена сообщениями между пользователями, а также для доставки внутренних уведомлений.'),
       'lang' => 'ru',
+      'adminmodule' => 'msg',
       'fields' => array(
         'uid' => array(
           'label' => t('Отправитель'),
