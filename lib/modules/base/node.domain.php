@@ -363,9 +363,11 @@ class DomainNode extends Node implements iContentType
   {
     $options = array();
 
-    foreach (Node::find(array('class' => 'widget', '#sort' => array('widget.title' => 'ASC'))) as $w)
+    foreach (Node::find(array('class' => 'widget')) as $w)
       if (substr($w->name, 0, 5) != 'Bebop')
         $options[$w->id] = $w->title;
+
+    asort($options);
 
     $tab = new FieldSetControl(array(
       'name' => 'widgets',

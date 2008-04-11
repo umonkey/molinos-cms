@@ -152,7 +152,7 @@ class RequestController
 
       if (!empty($root['children'])) {
         foreach ($root['children'] as $url) {
-          if ($url['name'] == $current) {
+          if (empty($url['deleted']) and $url['name'] == $current) {
             $root = $url;
             $ppath[] = $current;
             $current = null;
