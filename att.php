@@ -11,6 +11,7 @@ class StaticAttachment
   var $filename;
   var $source;
   var $output;
+  var $ckey;
   var $nw;
   var $nh;
   var $options = array();
@@ -24,7 +25,14 @@ class StaticAttachment
 
     $args = explode(',', $path[0]);
 
-    if (null === ($storage = BebopConfig::getInstance()->filestorage))
+    $this->ckey = 'image:'. $get['q'];
+
+    // На данный момент у нас есть идентификатор картинки.
+    // Пытаемся достать её из кэша, если получается — отдаём
+    // пользователю и завершаем запрос.
+    $this->sendCache();
+
+    if (null === ($storage = mcms::config('filestorage')))
       $storage = 'storage';
 
     $node = Tagger::getInstance()->getObject($args[0]);
@@ -103,8 +111,26 @@ class StaticAttachment
     exit();
   }
 
+  private function sendCache($data = null)
+  {
+    if (null === $data) {
+      if (!is_array($tmp = mcms::cache($this->ckey)))
+        return;
+    } else {
+      mcms::cache($this->ckey, $data);
+    }
+
+    header('Content-Type: '. $tmp['type']);
+    header('Content-Length: '. strlen($tmp['data']));
+    die($tmp['data']);
+  }
+
   public function sendFile()
   {
+    $this->sendCache();
+
+    bebop_debug();
+
     if (!is_file($this->source))
       $this->sendError(404, 'could not find this attachment.');
 
@@ -119,23 +145,9 @@ class StaticAttachment
     if ($rc === false)
       return $this->sendFileDownload($img);
 
-    if (!is_file($this->output) or filemtime($this->source) > filemtime($this->output)) {
-      // Если файл существует -- обязательно его удаляем, иначе есть
-      // шанс запороть оригинал, попытавшись перезаписать симлинк (по
-      // причине кривой обработки параметров, или по другой -- не важно,
-      // всякое бывает).
-      if (is_link($this->output) and !unlink($this->output))
-        $this->sendError(500, 'could not remove the file from cache. Overwriting that file would cause the original data to be lost.');
-
-      // Масштабируем картинку, если это нужно.
-      if ($this->nw !== null or $this->nh !== null)
-        $this->resizeImage($img);
-
-      // Если масштабирование не запрошено -- создаём симлинк на картинку,
-      // чтобы больше к её обработке не возвращаться (загоняем в кэш).
-      elseif (!symlink(getcwd() .'/'. $this->source, $this->output))
-          $this->sendError(500, 'could not create a caching symlink for this attachment.');
-    }
+    // Если получилось отмасштабировать — кэшируем и отдаём.
+    if (is_array($tmp = $this->resizeImage($img)))
+      $this->sendCache($tmp);
 
     // Открываем файл на чтение.
     $f = fopen($this->output, 'r')
@@ -159,8 +171,10 @@ class StaticAttachment
       if (!is_writable($this->folder))
           $this->sendError(500, "could not cache the image.");
 
-      if (!$img->save($this->output))
+      if (!is_array($tmp = $img->dump()))
           $this->sendError(500, "could not write the resized image");
+
+      return $tmp;
     } catch (Exception $e) {
         $this->sendError(500, $e->getMessage());
     }
