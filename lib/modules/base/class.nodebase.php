@@ -116,9 +116,6 @@ class NodeBase
     else
       $sql .= ' -- Node::find()';
 
-    if (!empty($query['#debug']))
-      bebop_debug($query, $sql, $params);
-
     $sth = mcms::db()->exec($sql, $params);
 
     $data = array();

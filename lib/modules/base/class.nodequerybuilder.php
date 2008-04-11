@@ -67,6 +67,9 @@ class NodeQueryBuilder
     $sql .= ' '. $this->getOrderPart();
 
     $params = $this->params;
+
+    if (!empty($this->query['#debug']))
+      bebop_debug($this, $sql, $params);
   }
 
   // Оставляет только один класс, если их много, и если в условии есть
@@ -112,6 +115,9 @@ class NodeQueryBuilder
   private function scanBase(&$sql, array &$params)
   {
     $this->reset();
+
+    // Добавляем проверку прав.
+    $this->addPermissionCheck();
 
     // Если нет выборки по rid -- используем текущую ревизию.
     if (empty($this->query['rid']))
@@ -159,9 +165,6 @@ class NodeQueryBuilder
 
     // Специальные запросы тоже обрабатываются всегда.
     $this->addSpecialQueries();
-
-    // Добавляем проверку прав.
-    $this->addPermissionCheck();
   }
 
   // Разберает контекстный поиск.
@@ -362,10 +365,15 @@ class NodeQueryBuilder
     if (!empty($this->query['#permcheck']) and !mcms::config('bypass_permcheck')) {
       $filter = mcms::user()->getAccess('r');
 
+      $tmp = (array)$this->query['class'];
+
       if (!empty($this->query['class']))
-        $this->query['class'] = array_intersect((array)$this->query['class'], $filter);
+        $this->query['class'] = array_intersect($tmp, $filter);
       else
         $this->query['class'] = $filter;
+
+      if (empty($this->query['class']))
+        $this->query['class'] = null;
     }
   }
 
