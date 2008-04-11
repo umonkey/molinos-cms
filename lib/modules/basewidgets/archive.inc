@@ -83,7 +83,7 @@ class ArchiveWidget extends Widget
 
     // Достаём код раздела.
     if (!empty($tmpoptions['filter']['tags']))
-      $root = $tmpoptions['filter']['tags'];
+      $root = $tmpoptions['filter']['tags'][0];
 
     if (empty($root) and !empty($conf['fixed']))
       $root = $conf['fixed'];
