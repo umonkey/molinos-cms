@@ -3,7 +3,7 @@
  * $Id: tiny_mce_gzip.php 315 2007-10-25 14:03:43Z spocke $
  *
  * @author Moxiecode
- * @copyright Copyright ï¿½ 2005-2006, Moxiecode Systems AB, All rights reserved.
+ * @copyright Copyright © 2005-2006, Moxiecode Systems AB, All rights reserved.
  *
  * This file compresses the TinyMCE JavaScript using GZip and
  * enables the browser to do two requests instead of one for each .js file.
@@ -70,7 +70,7 @@
 	if (isset($_SERVER['HTTP_ACCEPT_ENCODING']))
 		$encodings = explode(',', strtolower(preg_replace("/\s+/", "", $_SERVER['HTTP_ACCEPT_ENCODING'])));
 
-	if ((in_array('gzip', $encodings) || in_array('x-gzip', $encodings) || isset($_SERVER['---------------'])) && function_exists('ob_gzhandler')) {
+	if ((in_array('gzip', $encodings) || in_array('x-gzip', $encodings) || isset($_SERVER['---------------'])) && function_exists('ob_gzhandler') && !ini_get('zlib.output_compression')) {
 		$enc = in_array('x-gzip', $encodings) ? "x-gzip" : "gzip";
 		$supportsGzip = true;
 	}
@@ -79,8 +79,7 @@
 	if ($diskCache && $supportsGzip && file_exists($cacheFile)) {
 		if ($compress)
 			header("Content-Encoding: " . $enc);
-			
-		header('Content-Length: '. strlen(getFileContents($cacheFile)));
+
 		echo getFileContents($cacheFile);
 		die();
 	}

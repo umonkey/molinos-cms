@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<title>{#xhtmlxtras_dlg.title_acronym_element}</title>
-	<script type="text/javascript" src="../../tiny_mce_popup.js"></script>
-	<script type="text/javascript" src="../../utils/mctabs.js"></script>
-	<script type="text/javascript" src="../../utils/form_utils.js"></script>
-	<script type="text/javascript" src="../../utils/editable_selects.js"></script>
-	<script type="text/javascript" src="js/element_common.js"></script>
-	<script type="text/javascript" src="js/acronym.js"></script>
-	<link rel="stylesheet" type="text/css" href="css/popup.css" />
+	<script type="text/javascript" src="../../tiny_mce_popup.js?v={tinymce_version}"></script>
+	<script type="text/javascript" src="../../utils/mctabs.js?v={tinymce_version}"></script>
+	<script type="text/javascript" src="../../utils/form_utils.js?v={tinymce_version}"></script>
+	<script type="text/javascript" src="../../utils/editable_selects.js?v={tinymce_version}"></script>
+	<script type="text/javascript" src="js/element_common.js?v={tinymce_version}"></script>
+	<script type="text/javascript" src="js/acronym.js?v={tinymce_version}"></script>
+	<link rel="stylesheet" type="text/css" href="css/popup.css?v={tinymce_version}" />
 	<base target="_self" />
 </head>
 <body style="display: none">
@@ -27,7 +27,7 @@
 				<table border="0" cellpadding="0" cellspacing="4">
 					<tr>
 						<td class="label"><label id="titlelabel" for="title">{#xhtmlxtras_dlg.attribute_label_title}</label>:</td> 
-						<td><input id="title" name="title" type="text" value="" class="field" /></td> 
+						<td><input id="title" name="title" type="text" value="" class="field mceFocus" /></td> 
 					</tr>
 					<tr>
 						<td class="label"><label id="idlabel" for="id">{#xhtmlxtras_dlg.attribute_label_id}</label>:</td> 
@@ -134,7 +134,7 @@
 	</div>
 	<div class="mceActionPanel">
 		<div style="float: left">
-			<input type="button" id="insert" name="insert" value="{#update}" onclick="insertAcronym();" />
+			<input type="submit" id="insert" name="insert" value="{#update}" />
 		</div>
 		<div style="float: left">
 			<input type="button" id="remove" name="remove" class="button" value="{#xhtmlxtras_dlg.remove}" onclick="removeAcronym();" style="display: none;" />
