@@ -167,7 +167,18 @@ class CartWidget extends Widget
     if (empty($_SESSION['cart']))
       return null;
 
-    $output = parent::formRender('cart-details');
+    $output = array();
+
+    foreach ($_SESSION['cart'] as $k => $v) {
+      try {
+        $node = Node::load($k);
+        $output['list'][] = array(
+          'qty' => $v,
+          'object' => $node->getRaw(),
+          );
+      } catch (ObjectNotFoundException $e) {
+      }
+    }
 
     return $output;
   }
