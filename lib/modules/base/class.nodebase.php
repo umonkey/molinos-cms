@@ -116,6 +116,8 @@ class NodeBase
     else
       $sql .= ' -- Node::find()';
 
+    mcms::db()->log("--- Finding nodes ---");
+
     $sth = mcms::db()->exec($sql, $params);
 
     $data = array();
@@ -152,6 +154,11 @@ class NodeBase
 
     // Здесь хранятся идентификаторы создаваемых документов.
     static $mydocs = array();
+
+    if ($this->id)
+      mcms::db()->log("--- Saving node {$this->id} ---");
+    else
+      mcms::db()->log("--- Creating a {$this->class} node ---");
 
     $tg = Tagger::getInstance();
 
@@ -406,11 +413,17 @@ class NodeBase
   }
 
   // Загружает дерево дочерних объектов, формируя вложенные массивы children.
-  public function loadChildren()
+  public function loadChildren($class = null)
   {
+    if (null === $class)
+      $class = $this->class;
+
+    if (empty($this->left) or empty($this->right))
+      throw new RuntimeException(t('Невозможно получить дочерние объекты: свойства left/right для объекта %id не заполнены.', array('%id' => $this->id)));
+
     // Загружаем детей в плоский список.
-    $children = Node::find(array(
-      // 'class' => $this->class,
+    $children = Node::find($filter = array(
+      'class' => $class,
       'left' => array('>'. $this->left, '<'. $this->right),
       '#sort' => array(
         'left' => 'asc',
@@ -550,7 +563,7 @@ class NodeBase
     if (null === $tmp)
       return null;
 
-    $sql = "SELECT `parent`.`id`, `parent`.`parent_id`, `parent`.`code`, `parent`.`class`, `rev`.`name`, `rev`.`data` "
+    $sql = "SELECT `parent`.`id`, `parent`.`parent_id`, `parent`.`code`, `parent`.`class`, `parent`.`left`, `parent`.`right`, `rev`.`name`, `rev`.`data` "
       ."FROM `node` AS `self`, `node` AS `parent`, `node__rev` AS `rev` "
       ."WHERE `self`.`left` BETWEEN `parent`.`left` AND `parent`.`right` AND `self`.`id` = {$tmp} AND `rev`.`rid` = `parent`.`rid` "
       ."ORDER BY `parent`.`left` -- NodeBase::getParents({$tmp})";

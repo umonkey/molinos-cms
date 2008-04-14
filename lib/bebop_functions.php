@@ -68,13 +68,19 @@ function bebop_skip_checks()
 function bebop_debug()
 {
   if (bebop_is_debugger()) {
+    mcms::db()->rollback();
+
     if (ob_get_length())
       ob_end_clean();
 
     $output = array();
 
-    foreach (func_get_args() as $arg) {
-      $output[] = var_export($arg, true);
+    if (func_num_args()) {
+      foreach (func_get_args() as $arg) {
+        $output[] = var_export($arg, true);
+      }
+    } else {
+      $output[] = 'breakpoint';
     }
 
     bebop_on_json(array('args' => $output));
@@ -746,7 +752,7 @@ class mcms
   public static function flush($flags = null)
   {
     if (null !== ($cache = BebopCache::getInstance()))
-      $cache->flush(true & self::FLUSH_NOW ? true : false);
+      $cache->flush($flags & self::FLUSH_NOW ? true : false);
   }
 
   public static function db()

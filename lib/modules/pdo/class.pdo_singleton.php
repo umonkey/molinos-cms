@@ -24,7 +24,7 @@ class PDO_Singleton extends PDO
       if (version_compare(PHP_VERSION, "5.1.3", ">="))
         $this->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
-      if ((!empty($_GET['profile']) or !empty($_GET['postprofile'])) and bebop_is_debugger())
+      if ((!empty($_GET['profile']) or !empty($_GET['postprofile']) or !empty($_GET['debug'])) and bebop_is_debugger())
         $this->query_log = array();
 
       $this->exec("SET NAMES utf8");
@@ -54,8 +54,7 @@ class PDO_Singleton extends PDO
 
         $sth = $this->prepared_queries[$hash];
 
-        if ($this->query_log !== null)
-          $this->query_log[] = $sql;
+        $this->log($sql);
 
         return $sth;
     }
@@ -74,7 +73,8 @@ class PDO_Singleton extends PDO
 
     public function log($string)
     {
-      $this->query_log[] = $string;
+      if (null !== $this->query_log)
+        $this->query_log[] = $string;
     }
 
     // Возвращает результат запроса в виде ассоциативного массива k => v.

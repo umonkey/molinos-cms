@@ -83,9 +83,11 @@ class DBCache implements iBebopCacheEngine
 
     public function flush($now = true)
     {
-        try {
-            $this->pdo->exec("DELETE FROM `node__cache`");
-        } catch (PDOException $e) {
+        if ($now) {
+            try {
+                $this->pdo->exec("DELETE FROM `node__cache`");
+            } catch (PDOException $e) {
+            }
         }
     }
 
