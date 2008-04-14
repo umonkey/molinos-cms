@@ -139,8 +139,38 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
   private static function onGetModules(RequestContext $ctx)
   {
-    if ($ctx->get('action') == 'info' or $ctx->get('action') == 'config')
+    switch ($ctx->get('action')) {
+    case 'info':
       return self::onGetModuleInfo($ctx->get('name'));
+
+    case 'config':
+      $form = mcms::invoke_module($ctx->get('name'), 'iModuleConfig', 'formGetModuleConfig');
+
+      if (!($form instanceof Form))
+        throw new PageNotFoundException();
+
+      $data = array();
+
+      foreach (mcms::modconf($ctx->get('name')) as $k => $v) 
+          $data['config_'. $k] = $v;
+
+      $form->title = t('Настройка модуля %name', array('%name' => $ctx->get('name')));
+
+      $form->action = bebop_combine_url(array(
+        'path' => '/admin.rpc',
+        'args' => array(
+          'module' => $ctx->get('name'),
+          'action' => 'modconf',
+          'destination' => $_SERVER['REQUEST_URI'],
+          ),
+        ), false);
+      
+      $form->addControl(new SubmitControl(array(
+        'text' => t('Сохранить'),
+        )));
+
+      return $form->getHTML($data);
+    }
 
     $tmp = new ModuleAdminUI();
     return $tmp->getList();
@@ -186,38 +216,75 @@ class AdminUIModule implements iAdminUI, iRemoteCall
   {
     switch ($ctx->get('action')) {
     case 'modlist':
-      mcms::user()->checkAccess('u', 'moduleinfo');
+      self::hookModList($ctx);
+      break;
 
-      mcms::db()->beginTransaction();
-
-      // Список сохранённых конфигураций.
-      $existing = mcms::db()->getResultsKV("name", "id", "SELECT `n`.`id`, `r`.`name` FROM `node__rev` `r` INNER JOIN `node` `n` ON `n`.`rid` = `r`.`rid` WHERE `n`.`class` = 'moduleinfo' AND `n`.`deleted` = 0");
-
-      // Создаём нужные новые конфигурации.
-      foreach ($ctx->post('selected', array()) as $name) {
-        if (!array_key_exists($name, $existing)) {
-          $tmp = Node::create('moduleinfo', array(
-            'name' => $name,
-            'published' => 1,
-            ));
-          $tmp->save();
-        }
-      }
-
-      // Меняем публикацию для существовавших объектов.
-      foreach ($existing as $k => $v) {
-        mcms::db()->exec("UPDATE `node` SET `published` = :p WHERE `class` = 'moduleinfo' AND `id` = :id", $args = array(
-          ':p' => in_array($k, $ctx->post('selected', array())) ? 1 : 0,
-          ':id' => $v,
-          ));
-      }
-
-      mcms::db()->commit();
-
-      if (file_exists($tmp = 'tmp/.modmap.php') and is_writable(dirname($tmp)))
-        unlink($tmp);
+    case 'modconf':
+      self::hookModConf($ctx);
+      break;
     }
 
     bebop_redirect($ctx->get('destination', '/'));
+
+  }
+
+  private static function hookModList(RequestContext $ctx)
+  {
+    if ('POST' != $_SERVER['REQUEST_METHOD'])
+      throw new PageNotFoundException();
+
+    mcms::user()->checkAccess('u', 'moduleinfo');
+
+    mcms::db()->beginTransaction();
+
+    // Список сохранённых конфигураций.
+    $existing = mcms::db()->getResultsKV("name", "id", "SELECT `n`.`id`, `r`.`name` FROM `node__rev` `r` INNER JOIN `node` `n` ON `n`.`rid` = `r`.`rid` WHERE `n`.`class` = 'moduleinfo' AND `n`.`deleted` = 0");
+
+    // Создаём нужные новые конфигурации.
+    foreach ($ctx->post('selected', array()) as $name) {
+      if (!array_key_exists($name, $existing)) {
+        $tmp = Node::create('moduleinfo', array(
+          'name' => $name,
+          'published' => 1,
+          ));
+        $tmp->save();
+      }
+    }
+
+    // Меняем публикацию для существовавших объектов.
+    foreach ($existing as $k => $v) {
+      mcms::db()->exec("UPDATE `node` SET `published` = :p WHERE `class` = 'moduleinfo' AND `id` = :id", $args = array(
+        ':p' => in_array($k, $ctx->post('selected', array())) ? 1 : 0,
+        ':id' => $v,
+        ));
+    }
+
+    mcms::db()->commit();
+
+    if (file_exists($tmp = 'tmp/.modmap.php') and is_writable(dirname($tmp)))
+      unlink($tmp);
+  }
+
+  private static function hookModConf(RequestContext $ctx)
+  {
+    $conf = array();
+
+    mcms::user()->checkAccess('u', 'moduleinfo');
+
+    foreach ($ctx->post as $k => $v) {
+      if (substr($k, 0, 7) == 'config_' and !empty($v))
+        $conf[substr($k, 7)] = $v;
+    }
+
+    if (count($tmp = array_values(Node::find(array('class' => 'moduleinfo', 'name' => $ctx->get('module'))))))
+      $node = $tmp[0];
+    else
+      $node = Node::create('moduleinfo', array(
+        'name' => $ctx->get('module'),
+        'published' => true,
+        ));
+
+    $node->config = $conf;
+    $node->save();
   }
 };

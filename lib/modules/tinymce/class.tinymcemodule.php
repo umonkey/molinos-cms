@@ -15,7 +15,11 @@ class TinyMceModule implements iModuleConfig, iPageHook
     $tab->addControl(new EnumControl(array(
       'value' => 'config_theme',
       'label' => t('Режим работы'),
-      'options' => self::listDirs('themes'),
+      'options' => array(
+        'simple' => t('Простой (B/I/U)'),
+        'simple+' => t('Простой со ссылками и картинками'),
+        'advanced' => t('Всё, что можно'),
+        ),
       'required' => true,
       )));
     $tab->addControl(new BoolControl(array(
@@ -41,17 +45,6 @@ class TinyMceModule implements iModuleConfig, iPageHook
         'bottom' => t('Снизу'),
         ),
       'description' => t('При отключении пропадает также возможность изменять размер редактора мышью.'),
-      )));
-    $form->addControl($tab);
-
-    $tab = new FieldSetControl(array(
-      'name' => 'plugins',
-      'label' => t('Расширения'),
-      ));
-    $tab->addControl(new SetControl(array(
-      'value' => 'config_plugins',
-      'label' => t('Задействовать плагины'),
-      'options' => self::listDirs('plugins'),
       )));
     $form->addControl($tab);
 

@@ -24,7 +24,7 @@ class ModuleAdminUI
           )) ."</td>";
 
         if (!empty($module['implementors']['iModuleConfig']) and !empty($module['enabled']))
-          $output .= "<td><a class='icon configure' href='/admin/?mode=modules&amp;action=config&amp;name={$modname}&amp;cgroup={$_GET['cgroup']}'><span>настроить</span></a></td>";
+          $output .= "<td><a class='icon configure' href='/admin/?mode=modules&amp;action=config&amp;name={$modname}&amp;cgroup={$_GET['cgroup']}&amp;destination=". urlencode($_SERVER['REQUEST_URI']) ."'><span>настроить</span></a></td>";
         else
           $output .= "<td>&nbsp;</td>";
 

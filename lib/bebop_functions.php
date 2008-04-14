@@ -767,9 +767,20 @@ class mcms
 
   public static function invoke($interface, $method, array $args = array())
   {
-    foreach (mcms::getImplementors($interface) as $class)
+    foreach ($tmp = mcms::getImplementors($interface) as $class)
       if (mcms::class_exists($class))
         call_user_func_array(array($class, $method), $args);
+  }
+
+  public static function invoke_module($module, $interface, $method, array $args = array())
+  {
+    $res = null;
+    $tmp = mcms::getImplementors($interface, $module);
+
+    foreach (mcms::getImplementors($interface, $module) as $class)
+      $res = call_user_func_array(array($class, $method), $args);
+
+    return $res;
   }
 
   public static function log($op, $message, $nid = null)
