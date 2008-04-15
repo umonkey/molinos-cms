@@ -13,6 +13,8 @@ class RPCHandler implements iRequestHook
         $module = substr($url['path'], 1, -4);
 
         if (array_key_exists($module, $map['modules'])) {
+          mcms::db()->beginTransaction();
+
           if (!empty($map['modules'][$module]['implementors']['iRemoteCall'])) {
             $ctx = RequestContext::getWidget(isset($url['args']) ? $url['args'] : array(), $_POST);
 
@@ -22,6 +24,8 @@ class RPCHandler implements iRequestHook
                   call_user_func_array(array($class, 'hookRemoteCall'), array($ctx));
               }
             } catch (UserErrorException $e) {
+              mcms::db()->rollback();
+
               header("HTTP/1.1 {$e->getCode()} Error");
               header('Content-Type: text/plain; charset=utf-8');
 
@@ -34,6 +38,8 @@ class RPCHandler implements iRequestHook
 
               die();
             }
+
+            mcms::db()->commit();
 
             header('HTTP/1.1 200 OK');
             header('Content-Type: text/plain; charset=utf-8');
