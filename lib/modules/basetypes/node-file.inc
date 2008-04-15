@@ -14,6 +14,9 @@ class FileNode extends Node implements iContentType
       $this->height = $info[1];
     }
 
+    if (empty($this->filetype))
+      $this->filetype = bebop_get_file_type($this->filename);
+
     parent::save($clear);
 
     $this->purge();
@@ -122,6 +125,10 @@ class FileNode extends Node implements iContentType
     // Прикрепляем файл к родительскому объекту.
     if (!empty($file['parent_id']))
       $this->linkAddParent($file['parent_id']);
+  }
+
+  private function guessFileType()
+  {
   }
 
   // Распаковывает архив, добавляет все файлы в админку,
@@ -340,6 +347,7 @@ class FileNode extends Node implements iContentType
           'filename' => $file,
           'tmp_name' => $filename,
           'parent_id' => $parent_id,
+          'filetype' => bebop_get_file_type($filename, $file),
           ), false);
         $node->save();
       }
