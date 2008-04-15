@@ -363,11 +363,22 @@ class DomainNode extends Node implements iContentType
   {
     $options = array();
 
-    foreach (Node::find(array('class' => 'widget')) as $w)
-      if (substr($w->name, 0, 5) != 'Bebop')
-        $options[$w->id] = $w->title;
+    foreach (Node::find(array('class' => 'widget', '#sort' => array('name' => 'ASC'))) as $w) {
+      $name = t('%title (<a href=\'@edit\'>изменить</a>)', array(
+        '%title' => $w->title,
+        '@edit' => bebop_combine_url(array(
+          'path' => '/admin/',
+          'args' => array(
+            'mode' => 'edit',
+            'cgroup' => 'structure',
+            'id' => $w->id,
+            'destination' => $_SERVER['REQUEST_URI'],
+            ),
+          ), false),
+        ));
 
-    asort($options);
+      $options[$w->id] = $name;
+    }
 
     $tab = new FieldSetControl(array(
       'name' => 'widgets',
