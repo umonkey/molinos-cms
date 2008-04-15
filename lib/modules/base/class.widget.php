@@ -92,7 +92,9 @@ abstract class Widget implements iWidget
       throw new WidgetHaltedException();
 
     $options = array();
-    $options['groups'] = $this->user->getGroups();
+    $options['groups'] = array_keys($this->user->getGroups());
+
+    sort($options['groups']);
 
     $this->ctx = $ctx;
 

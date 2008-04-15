@@ -380,6 +380,8 @@ class DomainNode extends Node implements iContentType
       $options[$w->id] = $name;
     }
 
+    asort($options);
+
     $tab = new FieldSetControl(array(
       'name' => 'widgets',
       'label' => t('Виджеты'),

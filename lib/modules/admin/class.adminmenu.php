@@ -122,7 +122,7 @@ class AdminMenu implements iAdminMenu
       $icons[] = array(
         'group' => 'structure',
         'href' => '/admin/?mode=tree&preset=pages',
-        'title' => t('Домены и страницы'),
+        'title' => t('Страницы'),
         'description' => t('Управление доменами, страницами и виджетами.'),
         );
       $icons[] = array(
