@@ -662,7 +662,7 @@ class NodeBase
 
     if (null !== $key)
       $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `key` = :key", array(':tid' => $this->id, ':key' => $key));
-    else
+    elseif (false) // FIXME: wtf?  где это нужно?
       $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `key` IS NULL", array(':tid' => $this->id));
 
     $pdo->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order)", array(
@@ -1234,11 +1234,15 @@ class NodeBase
 
         case 'NodeLinkControl':
           if (isset($v['values']) and is_string($v['values']) and isset($this->$k)) {
-            $tmp = Node::load($this->$k);
-            $parts = explode('.', $v['values'], 2);
+            try {
+              $tmp = Node::load($this->$k);
+              $parts = explode('.', $v['values'], 2);
 
-            if ($tmp->class == $parts[0])
-              $value = $tmp->$parts[1];
+              if ($tmp->class == $parts[0])
+                $value = $tmp->$parts[1];
+            } catch (ObjectNotFoundException $e) {
+              $value = null;
+            }
           }
 
           break;
