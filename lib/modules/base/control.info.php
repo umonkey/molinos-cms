@@ -18,8 +18,15 @@ class InfoControl extends Control
 
   public function getHTML(array $data)
   {
+    $text = $this->text;
+
+    if (isset($this->url))
+      $text .= '<p>'. mcms::html('a', array(
+        'href' => $this->url,
+        ), t('Подробная справка')) .'</p>';
+
     return isset($this->text)
-      ? mcms::html('div', array('class' => 'intro'), $this->text)
+      ? mcms::html('div', array('class' => 'intro'), $text)
       : null;
   }
 };

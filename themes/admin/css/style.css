@@ -272,8 +272,14 @@ form.tabbed .tab-content {
 
 #center .intro {
   margin-bottom: 4px;
-  padding: 12px 14px 14px 14px;
+  max-width: 500px;
+  padding: 4px 14px 14px 32px;
   font-style: italic;
+  float: right;
+  background: transparent url(/themes/admin/img/idea.png) no-repeat top left;
+}
+#center .intro p {
+  margin-top: 1em;
 }
 
 #center table {

@@ -288,8 +288,11 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
         'name' => 'access',
         'label' => t('Доступ'),
         'value' => 'tab_access',
-        'intro' => t('Укажите группы пользователей, которые могут создавать (C), читать (R), изменять (U) и удалять (D) документы этого типа.'),
         ));
+      $tab->addControl(new InfoControl(array(
+        'text' => t('Укажите группы пользователей, которые могут создавать (C), читать (R), изменять (U) и удалять (D) документы этого типа.'),
+        'url' => 'http://code.google.com/p/molinos-cms/wiki/Permissions',
+        )));
       $tab->addControl(new HiddenControl(array(
         'value' => 'reset_access',
         )));
