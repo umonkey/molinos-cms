@@ -58,6 +58,7 @@ class RequestController
 
       switch ($_SERVER["REQUEST_METHOD"]) {
       case 'GET':
+      case 'HEAD':
         $this->runGet();
 
         break;
@@ -406,7 +407,9 @@ class RequestController
     mcms::invoke('iPageHook', 'hookPage', $args);
 
     $this->page->sendHeaders();
-    print $output;
+
+    if ($_SERVER['REQUEST_METHOD'] == 'GET')
+      print $output;
   }
 
   private function printProfileData(array $data = null)
