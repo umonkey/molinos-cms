@@ -12,11 +12,14 @@ class AdminListHandler
   public $columntitles;
   public $title;
   public $actions;
+  public $linkfield;
 
   protected $selectors;
 
   protected $limit;
   protected $page;
+
+  protected $preset = null;
 
   public function __construct(RequestContext $ctx)
   {
@@ -68,6 +71,7 @@ class AdminListHandler
         'picker' => $this->ctx->get('picker'),
         'selectors' => $this->selectors,
         'columntitles' => $this->columntitles,
+        'linkfield' => $this->linkfield,
         )));
       if (empty($_GET['picker']))
         $form->addControl(new AdminUINodeActionsControl(array(
@@ -116,8 +120,10 @@ class AdminListHandler
 
   protected function setUp($preset = null)
   {
+    unset($this->title);
+
     // Некоторые заготовки.
-    if (null !== $preset) {
+    if (null !== ($this->preset = $preset)) {
       switch ($preset) {
       case 'drafts':
         $this->published = 0;
@@ -173,11 +179,31 @@ class AdminListHandler
         $this->columns = array('uid', 'text', 'created');
         $this->sort = array('-id');
         break;
+      case 'dictlist':
+        $this->title = t('Справочники');
+        $this->types = array('type');
+        $this->columns = array('title', 'name', 'uid', 'created');
+        $this->columntitles = array(
+          'title' => 'Название',
+          'name' => 'Код',
+          'uid' => 'Автор',
+          'created' => 'Дата создания',
+          );
+        $this->linkfield = 'title';
+        $this->sort = array('name');
+        $this->limit = null;
+        $this->page = 1;
+        break;
+      case 'dictionary':
+        $this->title = t('Справочник');
+        $this->columns = array('name', 'created');
+        $this->sort = array('name');
+        break;
       }
     }
 
     // Подбираем заголовок.
-    if (count($this->types) == 1) {
+    if (!isset($this->title) and count($this->types) == 1) {
       switch ($type = $this->types[0]) {
         case 'widget':
           $this->title = t('Список виджетов');
@@ -194,8 +220,21 @@ class AdminListHandler
         case 'group':
           $this->title = t('Список групп');
           break;
+        default:
+          $tmp = TypeNode::getSchema($type);
+
+          if (!empty($tmp['isdictionary']))
+            $this->title = t('Справочник «%name»', array('%name' => mb_strtolower($tmp['title'])));
+
+          break;
       }
     }
+
+    if (!isset($this->title))
+      $this->title = t('Список документов');
+
+    if (!isset($this->linkfield))
+      $this->linkfield = 'name';
 
     if (null === $this->actions)
       $this->actions = array(
@@ -222,7 +261,7 @@ class AdminListHandler
       $filter['class'] = array();
 
       foreach (TypeNode::getSchema() as $k => $v) {
-        if (empty($v['adminmodule']) or !mcms::ismodule($v['adminmodule']))
+        if (empty($v['isdictionary']) and (empty($v['adminmodule']) or !mcms::ismodule($v['adminmodule'])))
           $filter['class'][] = $k;
       }
     }
@@ -265,11 +304,12 @@ class AdminListHandler
       $result[] = $tmp;
     }
 
-    if ('schema' == $this->ctx->get('preset')) {
+    switch ($this->ctx->get('preset')) {
+    case 'schema':
       $tmp = array();
 
       foreach ($result as $k => $v)
-        if (in_array($v['name'], array('domain', 'file', 'moduleinfo', 'type', 'widget')))
+        if (in_array($v['name'], array('domain', 'file', 'moduleinfo', 'type', 'widget')) or !empty($v['isdictionary']))
           unset($result[$k]);
 
       foreach ($result as $v)
@@ -280,6 +320,17 @@ class AdminListHandler
           $tmp[] = $v;
 
       $result = $tmp;
+      break;
+
+    case 'dictlist':
+      foreach ($result as $k => $v) {
+        if (empty($v['isdictionary'])) {
+          unset($result[$k]);
+        } else {
+          $result[$k]['#link'] = "/admin/?cgroup=content&preset=dict&mode=list&type=". $v['name'];
+        }
+      }
+      break;
     }
 
     return $result;

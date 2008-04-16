@@ -351,6 +351,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
         'name' => 'widgets',
         'label' => t('Виджеты'),
         'intro' => t('Укажите виджеты, которые будут работать с документами этого типа.'),
+        'value' => 'tab_widgets',
         ));
 
       $tab->addControl(new SetControl(array(
@@ -375,6 +376,11 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   // Обрабатывает подключение виджетов и полей, остальное передаёт родителю.
   public function formProcess(array $data)
   {
+    if (!isset($this->id) and !empty($data['node_content_isdictionary'])) {
+      $this->data['isdictionary'] = true;
+      $this->data['published'] = true;
+    }
+
     // Обновляем базовые свойства, типа имени и описания.
     parent::formProcess($data);
 

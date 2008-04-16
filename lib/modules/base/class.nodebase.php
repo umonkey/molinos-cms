@@ -1060,6 +1060,8 @@ class NodeBase
         $title = trim($schema['title']);
       else
         $title = $this->name;
+    } elseif (!empty($schema['isdictionary']) and empty($this->id)) {
+      $title = t('Добавление в справочник «%name»', array('%name' => mb_strtolower($schema['title'])));
     } else {
       if (null === $this->id)
         $title = t('Создание объекта типа "%type"', array('%type' => trim($schema['title'])));
@@ -1077,6 +1079,13 @@ class NodeBase
       $form->addControl(new HiddenControl(array('value' => 'node_content_class')));
       $form->addControl(new HiddenControl(array('value' => 'node_content_parent_id')));
     }
+
+    if (!isset($this->id) and !empty($schema['isdictionary']))
+      $form->addControl(new BoolControl(array(
+        'value' => 'nodeapi_return',
+        'default' => 1,
+        'label' => t('Добавить ещё запись'),
+        )));
 
     foreach ($tabs as $tab)
       $form->addControl($tab);
@@ -1112,10 +1121,16 @@ class NodeBase
       $intro[] = t('Вы изменяете документ типа &laquo;%type&raquo;.', array('%type' => $schema['title'])) . $description;
     */
 
-    if (mcms::user()->hasAccess('u', 'type') and $this->class != 'type' and substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/')
-      $intro[] = t("Вы можете <a href='@typelink'>настроить этот тип</a>, добавив новые поля.", array(
-        '@typelink' => "/admin/?mode=edit&id={$schema['id']}&destination=". urlencode($_SERVER['REQUEST_URI']),
-        ));
+    if (mcms::user()->hasAccess('u', 'type') and $this->class != 'type' and substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/') {
+      if (empty($schema['isdictionary']))
+        $intro[] = t("Вы можете <a href='@typelink'>настроить этот тип</a>, добавив новые поля.", array(
+          '@typelink' => "/admin/?mode=edit&id={$schema['id']}&destination=". urlencode($_SERVER['REQUEST_URI']),
+          ));
+      else
+        $intro[] = t("Вы можете <a href='@typelink'>настроить этот справочник</a>, добавив новые поля.", array(
+          '@typelink' => "/admin/?mode=edit&id={$schema['id']}&destination=". urlencode($_SERVER['REQUEST_URI']),
+          ));
+    }
 
     if (!empty($schema['fields']))
       foreach ($schema['fields'] as $k => $v)
@@ -1173,6 +1188,9 @@ class NodeBase
   private function formGetSections(array $schema)
   {
     $options = array();
+
+    if (!empty($schema['isdictionary']))
+      return;
 
     if ('type' == $this->class) {
       if (in_array($this->name, array('comment', 'file')))

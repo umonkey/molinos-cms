@@ -486,3 +486,13 @@ td.nowrap {
   font-weight: normal;
   font-size: 1.5em;
 }
+
+.nodelist .editlink {
+  background: transparent url(/themes/admin/img/icon-edit.png) no-repeat top left;
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.nodelist .editlink span {
+  display: none;
+}

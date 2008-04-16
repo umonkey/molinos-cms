@@ -99,13 +99,30 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       $form->addClass("node-{$type}-create-form");
       $form->action = "/nodeapi.rpc?action=create&type={$type}&destination=". urlencode($_GET['destination']);
 
+      if ($ctx->get('dictionary')) {
+        $form->title = t('Добавление справочника');
+        $form->replaceControl('node_content_hasfiles', null);
+        $form->replaceControl('node_content_notags', null);
+        $form->replaceControl('tab_sections', null);
+        $form->replaceControl('tab_widgets', null);
+
+        if (null !== ($ctl = $form->findControl('node_content_title')))
+          $ctl->label = t('Название справочника');
+        if (null !== ($ctl = $form->findControl('node_content_name')))
+          $ctl->label = t('Внутреннее имя справочника');
+
+        $form->addControl(new HiddenControl(array(
+          'value' => 'node_content_isdictionary',
+          'default' => 1,
+          )));
+      }
+
       return $form->getHTML($node->formGetData());
     }
 
     $types = Node::find(array(
       'class' => 'type',
       '-name' => TypeNode::getInternal(),
-      '#sort' => array('type.title' => 'asc'),
       ));
 
     $output = '<dl>';

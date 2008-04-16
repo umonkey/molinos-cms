@@ -20,11 +20,16 @@ class BoolControl extends Control
     if (isset($this->hidden))
       return $this->getHidden($data);
 
+    if (array_key_exists($this->value, $data))
+      $checked = empty($data[$this->value]) ? null : 'checked';
+    else
+      $checked = empty($this->default) ? null : 'checked';
+
     $output = mcms::html('input', array(
       'type' => 'checkbox',
       'name' => $this->value,
       'value' => $this->value ? 1 : $this->value,
-      'checked' => empty($data[$this->value]) ? null : 'checked',
+      'checked' => $checked,
       'disabled' => $this->disabled ? 'disabled' : null,
       ));
 

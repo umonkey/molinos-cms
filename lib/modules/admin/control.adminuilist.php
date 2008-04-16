@@ -20,6 +20,8 @@ class AdminUIListControl extends Control
   {
     $output = '';
 
+    $linkfield = $this->linkfield;
+
     if (null !== $this->picker) {
       $this->selectors = null;
       $output .= "<script language='javascript'>var mcms_picker_id = '{$this->picker}';</script>";
@@ -72,16 +74,23 @@ class AdminUIListControl extends Control
           ), $tmp);
       }
 
+      // Редактирование.
+      $row .= '<td>'. $this->getEditLink($node) .'</td>';
+
       foreach ($this->columns as $field) {
         $row .= "<td class='field-{$field}'>";
         $value = array_key_exists($field, $node) ? $node[$field] : null;
 
         if (null !== ($tmp = $this->resolveField($field, $value, $node)))
           $row .= $tmp;
-        elseif ('name' == $field) {
-          $href = isset($this->picker)
-            ? "/attachment/{$node['id']}"
-            : '/admin/?mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination='. urlencode($_SERVER['REQUEST_URI']);
+        elseif ((null !== $linkfield) and ($linkfield == $field)) {
+          if (!empty($node['#link'])) {
+            $href = $node['#link'];
+          } else {
+            $href = isset($this->picker)
+              ? "/attachment/{$node['id']}"
+              : '/admin/?mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination='. urlencode($_SERVER['REQUEST_URI']);
+          }
 
           $row .= mcms::html('a', array(
             'href' => $href,
@@ -118,6 +127,9 @@ class AdminUIListControl extends Control
 
     if (bebop_is_debugger())
       $output .= mcms::html('th', array('class' => 'debug'), '&nbsp;');
+
+    // Редактирование.
+    $output .= '<th width=\'1\'>&nbsp;</th>';
 
     foreach ($this->columns as $col) {
       $output .= "<th class='field-{$col}'>";
@@ -238,5 +250,25 @@ class AdminUIListControl extends Control
       'message' => t('Сообщение'),
       'ip' => t('IP адрес'),
       );
+  }
+
+  private function getEditLink(array $node)
+  {
+    if (empty($node['class']) or empty($node['id']) or !mcms::user()->hasAccess('u', $node['class']))
+      return '&nbsp;';
+
+    return mcms::html('a', array(
+      'title' => 'изменить',
+      'class' => 'editlink',
+      'href' => bebop_combine_url(array(
+        'path' => '/admin/',
+        'args' => array(
+          'cgroup' => 'content',
+          'id' => $node['id'],
+          'mode' => 'edit',
+          'destination' => $_SERVER['REQUEST_URI'],
+          ),
+        ), false),
+      ), '<span>изменить</span>');
   }
 };

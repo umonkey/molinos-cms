@@ -35,6 +35,26 @@ $(document).ready(function () {
 		});
 	}
 	
+	$('.control-AccessControl-wrapper th').click(function(){
+		var $inputs = $(this).parents('table:eq(0)').find('input[value="'+$(this).text().toLowerCase()+'"]');
+		if ($inputs.length > $inputs.filter(':checked').length && $inputs.filter(':checked').length != 0 || $inputs.filter(':checked').length == 0){
+			$inputs.attr('checked', 'checked');
+		} else {
+			$inputs.removeAttr('checked');
+		}
+	});
+	
+	log($('.control-AccessControl-wrapper tr td:first'))
+	
+	$('.control-AccessControl-wrapper tr td:first').click(function(){
+		var $inputs = $(this).parent().find('input');
+		if ($inputs.length > $inputs.filter(':checked').length && $inputs.filter(':checked').length != 0 || $inputs.filter(':checked').length == 0){
+			$inputs.attr('checked', 'checked');
+		} else {
+			$inputs.removeAttr('checked');
+		}
+	});
+	
 	var win = window.opener ? window.opener : window.dialogArguments, c;
   	if (win) { tinyMCE = win.tinyMCE; }
 		
