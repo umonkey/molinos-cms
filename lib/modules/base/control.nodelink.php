@@ -24,11 +24,11 @@ class NodeLinkControl extends Control
 
   public function getHTML(array $data)
   {
-    if (null !== ($output = $this->getSelect()))
-      return $this->wrapHTML($output);
-
     if (isset($this->hidden))
       return $this->getHidden($data);
+
+    if (null !== ($output = $this->getSelect($this->getCurrentValue($data, true))))
+      return $this->wrapHTML($output);
 
     $value = $this->getCurrentValue($data);
 
@@ -59,13 +59,13 @@ class NodeLinkControl extends Control
     return $this->wrapHTML($output);
   }
 
-  private function getSelect()
+  private function getSelect($value)
   {
     if (count($parts = explode('.', $this->values, 2)) == 2) {
       if (Node::count($filter = array('class' => $parts[0], 'published' => 1, '#sort' => array('name' => 'asc'))) < self::limit) {
         $options = '';
 
-        if ($this->required)
+        if (!$this->required)
           $options .= '<option></option>';
 
         foreach (Node::find($filter) as $tmp) {
@@ -76,6 +76,7 @@ class NodeLinkControl extends Control
             $name = $tmp->login;
 
           $options .= mcms::html('option', array(
+            'selected' => ($value == $tmp->id) ? 'selected' : null,
             'value' => $tmp->id,
             ), $name);
         }
@@ -87,12 +88,14 @@ class NodeLinkControl extends Control
     }
   }
 
-  private function getCurrentValue(array $data)
+  private function getCurrentValue(array $data, $id = false)
   {
     if (isset($this->value) and !empty($data[$this->value])) {
       if (count($parts = explode('.', $this->values)) == 2) {
         if (count($nodes = array_values(Node::find(array('class' => $parts[0], 'id' => $data[$this->value]), 1))) == 1)
-          return $nodes[0]->$parts[1];
+          return $id
+            ? $nodes[0]->id
+            : $nodes[0]->$parts[1];
       }
     }
   }
