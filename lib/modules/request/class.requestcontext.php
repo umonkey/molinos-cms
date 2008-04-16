@@ -231,6 +231,7 @@ class RequestContext
     if (null === self::$postdata) {
       self::$postdata = $_POST;
       self::getFiles(self::$postdata);
+      self::remapControls(self::$postdata);
     }
 
     return self::$postdata;
@@ -250,6 +251,45 @@ class RequestContext
         foreach ($fileinfo as $k => $v)
           $data[$field][$k] = $v;
       }
+    }
+  }
+
+  private static function remapControls(array &$data)
+  {
+    if (array_key_exists('nodelink_remap', $data)) {
+      if (is_array($data['nodelink_remap'])) {
+        foreach ($data['nodelink_remap'] as $k => $v) {
+          if (substr($k, 0, 13) != 'node_content_')
+            continue;
+
+          $value = null;
+
+          // Определяем обязательность поля.
+          if (substr($v, -1) != '!') {
+            $required = false;
+          } else {
+            $required = true;
+            $v = substr($v, 0, -1);
+          }
+
+          if (!empty($data[$k]) or $required) {
+            if (count($parts = explode('.', $v)) == 2) {
+              try {
+                if (count($node = array_values(Node::find(array('class' => $parts[0], $parts[1] => $data[$k]), 1))))
+                  $value = intval($node[0]->id);
+              } catch (ObjectNotFoundException $e) {
+              }
+            }
+          }
+
+          if ((null === $value) and $required)
+            throw new ValidationException(substr($k, 13));
+
+          $data[$k] = $value;
+        }
+      }
+
+      unset($data['nodelink_remap']);
     }
   }
 };

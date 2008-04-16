@@ -169,16 +169,6 @@ class CommentFormWidget extends Widget
           switch (mcms_ctlname($v['type'])) {
           case 'AttachmentControl':
             break;
-          case 'NodeLinkControl':
-            if (!empty($v['values']) and is_string($v['values'])) {
-              $parts = explode('.', $v['values'], 2);
-
-              if (!count($tmp = Node::find($filter = array('class' => $parts[0], $v['values'] => $data[$key]), 1)))
-                throw new ValidationException($k);
-
-              $comment[$k] = key($tmp);
-            }
-            break;
           default:
             $comment[$k] = $data[$key];
           }

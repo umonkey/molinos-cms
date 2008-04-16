@@ -3,6 +3,8 @@
 
 class NodeLinkControl extends Control
 {
+  const limit = 50;
+
   public static function getInfo()
   {
     return array(
@@ -22,13 +24,13 @@ class NodeLinkControl extends Control
 
   public function getHTML(array $data)
   {
+    if (null !== ($output = $this->getSelect()))
+      return $this->wrapHTML($output);
+
     if (isset($this->hidden))
       return $this->getHidden($data);
 
-    if (empty($data[$this->value]))
-      $value = $this->default;
-    else
-      $value = $data[$this->value];
+    $value = $this->getCurrentValue($data);
 
     $this->addClass('form-text');
 
@@ -45,9 +47,53 @@ class NodeLinkControl extends Control
       'readonly' => $this->readonly ? 'readonly' : null,
       ));
 
-    if (!$this->readonly)
+    if (!$this->readonly) {
       $output .= '<script language=\'javascript\' type=\'text/javascript\'>$(function(){$(\'#'. $this->id .'\').suggest(\'/autocomplete.rpc?source='. $this->values .'\');});</script>';
+      $output .= mcms::html('input', array(
+        'type' => 'hidden',
+        'name' => "nodelink_remap[{$this->value}]",
+        'value' => $this->values . ($this->required ? '!' : ''),
+        ));
+    }
 
     return $this->wrapHTML($output);
+  }
+
+  private function getSelect()
+  {
+    if (count($parts = explode('.', $this->values, 2)) == 2) {
+      if (Node::count($filter = array('class' => $parts[0], 'published' => 1, '#sort' => array('name' => 'asc'))) < self::limit) {
+        $options = '';
+
+        if ($this->required)
+          $options .= '<option></option>';
+
+        foreach (Node::find($filter) as $tmp) {
+          $name = $tmp->name;
+
+          // FIXME: поправить интранет, заменить на fullname.
+          if ($tmp->class == 'user' and isset($tmp->login))
+            $name = $tmp->login;
+
+          $options .= mcms::html('option', array(
+            'value' => $tmp->id,
+            ), $name);
+        }
+
+        return mcms::html('select', array(
+          'name' => $this->value,
+          ), $options);
+      }
+    }
+  }
+
+  private function getCurrentValue(array $data)
+  {
+    if (isset($this->value) and !empty($data[$this->value])) {
+      if (count($parts = explode('.', $this->values)) == 2) {
+        if (count($nodes = array_values(Node::find(array('class' => $parts[0], 'id' => $data[$this->value]), 1))) == 1)
+          return $nodes[0]->$parts[1];
+      }
+    }
   }
 };

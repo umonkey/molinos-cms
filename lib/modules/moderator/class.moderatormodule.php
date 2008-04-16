@@ -51,7 +51,7 @@ class ModeratorModule implements iModuleConfig, iNodeHook
     $spec = array(
       'label' => t('Выпускающий редактор'),
       'type' => 'NodeLinkControl',
-      'values' => 'user.login',
+      'values' => 'user.name',
       'required' => false,
       'description' => t('Все изменения, производимые этим пользователем и потенциально отражаемые на сайте, будут требовать одобрения указанного здесь модератора.  Вводить следует логин (внутреннее имя) пользователя с ролью «Выпускающий редактор».'),
       );
@@ -142,9 +142,6 @@ class ModeratorModule implements iModuleConfig, iNodeHook
     foreach ($schema['fields'] as $k => $v) {
       if (isset($node->$k)) {
         switch ($v['type']) {
-        case 'NodeLinkControl':
-          $value = mcms::resolveNodeLink($v['values'], $node->$k, true);
-          break;
         case 'PasswordControl':
           $value = null;
         default:

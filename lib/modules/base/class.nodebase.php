@@ -216,8 +216,10 @@ class NodeBase
     if (in_array($key, array('class', 'left', 'right', 'published')))
       throw new InvalidArgumentException("node.{$key} is private");
 
-    if ('uid' == $key and !empty($this->data['uid']) and $this->data['uid'] != mcms::user()->id)
-      throw new InvalidArgumentException(t('Нельзя изменить автора чужого документа.'));
+    if ('uid' == $key and intval($val) != intval($this->uid)) {
+      if (!empty($this->data['uid']) and $this->data['uid'] != mcms::user()->id)
+        throw new InvalidArgumentException(t('Нельзя изменить автора чужого документа.'));
+    }
 
     if ($key == 'parent_id' and !empty($this->data['id']))
       throw new InvalidArgumentException("node.{$key} is private");
@@ -1250,21 +1252,6 @@ class NodeBase
             $value = $this->files[$k];
           break;
 
-        case 'NodeLinkControl':
-          if (isset($v['values']) and is_string($v['values']) and isset($this->$k)) {
-            try {
-              $tmp = Node::load($this->$k);
-              $parts = explode('.', $v['values'], 2);
-
-              if ($tmp->class == $parts[0])
-                $value = $tmp->$parts[1];
-            } catch (ObjectNotFoundException $e) {
-              $value = null;
-            }
-          }
-
-          break;
-
         default:
           $value = $this->$k;
         }
@@ -1294,20 +1281,6 @@ class NodeBase
         if ($k != 'parent_id' and $k != 'fields' and $k != 'config') {
           switch (mcms_ctlname($v['type'])) {
           case 'AttachmentControl':
-            break;
-          case 'NodeLinkControl':
-            if (empty($v['values']) or !is_string($v['values']) or (empty($v['required']) and empty($data['node_content_'. $k]))) {
-              $this->$k = null;
-            } else {
-              $parts = explode('.', $v['values'], 2);
-
-              if (!count($tmp = Node::find($filter = array('class' => $parts[0], $v['values'] => $data['node_content_'. $k]), 1)))
-                throw new ValidationException($k);
-
-              if ($this->$k != ($nval = key($tmp)))
-                $this->$k = $nval;
-            }
-
             break;
 
           default:

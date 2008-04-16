@@ -789,26 +789,6 @@ class mcms
       SysLogModule::log($op, $message, $nid);
   }
 
-  public static function resolveNodeLink($spec, $value, $string = false)
-  {
-    $parts = explode('.', $spec, 2);
-
-    if (count($nodes = Node::find(array('class' => $parts[0], 'id' => $value)))) {
-      $node = $nodes[key($nodes)];
-
-      if ($string) {
-        $output = $value;
-        $output .= ' ('. $node->$parts[1] .')';
-      } else {
-        $output = $node;
-      }
-
-      return $output;
-    }
-
-    return null;
-  }
-
   public static function message($text = null)
   {
     $rc = null;
