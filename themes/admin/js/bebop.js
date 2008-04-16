@@ -36,23 +36,27 @@ $(document).ready(function () {
 	}
 	
 	$('.control-AccessControl-wrapper th').click(function(){
-		var $inputs = $(this).parents('table:eq(0)').find('input[value="'+$(this).text().toLowerCase()+'"]');
-		if ($inputs.length > $inputs.filter(':checked').length && $inputs.filter(':checked').length != 0 || $inputs.filter(':checked').length == 0){
-			$inputs.attr('checked', 'checked');
-		} else {
-			$inputs.removeAttr('checked');
-		}
+		recheck($(this).parents('table:eq(0)').find('input[value="'+$(this).text().toLowerCase()+'"]'));
 	});
 	
-	log($('.control-AccessControl-wrapper tr td:first'))
+	$('.control-AccessControl-wrapper th').mousedown(function(){
+		return false;
+	});
 	
-	$('.control-AccessControl-wrapper tr td:first').click(function(){
-		var $inputs = $(this).parent().find('input');
-		if ($inputs.length > $inputs.filter(':checked').length && $inputs.filter(':checked').length != 0 || $inputs.filter(':checked').length == 0){
-			$inputs.attr('checked', 'checked');
-		} else {
-			$inputs.removeAttr('checked');
-		}
+	$('.control-AccessControl-wrapper th').bind('selectstart', function() {
+		return false;
+	});
+	
+	$('.control-AccessControl-wrapper tr td:first-child').click(function(){
+		recheck($(this).parent().find('input'));
+	});
+	
+	$('.control-AccessControl-wrapper tr td:first-child').mousedown(function(){
+		return false;
+	});
+	
+	$('.control-AccessControl-wrapper tr td:first-child').bind('selectstart', function() {
+		return false;
 	});
 	
 	var win = window.opener ? window.opener : window.dialogArguments, c;
@@ -179,6 +183,18 @@ $(document).ready(function () {
  * Вспомогательные функции
  */
 
+/**
+ * Управляет состоянием чекбоксов.
+ * Все чекбоксы в колонке включаются (если есть выключенные) или выключаются (если всё включено).
+ */
+function recheck($inputs){
+	if ($inputs.length > $inputs.filter(':checked').length && $inputs.filter(':checked').length != 0 || $inputs.filter(':checked').length == 0){
+		$inputs.attr('checked', 'checked');
+	} else {
+		$inputs.removeAttr('checked');
+	}
+}
+	
 /**
  * Карусель в осн. навигации: цепляем действия на контролы
  * @param {Object} carousel
