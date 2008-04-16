@@ -10,7 +10,9 @@ class NodeApiModule implements iRemoteCall
     else
       self::doSingleAction($ctx);
 
-    if (null === ($next = $ctx->get('destination')))
+    if ($ctx->post('nodeapi_return'))
+      $next = $_SERVER['HTTP_REFERER'];
+    elseif (null === ($next = $ctx->get('destination')))
       $next = '/';
 
     bebop_redirect($next);
