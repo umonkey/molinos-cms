@@ -194,9 +194,13 @@ class AdminListHandler
         $this->limit = null;
         $this->page = 1;
         break;
-      case 'dictionary':
-        $this->title = t('Справочник');
-        $this->columns = array('name', 'created');
+      case 'dict':
+        $this->columns = array('name', 'description', 'created');
+        $this->columntitles = array(
+          'name' => 'Заголовок',
+          'description' => 'Описание',
+          'created' => 'Добавлено',
+          );
         $this->sort = array('name');
         break;
       }

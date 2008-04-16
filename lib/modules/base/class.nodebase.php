@@ -1012,6 +1012,7 @@ class NodeBase
     $tabs['content'] = new FieldSetControl(array(
       'name' => 'content',
       'label' => t('Основные свойства'),
+      'value' => 'tab_general',
       ));
 
     $schema = TypeNode::getSchema($this->class);
