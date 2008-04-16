@@ -48,6 +48,9 @@ class AdminUISearchControl extends Control
         ),
       );
 
+    if (!empty($_GET['preset']) and $_GET['preset'] == 'dictlist')
+      $tmp['args']['dictionary'] = 1;
+
     $output = mcms::html('a', array(
       'class' => 'newlink',
       'href' => bebop_combine_url($tmp, false),
