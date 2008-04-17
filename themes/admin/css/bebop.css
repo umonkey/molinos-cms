@@ -12,13 +12,6 @@ td.r, th.r {
   font-style: normal;
 }
 
-.mceEditorContainer iframe {
-  width: 100% !important;
-}
-.mceEditorContainer table.mceEditor > tbody > tr > td {
-  padding: 0 !important;
-}
-
 #control-save-draft-wrapper,
 #control-save-publish-wrapper,
 #control-preview-wrapper {

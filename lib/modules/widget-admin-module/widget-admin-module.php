@@ -291,7 +291,7 @@ class ModuleListControl extends Control
       }
 
       if  (!empty($rows)) {
-        $output = '<table class=\'highlight\'>';
+        $output = '<table class=\'wide highlight\'>';
         $output .= '<tr><th>&nbsp;</th><th>Имя</th><th>Описание</th><th>Действия</th></tr>';
         $output .= join('', $rows);
         $output .= '</table>';

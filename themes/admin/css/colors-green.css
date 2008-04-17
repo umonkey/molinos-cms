@@ -37,18 +37,18 @@ form.tabbed .tab-content {
   border: 1px solid #e4ecee;
 }
 
-#center table {
+table.wide {
   border-left: 1px solid #FFFFFF;
 }
 
-#center table.highlight tr.current {
+table.wide.highlight tr.current {
   background-color: #f4f4f2;
 }
 
-#center table.highlight tr:hover td {
+table.wide.highlight tr:hover td {
   background-color: #ecf1f2;
 }
-#center table.nodelist td {
+table.wide.nodelist td {
   border-left: 1px dashed #e3e2e1;
 }
 

@@ -264,26 +264,23 @@ form.tabbed .tab-content {
   border: 1px solid #e4ecee;
 }
 
-#center table {
-  width: 100%;
+table.wide {
   border-collapse: collapse;
   border-left: 1px solid #FFFFFF;
 }
 
-#center table th,
-#center table td {
+table.wide th,
+table.wide td {
   text-align: left;
   border-left: 1px dashed #e3e2e1;
 }
 
-#center table th {
-  padding: 3px 10px 4px 10px;
+table.wide th {
   font-weight: bold;
   border-bottom: 1px solid #333333;
 }
 
-#center table td {
-  padding: 4px 10px 7px 10px;
+table.wide td {
   border-bottom: 3px solid #FFFFFF;
 }
 
