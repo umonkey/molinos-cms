@@ -27,7 +27,7 @@ class AdminUIListControl extends Control
       $output .= "<script language='javascript'>var mcms_picker_id = '{$this->picker}';</script>";
     }
 
-    $output .= '<table class=\'nodelist\' border=\'0\'>';
+    $output .= '<table class=\'mcms nodelist\' border=\'0\'>';
     $output .= $this->getTableHeader();
 
     $odd = true;

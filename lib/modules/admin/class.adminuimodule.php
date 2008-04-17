@@ -33,8 +33,23 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     $output = bebop_render_object('page', 'admin', 'admin', $result);
 
+    self::addTiny($output);
+    self::addCompressor($output);
+
     header('Content-Type: text/html; charset=utf-8');
     die($output);
+  }
+
+  private function addTiny(&$output)
+  {
+    $tmp = array(&$output, Node::create('page', array('content_type' => 'text/html')));
+    mcms::invoke_module('tinymce', 'iPageHook', 'hookPage', $tmp);
+  }
+
+  private function addCompressor(&$output)
+  {
+    $tmp = array(&$output, Node::create('page', array('content_type' => 'text/html')));
+    mcms::invoke_module('compressor', 'iPageHook', 'hookPage', $tmp);
   }
 
   private static function onGetInternal(RequestContext $ctx)
@@ -55,6 +70,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     case 'modules':
     case 'drafts':
     case 'trash':
+    case 'dict':
       $method = 'onGet'. ucfirst(strtolower($mode));
       return call_user_func_array(array('AdminUIModule', $method), array($ctx));
     default:
@@ -225,6 +241,31 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     }
 
     $output .= '</table>';
+
+    return $output;
+  }
+
+  private static function onGetDict(RequestContext $ctx)
+  {
+    $result = array(
+      'mode' => $ctx->get('sub', 'list'),
+      'list' => array(),
+      );
+
+    switch ($result['mode']) {
+    case 'list':
+      foreach (TypeNode::getSchema() as $k => $v) {
+        if (!empty($v['isdictionary']))
+          $result['list'][$k] = $v;
+      }
+
+      break;
+
+    default:
+      throw new PageNotFoundException();
+    }
+
+    $output = bebop_render_object('admin', 'dict-'. $result['mode'], 'admin', $result);
 
     return $output;
   }

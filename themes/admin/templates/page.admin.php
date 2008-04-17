@@ -11,7 +11,8 @@ function render_notifications()
 
 function render_username()
 {
-  return mcms::user()->name;
+  $user = mcms::user();
+  return empty($user->fullname) ? $user->name : $user->fullname;
 }
 
 function render_reboot_link()
@@ -19,30 +20,6 @@ function render_reboot_link()
   $url = bebop_split_url();
   $url['args']['reload'] = 1;
   return bebop_combine_url($url, true);
-}
-
-function get_version_info()
-{
-  $version = mcms::version();
-  $version .= ' (';
-
-  if (count($tmp = explode(':', mcms::config('dsn'))))
-    $version .= $tmp[0];
-
-  if (null !== ($tmp = BebopCache::getInstance())) {
-    switch (get_class($tmp)) {
-    case 'APC_Cache':
-      $version .= '+APC';
-      break;
-    case 'MemCacheD_Cache':
-      $version .= 'memcache';
-      break;
-    }
-  }
-
-  $version .= '+'. ini_get('memory_limit') .')';
-
-  return $version;
 }
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -55,17 +32,13 @@ function get_version_info()
     <link rel="stylesheet" type="text/css" href="/themes/admin/css/topmenu.css" />
     <link rel="stylesheet" type="text/css" href="/themes/admin/css/colors-green.css" />
 
-    <link rel="stylesheet" type="text/css" href="/themes/all/jquery/plugins/jquery.jcarousel.css" />
     <link rel="stylesheet" type="text/css" href="/themes/all/jquery/plugins/jquery.suggest.css" />
-    <link rel="stylesheet" type="text/css" href="/themes/all/jquery/plugins/jcarousel-skins/tango/skin.css" />
 
     <script type="text/javascript" language="javascript" src="/themes/all/jquery/jquery.js"></script>
-    <script type="text/javascript" language="javascript" src="/themes/all/jquery/plugins/jquery.jcarousel.js" ></script>
     <script type="text/javascript" language="javascript" src="/themes/all/jquery/plugins/jquery.ifixpng.js" ></script>
     <script type="text/javascript" language="javascript" src="/themes/all/jquery/plugins/jquery.formtabber.js"></script>
     <script type="text/javascript" language="javascript" src="/themes/all/jquery/plugins/jquery.dimensions.js" ></script>
     <script type="text/javascript" language="javascript" src="/themes/all/jquery/plugins/jquery.bgiframe.js" ></script>
-    <script type="text/javascript" language="javascript" src="/themes/all/jquery/plugins/jquery.suggest.js" ></script>
     <script type="text/javascript" language="javascript" src="/themes/admin/js/bebop.js" ></script>
   </head>
   <body>
@@ -81,6 +54,7 @@ function get_version_info()
             <div class="greeting">Здравствуйте, <?php print render_username(); ?>.</div>
             <a href="/admin/?cgroup=access&amp;mode=edit&amp;id=<?php print mcms::user()->id; ?>&amp;destination=<?php print urlencode($_SERVER['REQUEST_URI']) ?>" title="Редактировать свой профиль">Настройки</a>
             <a href="<?php print render_reboot_link(); ?>" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
+            <a href="/phpminiadmin.php?showcfg=1">DB</a>
             <a id="lnk_exit" href="/base.rpc?action=logout&amp;destination=%2F">Выйти</a>
           </div>
         </div><!-- id=top_toolbar -->
@@ -110,7 +84,7 @@ function get_version_info()
     <div id="footer">
       <img src="/themes/admin/img/siteimage/logo_molinos_btm_ico.gif" alt="Molinos.Ru" align="middle" />
       <img src="/themes/admin/img/siteimage/logo_molinos_btm.gif" alt="Molinos.Ru" align="middle" />
-      <span>Версия <?php print get_version_info(); ?></span>
+      <span>Версия <?php print mcms::version(); ?></span>
     </div>
     <?php endif; ?>
   </body>

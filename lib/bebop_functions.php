@@ -772,7 +772,7 @@ class mcms
         call_user_func_array(array($class, $method), $args);
   }
 
-  public static function invoke_module($module, $interface, $method, array $args = array())
+  public static function invoke_module($module, $interface, $method, array &$args = array())
   {
     $res = null;
     $tmp = mcms::getImplementors($interface, $module);
@@ -948,15 +948,10 @@ class mcms
 
     if (in_array('PDO_Singleton', get_declared_classes())) {
       try {
-        $enabled = mcms::db()->getResultsV("name", "SELECT `r`.`name` as `name` FROM `node__rev` `r` INNER JOIN `node` `n` ON `n`.`rid` = `r`.`rid` WHERE `n`.`class` = 'moduleinfo' AND `n`.`published` = 1 AND `n`.`deleted` = 0");
+        $enabled = mcms::db()->getResultsV("name", "SELECT `r`.`name` FROM `node__rev` `r` INNER JOIN `node` `n` ON `n`.`rid` = `r`.`rid` WHERE `n`.`class` = 'moduleinfo' AND `n`.`published` = 1 AND `n`.`deleted` = 0");
       } catch (PDOException $e) {
-        switch ($e->getCode()) {
-        case '42S02':
-        case 'HY000':
-          break;
-        default:
+        if ('42S02' != $e->getCode())
           throw $e;
-        }
       }
     }
 

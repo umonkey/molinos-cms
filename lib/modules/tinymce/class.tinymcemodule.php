@@ -17,7 +17,7 @@ class TinyMceModule implements iModuleConfig, iPageHook
       'label' => t('Режим работы'),
       'options' => array(
         'simple' => t('Простой (B/I/U)'),
-        'simple+' => t('Простой со ссылками и картинками'),
+        'medium' => t('Простой с картинками'),
         'advanced' => t('Всё, что можно'),
         ),
       'required' => true,
@@ -88,17 +88,20 @@ class TinyMceModule implements iModuleConfig, iPageHook
 
     $config = mcms::modconf('tinymce');
 
-    if (empty($config['pages']) or !in_array($page->id, $config['pages']))
-      return;
+    if (substr($_SERVER['REQUEST_URI'], 0, 7) != '/admin/')
+      if (empty($config['pages']) or !in_array($page->id, $config['pages']))
+        return;
 
     if (empty($config['gzip'])) {
       $html = '<script type=\'text/javascript\' src=\'/lib/modules/tinymce/editor/tiny_mce.js\'></script>';
     } else {
       $html = '<script type=\'text/javascript\' src=\'/lib/modules/tinymce/editor/tiny_mce_gzip.js\'></script>';
-      $html .= self::getInit($config, true);
     }
 
-    $html .= self::getInit($config);
+    if (!strlen($tmp = self::getInit($config)))
+      return;
+
+    $html .= $tmp;
 
     if (!empty($html))
       $output = str_replace('</head>', $html .'</head>', $output);
@@ -106,84 +109,29 @@ class TinyMceModule implements iModuleConfig, iPageHook
 
   private static function getInit(array $config, $gzip = false)
   {
-    $init = array();
+    $files = array();
+    $path = dirname(__FILE__) .'/editor';
 
-    if (!empty($config['plugins']))
-      $init[] = 'plugins:"'. join(',', $config['plugins']) .'"';
-
-    if ($gzip) {
-      if (!empty($config['theme']))
-        $init[] = 'themes:"'. $config['theme'] .'"';
-
-      $init[] = 'skins:"default"';
-      $init[] = 'languages:"ru"';
-    } else {
-      $init[] = 'mode:"textareas"';
-      $init[] = 'editor_selector:"visualEditor"';
-      $init[] = 'inline_styles:true';
-      $init[] = 'extended_valid_elements:"a[name|href|target|title|onclick],img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name],hr[class|width|size|noshade],font[face|size|color|style],span[class|align|style]"';
-
-      switch ($config['theme']) {
-      case 'advanced':
-        $init[] = 'theme_advanced_buttons1:"newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,bullist,numlist,|,styleselect,formatselect"';
-        $init[] = 'theme_advanced_buttons2:"pastetext,pasteword,|,search,replace,|,outdent,indent,|,undo,redo,|,link,unlink,anchor,image,media,|,charmap,insertdate,|,sub,sup,hr"';
-        $init[] = 'theme_advanced_buttons3:"tablecontrols,|,removeformat,cleanup,visualaid,styleprops,code,|,spellchecker"';
-        break;
-      case 'simple':
-        $init[] = 'theme_simple_buttons1:"bold,italic,underline,strikethrough,cleanup,|,bullist,numlist,|,link,unlink,image,|,charmap,hr"';
-        break;
-      }
-
-      if (!empty($config['toolbar'])) {
-        switch ($config['toolbar']) {
-        case 'topleft':
-          $tmp1 = 'top';
-          $tmp2 = 'left';
-          break;
-        case 'topcenter':
-          $tmp1 = 'top';
-          $tmp2 = 'center';
-          break;
-        case 'bottomcenter':
-          $tmp1 = 'bottom';
-          $tmp2 = 'center';
-          break;
-        }
-
-        if (isset($tmp1))
-          $init[] = 'theme_'. $config['theme'] .'_toolbar_location:"'. $tmp1 .'"';
-        if (isset($tmp2))
-          $init[] = 'theme_'. $config['theme'] .'_toolbar_align:"'. $tmp2 .'"';
-      }
-
-      if (!empty($config['path'])) {
-        $init[] = 'theme_'. $config['theme'] .'_path_location:"'. $config['path'] .'"';
-        $init[] = 'theme_'. $config['theme'] .'_resizing:true';
-      }
-
-      $init[] = 'spellchecker_languages:"English=en,+Русский=ru"';
-      $init[] = 'paste_create_paragraphs:false';
-      $init[] = 'paste_create_linebreaks:false';
-      $init[] = 'paste_use_dialog:true';
-      $init[] = 'paste_auto_cleanup_on_paste:true';
-      $init[] = 'paste_convert_middot_lists:false';
-      $init[] = 'paste_unindented_list_class:"unindentedList"';
-      $init[] = 'paste_convert_headers_to_strong:true';
-
-      $init[] = 'language:"ru"';
-      $init[] = 'convert_urls:true';
-      $init[] = 'relative_urls:false';
-      $init[] = 'theme:"'. $config['theme'] .'"';
-      $init[] = 'skin:"o2k7"';
-      $init[] = 'file_browser_callback:"mcms_file_pick"';
+    switch ($config['theme']) {
+    case 'simple':
+    case 'medium':
+    case 'advanced':
+      if (!empty($config['gzip']))
+        $files[] = $path .'/template_'. $config['theme'] .'_gzip.js';
+      $files[] = $path .'/template_'. $config['theme'] .'.js';
+      break;
     }
 
-    $html = '<script type=\'text/javascript\'>tinyMCE';
-    if ($gzip)
-      $html .= '_GZ';
-    $html .= '.init({'. join(',', $init) .'})';
-    $html .= '</script>';
+    $output = '';
 
-    return $html;
+    foreach ($files as $f) {
+      if (file_exists($f) and is_readable($f)) {
+        $tmp = trim(file_get_contents($f));
+        $tmp = preg_replace('/[\r\n]+\s+/i', '', $tmp);
+        $output .= '<script type=\'text/javascript\'>'. $tmp .'</script>';
+      }
+    }
+
+    return $output;
   }
 }

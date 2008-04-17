@@ -282,27 +282,27 @@ form.tabbed .tab-content {
   margin-top: 1em;
 }
 
-#center table {
+table.mcms {
   border-collapse: collapse;
 }
 
-#center table.nodelist th,
-#center table.nodelist td {
+table.mcms.nodelist th,
+table.mcms.nodelist td {
   text-align: left;
 }
 
-#center table th {
+table.mcms th {
   padding: 3px 10px 4px 10px;
 }
-#center table.nodelist th {
+table.mcms.nodelist th {
   font-weight: bold;
   border-bottom: 1px solid #aaa;
 }
 
-#center table td {
+table.mcms td {
   padding: 4px 10px 7px 10px;
 }
-#center table.nodelist td {
+table.mcms.nodelist td {
   border-bottom: 3px solid #FFFFFF;
 }
 
