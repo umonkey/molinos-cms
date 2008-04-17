@@ -285,6 +285,15 @@ class ListWidget extends Widget
         );
     }
 
+    if (!empty($options['filter']) and is_array($options['filter'])) {
+      foreach ($options['filter'] as $k => $v) {
+        if (false !== strstr($k, '.')) {
+          $options['filter'][str_replace('.', '_', $k)] = $v;
+          unset($options['filter'][$k]);
+        }
+      }
+    }
+
     $result['options'] = $options;
     $result['root'] = $this->ctx->section;
 
