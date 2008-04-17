@@ -18,7 +18,7 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
 
   public function getHTML(array $data)
   {
-    $output = '<table class=\'nodelist\'>';
+    $output = '<table class=\'mcms nodelist\'>';
     $output .= $this->getTableHeader();
 
     foreach ($data['nodes'] as $nid => $node) {

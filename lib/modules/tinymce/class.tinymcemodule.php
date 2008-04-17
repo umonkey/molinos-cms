@@ -92,6 +92,11 @@ class TinyMceModule implements iModuleConfig, iPageHook
       if (empty($config['pages']) or !in_array($page->id, $config['pages']))
         return;
 
+    if (false === strstr($output, 'textarea'))
+      return;
+    if (false === strstr($output, 'visualEditor'))
+      return;
+
     if (empty($config['gzip'])) {
       $html = '<script type=\'text/javascript\' src=\'/lib/modules/tinymce/editor/tiny_mce.js\'></script>';
     } else {
