@@ -169,7 +169,7 @@ class NodeBase
       $this->data = $tg->clean($this->data);
 
     if (empty($this->data['created']))
-      $this->data['created'] = 'UTC_TIMESTAMP()';
+      $this->data['created'] = $this->getUTCTime();
 
     if (!array_key_exists('published', $this->data))
       $this->data['published'] = 0;
@@ -565,7 +565,9 @@ class NodeBase
     if (null === $tmp)
       return null;
 
-    $sql = "SELECT `parent`.`id`, `parent`.`parent_id`, `parent`.`code`, `parent`.`class`, `parent`.`left`, `parent`.`right`, `rev`.`name`, `rev`.`data` "
+    $sql = "SELECT `parent`.`id` as `id`, `parent`.`parent_id` as `parent_id`, "
+      ."`parent`.`code` as `code`, `parent`.`class` as `class`, `rev`.`name` as `name`, "
+      ."`rev`.`data` as `data` "
       ."FROM `node` AS `self`, `node` AS `parent`, `node__rev` AS `rev` "
       ."WHERE `self`.`left` BETWEEN `parent`.`left` AND `parent`.`right` AND `self`.`id` = {$tmp} AND `rev`.`rid` = `parent`.`rid` "
       ."ORDER BY `parent`.`left` -- NodeBase::getParents({$tmp})";
@@ -599,7 +601,7 @@ class NodeBase
   public function linkListParents($class = null, $idsonly = false)
   {
     $params = array(':nid' => $this->id);
-    $sql = "SELECT `r`.`tid`, `r`.`key` FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`tid` WHERE `n`.`deleted` = 0 AND `r`.`nid` = :nid";
+    $sql = "SELECT `r`.`tid` as `tid`, `r`.`key` as `key` FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`tid` WHERE `n`.`deleted` = 0 AND `r`.`nid` = :nid";
 
     if (null !== $class) {
       $sql .= " AND `n`.`class` = :class";
@@ -619,7 +621,7 @@ class NodeBase
   public function linkListChildren($class = null, $idsonly = false)
   {
     $params = array(':tid' => $this->id);
-    $sql = "SELECT `r`.`nid`, `r`.`key` FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`nid` WHERE `n`.`deleted` = 0 AND `r`.`tid` = :tid";
+    $sql = "SELECT `r`.`nid` as `nid`, `r`.`key` as `key` FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`nid` WHERE `n`.`deleted` = 0 AND `r`.`tid` = :tid";
 
     if (null !== $class) {
       $sql .= " AND `n`.`class` = :class";
@@ -825,13 +827,14 @@ class NodeBase
 
     // Формируем список групп.
     if ($default === null)
-      $default = $pdo->getResultsK("name", "SELECT `r`.`name` FROM `node` `n` "
+      $default = $pdo->getResultsK("name", "SELECT `r`.`name` as `name` FROM `node` `n` "
         ."INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` "
         ."WHERE `n`.`class` = 'group' AND `n`.`deleted` = 0 ORDER BY `r`.`name`");
 
     $data = $default;
 
-    $sql = "SELECT `r`.`name`, `a`.* FROM `node__access` `a` "
+    $sql = "SELECT `r`.`name` as `name`, `a`.`c` as `c`, "
+      ."`a`.`r` as `r`, `a`.`u` as `u`, `a`.`d` as `d` FROM `node__access` `a` "
       ."INNER JOIN `node` `n` ON `n`.`id` = `a`.`uid` "
       ."INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` "
       ."WHERE `a`.`nid` = :nid AND `n`.`class` = 'group' AND `n`.`deleted` = 0";
@@ -871,7 +874,7 @@ class NodeBase
       } else {
         $args[':name'] = $uid;
         $pdo->exec($sql = "REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`) "
-          ."SELECT :nid, `n`.`id`, :c, :r, :u, :d "
+          ."SELECT :nid, `n`.`id` as `id`, :c, :r, :u, :d "
           ."FROM `node` `n` "
           ."INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
           ."WHERE `n`.`class` = 'group'  AND `n`.`deleted` = 0 AND `v`.`name` = :name", $args);
@@ -975,13 +978,13 @@ class NodeBase
     else
       $filter = " AND `n`.`class` IN ('". join("', '", $classes) ."')";
 
-    $left = $pdo->getResult($sql1 = "SELECT `n`.`id` FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`nid` "
+    $left = $pdo->getResult($sql1 = "SELECT `n`.`id` as `id` FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`nid` "
       ."WHERE `tid` = :tid{$filter} AND `n`.`deleted` = 0 AND `n`.`published` = 1 "
       ."AND `n`.`class` = :class "
       ."AND `r`.`order` < :order ORDER BY `r`.`order` DESC LIMIT 1",
       array(':tid' => $parent, ':order' => $order, ':class' => $this->class));
 
-    $right = $pdo->getResult($sql2 = "SELECT `n`.`id` FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`nid` "
+    $right = $pdo->getResult($sql2 = "SELECT `n`.`id` as `id` FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`nid` "
       ."WHERE `tid` = :tid{$filter} AND `n`.`deleted` = 0 AND `n`.`published` = 1 "
       ."AND `n`.`class` = :class "
       ."AND `r`.`order` > :order ORDER BY `r`.`order` ASC LIMIT 1",
@@ -1362,4 +1365,13 @@ class NodeBase
       FileNode::getFilesFromFTP($data['node_ftp_files'], $this->id);
     }
   }
+  
+  private function getUTCTime()
+  {
+    $curtime = time();
+    $utcdiff = date('Z', $curtime);
+    $utctime = $curtime-$utcdiff;
+    $tm = date('Y-m-d H:i:s', $utctime);
+    return $tm;
+  }  
 };

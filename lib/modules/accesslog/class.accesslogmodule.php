@@ -107,7 +107,10 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
         $this->options['limit']);
 
       $sql1 = "SELECT COUNT(*) FROM `node__log`". $where;
-      $sql2 = "SELECT `node__log`.*, `node`.`class` AS `type`, `node__rev`.`name` AS `title` FROM `node__log` LEFT JOIN `node` ON `node`.`id` = `node__log`.`nid` LEFT JOIN `node__rev` ON `node__rev`.`rid` = `node`.`rid`{$where} ORDER BY `lid` DESC LIMIT ". $limit;
+      $sql2 = "SELECT `node__log`.`lid` as `lid`, `node__log`.`timestamp` as `timestamp`, "
+        ."`node__log`.`nid` as `nid`, `node__log`.`uid` as `uid`,`node__log`.`username` as `username`, "
+        ."`node__log`.`ip` as `ip`, `node__log`.`operation` as `operation`, "
+        ."`node__log`.`message` as `message`, `node`.`class` AS `type`, `node__rev`.`name` AS `title` FROM `node__log` LEFT JOIN `node` ON `node`.`id` = `node__log`.`nid` LEFT JOIN `node__rev` ON `node__rev`.`rid` = `node`.`rid` {$where} ORDER BY `lid` DESC LIMIT ". $limit;
 
       $data['syslog_pager']['total'] = $pdo->getResult($sql1, $params);
       $data['syslog_pager']['page'] = $this->options['page'];
@@ -223,18 +226,13 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
 
   public static function logNode($nid)
   {
-    static $sth = null;
-
-    if (null === $sth)
-      $sth = mcms::db()->prepare("INSERT INTO `node__astat` (`nid`, `timestamp`, `ip`, `referer`) VALUES (:nid, UTC_TIMESTAMP(), :ip, :referer)");
-
     $args = array(
       ':ip' => empty($_SERVER['REMOTE_ADDR']) ? null : $_SERVER['REMOTE_ADDR'],
       ':referer' => empty($_SERVER['HTTP_REFERER']) ? null : $_SERVER['HTTP_REFERER'],
       ':nid' => $nid,
       );
 
-    $sth->execute($args);
+    mcms::db()->exec("INSERT INTO `node__astat` (`nid`, `timestamp`, `ip`, `referer`) VALUES (:nid, UTC_TIMESTAMP(), :ip, :referer)", $args);
   }
 
   public static function hookPostInstall()

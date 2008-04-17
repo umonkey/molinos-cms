@@ -512,13 +512,12 @@ class UserWidget extends Widget
         mcms::auth($data['login'], $data['password']);
       } catch (ForbiddenException $e) {
         $res['status'] = 'wrong';
-        // $res['reason'] = 'inactive';
       }
 
       break;
 
     case 'profile-remind-form':
-      $data = mcms::db()->getResult("SELECT `n`.`id`, `u`.* FROM `node_user` `u` INNER JOIN `node` `n` ON `n`.`rid` = `u`.`rid` WHERE `u`.`email` = :s1 OR `u`.`login` = :s2 LIMIT 1", array(':s1' => $data['identifier'], ':s2' => $data['identifier']));
+      $data = mcms::db()->getResult("SELECT `n`.`id` as `id`, `u`.`rid` as `rid`, `u`.`email` as `email` FROM `node_user` `u` INNER JOIN `node` `n` ON `n`.`rid` = `u`.`rid` WHERE `u`.`email` = :s1 OR `u`.`login` = :s2 LIMIT 1", array(':s1' => $data['identifier'], ':s2' => $data['identifier']));
 
       if (empty($data)) {
         $res['status'] = 'notfound';

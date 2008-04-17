@@ -58,7 +58,7 @@ class SubscriptionAdminWidget extends Widget implements iScheduler, iAdminMenu
     switch ($options['format']) {
     case 'xml':
       $emails = $pdo->getResultsV("email", "SELECT `email` FROM `node__subscription_emails` WHERE `active` = 1 ORDER BY `email`");
-      $sections = $pdo->getResults("SELECT `e`.`email`, `n`.`id`, `r`.`name` FROM `node__subscription_tags` `t` INNER JOIN `node__subscription_emails` `e` ON `e`.`id` = `t`.`sid` INNER JOIN `node` `n` ON `n`.`id` = `t`.`tid` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` ORDER BY `e`.`email`, `n`.`id`");
+      $sections = $pdo->getResults("SELECT `e`.`email` as `email`, `n`.`id` as `id`, `r`.`name` as `name` FROM `node__subscription_tags` `t` INNER JOIN `node__subscription_emails` `e` ON `e`.`id` = `t`.`sid` INNER JOIN `node` `n` ON `n`.`id` = `t`.`tid` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` ORDER BY `e`.`email`, `n`.`id`");
 
       $output .= '<?xml version=\'1.0\'?>';
       $output .= '<subscriptions>';
@@ -142,7 +142,7 @@ class SubscriptionAdminWidget extends Widget implements iScheduler, iAdminMenu
         continue;
 
       // Получаем список новых документов для пользователя.
-      $nids = $pdo->getResultsV("id", "SELECT `n`.`id` FROM `node` `n` "
+      $nids = $pdo->getResultsV("id", "SELECT `n`.`id` as `id` FROM `node` `n` "
         ."WHERE `n`.`class` IN ('". join("', '", $types) ."') AND `n`.`id` IN "
         ."(SELECT `nid` FROM `node__rel` WHERE `tid` IN (". join(", ", $tags) .")) "
         ."AND `n`.`id` > :last "

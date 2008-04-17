@@ -131,7 +131,8 @@ class GroupNode extends Node implements iContentType
     $data['reset_group_perm'] = 1;
 
     if (isset($this->id)) {
-      $tmp = mcms::db()->getResultsK("name", "SELECT `v`.`name`, `a`.`c`, `a`.`r`, `a`.`u`, `a`.`d` FROM "
+      $tmp = mcms::db()->getResultsK("name", "SELECT `v`.`name` as `name`, "
+        ."`a`.`c` as `c`, `a`.`r` as `r`, `a`.`u` as `u`, `a`.`d` as `d` FROM "
         ."`node` `n` INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
         ."INNER JOIN `node__access` `a` ON `a`.`nid` = `n`.`id` "
         ."WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0 AND `a`.`uid` = :id", array(

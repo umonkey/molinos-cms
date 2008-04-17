@@ -204,7 +204,7 @@ class CommentWidget extends Widget
       $parents = array();
       $cids = join(', ', array_keys($result['comments']));
 
-      $map = mcms::db()->getResultsKV("nid", "tid", "SELECT `r`.`nid`, `r`.`tid` FROM `node__rel` `r` WHERE `r`.`nid` IN ({$cids})");
+      $map = mcms::db()->getResultsKV("nid", "tid", "SELECT `r`.`nid` as `nid`, `r`.`tid` as `tid` FROM `node__rel` `r` WHERE `r`.`nid` IN ({$cids})");
 
       $nodes = Node::find(array('id' => array_unique($map)));
 

@@ -19,7 +19,7 @@ function smarty_function_bebop_get_unique_values($params, &$smarty)
 
       foreach ($schema['fields'] as $field => $meta) {
         if (!empty($meta['indexed'])) {
-          $result[$field] = $pdo->getResultsV($field, "SELECT DISTINCT `f`.`{$field}` FROM `node` `n` INNER JOIN `node_{$params['type']}` `f` ON `f`.`rid` = `n`.`rid` WHERE `n`.`class` = :type ORDER BY `{$field}`", array(':type' => $params['type']));
+          $result[$field] = $pdo->getResultsV($field, "SELECT DISTINCT `f`.`{$field}` as `{$field}` FROM `node` `n` INNER JOIN `node_{$params['type']}` `f` ON `f`.`rid` = `n`.`rid` WHERE `n`.`class` = :type ORDER BY `{$field}`", array(':type' => $params['type']));
         }
       }
 

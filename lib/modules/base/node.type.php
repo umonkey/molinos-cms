@@ -169,7 +169,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if ($reload or (!is_array($result = mcms::pcache('schema')) or empty($result))) {
       $result = array();
 
-      foreach (Tagger::getInstance()->getChildrenData("SELECT `n`.`id`, `n`.`rid`, `r`.`name`, `r`.`data` FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0", false, false, false) as $type)
+      foreach (Tagger::getInstance()->getChildrenData("SELECT `n`.`id` as `id`, `n`.`rid` as `rid`, `r`.`name` as `name`, `r`.`data` as `data` FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0", false, false, false) as $type)
         $result[$type['name']] = $type;
 
       mcms::pcache('schema', $result);
@@ -428,7 +428,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     if (!$t->columnExists('rid'))
       $t->columnSet('rid', array(
-        'type' => 'int(10) unsigned',
+        'type' => 'int(10)',
         'required' => true,
         'key' => 'pri',
         ));
@@ -488,7 +488,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   public static function taskRun()
   {
     $count = 0;
-    $sql = "SELECT x.id FROM node n INNER JOIN node__rev r ON r.rid = n.rid INNER JOIN node x ON x.class = r.name WHERE n.class = 'type' AND x.updated < n.updated AND n.deleted = 0 AND x.class NOT IN ('type', 'widget', 'domain', 'tag', 'user') LIMIT 10";
+    $sql = "SELECT `x`.`id` AS `id` FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` INNER JOIN `node` `x` ON `x`.`class` = `r`.`name` WHERE `n`.`class` = 'type' AND `x`.`updated` < `n`.`updated` AND `n`.`deleted` = 0 AND `x`.`class` NOT IN ('type', 'widget', 'domain', 'tag', 'user') LIMIT 10";
 
     while (count($ids = mcms::db()->getResultsV('id', $sql))) {
       $nodes = Node::find(array('id' => $ids));

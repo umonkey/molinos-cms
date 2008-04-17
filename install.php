@@ -1,4 +1,5 @@
 <?php
+// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
 
 if (!version_compare(PHP_VERSION, "5.2.0", ">")) {
   header('Content-Type: text/plain; charset=utf-8');
@@ -7,7 +8,10 @@ if (!version_compare(PHP_VERSION, "5.2.0", ">")) {
 
 require(dirname(__FILE__) .'/lib/bootstrap.php');
 
+include 'lib/modules/pdo/exception.mcmspdo.php';
+
 $installer = new BebopInstaller();
+
 $installer->run();
 
 class BebopInstaller
@@ -54,16 +58,36 @@ class BebopInstaller
       'name' => 'mysql',
       'label' => t('База данных'),
       ));
-    $tab->addControl(new TextLineControl(array(
-      'value' => 'db[host]',
-      'label' => t('MySQL сервер'),
-      'description' => t("Обычно здесь ничего менять не надо."),
+
+    $bdrivers = PDO::getAvailableDrivers();
+    $dopt = array();
+    foreach($bdrivers as $el) {
+      $dopt[$el] = $el;
+    }  
+    
+    $tab->addControl(new EnumControl(array(
+      'value' => 'db[type]',
+      'label' => t('Выберите базу данных'),
+      'required' => true,
+      'options' => $dopt,
       )));
+
     $tab->addControl(new TextLineControl(array(
       'value' => 'db[name]',
       'label' => t('Имя базы данных'),
       'description' => t("В этой базе данных будут созданы таблицы CMS с префиксом <code>node</code>.&nbsp; Другие таблицы затронуты не будут.&nbsp; Если Molinos CMS уже установлена в эту базу данных &mdash; произойдёт обновление, существующие данные потеряны не будут."),
       )));
+
+    $tab->addControl(new InfoControl(array(
+      'text' => 'Нижеследующие поля только для базы Mysql',
+      )));
+
+    $tab->addControl(new TextLineControl(array(
+      'value' => 'db[host]',
+      'label' => t('MySQL сервер'),
+      'description' => t("Обычно здесь ничего менять не надо."),
+      )));
+  
     $tab->addControl(new TextLineControl(array(
       'value' => 'db[user]',
       'label' => t('Пользователь MySQL'),
@@ -185,7 +209,7 @@ class BebopInstaller
 
     // Импортируем профиль.
     if (!empty($_POST['profile']))
-      ExchangeModule::import("lib/modules/exchange/profiles/{$profile}", true);
+      ExchangeModule::import("lib/modules/exchange/profiles/{$_POST['profile']}", true);
 
     // Логинимся в качестве рута.
     User::authorize('root', null, true);
@@ -213,8 +237,13 @@ class BebopInstaller
     if (empty($data['confirm']))
       throw new InvalidArgumentException("Вы не подтвердили свои намерения.");
 
+    if ($data['db']['type'] == 'sqlite')
+      $dsn = "sqlite:{$data['db']['name']}"; 
+    else if ($data['db']['type'] == 'mysql')
+      $dsn = "mysql://{$data['db']['user']}:{$data['db']['pass']}@{$data['db']['host']}/{$data['db']['name']}";
+    
     $config = array(
-      'dsn' => "mysql://{$data['db']['user']}:{$data['db']['pass']}@{$data['db']['host']}/{$data['db']['name']}",
+      'dsn' => $dsn,
       'basedomain' => $data['config']['basedomain'],
       'mail_from' => $data['config']['mail_from'],
       'mail_server' => $data['config']['mail_server'],
@@ -262,7 +291,7 @@ class BebopInstaller
 
     if (!$t->exists()) {
       $t->columnSet('id', array(
-        'type' => 'int unsigned',
+        'type' => 'int',
         'required' => true,
         'key' => 'mul',
         ));
@@ -272,12 +301,12 @@ class BebopInstaller
         'key' => 'mul',
         ));
       $t->columnSet('rid', array(
-        'type' => 'int unsigned',
+        'type' => 'int',
         'required' => 0,
         'key' => 'mul',
         ));
       $t->columnSet('parent_id', array(
-        'type' => 'int unsigned',
+        'type' => 'int',
         'required' => 0,
         ));
       $t->columnSet('class', array(
@@ -291,17 +320,17 @@ class BebopInstaller
         'key' => 'uni'
         ));
       $t->columnSet('left', array(
-        'type' => 'int unsigned',
+        'type' => 'int',
         'required' => 1,
-        'key' => 'uni'
+        'key' => 'mul'
         ));
       $t->columnSet('right', array(
-        'type' => 'int unsigned',
+        'type' => 'int',
         'required' => 1,
-        'key' => 'uni'
+        'key' => 'mul'
         ));
       $t->columnSet('uid', array(
-        'type' => 'int unsigned',
+        'type' => 'int',
         'required' => 0,
         'key' => 'mul'
         ));
@@ -333,12 +362,12 @@ class BebopInstaller
     $t = new TableInfo('node__rel');
     if (!$t->exists()) {
       $t->columnSet('nid', array(
-        'type' => 'int unsigned',
+        'type' => 'int',
         'required' => 1,
         'key' => 'mul'
         ));
       $t->columnSet('tid', array(
-        'type' => 'int unsigned',
+        'type' => 'int',
         'required' => 1,
         'key' => 'mul'
         ));
@@ -348,7 +377,7 @@ class BebopInstaller
         'key' =>'mul'
         ));
       $t->columnSet('order', array(
-        'type' => 'int unsigned',
+        'type' => 'int',
         'required' => 0,
         'key' =>'mul'
         ));
@@ -358,18 +387,18 @@ class BebopInstaller
     $t = new TableInfo('node__rev');
     if (!$t->exists()) {
       $t->columnSet('rid', array(
-        'type' => 'int unsigned',
+        'type' => 'integer',
         'required' => 1,
         'key' => 'pri',
         'autoincrement' => 1,
         ));
       $t->columnSet('nid', array(
-        'type' => 'int unsigned',
+        'type' => 'int',
         'required' => 0,
         'key' => 'mul'
         ));
       $t->columnSet('uid', array(
-        'type' => 'int unsigned',
+        'type' => 'int',
         'required' => 0,
         'key' =>'mul'
         ));
@@ -393,12 +422,12 @@ class BebopInstaller
     $t = new TableInfo('node__access');
     if (!$t->exists()) {
       $t->columnSet('nid', array(
-        'type' => 'int unsigned',
+        'type' => 'int',
         'required' => 1,
         'key' => 'mul',
         ));
       $t->columnSet('uid', array(
-        'type' => 'int unsigned',
+        'type' => 'int',
         'required' => 1,
         'key' => 'mul'
         ));

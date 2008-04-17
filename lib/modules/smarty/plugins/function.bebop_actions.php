@@ -75,7 +75,8 @@ function smarty_function_bebop_actions($params, &$smarty)
       )) ."</li.";
 
     // Ссылки на ревизии.
-    $revisions = mcms::db()->getResults("SELECT `r`.`rid`, `n`.`id`, `r`.`uid`, `u`.`login`, `r`.`created` FROM `node__rev` `r` LEFT JOIN `node` `n` ON `n`.`rid` = `r`.`rid` LEFT JOIN `node` `un` ON `un`.`id` = `r`.`uid` LEFT JOIN `node_user` `u` ON `u`.`rid` = `un`.`rid` WHERE `r`.`nid` = :nid ORDER BY `r`.`rid` DESC", array('nid' => $nid));
+    $revisions = mcms::db()->getResults("SELECT `r`.`rid` as `rid`, `n`.`id` as `id`, 
+    `r`.`uid` as `uid`, `u`.`login` as `login`, `r`.`created` as `created` FROM `node__rev` `r` LEFT JOIN `node` `n` ON `n`.`rid` = `r`.`rid` LEFT JOIN `node` `un` ON `un`.`id` = `r`.`uid` LEFT JOIN `node_user` `u` ON `u`.`rid` = `un`.`rid` WHERE `r`.`nid` = :nid ORDER BY `r`.`rid` DESC", array('nid' => $nid));
 
     // Запрошенная ревизия.
     $reqrev = empty($_GET['BebopNode_rev']) ? null : $_GET['BebopNode_rev'];

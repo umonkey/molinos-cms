@@ -948,10 +948,15 @@ class mcms
 
     if (in_array('PDO_Singleton', get_declared_classes())) {
       try {
-        $enabled = mcms::db()->getResultsV("name", "SELECT `r`.`name` FROM `node__rev` `r` INNER JOIN `node` `n` ON `n`.`rid` = `r`.`rid` WHERE `n`.`class` = 'moduleinfo' AND `n`.`published` = 1 AND `n`.`deleted` = 0");
+        $enabled = mcms::db()->getResultsV("name", "SELECT `r`.`name` as `name` FROM `node__rev` `r` INNER JOIN `node` `n` ON `n`.`rid` = `r`.`rid` WHERE `n`.`class` = 'moduleinfo' AND `n`.`published` = 1 AND `n`.`deleted` = 0");
       } catch (PDOException $e) {
-        if ('42S02' != $e->getCode())
+        switch ($e->getCode()) {
+        case '42S02':
+        case 'HY000':
+          break;
+        default:
           throw $e;
+        }
       }
     }
 

@@ -63,7 +63,11 @@ class SysLogModule implements iAdminUI, iAdminMenu, iModuleConfig, iNodeHook
     }
 
     // Выбираем записи
-    $sql = "SELECT `l`.*, `node`.`class`, `nr`.`name` AS `title` FROM `node__log` `l` "
+
+    $sql = "SELECT `l`.`lid` as `lid`, `l`.`timestamp` as `timestamp`, 
+      `l`.`nid` as `nid`, `l`.`uid` as `uid`,`l`.`username` as `username`,
+      `l`.`ip` as `ip`, `l`.`operation` as `operation`,`l`.`message` as `message`, 
+      `node`.`class`, `nr`.`name` AS `title` FROM `node__log` `l` "
       ."LEFT JOIN `node` ON `node`.`id` = `l`.`nid` "
       ."LEFT JOIN `node__rev` `nr` ON `node`.`rid` = `nr`.`rid` {$where} ORDER BY `l`.`lid` DESC";
 
@@ -188,7 +192,10 @@ class SysLogModule implements iAdminUI, iAdminMenu, iModuleConfig, iNodeHook
         $this->options['limit']);
 
       $sql1 = "SELECT COUNT(*) FROM `node__log`". $where;
-      $sql2 = "SELECT `node__log`.*, `node`.`class` AS `type`, `node__rev`.`name` AS `title` FROM `node__log` LEFT JOIN `node` ON `node`.`id` = `node__log`.`nid` LEFT JOIN `node__rev` ON `node__rev`.`rid` = `node`.`rid`{$where} ORDER BY `lid` DESC LIMIT ". $limit;
+      $sql2 = "SELECT  `node__log`.`lid` as `lid`, `node__log`.`timestamp` as `timestamp`, 
+      `node__log`.`nid` as `nid`, `node__log`.`uid` as `uid`,`node__log`.`username` as `username`,
+      `node__log`.`ip` as `ip`, `node__log`.`operation` as `operation`, 
+      `node__log`.`message` as `message`, `node`.`class` AS `type`, `node__rev`.`name` AS `title` FROM `node__log` LEFT JOIN `node` ON `node`.`id` = `node__log`.`nid` LEFT JOIN `node__rev` ON `node__rev`.`rid` = `node`.`rid`{$where} ORDER BY `lid` DESC LIMIT ". $limit;
 
       $data['syslog_pager']['total'] = $pdo->getResult($sql1, $params);
       $data['syslog_pager']['page'] = $this->options['page'];
