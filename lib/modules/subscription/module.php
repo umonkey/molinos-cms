@@ -47,8 +47,15 @@ class SubscriptionWidget extends Widget
 
   protected function onGetWait(array $options)
   {
-    $output = '<h2>'. t($this->me->title) .'</h2>';
+    $output = '<h2 class=\'subscription-error-title\'>'. t($this->me->title) .'</h2>';
     $output .= '<p>'. t('Инструкция по активации подписки отправлена на введённый почтовый адрес.') .'</p>';
+    return $output;
+  }
+
+  protected function onGetEmpty(array $options)
+  {
+    $output = '<h2 class=\'subscription-error-title\'>'. t($this->me->title) .'</h2>';
+    $output .= '<p>'. t('Нужно указать почтовый адрес и выбрать тип новостей.') .'</p>';
     return $output;
   }
 
@@ -73,7 +80,7 @@ class SubscriptionWidget extends Widget
       $pdo->exec("INSERT INTO `node__subscription_tags` (`sid`, `tid`) SELECT :sid, `id` FROM `node` WHERE `id` IN (". join(', ', $data['sections']) .")",
         array(':sid' => $sid));
 
-      $output = '<h2>'. t($this->me->title) .'</h2>';
+      $output = '<h2 class=\'subscription-error-title\'>'. t($this->me->title) .'</h2>';
       $output .= '<p>'. t('Параметры вашей подписки успешно изменены.') .'</p>';
       return $output;
     }
@@ -83,7 +90,7 @@ class SubscriptionWidget extends Widget
 
   protected function onGetUpdated(array $options)
   {
-    $output = '<h2>'. t($this->me->title) .'</h2>';
+    $output = '<h2 class=\'subscription-error-title\'>'. t($this->me->title) .'</h2>';
     $output .= '<p>'. t('Состояние подписки изменено, спасибо!') .'</p>';
     return $output;
   }
@@ -94,12 +101,17 @@ class SubscriptionWidget extends Widget
     case 'subscription-form':
       $tags = array();
 
-      foreach (Node::find(array('class' => 'tag', 'bebop_subscribe' => 1, '#files' => false)) as $t)
-        $tags[$t->id] = $t->name;
+      foreach (Node::find(array('class' => 'tag', '#files' => false)) as $t)
+        if (!empty($t->bebop_subscribe))
+          $tags[$t->id] = $t->name;
 
-      $list = TagNode::getTags('select', array('enabled' => array_keys($tags)));
+      if (count($tags) > 1) {
+        $list = TagNode::getTags('select', array('enabled' => array_keys($tags)));
 
-      // bebop_debug($tags, $list);
+        foreach ($list as $k => $v)
+          if (!array_key_exists($k, $tags))
+            unset($list[$k]);
+      }
 
       $form = new Form(array(
         'title' => t($this->me->title),
@@ -109,11 +121,18 @@ class SubscriptionWidget extends Widget
         'required' => true,
         'value' => 'email',
         )));
-      $form->addControl(new SetControl(array(
-        'label' => t('Подписаться на'),
-        'options' => $list,
-        'value' => 'sections',
-        )));
+
+      if (count($tags) == 1)
+        $form->addControl(new HiddenControl(array(
+          'value' => 'sections[]',
+          'default' => array_pop(array_keys($tags)),
+          )));
+      else
+        $form->addControl(new SetControl(array(
+          'label' => t('Подписаться на'),
+          'options' => $list,
+          'value' => 'sections',
+          )));
       $form->addControl(new SubmitControl(array(
         'text' => t('Подписаться'),
         )));
@@ -126,8 +145,11 @@ class SubscriptionWidget extends Widget
   {
     switch ($id) {
     case 'subscription-form':
-      if (empty($data['sections']))
-        throw new InvalidArgumentException("Не выбраны разделы для подписки.");
+      if (empty($data['sections']) or empty($data['email'])) {
+        $tmp = bebop_split_url();
+        $tmp['args'][$this->getInstanceName()]['status'] = 'empty';
+        bebop_redirect(bebop_combine_url($tmp), false);
+      }
 
       // В массиве могут быть и другие данные, поэтому мы
       // выбираем только то, что нам нужно завернуть.

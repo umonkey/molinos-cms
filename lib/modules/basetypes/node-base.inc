@@ -145,8 +145,10 @@ class NodeBase implements iFormObject
     if (array_key_exists('files', $this->data))
       unset($this->data['files']);
 
+    /*
     if ($clear)
       $this->data = $tg->clean($this->data);
+    */
 
     if (empty($this->data['created']))
       $this->data['created'] = 'UTC_TIMESTAMP()';
@@ -1173,15 +1175,11 @@ class NodeBase implements iFormObject
 
         case 'NodeLinkControl':
           if (isset($v['values']) and is_string($v['values']) and isset($this->$k)) {
-            try {
-              $tmp = Node::load($this->$k);
-              $parts = explode('.', $v['values'], 2);
+            $tmp = Node::load($this->$k);
+            $parts = explode('.', $v['values'], 2);
 
-              if ($tmp->class == $parts[0])
-                $value = $tmp->$parts[1];
-            } catch (ObjectNotFoundException $e) {
-              $value = null;
-            }
+            if ($tmp->class == $parts[0])
+              $value = $tmp->$parts[1];
           }
 
           break;

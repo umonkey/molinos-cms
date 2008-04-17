@@ -88,28 +88,29 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
 
   public function onPost(array $options, array $post, array $files)
   {
-    $tg = Tagger::getInstance();
-    $pdo = mcms::db();
+    foreach (Node::find(array('class' => 'type')) as $t) {
+      if (!empty($post['types']) and is_array($post['types']) and in_array($t->name, $post['types']))
+        $sendmail = 1;
+      else
+        $sendmail = 0;
 
-    $pdo->exec("UPDATE `node_type` SET `sendmail` = 0");
-
-    if (!empty($post['types']) and is_array($post['types'])) {
-      foreach (Node::find(array('class' => 'type', 'name' => $post['types'])) as $type) {
-        $type->sendmail = 1;
-        $type->save();
+      if ($sendmail != $t->sendmail) {
+        $t->sendmail = $sendmail;
+        $t->save();
       }
     }
 
-    $pdo->exec("UPDATE `node_tag` SET `bebop_subscribe` = 0");
+    foreach (Node::find(array('class' => 'tag')) as $t) {
+      if (!empty($post['tags']) and is_array($post['tags']) and in_array($t->id, $post['tags']))
+        $subscribe = 1;
+      else
+        $subscribe = 0;
 
-    if (!empty($post['tags']) and is_array($post['tags'])) {
-      foreach (Node::find(array('class' => 'tag', 'id' => $post['tags'])) as $tag) {
-        $tag->bebop_subscribe = 1;
-        $tag->save();
+      if ($subscribe != $t->bebop_subscribe) {
+        $t->bebop_subscribe = $subscribe;
+        $t->save();
       }
     }
-
-    mcms::flush();
   }
 
   // Выполнение периодических задач.
@@ -172,7 +173,10 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
 
     switch ($id) {
     case 'subscription-admin-form':
-      $form = new Form(array());
+      $form = new Form(array(
+        'title' => t('Управление подпиской'),
+        ));
+      $form->addClass('tabbed');
 
       if (null !== ($tab = $this->formGetTypes()))
         $form->addControl($tab);
@@ -204,6 +208,7 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
     $tab->addControl(new SetControl(array(
       'value' => 'subscription_types',
       'options' => $options,
+      'label' => t('Типы документов, рассылаемые по почте'),
       )));
 
     return $tab;
@@ -213,8 +218,9 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
   {
     $options = array();
 
-    foreach (TagNode::getTags('flat') as $t)
+    foreach (TagNode::getTags('flat') as $t) {
       $options[$t['id']] = str_repeat('&nbsp;', 4 * $t['depth']) . $t['name'];
+    }
 
     $tab = new FieldSetControl(array(
       'name' => 'sections',
@@ -236,11 +242,13 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
       'subscription_sections' => array(),
       );
 
-    foreach (Node::find(array('class' => 'type', 'sendmail' => 1)) as $t)
-      $data['subscription_types'][] = $t->id;
+    foreach (Node::find(array('class' => 'type')) as $t)
+      if (!empty($t->sendmail))
+        $data['subscription_types'][] = $t->id;
 
-    foreach (Node::find(array('class' => 'tag', 'bebop_subscribe' => 1)) as $t)
-      $data['subscription_sections'][] = $t->id;
+    foreach (Node::find(array('class' => 'tag')) as $t)
+      if (!empty($t->bebop_subscribe))
+        $data['subscription_sections'][] = $t->id;
 
     return $data;
   }
@@ -252,30 +260,30 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
     if (empty($data['subscription_types']))
       $data['subscription_types'] = array();
 
-    foreach (Node::find(array('class' => 'type')) as $t) {
-      if ($t->sendmail and !in_array($t->id, $data['subscription_types'])) {
-        $t->sendmail = false;
-        $t->save();
-        $flush = true;
-      } elseif (!$t->sendmail and in_array($t->id, $data['subscription_types'])) {
-        $t->sendmail = true;
-        $t->save();
-        $flush = true;
-      }
-    }
-
     if (empty($data['subscription_sections']))
       $data['subscription_sections'] = array();
 
+    foreach (Node::find(array('class' => 'type')) as $t) {
+      if (in_array($t->id, $data['subscription_types']))
+        $sendmail = 1;
+      else
+        $sendmail = 0;
+
+      if ($t->sendmail != $sendmail) {
+        $t->sendmail = $sendmail;
+        $t->save();
+      }
+    }
+
     foreach (Node::find(array('class' => 'tag')) as $t) {
-      if ($t->bebop_subscribe and !in_array($t->id, $data['subscription_sections'])) {
-        $t->bebop_subscribe = false;
+      if (in_array($t->id, $data['subscription_sections']))
+        $subscribe = 1;
+      else
+        $subscribe = 0;
+
+      if ($t->bebop_subscribe != $subscribe) {
+        $t->bebop_subscribe = $subscribe;
         $t->save();
-        $flush = true;
-      } elseif (!$t->bebop_subscribe and in_array($t->id, $data['subscription_sections'])) {
-        $t->bebop_subscribe = true;
-        $t->save();
-        $flush = true;
       }
     }
 
@@ -290,7 +298,7 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
 
     if ($user->hasGroup('Subscription Managers'))
       $icons[] = array(
-        'group' => 'Subscription',
+        'group' => 'Access',
         'img' => 'img/dashboard-task-subscription.gif',
         'href' => '/admin/subscription/',
         'title' => t('Рассылка'),
