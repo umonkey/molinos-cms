@@ -79,6 +79,8 @@ class CartWidget extends Widget
     if (null !== ($options['add'] = $ctx->get('add')))
       $options['mode'] = 'add';
 
+    $options['qty'] = $ctx->get('qty', 1);
+
     return $options;
   }
 
@@ -137,7 +139,7 @@ class CartWidget extends Widget
     else
       $count = $_SESSION['cart'][$node->id];
 
-    $_SESSION['cart'][$node->id] = ++$count;
+    $_SESSION['cart'][$node->id] = $count + $options['qty'];
     bebop_session_end();
 
     $url = bebop_split_url();
