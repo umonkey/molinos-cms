@@ -502,6 +502,12 @@ function bebop_session_start($check = false)
   global $bebop_session_status;
 
   if (!$check and !$bebop_session_status) {
+    if (!ini_get('session.save_path')) {
+      if (!is_dir('tmp/sessions') and is_writable('tmp'))
+        mkdir('tmp/sessions');
+      ini_set('session.save_path', 'tmp/sessions');
+    }
+
     session_start();
     $bebop_session_status = true;
   }
