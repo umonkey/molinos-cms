@@ -10,6 +10,7 @@ _admin_check_perm();
     <title>Molinos.CMS</title>
     <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/style.css" />
     <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/bebop.css" />
+    <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/colors-green.css" />
 
     <script src="<?=$prefix?>/../all/jquery/jquery.js" type="text/javascript" language="javascript"></script>
     <script src="<?=$prefix?>/js/bebop.js" type="text/javascript" language="javascript"></script>
