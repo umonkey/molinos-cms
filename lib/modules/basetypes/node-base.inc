@@ -1037,6 +1037,7 @@ class NodeBase implements iFormObject
     // Формируем окончательную форму.
     $form = new Form(array(
       'title' => $title,
+      'captcha' => true,
       ));
     $form->addControl(new HiddenControl(array('value' => 'node_content_id')));
 
@@ -1206,6 +1207,8 @@ class NodeBase implements iFormObject
 
   public function formProcess(array $data)
   {
+    mcms::captchaCheck($data);
+
     $schema = TypeNode::getSchema($this->class);
 
     if (array_key_exists('fields', $schema)) {

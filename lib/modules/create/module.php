@@ -216,6 +216,7 @@ class FormWidget extends Widget
     elseif ($id == 'form-create') {
       $form = new Form(array(
         'title' => t('Добавление объекта'),
+        'captcha' => true,
         ));
 
       $form->addControl(new InfoControl(array(
