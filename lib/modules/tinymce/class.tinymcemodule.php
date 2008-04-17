@@ -52,6 +52,9 @@ class TinyMceModule implements iModuleConfig, iPageHook
       'name' => 'pages',
       'label' => t('Страницы'),
       ));
+    $tab->addControl(new InfoControl(array(
+      'text' => t('Этот модуль всегда используется в административном интерфейсе, отключить его нельзя.'),
+      )));
     $tab->addControl(new SetControl(array(
       'value' => 'config_pages',
       'label' => t('Использовать редактор на страницах'),
