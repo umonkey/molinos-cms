@@ -92,8 +92,6 @@ class TinyMceModule implements iModuleConfig, iPageHook
       if (empty($config['pages']) or !in_array($page->id, $config['pages']))
         return;
 
-    if (false === strstr($output, 'textarea'))
-      return;
     if (false === strstr($output, 'visualEditor'))
       return;
 
@@ -107,6 +105,8 @@ class TinyMceModule implements iModuleConfig, iPageHook
       return;
 
     $html .= $tmp;
+
+    $html .= '<script type=\'text/javascript\' src=\'/lib/modules/tinymce/file_picker.js\'></script>';
 
     if (!empty($html))
       $output = str_replace('</head>', $html .'</head>', $output);
