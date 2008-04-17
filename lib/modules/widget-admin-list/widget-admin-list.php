@@ -23,7 +23,6 @@ class ListAdminWidget extends ListWidget implements iDashboard
   {
     $options = parent::getRequestOptions($ctx);
 
-    $options['#nocache'] = true;
     $options['picker'] = $ctx->get('picker');
 
     if (null !== ($tmp = $ctx->get('section')))
@@ -107,13 +106,14 @@ class ListAdminWidget extends ListWidget implements iDashboard
       else
         $doctype = null;
 
-      $form->addControl(new DocSearchControl(array(
-        'value' => 'document_list_search',
-        'widget' => $this->getInstanceName(),
-        'sections' => $this->sections ? 'document_list_search_section' : null,
-        'filterform' => $this->filterform,
-        'doctype' => $doctype,
-        )));
+      if (!$this->tree)
+        $form->addControl(new DocSearchControl(array(
+          'value' => 'document_list_search',
+          'widget' => $this->getInstanceName(),
+          'sections' => $this->sections ? 'document_list_search_section' : null,
+          'filterform' => $this->filterform,
+          'doctype' => $doctype,
+          )));
 
       $form->addControl(new DocMassControl(array(
         'value' => 'document_list_mass',
