@@ -741,7 +741,7 @@ class mcms
   public static function ismodule($name)
   {
     $tmp = mcms::getModuleMap();
-    return array_key_exists($name, $tmp['modules']);
+    return !empty($tmp['modules'][$name]['enabled']);
   }
 
   public static function modpath($name)

@@ -114,22 +114,20 @@ class StaticAttachment
   private function sendCache($data = null)
   {
     if (null === $data) {
-      if (!is_array($tmp = mcms::cache($this->ckey)))
+      if (!is_array($data = mcms::cache($this->ckey)))
         return;
     } else {
       mcms::cache($this->ckey, $data);
     }
 
-    header('Content-Type: '. $tmp['type']);
-    header('Content-Length: '. strlen($tmp['data']));
-    die($tmp['data']);
+    header('Content-Type: '. $data['type']);
+    header('Content-Length: '. strlen($data['data']));
+    die($data['data']);
   }
 
   public function sendFile()
   {
     $this->sendCache();
-
-    bebop_debug();
 
     if (!is_file($this->source))
       $this->sendError(404, 'could not find this attachment.');
@@ -137,13 +135,16 @@ class StaticAttachment
     if (!is_readable($this->source))
       $this->sendError(403, 'the file is not readable.');
 
+    if (empty($this->nw) and empty($this->nh))
+      return $this->sendFileDownload();
+
     // Пытаемся открыть файл на чтение.  Сработает только если файл является картинкой.
     $img = ImageMagick::getInstance();
     $rc = $img->open($this->source, $this->node['filetype']);
 
     // Если не удалось открыть, значит файл не является картинкой.  Отдаём его в режиме скачивания.
     if ($rc === false)
-      return $this->sendFileDownload($img);
+      return $this->sendFileDownload();
 
     // Если получилось отмасштабировать — кэшируем и отдаём.
     if (is_array($tmp = $this->resizeImage($img)))
@@ -180,17 +181,26 @@ class StaticAttachment
     }
   }
 
-  private function sendFileDownload($img)
+  private function sendFileDownload()
   {
     $headers = array();
 
-    if (null === $this->realname or $this->realname != $this->node['filename'])
+    if (false === strstr($this->node['filetype'], 'shockwave'))
+      $download = false;
+    elseif (false and substr($this->node['filetype'], 0, 6) == 'image/')
+      $download = false;
+    else
+      $download = true;
+
+    if ($download and (null === $this->realname or $this->realname != $this->node['filename']))
       bebop_redirect("/attachment/{$this->node['id']}/". urlencode($this->node['filename']));
 
     // Ещё раз загрузим файл для проверки прав.
+    /*
     $node = Node::load(array('class' => 'file', 'id' => $this->node['id']));
     if (!$node->checkPermission('r'))
       $this->sendError(403, 'access denied');
+    */
 
     // Описание фрагмента при докачке.
     $range_from = 0;
@@ -220,8 +230,6 @@ class StaticAttachment
     $headers[] = "Content-Type: ". $this->node['filetype'];
     $headers[] = "Content-Length: ". ($range_to - $range_from);
 
-    $download = (strstr($this->node['filetype'], 'shockwave') === false);
-
     if ($download)
       $headers[] = "Content-Disposition: attachment; filename=\"{$this->node['filename']}\"";
 
@@ -239,7 +247,7 @@ class StaticAttachment
       header($item);
 
     if ('GET' == $_SERVER['REQUEST_METHOD']) {
-      if (!$range_from and class_exists('AccessLogModule'))
+      if (!$range_from and mcms::ismodule('accesslog'))
         AccessLogModule::logNode($this->node['id']);
 
       $f = fopen($this->source, 'rb')
