@@ -264,7 +264,12 @@ form.tabbed .tab-content {
   border: 1px solid #e4ecee;
 }
 
+table.wide th, table.wide td
+{
+  padding: 2px 4px;
+}
 table.wide {
+  width: 100%;
   border-collapse: collapse;
   border-left: 1px solid #FFFFFF;
 }

@@ -26,7 +26,7 @@ class DocListControl extends Control
     $output .= $this->getHeaderHTML($this->sort);
     $output .= $this->getListHTML($data[$this->value]);
 
-    return $this->wrapHTML(mcms::html('table', array('id' => $this->id, 'class' => 'highlight'), $output));
+    return $this->wrapHTML(mcms::html('table', array('id' => $this->id, 'class' => 'wide highlight'), $output));
   }
 
   private function getHeaderHTML(array $sort = null)

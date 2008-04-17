@@ -22,7 +22,6 @@ $user = mcms::user();
     <script type="text/javascript" language="javascript" src="<?=$prefix?>/../all/jquery/jquery.js"></script>
     <script type="text/javascript" language="javascript" src="<?=$prefix?>/../all/jquery/plugins/jquery.ifixpng.js" ></script>
     <script type="text/javascript" language="javascript" src="<?=$prefix?>/../all/jquery/plugins/jquery.formtabber.js"></script>
-    <script type="text/javascript" language="javascript" src="<?=$prefix?>/../all/jquery/plugins/jquery.autogrow.js" ></script>
     <script type="text/javascript" language="javascript" src="<?=$prefix?>/../all/jquery/plugins/jquery.suggest.js" ></script>
     <script type="text/javascript" language="javascript" src="<?=$prefix?>/js/bebop.js" ></script>
     <base href="<?=$base?>" />
