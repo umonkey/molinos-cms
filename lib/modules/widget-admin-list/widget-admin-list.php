@@ -23,6 +23,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
   {
     $options = parent::getRequestOptions($ctx);
 
+    $options['#nocache'] = true;
     $options['picker'] = $ctx->get('picker');
 
     if (null !== ($tmp = $ctx->get('section')))
