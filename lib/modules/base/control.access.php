@@ -50,6 +50,6 @@ class AccessControl extends Control
       $output .= '</tr>';
     }
 
-    return $this->wrapHTML('<table class=\'highlight\'>'. $output .'</table>');
+    return $this->wrapHTML('<table class=\'padded highlight\'>'. $output .'</table>');
   }
 };

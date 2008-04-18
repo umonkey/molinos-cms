@@ -282,7 +282,8 @@ form.tabbed .tab-content {
   margin-top: 1em;
 }
 
-table.mcms {
+table.mcms,
+table.padded {
   border-collapse: collapse;
 }
 
@@ -291,7 +292,8 @@ table.mcms.nodelist td {
   text-align: left;
 }
 
-table.mcms th {
+table.mcms th,
+table.padded {
   padding: 3px 10px 4px 10px;
 }
 table.mcms.nodelist th {
@@ -299,7 +301,8 @@ table.mcms.nodelist th {
   border-bottom: 1px solid #aaa;
 }
 
-table.mcms td {
+table.mcms td,
+table.padded td {
   padding: 4px 10px 7px 10px;
 }
 table.mcms.nodelist td {
