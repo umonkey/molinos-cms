@@ -46,6 +46,9 @@ class MemCacheD_Cache implements iBebopCacheEngine
 
     static public function isAvailable()
     {
+        if (in_array('memcache', preg_split('/, */', mcms::config('cache.disable'))))
+            return false;
+
         return class_exists('Memcache', false);
     }
 

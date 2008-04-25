@@ -23,6 +23,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
   {
     $options = parent::getRequestOptions($ctx);
 
+    $options['#nocache'] = true;
     $options['picker'] = $ctx->get('picker');
 
     if (null !== ($tmp = $ctx->get('section')))
@@ -31,7 +32,6 @@ class ListAdminWidget extends ListWidget implements iDashboard
     if ($options['mode'] == 'raise' or $options['mode'] == 'sink') {
       $options['nid'] = $ctx->get('nid');
       $options['tid'] = $ctx->get('tid');
-      $options['#nocache'] = true;
     }
 
     if (null !== ($tmp = $ctx->get('sort')))

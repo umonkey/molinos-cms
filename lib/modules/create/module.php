@@ -83,6 +83,7 @@ class FormWidget extends Widget
   public function getRequestOptions(RequestContext $ctx)
   {
     $options = parent::getRequestOptions($ctx);
+    $options['#nocache'] = true;
     
     $options['type'] = $ctx->get('type', $this->type);
     $options['default'] = $ctx->get('default', array());

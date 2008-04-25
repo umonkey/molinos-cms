@@ -26,6 +26,9 @@ class APC_Cache implements iBebopCacheEngine
 
     static public function isAvailable()
     {
+        if (in_array('apc', preg_split('/, */', mcms::config('cache.disable'))))
+            return false;
+
         return function_exists('apc_store');
     }
 

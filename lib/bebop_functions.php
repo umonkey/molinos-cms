@@ -224,12 +224,10 @@ function bebop_combine_url(array $url, $escape = true)
   if (bebop_is_json())
     $forbidden[] = 'widget';
 
-  // Если текущий хост отличается от нужного -- делаем абсолютную ссылку.
-  /*
-  if (!empty($url['host']) and ($_SERVER['HTTP_HOST'] != $url['host'] or !empty($url['#absolute']) or in_array('absolute', $url['args'])))
-    $result .= 'http://'. $url['host'];
-  */
-  $result = 'http://'. $_SERVER['HTTP_HOST'];
+  if (empty($url['host']))
+    $url['host'] = $_SERVER['HTTP_HOST'];
+
+  $result = 'http://'. $url['host'];
 
   if (strstr($url['path'], '#') !== false) {
     $parts = explode('#', $url['path']);

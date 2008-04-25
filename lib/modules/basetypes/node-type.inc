@@ -251,7 +251,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       $field = new FieldControl(array(
         'name' => $k,
         'value' => 'node_content_fields',
-        'label' => $v['label'],
+        'label' => empty($v['label']) ? $k : $v['label'],
         ));
 
       $form->addControl($field);

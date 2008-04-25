@@ -9,6 +9,9 @@ class BaseModule implements iRemoteCall
     case 'logout':
       AuthCore::getInstance()->userLogOut();
       break;
+    case 'login':
+      mcms::auth($_POST['login'], $_POST['password']);
+      break;
     default:
       throw new PageNotFoundException();
     }

@@ -327,7 +327,7 @@ class UserWidget extends Widget
     switch ($id) {
     case 'user-logout-form':
       $form = new Form(array(
-        'action' => $this->getActionUrl(),
+        'action' => '/base.rpc?action=logout',
         ));
 
       if (null !== $this->header) {
@@ -353,7 +353,7 @@ class UserWidget extends Widget
     case 'user-login-form':
       $form = new Form(array(
         'title' => t('Вход'),
-        'action' => $this->getActionUrl(),
+        'action' => '/base.rpc?action=login',
         ));
 
       if (null !== $this->header) {
@@ -583,30 +583,5 @@ class UserWidget extends Widget
     }
 
     bebop_redirect($next);
-  }
-
-  // Формирует урл для нужного действия.
-  private function getActionUrl($action = null)
-  {
-    $path = '';
-
-    if (!empty($this->page)) {
-      $base = mcms::config('basedomain');
-
-      $nodes = Node::load(array('class' => 'domain', 'id' => $this->page))->getParents();
-
-      foreach ($nodes as $idx => $em) {
-        if (empty($em['parent_id']))
-          $path .= 'http://'. str_replace('DOMAIN', $base, $em['name']) .'/';
-        else
-          $path .= $em['name'] .'/';
-      }
-    }
-
-    $url = bebop_split_url($path);
-    $url['args'][$this->getInstanceName()]['action'] = $action;
-    $url['args']['destination'] = empty($_GET['destination']) ? $_SERVER['REQUEST_URI'] : $_GET['destination'];
-
-    return bebop_combine_url($url, false);
   }
 };
