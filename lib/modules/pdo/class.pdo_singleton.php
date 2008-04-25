@@ -3,179 +3,211 @@
 
 class PDO_Singleton extends PDO
 {
-    static private $instance = null;
+  static private $instances = array();
+  static private $dbname = null;
 
-    private $prepared_queries = array();
-    private $query_log = null;
+  private $prepared_queries = array();
+  private $query_log = null;
 
-    private $transaction = false;
+  private $transaction = false;
 
-    public function __construct()
-    {
-      $uri = parse_url(mcms::config('dsn'));
+  public function __construct($dsn, $user, $pass)
+  {
+    parent::__construct($dsn, $user, $pass);
 
-      $dsn = $uri['scheme'] .':dbname='. trim($uri['path'], '/') .';host='. $uri['host'];
+    $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-      parent::__construct($dsn, $uri['user'], $uri['pass']);
+    if (version_compare(PHP_VERSION, "5.1.3", ">="))
+      $this->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
-      $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-      $this->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, 1);
+    if ((!empty($_GET['profile']) or !empty($_GET['postprofile'])) and bebop_is_debugger())
+      $this->query_log = array();
+  }
 
-      if (version_compare(PHP_VERSION, "5.1.3", ">="))
-        $this->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+  public static function getDbType()
+  {
+    throw new RuntimeException(t('Метод getDbType() не определён — используется неполноценный драйвер БД.'));
+  }
 
-      if ((!empty($_GET['profile']) or !empty($_GET['postprofile']) or !empty($_GET['debug'])) and bebop_is_debugger())
-        $this->query_log = array();
+  public static function getDbName()
+  {
+    return self::$dbname;
+  }
 
-      $this->exec("SET NAMES utf8");
-      $this->exec("SET sql_mode = 'STRICT_TRANS_TABLES'");
+  public static function getInstance($name = 'default')
+  {
+    if (!array_key_exists($name, self::$instances)) {
+      if (false === ($conf = parse_url(self::getConfig($name))) or empty($conf['scheme']))
+        throw new RuntimeException(t('Соединение %name настроено неверно.', array('%name' => $name)));
+
+      if (!class_exists($driver = 'mcms_'. $conf['scheme'] .'_driver'))
+        throw new RuntimeException(t('Драйвер для доступа к БД типа "%name" отсутствует.', array('%name' => $conf['scheme'])));
+
+      self::$instances[$name] = new $driver($conf);
     }
 
-    public static function getInstance($name = null)
-    {
-        if (self::$instance === null)
-            self::$instance = new PDO_Singleton();
-        return self::$instance;
-    }
+    return self::$instances[$name];
+  }
 
-    public static function disconnect()
-    {
-      if (null !== self::$instance)
-        self::$instance = null;
-    }
+  private static function getConfig($name)
+  {
+    if (is_array($conf = mcms::config('db')) and array_key_exists($name, $conf))
+      return $conf[$name];
 
-    public function prepare($sql)
-    {
-        $hash = hash('crc32', $sql);
+    if ('default' == $name and is_string($conf = mcms::config('dsn')))
+      return $conf;
 
-        if (!array_key_exists($hash, $this->prepared_queries)) {
-            $this->prepared_queries[$hash] = parent::prepare($sql);
-        }
+    throw new RuntimeException(t('Соединение %name не настроено.', array('%name' => $name)));
+  }
 
-        $sth = $this->prepared_queries[$hash];
+  public static function disconnect()
+  {
+    /*
+    // FIXME: это сработает только если нет ссылок, что не факт.
+    // Предлагаю забить, hex, 2008-04-23.
+    if (null !== self::$instance)
+      self::$instance = null;
+    */
+  }
 
-        $this->log($sql);
+  public function prepare($sql)
+  {
+    $sth = parent::prepare($sql);
 
-        return $sth;
-    }
+    if ($this->query_log !== null)
+      $this->query_log[] = $sql;
 
-    public function exec($sql, array $params = null)
-    {
-      try {
-        $sth = $this->prepare($sql);
-        $sth->execute($params);
-      } catch (PDOException $e) {
-        throw new McmsPDOException($e, $sql);
-      }
+    return $sth;
+  }
 
-      return $sth;
-    }
-
-    public function log($string)
-    {
-      if (null !== $this->query_log)
-        $this->query_log[] = $string;
-    }
-
-    // Возвращает результат запроса в виде ассоциативного массива k => v.
-    public function getResultsKV($key, $val, $sql, array $params = null)
-    {
-      $result = array();
-
-      foreach ($this->getResults($sql, $params) as $row)
-        $result[$row[$key]] = $row[$val];
-
-      return $result;
-    }
-
-    public function getResultsK($key, $sql, array $params = null)
-    {
-      $result = array();
-
-      foreach ($this->getResults($sql, $params) as $row)
-        $result[$row[$key]] = $row;
-
-      return $result;
-    }
-
-    public function getResultsV($key, $sql, array $params = null)
-    {
-      $result = array();
-
-      foreach ($this->getResults($sql, $params) as $row)
-        $result[] = $row[$key];
-
-      return empty($result) ? null : $result;
-    }
-
-    // Возвращает результат запроса в виде массива.
-    public function getResults($sql, array $params = null)
-    {
+  public function exec($sql, array $params = null)
+  {
+    try {
       $sth = $this->prepare($sql);
       $sth->execute($params);
-      return $sth->fetchAll(PDO::FETCH_ASSOC);
-    }
+    } catch (PDOException $e) {
+      if ('sqlite' == self::$dbtype) {
+        $info = $this->errorInfo();
+        $errorcode = $info[1];
 
-    public function getResult($sql, array $params = null)
-    {
-      $data = $this->getResults($sql, $params);
-
-      if (empty($data))
-        return null;
-
-      $data = $data[0];
-
-      if (count($data) > 1)
-        return $data;
-      else
-        return array_pop($data);
-    }
-
-    // Возвращает текущий лог запросов.
-    public function getLog()
-    {
-      return $this->query_log;
-    }
-
-    // Возвращает количество запросов.
-    public function getLogSize()
-    {
-      $count = 0;
-
-      if (is_array($this->query_log))
-        foreach ($this->query_log as $entry)
-          if (substr($entry, 0, 2) !== '--')
-            $count++;
-
-      return $count;
-    }
-
-    // Открываем транзакцию, запоминаем статус.
-    public function beginTransaction()
-    {
-      if (!$this->transaction) {
-        parent::beginTransaction();
-        $this->transaction = true;
-      } else {
-        throw new InvalidArgumentException("transaction is already running");
+        switch ($errorcode) {
+        case 1: // General error: 1 no such table
+          throw new TableNotFoundException($e);
+        }
+      } else if ('42S02' == $e->getCode()) {
+        throw new TableNotFoundException($e);
       }
+
+      throw new McmsPDOException($e, $sql);
     }
 
-    // Откатываем транзакцию, если открыта.
-    public function rollback()
-    {
-      if ($this->transaction) {
-        parent::rollback();
-        $this->transaction = false;
-      }
-    }
+    return $sth;
+  }
 
-    // Коммитим транзакцию, если открыта.
-    public function commit()
-    {
-      if ($this->transaction) {
-        parent::commit();
-        $this->transaction = false;
-      }
+  public function log($string)
+  {
+    if (null !== $this->query_log)
+      $this->query_log[] = $string;
+  }
+
+  // Возвращает результат запроса в виде ассоциативного массива k => v.
+  public function getResultsKV($key, $val, $sql, array $params = null)
+  {
+    $result = array();
+
+    foreach ($this->getResults($sql, $params) as $row)
+      $result[$row[$key]] = $row[$val];
+
+    return $result;
+  }
+
+  public function getResultsK($key, $sql, array $params = null)
+  {
+    $result = array();
+
+    foreach ($this->getResults($sql, $params) as $row)
+      $result[$row[$key]] = $row;
+
+    return $result;
+  }
+
+  public function getResultsV($key, $sql, array $params = null)
+  {
+    $result = array();
+
+    foreach ($this->getResults($sql, $params) as $row)
+      $result[] = $row[$key];
+
+    return empty($result) ? null : $result;
+  }
+
+  // Возвращает результат запроса в виде массива.
+  public function getResults($sql, array $params = null)
+  {
+    $sth = $this->exec($sql, $params);
+    return $sth->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function getResult($sql, array $params = null)
+  {
+    $data = $this->getResults($sql, $params);
+
+    if (empty($data))
+      return null;
+
+    $data = $data[0];
+
+    if (count($data) > 1)
+      return $data;
+    else
+      return array_pop($data);
+  }
+
+  // Возвращает текущий лог запросов.
+  public function getLog()
+  {
+    return $this->query_log;
+  }
+
+  // Возвращает количество запросов.
+  public function getLogSize()
+  {
+    $count = 0;
+
+    if (is_array($this->query_log))
+      foreach ($this->query_log as $entry)
+        if (substr($entry, 0, 2) !== '--')
+          $count++;
+
+    return $count;
+  }
+
+  // Открываем транзакцию, запоминаем статус.
+  public function beginTransaction()
+  {
+    if (!$this->transaction) {
+      parent::beginTransaction();
+      $this->transaction = true;
+    } else {
+      throw new InvalidArgumentException("transaction is already running");
     }
+  }
+
+  // Откатываем транзакцию, если открыта.
+  public function rollback()
+  {
+    if ($this->transaction) {
+      parent::rollback();
+      $this->transaction = false;
+    }
+  }
+
+  // Коммитим транзакцию, если открыта.
+  public function commit()
+  {
+    if ($this->transaction) {
+      parent::commit();
+      $this->transaction = false;
+    }
+  }
 }

@@ -13,6 +13,7 @@ class AdminListHandler
   public $title;
   public $actions;
   public $linkfield;
+  public $zoomlink;
 
   protected $selectors;
 
@@ -72,6 +73,7 @@ class AdminListHandler
         'selectors' => $this->selectors,
         'columntitles' => $this->columntitles,
         'linkfield' => $this->linkfield,
+        'zoomlink' => $this->zoomlink,
         )));
       if (empty($_GET['picker']))
         $form->addControl(new AdminUINodeActionsControl(array(
@@ -151,6 +153,7 @@ class AdminListHandler
         $this->title = t('Список пользователей');
         $this->columns = array('name', 'login', 'email', 'created');
         $this->sort = array('name');
+        $this->zoomlink = "/admin/?cgroup=content&columns=name,class,uid,created&mode=list&search=uid%3ANODEID";
         break;
       case 'files':
         $this->types = array('file');
@@ -164,6 +167,7 @@ class AdminListHandler
         $this->limit = null;
         $this->page = 1;
         $this->sort = array('name');
+        $this->zoomlink = "/admin/?cgroup=content&columns=name,class,uid,created&mode=list&search=class%3ANODENAME";
         break;
       case 'widgets':
         $this->types = array('widget');
@@ -289,6 +293,17 @@ class AdminListHandler
 
     if (null !== ($tmp = $this->ctx->get('search')))
       $filter['#search'] = $tmp;
+
+    if (count($tmp = explode(',', $this->ctx->get('filter'))) == 2) {
+      switch ($tmp[0]) {
+      case 'section':
+        $filter['tags'] = $tmp[1];
+        break;
+      default:
+        $filter[$tmp[0]] = $tmp[1];
+        break;
+      }
+    }
 
     $filter['#permcheck'] = true;
 

@@ -70,7 +70,6 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     case 'modules':
     case 'drafts':
     case 'trash':
-    case 'dict':
       $method = 'onGet'. ucfirst(strtolower($mode));
       return call_user_func_array(array('AdminUIModule', $method), array($ctx));
     default:
@@ -245,31 +244,6 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     return $output;
   }
 
-  private static function onGetDict(RequestContext $ctx)
-  {
-    $result = array(
-      'mode' => $ctx->get('sub', 'list'),
-      'list' => array(),
-      );
-
-    switch ($result['mode']) {
-    case 'list':
-      foreach (TypeNode::getSchema() as $k => $v) {
-        if (!empty($v['isdictionary']))
-          $result['list'][$k] = $v;
-      }
-
-      break;
-
-    default:
-      throw new PageNotFoundException();
-    }
-
-    $output = bebop_render_object('admin', 'dict-'. $result['mode'], 'admin', $result);
-
-    return $output;
-  }
-
   public static function hookRemoteCall(RequestContext $ctx)
   {
     switch ($ctx->get('action')) {
@@ -293,6 +267,9 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     mcms::user()->checkAccess('u', 'moduleinfo');
 
+    mcms::enableModules($ctx->post('selected', array()));
+
+    /*
     mcms::db()->beginTransaction();
 
     // Список сохранённых конфигураций.
@@ -321,6 +298,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     if (file_exists($tmp = 'tmp/.modmap.php') and is_writable(dirname($tmp)))
       unlink($tmp);
+    */
   }
 
   private static function hookModConf(RequestContext $ctx)

@@ -25,6 +25,8 @@ class RSSModule implements iRemoteCall, iAdminMenu, iAdminUI
   {
     $icons = array();
 
+    TypeNode::install('rssfeed');
+
     if (mcms::user()->hasAccess('u', 'rssfeed'))
       $icons[] = array(
         'group' => 'content',

@@ -20,10 +20,12 @@ class BebopSmarty extends Smarty
         if (!is_dir($this->compile_dir = $tmpdir .'/smarty_compile_dir'))
             if (!mkdir($this->compile_dir))
                 throw new SmartyException(t('Не удалось создать папку для компиляции шаблонов (%path)', array('%path' => $this->compile_dir)));
+        $this->compile_dir = realpath($this->compile_dir);
 
         if (!is_dir($this->cache_dir = $tmpdir .'/smarty_cache'))
             if (!mkdir($this->cache_dir))
                 throw new SmartyException(t('Не удалось создать папку для кэширования шаблонов (%path)', array('%path' => $this->cache_dir)));
+        $this->cache_dir = realpath($this->cache_dir);
 
         $this->caching = false;
 

@@ -7,7 +7,9 @@ class AdminTreeHandler
   protected $type;
   protected $parent;
   protected $columns;
+  protected $columntitles;
   protected $selectors;
+  protected $zoomlink;
 
   public function __construct(RequestContext $ctx)
   {
@@ -29,7 +31,9 @@ class AdminTreeHandler
       )));
     $form->addControl(new AdminUITreeControl(array(
       'columns' => $this->columns,
+      'columntitles' => $this->columntitles,
       'selectors' => $this->selectors,
+      'zoomlink' => $this->zoomlink,
       )));
     $form->addControl(new AdminUINodeActionsControl(array(
       'actions' => $this->actions,
@@ -65,8 +69,15 @@ class AdminTreeHandler
       $this->type = 'tag';
       $this->parent = null;
       $this->columns = array('name', 'link', 'code', 'created');
+      $this->columntitles = array(
+        'name' => 'Название',
+        'link' => 'Ссылка',
+        'code' => 'Код',
+        'created' => 'Добавлен',
+        );
       $this->actions = array('publish', 'unpublish', 'delete', 'clone');
       $this->title = t('Карта разделов сайта');
+      $this->zoomlink = "/admin/?cgroup=content&columns=name,class,uid,created&mode=list&search=tags%3ANODEID";
       break;
     case 'pages':
       $this->type = 'domain';
@@ -94,6 +105,7 @@ class AdminTreeHandler
           continue;
 
         $item = array(
+          'id' => $node['id'],
           'published' => !empty($node['published']),
           'internal' => !empty($node['internal']),
           'class' => $node['class'],

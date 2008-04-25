@@ -174,7 +174,8 @@ class ExchangeModule
 
   public static function getProfileList()
   {
-    $str = dirname(__FILE__).'/'.'*.xml';
+    $str = dirname(__FILE__).'/profiles/'.'*.xml';
+
     $files = glob($str);
 
     $plist = array();

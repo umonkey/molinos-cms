@@ -11,6 +11,7 @@ class NodeQueryBuilder
   private $where;
   private $params;
   private $order;
+  private $search;
 
   public function __construct(array $query)
   {
@@ -109,6 +110,7 @@ class NodeQueryBuilder
     $this->where = array("`node`.`lang` = 'ru'");
     $this->params = array();
     $this->order = array();
+    $this->search = empty($this->query['#search']) ? null : $this->query['#search'];
   }
 
   // Разберает основную часть запроса.
@@ -124,6 +126,8 @@ class NodeQueryBuilder
       $this->where[] = "`node__rev`.`rid` = `node`.`rid`";
     else
       $this->where[] = "`node__rev`.`nid` = `node`.`id`";
+
+    $this->scanSpecialSearch();
 
     foreach ($this->query as $k => $value) {
       // Всякий спецмусор обработаем потом, отдельно.
@@ -167,14 +171,31 @@ class NodeQueryBuilder
     $this->addSpecialQueries();
   }
 
+  // Разберает специальный поиск, типа uid:123.
+  private function scanSpecialSearch()
+  {
+    if (null !== $this->search) {
+      $parts = explode(' ', $this->search);
+
+      foreach ($parts as $k => $v) {
+        if (preg_match('/^([^:]+)\:([a-z0-9_,]+)$/', $v, $m)) {
+          $this->query[$m[1]] = explode(',', $m[2]);
+          unset($parts[$k]);
+        }
+      }
+
+      $this->search = join(' ', $parts);
+    }
+  }
+
   // Разберает контекстный поиск.
   private function scanSearch()
   {
-    if (!array_key_exists('#search', $this->query) or !is_string($this->query['#search']))
+    if (empty($this->search))
       return;
 
     $matches = array();
-    $needle = '%'. $this->query['#search'] .'%';
+    $needle = '%'. $this->search .'%';
 
     // Добавляем поиск по имени.
     $param = $this->getNextParam();
@@ -187,7 +208,7 @@ class NodeQueryBuilder
         $schema = TypeNode::getSchema($class);
 
         foreach ($schema['fields'] as $field => $meta) {
-          if (empty($meta['indexed']))
+          if (empty($meta['indexed']) or $field == 'name')
             continue;
 
           if (!in_array(mcms_ctlname($meta['type']), array('TextLineControl', 'EmailControl')))

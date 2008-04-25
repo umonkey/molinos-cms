@@ -7,7 +7,7 @@ class AdminMenu implements iAdminMenu
   {
     $cgroup = empty($_GET['cgroup']) ? 'content' : $_GET['cgroup'];
 
-    if ($tmp = BebopCache::getInstance()->{'adminmenu:'. $cgroup})
+    if (is_string($tmp = BebopCache::getInstance()->{'adminmenu:'. $cgroup}) and empty($_GET['nocache']))
       return $tmp;
 
     $trans = array(

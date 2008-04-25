@@ -24,6 +24,27 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
     foreach ($data['nodes'] as $nid => $node) {
       $row = "<td class='selector'><input type='checkbox' name='nodes[]' value='{$nid}' /></td>";
 
+      $parent = empty($node['parent_id']) ? null : $node['parent_id'];
+
+      $row .= $this->getActions($node);
+      /*
+      $row .= '<td class=\'actions\'>';
+      $row .= mcms::html('a', array(
+        'href' => "/nodeapi.rpc?action=raise&node={$nid}&parent={$parent}&destination=". urlencode($_SERVER['REQUEST_URI']),
+        'class' => 'icon moveup',
+        ), '<span>поднять</span>');
+      $row .= mcms::html('a', array(
+        'href' => "/nodeapi.rpc?action=sink&node={$nid}&parent={$parent}&destination=". urlencode($_SERVER['REQUEST_URI']),
+        'class' => 'icon movedown',
+        ), '<span>опустить</span>');
+      $row .= mcms::html('a', array(
+        'href' => "/admin/?mode=create&type={$node['class']}&parent={$nid}&destination=". urlencode($_SERVER['REQUEST_URI']),
+        'class' => 'icon add',
+        ), '<span>добавить</span>');
+      $row .= $this->getZoomLink($node);
+      $row .= '</td>';
+      */
+
       foreach ($this->columns as $field) {
         $value = array_key_exists($field, $node) ? $node[$field] : null;
 
@@ -37,20 +58,6 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
 
         $row .= '</td>';
       }
-
-      $parent = empty($node['parent_id']) ? null : $node['parent_id'];
-
-      $row .= '<td class=\'actions\'>';
-      $row .= mcms::html('a', array(
-        'href' => "/nodeapi.rpc?action=raise&node={$nid}&parent={$parent}&destination=". urlencode($_SERVER['REQUEST_URI'])
-        ), 'поднять');
-      $row .= mcms::html('a', array(
-        'href' => "/nodeapi.rpc?action=sink&node={$nid}&parent={$parent}&destination=". urlencode($_SERVER['REQUEST_URI'])
-        ), 'опустить');
-      $row .= mcms::html('a', array(
-        'href' => "/admin/?mode=create&type={$node['class']}&parent={$nid}&destination=". urlencode($_SERVER['REQUEST_URI'])
-        ), 'добавить');
-      $row .= '</td>';
 
       $output .= mcms::html('tr', array(
         'class' => empty($node['published']) ? 'unpublished' : 'published',
@@ -66,15 +73,95 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
   {
     $output = '<tr>';
     $output .= '<th class=\'selector\'>&nbsp;</th>';
+    $output .= '<th class=\'actions\'>&nbsp;</th>';
+
+    if (!is_array($titles = $this->columntitles))
+      $titles = array();
 
     foreach ($this->columns as $col) {
+      $title = array_key_exists($col, $titles)
+        ? $titles[$col]
+        : $col;
+
       $output .= mcms::html('th', array(
         'class' => 'field-'. $col,
-        ), $col);
+        ), $title);
     }
 
-    $output .= '<th>Действия</th>';
-
     return $output .= '</tr>';
+  }
+
+  private function getActions(array $node)
+  {
+    $output = array();
+
+    if (null !== ($tmp = $this->getDebugLink($node)))
+      $output[] = $tmp;
+    if (null !== ($tmp = $this->getRaiseLink($node)))
+      $output[] = $tmp;
+    if (null !== ($tmp = $this->getSinkLink($node)))
+      $output[] = $tmp;
+    if (null !== ($tmp = $this->getZoomLink($node)))
+      $output[] = $tmp;
+
+    if (!empty($output)) {
+      return mcms::html('td', array(
+        'class' => 'actions',
+        'style' => 'padding-left: 4px; padding-right: 4px; width: '. (18 * count($output)) .'px',
+        ), join('', $output));
+    }
+  }
+
+  private function getDebugLink(array $node)
+  {
+    if (!empty($node['id']))
+      return $this->getIcon('/lib/modules/admin/img/debug.gif', "/nodeapi.rpc?action=dump&node={$node['id']}", t('Поднять'));
+  }
+
+  private function getRaiseLink(array $node)
+  {
+    if (!empty($node['id']))
+      return $this->getIcon('/themes/admin/img/moveup.png', "/nodeapi.rpc?action=raise&node={$node['id']}&destination=". urlencode($_SERVER['REQUEST_URI']), t('Поднять'));
+  }
+
+  private function getSinkLink(array $node)
+  {
+    if (!empty($node['id']))
+      return $this->getIcon('/themes/admin/img/movedown.png', "/nodeapi.rpc?action=sink&node={$node['id']}&destination=". urlencode($_SERVER['REQUEST_URI']), t('Поднять'));
+  }
+
+  private function getZoomLink(array $node)
+  {
+    if (!$this->zoomlink)
+      return;
+
+    if (empty($node['class']) or empty($node['id']) or !mcms::user()->hasAccess('u', $node['class']))
+      return;
+
+    if (!empty($node['deleted']))
+      return;
+
+    return $this->getIcon('/themes/admin/img/zoom.png', str_replace(array('NODEID', 'NODENAME'), array($node['id'], $node['name']), $this->zoomlink), t('Найти'));
+  }
+
+  private function getIcon($img, $href, $title)
+  {
+    $path = substr($img, 1);
+
+    if (!is_readable($path))
+      return;
+
+    $tmp = mcms::html('img', array(
+      'src' => $img,
+      'width' => 16,
+      'height' => 16,
+      'alt' => $title,
+      ));
+
+    return mcms::html('a', array(
+      'class' => 'icon',
+      'href' => $href,
+      'title' => $title,
+      ), $tmp);
   }
 };

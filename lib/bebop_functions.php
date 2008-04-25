@@ -5,6 +5,9 @@ function bebop_redirect($path, $status = 301)
 {
     if (is_array($path))
       $path = bebop_combine_url($path, false);
+    else if (!mcms::config('handler')) {
+      $path = bebop_combine_url($path, false);
+    }
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST')
       $status = 303;
@@ -117,6 +120,11 @@ function bebop_split_url($url = null)
     $tmp['args'] = array();
   }
 
+  if (!empty($tmp['args']['q'])) {
+    $tmp['path'] = $tmp['args']['q'];
+    unset($tmp['args']['q']);
+  }
+
   return $tmp;
 }
 
@@ -155,7 +163,12 @@ function bebop_combine_url(array $url, $escape = true)
 {
   $result = '';
 
-  $forbidden = array('nocache', 'flush');
+  if (!mcms::config('handler')) {
+    $url['args']['q'] = $url['path'];
+    $url['path'] = '/index.php';
+  }
+
+  $forbidden = array('nocache', 'flush', 'reload');
 
   if (bebop_is_json())
     $forbidden[] = 'widget';
@@ -220,12 +233,18 @@ function bebop_combine_url(array $url, $escape = true)
 }
 
 // Возвращает отформатированную ссылку.
-function l($title, array $args, array $options = null)
+function l($title, $args, array $options = null)
 {
   $url = bebop_split_url();
-  $url['args'] = array_merge($url['args'], $args);
 
-  foreach (array('flush', 'nocache') as $k)
+  if (is_array($args)) {
+    $url = bebop_split_url();
+    $url['args'] = array_merge($url['args'], $args);
+  } else {
+    $url = bebop_split_url($args);
+  }
+
+  foreach (array('smarty.debug', 'flush', 'nocache') as $k)
     if (array_key_exists($k, $url['args']))
       unset($url['args'][$k]);
 
@@ -535,6 +554,9 @@ class mcms
   {
     $output = '<'. $name;
 
+    if (('td' == $name or 'th' == $name) and empty($content))
+      $content = '&nbsp;';
+
     if (null !== $parts) {
       foreach ($parts as $k => $v) {
         if (!empty($v)) {
@@ -755,9 +777,9 @@ class mcms
       $cache->flush($flags & self::FLUSH_NOW ? true : false);
   }
 
-  public static function db()
+  public static function db($name = 'default')
   {
-    return PDO_Singleton::getInstance();
+    return PDO_Singleton::getInstance($name);
   }
 
   public static function user()
@@ -777,8 +799,10 @@ class mcms
     $res = null;
     $tmp = mcms::getImplementors($interface, $module);
 
-    foreach (mcms::getImplementors($interface, $module) as $class)
+    foreach (mcms::getImplementors($interface, $module) as $class) {
+      if (self::class_exists($class))
       $res = call_user_func_array(array($class, $method), $args);
+    }
 
     return $res;
   }
@@ -807,10 +831,13 @@ class mcms
     return $rc;
   }
 
-  public static function url(array $options, $inherit = false)
+  public static function url($text, $url)
   {
-    $args = $inherit ? bebop_split_url() : array();
-    return bebop_combine_url($args, $options);
+    if (!is_array($url))
+      $url = bebop_split_url($url);
+    return mcms::html('a', array(
+      'href' => bebop_combine_url($url, false),
+      ), $text);
   }
 
   public static function report(Exception $e)
@@ -943,19 +970,18 @@ class mcms
 
   private static function getModuleMapScan()
   {
-    $enabled = null;
+    static $lock = false;
+
+    if ($lock)
+      mcms::fatal(t('Повторный вход в getModuleMapScan().'));
+
+    $lock = true;
+
     $root = dirname(__FILE__) .'/modules/';
 
-    if (in_array('PDO_Singleton', get_declared_classes())) {
-      try {
-        $enabled = mcms::db()->getResultsV("name", "SELECT `r`.`name` FROM `node__rev` `r` INNER JOIN `node` `n` ON `n`.`rid` = `r`.`rid` WHERE `n`.`class` = 'moduleinfo' AND `n`.`published` = 1 AND `n`.`deleted` = 0");
-      } catch (PDOException $e) {
-        if ('42S02' != $e->getCode())
-          throw $e;
-      }
-    }
-
-    if (!is_array($enabled))
+    if (is_readable($fname = 'conf/enabled_modules'))
+      $enabled = explode(',', file_get_contents($fname));
+    else
       $enabled = array();
 
     $result = array(
@@ -1068,12 +1094,26 @@ class mcms
 
     ksort($result['classes']);
 
+    $lock = false;
+
     return $result;
+  }
+
+  public static function enableModules(array $list)
+  {
+    file_put_contents('conf/enabled_modules', join(',', $list));
+
+    if (file_exists($tmp = 'tmp/.modmap.php'))
+      unlink($tmp);
   }
 
   public static function class_exists($name)
   {
-    return array_key_exists(strtolower($name), self::getClassMap());
+    if (array_key_exists(strtolower($name), self::getClassMap()))
+      return true;
+    if (in_array($name, get_declared_classes()))
+      return true;
+    return false;
   }
 
   public static function pager($total, $current, $limit, $paramname = 'page', $default = 1)
@@ -1131,6 +1171,7 @@ class mcms
 
     bebop_on_json(array('args' => $output));
 
+    if (ob_get_length())
     ob_end_clean();
 
     if (!empty($_SERVER['REQUEST_METHOD']))

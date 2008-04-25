@@ -37,7 +37,7 @@ function get_version_info()
       $version .= '+APC';
       break;
     case 'MemCacheD_Cache':
-      $version .= 'memcache';
+      $version .= '+memcache';
       break;
     }
   }

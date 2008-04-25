@@ -57,25 +57,8 @@ class AdminUIListControl extends Control
         $row .= '</td>';
       }
 
-      if (bebop_is_debugger()) {
-        $tmp = mcms::html('img', array(
-          'src' => '/lib/modules/admin/img/debug.gif',
-          'width' => 16,
-          'height' => 16,
-          'alt' => 'debug',
-          ));
-        $tmp = mcms::html('a', array(
-          'href' => "/nodeapi.rpc?action=dump&node=". $node['id'],
-          'title' => t('Просмотреть внутренности'),
-          ), $tmp);
-        $row .= mcms::html('td', array(
-          'width' => 1,
-          'class' => 'debug',
-          ), $tmp);
-      }
-
       // Редактирование.
-      $row .= '<td>'. $this->getEditLink($node) .'</td>';
+      $row .= $this->getActions($node);
 
       foreach ($this->columns as $field) {
         $row .= "<td class='field-{$field}'>";
@@ -125,11 +108,8 @@ class AdminUIListControl extends Control
     if ($this->selectors)
       $output .= '<th class=\'selector\'>&nbsp;</th>';
 
-    if (bebop_is_debugger())
-      $output .= mcms::html('th', array('class' => 'debug'), '&nbsp;');
-
     // Редактирование.
-    $output .= '<th width=\'1\'>&nbsp;</th>';
+    $output .= '<th class=\'actions\'>&nbsp;</th>';
 
     foreach ($this->columns as $col) {
       $output .= "<th class='field-{$col}'>";
@@ -252,23 +232,73 @@ class AdminUIListControl extends Control
       );
   }
 
-  private function getEditLink(array $node)
+  private function getActions(array $node)
   {
+    $output = array();
+
+    if (null !== ($tmp = $this->getDebugLink($node)))
+      $output[] = $tmp;
+    if (null !== ($tmp = $this->getZoomLink($node)))
+      $output[] = $tmp;
+    if (null !== ($tmp = $this->getViewLink($node)))
+      $output[] = $tmp;
+
+    if (!empty($output)) {
+      return mcms::html('td', array(
+        'class' => 'actions',
+        'style' => 'padding-left: 4px; padding-right: 4px; width: '. (18 * count($output)) .'px',
+        ), join('', $output));
+    }
+  }
+
+  private function getDebugLink(array $node)
+  {
+    if (!bebop_is_debugger() or empty($node['id']))
+      return;
+
+    return $this->getIcon('/lib/modules/admin/img/debug.gif', "/nodeapi.rpc?action=dump&node=". $node['id'], t('Просмотреть внутренности'));
+  }
+
+  private function getViewLink(array $node)
+  {
+    if (empty($node['class']) or empty($node['id']) or !empty($node['deleted']) or empty($node['published']))
+      return;
+
+    return $this->getIcon('/themes/admin/img/icon-www.png', '/nodeapi.rpc?action=locate&node='. $node['id'], t('Найти на сайте'));
+  }
+
+  private function getZoomLink(array $node)
+  {
+    if (!$this->zoomlink)
+      return;
+
     if (empty($node['class']) or empty($node['id']) or !mcms::user()->hasAccess('u', $node['class']))
-      return '&nbsp;';
+      return;
+
+    if (!empty($node['deleted']))
+      return;
+
+    return $this->getIcon('/themes/admin/img/zoom.png', str_replace(array('NODEID', 'NODENAME'), array($node['id'], $node['name']), $this->zoomlink), t('Найти'));
+  }
+
+  private function getIcon($img, $href, $title)
+  {
+    $path = substr($img, 1);
+
+    if (!is_readable($path))
+      return;
+
+    $tmp = mcms::html('img', array(
+      'src' => $img,
+      'width' => 16,
+      'height' => 16,
+      'alt' => $title,
+      ));
 
     return mcms::html('a', array(
-      'title' => 'изменить',
-      'class' => 'editlink',
-      'href' => bebop_combine_url(array(
-        'path' => '/admin/',
-        'args' => array(
-          'cgroup' => 'content',
-          'id' => $node['id'],
-          'mode' => 'edit',
-          'destination' => $_SERVER['REQUEST_URI'],
-          ),
-        ), false),
-      ), '<span>изменить</span>');
+      'class' => 'icon',
+      'href' => $href,
+      'title' => $title,
+      ), $tmp);
   }
 };

@@ -26,13 +26,8 @@ class UserNode extends Node implements iContentType
     elseif ($this->password != $this->origpassword)
       $this->password = md5($this->password);
 
-    if ($this->id === null) {
-      if (Node::count(array('class' => 'user', 'name' => $this->name)))
-        throw new UserErrorException("Имя занято", 400, "Имя занято", "Пользователь с логином &laquo;{$this->login}&raquo; уже существует.");
-
-      if (!empty($this->email) and Node::count(array('class' => 'user', 'email' => $this->email)))
-        throw new UserErrorException("Адрес занят", 400, "Адрес занят", "Пользователь с почтовым адресом &laquo;{$this->email}&raquo; уже существует.&nbsp; Забыли пароль?&nbsp; Воспользуйтесь функцией восстановления.");
-    }
+    parent::checkUnique('name', t('Пользователь с именем %name уже есть.', array('%name' => $this->name)));
+    parent::checkUnique('email', t('Пользователь с электронным адресом %name уже есть.', array('%name' => $this->email)));
 
     parent::save($clear);
   }

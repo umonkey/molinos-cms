@@ -72,15 +72,16 @@ class SessionData
 
       // Обновление сессии.
       else {
-        mcms::db()->exec("REPLACE INTO `node__session` (`sid`, `created`, `data`) VALUES (:sid, UTC_TIMESTAMP(), :data)", array(
+        mcms::db()->exec("REPLACE INTO `node__session` (`sid`, `created`, `data`) VALUES (:sid, :tm, :data)", array(
           ':sid' => $sid,
+          ':tm' => date('Y-m-d H:i:s', time() - date('Z', time())),
           ':data' => serialize($data),
           ));
 
         $cache->{'session:'. $sid} = $data;
       }
-    } catch (PDOException $e) {
-      if ('42S02' == $e->getCode()) {
+    } 
+    catch (TableNotFoundException $e) {
         $t = new TableInfo('node__session');
 
         if (!$t->exists()) {
@@ -103,8 +104,5 @@ class SessionData
           return self::db($sid, $data);
         }
       }
-
-      throw $e;
-    }
   }
 };

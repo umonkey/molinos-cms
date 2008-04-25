@@ -152,6 +152,8 @@ class CommentFormWidget extends Widget
   {
     mcms::captchaCheck($data);
 
+    $data = $this->ctx->post;
+
     switch ($id) {
     case 'comment-new':
       $user = mcms::user();

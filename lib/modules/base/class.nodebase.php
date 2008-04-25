@@ -22,8 +22,15 @@ class NodeBase
     if ($this->id)
       $filter['-id'] = $this->id;
 
-    if (Node::count($filter))
-      throw new ValidationException($field, $message ? $message : t('Такой объект уже существует.'));
+    try {
+      if (Node::count($filter))
+        throw new ValidationException($field, $message ? $message : t('Такой объект уже существует.'));
+    } catch (Exception $e) {
+      throw new ValidationException($field, t('Объект %class требует уникальности по полю %field, однако индекс для этого поля отсутствует.  Необходимо настроить тип документа, включив индексирование этого поля.', array(
+        '%class' => $this->class,
+        '%field' => $field,
+        )));
+    }
   }
 
   public function getRaw()
@@ -300,13 +307,17 @@ class NodeBase
     return true;
   }
 
-  public function duplicate()
+  public function duplicate($parent = null)
   {
     if (null !== ($id = $this->id)) {
       $this->id = null;
       $this->data['published'] = false;
       $this->data['deleted'] = false;
       $this->data['code'] = null;
+
+      // Даём возможность прикрепить клон к новому родителю.
+      if (null !== $parent)
+        $this->data['parent_id'] = $parent;
 
       $this->save();
 
@@ -419,6 +430,15 @@ class NodeBase
   {
     if (null === $class)
       $class = $this->class;
+
+    if ((empty($this->left) or empty($this->right)) and !empty($this->id)) {
+      $tmp = mcms::db()->getResults("SELECT `left`, `right` FROM `node` WHERE `id` = :id", array(':id' => $this->id));
+
+      if (!empty($tmp[0])) {
+        $this->data['left'] = $tmp[0]['left'];
+        $this->data['right'] = $tmp[0]['right'];
+      }
+    }
 
     if (empty($this->left) or empty($this->right))
       throw new RuntimeException(t('Невозможно получить дочерние объекты: свойства left/right для объекта %id не заполнены.', array('%id' => $this->id)));

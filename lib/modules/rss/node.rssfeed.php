@@ -160,7 +160,7 @@ class RssfeedNode extends Node
 
     foreach (preg_split('/, */', $this->contentfields) as $field) {
       if (isset($node->$field)) {
-        $output .= '<description><![CDATA['. preg_replace("/[\r\n]/", '', mcms_plain($node->$field)) .']]></description>';
+        $output .= '<description><![CDATA['. preg_replace("/[\r\n]/", '', $node->$field) .']]></description>';
         break;
       }
     }

@@ -499,3 +499,11 @@ td.nowrap {
 .nodelist .editlink span {
   display: none;
 }
+
+.nodelist .icon {
+}
+.nodelist .actions {
+}
+.nodelist .actions a {
+  margin: 0 0 0 2px;
+}

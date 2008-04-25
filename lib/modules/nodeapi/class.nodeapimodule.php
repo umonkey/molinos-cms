@@ -10,7 +10,7 @@ class NodeApiModule implements iRemoteCall
     else
       self::doSingleAction($ctx);
 
-    if ($ctx->post('nodeapi_return'))
+    if ('POST' == $_SERVER['REQUEST_METHOD'] and $ctx->post('nodeapi_return'))
       $next = $_SERVER['HTTP_REFERER'];
     elseif (null === ($next = $ctx->get('destination')))
       $next = '/';
@@ -45,6 +45,16 @@ class NodeApiModule implements iRemoteCall
         throw new ForbiddenException();
       bebop_debug(Node::load(array('id' => $nid, 'deleted' => array(0, 1))));
       break;
+
+    case 'locate':
+      $node = Node::load($nid);
+
+      if ('tag' == $node->class)
+        $link = "/{$node->id}/";
+      else
+        $link = "/node/{$node->id}/";
+
+      bebop_redirect($link);
 
     case 'publish':
     case 'enable':
@@ -113,6 +123,16 @@ class NodeApiModule implements iRemoteCall
       } catch (ObjectNotFoundException $e) {
         // случается при рекурсивном удалении вложенных объектов
       }
+      break;
+
+    case 'raise':
+      if (null === $ctx->get('section'))
+        Tagger::getInstance()->nodeMoveUp($nid);
+      break;
+
+    case 'sink':
+      if (null === $ctx->get('section'))
+        Tagger::getInstance()->nodeMoveDown($nid);
       break;
 
     default:
