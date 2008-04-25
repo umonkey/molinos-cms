@@ -799,9 +799,9 @@ class mcms
     $cache->flush(true & self::FLUSH_NOW ? true : false);
   }
 
-  public static function db()
+  public static function db($name = 'default')
   {
-    return PDO_Singleton::getInstance();
+    return PDO_Singleton::getInstance($name);
   }
 
   public static function user()

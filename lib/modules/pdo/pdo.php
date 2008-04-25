@@ -18,16 +18,17 @@ class McmsPDOException extends PDOException
 
 class PDO_Singleton extends PDO
 {
-    static private $instance = null;
+    static private $instance = array();
 
     private $prepared_queries = array();
     private $query_log = null;
 
     private $transaction = false;
 
-    public function __construct()
+    public function __construct($name)
     {
-      $uri = parse_url(mcms::config('dsn'));
+      $dsnName = ('default' == $name) ? '' : "_{$name}";
+      $uri = parse_url(mcms::config("dsn{$dsnName}"));
 
       $dsn = $uri['scheme'] .':dbname='. trim($uri['path'], '/') .';host='. $uri['host'];
 
@@ -46,11 +47,12 @@ class PDO_Singleton extends PDO
       $this->exec("SET sql_mode = 'STRICT_TRANS_TABLES'");
     }
 
-    public static function getInstance($name = null)
+    public static function getInstance($name)
     {
-        if (self::$instance === null)
-            self::$instance = new PDO_Singleton();
-        return self::$instance;
+      if (!array_key_exists($name, self::$instance))
+            self::$instance[$name] = new PDO_Singleton($name);
+
+      return self::$instance[$name];
     }
 
     public static function disconnect()
