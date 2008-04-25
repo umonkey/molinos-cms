@@ -34,7 +34,7 @@ class PDO_Singleton extends PDO
     return self::$dbname;
   }
 
-  public static function getInstance($name = 'default')
+  public static function getInstance($name)
   {
     if (!array_key_exists($name, self::$instances)) {
       if (false === ($conf = parse_url(self::getConfig($name))) or empty($conf['scheme']))
