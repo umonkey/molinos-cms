@@ -197,7 +197,7 @@ class FileNode extends Node implements iContentType
       $this->save();
     }
 
-    $data['#node_override'] = array_intersect_key($this->data, array_flip(array('filename', 'filetype', 'filesize', 'filepath')));
+    $data['#node_override'] = array_intersect_key($this->data, array_flip(array('filetype', 'filesize', 'filepath')));
 
     parent::formProcess($data);
   }

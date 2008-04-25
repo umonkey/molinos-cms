@@ -25,7 +25,7 @@ class SubscriptionWidget extends Widget
   {
     $options = parent::getRequestOptions($ctx);
     
-    // $options['#nocache'] = true;
+    $options['#nocache'] = true;
 
     if ('confirm' == ($options['status'] = $ctx->get('status', 'default')))
       $options['code'] = $ctx->get('code');

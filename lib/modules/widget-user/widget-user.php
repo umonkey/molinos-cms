@@ -67,8 +67,10 @@ class UserWidget extends Widget
     $options['status'] = $ctx->get('status');
     $options['hash'] = $ctx->get('hash');
 
-    if ($options['action'] == 'edit')
-      $options['uid'] = $ctx->get('uid');
+    if ($options['action'] == 'edit') {
+      if (null === ($options['uid'] = $ctx->get('uid')))
+        throw new PageNotFoundException();
+    }
 
     if ($options['login'] == 'anonymous')
       $options['#nocache'] = true;

@@ -150,6 +150,7 @@ class DomainNode extends Node implements iContentType
       'groups' => AuthCore::getInstance()->getUser()->getGroups(),
       );
     $data['page'] = $this->getRaw();
+    $data['page']['lang'] = $this->language;
 
     $data['page']['lang'] = $data['page']['language'];
 

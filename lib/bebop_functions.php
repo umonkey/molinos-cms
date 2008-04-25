@@ -402,8 +402,9 @@ function bebop_render_object($type, $name, $theme, $data)
         include($fullpath);
       }
 
-      $output = ob_get_clean();
-      return trim($output);
+      $output = trim(preg_replace("/^(\xEF\xBB\xBF)/", '', ob_get_clean()));
+
+      return $output;
     }
   }
 }
