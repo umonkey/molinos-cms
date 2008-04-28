@@ -83,6 +83,13 @@ class AdminTreeHandler
       $this->type = 'domain';
       $this->parent = null;
       $this->columns = array('name', 'title', 'language', 'params', 'theme');
+      $this->columntitles = array(
+        'name' => 'Страница',
+        'title' => 'Заголовок',
+        'language' => 'Язык',
+        'params' => 'Параметры',
+        'theme' => 'Шкура',
+        );
       $this->actions = array('publish', 'unpublish', 'delete', 'clone');
       $this->title = t('Типовые страницы');
       break;
