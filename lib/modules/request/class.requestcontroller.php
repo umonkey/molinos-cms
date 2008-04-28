@@ -723,6 +723,7 @@ class RequestController
       'magic_quotes_gpc' => 0,
       'magic_quotes_runtime' => 0,
       'magic_quotes_sybase' => 0,
+  	  'upload_tmp_dir' => $_SERVER["DOCUMENT_ROOT"] .'/tmp/upload',
       );
 
     $errors = $messages = array();
