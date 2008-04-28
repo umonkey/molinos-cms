@@ -6,8 +6,8 @@ class AdminTreeHandler
   protected $ctx;
   protected $type;
   protected $parent;
-  protected $columns;
-  protected $columntitles;
+  protected $columns = array();
+  protected $columntitles = array();
   protected $selectors;
   protected $zoomlink;
 
@@ -68,13 +68,7 @@ class AdminTreeHandler
     case 'taxonomy':
       $this->type = 'tag';
       $this->parent = null;
-      $this->columns = array('name', 'link', 'code', 'created');
-      $this->columntitles = array(
-        'name' => 'Название',
-        'link' => 'Ссылка',
-        'code' => 'Код',
-        'created' => 'Добавлен',
-        );
+      $this->columns = array('name', 'description', 'link', 'code', 'created');
       $this->actions = array('publish', 'unpublish', 'delete', 'clone');
       $this->title = t('Карта разделов сайта');
       $this->zoomlink = "/admin/?cgroup=content&columns=name,class,uid,created&mode=list&search=tags%3ANODEID";
@@ -83,16 +77,25 @@ class AdminTreeHandler
       $this->type = 'domain';
       $this->parent = null;
       $this->columns = array('name', 'title', 'language', 'params', 'theme');
-      $this->columntitles = array(
-        'name' => 'Страница',
-        'title' => 'Заголовок',
-        'language' => 'Язык',
-        'params' => 'Параметры',
-        'theme' => 'Шкура',
-        );
       $this->actions = array('publish', 'unpublish', 'delete', 'clone');
       $this->title = t('Типовые страницы');
       break;
+    }
+
+    if (!empty($this->type) and !is_array($this->type)) {
+      $schema = TypeNode::getSchema($this->type);
+
+      // Удаляем отсутствующие колонки.
+      foreach ($this->columns as $k => $v) {
+        if (empty($schema['fields'][$v]))
+          unset($this->columns[$k]);
+      }
+
+      // Формируем описания колонок.
+      foreach ($schema['fields'] as $k => $v) {
+        if (!array_key_exists($k, $this->columntitles))
+          $this->columntitles[$k] = $v['label'];
+      }
     }
   }
 
