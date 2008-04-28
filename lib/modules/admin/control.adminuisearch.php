@@ -24,8 +24,9 @@ class AdminUISearchControl extends Control
 
   private function getLeftPart()
   {
-    $output = $this->getCreateHTML();
-    $output .= '&nbsp;|&nbsp;';
+    if (null !== ($tmp = $this->getCreateHTML()))
+      $output .= $tmp . '&nbsp;|&nbsp;';
+
     $output .= $this->getSearchHTML();
 
     return mcms::html('div', array('class' => 'ctrl_left'), $output);
@@ -33,10 +34,20 @@ class AdminUISearchControl extends Control
 
   private function getCreateHTML()
   {
-    if (count($this->type) == 1)
+    if (count($this->type) == 1) {
       $type = $this->type[0];
-    else
+    } else {
       $type = null;
+
+      // Определяем доступные несистемные типы.
+      $available = array_diff(mcms::user()->getAccess('c'), TypeNode::getInternal());
+
+      // Если остался один — используем его, если их нет — отключаем добавление.
+      if (empty($available))
+        return;
+      elseif (count($available) == 1)
+        $type = $available[0];
+    }
 
     $tmp = array(
       'path' => '/admin/',
