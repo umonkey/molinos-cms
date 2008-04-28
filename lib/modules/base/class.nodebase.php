@@ -12,20 +12,18 @@ class NodeBase
   protected $forcedrev = null;
 
   // Проверяет наличие других объектов с таким именем.
-  protected function checkUnique($field, $message = null)
+  protected function checkUnique($field, $message = null, array $filter = array())
   {
-    $filter = array(
-      'class' => $this->class,
-      $field => $this->$field,
-      );
+    $filter['class'] = $this->class;
+    $filter[$field] = $this->$field;
 
     if ($this->id)
       $filter['-id'] = $this->id;
 
     try {
       if (Node::count($filter))
-        throw new ValidationException($field, $message ? $message : t('Такой объект уже существует.'));
-    } catch (Exception $e) {
+        throw new DuplicateException($message ? $message : t('Такой объект уже существует.'));
+    } catch (PDOException $e) {
       throw new ValidationException($field, t('Объект %class требует уникальности по полю %field, однако индекс для этого поля отсутствует.  Необходимо настроить тип документа, включив индексирование этого поля.', array(
         '%class' => $this->class,
         '%field' => $field,
