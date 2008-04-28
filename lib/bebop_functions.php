@@ -312,7 +312,7 @@ function t($message, array $argv = array())
       $message = str_replace($k, $v, $message);
       break;
     case '@':
-      $message = str_replace($k, mcms_plain($v), $message);
+      $message = str_replace($k, l($v), $message);
       break;
     }
   }
@@ -1254,6 +1254,13 @@ class mcms
 
     if ($e instanceof UserErrorException)
       printf("Description: %s\n", $e->getNote());
+
+    if ($e instanceof TableNotFoundException) {
+      if (null !== ($tmp = $e->getQuery()))
+        printf("\nSQL:    %s\n", $tmp);
+      if (null !== ($tmp = $e->getParams()))
+        printf("Params: %s\n", preg_replace('/\s*[\n\r]+\s*/', ' ', var_export($tmp, true)));
+    }
 
     printf("\nLocation: %s(%d)\n", str_replace($_SERVER['DOCUMENT_ROOT'] .'/', '', $e->getFile()), $e->getLine());
 
