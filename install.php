@@ -18,7 +18,7 @@ class BebopInstaller
 {
   public function run()
   {
-    switch ($_SERVER['REQUEST_METHOD']) {
+  switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
       $data = $this->onGet();
       break;
@@ -63,8 +63,8 @@ class BebopInstaller
     $dopt = array();
     foreach($bdrivers as $el) {
       $dopt[$el] = $el;
-    }  
-    
+    }
+
     $tab->addControl(new EnumControl(array(
       'value' => 'db[type]',
       'label' => t('Выберите базу данных'),
@@ -87,7 +87,7 @@ class BebopInstaller
       'label' => t('MySQL сервер'),
       'description' => t("Обычно здесь ничего менять не надо."),
       )));
-  
+
     $tab->addControl(new TextLineControl(array(
       'value' => 'db[user]',
       'label' => t('Пользователь MySQL'),
@@ -184,7 +184,7 @@ class BebopInstaller
     $pdo = null;
 
     // Сбрасываем авторизацию.
-    User::authorize();
+    //User::authorize();
 
     $data = array(
       'title' => 'Инсталляция Molinos CMS',
@@ -201,7 +201,8 @@ class BebopInstaller
       $pdo = null;
     }
 
-    $this->runScripts();
+    //создадим таблицы
+    Installer::CreateTables();
 
     // Всё хорошо, можно сохранять изменниея.
     if (null !== $pdo)
@@ -237,11 +238,13 @@ class BebopInstaller
     if (empty($data['confirm']))
       throw new InvalidArgumentException("Вы не подтвердили свои намерения.");
 
+    $ds = var_export($data,true);
+
     if ($data['db']['type'] == 'sqlite')
-      $dsn = "sqlite:{$data['db']['name']}"; 
+      $dsn = "sqlite:{$data['db']['name']}";
     else if ($data['db']['type'] == 'mysql')
       $dsn = "mysql://{$data['db']['user']}:{$data['db']['pass']}@{$data['db']['host']}/{$data['db']['name']}";
-    
+
     $config = array(
       'dsn' => $dsn,
       'basedomain' => $data['config']['basedomain'],
@@ -283,192 +286,6 @@ class BebopInstaller
     for ($parts = explode('.', $domain); !empty($parts); $result[] = array_pop($parts));
 
     return 'conf/'. join('.', $result) .'.ini';
-  }
-
-  private function runScripts()
-  {
-    $t = new TableInfo('node');
-
-    if (!$t->exists()) {
-      $t->columnSet('id', array(
-        'type' => 'int',
-        'required' => true,
-        'key' => 'mul',
-        ));
-      $t->columnSet('lang', array(
-        'type' => 'char(4)',
-        'required' => true,
-        'key' => 'mul',
-        ));
-      $t->columnSet('rid', array(
-        'type' => 'int',
-        'required' => 0,
-        'key' => 'mul',
-        ));
-      $t->columnSet('parent_id', array(
-        'type' => 'int',
-        'required' => 0,
-        ));
-      $t->columnSet('class', array(
-        'type' => 'varchar(16)',
-        'required' => 1,
-        'key' => 'mul'
-        ));
-      $t->columnSet('code', array(
-        'type' => 'varchar(16)',
-        'required' => 0,
-        'key' => 'uni'
-        ));
-      $t->columnSet('left', array(
-        'type' => 'int',
-        'required' => 1,
-        'key' => 'mul'
-        ));
-      $t->columnSet('right', array(
-        'type' => 'int',
-        'required' => 1,
-        'key' => 'mul'
-        ));
-      $t->columnSet('uid', array(
-        'type' => 'int',
-        'required' => 0,
-        'key' => 'mul'
-        ));
-      $t->columnSet('created', array(
-        'type' => 'datetime',
-        'required' => 0,
-        'key' => 'mul'
-        ));
-      $t->columnSet('updated', array(
-        'type' => 'datetime',
-        'required' => 0,
-        'key' => 'mul'
-        ));
-      $t->columnSet('published', array(
-        'type' => 'tinyint(1)',
-        'required' => 1,
-        'default' => 0,
-        'key' => 'mul'
-        ));
-      $t->columnSet('deleted', array(
-        'type' => 'tinyint(1)',
-        'required' => 1,
-        'default' => 0,
-        'key' => 'mul'
-        ));
-       $t->commit();
-     }
-
-    $t = new TableInfo('node__rel');
-    if (!$t->exists()) {
-      $t->columnSet('nid', array(
-        'type' => 'int',
-        'required' => 1,
-        'key' => 'mul'
-        ));
-      $t->columnSet('tid', array(
-        'type' => 'int',
-        'required' => 1,
-        'key' => 'mul'
-        ));
-      $t->columnSet('key', array(
-        'type' => 'varchar(255)',
-        'required' => 0,
-        'key' =>'mul'
-        ));
-      $t->columnSet('order', array(
-        'type' => 'int',
-        'required' => 0,
-        'key' =>'mul'
-        ));
-        $t->commit();
-    }
-
-    $t = new TableInfo('node__rev');
-    if (!$t->exists()) {
-      $t->columnSet('rid', array(
-        'type' => 'integer',
-        'required' => 1,
-        'key' => 'pri',
-        'autoincrement' => 1,
-        ));
-      $t->columnSet('nid', array(
-        'type' => 'int',
-        'required' => 0,
-        'key' => 'mul'
-        ));
-      $t->columnSet('uid', array(
-        'type' => 'int',
-        'required' => 0,
-        'key' =>'mul'
-        ));
-      $t->columnSet('name', array(
-        'type' => 'varchar(255)',
-        'required' => 0,
-        'key' =>'mul'
-        ));
-      $t->columnSet('data', array(
-        'type' => 'mediumblob',
-        'required' => 0,
-        ));
-      $t->columnSet('created', array(
-        'type' => 'datetime',
-        'required' => 1,
-         'key' =>'mul'
-        ));
-      $t->commit();
-    }
-
-    $t = new TableInfo('node__access');
-    if (!$t->exists()) {
-      $t->columnSet('nid', array(
-        'type' => 'int',
-        'required' => 1,
-        'key' => 'mul',
-        ));
-      $t->columnSet('uid', array(
-        'type' => 'int',
-        'required' => 1,
-        'key' => 'mul'
-        ));
-      $t->columnSet('c', array(
-        'type' => 'tinyint(1)',
-        'required' => 1,
-        'default' => 0,
-        ));
-      $t->columnSet('r', array(
-        'type' => 'tinyint(1)',
-        'required' => 1,
-        'default' => 0,
-        ));
-      $t->columnSet('u', array(
-        'type' => 'tinyint(1)',
-        'required' => 1,
-        'default' => 0,
-        ));
-      $t->columnSet('d', array(
-        'type' => 'tinyint(1)',
-        'required' => 1,
-        'default' => 0,
-        ));
-        $t->commit();
-    }
-
-    $t = new TableInfo('node__cache');
-    if (!$t->exists()) {
-      $t->columnSet('cid', array(
-        'type' => 'char(32)',
-        'required' => true,
-        ));
-      $t->columnSet('lang', array(
-        'type' => 'char(2)',
-        'required' => true,
-        ));
-      $t->columnSet('data', array(
-        'type' => 'mediumblob',
-        ));
-      $t->commit();
-    }
   }
 
   private function checkInstalled()
