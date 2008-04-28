@@ -61,7 +61,7 @@ class AdminListHandler
     if (!empty($data)) {
       $form = new Form(array(
         'id' => 'nodelist-form',
-        'action' => '/nodeapi.rpc?action=mass&destination='. urlencode($_SERVER['REQUEST_URI']),
+        'action' => l('/nodeapi.rpc?action=mass&destination='. urlencode($_SERVER['REQUEST_URI'])),
         ));
       if (empty($_GET['picker']))
         $form->addControl(new AdminUINodeActionsControl(array(
@@ -232,7 +232,7 @@ class AdminListHandler
           $tmp = TypeNode::getSchema($type);
 
           if (!empty($tmp['isdictionary']))
-            $this->title = t('Справочник «%name»', array('%name' => mb_strtolower($tmp['title'])));
+            $this->title = t('Справочник «%name»', array('%name' => mb_strtolower($tmp['title'], 'UTF8')));
 
           break;
       }
@@ -313,14 +313,10 @@ class AdminListHandler
   protected function getData()
   {
     $result = array();
+    $itypes = TypeNode::getInternal();
 
     foreach (Node::find($this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit) as $node) {
-      $tmp = $node->getRaw();
-
-      if ('type' == $tmp['class'] and in_array($tmp['name'], TypeNode::getInternal()))
-        $tmp['_protected'] = true;
-
-      $result[] = $tmp;
+      $result[] = $node->getRaw();
     }
 
     switch ($this->ctx->get('preset')) {
@@ -328,15 +324,22 @@ class AdminListHandler
       $tmp = array();
 
       foreach ($result as $k => $v)
-        if (in_array($v['name'], array('domain', 'file', 'moduleinfo', 'type', 'widget')) or !empty($v['isdictionary']))
+        if (!bebop_is_debugger() and in_array($v['name'], array('domain', 'file', 'moduleinfo', 'type', 'widget')) or !empty($v['isdictionary']))
           unset($result[$k]);
 
-      foreach ($result as $v)
-        if (empty($v['_protected']))
+      foreach ($result as $v) {
+        if (!in_array($v['name'], $itypes)) {
           $tmp[] = $v;
-      foreach ($result as $v)
-        if (!empty($v['_protected']))
+        }
+      }
+
+      foreach ($result as $v) {
+        if (in_array($v['name'], $itypes)) {
+          $v['_protected'] = !bebop_is_debugger();
+          $v['published'] = false;
           $tmp[] = $v;
+        }
+      }
 
       $result = $tmp;
       break;
@@ -346,7 +349,7 @@ class AdminListHandler
         if (empty($v['isdictionary'])) {
           unset($result[$k]);
         } else {
-          $result[$k]['#link'] = "/admin/?cgroup=content&preset=dict&mode=list&type=". $v['name'];
+          $result[$k]['#link'] = l("/admin/?cgroup=content&preset=dict&mode=list&type=". $v['name']);
         }
       }
       break;
