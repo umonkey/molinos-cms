@@ -5,9 +5,8 @@ function bebop_redirect($path, $status = 301)
 {
     if (is_array($path))
       $path = bebop_combine_url($path, false);
-    else if (!mcms::config('handler')) {
-      $path = bebop_combine_url($path, false);
-    }
+    else
+      $path = l($path);
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST')
       $status = 303;
@@ -98,7 +97,7 @@ function bebop_debug()
 
     if (!empty($_SERVER['REMOTE_ADDR'])) {
       printf("--- backtrace (time: %s) ---\n", microtime());
-      debug_print_backtrace();
+      print mcms::backtrace();
     }
 
     die();
@@ -233,34 +232,28 @@ function bebop_combine_url(array $url, $escape = true)
 }
 
 // Возвращает отформатированную ссылку.
-function l($title, $args, array $options = null)
+function l($url, $title = null, array $options = null)
 {
-  $url = bebop_split_url();
+  if (empty($url))
+    throw new RuntimeException(t('Не указана ссылка для l().'));
+  elseif (!is_string($url))
+    throw new RuntimeException(t('Ссылка для l() должна быть строкой.'));
 
-  if (is_array($args)) {
-    $url = bebop_split_url();
-    $url['args'] = array_merge($url['args'], $args);
-  } else {
-    $url = bebop_split_url($args);
-  }
+  if (stripos($url, 'install.php')) 
+	   return $url;
+	   
+  $url = bebop_split_url($url);
 
   foreach (array('smarty.debug', 'flush', 'nocache') as $k)
     if (array_key_exists($k, $url['args']))
       unset($url['args'][$k]);
 
-  $mod = '';
+  $options['href'] = bebop_combine_url($url, false);
 
-  if (!empty($options['class']))
-    $mod .= " class='{$options['class']}'";
-  if (!empty($options['title']))
-    $mod .= " title='". mcms_plain($options['title']) ."'";
-  if (!empty($options['id']))
-    $mod .= " id='{$options['id']}'";
+  if (null === $title)
+    return $options['href'];
 
-  if ($title === null)
-    return bebop_combine_url($url, false);
-  else
-    return "<a href='". bebop_combine_url($url, true) ."'{$mod}>{$title}</a>";
+  return mcms::html('a', $options, $title);
 }
 
 // Формирует дерево из связки по parent_id.
@@ -556,6 +549,14 @@ class mcms
 
     if (('td' == $name or 'th' == $name) and empty($content))
       $content = '&nbsp;';
+
+    // Прозрачная поддержка чистых урлов.
+    foreach (array('img' => 'src', 'a' => 'href', 'form' => 'action') as $k => $v) {
+      if ($k == $name and array_key_exists($v, $parts)) {
+        if ('/' != substr($parts[$v], 0, 1) or !is_readable(substr($parts[$v], 1)))
+          $parts[$v] = l($parts[$v]);
+      }
+    }
 
     if (null !== $parts) {
       foreach ($parts as $k => $v) {
@@ -928,7 +929,7 @@ class mcms
     }
 
     if (null === $module and array_key_exists($interface, $map['interfaces']))
-      return $map['interfaces'][$interface];
+      return array_unique($map['interfaces'][$interface]); // FIXME: как сюда попадают неуникальные?  Пример: mcms::getImplementors('iContentType');
     elseif (!empty($map['modules'][$module]['implementors'][$interface]))
       return $map['modules'][$module]['implementors'][$interface];
 
@@ -1181,7 +1182,7 @@ class mcms
 
     if (!empty($_SERVER['REMOTE_ADDR'])) {
       print "--- backtrace ---\n";
-      debug_print_backtrace();
+      print mcms::backtrace();
     }
 
     die();
@@ -1204,5 +1205,28 @@ class mcms
     }
 
     return $version;
+  }
+
+  public static function backtrace()
+  {
+    $output = '';
+
+    foreach (debug_backtrace() as $k => $v) {
+      if ($k > 0) {
+        if (!empty($v['class']))
+          $func = $v['class'] .$v['type']. $v['function'];
+        else
+          $func = $v['function'];
+
+        $output .= sprintf("%2d. %s()", $k, $func);
+
+        if (!empty($v['file']) and !empty($v['line']))
+          $output .= sprintf(' called at %s(%d)', $v['file'], $v['line']);
+
+        $output .= "\n";
+      }
+    }
+
+    return $output;
   }
 };
