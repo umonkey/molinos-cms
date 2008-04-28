@@ -942,6 +942,13 @@ class mcms
     $result = null;
     $filename = 'tmp/.modmap.php';
 
+    if (!is_dir($dir = dirname($filename))) {
+      if (!mkdir($dir))
+        throw new RuntimeException(t('Не удалось создать временный каталог.'));
+      else
+        chmod($dir, 0750);
+    }
+
     if (file_exists($filename) and (filemtime($filename) < filemtime('lib/modules')))
       unlink($filename);
 
@@ -1225,7 +1232,9 @@ class mcms
         $output .= sprintf("%2d. %s()", $k, $func);
 
         if (!empty($v['file']) and !empty($v['line']))
-          $output .= sprintf(' called at %s(%d)', str_replace($_SERVER['DOCUMENT_ROOT'] .'/', '', $v['file']), $v['line']);
+          $output .= sprintf(' — %s(%d)', str_replace($_SERVER['DOCUMENT_ROOT'] .'/', '', $v['file']), $v['line']);
+        else
+          $output .= ' — ???';
 
         $output .= "\n";
       }
@@ -1242,7 +1251,11 @@ class mcms
     header('Content-Type: text/plain; charset=utf-8');
 
     printf("%s: %s\n", get_class($e), $e->getMessage());
-    printf("Location: %s(%d)\n", str_replace($_SERVER['DOCUMENT_ROOT'] .'/', '', $e->getFile()), $e->getLine());
+
+    if ($e instanceof UserErrorException)
+      printf("Description: %s\n", $e->getNote());
+
+    printf("\nLocation: %s(%d)\n", str_replace($_SERVER['DOCUMENT_ROOT'] .'/', '', $e->getFile()), $e->getLine());
 
     print $message;
 
