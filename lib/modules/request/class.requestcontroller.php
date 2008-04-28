@@ -795,15 +795,13 @@ class RequestController
 
     if (bebop_is_debugger()) {
       $output = "\nError {$errno}: {$errstr}.\n";
-      $output .= "File: {$errfile} at line {$errline}.\n";
+      $output .= sprintf("File: %s at line %d.\n", str_replace($_SERVER['DOCUMENT_ROOT'] .'/', '', $errfile), $errline);
       $output .= "\nDon't panic.  You see this message because you're listed as a debugger.\n";
       $output .= "Regular web site visitors don't see this message.\n";
       $output .= "They most likely see a White Screen Of Death. ;)\n\n";
 
       $output .= "--- backtrace ---\n";
-      ob_start();
-      debug_print_backtrace();
-      $output .= ob_get_clean();
+      $output .= mcms::backtrace();
 
       header('Content-Type: text/plain; charset=utf-8');
       header('Content-Length: '. strlen($output));
