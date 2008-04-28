@@ -178,6 +178,8 @@ class BebopConfig
       if (!is_writable(dirname($path)))
         throw new RuntimeException(t('Конфигурационный файл закрыт для записи (%path).', array('%path' => $path)));
 
+      $this->backup($path);
+
       if (!file_put_contents($path, $output))
         // А такое вообще может быть?
         throw new RuntimeException(t("Не удалось сохранить конфигурационный файл в {$this->path}."));
@@ -194,5 +196,16 @@ class BebopConfig
           $output .= sprintf("%s = %s\n", $k, $v);
 
       return $output;
+    }
+
+    private function backup($path)
+    {
+      $backup = $path .'.lkg';
+
+      if (file_exists($backup))
+        unlink($backup);
+
+      if (file_exists($path))
+        copy($path, $backup);
     }
 }
