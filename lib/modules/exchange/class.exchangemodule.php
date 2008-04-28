@@ -168,6 +168,7 @@ class ExchangeModule implements iRemoteCall
     return $str;
   }
 
+
   // импорт профиля
   public static function import($source, $isfile = false)
   {
@@ -181,7 +182,6 @@ class ExchangeModule implements iRemoteCall
     } else {
        $xmlstr = $source;
     }
-
     mcms::db()->beginTransaction();
 
     $xml = new SimpleXMLElement($xmlstr);
@@ -239,7 +239,7 @@ class ExchangeModule implements iRemoteCall
         if (array_key_exists('key', $v))
           $key = $attr['key'];
 
-        mcms::db()->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order)", array(
+        mcms::db()->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order)",          array(
           ':tid' => $tid,
           ':nid' => $nid,
           ':key' => $key,
@@ -276,7 +276,7 @@ class ExchangeModule implements iRemoteCall
         if (array_key_exists('d',$at))
           $d = $at['d'];
 
-        mcms::db()->exec("INSERT INTO `node__access`(`nid`, `uid`, `c`, `r`, `u`, `d`) VALUES (:nid, :uid, :c, :r, :u, :d)", array(
+        mcms::db()->exec("INSERT INTO `node__access`(`nid`, `uid`, `c`, `r`, `u`, `d`) VALUES (:nid, :uid, :c, :r,            :u, :d)", array(
           ':nid' => $nid,
           ':uid' => $uid,
           ':c' => $c,
@@ -286,7 +286,7 @@ class ExchangeModule implements iRemoteCall
           ));
       }
     }
-
+ 
     return 1;
   }
 

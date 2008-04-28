@@ -12,34 +12,30 @@ class TableInfo implements iModuleConfig
 
     public function __construct($name)
     {
-        if (null === self::$dbname)
-            self::$dbname = mcms::db()->getResult("SELECT database() -- TableInfo::__construct()");
+      self::$dbname = mcms::db()->getDbName();
 
-        $this->name = $name;
-        $this->columns = $this->alter = array();
-        $this->isnew = false;
+      $this->name = $name;
 
-        $info = $this->scan($name);
+      $this->coldel = $this->index = $this->columns = $this->alter = array();
+      $this->isnew = false;
+      $info = $this->scan($name);
     }
 
     // Получение информации о таблице.
     protected function scan($name)
     {
-        try {
-            $data = mcms::db()->getResults("DESCRIBE `{$name}`");
+      $this->columns = mcms::db()->getTableInfo($name);
 
-            foreach ($data as $c) {
-                $this->columns[$c['Field']] = array(
-                    'type' => $c['Type'],
-                    'required' => 'NO' == $c['Null'],
-                    'key' => $c['Key'],
-                    'default' => $c['Default'],
-                    'autoincrement' => strstr($c['Extra'], 'auto_increment') !== false,
-                    );
-            }
-        } catch (PDOException $e) {
-            $this->isnew = true;
-        }
+      if (!is_array($this->columns)){
+         $this->isnew = true;
+         $this->columns = array();
+      }
+    }
+
+
+    public function getColumns()
+    {
+        return $this->columns;
     }
 
     public function columnCount()
@@ -47,166 +43,146 @@ class TableInfo implements iModuleConfig
         return count($this->columns);
     }
 
+    public function setNew($n)
+    {
+      $this->isnew = $n;
+    }
+
     public function columnSet($name, array $options = null)
     {
         $spec = array(
-            'type' => 'varchar(255)',
-            'required' => false,
-            'key' => null,
-            'default' => null,
-            'autoincrement' => false,
-            );
+           'type' => 'varchar(255)',
+           'required' => false,
+           'key' => null,
+           'default' => null,
+           'autoincrement' => false,
+        );
 
-        if (null !== $options) {
+       if (null !== $options) {
             // Удаляем лишние ключи.
-            foreach (array_keys($options) as $key)
-                if (!array_key_exists($key, $spec))
-                    unset($options[$key]);
+           foreach (array_keys($options) as $key)
+              if (!array_key_exists($key, $spec))
+                 unset($options[$key]);
 
-            $spec = array_merge($spec, $options);
+           $spec = array_merge($spec, $options);
         }
 
         $modify = array_key_exists($name, $this->columns);
 
         if ($this->needsUpdate($name, $spec)) {
             $this->columns[$name] = $spec;
-
             $this->addSql($name, $spec, $modify);
         }
     }
 
+
     private function needsUpdate($name, array $new)
     {
-        if (!array_key_exists($name, $this->columns))
-            return true;
+      if (!array_key_exists($name, $this->columns))
+        return true;
 
-        $old = $this->columns[$name];
+      $old = $this->columns[$name];
 
-        if (strcasecmp($new['type'], $old['type']))
-            return true;
+      if (strcasecmp($new['type'], $old['type']))
+        return true;
 
-        if ($new['required'] != $old['required'])
-            return true;
+      if ($new['required'] != $old['required'])
+        return true;
 
-        if ($new['autoincrement'] != $old['autoincrement'])
-            return true;
+      if ($new['autoincrement'] != $old['autoincrement'])
+        return true;
 
-        if ($new['default'] !== $old['default'])
-            return true;
+      if ($new['default'] !== $old['default'])
+        return true;
 
-        if ($new['key'] != $old['key'])
-            return true;
+      if ($new['key'] != $old['key'])
+        return true;
 
-        return false;
+      return false;
     }
 
     public function columnDel($name)
     {
-        if ($this->columnExists($name)) {
-            $this->alter[] = "DROP COLUMN `{$name}`";
-            unset($this->columns[$name]);
-        }
+      if ($this->columnExists($name)) {
+        $this->coldel[] = $name;
+        unset($this->columns[$name]);
+        $sql = "DROP INDEX IF EXISTS `IDX_".$this->name."_".$name."`";
+        mcms::db()->exec($sql);
+      }
     }
 
     public function columnExists($name)
     {
-        return array_key_exists($name, $this->columns);
+       return array_key_exists($name, $this->columns);
     }
 
     // Возвращает true, если таблица на данный момент существует.
     public function exists()
     {
-        return !$this->isnew;
+       return !$this->isnew;
     }
 
     // Форматирует код для изменения структуры таблицы.
-    protected function addSql($name, array $spec, $modify)
+    public function addSql($name, array $spec, $modify)
     {
-        $sql = '';
-
-        if (!$this->isnew) {
-            if ($modify)
-                $sql .= "MODIFY COLUMN ";
-            else
-                $sql .= "ADD COLUMN ";
-        }
-
-        $sql .= "`{$name}` ";
-        $sql .= $spec['type'];
-
-        if ($spec['required'])
-            $sql .= ' NOT NULL';
-        else
-            $sql .= ' NULL';
-
-        if (null !== $spec['default'])
-            $sql .= ' DEFAULT '. $spec['default'];
-
-        if ($spec['autoincrement'])
-            $sql .= ' auto_increment';
-
-        if ('pri' == $spec['key']) {
-            if (!$modify)
-                $sql .= ' PRIMARY KEY';
-        } elseif (!empty($spec['key']) and $this->isnew) {
-            $sql .= ", KEY (`{$name}`)";
-        }
-
-        $this->alter[] = $sql;
+      list($sql,$ix) = mcms::db()->addSql($name,  $spec, $modify, $this->isnew);
+         $this->alter[] = $sql;
+      if ($ix)
+        $this->index[] = $ix;
     }
 
     public function commit()
     {
-        if (null !== ($sql = $this->getSql()))
-            mcms::db()->exec($sql);
+      $tblname = $this->name;
 
-        $this->alter = array();
+      //exit;
+      if (!empty($this->coldel)) {
+         mcms::db()->dropColumn($tblname,$this->coldel, $this->columns);
+      }
+      else{
+        if (null !== ($sql = $this->getSql())) {
+          mcms::db()->exec($sql);
+      }
     }
 
-    public function getSql()
+      //Добавим индексы
+
+      for ($i=0; $i < count($this->index); $i++ ) {
+        $el  = $this->index[$i];
+        $sql = "CREATE INDEX `IDX_".$tblname."_".$el;
+        $sql .= "` on `$tblname` (`$el`)";
+        mcms::db()->exec($sql);
+      }
+
+      $this->index = $this->alter = array();
+      mcms::db()->commit();
+    }
+
+    protected function getSql()
     {
-        if (empty($this->alter))
-            return null;
+      if (empty($this->alter))
+        return null;
 
-        if ($this->isnew)
-            $sql = "CREATE TABLE `{$this->name}` (";
-        else
-            $sql = "ALTER TABLE `{$this->name}` ";
-
-        $sql .= join(', ', $this->alter);
-
-        if ($this->isnew) {
-            $sql .= ') CHARSET=utf8';
-
-            // if (!is_array($conf = mcms::modconf('infoschema')))
-                $conf = array(
-                    'engine' => 'InnoDB',
-                    );
-
-            if (!empty($conf['engine']))
-                $sql .= ' ENGINE='. $conf['engine'];
-        }
-
-        return $sql;
+      $sql = mcms::db()->getSql($this->name,$this->alter,$this->isnew);
+      return $sql;
     }
 
-  public static function formGetModuleConfig()
-  {
-    $form = new Form(array());
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_engine',
-      'label' => t('Тип создаваемых таблиц'),
-      'default' => t('По умолчанию'),
-      'options' => array(
-          'InnoDB' => 'InnoDB',
-          'MyISAM' => 'MyISAM',
-          ),
+    public static function formGetModuleConfig()
+    {
+      $form = new Form(array());
+      $form->addControl(new EnumControl(array(
+        'value' => 'config_engine',
+        'label' => t('Тип создаваемых таблиц'),
+        'default' => t('По умолчанию'),
+        'options' => array(
+        'InnoDB' => 'InnoDB',
+        'MyISAM' => 'MyISAM',
+        ),
       )));
+      return $form;
+    }
 
-    return $form;
-  }
-
-  public static function hookPostInstall()
-  {
-  }
+    public static function hookPostInstall()
+    {
+    }
 };

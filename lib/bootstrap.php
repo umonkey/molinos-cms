@@ -12,4 +12,3 @@ require(dirname(__FILE__).'/modules/pdo/class.pdo_singleton.php');
 // Загружаем основные файлы.
 require(dirname(__FILE__) .'/bebop_functions.php');
 require(dirname(__FILE__) .'/bebop_autoload.php');
-require(dirname(__FILE__) .'/pbs_exception_handler.php');

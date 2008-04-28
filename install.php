@@ -59,44 +59,37 @@ class BebopInstaller
       'label' => t('База данных'),
       ));
 
-    $bdrivers = PDO::getAvailableDrivers();
-    $dopt = array();
-    foreach($bdrivers as $el) {
-      $dopt[$el] = $el;
-    }
-
     $tab->addControl(new EnumControl(array(
       'value' => 'db[type]',
-      'label' => t('Выберите базу данных'),
+      'label' => t('Тип базы данных'),
       'required' => true,
-      'options' => $dopt,
+      'options' => $this->listDrivers(),
+      'id' => 'dbtype',
+      'description' => t('Для разработки рекоммендуется использовать SQLite; перенести сайт на MySQL будет можно.'),
+      'default' => 'sqlite',
       )));
 
     $tab->addControl(new TextLineControl(array(
       'value' => 'db[name]',
       'label' => t('Имя базы данных'),
-      'description' => t("В этой базе данных будут созданы таблицы CMS с префиксом <code>node</code>.&nbsp; Другие таблицы затронуты не будут.&nbsp; Если Molinos CMS уже установлена в эту базу данных &mdash; произойдёт обновление, существующие данные потеряны не будут."),
-      )));
-
-    $tab->addControl(new InfoControl(array(
-      'text' => 'Нижеследующие поля только для базы Mysql',
+      'description' => t("Перед инсталляцией база данных будет очищена от существующих данных, сделайте резервную копию!"),
       )));
 
     $tab->addControl(new TextLineControl(array(
       'value' => 'db[host]',
       'label' => t('MySQL сервер'),
-      'description' => t("Обычно здесь ничего менять не надо."),
+      'wrapper_id' => 'db-server',
       )));
 
     $tab->addControl(new TextLineControl(array(
       'value' => 'db[user]',
       'label' => t('Пользователь MySQL'),
-      'description' => t("В этой базе данных будут созданы таблицы CMS с префиксом <code>node</code>.&nbsp; Другие таблицы затронуты не будут.&nbsp; Если Molinos CMS уже установлена в эту базу данных &mdash; произойдёт обновление, существующие данные потеряны не будут."),
+      'wrapper_id' => 'db-user',
       )));
     $tab->addControl(new PasswordControl(array(
       'value' => 'db[pass]',
       'label' => t('Пароль этого пользователя'),
-      'description' => t("Отображён не будет, только звёздочки."),
+      'wrapper_id' => 'db-password',
       )));
     $form->addControl($tab);
 
@@ -238,45 +231,28 @@ class BebopInstaller
     if (empty($data['confirm']))
       throw new InvalidArgumentException("Вы не подтвердили свои намерения.");
 
-    $ds = var_export($data,true);
+    $config = BebopConfig::getInstance();
 
-    if ($data['db']['type'] == 'sqlite')
-      $dsn = "sqlite:{$data['db']['name']}";
-    else if ($data['db']['type'] == 'mysql')
-      $dsn = "mysql://{$data['db']['user']}:{$data['db']['pass']}@{$data['db']['host']}/{$data['db']['name']}";
+    switch ($data['db']['type']) {
+    case 'sqlite':
+      if (empty($data['db']['name']))
+        $data['db']['name'] = 'default.db';
+      elseif (substr($data['db']['name'], -3) != '.db')
+        $data['db']['name'] .= '.db';
+      $config->set('default', 'sqlite:conf/'. $data['db']['name'], 'db');
+      break;
 
-    $config = array(
-      'dsn' => $dsn,
-      'basedomain' => $data['config']['basedomain'],
-      'mail_from' => $data['config']['mail_from'],
-      'mail_server' => $data['config']['mail_server'],
-      'backtracerecipient' => $data['config']['backtracerecipient'],
-      'debuggers' => $data['config']['debuggers'],
-      'filestorage' => 'storage',
-      'smarty_compile_dir' => 'tmp/compiled_templates',
-      'smarty_cache_dir' => 'tmp/smarty_cache',
-      'smarty_plugins_dir' => 'lib/smarty',
-      'tmpdir' => 'tmp',
-      'file_cache_ttl' => 60 * 60,
-      );
+    case 'mysql':
+      $config->set('default', sprintf('mysql://%s:%s@%s/%s', $data['db']['user'], $data['db']['pass'], $data['db']['host'], $data['db']['name']), 'db');
+      break;
+    }
 
-    $output =
-      "; vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 ft=dosini\n"
-      .";\n"
-      ."; This is the configuration file for Molinos CMS.\n"
-      ."; It was generated automatically by the installation script.\n"
-      ."; Changes you make become effective immediately after saving this file.\n"
-      ."\n";
+    foreach ($this->getDefaults() as $k => $v) {
+      $value = array_key_exists($k, $data['config']) ? $data['config'][$k] : $v;
+      $config->set($k, $value);
+    }
 
-    foreach ($config as $k => $v)
-      $output .= "{$k} = {$v}\n";
-
-    if (!file_put_contents($fname = $this->getConfigPath($config['basedomain']), $output))
-      throw new InvalidArgumentException("Could not save configuraton to {$fname}.");
-
-    chmod($fname, 0660);
-
-    BebopConfig::getInstance()->reload();
+    $config->write();
   }
 
   private function getConfigPath($domain)
@@ -317,5 +293,40 @@ class BebopInstaller
     }
 
     return null;
+  }
+
+  private function listDrivers()
+  {
+    $options = array();
+
+    foreach (PDO::getAvailableDrivers() as $el) {
+      switch ($title = $el) {
+      case 'sqlite':
+        $title = 'SQLite';
+        break;
+      case 'mysql':
+        $title = 'MySQL';
+        break;
+      }
+
+      $options[$el] = $title;
+    }
+
+    asort($options);
+
+    return $options;
+  }
+
+  private function getDefaults()
+  {
+    return array(
+      'mail_from' => 'no-reply@cms.molinos.ru',
+      'mail_server' => 'localhost',
+      'backtracerecipients' => 'cms-bugs@molinos.ru',
+      'debuggers' => '127.0.0.1',
+      'filestorage' => 'storage',
+      'tmpdir' => 'tmp',
+      'file_cache_ttl' => 3600,
+      );
   }
 };

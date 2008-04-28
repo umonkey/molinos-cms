@@ -54,7 +54,7 @@ class PDO_Singleton extends PDO
     if (is_array($conf = mcms::config('db')) and array_key_exists($name, $conf))
       return $conf[$name];
 
-    if ('default' == $name and is_string($conf = mcms::config('dsn')))
+    if ('default' == $name and is_string($conf = mcms::config('db')))
       return $conf;
 
     throw new RuntimeException(t('Соединение %name не настроено.', array('%name' => $name)));

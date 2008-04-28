@@ -70,7 +70,7 @@ function bebop_skip_checks()
 function bebop_debug()
 {
   if (bebop_is_debugger()) {
-    mcms::db()->rollback();
+    // mcms::db()->rollback();
 
     if (ob_get_length())
       ob_end_clean();
@@ -726,6 +726,7 @@ class mcms
   {
     if (!class_exists('BebopConfig'))
       self::fatal('Отсутствует поддержка конфигурационных файлов.');
+
     return BebopConfig::getInstance()->$key;
   }
 
@@ -1207,11 +1208,14 @@ class mcms
     return $version;
   }
 
-  public static function backtrace()
+  public static function backtrace(array $stack = null)
   {
     $output = '';
 
-    foreach (debug_backtrace() as $k => $v) {
+    if (null === $stack)
+      $stack = debug_backtrace();
+
+    foreach ($stack as $k => $v) {
       if ($k > 0) {
         if (!empty($v['class']))
           $func = $v['class'] .$v['type']. $v['function'];
@@ -1221,7 +1225,7 @@ class mcms
         $output .= sprintf("%2d. %s()", $k, $func);
 
         if (!empty($v['file']) and !empty($v['line']))
-          $output .= sprintf(' called at %s(%d)', $v['file'], $v['line']);
+          $output .= sprintf(' called at %s(%d)', str_replace($_SERVER['DOCUMENT_ROOT'] .'/', '', $v['file']), $v['line']);
 
         $output .= "\n";
       }
@@ -1229,4 +1233,24 @@ class mcms
 
     return $output;
   }
+
+  public static function eh(Exception $e)
+  {
+    if (ob_get_length())
+      ob_end_clean();
+
+    header('Content-Type: text/plain; charset=utf-8');
+
+    printf("%s: %s\n", get_class($e), $e->getMessage());
+    printf("Location: %s(%d)\n", str_replace($_SERVER['DOCUMENT_ROOT'] .'/', '', $e->getFile()), $e->getLine());
+
+    print $message;
+
+    print "\n--- backtrace ---\n";
+    print mcms::backtrace($e->getTrace());
+
+    exit();
+  }
 };
+
+set_exception_handler('mcms::eh');
