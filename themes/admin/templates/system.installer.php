@@ -10,6 +10,7 @@
     <script src="<?=$prefix?>/../all/jquery/jquery.js" type="text/javascript" language="javascript"></script>
     <script src="<?=$prefix?>/../all/jquery/plugins/jquery.formtabber.js" type="text/javascript" language="javascript"></script>
     <script src="<?=$prefix?>/js/bebop.js" type="text/javascript" language="javascript"></script>
+    <script src="<?=$prefix?>/js/installer.js" type="text/javascript" language="javascript"></script>
 
     <base href="/" />
   </head>
