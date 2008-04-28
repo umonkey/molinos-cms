@@ -179,8 +179,10 @@ class NodeBase
     if (!array_key_exists('published', $this->data))
       $this->data['published'] = 0;
 
+    /*
     if ($this->id === null and null === $this->uid)
       $this->data['uid'] = mcms::user()->id;
+    */
 
     $tg->nodeSave($this->data, $this->forcedrev);
 
