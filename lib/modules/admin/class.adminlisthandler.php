@@ -267,11 +267,15 @@ class AdminListHandler
       $filter['class'] = $this->types;
     else {
       $filter['class'] = array();
+      $itypes = TypeNode::getInternal();
 
       foreach (TypeNode::getSchema() as $k => $v) {
-        if (empty($v['isdictionary']) and (empty($v['adminmodule']) or !mcms::ismodule($v['adminmodule'])))
+        if (empty($v['isdictionary']) and (empty($v['adminmodule']) or !mcms::ismodule($v['adminmodule'])) and !in_array($k, $itypes))
           $filter['class'][] = $k;
       }
+
+      if (empty($filter['class']))
+        $filter['class'][] = null;
     }
 
     if (!empty($this->sort)) {
@@ -315,16 +319,15 @@ class AdminListHandler
     $result = array();
     $itypes = TypeNode::getInternal();
 
-    foreach (Node::find($this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit) as $node) {
+    foreach (Node::find($this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit) as $node)
       $result[] = $node->getRaw();
-    }
 
     switch ($this->ctx->get('preset')) {
     case 'schema':
       $tmp = array();
 
       foreach ($result as $k => $v)
-        if (!bebop_is_debugger() and in_array($v['name'], array('domain', 'file', 'moduleinfo', 'type', 'widget')) or !empty($v['isdictionary']))
+        if (!bebop_is_debugger() and in_array($v['name'], $itypes) or !empty($v['isdictionary']))
           unset($result[$k]);
 
       foreach ($result as $v) {
