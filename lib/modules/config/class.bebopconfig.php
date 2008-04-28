@@ -80,15 +80,24 @@ class BebopConfig
       if ($this->data === null)
         $this->readData();
 
-      $res = array_key_exists($varname, $this->data) ? $this->data[$varname] : null;
+      $res = null;
 
-      if (null === $res) switch ($varname) {
-      case 'tmpdir':
-        $res = 'tmp';
-        break;
-      case 'filestorage':
-        $res = 'storage';
-        break;
+      if (array_key_exists($varname, $this->data))
+        $res = $this->data[$varname];
+      elseif (count($tmp = explode('_', $varname, 2)) == 2) {
+        if (!empty($this->data[$tmp[0]][$tmp[1]]))
+          $res = $this->data[$tmp[0]][$tmp[1]];
+      }
+
+      if (null === $res) {
+        switch ($varname) {
+        case 'tmpdir':
+          $res = 'tmp';
+          break;
+        case 'filestorage':
+          $res = 'storage';
+          break;
+        }
       }
 
       return $res;
