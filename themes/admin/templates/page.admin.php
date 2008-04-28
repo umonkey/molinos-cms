@@ -26,7 +26,7 @@ function get_version_info()
 {
   $version = preg_replace('/^(\d+)\.(\d+)\.(\d+)$/', '<a href=\'http://code.google.com/p/molinos-cms/wiki/ChangeLog_\1\2\'>\1.\2.\3</a>', mcms::version());
 
-  $version .= ' (';
+  $version .= ' ('. mcms::db()->getDbType();
 
   if (count($tmp = explode(':', mcms::config('dsn'))))
     $version .= $tmp[0];
