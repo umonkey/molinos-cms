@@ -3,4 +3,24 @@
 
 class TableNotFoundException extends Exception
 {
+  private $sql = null;
+  private $params = null;
+
+  public function __construct($table, $sql = null, $params = null)
+  {
+    $this->sql = $sql;
+    $this->params = $params;
+
+    parent::__construct("Таблица {$table} не найдена.");
+  }
+
+  public function getQuery()
+  {
+    return bebop_is_debugger() ? $this->sql : null;
+  }
+
+  public function getParams()
+  {
+    return bebop_is_debugger() ? $this->params : null;
+  }
 }

@@ -7,8 +7,7 @@ if (!version_compare(PHP_VERSION, "5.2.0", ">")) {
 }
 
 require(dirname(__FILE__) .'/lib/bootstrap.php');
-
-include 'lib/modules/pdo/exception.mcmspdo.php';
+require(dirname(__FILE__) .'/lib/modules/pdo/exception.mcmspdo.php');
 
 $installer = new BebopInstaller();
 
@@ -18,7 +17,7 @@ class BebopInstaller
 {
   public function run()
   {
-  switch ($_SERVER['REQUEST_METHOD']) {
+    switch ($_SERVER['REQUEST_METHOD']) {
     case 'GET':
       $data = $this->onGet();
       break;
@@ -39,14 +38,13 @@ class BebopInstaller
 
   protected function onGet()
   {
+    /*
     if ($this->checkInstalled())
       bebop_redirect('/admin/');
+    */
 
     $data = array();
     $plist = ExchangeModule::getProfileList();
-
-    if (null !== ($data['form'] = $this->checkConfigDir()))
-      return $data;
 
     $form = new Form(array(
       'title' => t('Инсталляция Molinos CMS'),
@@ -188,13 +186,13 @@ class BebopInstaller
 
     // Теперь можно попробовать запустить транзакцию.
     try {
-      $pdo = PDO_Singleton::getInstance();
+      $pdo = mcms::db();
       $pdo->beginTransaction();
     } catch (Exception $e) {
       $pdo = null;
     }
 
-    //создадим таблицы
+    // создадим таблицы
     Installer::CreateTables();
 
     // Всё хорошо, можно сохранять изменниея.
@@ -208,19 +206,15 @@ class BebopInstaller
     // Логинимся в качестве рута.
     User::authorize('root', null, true);
 
+    if (null === mcms::user())
+      throw new RuntimeException(t('Ошибка инсталляции: не удалось получить идентификатор пользователя.'));
+
     BebopCache::getInstance()->flush(true);
 
-    $data['form'] .= '<p>'. t("Вы были автоматически идентифицированы как пользователь &laquo;%username&raquo;.&nbsp; Пароль для этого пользователя был сгенерирован случайным образом, поэтому сейчас лучше всего <a href='@editlink'>изменить пароль</a> на какой-нибудь, который Вы знаете, а потом уже продолжить <a href='/admin/'>пользоваться системой</a>.", array(
+    $data['form'] .= '<p>'. t("Вы были автоматически идентифицированы как пользователь &laquo;%username&raquo;.&nbsp; Пароль для этого пользователя был сгенерирован случайным образом, поэтому сейчас лучше всего <a href='@editlink'>изменить пароль</a> на какой-нибудь, который Вы знаете, а потом уже продолжить <a href='@adminlink'>пользоваться системой</a>.", $args =array(
       '%username' => 'root',
-      '@editlink' => bebop_combine_url(array(
-        'path' => '/admin/',
-        'args' => array(
-          'mode' => 'edit',
-          'cgroup' => 'access',
-          'id' => mcms::user()->id,
-          'destination' => '/admin/',
-          ),
-        ), false),
+      '@editlink' => '/admin/?mode=edit&cgroup=access&id='. mcms::user()->id .'&destination=/admin/',
+      '@adminlink' => '/admin/'
       )) .'</p>';
 
     return $data;
@@ -272,27 +266,6 @@ class BebopInstaller
     } catch (Exception $e) {
       return false;
     }
-  }
-
-  private function checkConfigDir()
-  {
-    $dirname = dirname(__FILE__) .'/conf';
-
-    if (!is_dir($dirname))
-      if (is_writable(dirname($dirname)))
-        mkdir($dirname);
-
-    if (!is_writable($dirname))
-      return "<p>". t("Каталог с конфигурационными файлами (<code>%path</code>) защищён от записи.&nbsp; Сделайте его доступным для записи сервером, затем обновите эту страницу.", array('%path' => $dirname)) ."</p>";
-
-    $htaccess = dirname(__FILE__) .'/.htaccess';
-
-    if (!file_exists($htaccess) and file_exists($htaccess .'.dist')) {
-      if (!@rename($htaccess .'.dist', $htaccess))
-        return "<p>". t("Не удалось переименовать файл <code>.htaccess.dist</code> в <code>.htaccess</code>, Вам придётся сделать это вручную, затем обновить эту страницу.&nbsp; Без этого CMS работать не будет.") ."</p>";
-    }
-
-    return null;
   }
 
   private function listDrivers()

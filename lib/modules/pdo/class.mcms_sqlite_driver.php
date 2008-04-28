@@ -27,9 +27,10 @@ class mcms_sqlite_driver extends PDO_Singleton
       $errorcode = $info[1];
 
       switch ($errorcode) {
-      case 1: // General error: 1 no such table
-        throw new TableNotFoundException($e);
-        default:
+      case 1: // General error: 1 no such table: xyz.
+        throw new TableNotFoundException(trim(strrchr($info[2], ' ')), $sql, $params);
+
+      default:
         throw new McmsPDOException($e, $sql);
       }
     }
@@ -39,8 +40,8 @@ class mcms_sqlite_driver extends PDO_Singleton
 
   public function clearDB()
   {
-    if (null !== $this->dbfile)
-      copy($this->dbfile, $this->dbfile .'.'. time());
+    if ((null !== $this->dbfile) and file_exists($this->dbfile))
+      copy($this->dbfile, $this->dbfile .'.'. strftime('%Y%m%d%H%M%S'));
 
     $sql = "SELECT `tbl_name` FROM `sqlite_master` WHERE `type` = 'table'";
     $rows = $this->getResults($sql);
