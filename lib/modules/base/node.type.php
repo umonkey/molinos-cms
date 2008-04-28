@@ -7,17 +7,22 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   public function __construct(array $data)
   {
-    if (empty($data['fields']))
-      $data['fields'] = array(
-        'name' => array(
-          'label' => t('Заголовок'),
-          'description' => t('Отображается в списках документов как в административном интерфейсе, так и на самом сайте.'),
-          'type' => 'TextLineControl',
-          'required' => true,
-          ),
-        );
-
     parent::__construct($data);
+  }
+
+  // Инсталляция типов документов.
+  public static function install()
+  {
+    // Запрашиваем схему с перезагрузкой.
+    $schema = self::getSchema(null, true);
+
+    // Инсталлируем типы с доступной реализацией.  Для этого используем запрос
+    // схемы конкретного типа.
+    foreach (mcms::getImplementors('iContentType') as $class) {
+      if ('Node' == substr($class, -4) and strlen($type = strtolower(substr($class, 0, -4)))) {
+        $tmp = TypeNode::getSchema($type);
+      }
+    }
   }
 
   public function save($clear = true, $forcedrev = null)
@@ -182,7 +187,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
           $tmp->name = $name;
           $tmp->save();
 
-          $result[$name] = $def;
+          $result[$name] = array_merge(array('id' => $tmp->id), $def);
 
           mcms::pcache('schema', $result);
         } catch (ValidationException $e) {
@@ -312,17 +317,17 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       'name' => 'fields',
       'label' => t('Поля'),
       ));
-
-    foreach ($this->fields as $k => $v) {
-      $field = new FieldControl(array(
-        'name' => $k,
-        'value' => 'node_content_fields',
-        'label' => empty($v['label']) ? $k : $v['label'],
-        ));
-
-      $form->addControl($field);
+    
+    if (!empty($this->fields)) {
+      foreach ($this->fields as $k => $v) {
+        $field = new FieldControl(array(
+          'name' => $k,
+          'value' => 'node_content_fields',
+          'label' => empty($v['label']) ? $k : $v['label'],
+         ));
+        $form->addControl($field);
+      }
     }
-
     $form->addControl(new FieldControl(array(
       'name' => null,
       'value' => 'node_content_fields',
