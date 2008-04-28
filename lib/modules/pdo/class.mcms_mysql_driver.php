@@ -15,6 +15,8 @@ class mcms_mysql_driver extends PDO_Singleton
     $this->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, 1);
     $this->exec("SET NAMES utf8");
     $this->exec("SET sql_mode = 'STRICT_TRANS_TABLES'");
+
+    $this->dbtype = 'MySQL';
   }
 
   public function clearDB()

@@ -3,13 +3,18 @@
 
 class mcms_sqlite_driver extends PDO_Singleton
 {
+  private $dbfile = null;
+
   public function __construct(array $conf)
   {
-    $dsn = 'sqlite:'. trim($conf['path'], '/');
+    $this->dbfile = trim($conf['path'], '/');
+    $dsn = 'sqlite:'. $this->dbfile;
 
     parent::__construct($dsn, '', '');
 
     $this->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, 1);
+
+    $this->dbtype = 'SQLite';
   }
 
   public function exec($sql, array $params = null)
@@ -34,6 +39,9 @@ class mcms_sqlite_driver extends PDO_Singleton
 
   public function clearDB()
   {
+    if (null !== $this->dbfile)
+      copy($this->dbfile, $this->dbfile .'.'. time());
+
     $sql = "SELECT `tbl_name` FROM `sqlite_master` WHERE `type` = 'table'";
     $rows = $this->getResults($sql);
 
