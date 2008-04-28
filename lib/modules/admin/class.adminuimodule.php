@@ -124,7 +124,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
           'import' => t('Импорт'),
           ),
         )));
-    $form->addControl(new  InfoControl(array('text'=>'Экспорт')));
+    $form->addControl(new InfoControl(array('text'=>'Экспорт')));
 
     $form->addControl(new TextAreaControl(array(
       'value' => 'expprofiledescr',
@@ -133,7 +133,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       'rows' => 3
       )));
 
-    $form->addControl(new  InfoControl(array('text'=>'Импорт')));
+    $form->addControl(new InfoControl(array('text' => 'Импорт')));
     $plist = ExchangeModule::getProfileList();
     $options = array();
 
@@ -151,7 +151,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       'text' => t('Произвести выбранную операцию'),
       )));
 
-    return $form->getHTML(array());
+      return $form->getHTML(array());
   }
 
   private static function onGetEdit(RequestContext $ctx)
@@ -332,6 +332,8 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     mcms::user()->checkAccess('u', 'moduleinfo');
 
     mcms::enableModules($ctx->post('selected', array()));
+
+    TypeNode::install();
   }
 
   private static function hookModConf(RequestContext $ctx)

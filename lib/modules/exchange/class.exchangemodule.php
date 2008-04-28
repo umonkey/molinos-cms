@@ -3,123 +3,130 @@
 
 class ExchangeModule implements iRemoteCall
 {
-  //Добавляет в zip-архив указанный каталог
-  function addToZip($fld,$zip,$from)
-  {	    
-    $hdl=opendir($fld); 
-	  while ($file = readdir($hdl)) {
-      if (($file!=".")&&($file!="..")) {
-		    $curfile = $fld."/".$file;	  
-		    if (is_dir($curfile)) 
-          self::addToZip($curfile,$zip,$from."/".$file);
+  // Добавляет в zip-архив указанный каталог
+  function addToZip($fld, $zip, $from)
+  {
+    $hdl = opendir($fld);
+
+    while ($file = readdir($hdl)) {
+      if (($file != ".") and ($file != "..")) {
+        $curfile = $fld."/".$file;
+
+        if (is_dir($curfile))
+          self::addToZip($curfile, $zip, $from ."/". $file);
         else
-          $zip->addFile($curfile, $from."/".$file);
- 		  }
-	  } 
-    closedir($hdl);         
+          $zip->addFile($curfile, $from ."/". $file);
+       }
+    }
+
+    closedir($hdl);
   }
-   
+
   public static function hookRemoteCall(RequestContext $ctx)
   {
-    //bebop_debug($ctx);
-  	$exchmode = $ctx->post('exchmode');
-    $result  = '';
-	  $themes = array();
-    if ($exchmode=='export') { //Экспорт профиля
-      //$expprofilename  = trim($ctx->post('expprofilename'));
+    $exchmode = $ctx->post('exchmode');
+    $result = '';
+    $themes = array();
+
+    if ($exchmode == 'export') { // Экспорт профиля
       $expprofiledescr = trim($ctx->post('expprofiledescr'));
+      $expprofilename = $_SERVER['HTTP_HOST'] ."_". date("Y-m-d");
 
-      $expprofilename  = $_SERVER['HTTP_HOST']."_".date("Y-m-d");
       if (empty($expprofiledescr))
-        $expprofiledescr = "Этот профиль был экспортирован с сайта ".$_SERVER['HTTP_HOST'];
+        $expprofiledescr = "Этот профиль был экспортирован с сайта ". $_SERVER['HTTP_HOST'];
 
-		  if ($result)
-		    bebop_redirect("/admin/?mode=exchange&preset=export&result=$result");
+      if ($result)
+        bebop_redirect("/admin/?mode=exchange&preset=export&result={$result}");
 
       $xmlstr = self::export($expprofilename, $expprofiledescr);
 
       $xml = new SimpleXMLElement($xmlstr);
 
       $zipfile = "siteprofile.zip";
-      $zipfilepath = $_SERVER["DOCUMENT_ROOT"]."/tmp/export/$zipfile"; 
+      $zipfilepath = $_SERVER["DOCUMENT_ROOT"] ."/tmp/export/{$zipfile}";
+
       $zip = new ZipArchive;
       $zip->open($zipfilepath, ZipArchive::OVERWRITE);
 
       $Nodes = array();
-  
+
       foreach ($xml->nodes->node as $node) {
         $curnode = array();
 
         foreach ($node->attributes() as $a => $v)
           $curnode[$a] = strval($v);
-        
+
         if ($curnode['class'] == 'file') {
           $fpath = $curnode['filepath'];
-          $zip->addFile($_SERVER["DOCUMENT_ROOT"]."/storage/".$fpath, "storage/$fpath");
+          $zip->addFile($_SERVER["DOCUMENT_ROOT"]."/storage/". $fpath, "storage/{$fpath}");
         }
+
         if ($curnode['class'] == 'domain') {
-          //$theme = $curnode['filepath'];
-		      $thm = 'all';
-          if ($themes[$thm]) continue;
-		        else $themes[$thm] = 1;
-  	      self::addToZip($_SERVER["DOCUMENT_ROOT"]."/themes/$thm",$zip,"/themes/$thm");
+          if (array_key_exists('theme', $curnode)) {
+             $thm = $curnode['theme'];
+             self::addToZip($_SERVER["DOCUMENT_ROOT"] ."/themes/{$thm}", $zip, "/themes/{$thm}");
+          }
         }
-      }  
+      }
 
-      $zip->addFromString("siteprofile.xml",$xmlstr);
+      $zip->addFromString("siteprofile.xml", $xmlstr);
       $zip->close();
-
-//self::delfiles($exportdir);
 
       header ("Content-Type: application/octet-stream");
       header ("Accept-Ranges: bytes");
-      header ("Content-Length: ".filesize($zipfilepath)); 
-      header ("Content-Disposition: attachment; filename=".$zipfile);  
+      header ("Content-Length: ". filesize($zipfilepath));
+      header ("Content-Disposition: attachment; filename=". $zipfile);
+
       readfile($zipfilepath);
-      unlink($zipfilepath); 
-      exit;
-	    //bebop_redirect("/admin/?mode=exchange&preset=export&result=$result");
+      unlink($zipfilepath);
+      exit();
     }
-    else if ($exchmode=='import') { //Импорт профиля
+
+    else if ($exchmode == 'import') { // Импорт профиля
       $fn = basename($_FILES['impprofile']['name']);
-      $newfn = $_SERVER["DOCUMENT_ROOT"]."/tmp/import/$fn";
+      $newfn = $_SERVER["DOCUMENT_ROOT"] ."/tmp/import/{$fn}";
+
       move_uploaded_file($_FILES['impprofile']['tmp_name'], $newfn);
+
       $filetype = substr($fn, -4);
-      if ($filetype == '.xml') { //Это не архив, а xml
-        $xmlstr = implode(file($newfn), $arr); 
+
+      if ($filetype == '.xml') { // Это не архив, а xml
+        $xmlstr = implode(file($newfn), $arr);
       }
       else if ($filetype == '.zip') { //Это zip-архив
         $zip = new ZipArchive;
         $zip->open($newfn);
         $xmlstr = $zip->getFromName("siteprofile.xml");
       }
-      else { //неизвестный тип файла
-   	    bebop_redirect("/admin/?mode=exchange&preset=export&result=badfiletype");
-      }      
- 
-      //echo "impprofile = $fn";
-      //exit;
-   	  mcms::db()->clearDB();
+      else { // неизвестный тип файла
+         bebop_redirect("/admin/?mode=exchange&preset=export&result=badfiletype");
+      }
+
+      mcms::db()->clearDB();
+
       Installer::CreateTables();
-      
+
       if ($filetype == '.zip') {
         $zip->extractTo($_SERVER["DOCUMENT_ROOT"]);
-        $zip->close(); 
+        $zip->close();
       }
+
       self::import($xmlstr);
-      unlink($newfn); 
+      unlink($newfn);
+
       bebop_redirect("/admin/?mode=exchange&preset=export&result=importok");
     }
   }
-  
+
   //экспорт профиля
   public static function export($profilename, $profiledescr, $arg = array())
   {
-  	$list = Node::find($arg);
+    $list = Node::find($arg);
 
     $str = "<?xml version=\"1.0\" standalone=\"yes\"?>";
-    $str .= "<root><info name='$profilename'><description><![CDATA[$profiledescr]]></description></info>\n";
+    $str .= "<root><info name='{$profilename}'><description><![CDATA[{$profiledescr}]]></description></info>\n";
     $str .= "<nodes>";
+
     foreach ($list as $tmp) {
       $arr = $tmp->getRaw();
       $arrarr = array();
@@ -161,7 +168,7 @@ class ExchangeModule implements iRemoteCall
     return $str;
   }
 
-  //импорт профиля
+  // импорт профиля
   public static function import($source, $isfile = false)
   {
     if ($isfile) {
@@ -297,7 +304,7 @@ class ExchangeModule implements iRemoteCall
 
       $arr = file($fn);
       if (!$arr)
-         continue;
+        continue;
 
       $xmlstr = implode('', $arr);
 
@@ -306,7 +313,7 @@ class ExchangeModule implements iRemoteCall
       $info = $xml->info[0];
 
       foreach ($info->attributes() as $a => $v)
-          $at[$a] = strval($v);
+        $at[$a] = strval($v);
 
       $pr['name'] = $at['name'];
       $pr['description'] = strval($info->description);
