@@ -180,8 +180,9 @@ class ExchangeModule implements iRemoteCall
 
       $xmlstr = implode('', $arr);
     } else {
-       $xmlstr = $source;
+      $xmlstr = $source;
     }
+
     mcms::db()->beginTransaction();
 
     $xml = new SimpleXMLElement($xmlstr);
