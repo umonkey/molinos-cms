@@ -319,6 +319,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     case 'modconf':
       self::hookModConf($ctx);
+      bebop_redirect('/admin/?cgroup=structure&mode=modules');
       break;
     }
 
