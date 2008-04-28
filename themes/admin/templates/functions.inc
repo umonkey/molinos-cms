@@ -76,7 +76,7 @@ function _admin_actions()
     $nid = $m[1];
 
     // Ссылки на ревизии.
-    $revisions = PDO_Singleton::getInstance()->getResults("SELECT `r`.`rid`, `n`.`id`, `r`.`uid`, `u`.`login`, `r`.`created` FROM `node__rev` `r` LEFT JOIN `node` `n` ON `n`.`rid` = `r`.`rid` LEFT JOIN `node` `un` ON `un`.`id` = `r`.`uid` LEFT JOIN `node_user` `u` ON `u`.`rid` = `un`.`rid` WHERE `r`.`nid` = :nid ORDER BY `r`.`rid` DESC", array('nid' => $nid));
+    $revisions = mcms::db()->getResults("SELECT `r`.`rid`, `n`.`id`, `r`.`uid`, `u`.`login`, `r`.`created` FROM `node__rev` `r` LEFT JOIN `node` `n` ON `n`.`rid` = `r`.`rid` LEFT JOIN `node` `un` ON `un`.`id` = `r`.`uid` LEFT JOIN `node_user` `u` ON `u`.`rid` = `un`.`rid` WHERE `r`.`nid` = :nid ORDER BY `r`.`rid` DESC", array('nid' => $nid));
 
     // Запрошенная ревизия.
     $reqrev = empty($_GET['BebopNode_rev']) ? null : $_GET['BebopNode_rev'];
