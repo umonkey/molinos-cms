@@ -735,6 +735,9 @@ class RequestController
         $errors[] = $k;
     }
 
+    if (!mb_internal_encoding('UTF-8'))
+      $messages[] = t('Не удалось установить UTF-8 в качестве базовой кодировки для модуля mbstr.');
+
     if (ini_get($k = 'session.gc_maxlifetime') < 7 * 24 * 60 * 60)
       ini_set($k, 30 * 24 * 60 * 60);
 

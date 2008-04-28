@@ -232,7 +232,7 @@ class AdminListHandler
           $tmp = TypeNode::getSchema($type);
 
           if (!empty($tmp['isdictionary']))
-            $this->title = t('Справочник «%name»', array('%name' => mb_strtolower($tmp['title'], 'UTF8')));
+            $this->title = t('Справочник «%name»', array('%name' => mb_strtolower($tmp['title'])));
 
           break;
       }
