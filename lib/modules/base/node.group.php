@@ -90,7 +90,7 @@ class GroupNode extends Node implements iContentType
     $tab = new FieldSetControl(array(
       'name' => 'tab_perm',
       'label' => t('Права'),
-      'intro' => t('Ниже приведены типы документов, которые эта группа может создавать (C), читать (R), изменять (U) и удалять (D).'),
+      'intro' => t('Ниже приведены типы документов, которые эта группа может создавать (C), читать (R), изменять (U) и удалять (D).  Для быстрого изменения прав можно кликать в заголовок строки или столбца.'),
       ));
     $tab->addControl(new HiddenControl(array(
       'value' => 'reset_group_perm',
