@@ -24,7 +24,7 @@ class BebopConfig
       if ($this->path !== null and 'default.php' != basename($this->path))
         return $this->path;
 
-      $prefix = getcwd() .'/conf/';
+      $prefix = $_SERVER['DOCUMENT_ROOT'] .'/conf/';
 
       $result = array();
 
@@ -153,8 +153,21 @@ class BebopConfig
 
       if (!strlen($path = $this->getFileName()))
         throw new RuntimeException(t('Конфигурационный файл не определён.'));
-      elseif (!is_writable(dirname($path)))
-        throw new RuntimeException(t('Конфигурационный файл закрыт для записи.'));
+
+      if (!file_exists($path)) {
+        if (!is_dir($dir = dirname($path))) {
+          if (!mkdir($dir))
+            throw new RuntimeException(t('Не удалось создать папку для конфигурационных файлов (%path).', array('%path' => dirname($path))));
+          else
+            chmod($dir, 0750);
+        }
+
+        if (!is_writable($dir))
+          throw new RuntimeException(t('Каталог с конфигурационными файлами защищён от записи.'));
+      }
+
+      if (!is_writable(dirname($path)))
+        throw new RuntimeException(t('Конфигурационный файл закрыт для записи (%path).', array('%path' => $path)));
 
       if (!file_put_contents($path, $output))
         // А такое вообще может быть?
