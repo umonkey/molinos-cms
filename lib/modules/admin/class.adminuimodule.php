@@ -17,9 +17,9 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     $result = array();
 
+    $m = $ctx->get('module');
     if (null === ($module = $ctx->get('module')))
       $result['content'] = self::onGetInternal($ctx);
-
     elseif (!count($classes = mcms::getImplementors('iAdminUI', $module))) {
       throw new PageNotFoundException();
     }
@@ -69,6 +69,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     case 'status':
     case 'modules':
     case 'drafts':
+    case 'exchange':
     case 'trash':
       $method = 'onGet'. ucfirst(strtolower($mode));
       return call_user_func_array(array('AdminUIModule', $method), array($ctx));
@@ -87,6 +88,70 @@ class AdminUIModule implements iAdminUI, iRemoteCall
   {
     $tmp = new AdminTreeHandler($ctx);
     return $tmp->getHTML($ctx->get('preset'));
+  }
+
+  private static function onGetExchange(RequestContext $ctx)
+  {
+    $result = $ctx->get('result');
+    if ($result=='importok') {
+       $resulttext = new  InfoControl(array('text'=>'Импорт прошёл успешно'));
+       return $resulttext->getHTML(array());
+    }
+
+    $form = new Form(array(
+      'title' => t('Экспорт/импорт сайта в формате XML'),
+      'description' => t("Необходимо выбрать совершаемое вами действие"),
+      'action' => '/exchange.rpc',
+      'class' => '',
+      ));
+
+    $resstr = array (
+      'noprofilename' => 'Ошибка: не введено имя профиля',
+      'noimpprofile' => 'Ошибка: не выбран профиль для импорта',
+      'notopenr' => 'Ошибка: невозможно открыть файл на чтение',
+      'badfiletype' => 'Неподдерживаемый тип файла. Файл должен быть формата XML или ZIP'
+      );
+
+    if ($result)
+      $form->addControl(new  InfoControl(array('text'=> $resstr[$result])));
+
+    $form->addControl(new EnumRadioControl(array(
+       'value' => 'exchmode',
+       'label' => t('Действие'),
+       'default' =>   'import',
+       'options' => array(
+          'export' => t('Экспорт'),
+          'import' => t('Импорт'),
+          ),
+        )));
+    $form->addControl(new  InfoControl(array('text'=>'Экспорт')));
+
+    $form->addControl(new TextAreaControl(array(
+      'value' => 'expprofiledescr',
+      'label' => t('Описание профиля'),
+      'description' => t("Краткое описание профиля."),
+      'rows' => 3
+      )));
+
+    $form->addControl(new  InfoControl(array('text'=>'Импорт')));
+    $plist = ExchangeModule::getProfileList();
+    $options = array();
+
+    for ($i = 0; $i < count($plist); $i++) {
+      $pr = $plist[$i];
+      $options[$pr['filename']] = $pr['name'];
+    }
+
+    $form->addControl(new AttachmentControl(array(
+      'label' => t('Выберите импортируемый профиль'),
+      'value' => 'impprofile'
+      )));
+
+    $form->addControl(new SubmitControl(array(
+      'text' => t('Произвести выбранную операцию'),
+      )));
+
+    return $form->getHTML(array());
   }
 
   private static function onGetEdit(RequestContext $ctx)
@@ -183,7 +248,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
       $data = array();
 
-      foreach (mcms::modconf($ctx->get('name')) as $k => $v) 
+      foreach (mcms::modconf($ctx->get('name')) as $k => $v)
           $data['config_'. $k] = $v;
 
       $form->title = t('Настройка модуля %name', array('%name' => $ctx->get('name')));
@@ -196,7 +261,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
           'destination' => $_SERVER['REQUEST_URI'],
           ),
         ), false);
-      
+
       $form->addControl(new SubmitControl(array(
         'text' => t('Сохранить'),
         )));
@@ -257,7 +322,6 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     }
 
     bebop_redirect($ctx->get('destination', '/'));
-
   }
 
   private static function hookModList(RequestContext $ctx)
@@ -268,37 +332,6 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     mcms::user()->checkAccess('u', 'moduleinfo');
 
     mcms::enableModules($ctx->post('selected', array()));
-
-    /*
-    mcms::db()->beginTransaction();
-
-    // Список сохранённых конфигураций.
-    $existing = mcms::db()->getResultsKV("name", "id", "SELECT `n`.`id`, `r`.`name` FROM `node__rev` `r` INNER JOIN `node` `n` ON `n`.`rid` = `r`.`rid` WHERE `n`.`class` = 'moduleinfo' AND `n`.`deleted` = 0");
-
-    // Создаём нужные новые конфигурации.
-    foreach ($ctx->post('selected', array()) as $name) {
-      if (!array_key_exists($name, $existing)) {
-        $tmp = Node::create('moduleinfo', array(
-          'name' => $name,
-          'published' => 1,
-          ));
-        $tmp->save();
-      }
-    }
-
-    // Меняем публикацию для существовавших объектов.
-    foreach ($existing as $k => $v) {
-      mcms::db()->exec("UPDATE `node` SET `published` = :p WHERE `class` = 'moduleinfo' AND `id` = :id", $args = array(
-        ':p' => in_array($k, $ctx->post('selected', array())) ? 1 : 0,
-        ':id' => $v,
-        ));
-    }
-
-    mcms::db()->commit();
-
-    if (file_exists($tmp = 'tmp/.modmap.php') and is_writable(dirname($tmp)))
-      unlink($tmp);
-    */
   }
 
   private static function hookModConf(RequestContext $ctx)
