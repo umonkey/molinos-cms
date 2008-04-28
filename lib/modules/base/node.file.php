@@ -102,7 +102,7 @@ class FileNode extends Node implements iContentType
 
       // Не удалось создать каталог -- нет прав.
       if (!is_dir($filedir))
-        throw new ForbiddenException(t("Файл не удалось сохранить, т.к. отсутствуют права на запись в каталог, где этот файл должен был бы храниться (%dir).&nbsp; Сообщите об этой проблеме администратору сайта.", array('%dir' => $filedir)));
+        throw new ForbiddenException(t("Файл не удалось сохранить, т.к. отсутствуют права на запись в каталог, где этот файл должен был бы храниться (%dir).  Сообщите об этой проблеме администратору сайта.", array('%dir' => $filedir)));
 
       // Сюда будем копировать файл.
       $dest = $storage .'/'. $this->filepath;
@@ -361,5 +361,58 @@ class FileNode extends Node implements iContentType
     }
 
     return parent::setAccess($perms, $reset);
+  }
+
+  public function getDefaultSchema()
+  {
+    return array(
+      'title' => 'Файл',
+      'description' => 'Используется для наполнения файлового архива.',
+      'notags' => true,
+      'fields' => array (
+        'name' => array (
+          'label' => 'Название файла',
+          'type' => 'TextLineControl',
+          'description' => 'Человеческое название файла, например: &laquo;Финансовый отчёт за 2007-й год&raquo;',
+          'required' => true,
+          ),
+        'filename' => array (
+          'label' => 'Оригинальное имя',
+          'type' => 'TextLineControl',
+          'description' => 'Имя, которое было у файла, когда пользователь добавлял его на сайт.  Под этим же именем файл будет сохранён, если пользователь попытается его сохранить.  Рекомендуется использовать только латинский алфавит: Internet Explorer некорректно обрабатывает кириллицу в именах файлов при скачивании файлов.',
+          'required' => true,
+          'indexed' => true,
+          ),
+        'filetype' => array (
+          'label' => 'Тип MIME',
+          'type' => 'TextLineControl',
+          'description' => 'Используется для определения способов обработки файла.  Проставляется автоматически при закачке.',
+          'required' => true,
+          'indexed' => true,
+          ),
+        'filesize' => array (
+          'label' => 'Размер в байтах',
+          'type' => 'NumberControl',
+          'required' => true,
+          'indexed' => true,
+          ),
+        'filepath' => array (
+          'label' => 'Локальный путь к файлу',
+          'type' => 'TextLineControl',
+          'required' => true,
+          'indexed' => true,
+          ),
+        'width' => array (
+          'label' => 'Ширина',
+          'type' => 'NumberControl',
+          'description' => 'Проставляется только для картинок и SWF объектов.',
+          ),
+        'height' => array (
+          'label' => 'Высота',
+          'type' => 'NumberControl',
+          'description' => 'Проставляется только для картинок и SWF объектов.',
+          ),
+        ),
+      );
   }
 };
