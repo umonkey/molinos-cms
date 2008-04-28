@@ -988,10 +988,7 @@ class mcms
 
     $root = dirname(__FILE__) .'/modules/';
 
-    if (is_readable($fname = 'conf/enabled_modules'))
-      $enabled = explode(',', file_get_contents($fname));
-    else
-      $enabled = array();
+    $enabled = explode(',', mcms::config('runtime_modules'));
 
     $result = array(
       'modules' => array(),
@@ -1110,7 +1107,9 @@ class mcms
 
   public static function enableModules(array $list)
   {
-    file_put_contents('conf/enabled_modules', join(',', $list));
+    $tmp = BebopConfig::getInstance();
+    $tmp->set('modules', join(',', $list), 'runtime');
+    $tmp->write();
 
     if (file_exists($tmp = 'tmp/.modmap.php'))
       unlink($tmp);
