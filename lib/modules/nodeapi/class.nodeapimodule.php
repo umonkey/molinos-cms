@@ -97,7 +97,7 @@ class NodeApiModule implements iRemoteCall
         'parent_id' => empty($parent) ? null : $parent,
         ));
 
-      $node->formProcess($_POST);
+      $node->formProcess($ctx->post);
       break;
 
     case 'edit':
