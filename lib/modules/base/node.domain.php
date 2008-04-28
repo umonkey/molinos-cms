@@ -270,29 +270,6 @@ class DomainNode extends Node implements iContentType
     return null;
   }
 
-  // Сохранение фиксированных прав.
-  public function setAccess(array $perms, $reset = true)
-  {
-    parent::setAccess(array(
-      'Developers' => array('r', 'u', 'd'),
-      'Visitors' => array('r'),
-      ), true);
-  }
-
-  public function getAccess()
-  {
-    $data = parent::getAccess();
-
-    if (null === $this->id) {
-      $data['Visitors']['r'] = 1;
-      $data['Developers']['r'] = 1;
-      $data['Developers']['u'] = 1;
-      $data['Developers']['d'] = 1;
-    }
-
-    return $data;
-  }
-
   // РАБОТА С ФОРМАМИ.
 
   public function formGet($simple = true)
@@ -438,5 +415,74 @@ class DomainNode extends Node implements iContentType
       if ($user->hasAccess('u', 'domain'))
         $this->linkSetChildren(empty($data['node_domain_widgets']) ? array() : $data['node_domain_widgets'], 'widget');
     }
+  }
+
+  public function getDefaultSchema()
+  {
+    return array(
+      'title' => 'Типовая страница',
+      'notags' => true,
+      'fields' => array(
+        'name' => array(
+          'label' => 'Имя',
+          'type' => 'TextLineControl',
+          'required' => true,
+          ),
+        'title' => array(
+          'label' => 'Заголовок',
+          'type' => 'TextLineControl',
+          'required' => true,
+          ),
+        'parent_id' => array(
+          'label' => 'Родительский объект',
+          'type' => 'EnumControl',
+          ),
+        'aliases' => array(
+          'label' => 'Алиасы',
+          'type' => 'TextAreaControl',
+          'description' => 'Список дополнительных адресов, по которым доступен этот домен.',
+          ),
+        'language' => array(
+          'label' => 'Язык',
+          'type' => 'EnumControl',
+          'description' => 'Язык для этой страницы, используется только шаблонами.',
+          'options' => array(
+            'ru' => 'русский',
+            'en' => 'английский',
+            'de' => 'немецкий',
+            ),
+          'required' => true,
+          ),
+        'theme' => array(
+          'label' => 'Шкура',
+          'type' => 'TextLineControl',
+          'description' => 'Имя папки с шаблонами для этой страницы.',
+          ),
+        'content_type' => array(
+          'label' => 'Тип контента',
+          'type' => 'EnumControl',
+          'required' => true,
+          'options' => array(
+            'text/html' => 'HTML',
+            'text/xml' => 'XML',
+            ),
+          ),
+        'params' => array(
+          'label' => 'Разметка параметров',
+          'type' => 'EnumControl',
+          'required' => true,
+          'options' => array(
+            '' => 'без параметров',
+            'sec+doc' => '/раздел/документ/',
+            'sec' => '/раздел/',
+            'doc' => '/документ/',
+            ),
+          ),
+        'defaultsection' => array(
+          'label' => 'Основной раздел',
+          'type' => 'EnumControl',
+          ),
+        ),
+      );
   }
 };

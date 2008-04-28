@@ -178,4 +178,24 @@ class GroupNode extends Node implements iContentType
       }
     }
   }
-};
+
+  public function getDefaultSchema()
+  {
+    return array(
+      'description' => 'Используется для управления правами.',
+      'title' => 'Группа пользователей',
+      'notags' => true,
+      'fields' => array (
+        'name' => array (
+          'label' => 'Название',
+          'type' => 'TextLineControl',
+          'required' => true,
+          ),
+        'description' => array (
+          'label' => 'Описание',
+          'type' => 'TextAreaControl',
+          ),
+        ),
+      );
+  }
+}
