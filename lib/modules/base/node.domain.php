@@ -47,13 +47,7 @@ class DomainNode extends Node implements iContentType
     if ($this->parent_id === null)
       $this->name = self::getFakeDomainName($this->name);
 
-    if ($this->id === null) {
-      try {
-        $old = Node::load(array('class' => 'domain', 'name' => $this->name, 'parent_id' => $this->parent_id));
-        throw new UserErrorException(t("Объект уже существует"), 400, t("Объект уже существует"), t("Объект с таким именем уже существует, <a href='@editlink'>перейти к редактированию</a>?",
-          array('@editlink' => "/admin/node/{$old->id}/edit/?destination=". urlencode(urldecode($_GET['destination'])))));
-      } catch (ObjectNotFoundException $e) { }
-    }
+    parent::checkUnique('name', t('Страница с таким именем уже существует.'), array('parent_id' => $this->parent_id));
 
     parent::save($clear, $forcedrev);
   }
