@@ -12,7 +12,7 @@
     <script src="<?=$prefix?>/js/bebop.js" type="text/javascript" language="javascript"></script>
     <script src="<?=$prefix?>/js/installer.js" type="text/javascript" language="javascript"></script>
 
-    <base href="/" />
+    <link rel='shortcut icon' href='/themes/all/img/lock.png' type='image/png' />
   </head>
   <body>
     <div id="preloaded_images"></div>
