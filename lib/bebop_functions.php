@@ -724,7 +724,7 @@ class mcms
   public static function config($key)
   {
     if (!class_exists('BebopConfig'))
-      die(debug_print_backtrace());
+      self::fatal('Отсутствует поддержка конфигурационных файлов.');
     return BebopConfig::getInstance()->$key;
   }
 
