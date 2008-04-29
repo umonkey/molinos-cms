@@ -61,6 +61,9 @@ class PDO_Singleton extends PDO
     if ('default' == $name and is_string($conf = mcms::config('db')))
       return $conf;
 
+    if ('default' == $name)
+      throw new NotInstalledException(t('Соединение с базой данных не настроено.'));
+
     throw new RuntimeException(t('Соединение %name не настроено.', array('%name' => $name)));
   }
 
