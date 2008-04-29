@@ -201,7 +201,7 @@ class Installer
     $config->set('pass_exceptions', 1);
 
     if ($olddsn)
-      $config->set('SQLitedsn', $olddsn, 'db');
+      $config->set('default_backup', $olddsn, 'db');
 
     switch ($data['db']['type']) {
     case 'sqlite':

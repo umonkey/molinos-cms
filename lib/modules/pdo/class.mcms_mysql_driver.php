@@ -50,6 +50,8 @@ class mcms_mysql_driver extends PDO_Singleton
      }
     } catch (TableNotFoundException $e) {
       return false;
+    } catch (NotInstalledException $e) {
+      return false;
     }
 
     return $columns;

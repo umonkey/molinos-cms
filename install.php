@@ -57,6 +57,11 @@ class BebopInstaller
       'label' => t('База данных'),
       ));
 
+    if (!empty($_GET['msg']) and $_GET['msg'] == 'notable')
+      $tab->addControl(new InfoControl(array(
+        'text' => t('Вы были перенаправлены на страницу инсталляции, т.к. некоторые жизненно важные таблицы не были обнаружены в базе данных.  Скорее всего Molinos.CMS не установлена.'),
+        )));
+
     $tab->addControl(new EnumControl(array(
       'value' => 'db[type]',
       'label' => t('Тип базы данных'),
@@ -206,12 +211,12 @@ class BebopInstaller
     // Логинимся в качестве рута.
     User::authorize('root', null, true);
 
-    if (null === mcms::user())
+    if (null === mcms::user() or null === mcms::user()->id)
       throw new RuntimeException(t('Ошибка инсталляции: не удалось получить идентификатор пользователя.'));
 
-    BebopCache::getInstance()->flush(true);
+    mcms::flush(mcms::FLUSH_NOW);
 
-    $data['form'] .= '<p>'. t("Вы были автоматически идентифицированы как пользователь &laquo;%username&raquo;.&nbsp; Пароль для этого пользователя был сгенерирован случайным образом, поэтому сейчас лучше всего <a href='@editlink'>изменить пароль</a> на какой-нибудь, который Вы знаете, а потом уже продолжить <a href='@adminlink'>пользоваться системой</a>.", $args =array(
+    $data['form'] .= '<p>'. t("Вы были автоматически идентифицированы как пользователь &laquo;%username&raquo;.&nbsp; Пароль для этого пользователя был сгенерирован случайным образом, поэтому сейчас лучше всего <a href='@editlink'>изменить пароль</a> на какой-нибудь, который Вы знаете, а потом уже продолжить <a href='@adminlink'>пользоваться системой</a>.", $args = array(
       '%username' => 'root',
       '@editlink' => '/admin/?mode=edit&cgroup=access&id='. mcms::user()->id .'&destination=/admin/',
       '@adminlink' => '/admin/'

@@ -361,11 +361,8 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
   public static function onGet(RequestContext $ctx)
   {
-    $result = $ctx->get('result');
-    if ($result=='importok') {
-       $resulttext = new  InfoControl(array('text'=>'Импорт прошёл успешно'));
-       return $resulttext->getHTML(array());
-    }
+    if (null !== ($tmp = $ctx->get('result')))
+      return self::getResult($tmp);
 
     $form = new Form(array(
       'title' => t('Экспорт/импорт сайта в формате XML'),
@@ -384,30 +381,27 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       );
 
     if ($result)
-      $form->addControl(new  InfoControl(array('text'=> $resstr[$result])));
+      $form->addControl(new InfoControl(array('text' => $resstr[$result])));
 
     $options = array(
-               'export' => t('Бэкап'),
-               'import' => t('Восстановление'),
-              );
+       'export' => t('Бэкап'),
+       'import' => t('Восстановление'),
+       );
 
-    if (mcms::db()->getDbType() == 'SQLite') {
-      $options['upgradetoMySQL'] = t('Upgrade до MySQL');
-    }
+    if (mcms::db()->getDbType() == 'SQLite')
+      $options['upgradetoMySQL'] = t('Перенести данные в MySQL');
 
     $form->addControl(new EnumRadioControl(array(
        'value' => 'exchmode',
-       'label' => t('Действие'),
-       'default' =>   'import',
+       'label' => t('Выберите действие'),
+       'default' => 'import',
        'options' => $options
         )));
 
     $form->addControl(new TextAreaControl(array(
-       'value' => 'expprofiledescr',
-       'label' => t('Описание профиля'),
-       'description' => t("Краткое описание профиля."),
-       'rows' => 3
-       )));
+      'value' => 'expprofiledescr',
+      'label' => t('Комментарий к бэкапу'),
+      )));
 
     $plist = ExchangeModule::getProfileList();
     $options = array();
@@ -426,13 +420,14 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $form->addControl(new TextLineControl(array(
         'value' => 'db[name]',
         'label' => t('Имя базы данных'),
-        'description' => t("Перед инсталляцией база данных будет очищена от существующих данных, сделайте резервную                            копию!"),
+        'description' => t("Перед инсталляцией база данных будет очищена от существующих данных, сделайте резервную копию!"),
         )));
 
       $form->addControl(new TextLineControl(array(
         'value' => 'db[host]',
         'label' => t('MySQL сервер'),
         'wrapper_id' => 'db-server',
+        'default' => 'localhost',
         )));
 
       $form->addControl(new TextLineControl(array(
@@ -453,5 +448,22 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     }
 
     return $form->getHTML(array());
+  }
+
+  private static function getResult($mode)
+  {
+    $titles = array(
+      'upgradeok' => t('Перенос прошёл успешно'),
+      'importok' => t('Импорт прошёл успешно'),
+      'exportok' => t('Экспорт прошёл успешно'),
+      );
+
+    $messages = array(
+      'upgradeok' => t('База данных успешно перенесена в MySQL.  Вы можете <a href=\'@continue\'>продолжить пользоваться системой</a> в обычном режиме.  Чтобы переключиться обратно на SQLite, отредактируйте конфигурационный файл Molinos.CMS (обычно это conf/default.ini).', array('@continue' => '/admin/')),
+      'importok' => t('Восстановление бэкапа прошло успешно.'),
+      'exportok' => null,
+      );
+
+    return '<h2>'. $titles[$mode] .'</h2><p>'. $messages[$mode] .'</p>';
   }
 }
