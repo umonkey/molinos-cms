@@ -35,7 +35,7 @@ class TextLineControl extends Control
       'id' => $this->id,
       'class' => $this->class,
       'name' => $this->value,
-      'value' => empty($data[$this->value]) ? null : $data[$this->value],
+      'value' => empty($data[$this->value]) ? $this->default : $data[$this->value],
       'readonly' => $this->readonly ? 'readonly' : null,
       ));
 
