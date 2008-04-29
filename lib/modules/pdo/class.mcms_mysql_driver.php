@@ -61,8 +61,13 @@ class mcms_mysql_driver extends PDO_Singleton
       $sth = $this->prepare($sql);
       $sth->execute($params);
     } catch (PDOException $e) {
-      if ('42S02' == $e->getCode())
-        throw new TableNotFoundException($e);
+      if ('42S02' == $e->getCode()) {
+        if (preg_match("/Table '([^.]+)\.([^']+)' doesn/", $e->getMessage(), $m))
+          $tname = $m[2];
+        else
+          $tname = null;
+        throw new TableNotFoundException($tname);
+      }
       throw new McmsPDOException($e, $sql);
     }
 
