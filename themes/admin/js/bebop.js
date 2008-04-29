@@ -176,8 +176,23 @@ $(document).ready(function () {
     $('table.nodelist :checkbox').attr('checked', '');
     $('table.nodelist tr.unpublished :checkbox').attr('checked', 'checked');
   });
+
+  // Бэкап и восстановление.
+	if ($('form#mod_exchange').length != 0) {
+    $('form#mod_exchange :radio').change(fix_backup_mode);
+    fix_backup_mode();
+  }
 });
 
+function fix_backup_mode()
+{
+  var mode = $('form#mod_exchange :radio:checked').val();
+
+  $('form#mod_exchange :file').parent().css('display', mode == 'import' ? 'block' : 'none');
+  $('form#mod_exchange [name="expprofiledescr"]').parent().css('display', mode == 'export' ? 'block' : 'none');
+  $('form#mod_exchange .control-TextLineControl-wrapper').css('display', mode == 'upgradetoMySQL' ? 'block' : 'none');
+  $('form#mod_exchange .control-PasswordControl-wrapper').css('display', mode == 'upgradetoMySQL' ? 'block' : 'none');
+}
 
 /**
  * Вспомогательные функции

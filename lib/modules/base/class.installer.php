@@ -192,4 +192,33 @@ class Installer
       $t->commit();
     }
   }
+
+  static function writeConfig(array $data)
+  {
+    if (empty($data['confirm']))
+      throw new InvalidArgumentException("Вы не подтвердили свои намерения.");
+
+    $config = BebopConfig::getInstance();
+
+    switch ($data['db']['type']) {
+    case 'sqlite':
+      if (empty($data['db']['name']))
+        $data['db']['name'] = 'default.db';
+      elseif (substr($data['db']['name'], -3) != '.db')
+        $data['db']['name'] .= '.db';
+      $config->set('default', 'sqlite:conf/'. $data['db']['name'], 'db');
+      break;
+
+    case 'mysql':
+      $config->set('default', sprintf('mysql://%s:%s@%s/%s', $data['db']['user'], $data['db']['pass'],                                 $data['db']['host'], $data['db']['name']), 'db');
+      break;
+    }
+
+    foreach ($this->getDefaults() as $k => $v) {
+      $value = array_key_exists($k, $data['config']) ? $data['config'][$k] : $v;
+      $config->set($k, $value);
+    }
+
+    $config->write();
+  }
 }
