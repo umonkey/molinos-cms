@@ -40,7 +40,7 @@ class mcms_sqlite_driver extends PDO_Singleton
 
   public function clearDB()
   {
-    if ((null !== $this->dbfile) and file_exists($this->dbfile))
+    if ((null !== $this->dbfile) and file_exists($this->dbfile) and filesize($this->dbfile) > 0)
       copy($this->dbfile, $this->dbfile .'.'. strftime('%Y%m%d%H%M%S'));
 
     $sql = "SELECT `tbl_name` FROM `sqlite_master` WHERE `type` = 'table'";
