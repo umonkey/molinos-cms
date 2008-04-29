@@ -19,14 +19,18 @@ class RequestController
   {
     ob_start();
 
-    User::identify();
+    try {
+      User::identify();
 
-    self::checkServerSettings();
+      self::checkServerSettings();
 
-    set_error_handler('RequestController::errorHandler', E_ERROR|E_WARNING|E_PARSE);
-    register_shutdown_function('RequestController::onShutdown');
+      set_error_handler('RequestController::errorHandler', E_ERROR|E_WARNING|E_PARSE);
+      register_shutdown_function('RequestController::onShutdown');
 
-    $this->run();
+      $this->run();
+    } catch (NotInstalledException $e) {
+      bebop_redirect('/install.php?msg=notable');
+    }
   }
 
   public function __destruct()
