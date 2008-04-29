@@ -22,6 +22,9 @@ class AdminTreeHandler
 
     $output = '<h2>'. $this->title .'</h2>';
 
+    if (!empty($_GET['msg']) and ('welcome' == $_GET['msg']))
+      $output .= '<p class=\'helpmsg\'>'. t('Вы обратились к ненастроенному домену.  Сейчас вам, скорее всего, следует добавить несколько типовых страниц для вашего нового сайта, затем добавить к нему несколько виджетов.') .'</p>';
+
     $form = new Form(array(
       'id' => 'nodelist-form',
       'action' => '/nodeapi.rpc?action=mass&destination='. urlencode($_SERVER['REQUEST_URI']),

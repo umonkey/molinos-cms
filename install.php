@@ -38,10 +38,8 @@ class BebopInstaller
 
   protected function onGet()
   {
-    /*
     if ($this->checkInstalled())
-      bebop_redirect('/admin/');
-    */
+      bebop_redirect('/');
 
     $data = array();
     $plist = ExchangeModule::getProfileList();
@@ -237,11 +235,13 @@ class BebopInstaller
   private function checkInstalled()
   {
     try {
-      $root = Node::load(array('class' => 'user', 'name' => 'root'));
-      return true;
+      if (Node::count(array()))
+        return true;
     } catch (Exception $e) {
-      return false;
+      bebop_debug($e);
     }
+
+    return false;
   }
 
   private function listDrivers()

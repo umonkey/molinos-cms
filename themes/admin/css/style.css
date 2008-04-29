@@ -507,3 +507,9 @@ td.nowrap {
 .nodelist .actions a {
   margin: 0 0 0 2px;
 }
+
+.helpmsg {
+  margin: .5em 0 1em;
+  font-style: italic;
+  padding: 4px 10px;
+}

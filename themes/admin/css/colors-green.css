@@ -129,3 +129,8 @@ ul#top_menu li.current a {
 {
   color: #7f99ff;
 }
+
+.helpmsg {
+  background-color: #ff0000;
+  color: white;
+}
