@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class ExchangeModule implements iRemoteCall
+class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 {
   // Добавляет в zip-архив указанный каталог
   function addToZip($fld, $zip, $from)
@@ -34,9 +34,6 @@ class ExchangeModule implements iRemoteCall
 
       if (empty($expprofiledescr))
         $expprofiledescr = "Этот профиль был экспортирован с сайта ". $_SERVER['HTTP_HOST'];
-
-      if ($result)
-        bebop_redirect("/admin/?mode=exchange&preset=export&result={$result}");
 
       $xmlstr = self::export($expprofilename, $expprofiledescr);
 
@@ -81,7 +78,6 @@ class ExchangeModule implements iRemoteCall
       unlink($zipfilepath);
       exit();
     }
-
     else if ($exchmode == 'import') { // Импорт профиля
       $fn = basename($_FILES['impprofile']['name']);
       $newfn = $_SERVER["DOCUMENT_ROOT"] ."/tmp/import/{$fn}";
@@ -115,6 +111,31 @@ class ExchangeModule implements iRemoteCall
       unlink($newfn);
 
       bebop_redirect("/admin/?mode=exchange&preset=export&result=importok");
+    }
+
+    else if ($exchmode == 'upgradetoMySQL') {
+      $data = $ctx->post;
+      $data['confirm'] = 1;
+      $data['config']['debuggers'] = $_SERVER['REMOTE_ADDR'] .', 127.0.0.1';
+      $data['db']['type'] = 'mysql';
+
+      $olddsn = mcms::db()->getConfig('default');
+
+      $xmlstr = self::export('Mysql-upgrade', 'Профиль для апгрейда до MySQL');
+      mcms::db()->clearDB(); // функция очистки базы делает также её бэкап
+
+      Installer::WriteConfig($data,$olddsn); //запишем конфиг новым dsn
+
+      PDO_Singleton::getInstance('default', true); // принудительный перевод PDO_Singleton в Mysql
+
+      Installer::CreateTables();
+
+      self::import($xmlstr);
+
+      // Логинимся в качестве рута.
+      User::authorize('root', null, true);
+
+      bebop_redirect("/admin/?module=exchange&preset=export&result=upgradeok");
     }
   }
 
@@ -287,7 +308,7 @@ class ExchangeModule implements iRemoteCall
           ));
       }
     }
- 
+
     return 1;
   }
 
@@ -322,5 +343,115 @@ class ExchangeModule implements iRemoteCall
     }
 
     return $plist;
+  }
+
+  public static function getMenuIcons()
+  {
+    $icons = array();
+
+      $icons[] = array(
+        'group' => 'structure',
+        'href' => '/admin/?module=exchange',
+        'title' => t('Бэкапы'),
+        'description' => t('Бэкап и восстановление данных в формате XML.'),
+        );
+
+    return $icons;
+  }
+
+  public static function onGet(RequestContext $ctx)
+  {
+    $result = $ctx->get('result');
+    if ($result=='importok') {
+       $resulttext = new  InfoControl(array('text'=>'Импорт прошёл успешно'));
+       return $resulttext->getHTML(array());
+    }
+
+    $form = new Form(array(
+      'title' => t('Экспорт/импорт сайта в формате XML'),
+      'description' => t("Необходимо выбрать совершаемое вами действие"),
+      'action' => '/exchange.rpc',
+      'class' => '',
+      'id' => 'mod_exchange'
+      ));
+
+    $resstr = array (
+      'noprofilename' => 'Ошибка: не введено имя профиля',
+      'noimpprofile' => 'Ошибка: не выбран профиль для импорта',
+      'notopenr' => 'Ошибка: невозможно открыть файл на чтение',
+      'badfiletype' => 'Неподдерживаемый тип файла. Файл должен быть формата XML или ZIP',
+      'upgradeok' => 'Upgrade до Mysql прошёл успешно'
+      );
+
+    if ($result)
+      $form->addControl(new  InfoControl(array('text'=> $resstr[$result])));
+
+    $options = array(
+               'export' => t('Бэкап'),
+               'import' => t('Восстановление'),
+              );
+
+    if (mcms::db()->getDbType() == 'SQLite') {
+      $options['upgradetoMySQL'] = t('Upgrade до MySQL');
+    }
+
+    $form->addControl(new EnumRadioControl(array(
+       'value' => 'exchmode',
+       'label' => t('Действие'),
+       'default' =>   'import',
+       'options' => $options
+        )));
+
+    $form->addControl(new TextAreaControl(array(
+       'value' => 'expprofiledescr',
+       'label' => t('Описание профиля'),
+       'description' => t("Краткое описание профиля."),
+       'rows' => 3
+       )));
+
+    $plist = ExchangeModule::getProfileList();
+    $options = array();
+
+    for ($i = 0; $i < count($plist); $i++) {
+      $pr = $plist[$i];
+      $options[$pr['filename']] = $pr['name'];
+    }
+
+    $form->addControl(new AttachmentControl(array(
+      'label' => t('Выберите импортируемый профиль'),
+      'value' => 'impprofile'
+      )));
+
+    if (mcms::db()->getDbType() == 'SQLite') {
+      $form->addControl(new TextLineControl(array(
+        'value' => 'db[name]',
+        'label' => t('Имя базы данных'),
+        'description' => t("Перед инсталляцией база данных будет очищена от существующих данных, сделайте резервную                            копию!"),
+        )));
+
+      $form->addControl(new TextLineControl(array(
+        'value' => 'db[host]',
+        'label' => t('MySQL сервер'),
+        'wrapper_id' => 'db-server',
+        )));
+
+      $form->addControl(new TextLineControl(array(
+        'value' => 'db[user]',
+        'label' => t('Пользователь MySQL'),
+        'wrapper_id' => 'db-user',
+        )));
+
+      $form->addControl(new PasswordControl(array(
+        'value' => 'db[pass]',
+        'label' => t('Пароль этого пользователя'),
+        'wrapper_id' => 'db-password',
+        )));
+
+      $form->addControl(new SubmitControl(array(
+        'text' => t('Произвести выбранную операцию'),
+        )));
+    }
+
+    return $form->getHTML(array());
   }
 }

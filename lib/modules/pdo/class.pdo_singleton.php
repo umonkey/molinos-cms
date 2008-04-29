@@ -37,14 +37,15 @@ class PDO_Singleton extends PDO
     return self::$dbname;
   }
 
-  public static function getInstance($name)
+
+  public static function getInstance($name, $reload = false)
   {
-    if (!array_key_exists($name, self::$instances)) {
+    if (!array_key_exists($name, self::$instances) or $reload) {
       if (false === ($conf = parse_url(self::getConfig($name))) or empty($conf['scheme']))
         throw new RuntimeException(t('Соединение %name настроено неверно.', array('%name' => $name)));
 
       if (!class_exists($driver = 'mcms_'. $conf['scheme'] .'_driver'))
-        throw new RuntimeException(t('Драйвер для доступа к БД типа "%name" отсутствует.', array('%name' => $conf['scheme'])));
+        throw new RuntimeException(t('Драйвер для доступа к БД типа "%name" отсутствует.', array('%name' =>                                               $conf['scheme'])));
 
       self::$instances[$name] = new $driver($conf);
     }

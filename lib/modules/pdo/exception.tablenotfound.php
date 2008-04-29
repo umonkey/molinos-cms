@@ -11,13 +11,6 @@ class TableNotFoundException extends Exception
     $this->sql = $sql;
     $this->params = $params;
 
-    switch ($table) {
-    case 'node':
-    case 'node__rev':
-    case 'node__rel':
-      throw new NotInstalledException();
-    }
-
     parent::__construct("Таблица {$table} не найдена.");
   }
 

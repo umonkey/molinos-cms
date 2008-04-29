@@ -26,8 +26,8 @@ class mcms_mysql_driver extends PDO_Singleton
 
     foreach ($rows as $k => $el) {
       $nk = "Tables_in_". $this->dbname;
-      $sql = "DROP TABLE IF EXISTS `{$el[$nk]}`";
-      $this->exec($sql);
+
+      $this->exec("DROP TABLE IF EXISTS `{$el[$nk]}`");
       $this->commit();
     }
   }
@@ -66,8 +66,10 @@ class mcms_mysql_driver extends PDO_Singleton
           $tname = $m[2];
         else
           $tname = null;
+
         throw new TableNotFoundException($tname);
       }
+
       throw new McmsPDOException($e, $sql);
     }
 

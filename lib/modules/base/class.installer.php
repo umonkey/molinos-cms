@@ -3,10 +3,9 @@
 
 class Installer
 {
-  static function CreateTables()
+  public static function CreateTables()
   {
     mcms::db()->clearDB();
-
     $t = new TableInfo('node');
 
     if (!$t->exists()) {
@@ -132,14 +131,14 @@ class Installer
         'type' => 'mediumblob',
         'required' => 0,
        ));
-      
+
       $t->columnSet('created', array(
         'type' => 'datetime',
         'required' => 1,
         'key' =>'mul'
         ));
       $t->commit();
-    } 
+    }
 
     $t = new TableInfo('node__access');
     if (!$t->exists()) {
@@ -193,12 +192,16 @@ class Installer
     }
   }
 
-  static function writeConfig(array $data)
+  public static function writeConfig(array $data,$olddsn = null)
   {
     if (empty($data['confirm']))
       throw new InvalidArgumentException("Вы не подтвердили свои намерения.");
 
     $config = BebopConfig::getInstance();
+    $config->set('pass_exceptions', 1);
+
+    if ($olddsn)
+      $config->set('SQLitedsn', $olddsn, 'db');
 
     switch ($data['db']['type']) {
     case 'sqlite':
@@ -210,15 +213,28 @@ class Installer
       break;
 
     case 'mysql':
-      $config->set('default', sprintf('mysql://%s:%s@%s/%s', $data['db']['user'], $data['db']['pass'],                                 $data['db']['host'], $data['db']['name']), 'db');
+      $config->set('default', sprintf('mysql://%s:%s@%s/%s', $data['db']['user'], $data['db']['pass'], $data['db']['host'], $data['db']['name']), 'db');
       break;
     }
 
-    foreach ($this->getDefaults() as $k => $v) {
+    foreach (self::getDefaults() as $k => $v) {
       $value = array_key_exists($k, $data['config']) ? $data['config'][$k] : $v;
       $config->set($k, $value);
     }
 
     $config->write();
+  }
+
+  private static function getDefaults()
+  {
+    return array(
+      'mail_from' => 'no-reply@cms.molinos.ru',
+      'mail_server' => 'localhost',
+      'backtracerecipients' => 'cms-bugs@molinos.ru',
+      'debuggers' => '127.0.0.1',
+      'filestorage' => 'storage',
+      'tmpdir' => 'tmp',
+      'file_cache_ttl' => 3600,
+      );
   }
 }
