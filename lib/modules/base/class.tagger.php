@@ -6,14 +6,11 @@ class Tagger
   const MOVE_UP = 1;
   const MOVE_DOWN = 2;
 
-  private $pdo = null;
-
   private static $instance = null;
 
   // Инициализация объекта.
-  public function __construct(PDO_Singleton $pdo = null)
+  public function __construct()
   {
-      $this->pdo = ($pdo === null) ? mcms::db() : $pdo;
   }
 
   public function flushCache()
@@ -70,7 +67,7 @@ class Tagger
           $fields = '`n`.`id`, `'. join('`, `t`.`', $fields) .'`';
           $nids = join(', ', array_keys($result));
 
-          foreach ($this->pdo->getResultsK("id", "SELECT {$fields} FROM `node_{$item['class']}` `t` INNER JOIN `node` `n` ON `n`.`rid` = `t`.`rid` WHERE `n`.`lang` = 'ru' AND `n`.`id` IN ({$nids}) -- Tagger::getChildrenData()/\$fetch_extra") as $nid => $row) {
+          foreach (mcms::db()->getResultsK("id", "SELECT {$fields} FROM `node_{$item['class']}` `t` INNER JOIN `node` `n` ON `n`.`rid` = `t`.`rid` WHERE `n`.`lang` = 'ru' AND `n`.`id` IN ({$nids}) -- Tagger::getChildrenData()/\$fetch_extra") as $nid => $row) {
             unset($row['id']);
             $result[$nid] = $result[$nid] += $row;
             $cached[$nid] = true;
@@ -81,7 +78,7 @@ class Tagger
 
     // Читаем прикреплённые документы.
     if ($fetch_att and $this->checkFiles($result)) {
-      $files = $this->pdo->getResults($sql = "SELECT `r`.`tid` AS `__node_id`, `r`.`key` AS `__key`, "
+      $files = mcms::db()->getResults($sql = "SELECT `r`.`tid` AS `__node_id`, `r`.`key` AS `__key`, "
         ."`n`.`id` as `id` , `n`.`class` as `class`, `n`.`code` as `code`, "
         ."`n`.`created` as `created`, `n`.`updated` as `updated`, `n`.`lang` as `lang`, "
         ."`n`.`published` as `published`, `v`.`name` as `name`, `v`.`data` as `data`, "
@@ -269,23 +266,23 @@ class Tagger
       throw new InvalidArgumentException("This node already has an id.");
 
     if (empty($node['parent_id'])) {
-      $lft = intval($this->pdo->getResult("SELECT MAX(`right`) FROM `node`")) + 1;
+      $lft = intval(mcms::db()->getResult("SELECT MAX(`right`) FROM `node`")) + 1;
       $rgt = $lft + 1;
     } else {
-      $lft = intval($this->pdo->getResult("SELECT `right` FROM `node` WHERE `id` = :parent_id", array(':parent_id' => $node['parent_id'])));
+      $lft = intval(mcms::db()->getResult("SELECT `right` FROM `node` WHERE `id` = :parent_id", array(':parent_id' => $node['parent_id'])));
       $rgt = $lft + 1;
 
       try {
-        $this->pdo->exec("UPDATE `node` SET `left` = `left` + 2 WHERE `left` >= :left", array(':left' => $lft));
-        $this->pdo->exec("UPDATE `node` SET `right` = `right` + 2 WHERE `right` >= :left", array(':left' => $lft));
+        mcms::db()->exec("UPDATE `node` SET `left` = `left` + 2 WHERE `left` >= :left", array(':left' => $lft));
+        mcms::db()->exec("UPDATE `node` SET `right` = `right` + 2 WHERE `right` >= :left", array(':left' => $lft));
       } catch (PDOException $e) {
         throw new Exception("Could not allocate left/right span for a node of class `{$node['class']}` with parent_id = {$node['parent_id']}");
       }
     }
 
-    $node['id'] = $this->pdo->getResult("SELECT MAX(`id`) FROM `node`") + 1;
+    $node['id'] = mcms::db()->getResult("SELECT MAX(`id`) FROM `node`") + 1;
 
-    $this->pdo->exec("INSERT INTO `node` (`id`, `lang`, `parent_id`, `class`, `left`, `right`, `uid`, `published`) "
+    mcms::db()->exec("INSERT INTO `node` (`id`, `lang`, `parent_id`, `class`, `left`, `right`, `uid`, `published`) "
       ."VALUES(:nid, :lang, :parent_id, :class, :left, :right, :uid, :published)",
       array(
         ':nid' => $node['id'],
@@ -466,9 +463,9 @@ class Tagger
     $sql = $replace ? 'REPLACE' : 'INSERT';
     $sql .= " INTO `{$table}` (`". join('`, `', $fields) ."`) VALUES (". join(', ', $values) .")";
     
-    $this->pdo->exec($sql, $params);
+    mcms::db()->exec($sql, $params);
 
-    return $this->pdo->lastInsertId();
+    return mcms::db()->lastInsertId();
   }
 
   // Обновление или добавление записи.
@@ -505,7 +502,7 @@ class Tagger
     $sql = "UPDATE `{$table}` SET ". join(', ', $set) ." WHERE ". join(' AND ', $where);
 
     // Поехали.
-    $this->pdo->exec($sql, $data);
+    mcms::db()->exec($sql, $data);
 
     if (is_array($key))
       $key = array_shift($key);
@@ -633,19 +630,19 @@ class Tagger
     if (empty($params[':'. $keyname]))
       $exists = false;
     else
-      $exists = $this->pdo->getResult("SELECT COUNT(*) FROM `{$table}` WHERE `{$keyname}` = :key -- Tagger::nodeUpdateOrInsert()", array(':key' => $params[':'. $keyname]));
+      $exists = mcms::db()->getResult("SELECT COUNT(*) FROM `{$table}` WHERE `{$keyname}` = :key -- Tagger::nodeUpdateOrInsert()", array(':key' => $params[':'. $keyname]));
 
     try {
       if ($exists) {
       
-      //  $sth = $this->pdo->prepare($sql = "UPDATE `{$table}` SET ". join(', ', $pairs) ." WHERE `{$keyname}` = :{$keyname} -- Tagger::nodeUpdateOrInsert()");
+      //  $sth = mcms::db()->prepare($sql = "UPDATE `{$table}` SET ". join(', ', $pairs) ." WHERE `{$keyname}` = :{$keyname} -- Tagger::nodeUpdateOrInsert()");
       //  $sth->execute($params);
         mcms::db()->exec("UPDATE `{$table}` SET ". join(', ', $pairs) ." WHERE `{$keyname}` = :{$keyname} -- Tagger::nodeUpdateOrInsert()",$params);
         return $params[':'. $keyname];
       }
       else {
         mcms::db()->exec("INSERT INTO `{$table}` (`". join('`, `', $fields) ."`) VALUES (:". join(', :', $fields) .") -- Tagger::nodeUpdateOrInsert()", $params );
-        return $this->pdo->lastInsertId();
+        return mcms::db()->lastInsertId();
       }
     } catch (PDOException $e) {
       throw new Exception("Could not update node {$params[':id']}: ". $e->getMessage() .", SQL: {$sql}, parameters: ". var_export($params, true));
