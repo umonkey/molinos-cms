@@ -1228,12 +1228,14 @@ class mcms
         else
           $func = $v['function'];
 
-        $output .= sprintf("%2d. %s()", $k, $func);
+        $output .= sprintf("%2d. ", $k);
 
         if (!empty($v['file']) and !empty($v['line']))
-          $output .= sprintf(' — %s(%d)', str_replace($_SERVER['DOCUMENT_ROOT'] .'/', '', $v['file']), $v['line']);
+          $output .= sprintf('%s(%d) — ', str_replace($_SERVER['DOCUMENT_ROOT'] .'/', '', $v['file']), $v['line']);
         else
-          $output .= ' — ???';
+          $output .= '??? — ';
+
+        $output .= $func .'()';
 
         $output .= "\n";
       }
