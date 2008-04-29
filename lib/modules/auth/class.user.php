@@ -10,8 +10,13 @@ class User
 
   private static $instance = null;
 
-  protected function __construct()
+  protected function __construct(UserNode $node = null)
   {
+    if (null !== $node) {
+      $this->node = $node;
+      return;
+    }
+
     if (null === ($this->session = SessionData::load()) or null === ($uid = $this->session->uid)) {
       $this->node = Node::create('user', array(
         'name' => 'anonymous',
@@ -135,6 +140,8 @@ class User
       SessionData::db($sid, array('uid' => $node->id));
 
       setcookie('mcmsid', $sid, time() + 60*60*24*30);
+
+      self::$instance = new User($node);
     }
 
     else {
