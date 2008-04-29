@@ -15,8 +15,11 @@ function bebop_redirect($path, $status = 301)
       if (!in_array($status, array('301', '302', '303', '307')))
         throw new Exception("Статус перенаправления {$status} не определён в стандарте HTTP/1.1");
 
-      mcms::db()->commit();
-      mcms::flush(mcms::FLUSH_NOW);
+      try {
+        mcms::db()->commit();
+        mcms::flush(mcms::FLUSH_NOW);
+      } catch (NotInstalledException $e) {
+      }
     }
 
     if (substr($path, 0, 1) == '/') {
