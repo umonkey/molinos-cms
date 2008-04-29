@@ -352,17 +352,6 @@ class FileNode extends Node implements iContentType
     }
   }
 
-  // Работа с правами.
-  public function setAccess(array $perms, $reset = true)
-  {
-    if (empty($perms)) {
-      $perms['Content Managers'] = array('r', 'u', 'd');
-      $perms['Visitors'] = array('r');
-    }
-
-    return parent::setAccess($perms, $reset);
-  }
-
   public function getDefaultSchema()
   {
     return array(

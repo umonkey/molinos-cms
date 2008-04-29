@@ -198,11 +198,6 @@ class NodeBase
     mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, $isnew ? 'create' : 'update'));
 
     $this->purgeRevisions();
-
-    // Устанавливаем пустые права для новых файлов, позволяем перегруженным
-    // методам setAccess() установить права по умолчанию.
-    if ($isnew)
-      $this->setAccess(array(), true);
   }
 
   private function purgeRevisions()

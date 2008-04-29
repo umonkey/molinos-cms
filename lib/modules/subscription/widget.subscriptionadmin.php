@@ -6,10 +6,6 @@ class SubscriptionAdminWidget extends Widget implements iScheduler, iAdminMenu
   public function __construct(Node $node)
   {
     parent::__construct($node);
-
-    $this->groups = array(
-      'Subscription Managers',
-      );
   }
 
   public static function getWidgetInfo()

@@ -240,11 +240,6 @@ abstract class Widget implements iWidget
 
   protected function emitNotFound($description = null)
   {
-    if (!$this->user->hasGroup('Content Managers'))
-      $description = null;
-    else
-      $description = "Подсказка администратору: <em>{$description}</em>&nbsp; ";
-
     throw new PageNotFoundException(null, $description);
   }
 

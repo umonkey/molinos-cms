@@ -57,20 +57,6 @@ class StatusAdminWidget extends Widget
 
   protected function onGetFixrights(array $options)
   {
-    $this->user->checkGroup('Access Managers');
-
-    if (!ini_get('safe_mode'))
-      set_time_limit(0);
-
-    while (count($nodes = Node::find(array('#special' => 'lost'), 10))) {
-      foreach ($nodes as $node)
-        $node->setAccess(array(
-          'Content Managers' => array('r', 'u', 'd'),
-          ));
-    }
-
-    mcms::db()->commit();
-
     if (empty($_GET['destination']))
       $_GET['destination'] = '/admin/';
 

@@ -34,14 +34,6 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
 
   public function formProcess(array $data)
   {
-    if (null === $this->id and empty($data['node_access']))
-      // Документы без прав создаются, как правило,
-      // через сайт, в виде обратной связи.
-      $data['node_access'] = array(
-        'Content Managers' => array('r', 'u', 'd'),
-        'Visitors' => array('r'),
-        );
-
     parent::formProcess($data);
 
     $user = mcms::user();

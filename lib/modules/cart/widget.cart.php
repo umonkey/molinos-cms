@@ -320,12 +320,6 @@ class CartWidget extends Widget
           ),
         ));
       $type->save();
-
-      $type->setAccess(array(
-        'Visitors' => array('c', 'r'),
-        'Content Managers' => array('r'),
-        'Store Managers' => array('c', 'r', 'u', 'd'),
-        ));
     }
 
     $products = 0;
@@ -386,10 +380,6 @@ class CartWidget extends Widget
       }
 
       $type->save();
-
-      $type->setAccess(array(
-        'Content Managers' => array('c'),
-        ), false);
 
       // Привязываем новый тип к этому виджету.
       $this->me->linkAddParent($type->id);

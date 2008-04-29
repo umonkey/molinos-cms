@@ -120,11 +120,6 @@ class BlogWidget extends Widget
           ),
         ));
       $type->save();
-
-      $type->setAccess(array(
-        'Visitors' => array('c', 'r'),
-        'Content Managers' => array('r', 'd'),
-        ));
     }
   }
 };

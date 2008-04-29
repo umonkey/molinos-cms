@@ -24,15 +24,6 @@ class GroupNode extends Node implements iContentType
     parent::duplicate();
   }
 
-  // Сохранение фиксированных прав.
-  public function setAccess(array $perms, $reset = true)
-  {
-    parent::setAccess(array(
-      'User Managers' => array('r', 'u', 'd'),
-      'Visitors' => array('r'),
-      ), true);
-  }
-
   // Сохранение прав на типы документов.
   private function setTypePermissions(array $perms = null)
   {

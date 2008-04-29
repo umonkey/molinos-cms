@@ -47,12 +47,6 @@ class CommentWidget extends Widget
           ),
         ));
       $type->save();
-
-      $type->setAccess(array(
-        'Visitors' => array('c', 'r'),
-        'Content Managers' => array('r'),
-        'Schema Managers' => array('r', 'u', 'd'),
-        ));
     }
   }
 
