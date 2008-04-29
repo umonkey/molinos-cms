@@ -122,7 +122,8 @@ class User
       $node = Node::load(array('class' => 'user', 'name' => $args[0]));
 
       if ($node->password != md5($args[1]) and empty($args[2]))
-        throw new ValidationException('password', t('Введён неверный пароль.'));
+        throw new ForbiddenException(t('Введён неверный пароль.'));
+        // throw new ValidationException('password', t('Введён неверный пароль.'));
 
       if (!$node->published)
         throw new ForbiddenException(t('Ваш профиль заблокирован.'));
