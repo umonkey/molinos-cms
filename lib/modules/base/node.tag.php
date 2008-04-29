@@ -37,13 +37,6 @@ class TagNode extends Node implements iContentType
     return $result;
   }
 
-  // Сохранение фиксированных прав.
-  public function setAccess(array $perms, $reset = true)
-  {
-    $perms['Structure Managers'] = array('c', 'r', 'u', 'd');
-    return parent::setAccess($perms, $reset);
-  }
-
   public function formGet($simple = true)
   {
     $form = parent::formGet($simple);
@@ -56,20 +49,6 @@ class TagNode extends Node implements iContentType
       : t('Редактирование раздела "%name"', array('%name' => $this->name));
 
     return $form;
-  }
-
-  public function getAccess()
-  {
-    $data = parent::getAccess();
-
-    if (null === $this->id) {
-      $data['Visitors']['r'] = 1;
-      $data['Structure Managers']['r'] = 1;
-      $data['Structure Managers']['u'] = 1;
-      $data['Structure Managers']['d'] = 1;
-    }
-
-    return $data;
   }
 
   private static function haveRoot()

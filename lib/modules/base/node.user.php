@@ -32,29 +32,6 @@ class UserNode extends Node implements iContentType
     parent::save($clear);
   }
 
-  // Сохранение фиксированных прав.
-  public function setAccess(array $perms, $reset = true)
-  {
-    parent::setAccess(array(
-      'User Managers' => array('r', 'u', 'd'),
-      'Visitors' => array('r'),
-      ), true);
-  }
-
-  public function getAccess()
-  {
-    $data = parent::getAccess();
-
-    if (null === $this->id) {
-      $data['Visitors']['r'] = 1;
-      $data['User Managers']['r'] = 1;
-      $data['User Managers']['u'] = 1;
-      $data['User Managers']['d'] = 1;
-    }
-
-    return $data;
-  }
-
   public function duplicate()
   {
     $this->login = preg_replace('/_[0-9]+$/', '', $this->login) .'_'. rand();

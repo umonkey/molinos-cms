@@ -58,20 +58,6 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
     }
   }
 
-  public function getAccess()
-  {
-    $data = parent::getAccess();
-
-    if (null === $this->id and get_class($this) == 'Node') {
-      $data['Content Managers']['r'] = 1;
-      $data['Content Managers']['u'] = 1;
-      $data['Content Managers']['d'] = 1;
-      $data['Visitors']['r'] = 1;
-    }
-
-    return $data;
-  }
-
   public static function formGetModuleConfig()
   {
     $form = new Form(array());
