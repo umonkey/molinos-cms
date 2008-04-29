@@ -165,7 +165,7 @@ function bebop_combine_url(array $url, $escape = true)
 {
   $result = '';
 
-  if (!mcms::config('handler')) {
+  if (!mcms::config('handler') and ('/' == substr($url['path'], 0, 1))) {
     $url['args']['q'] = $url['path'];
     $url['path'] = '/index.php';
   }
@@ -248,13 +248,17 @@ function l($url, $title = null, array $options = null)
   if (stripos($url, 'install.php'))
      return $url;
 
-  $url = bebop_split_url($url);
+  if ('/' == substr($url, 0, 1)) {
+    $url = bebop_split_url($url);
 
-  foreach (array('smarty.debug', 'flush', 'nocache') as $k)
-    if (array_key_exists($k, $url['args']))
-      unset($url['args'][$k]);
+    foreach (array('smarty.debug', 'flush', 'nocache') as $k)
+      if (array_key_exists($k, $url['args']))
+        unset($url['args'][$k]);
 
-  $options['href'] = bebop_combine_url($url, false);
+    $url = bebop_combine_url($url, false);
+  }
+
+  $options['href'] = $url;
 
   if (null === $title)
     return $options['href'];
