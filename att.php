@@ -35,7 +35,7 @@ class StaticAttachment
     if (null === ($storage = mcms::config('filestorage')))
       $storage = 'storage';
 
-    $node = Tagger::getInstance()->getObject($args[0]);
+    $node = Node::load(array('class' => 'file', 'id' => $args[0]))->getRaw();
     if (empty($node))
       $this->sendError(404, 'attachment not found.');
 

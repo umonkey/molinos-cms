@@ -144,9 +144,19 @@ class AdminUIListControl extends Control
       if (null !== $node and !empty($node['class']) and $node['class'] == 'file') {
         if (file_exists($path = mcms::config('filestorage') .'/'. $node['filepath'])) {
           if (substr($node['filetype'], 0, 6) == 'image/')
-            $tmp = "<img src='/attachment/{$node['id']},48,48,c' width='48' height='48' alt='{$node['filepath']}' />";
+            $tmp = mcms::html('img', array(
+              'src' => "/attachment/{$node['id']},48,48,c",
+              'width' => 48,
+              'height' => 48,
+              'alt' => $node['filepath'],
+              ));
           else
-            $tmp = '<img src=\'/themes/admin/img/media-floppy.png\' alt=\'download\' width=\'16\' height=\'16\' />';
+            $tmp = mcms::html('img', array(
+              'src' => '/themes/admin/img/media-floppy.png',
+              'width' => 16,
+              'height' => 16,
+              'alt' => t('Скачать'),
+              ));
 
           $tmp = mcms::html('a', array(
             'title' => 'Скачать',

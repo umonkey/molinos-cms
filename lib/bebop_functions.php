@@ -237,14 +237,17 @@ function bebop_combine_url(array $url, $escape = true)
 // Возвращает отформатированную ссылку.
 function l($url, $title = null, array $options = null)
 {
+  if (!mcms::config('handler') and ('/attachment/' == substr($url, 0, 12)))
+    return '/att.php?q='. urlencode(substr($url, 12));
+
   if (empty($url))
     throw new RuntimeException(t('Не указана ссылка для l().'));
   elseif (!is_string($url))
     throw new RuntimeException(t('Ссылка для l() должна быть строкой.'));
 
-  if (stripos($url, 'install.php')) 
-	   return $url;
-	   
+  if (stripos($url, 'install.php'))
+     return $url;
+
   $url = bebop_split_url($url);
 
   foreach (array('smarty.debug', 'flush', 'nocache') as $k)
