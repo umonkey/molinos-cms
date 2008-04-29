@@ -320,6 +320,9 @@ class RequestController
   {
     $pdo = mcms::db();
 
+    if (empty($this->widgets) and empty($this->page->parent_id))
+      bebop_redirect('/admin/?cgroup=structure&mode=tree&preset=pages&msg=welcome');
+
     // Сюда складываем время выполнения виджетов.
     $profile = array('__total' => microtime(true));
 
