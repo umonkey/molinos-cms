@@ -134,7 +134,7 @@ class User
         throw new ForbiddenException(t('Ваш профиль заблокирован.'));
 
       // Создаём уникальный идентификатор сессии.
-      $sid = md5($node->login . $node->password . time() . $_SERVER['HTTP_HOST']);
+      $sid = md5($node->login . $node->password . microtime() . $_SERVER['HTTP_HOST']);
 
       // Сохраняем сессию в БД.
       SessionData::db($sid, array('uid' => $node->id));
