@@ -49,7 +49,7 @@ class SessionData
   public static function db($sid, array $data = null)
   {
     if (mcms::db()->getDbType() == 'SQLite')
-      return db_file($sid, $data);   
+      return self::db_file($sid, $data);   
 
     try {
       $cache = BebopCache::getInstance();
