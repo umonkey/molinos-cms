@@ -80,10 +80,10 @@ function get_version_info()
         <div id="top_toolbar">
           <div class="right">
             <div class="greeting">Здравствуйте, <?php print render_username(); ?>.</div>
-            <a href="/admin/?cgroup=access&amp;mode=edit&amp;id=<?php print mcms::user()->id; ?>&amp;destination=<?php print urlencode($_SERVER['REQUEST_URI']) ?>" title="Редактировать свой профиль">Настройки</a>
+            <?php print l('/admin/?cgroup=access&mode=edit&id='. mcms::user()->id .'&destination='. urlencode($_SERVER['REQUEST_URI']), 'Настройки', array('title' => 'Редактирование профиля')); ?>
             <?php if ('MySQL' == mcms::db()->getDbType() and is_readable('phpminiadmin.php')): ?><a target="_blank" href="/phpminiadmin.php?showcfg=1">БД</a><?php endif; ?>
             <a href="<?php print render_reboot_link(); ?>" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
-            <a id="lnk_exit" href="/base.rpc?action=logout&amp;destination=%2F">Выйти</a>
+            <?php print l('/base.rpc?action=logout&destination=/', 'Выйти', array('id' => 'lnk_exit')); ?>
           </div>
         </div><!-- id=top_toolbar -->
 
