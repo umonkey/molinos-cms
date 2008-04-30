@@ -217,8 +217,11 @@ function bebop_combine_url(array $url, $escape = true)
         }
       }
 
-      elseif ($v !== '' and !in_array($k, $forbidden))
+      elseif ($v !== '' and !in_array($k, $forbidden)) {
+        if ('destination' === $k and 'CURRENT' === $v)
+          $v = $_SERVER['REQUEST_URI'];
         $pairs[] = $k .'='. urlencode($v);
+      }
     }
 
     if (!empty($pairs))
@@ -553,8 +556,26 @@ class mcms
 
   const FLUSH_NOW = 1;
 
-  public static function html($name, array $parts = null, $content = null)
+  public static function html()
   {
+    if (func_num_args() == 0 or func_num_args() > 3)
+      throw new InvalidArgumentException(t('mcms::html() принимает от одного до трёх параметров.'));
+    else {
+      $args = func_get_args();
+      $name = array_shift($args);
+
+      $parts = null;
+      $content = null;
+
+      if (is_array($tmp = array_shift($args)))
+        $parts = $tmp;
+      else
+        $content = $tmp;
+
+      if (!empty($args))
+        $content = array_shift($args);
+    }
+
     $output = '<'. $name;
 
     if (('td' == $name or 'th' == $name) and empty($content))

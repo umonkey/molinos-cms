@@ -168,7 +168,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
         if (is_array($val)) {
           $arrarr[$key] = $val;
-          $srlz .= mcms::html($key, array(), "<![CDATA[". serialize($val) ."]]>");
+          $srlz .= mcms::html($key, "<![CDATA[". serialize($val) ."]]>");
           unset($arr[$key]);
         }
       }

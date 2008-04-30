@@ -122,7 +122,7 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
         if (empty($v['nid']))
           $data['syslog_list'][$k]['title'] = mcms_plain($v['query']);
         elseif (!empty($v['nid']) and !empty($v['title']))
-          $data['syslog_list'][$k]['title'] = "<a href='/admin/node/{$v['nid']}/edit/?destination=". urlencode($_SERVER['REQUEST_URI']) ."'>". mcms_plain($v['title']) ."</a>";
+          $data['syslog_list'][$k]['title'] = l(mcms_plain($v['title']), "/admin/node/{$v['nid']}/edit/?destination=CURRENT");
 
         $data['syslog_list'][$k]['ip'] = l($v['ip'], array($this->getInstanceName() => array('ip' => $v['ip'])));
         $data['syslog_list'][$k]['operation'] = l($v['operation'], array($this->getInstanceName() => array('op' => $v['operation'])));

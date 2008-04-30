@@ -27,23 +27,6 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
       $parent = empty($node['parent_id']) ? null : $node['parent_id'];
 
       $row .= $this->getActions($node);
-      /*
-      $row .= '<td class=\'actions\'>';
-      $row .= mcms::html('a', array(
-        'href' => "/nodeapi.rpc?action=raise&node={$nid}&parent={$parent}&destination=". urlencode($_SERVER['REQUEST_URI']),
-        'class' => 'icon moveup',
-        ), '<span>поднять</span>');
-      $row .= mcms::html('a', array(
-        'href' => "/nodeapi.rpc?action=sink&node={$nid}&parent={$parent}&destination=". urlencode($_SERVER['REQUEST_URI']),
-        'class' => 'icon movedown',
-        ), '<span>опустить</span>');
-      $row .= mcms::html('a', array(
-        'href' => "/admin/?mode=create&type={$node['class']}&parent={$nid}&destination=". urlencode($_SERVER['REQUEST_URI']),
-        'class' => 'icon add',
-        ), '<span>добавить</span>');
-      $row .= $this->getZoomLink($node);
-      $row .= '</td>';
-      */
 
       foreach ($this->columns as $field) {
         $value = array_key_exists($field, $node) ? $node[$field] : null;
@@ -121,13 +104,13 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
   private function getRaiseLink(array $node)
   {
     if (!empty($node['id']))
-      return $this->getIcon('/themes/admin/img/moveup.png', "/nodeapi.rpc?action=raise&node={$node['id']}&destination=". urlencode($_SERVER['REQUEST_URI']), t('Поднять'));
+      return $this->getIcon('/themes/admin/img/moveup.png', "/nodeapi.rpc?action=raise&node={$node['id']}&destination=CURRENT", t('Поднять'));
   }
 
   private function getSinkLink(array $node)
   {
     if (!empty($node['id']))
-      return $this->getIcon('/themes/admin/img/movedown.png', "/nodeapi.rpc?action=sink&node={$node['id']}&destination=". urlencode($_SERVER['REQUEST_URI']), t('Поднять'));
+      return $this->getIcon('/themes/admin/img/movedown.png', "/nodeapi.rpc?action=sink&node={$node['id']}&destination=CURRENT", t('Поднять'));
   }
 
   private function getZoomLink(array $node)

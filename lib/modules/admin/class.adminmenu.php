@@ -42,7 +42,7 @@ class AdminMenu implements iAdminMenu
           'href' => $icon['href'],
           'title' => empty($icon['description']) ? null : $icon['description'],
           ), $icon['title']);
-        $output .= mcms::html('li', array(), $tmp);
+        $output .= mcms::html('li', $tmp);
       }
 
       $output .= '</ul></li>';

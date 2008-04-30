@@ -337,15 +337,7 @@ class DomainNode extends Node implements iContentType
     foreach (Node::find(array('class' => 'widget', '#sort' => array('name' => 'ASC'))) as $w) {
       $name = t('%title (<a href=\'@edit\'>изменить</a>)', array(
         '%title' => $w->title,
-        '@edit' => bebop_combine_url(array(
-          'path' => '/admin/',
-          'args' => array(
-            'mode' => 'edit',
-            'cgroup' => 'structure',
-            'id' => $w->id,
-            'destination' => $_SERVER['REQUEST_URI'],
-            ),
-          ), false),
+        '@edit' => "/admin/?mode=edit&cgroup=structure&id={$w->id}&destination=CURRENT",
         ));
 
       $options[$w->id] = $name;
@@ -361,7 +353,7 @@ class DomainNode extends Node implements iContentType
       'value' => 'node_domain_widgets',
       'label' => 'Задействованные виджеты',
       'description' => t("Вы можете также <a href='@link'>создать новый виджет</a>.",
-        array('@link' => '/admin/node/create/?BebopNode.class=widget&destination='. urlencode($_SERVER['REQUEST_URI'] .'#widgets'))),
+        array('@link' => '/admin/node/create/?BebopNode.class=widget&destination=CURRENT#widgets'))),
       'options' => $options,
       )));
 

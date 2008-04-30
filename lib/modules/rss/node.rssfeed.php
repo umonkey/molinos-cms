@@ -113,7 +113,7 @@ class RssfeedNode extends Node
   {
     $nodes = array_values($this->loadItems());
 
-    $output = mcms::html('pubDate', array(), date('r', strtotime($nodes[0]->created)));
+    $output = mcms::html('pubDate', date('r', strtotime($nodes[0]->created)));
 
     foreach ($nodes as $node)
       $output .= $this->formatItem($node);
@@ -147,11 +147,11 @@ class RssfeedNode extends Node
     $output = '';
 
     if (!empty($node->name))
-      $output .= mcms::html('title', array(), mcms_plain($node->name));
+      $output .= mcms::html('title', mcms_plain($node->name));
 
     if (!empty($node->uid))
       try {
-        $output .= mcms::html('dc:creator', array(), mcms_plain(Node::load(array('class' => 'user', 'id' => $node->uid))->name));
+        $output .= mcms::html('dc:creator', mcms_plain(Node::load(array('class' => 'user', 'id' => $node->uid))->name));
       } catch (ObjectNotFoundException $e) {
       }
 
@@ -165,6 +165,6 @@ class RssfeedNode extends Node
       }
     }
 
-    return mcms::html('item', array(), $output);
+    return mcms::html('item', $output);
   }
 };

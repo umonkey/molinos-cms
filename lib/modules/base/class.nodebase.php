@@ -1120,9 +1120,9 @@ class NodeBase
       : $_GET['destination'];
 
     if ($this->id)
-      $form->action = "/nodeapi.rpc?action=edit&node={$this->id}&destination=". urlencode($next);
+      $form->action = "/nodeapi.rpc?action=edit&node={$this->id}&destination=CURRENT";
     else
-      $form->action = "/nodeapi.rpc?action=create&type={$this->class}&destination=". urlencode($next);
+      $form->action = "/nodeapi.rpc?action=create&type={$this->class}&destination=CURRENT";
 
     return $form;
   }
@@ -1145,20 +1145,22 @@ class NodeBase
     if (mcms::user()->hasAccess('u', 'type') and $this->class != 'type' and substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/') {
       if (empty($schema['isdictionary']))
         $intro[] = t("Вы можете <a href='@typelink'>настроить этот тип</a>, добавив новые поля.", array(
-          '@typelink' => "/admin/?mode=edit&id={$schema['id']}&destination=". urlencode($_SERVER['REQUEST_URI']),
+          '@typelink' => "/admin/?mode=edit&id={$schema['id']}&destination=CURRENT",
           ));
       else
         $intro[] = t("Вы можете <a href='@typelink'>настроить этот справочник</a>, добавив новые поля.", array(
-          '@typelink' => "/admin/?mode=edit&id={$schema['id']}&destination=". urlencode($_SERVER['REQUEST_URI']),
+          '@typelink' => "/admin/?mode=edit&id={$schema['id']}&destination=CURRENT",
           ));
     }
 
+    /*
     if (!empty($schema['fields']))
       foreach ($schema['fields'] as $k => $v)
         if (!empty($v['required'])) {
           $intro[] = t('Поля, отмеченные звёздочкой, обязательны для заполнения.');
           break;
         }
+    */
 
     if (!empty($intro))
       return new InfoControl(array(

@@ -27,7 +27,7 @@ class AdminTreeHandler
 
     $form = new Form(array(
       'id' => 'nodelist-form',
-      'action' => '/nodeapi.rpc?action=mass&destination='. urlencode($_SERVER['REQUEST_URI']),
+      'action' => '/nodeapi.rpc?action=mass&destination=CURRENT',
       ));
     $form->addControl(new AdminUINodeActionsControl(array(
       'actions' => $this->actions,
@@ -57,7 +57,7 @@ class AdminTreeHandler
       $data = self::getNodeTree();
 
       if (empty($data))
-        bebop_redirect("/admin/?mode=create&type={$this->type}&destination=". urlencode($_SERVER['REQUEST_URI']));
+        bebop_redirect("/admin/?mode=create&type={$this->type}&destination=CURRENT");
 
       return $data;
     default:
@@ -145,7 +145,7 @@ class AdminTreeHandler
           if ($link) {
             $args = array(
               'class' => array(),
-              'href' => "/admin/?mode=edit&cgroup={$_GET['cgroup']}&id={$node['id']}&destination=". urlencode($_SERVER['REQUEST_URI']),
+              'href' => "/admin/?mode=edit&cgroup={$_GET['cgroup']}&id={$node['id']}&destination=CURRENT",
               'style' => empty($node['depth']) ? null : 'margin-left:'. ($node['depth'] * 10) .'px',
               );
 
@@ -168,13 +168,11 @@ class AdminTreeHandler
         if (array_key_exists('actions', $this->columns)) {
           $actions = array();
 
-          $uri = urlencode($_SERVER['REQUEST_URI']);
-
-          $actions[] = "<a href='/admin/node/{$node['id']}/raise/?destination={$uri}'>поднять</a>";
-          $actions[] = "<a href='/admin/node/{$node['id']}/sink/?destination={$uri}'>опустить</a>";
+          $actions[] = mcms::html('a', array('href' => "/admin/node/{$node['id']}/raise/?destination=CURRENT"), 'поднять');
+          $actions[] = mcms::html('a', array('href' => "/admin/node/{$node['id']}/sink/?destination=CURRENT"), 'опустить');
 
           if ($this->tree == 'tag')
-            $actions[] = "<a href='/admin/node/create/?BebopNode.class=tag&amp;BebopNode.parent={$node['id']}&amp;destination={$uri}'>добавить</a>";
+            $actions[] = mcms::html('a', array('href' => "/admin/node/create/?BebopNode.class=tag&BebopNode.parent={$node['id']}&destination=CURRENT"), 'добавить');
 
           $item['actions'] = join('&nbsp;', $actions);
         }

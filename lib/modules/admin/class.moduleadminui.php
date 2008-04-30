@@ -24,9 +24,12 @@ class ModuleAdminUI
           )) ."</td>";
 
         if (!empty($module['implementors']['iModuleConfig']) and !empty($module['enabled']))
-          $output .= "<td><a class='icon configure' href='/admin/?mode=modules&amp;action=config&amp;name={$modname}&amp;cgroup={$_GET['cgroup']}&amp;destination=". urlencode($_SERVER['REQUEST_URI']) ."'><span>настроить</span></a></td>";
+          $output .= mcms::html('td', mcms::html('a', array(
+            'class' => 'icon configure',
+            'href' => "/admin/?mode=modules&action=config&name={$modname}&cgroup={$_GET['cgroup']}&destination=CURRENT",
+            ), '<span>настроить</span>'));
         else
-          $output .= "<td>&nbsp;</td>";
+          $output .= mcms::html('td');
 
         if (!empty($module['docurl']))
           $output .= "<td>". mcms::html('a', array(
@@ -36,8 +39,8 @@ class ModuleAdminUI
         else
           $output .= "<td>&nbsp;</td>";
 
-        $output .= "<td><a href='/admin/?mode=modules&amp;action=info&amp;name={$modname}&amp;cgroup={$_GET['cgroup']}'>{$modname}</a></td>";
-        $output .= "<td>{$module['name']['ru']}</td>";
+        $output .= mcms::html('td', mcms::html('a', array('href' => "/admin/?mode=modules&amp;action=info&amp;name={$modname}&amp;cgroup={$_GET['cgroup']}&destination=CURRENT"), $modname));
+        $output .= mcms::html('td', $module['name']['ru']);
 
         $output .= '</tr>';
       }
@@ -54,7 +57,7 @@ class ModuleAdminUI
 
     return '<h2>Список модулей</h2>'. mcms::html('form', array(
       'method' => 'post',
-      'action' => "/admin.rpc?action=modlist&destination=". urlencode($_SERVER['REQUEST_URI']),
+      'action' => "/admin.rpc?action=modlist&destination=CURRENT",
       ), $output);
   }
 

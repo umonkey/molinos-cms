@@ -20,7 +20,7 @@ class FieldSetControl extends Control
   {
     $output = '';
 
-    $output .= mcms::html('legend', array(), $this->label);
+    $output .= mcms::html('legend', $this->label);
     $output .= self::getChildrenHTML($data);
 
     $this->addClass('tabable');

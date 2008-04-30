@@ -605,7 +605,7 @@ class RequestController
       if (!empty($domain['description']))
         $tmp .= '<br />'. $domain['description'];
 
-      $list[] = mcms::html('li', array(), $tmp);
+      $list[] = mcms::html('li', $tmp);
     }
 
     if (!empty($list)) {

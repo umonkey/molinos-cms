@@ -22,6 +22,9 @@ class AdminListHandler
 
   protected $preset = null;
 
+  // Кэшируем для исключения повторных вызовов.
+  private $count = null;
+
   public function __construct(RequestContext $ctx)
   {
     $this->ctx = $ctx;
@@ -52,7 +55,10 @@ class AdminListHandler
     $data = $this->getData();
 
     if (empty($data) and count($this->types) == 1 and null === $this->ctx->get('search')) {
-      bebop_redirect("/admin/?mode=create&cgroup=". $_GET['cgroup'] ."&type={$this->types[0]}&destination=". urlencode($_SERVER['REQUEST_URI']));
+      // Добавление справочника.
+      if ('dictlist' == $this->ctx->get('preset'))
+        bebop_redirect("/admin/?mode=create&cgroup={$_GET['cgroup']}&dictionary=1&welcome=1&type={$this->types[0]}&destination=CURRENT");
+      // bebop_redirect("/admin/?mode=create&cgroup={$_GET['cgroup']}&type={$this->types[0]}&destination=CURRENT");
     }
 
     $output = '<h2>'. $this->title .'</h2>';
@@ -61,7 +67,7 @@ class AdminListHandler
     if (!empty($data)) {
       $form = new Form(array(
         'id' => 'nodelist-form',
-        'action' => l('/nodeapi.rpc?action=mass&destination='. urlencode($_SERVER['REQUEST_URI'])),
+        'action' => '/nodeapi.rpc?action=mass&destination=CURRENT',
         ));
       if (empty($_GET['picker']))
         $form->addControl(new AdminUINodeActionsControl(array(
@@ -96,6 +102,13 @@ class AdminListHandler
       $output .= '<p>'. t('Нет документов, удовлетворяющих запросу.  <a href=\'@url\'>Отмените поиск</a> или поищите что-нибудь другое.', array(
         '@url' => bebop_combine_url($tmp, false),
         )) .'</p>';
+    }
+
+    elseif (0 == $this->getCount()) {
+      if (count($this->types) == 1)
+        $output .= mcms::html('p', t('Нет документов для отображения в этом списке, <a href=\'@addurl\'>приступить к добавлению</a>?', array('@addurl' => "/admin/?cgroup={$_GET['cgroup']}&mode=create&type={$this->types[0]}&destination=CURRENT")));
+      else
+        $output .= mcms::html('p', t('Нет документов для отображения в этом списке.'));
     }
 
     return $output;
@@ -143,7 +156,6 @@ class AdminListHandler
         $this->types = array('group');
         $this->title = t('Список групп');
         $this->columns = array('name', 'description', 'created');
-        $this->actions = array('delete', 'clone');
         $this->limit = null;
         $this->page = 1;
         $this->sort = array('name');
@@ -363,9 +375,11 @@ class AdminListHandler
 
   protected function getCount()
   {
-    $filter = $this->getNodeFilter();
-    $count = Node::count($filter);
+    if (null === $this->count) {
+      $filter = $this->getNodeFilter();
+      $this->count = Node::count($filter);
+    }
 
-    return $count;
+    return $this->count;
   }
 };

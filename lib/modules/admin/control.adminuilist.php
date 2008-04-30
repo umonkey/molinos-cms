@@ -72,7 +72,7 @@ class AdminUIListControl extends Control
           } else {
             $href = isset($this->picker)
               ? "/attachment/{$node['id']}"
-              : '/admin/?mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination='. urlencode($_SERVER['REQUEST_URI']);
+              : '/admin/?mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination=CURRENT';
           }
 
           $row .= mcms::html('a', array(
@@ -208,7 +208,7 @@ class AdminUIListControl extends Control
 
     if (mcms::user()->hasAccess('u', 'user'))
       return mcms::html('a', array(
-        'href' => "/admin/?mode=edit&id={$uid}&destination=". urlencode($_SERVER['REQUEST_URI']),
+        'href' => "/admin/?mode=edit&id={$uid}&destination=CURRENT",
         ), $users[$uid]->name);
 
     return $users[$uid]->name;

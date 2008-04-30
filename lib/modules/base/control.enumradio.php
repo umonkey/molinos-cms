@@ -45,17 +45,17 @@ class EnumRadioControl extends Control
           'checked' => ($selected == $k) ? 'checked' : null,
           'value' => $k,
           ));
-        $options .= mcms::html('label', array(), $option . $v);
+        $options .= mcms::html('label', $option . $v);
       }
 
     if (empty($options))
       return '';
 
     if (isset($this->label))
-      $caption = mcms::html('legend', array(), $this->label);
+      $caption = mcms::html('legend', $this->label);
     else
       $caption = null;
 
-    return $this->wrapHTML(mcms::html('fieldset', array(), $caption . $options), false);
+    return $this->wrapHTML(mcms::html('fieldset', $caption . $options), false);
   }
 };

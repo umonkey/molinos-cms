@@ -138,7 +138,7 @@ class DrawTextModule implements iModuleConfig, iRemoteCall
       'default' => t('(не использовать)'),
       'options' => $fonts,
       'description' => t('Вы можете <a href=\'@url\'>загрузить новый шрифт</a> в файловый архив.', array(
-        '@url' => '/admin/node/create/?BebopNode.class=file&destination='. urlencode($_SERVER['REQUEST_URI']),
+        '@url' => '/admin/node/create/?BebopNode.class=file&destination=CURRENT',
         )),
       )));
 

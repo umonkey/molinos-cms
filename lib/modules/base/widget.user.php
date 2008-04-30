@@ -234,7 +234,7 @@ class UserWidget extends Widget
     $output = parent::formRender('user-logout-form');
     $output .= "<p class='profileEditLink'>". t('<a href=\'@link\'>Изменить профиль</a>', array(
       '@link' => mcms_url(array('args' => array(
-        'destination' => $_SERVER['REQUEST_URI'],
+        'destination' => 'CURRENT',
         $this->getInstanceName() => array('action' => 'edit'),
         ))),
       )) ."</p>";
