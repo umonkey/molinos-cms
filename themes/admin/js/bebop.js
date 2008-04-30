@@ -69,21 +69,13 @@ $(document).ready(function () {
   bebop_fix_files();
 
   $('.returnHref a').click(function () {
-    var win = window.opener ? window.opener : window.dialogArguments, c;
-    if (win) { tinyMCE = win.tinyMCE; }
-
-    if (tinyMCE) {
-      var tmp_win = tinyMCE.getWindowArg('window');
-      if (tmp_win) {
-        tmp_win.document.getElementById('href').value = $(this).attr('href');
-      }
-      window.close();
-      return false;
-    }
+    mcms_picker_return($(this).attr('href'));
+    return false;
   });
 
   $('a.returnHref').click(function () {
-    return mcms_picker_return($(this).attr('href'));
+    mcms_picker_return($(this).attr('href'));
+    return false;
   });
 
   $('.control-FieldControl-wrapper .selector').click(function () {
@@ -135,36 +127,6 @@ $(document).ready(function () {
   });
 });
 
-
-/**
- * Вспомогательные функции
- */
-
-/**
- * Карусель в осн. навигации: цепляем действия на контролы
- * @param {Object} carousel
- */
-function bebop_dashboard_init(carousel){
-	// ссылка на все контролы
-	var $carouselControls = $('.carousel-control a');
-	// действия при клике
-	$carouselControls.click(function(){
-		// ссылка на контрол, по которому кликнули
-		var $$ = $(this);
-		// убираем класс со всех контролов
-		$carouselControls.removeClass('active');
-		// добавляем класс к контролу, по которому кликнули
-		$$.addClass('active');
-		// убираем классы со всех элементов карусели
-		carousel.container.find('li').removeClass('choosen');
-		// добавляем класс группе элементов карусели, сопоставленных этому контролу
-		carousel.container.find('li.group-' + parseInt($carouselControls.index(this) + 1)).addClass('choosen');
-		// вращаем карусель
-		carousel.scroll(jQuery.jcarousel.intval($$.attr('href').replace('#', '') ) );
-		return false;
-	});
-}
-
 function bebop_fix_file_mode_selection(sel)
 {
   var map = { local: "Attachment", remote: "URL", ftp: "Set" };
@@ -211,36 +173,34 @@ function bebop_fix_domain_defaultsection()
   }
 }
 
-function mcms_file_pick(id)
+function mcms_file_pick(field_name, url, type, win)
 {
-  window.open('/admin/files/picker/?BebopFiles.picker='+ id, '_blank');
+  window.open('/admin/files/picker/?BebopFiles.picker='+ field_name +'&window='+ win.name, '_blank');
+}
+
+function mcms_gup(name)
+{
+  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+  var regexS = "[\\?&]"+name+"=([^&#]*)";
+  var regex = new RegExp(regexS);
+  var results = regex.exec(window.location.href);
+  if (results == null)
+    return "";
+  else
+    return results[1];
 }
 
 function mcms_picker_return(href)
 {
   var fileid = href.replace('/attachment/', '');
 
-  if (mcms_picker_id == 'src') {
-    var wod = window.opener.document;
-    var em = wod.getElementById(mcms_picker_id);
+  if (mcms_picker_id == 'src' || mcms_picker_id == 'href') {
+    var tiny = window.opener.document.getElementById(mcms_gup('window')).document;
 
-    if (em) {
-      em.value = href;
-    } else if (em = wod.getElementById('mce_0_ifr')) {
-      var src = jQuery(em.contentDocument).find('#'+ mcms_picker_id);
-      if (src.length == 0) {
-        alert('Error accessing the parent dialog.');
-        return false;
-      }
-
-      src.val(href);
-      window.close();
-
-      return false;
-    } else {
-      alert('Target control not found');
-      return false;
-    }
+    if (tiny)
+      $('#'+ mcms_picker_id, tiny).val(href);
+    else
+      alert('Не удалось достучаться до формы подбора изображения.');
   } else {
     // Заменяем старый предпросмотр новым.
     window.opener.jQuery('#'+ mcms_picker_id +'-preview').remove();
