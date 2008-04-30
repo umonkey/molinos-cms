@@ -9,8 +9,9 @@ if (!version_compare(PHP_VERSION, "5.2.0", ">")) {
 require(dirname(__FILE__) .'/lib/bootstrap.php');
 require(dirname(__FILE__) .'/lib/modules/pdo/exception.mcmspdo.php');
 
-$installer = new BebopInstaller();
+ob_start();
 
+$installer = new BebopInstaller();
 $installer->run();
 
 class BebopInstaller
@@ -252,6 +253,9 @@ class BebopInstaller
       switch ($title = $el) {
       case 'sqlite':
         $title = 'SQLite';
+        break;
+      case 'sqlite2':
+        $title = 'SQLite 2 (не рекоммендуется)';
         break;
       case 'mysql':
         $title = 'MySQL';
