@@ -12,8 +12,6 @@ class mcms_sqlite_driver extends PDO_Singleton
 
     parent::__construct($dsn, '', '');
 
-    $this->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, 1);
-
     $this->dbtype = 'SQLite';
   }
 
