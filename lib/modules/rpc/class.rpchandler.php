@@ -33,7 +33,7 @@ class RPCHandler implements iRequestHook
 
               if (bebop_is_debugger()) {
                 print "\n--- стэк вызова (виден только разработчикам) ---\n";
-                print $e->getTraceAsString();
+                print mcms::backtrace($e->getTrace());
               }
 
               die();
