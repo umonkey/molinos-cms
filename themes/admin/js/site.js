@@ -105,22 +105,34 @@ function mcms_file_delete(id)
   $('#center #'+ id +'-hidden').attr('value', hval);
 }
 
-function mcms_file_pick(id)
+function mcms_gup(name)
 {
-  window.open('/admin/files/picker/?BebopFiles.picker='+ id, '_blank');
+  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+  var regexS = "[\\?&]"+name+"=([^&#]*)";
+  var regex = new RegExp(regexS);
+  var results = regex.exec(window.location.href);
+  if (results == null)
+    return "";
+  else
+    return results[1];
+}
+
+function mcms_file_pick(field_name, url, type, win)
+{
+  window.open('/admin/files/picker/?BebopFiles.picker='+ field_name +'&window='+ win.name, '_blank');
 }
 
 function mcms_picker_return(href)
 {
   var fileid = href.replace('/attachment/', '');
 
-  if (mcms_picker_id == 'src') {
-    if (tinyMCE) {
-      var tmp_win = tinyMCE.getWindowArg('window');
-      if (tmp_win) {
-        tmp_win.document.getElementById('src').value = href;
-      }
-    }
+  if (mcms_picker_id == 'src' || mcms_picker_id == 'href') {
+    var tiny = window.opener.document.getElementById(mcms_gup('window')).document;
+
+    if (tiny)
+      $('#'+ mcms_picker_id, tiny).val(href);
+    else
+      alert('Не удалось достучаться до формы подбора изображения.');
   } else {
     // Заменяем старый предпросмотр новым.
     window.opener.jQuery('#'+ mcms_picker_id +'-preview').remove();
