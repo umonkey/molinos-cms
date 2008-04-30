@@ -539,9 +539,7 @@ class NodeQueryBuilder
     if (null !== $mask)
       return ($negate ? '-' : '') . $mask;
 
-    throw new UserErrorException("Ошибка поиска", 400, "Ошибка поиска",
-      t("Фильтрация по параметру &laquo;%field&raquo; невозможна.&nbsp; Проверьте наличие индекса.",
-        array('%field' => $field)));
+    throw new NoIndexException($field);
   }
 
   // Добавляет таблицу в список участвующих в запросе.
