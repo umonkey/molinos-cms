@@ -27,7 +27,7 @@ class UserNode extends Node implements iContentType
       $this->password = md5($this->password);
 
     parent::checkUnique('name', t('Пользователь с именем %name уже есть.', array('%name' => $this->name)));
-    parent::checkUnique('email', t('Пользователь с электронным адресом %name уже есть.', array('%name' => $this->email)));
+    // parent::checkUnique('email', t('Пользователь с электронным адресом %name уже есть.', array('%name' => $this->email)));
 
     parent::save($clear);
   }

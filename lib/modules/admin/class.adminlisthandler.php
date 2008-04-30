@@ -163,7 +163,12 @@ class AdminListHandler
       case 'users':
         $this->types = array('user');
         $this->title = t('Список пользователей');
-        $this->columns = array('name', 'login', 'email', 'created');
+        $this->columns = array('name', 'fullname', 'created');
+        $this->columntitles = array(
+          'name' => 'Идентификатор',
+          'fullname' => 'Полное имя',
+          'created' => 'Зарегистрирован',
+          );
         $this->sort = array('name');
         $this->zoomlink = "/admin/?cgroup=content&columns=name,class,uid,created&mode=list&search=uid%3ANODEID";
         break;
