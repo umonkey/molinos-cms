@@ -233,7 +233,9 @@ class FormWidget extends Widget
 
         BebopCache::getInstance()->flush();
 
-        if (!empty($_GET['destination']))
+        if (!empty($this->next))
+          $next = $this->next;
+        elseif (!empty($_GET['destination']))
           $next = $_GET['destination'];
         elseif (!empty($data['referer']))
           $next = $data['referer'];
