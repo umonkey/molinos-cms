@@ -40,7 +40,10 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $xml = new SimpleXMLElement($xmlstr);
 
       $zipfile = "siteprofile.zip";
-      $zipfilepath = $_SERVER["DOCUMENT_ROOT"] ."/tmp/export/{$zipfile}";
+      $zipfilepath = mcms::config('tmpdir') ."/export/{$zipfile}";
+
+      if (!is_dir(dirname($zipfilepath)))
+        mkdir(dirname($zipfilepath));
 
       $zip = new ZipArchive;
       $zip->open($zipfilepath, ZipArchive::OVERWRITE);
@@ -55,19 +58,23 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
         if ($curnode['class'] == 'file') {
           $fpath = $curnode['filepath'];
-          $zip->addFile($_SERVER["DOCUMENT_ROOT"]."/storage/". $fpath, "storage/{$fpath}");
+          $filestorage = mcms::config('filestorage');
+          $zip->addFile($filestorage ."/".$fpath, "{$filestorage}/{$fpath}");
         }
 
         if ($curnode['class'] == 'domain') {
           if (array_key_exists('theme', $curnode)) {
              $thm = $curnode['theme'];
-             self::addToZip($_SERVER["DOCUMENT_ROOT"] ."/themes/{$thm}", $zip, "/themes/{$thm}");
+             self::addToZip($_SERVER["DOCUMENT_ROOT"] ."/themes/{$thm}", $zip, "themes/{$thm}");
           }
         }
       }
 
       $zip->addFromString("siteprofile.xml", $xmlstr);
       $zip->close();
+
+      if (!file_exists($zipfilepath))
+        throw new RuntimeException(t('Не удалось экспортировать данные.'));
 
       header ("Content-Type: application/octet-stream");
       header ("Accept-Ranges: bytes");
@@ -81,6 +88,8 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     else if ($exchmode == 'import') { // Импорт профиля
       $fn = basename($_FILES['impprofile']['name']);
       $newfn = $_SERVER["DOCUMENT_ROOT"] ."/tmp/import/{$fn}";
+      if (!is_dir(dirname($newfn)))
+        mkdir(dirname($newfn));
 
       move_uploaded_file($_FILES['impprofile']['tmp_name'], $newfn);
 
@@ -220,7 +229,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
         $curnode[$a] = strval($v);
 
       foreach($node as $attr => $val) {
-          $obj = unserialize($val);
+        $obj = unserialize($val);
         $curnode[$attr] = $obj;
       }
 
@@ -234,11 +243,11 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $SiteNode->save();
 
       $curid = $SiteNode->id;
-      $newid[$oldid] = $curid;
+      $newid[$oldid] = $curid; //ставим соответствие между старым id и новым
     }
 
     $at = array();
-
+    //внесём записи в `node__rel`
     foreach ($xml->links->link as $link) {
       foreach ($link->attributes() as $a => $v)
         $at[$a] = strval($v);
@@ -272,6 +281,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
     $at = array();
 
+    //внесём записи в `node__access`
     foreach ($xml->accessrights->access as $acc) {
       foreach ($acc->attributes() as $a => $v)
         $at[$a] = strval($v);
@@ -298,7 +308,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
         if (array_key_exists('d',$at))
           $d = $at['d'];
 
-        mcms::db()->exec("INSERT INTO `node__access`(`nid`, `uid`, `c`, `r`, `u`, `d`) VALUES (:nid, :uid, :c, :r,            :u, :d)", array(
+        mcms::db()->exec("INSERT INTO `node__access`(`nid`, `uid`, `c`, `r`, `u`, `d`) VALUES (:nid, :uid, :c, :r, :u, :d)", array(
           ':nid' => $nid,
           ':uid' => $uid,
           ':c' => $c,
@@ -307,6 +317,14 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
           ':d' => $d
           ));
       }
+    }
+
+    //обновим parent_id в таблице node в соответствиями со значениями из массива $newid
+    foreach ($newid as $oldid=>$curid) {
+      mcms::db()->exec("UPDATE `node` SET parent_id=:newid where parent_id=:oldid ", array(
+        ':newid' => $curid,
+        ':oldid' => $oldid
+        ));
     }
 
     return 1;
