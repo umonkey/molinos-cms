@@ -19,6 +19,7 @@ class TinyMceModule implements iModuleConfig, iPageHook
         'simple' => t('Простой (B/I/U)'),
         'medium' => t('Простой с картинками'),
         'advanced' => t('Всё, что можно'),
+        'overkill' => t('На стероидах'),
         ),
       'required' => true,
       )));
@@ -124,6 +125,7 @@ class TinyMceModule implements iModuleConfig, iPageHook
     case 'simple':
     case 'medium':
     case 'advanced':
+    case 'overkill':
       if (!empty($config['gzip']))
         $files[] = $path .'/template_'. $config['theme'] .'_gzip.js';
       $files[] = $path .'/template_'. $config['theme'] .'.js';
@@ -135,7 +137,6 @@ class TinyMceModule implements iModuleConfig, iPageHook
     foreach ($files as $f) {
       if (file_exists($f) and is_readable($f)) {
         $tmp = trim(file_get_contents($f));
-        $tmp = preg_replace('/[\r\n]+\s+/i', '', $tmp);
         $output .= '<script type=\'text/javascript\'>'. $tmp .'</script>';
       }
     }
