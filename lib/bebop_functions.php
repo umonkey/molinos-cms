@@ -950,14 +950,9 @@ class mcms
   public static function getModuleMap($name = null)
   {
     $result = null;
-    $filename = 'tmp/.modmap.php';
+    $filename = mcms::config('tmpdir') .'/.modmap.php';
 
-    if (!is_dir($dir = dirname($filename))) {
-      if (!mkdir($dir))
-        throw new RuntimeException(t('Не удалось создать временный каталог.'));
-      else
-        chmod($dir, 0750);
-    }
+    mcms::mkdir(dirname($filename));
 
     if (file_exists($filename) and (filemtime($filename) < filemtime('lib/modules')))
       unlink($filename);
@@ -1190,7 +1185,7 @@ class mcms
     bebop_on_json(array('args' => $output));
 
     if (ob_get_length())
-    ob_end_clean();
+      ob_end_clean();
 
     if (!empty($_SERVER['REQUEST_METHOD']))
       header("Content-Type: text/plain; charset=utf-8");
@@ -1241,7 +1236,7 @@ class mcms
         $output .= sprintf("%2d. ", $k);
 
         if (!empty($v['file']) and !empty($v['line']))
-          $output .= sprintf('%s(%d) — ', str_replace($_SERVER['DOCUMENT_ROOT'] .'/', '', $v['file']), $v['line']);
+          $output .= sprintf('%s(%d) — ', ltrim(str_replace($_SERVER['DOCUMENT_ROOT'], '', $v['file']), '/'), $v['line']);
         else
           $output .= '??? — ';
 
@@ -1254,6 +1249,7 @@ class mcms
     return $output;
   }
 
+  // Обработчики ошибок.
   public static function eh(Exception $e)
   {
     if (ob_get_length())
@@ -1273,7 +1269,7 @@ class mcms
         printf("Params: %s\n", preg_replace('/\s*[\n\r]+\s*/', ' ', var_export($tmp, true)));
     }
 
-    printf("\nLocation: %s(%d)\n", str_replace($_SERVER['DOCUMENT_ROOT'] .'/', '', $e->getFile()), $e->getLine());
+    printf("\nLocation: %s(%d)\n", str_replace($_SERVER['DOCUMENT_ROOT'], '', $e->getFile()), $e->getLine());
 
     print $message;
 
@@ -1282,6 +1278,106 @@ class mcms
 
     exit();
   }
+
+  public static function error_handler($errno, $errstr, $errfile, $errline, array $context)
+  {
+    if ($errno == 2048)
+      return;
+
+    if (ob_get_length())
+      ob_end_clean();
+
+    if (bebop_is_debugger()) {
+      $output = "\nError {$errno}: {$errstr}.\n";
+      $output .= sprintf("File: %s at line %d.\n", str_replace($_SERVER['DOCUMENT_ROOT'] .'/', '', $errfile), $errline);
+      $output .= "\nDon't panic.  You see this message because you're listed as a debugger.\n";
+      $output .= "Regular web site visitors don't see this message.\n";
+      $output .= "They most likely see a White Screen Of Death. ;)\n\n";
+
+      $output .= "--- backtrace ---\n";
+      $output .= mcms::backtrace();
+
+      header('Content-Type: text/plain; charset=utf-8');
+      header('Content-Length: '. strlen($output));
+      die($output);
+    }
+  }
+
+  public static function shutdown_handler()
+  {
+    try {
+      mcms::db()->rollback();
+    } catch (Exception $e) { }
+
+    if (null !== ($e = error_get_last()) and ($e['type'] & (E_ERROR|E_RECOVERABLE_ERROR))) {
+      if (null !== ($re = mcms::config('backtracerecipient'))) {
+        $release = substr(mcms::version(), 0, -(strrpos(mcms::version(), '.') + 1));
+
+        $message = t('<p>На сайте <a href=\'@url\'>%host</a> возникла <em>фатальная</em> ошибка #%code в строке %line файла <code>%file</code>.  Текст ошибки: %text.</p><p>Стэк вызова, к сожалению, <a href=\'@function\'>недоступен</a>.</p><p>Molinos.CMS v%version — <a href=\'@changelog\'>ChangeLog</a> | <a href=\'@issues\'>issues</a></p>', array(
+          '%host' => $_SERVER['HTTP_HOST'],
+          '@url' => "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}",
+          '%code' => $e['type'],
+          '%line' => $e['line'],
+          '%file' => $e['file'],
+          '%text' => $e['message'],
+          '%version' => mcms::version(),
+          '@changelog' => "http://code.google.com/p/molinos-cms/wiki/ChangeLog_". str_replace('.', '', $release),
+          '@issues' => "http://code.google.com/p/molinos-cms/issues/list?q=label:Milestone-R". $release,
+          '@function' => 'http://docs.php.net/manual/en/function.register-shutdown-function.php',
+          ));
+
+        $subject = t('Фатальная ошибка на %host', array('%host' => $_SERVER['HTTP_HOST']));
+
+        BebopMimeMail::send(null, $re, $subject, $message);
+
+        if (ob_get_length())
+          ob_end_clean();
+
+        header('HTTP/1.1 500 Internal Server Error');
+        header('Content-Type: text/plain; charset=utf-8');
+
+        print "Случилось что-то страшное.  Администрация сервера поставлена в известность, скоро всё должно снова заработать.\n";
+
+        if (bebop_is_debugger())
+          printf("\n--- 8< --- Отладочная информация --- 8< ---\n\n"
+            ."Код ошибки: %s\n"
+            ."   Локация: %s(%s)\n"
+            ." Сообщение: %s\n"
+            ."    Версия: %s\n",
+            $e['type'], $e['file'], $e['line'], $e['message'], mcms::version());
+
+        die();
+      }
+    }
+  }
+
+  public static function mkdir($path, $msg = null)
+  {
+    // Быстрая проверка на случай существования, чтобы не парсить лишний раз.
+    if (!is_dir($path)) {
+      $parts = explode('/', $path);
+      $path = substr($path, 0, 1) == '/' ? '' : $_SERVER['DOCUMENT_ROOT'];
+
+      while (!empty($parts)) {
+        $dir = array_shift($parts);
+        $next = $path .'/'. $dir;
+
+        if (!is_dir($next)) {
+          if (!is_writable($path)) {
+            throw new RuntimeException(null === $msg ? t('Каталог %path отсутствует и не может быть создан.') : $msg);
+          } else {
+            mkdir($next, 0750);
+          }
+        }
+
+        $path = $next;
+      }
+    }
+
+    return realpath($path);
+  }
 };
 
 set_exception_handler('mcms::eh');
+set_error_handler('mcms::error_handler', E_ERROR|E_WARNING|E_PARSE);
+register_shutdown_function('mcms::shutdown_handler');

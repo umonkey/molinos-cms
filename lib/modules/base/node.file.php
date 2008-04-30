@@ -96,16 +96,11 @@ class FileNode extends Node implements iContentType
 
     // Файл не найден, создаём новый.
     catch (ObjectNotFoundException $e) {
-      // Создаём каталог для него.
-      if (!is_dir($filedir = dirname($storage .'/'. $this->filepath)))
-        @mkdir($filedir, 0775, true);
-
-      // Не удалось создать каталог -- нет прав.
-      if (!is_dir($filedir))
-        throw new ForbiddenException(t("Файл не удалось сохранить, т.к. отсутствуют права на запись в каталог, где этот файл должен был бы храниться (%dir).  Сообщите об этой проблеме администратору сайта.", array('%dir' => $filedir)));
-
       // Сюда будем копировать файл.
       $dest = $storage .'/'. $this->filepath;
+
+      // Создаём каталог для него.
+      mcms::mkdir(dirname($dest), 'Файл не удалось сохранить, т.к. отсутствуют права на запись в каталог, где этот файл должен был бы храниться (%path).  Сообщите об этой проблеме администратору сайта.');
 
       // Копируем файл.
       if ($uploaded) {
@@ -141,7 +136,7 @@ class FileNode extends Node implements iContentType
             if (file_exists($zdir)) {
               throw new Exception('Directory "<b>' . $zdir . '</b>" exists');
             }
-            mkdir($zdir);
+            mcms::mkdir($zdir);
           } else {
             $name = zip_entry_name($zip_entry);
             if (file_exists($name))

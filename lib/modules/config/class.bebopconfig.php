@@ -163,17 +163,8 @@ class BebopConfig
       if (!strlen($path = $this->getFileName()))
         throw new RuntimeException(t('Конфигурационный файл не определён.'));
 
-      if (!file_exists($path)) {
-        if (!is_dir($dir = dirname($path))) {
-          if (!mkdir($dir))
-            throw new RuntimeException(t('Не удалось создать папку для конфигурационных файлов (%path).', array('%path' => dirname($path))));
-          else
-            chmod($dir, 0750);
-        }
-
-        if (!is_writable($dir))
-          throw new RuntimeException(t('Каталог с конфигурационными файлами защищён от записи.'));
-      }
+      if (!file_exists($path))
+        mcms::mkdir(dirname($path), 'Не удалось создать папку для конфигурационных файлов (%path).');
 
       if (!is_writable(dirname($path)))
         throw new RuntimeException(t('Конфигурационный файл закрыт для записи (%path).', array('%path' => $path)));

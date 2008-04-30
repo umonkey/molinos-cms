@@ -42,8 +42,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $zipfile = "siteprofile.zip";
       $zipfilepath = mcms::config('tmpdir') ."/export/{$zipfile}";
 
-      if (!is_dir(dirname($zipfilepath)))
-        mkdir(dirname($zipfilepath));
+      mcms::mkdir(dirname($zipfilepath), t('Не удалось создать временный каталог для импорта экспорта данных.'));
 
       $zip = new ZipArchive;
       $zip->open($zipfilepath, ZipArchive::OVERWRITE);
@@ -87,9 +86,10 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     }
     else if ($exchmode == 'import') { // Импорт профиля
       $fn = basename($_FILES['impprofile']['name']);
-      $newfn = $_SERVER["DOCUMENT_ROOT"] ."/tmp/import/{$fn}";
-      if (!is_dir(dirname($newfn)))
-        mkdir(dirname($newfn));
+
+      $newfn = mcms::config('tmpdir') .'/import/'. $fn;
+
+      mcms::mkdir(dirname($newfn), t('Не удалось создать временный каталог для импорта данных.'));
 
       move_uploaded_file($_FILES['impprofile']['tmp_name'], $newfn);
 
@@ -197,7 +197,6 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
     return $str;
   }
-
 
   // импорт профиля
   public static function import($source, $isfile = false)

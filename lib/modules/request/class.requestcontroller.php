@@ -24,9 +24,6 @@ class RequestController
 
       self::checkServerSettings();
 
-      set_error_handler('RequestController::errorHandler', E_ERROR|E_WARNING|E_PARSE);
-      register_shutdown_function('RequestController::onShutdown');
-
       $this->run();
     } catch (NotInstalledException $e) {
       bebop_redirect('/install.php?msg=notable');
@@ -321,7 +318,7 @@ class RequestController
     $pdo = mcms::db();
 
     if (empty($this->widgets) and empty($this->page->parent_id))
-      bebop_redirect('/admin/?cgroup=structure&mode=tree&preset=pages&msg=welcome');
+      bebop_redirect(self::getDomainConfigLink());
 
     // Сюда складываем время выполнения виджетов.
     $profile = array('__total' => microtime(true));
@@ -599,15 +596,16 @@ class RequestController
   {
     $list = array();
 
-    foreach ($tree as $tmp) {
-      $item = "<li><a class='hostname' href='http://{$tmp['name']}/'>{$tmp['title']}</a>";
+    foreach ($tree as $domain) {
+      $tmp = mcms::html('a', array(
+        'class' => 'hostname',
+        'href' => 'http://'. $domain['name'] .'/',
+        ), empty($domain['title']) ? $domain['name'] : $domain['title']);
 
-      if (!empty($tmp['description']))
-        $item .= '<br/>'. $tmp['description'];
+      if (!empty($domain['description']))
+        $tmp .= '<br />'. $domain['description'];
 
-      $item .= '</li>';
-
-      $list[] = $item;
+      $list[] = mcms::html('li', array(), $tmp);
     }
 
     if (!empty($list)) {
@@ -615,10 +613,14 @@ class RequestController
       $output .= '<p>На данный момент обслуживаются следующие домены:</p>';
       $output .= '<ol>'. join('', $list) .'</ol>';
       $output .= '</div>';
-      return $output;
+    } else {
+      $output = '<p>На данный момент сервером не обслуживает ни один домен.&nbsp; Скорее всего, сервер не до конца настроен.</p>';
     }
 
-    return '<p>На данный момент сервером не обслуживает ни один домен.&nbsp; Скорее всего, сервер не до конца настроен.</p>';
+    if (bebop_is_debugger())
+      $output .= '<p>'. l(self::getDomainConfigLink(), 'Настроить домены') .'</p>';
+
+    return $output;
   }
 
   // Загрузка виджетов из кэша.
@@ -730,16 +732,18 @@ class RequestController
       'magic_quotes_gpc' => 0,
       'magic_quotes_runtime' => 0,
       'magic_quotes_sybase' => 0,
-      'upload_tmp_dir' => $_SERVER["DOCUMENT_ROOT"] .'/tmp/upload',
+      '@upload_tmp_dir' => mcms::mkdir(mcms::config('tmpdir') .'/upload'),
       );
 
     $errors = $messages = array();
 
     foreach ($htreq as $k => $v) {
-      ini_set($k, $v);
+      $key = substr($k, 0, 1) == '@' ? substr($k, 1) : $k;
 
-      if ($v != ($current = ini_get($k)))
-        $errors[] = $k;
+      ini_set($key, $v);
+
+      if (($v != ($current = ini_get($key))) and (substr($k, 0, 1) != '@'))
+        $errors[] = $key;
     }
 
     if (!mb_internal_encoding('UTF-8'))
@@ -748,22 +752,7 @@ class RequestController
     if (ini_get($k = 'session.gc_maxlifetime') < 7 * 24 * 60 * 60)
       ini_set($k, 30 * 24 * 60 * 60);
 
-    if (!is_writable($tmp = mcms::config('tmpdir'))) {
-      if (!is_writable(dirname($tmp)) or !mkdir($tmp))
-        $messages[] = t('Каталог для временных файлов (<tt>%dir</tt>) закрыт для записи. Очень важно, чтобы в него можно было писать.', array('%dir' => $tmp));
-    }
-
-    if (!is_writable($tmp = mcms::config('filestorage'))) {
-      if (!is_writable(dirname($tmp)) or !mkdir($tmp))
-        $messages[] = t('Каталог для загружаемых пользователями файлов (<tt>%dir</tt>) закрыт для записи. Очень важно, чтобы в него можно было писать.', array('%dir' => $tmp));
-    }
-
-    if (!is_dir('attachment')) {
-      if (is_writable(getcwd()) and !mkdir('attachment'))
-        $messages[] = t('Каталог для кэширования прикреплённых картинок (<tt>/attachment/</tt>) отсутствует и создать его не удалось.  Сделайте это самостоятельно.');
-    } elseif (!is_writable('attachment')) {
-      $messages[] = t('Каталог для кэширования прикреплённых картинок (<tt>/attachment/</tt>) защищён от записи.  Системе <em>нужно</em> в него писать.');
-    }
+    mcms::mkdir(mcms::config('filestorage'), 'Каталог для загружаемых пользователями файлов (<tt>%path</tt>) закрыт для записи. Очень важно, чтобы в него можно было писать.');
 
     if (!empty($errors) or !empty($messages)) {
       $output = "<html><head><title>Setup Error</title></head><body>";
@@ -794,71 +783,8 @@ class RequestController
     }
   }
 
-  // Обработчик ошибок.
-  public static function errorHandler($errno, $errstr, $errfile, $errline, array $context)
+  private function getDomainConfigLink()
   {
-    if ($errno == 2048)
-      return;
-
-    if (bebop_is_debugger()) {
-      $output = "\nError {$errno}: {$errstr}.\n";
-      $output .= sprintf("File: %s at line %d.\n", str_replace($_SERVER['DOCUMENT_ROOT'] .'/', '', $errfile), $errline);
-      $output .= "\nDon't panic.  You see this message because you're listed as a debugger.\n";
-      $output .= "Regular web site visitors don't see this message.\n";
-      $output .= "They most likely see a White Screen Of Death. ;)\n\n";
-
-      $output .= "--- backtrace ---\n";
-      $output .= mcms::backtrace();
-
-      header('Content-Type: text/plain; charset=utf-8');
-      header('Content-Length: '. strlen($output));
-      die($output);
-    }
-  }
-
-  public static function onShutdown()
-  {
-    mcms::db()->rollback();
-
-    if (null !== ($e = error_get_last()) and ($e['type'] & (E_ERROR|E_RECOVERABLE_ERROR))) {
-      if (null !== ($re = mcms::config('backtracerecipient'))) {
-        $release = substr(mcms::version(), 0, -(strrpos(mcms::version(), '.') + 1));
-
-        $message = t('<p>На сайте <a href=\'@url\'>%host</a> возникла <em>фатальная</em> ошибка #%code в строке %line файла <code>%file</code>.  Текст ошибки: %text.</p><p>Стэк вызова, к сожалению, <a href=\'@function\'>недоступен</a>.</p><p>Molinos.CMS v%version — <a href=\'@changelog\'>ChangeLog</a> | <a href=\'@issues\'>issues</a></p>', array(
-          '%host' => $_SERVER['HTTP_HOST'],
-          '@url' => "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}",
-          '%code' => $e['type'],
-          '%line' => $e['line'],
-          '%file' => $e['file'],
-          '%text' => $e['message'],
-          '%version' => mcms::version(),
-          '@changelog' => "http://code.google.com/p/molinos-cms/wiki/ChangeLog_". str_replace('.', '', $release),
-          '@issues' => "http://code.google.com/p/molinos-cms/issues/list?q=label:Milestone-R". $release,
-          '@function' => 'http://docs.php.net/manual/en/function.register-shutdown-function.php',
-          ));
-
-        $subject = t('Фатальная ошибка на %host', array('%host' => $_SERVER['HTTP_HOST']));
-
-        BebopMimeMail::send(null, $re, $subject, $message);
-
-        if (ob_get_length())
-          ob_end_clean();
-
-        header('HTTP/1.1 500 Internal Server Error');
-        header('Content-Type: text/plain; charset=utf-8');
-
-        print "Случилось что-то страшное.  Администрация сервера поставлена в известность, скоро всё должно снова заработать.\n";
-
-        if (bebop_is_debugger())
-          printf("\n--- 8< --- Отладочная информация --- 8< ---\n\n"
-            ."Код ошибки: %s\n"
-            ."   Локация: %s(%s)\n"
-            ." Сообщение: %s\n"
-            ."    Версия: %s\n",
-            $e['type'], $e['file'], $e['line'], $e['message'], mcms::version());
-
-        die();
-      }
-    }
+    return '/admin/?cgroup=structure&mode=tree&preset=pages&msg=welcome';
   }
 }
