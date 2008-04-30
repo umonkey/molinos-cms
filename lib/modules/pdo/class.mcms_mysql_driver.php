@@ -86,25 +86,25 @@ class mcms_mysql_driver extends PDO_Singleton
      }
   }
 
-  public function addSql($name,  array $spec, $modify, $isnew)
-  {
-    $sql = '';
-    $index = '';
+ public function addSql($name, array $spec, $modify, $isnew)
+ {
+   $sql = '';
+   $index = '';
 
-    if (!$isnew) {
-      if ($modify)
-        $sql .= "MODIFY COLUMN ";
-      else
-        $sql .= "ADD COLUMN ";
-    }
+   if (!$isnew) {
+     if ($modify)
+       $sql .= "MODIFY COLUMN ";
+     else
+       $sql .= "ADD COLUMN ";
+   }
 
-    $sql .= "`{$name}` ";
-    $sql .= $spec['type'];
+   $sql .= "`{$name}` ";
+   $sql .= $spec['type'];
 
-    if ($spec['required'])
-      $sql .= ' NOT NULL';
-    else
-      $sql .= ' NULL';
+   if ($spec['required'])
+     $sql .= ' NOT NULL';
+   else
+     $sql .= ' NULL';
 
     if (null !== $spec['default'])
       $sql .= ' DEFAULT '. $spec['default'];
@@ -115,28 +115,32 @@ class mcms_mysql_driver extends PDO_Singleton
 
       if ($spec['autoincrement'])
         $sql .= ' AUTO_INCREMENT';
-     }
-     elseif (!empty($spec['key'])) {
-       $index = $name;
-     }
+    } elseif (!empty($spec['key'])) {
+      $index = $name;
+    }
 
-     return array($sql,$index);
-   }
+    return array($sql, $index);
+  }
 
-   public function getSql($name, array $alter, $isnew)
-   {
-     if ($isnew)
-       $sql = "CREATE TABLE `{$name}` (";
-     else
-       $sql = "ALTER TABLE `{$name}` ";
+  public function getSql($name, array $alter, $isnew)
+  {
+    if ($isnew)
+      $sql = "CREATE TABLE `{$name}` (";
+    else
+      $sql = "ALTER TABLE `{$name}` ";
 
-     $sql .= join(', ', $alter);
+    $sql .= join(', ', $alter);
 
-     if ($isnew) {
-       $sql .= ') ';
-       $sql .= ' CHARSET=utf8';
-     }
+    if ($isnew) {
+      $sql .= ') ';
+      $sql .= ' CHARSET=utf8';
+    }
 
-     return $sql;
-   }
+    return $sql;
+  }
+
+  public function hasOrderedUpdates()
+  {
+    return true;
+  }
 }

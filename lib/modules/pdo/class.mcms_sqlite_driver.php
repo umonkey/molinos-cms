@@ -22,9 +22,8 @@ class mcms_sqlite_driver extends PDO_Singleton
       $sth->execute($params);
     } catch (PDOException $e) {
       $info = $this->errorInfo();
-      $errorcode = $info[1];
 
-      switch ($errorcode) {
+      switch ($info[1]) {
       case 1: // General error: 1 no such table: xyz.
         throw new TableNotFoundException(trim(strrchr($info[2], ' ')), $sql, $params);
 

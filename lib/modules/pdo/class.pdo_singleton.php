@@ -217,4 +217,9 @@ class PDO_Singleton extends PDO
       $this->transaction = false;
     }
   }
+
+  public function hasOrderedUpdates()
+  {
+    return false;
+  }
 }

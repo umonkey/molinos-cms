@@ -135,26 +135,24 @@ class TableInfo
     {
       $tblname = $this->name;
 
-      //exit;
       if (!empty($this->coldel)) {
          mcms::db()->dropColumn($tblname,$this->coldel, $this->columns);
       }
       else{
         if (null !== ($sql = $this->getSql())) {
           mcms::db()->exec($sql);
+        }
       }
-    }
 
-      //Добавим индексы
-
-      for ($i=0; $i < count($this->index); $i++ ) {
-        $el  = $this->index[$i];
-        $sql = "CREATE INDEX `IDX_".$tblname."_".$el;
-        $sql .= "` on `$tblname` (`$el`)";
+      // Добавим индексы
+      for ($i = 0; $i < count($this->index); $i++) {
+        $el = $this->index[$i];
+        $sql = "CREATE INDEX `IDX_{$tblname}_{$el}` on `{$tblname}` (`{$el}`)";
         mcms::db()->exec($sql);
       }
 
       $this->index = $this->alter = array();
+
       mcms::db()->commit();
     }
 
@@ -165,5 +163,16 @@ class TableInfo
 
       $sql = mcms::db()->getSql($this->name,$this->alter,$this->isnew);
       return $sql;
+    }
+
+    public function delete()
+    {
+      if (!$this->exists())
+        throw new RuntimeException(t('Попытка удалить несуществующую таблицу.'));
+
+      if (in_array($this->name, array('node', 'node__rel', 'node__rev')))
+        throw new RuntimeException(t('Попытка удалить жизненно важную таблицу.'));
+
+      mcms::db()->exec("DROP TABLE `{$this->name}`");
     }
 };
