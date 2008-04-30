@@ -135,13 +135,6 @@ class mcms_mysql_driver extends PDO_Singleton
      if ($isnew) {
        $sql .= ') ';
        $sql .= ' CHARSET=utf8';
-
-       $conf = array(
-         'engine' => 'InnoDB',
-         );
-
-       if (!empty($conf['engine']))
-         $sql .= ' ENGINE='. $conf['engine'];
      }
 
      return $sql;

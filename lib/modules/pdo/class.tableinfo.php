@@ -1,7 +1,7 @@
 <?php
 // vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4:
 
-class TableInfo implements iModuleConfig
+class TableInfo
 {
     protected static $dbname = null;
 
@@ -165,24 +165,5 @@ class TableInfo implements iModuleConfig
 
       $sql = mcms::db()->getSql($this->name,$this->alter,$this->isnew);
       return $sql;
-    }
-
-    public static function formGetModuleConfig()
-    {
-      $form = new Form(array());
-      $form->addControl(new EnumControl(array(
-        'value' => 'config_engine',
-        'label' => t('Тип создаваемых таблиц'),
-        'default' => t('По умолчанию'),
-        'options' => array(
-        'InnoDB' => 'InnoDB',
-        'MyISAM' => 'MyISAM',
-        ),
-      )));
-      return $form;
-    }
-
-    public static function hookPostInstall()
-    {
     }
 };
