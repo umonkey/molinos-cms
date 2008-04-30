@@ -353,8 +353,12 @@ class NodeBase
     }
 
     $pdo->exec("DELETE FROM `node` WHERE `left` BETWEEN :left AND :right", array(':left' => $meta['left'], ':right' => $meta['right']));
-    $pdo->exec("UPDATE `node` SET `right` = `right` - :width WHERE `right` > :right ORDER BY `right` ASC", $args = array(':width' => $meta['width'], ':right' => $meta['right']));
-    $pdo->exec("UPDATE `node` SET `left` = `left` - :width WHERE `left` > :right ORDER BY `left` ASC", $args);
+
+    $order = $pdo->hasOrderedUpdates() ? ' ORDER BY `right` ASC' : '';
+    $pdo->exec("UPDATE `node` SET `right` = `right` - :width WHERE `right` > :right". $order, $args = array(':width' => $meta['width'], ':right' => $meta['right']));
+
+    $order = $pdo->hasOrderedUpdates() ? ' ORDER BY `left` ASC' : '';
+    $pdo->exec("UPDATE `node` SET `left` = `left` - :width WHERE `left` > :right". $order, $args);
 
     mcms::flush();
   }
@@ -394,6 +398,7 @@ class NodeBase
         '%name' => $this->name,
         )));
 
+    $this->data['deleted'] = true;
     $pdo = mcms::db()->exec("UPDATE `node` SET `deleted` = 1 WHERE id = :nid", array('nid' => $this->id));
 
     mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'delete'));
@@ -901,9 +906,6 @@ class NodeBase
 
   public function checkPermission($perm)
   {
-    if ($perm != 'c' and $perm != 'r' and $perm != 'u' and $perm != 'd')
-      throw new InvalidArgumentException("Wrong argument for checkPermission(): '{$perm}', expected 'c', 'r', 'u' or 'd'.");
-
     if (empty($_SERVER['HTTP_HOST']))
       return true;
 
