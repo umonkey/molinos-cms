@@ -45,9 +45,12 @@ class SessionData
     if (array_key_exists($key, $this->data))
       unset($this->data[$key]);
   }
-
+  
   public static function db($sid, array $data = null)
   {
+    if (mcms::db()->getDbType() == 'SQLite')
+      return db_file($sid, $data);   
+
     try {
       $cache = BebopCache::getInstance();
 
@@ -66,7 +69,6 @@ class SessionData
       // Удаление сессии.
       elseif (empty($data)) {
         unset($cache->{'session:'. $sid});
-
         mcms::db()->exec("DELETE FROM `node__session` WHERE `sid` = :sid", array(':sid' => $sid));
       }
 
@@ -104,5 +106,43 @@ class SessionData
           return self::db($sid, $data);
         }
       }
+  }
+
+  private static function db_file($sid, array $data = null)
+  {
+     $cache = BebopCache::getInstance();
+     $spath = session_save_path();
+
+     if (empty($spath))
+       $spath = mcms::config('tmpdir'). "/sessions";
+
+     if (!is_dir($spath))
+       mkdir($spath);
+
+     session_save_path($spath);
+
+     session_name('mcmsid');
+     session_start();
+
+     // Чтение сессии.
+     if (null === $data) {
+       if (is_array($tmp = $cache->{'session:'. $sid}))
+         return $tmp;
+       $tmp = $_SESSION['data'];
+       return (null === $tmp) ? null : unserialize($tmp);
+     }
+
+     // Удаление сессии.
+     elseif (empty($data)) {
+       unset($cache->{'session:'. $sid});
+       session_unset();
+       session_destroy();
+     }
+
+     // Обновление сессии.
+     else {
+       $_SESSION['data'] = serialize($data);
+       $cache->{'session:'. $sid} = $data;
+     }
   }
 };
