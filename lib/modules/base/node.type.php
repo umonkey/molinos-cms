@@ -39,8 +39,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     // Всегда сохраняем без очистки.
     parent::save(false, $forcedrev);
 
-    if ($isnew or (null !== $this->oldfields))
-      $this->updateTable();
+    $this->updateTable();
 
     // Обновляем кэш.
     $this->flush();
