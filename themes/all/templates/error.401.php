@@ -40,7 +40,7 @@ $lreturn = bebop_combine_url($tmp);
         <fieldset>
           <legend>Авторизация</legend>
           <div class='control control-TextLineControl-wrapper'>
-            <label for='unnamed-ctl-2' class='required'>Логин:</label>
+            <label for='unnamed-ctl-2' class='required'>Email:</label>
             <input type='text' id='unnamed-ctl-2' class='form-text' name='login' value='' />
           </div>
           <div class='control control-PasswordControl-wrapper'>
