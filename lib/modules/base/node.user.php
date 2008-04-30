@@ -101,4 +101,30 @@ class UserNode extends Node implements iContentType
   {
     return parent::delete();
   }
+
+  public function getDefaultSchema()
+  {
+    return array(
+      'title' => 'Профиль пользователя',
+      'adminmodule' => 'admin', // запрещаем выводить в списке контента
+      'notags' => true,
+      'fields' => array(
+        'name' => array(
+          'type' => 'EmailControl',
+          'label' => 'Email или OpenID',
+          'required' => true,
+          ),
+        'fullname' => array(
+          'type' => 'TextLineControl',
+          'label' => 'Полное имя',
+          'description' => 'Используется в подписях к комментариям, при отправке почтовых сообщений и т.д.',
+          ),
+        'password' => array(
+          'type' => 'PasswordControl',
+          'label' => 'Пароль',
+          'required' => true,
+          ),
+        ),
+      );
+  }
 };
