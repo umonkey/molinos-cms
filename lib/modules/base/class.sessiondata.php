@@ -110,39 +110,35 @@ class SessionData
 
   private static function db_file($sid, array $data = null)
   {
-     $cache = BebopCache::getInstance();
-     $spath = session_save_path();
+    $cache = BebopCache::getInstance();
 
-     if (empty($spath))
-       $spath = mcms::config('tmpdir'). "/sessions";
+    session_name('mcmsid'); // Это вроде как не нужно, но на всякий случай... — hex
+    session_id($sid);
 
-     if (!is_dir($spath))
-       mkdir($spath);
+    session_save_path(mcms::mkdir(mcms::mkdir(mcms::config('tmpdir') .'/sessions')));
 
-     session_save_path($spath);
+    // Чтение сессии.
+    if (null === $data) {
+      session_start();
 
-     session_name('mcmsid');
-     session_start();
+      if (is_array($tmp = $cache->{'session:'. $sid}))
+        return $tmp;
 
-     // Чтение сессии.
-     if (null === $data) {
-       if (is_array($tmp = $cache->{'session:'. $sid}))
-         return $tmp;
-       $tmp = $_SESSION['data'];
-       return (null === $tmp) ? null : unserialize($tmp);
-     }
+      $tmp = $_SESSION['data'];
+      return empty($tmp) ? null : unserialize($tmp);
+    }
 
-     // Удаление сессии.
-     elseif (empty($data)) {
-       unset($cache->{'session:'. $sid});
-       session_unset();
-       session_destroy();
-     }
+    // Удаление сессии.
+    elseif (empty($data)) {
+      unset($cache->{'session:'. $sid});
+      session_unset();
+      session_destroy();
+    }
 
-     // Обновление сессии.
-     else {
-       $_SESSION['data'] = serialize($data);
-       $cache->{'session:'. $sid} = $data;
-     }
+    // Обновление сессии.
+    else {
+      $_SESSION['data'] = serialize($data);
+      $cache->{'session:'. $sid} = $data;
+    }
   }
 };
