@@ -185,11 +185,15 @@ class BebopInstaller
     if (!empty($_POST['profile']))
       ExchangeModule::import("lib/modules/exchange/profiles/{$_POST['profile']}", true);
 
-    // Правим профиль пользователя
-    $node = Node::load(array('class' => 'user', 'name' => 'root'));
-    $node->name = $_POST['config']['backtracerecipient'];
-    $node->password = null;
-    $node->save();
+    // Правим профиль пользователя.
+    if (!count($nodes = Node::find(array('class' => 'user', 'name' => 'cms-bugs@molinos.ru')))) {
+      mcms::fatal('Не удалось найти профиль пользователя.');
+    } else {
+      $node = array_shift($nodes);
+      $node->name = $_POST['config']['backtracerecipient'];
+      $node->password = null;
+      $node->save();
+    }
 
     // Логинимся в качестве администратора.
     User::authorize($node->name, null, true);
