@@ -353,7 +353,7 @@ class DomainNode extends Node implements iContentType
       'value' => 'node_domain_widgets',
       'label' => 'Задействованные виджеты',
       'description' => t("Вы можете также <a href='@link'>создать новый виджет</a>.",
-        array('@link' => '/admin/node/create/?BebopNode.class=widget&destination=CURRENT#widgets'))),
+        array('@link' => '/admin/node/create/?BebopNode.class=widget&destination=CURRENT#widgets')),
       'options' => $options,
       )));
 
