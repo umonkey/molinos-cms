@@ -198,7 +198,6 @@ class Installer
       throw new InvalidArgumentException("Вы не подтвердили свои намерения.");
 
     $config = BebopConfig::getInstance();
-    $config->set('pass_exceptions', 1);
 
     if ($olddsn)
       $config->set('default_backup', $olddsn, 'db');
