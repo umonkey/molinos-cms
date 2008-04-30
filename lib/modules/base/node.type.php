@@ -170,6 +170,13 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   // Возвращает актуальное описание схемы -- все классы, все поля.
   public static function getSchema($name = null, $reload = false)
   {
+    static $lock = false;
+
+    if (false !== $lock)
+      mcms::fatal('Рекурсия при вызове TypeNode::getSchema()!');
+
+    $lock = true;
+
     if ($reload or (!is_array($result = mcms::pcache('schema')) or empty($result))) {
       $result = array();
 
@@ -184,15 +191,20 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
         try {
           $tmp = Node::create('type', $def);
           $tmp->name = $name;
-          $tmp->save();
+          // $tmp->save();
 
           $result[$name] = array_merge(array('id' => $tmp->id), $def);
 
           mcms::pcache('schema', $result);
         } catch (ValidationException $e) {
+        } catch (Exception $e) {
+          $lock = false;
+          throw $e;
         }
       }
     }
+
+    $lock = false;
 
     if (null !== $name)
       return empty($result[$name]) ? null : $result[$name];
