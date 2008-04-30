@@ -43,7 +43,6 @@ class BebopInstaller
       bebop_redirect('/');
 
     $data = array();
-    $plist = ExchangeModule::getProfileList();
 
     $form = new Form(array(
       'title' => t('Инсталляция Molinos CMS'),
@@ -52,15 +51,24 @@ class BebopInstaller
       ));
 
     $tab = new FieldSetControl(array(
-      'name' => 'mysql',
-      'label' => t('База данных'),
+      'name' => 'site',
+      'label' => t('Сайт'),
       ));
-
     if (!empty($_GET['msg']) and $_GET['msg'] == 'notable')
       $tab->addControl(new InfoControl(array(
         'text' => t('Вы были перенаправлены на страницу инсталляции, т.к. некоторые жизненно важные таблицы не были обнаружены в базе данных.  Скорее всего Molinos.CMS не установлена.'),
         )));
+    $tab->addControl(new TextLineControl(array(
+      'value' => 'config[backtracerecipient]',
+      'label' => t('Ваш почтовый адрес'),
+      'description' => t('На этот адрес будут приходить сообщения об ошибках, также он будет использоваться для входа в административный интерфейс.'),
+      )));
+    $form->addControl($tab);
 
+    $tab = new FieldSetControl(array(
+      'name' => 'mysql',
+      'label' => t('База данных'),
+      ));
     $tab->addControl(new EnumControl(array(
       'value' => 'db[type]',
       'label' => t('Тип базы данных'),
@@ -70,19 +78,16 @@ class BebopInstaller
       'description' => t('Для разработки рекоммендуется использовать SQLite; перенести сайт на MySQL будет можно.'),
       'default' => 'sqlite',
       )));
-
     $tab->addControl(new TextLineControl(array(
       'value' => 'db[name]',
       'label' => t('Имя базы данных'),
       'description' => t("Перед инсталляцией база данных будет очищена от существующих данных, сделайте резервную копию!"),
       )));
-
     $tab->addControl(new TextLineControl(array(
       'value' => 'db[host]',
       'label' => t('MySQL сервер'),
       'wrapper_id' => 'db-server',
       )));
-
     $tab->addControl(new TextLineControl(array(
       'value' => 'db[user]',
       'label' => t('Пользователь MySQL'),
@@ -96,53 +101,16 @@ class BebopInstaller
     $form->addControl($tab);
 
     $tab = new FieldSetControl(array(
-      'name' => 'site',
-      'label' => t('Сайт'),
-      ));
-    $tab->addControl(new TextLineControl(array(
-      'value' => 'config[basedomain]',
-      'label' => t('Основной домен'),
-      'description' => t("Административный интерфейс также будет работать в этом домене."),
-      )));
-    $tab->addControl(new TextLineControl(array(
-      'value' => 'config[backtracerecipient]',
-      'label' => t('Получатели сообщений об ошибках'),
-      'description' => t("Один или несколько почтовых адресов, на которые будет отправляться информация о фатальных ошибках.&nbsp; Если здесь ничего не указывать, ошибки никуда отправляться не будут."),
-      )));
-    $tab->addControl(new TextLineControl(array(
-      'value' => 'config[debuggers]',
-      'label' => t('IP-адреса отладчиков'),
-      'description' => t("Один или несколько IP адресов, пользователям которых будут доступны дополнительные отладочные функции.&nbsp; Обычто этим пользуются только разработчики сайта."),
-      )));
-    $tab->addControl(new TextLineControl(array(
-      'value' => 'config[mail_from]',
-      'label' => t('Обратный почтовый адрес'),
-      'description' => t('Этот адрес будет использован в качестве отправителя всех почтовых сообщений, рассылаемых сайтом.'),
-      )));
-    $tab->addControl(new TextLineControl(array(
-      'value' => 'config[mail_server]',
-      'label' => t('Почтовый сервер'),
-      'description' => t('Через этот SMTP сервер будет отправляться вся почта.'),
-      )));
-    $form->addControl($tab);
-
-    $tab = new FieldSetControl(array(
       'name' => 'profiles',
-      'label' => t('Профили')
+      'label' => t('Заготовка')
       ));
 
-    $options = array();
-
-    for ($i = 0; $i < count($plist); $i++) {
-      $pr = $plist[$i];
-      $options[$pr['filename']] = $pr['name'];
-    }
 
     $tab->addControl(new EnumControl(array(
       'value' => 'profile',
-      'label' => t('Выберите профиль'),
+      'label' => t('Базовое наполнение'),
       'required' => true,
-      'options' => $options,
+      'options' => $this->getProfiles(),
       )));
 
     $form->addControl($tab);
@@ -165,7 +133,7 @@ class BebopInstaller
       'config[basedomain]' => $_SERVER['HTTP_HOST'],
       'config[backtracerecipient]' => 'cms-bugs@molinos.ru',
       'config[debuggers]' => $_SERVER['REMOTE_ADDR'] .', 127.0.0.1',
-      'config[mail_from]' => "Molinos.CMS <no-reply@{$_SERVER['HTTP_HOST']}>",
+      'config[mail_from]' => "Molinos.CMS <no-reply@cms.molinos.ru>",
       'config[mail_server]' => 'localhost',
       );
 
@@ -174,12 +142,22 @@ class BebopInstaller
       );
   }
 
+  private function getProfiles()
+  {
+    $options = array();
+
+    foreach (ExchangeModule::getProfileList() as $pr)
+      $options[$pr['filename']] = $pr['name'];
+
+    return $options;
+  }
+
   protected function onPost()
   {
     $pdo = null;
 
-    // Сбрасываем авторизацию.
-    //User::authorize();
+    if (empty($_POST['config']['backtracerecipient']))
+      mcms::fatal('Не указан почтовый адрес администратора.');
 
     $data = array(
       'title' => 'Инсталляция Molinos CMS',
@@ -207,8 +185,14 @@ class BebopInstaller
     if (!empty($_POST['profile']))
       ExchangeModule::import("lib/modules/exchange/profiles/{$_POST['profile']}", true);
 
-    // Логинимся в качестве рута.
-    User::authorize('root', null, true);
+    // Правим профиль пользователя
+    $node = Node::load(array('class' => 'user', 'name' => 'root'));
+    $node->name = $_POST['config']['backtracerecipient'];
+    $node->password = null;
+    $node->save();
+
+    // Логинимся в качестве администратора.
+    User::authorize($node->name, null, true);
 
     if (null === mcms::user() or null === mcms::user()->id)
       throw new RuntimeException(t('Ошибка инсталляции: не удалось получить идентификатор пользователя.'));
