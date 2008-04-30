@@ -37,9 +37,9 @@ class ModuleAdminUI
             'href' => $module['docurl'],
             ), "<span>информация</span>") ."</td>";
         else
-          $output .= "<td>&nbsp;</td>";
+          $output .= mcms::html('td');
 
-        $output .= mcms::html('td', mcms::html('a', array('href' => "/admin/?mode=modules&amp;action=info&amp;name={$modname}&amp;cgroup={$_GET['cgroup']}&destination=CURRENT"), $modname));
+        $output .= mcms::html('td', mcms::html('a', array('href' => "/admin/?mode=modules&action=info&name={$modname}&cgroup={$_GET['cgroup']}&destination=CURRENT"), $modname));
         $output .= mcms::html('td', $module['name']['ru']);
 
         $output .= '</tr>';

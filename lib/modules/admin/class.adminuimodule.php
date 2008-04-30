@@ -302,11 +302,12 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       $output .= '<tr><th>Версия CMS:</th><td>≥'. $module['version'] .'</td></tr>';
 
     if (!empty($module['docurl'])) {
-      $tmp = bebop_split_url($module['docurl']);
+      $url = bebop_split_url($module['docurl']);
 
-      $output .= '<tr><th>Документация:</th><td><a href=\''. $module['docurl'] .'\'>'
-        .str_replace('www.', '', $tmp['host'])
-        .'</td></tr>';
+      $tmp = mcms::html('th', 'Документация:');
+      $tmp .= mcms::html('td', l($module['docurl'], $url['host']));
+
+      $output .= mcms::html('tr', $tmp);
     }
 
     $output .= '</table>';
