@@ -20,7 +20,14 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     // схемы конкретного типа.
     foreach (mcms::getImplementors('iContentType') as $class) {
       if ('Node' == substr($class, -4) and strlen($type = strtolower(substr($class, 0, -4)))) {
-        $tmp = TypeNode::getSchema($type);
+        if (0 == Node::count(array('class' => 'type', 'name' => $type))) {
+          $tmp = TypeNode::getSchema($type);
+          $tmp['published'] = true;
+          $tmp['name'] = $type;
+
+          $node = Node::create('type', $tmp);
+          $node->save();
+        }
       }
     }
   }
@@ -70,7 +77,15 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   public function delete()
   {
+    $t = new TableInfo('node_'. $this->name);
+    if ($t->exists()) {
+      $t->delete();
+    }
+
     $rc = parent::delete();
+
+    $this->erase();
+
     $this->flush();
     return $rc;
   }
