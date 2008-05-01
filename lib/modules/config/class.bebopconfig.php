@@ -69,10 +69,7 @@ class BebopConfig
 
     private function __isset($varname)
     {
-      if ($this->data === null)
-        $this->readData();
-
-      return array_key_exists($varname, $this->data);
+      return null !== $this->__get($varname);
     }
 
     private function __get($varname)
