@@ -291,7 +291,7 @@ class UserWidget extends Widget
       break;
 
     default:
-      bebop_debug($options, $post);
+      mcms::debug($options, $post);
       throw new PageNotFoundException();
     }
 
@@ -482,7 +482,7 @@ class UserWidget extends Widget
       return array();
 
     default:
-      bebop_debug("Form {$id} is not handled by UserWidget");
+      mcms::debug("Form {$id} is not handled by UserWidget");
     }
   }
 
@@ -566,7 +566,7 @@ class UserWidget extends Widget
       return $user->formProcess($data);
 
     default:
-      bebop_debug($id, $data);
+      mcms::debug($id, $data);
     }
 
     bebop_on_json($res);

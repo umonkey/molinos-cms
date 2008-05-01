@@ -73,7 +73,7 @@ class RequestContext
         $this->root = $this->section = $page->defaultsection;
     }
 
-    // bebop_debug($this, $page);
+    // mcms::debug($this, $page);
 
     // Нормализуем идентификаторы.
 

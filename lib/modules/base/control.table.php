@@ -13,6 +13,6 @@ class TableControl extends Control
 
   public function getHTML(array $data)
   {
-    bebop_debug($this, $data);
+    mcms::debug($this, $data);
   }
 };

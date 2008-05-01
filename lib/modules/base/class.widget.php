@@ -204,7 +204,7 @@ abstract class Widget implements iWidget
     if ($method != 'onGet' and method_exists($this, $method))
       return $this->$method($options);
 
-    bebop_debug("No handler {$method} in class ". get_class($this));
+    mcms::debug("No handler {$method} in class ". get_class($this));
     throw new PageNotFoundException();
   }
 
@@ -286,7 +286,7 @@ abstract class Widget implements iWidget
 
   public function formProcess($id, array $data)
   {
-    bebop_debug("Unhandled form {$id} in class ". get_class($this) .", data follows.", $data);
+    mcms::debug("Unhandled form {$id} in class ". get_class($this) .", data follows.", $data);
   }
 
   // Проверяет, является ли документ допустимым для этого виджета.

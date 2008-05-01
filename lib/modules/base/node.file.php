@@ -106,7 +106,7 @@ class FileNode extends Node implements iContentType
       if ($uploaded) {
         if (!($c1 = is_uploaded_file($file['tmp_name'])) or !($c2 = move_uploaded_file($file['tmp_name'], $dest))) {
           $debug = sprintf("File could not be uploaded.\nis_uploaded_file: %d\nmove_uploaded_file: %d\ndestination: %s", $c1, $c2, $storage .'/'. $this->filepath);
-          bebop_debug($debug, $file, $this);
+          mcms::debug($debug, $file, $this);
           throw new UserErrorException("Ошибка загрузки", 400, "Ошибка загрузки", "Не удалось загрузить файл: ошибка {$file['error']}");
         }
       } elseif (!copy($file['tmp_name'], $dest)) {

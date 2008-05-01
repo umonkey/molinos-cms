@@ -13,7 +13,7 @@ abstract class Control implements iFormControl
     if (null !== $required_fields)
       foreach ($required_fields as $f)
         if (!array_key_exists($f, $form)) {
-          bebop_debug("Missing {$f} field in control description.", $form, $required_fields);
+          mcms::debug("Missing {$f} field in control description.", $form, $required_fields);
 
           throw new InvalidArgumentException(t("В описании контрола типа %class обязательно должно присутствовать поле %field!", array(
             '%class' => get_class($this),
@@ -72,7 +72,7 @@ abstract class Control implements iFormControl
 
   public function getHTML(array $data)
   {
-    bebop_debug("Missing getHTML() handler in ". get_class($this) ."!", $this, $data);
+    mcms::debug("Missing getHTML() handler in ". get_class($this) ."!", $this, $data);
     return null;
   }
 
@@ -98,7 +98,7 @@ abstract class Control implements iFormControl
     if (mcms::class_exists($class))
       return new $class($ctl);
 
-    bebop_debug("Missing control class: {$class}", $ctl);
+    mcms::debug("Missing control class: {$class}", $ctl);
   }
 
   public function addControl(Control $ctl)

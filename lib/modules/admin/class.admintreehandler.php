@@ -61,7 +61,7 @@ class AdminTreeHandler
 
       return $data;
     default:
-      bebop_debug($this->ctx);
+      mcms::debug($this->ctx);
     }
   }
 

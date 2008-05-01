@@ -44,7 +44,7 @@ class BlogWidget extends Widget
     $options = parent::getRequestOptions($ctx);
 
     if (null !== $ctx->section_id or null !== $ctx->document_id) {
-      bebop_debug("Виджет {$this->getInstanceName()} не может работать на страницах, параметризуемых кодом раздела или документа.");
+      mcms::debug("Виджет {$this->getInstanceName()} не может работать на страницах, параметризуемых кодом раздела или документа.");
       throw new WidgetHaltedException();
     }
 

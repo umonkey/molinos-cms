@@ -73,45 +73,6 @@ function bebop_skip_checks()
   return false;
 }
 
-// Выводит содержимое параметров и стэк вызова, если пользователь является
-// отладчиком (ip в конфиге) или состоит в группе Developers.
-function bebop_debug()
-{
-  if (bebop_is_debugger()) {
-    // mcms::db()->rollback();
-
-    if (ob_get_length())
-      ob_end_clean();
-
-    $output = array();
-
-    if (func_num_args()) {
-      foreach (func_get_args() as $arg) {
-        $output[] = var_export($arg, true);
-      }
-    } else {
-      $output[] = 'breakpoint';
-    }
-
-    bebop_on_json(array('args' => $output));
-
-    if (ob_get_length())
-      ob_end_clean();
-
-    if (!empty($_SERVER['REQUEST_METHOD']))
-      header("Content-Type: text/plain; charset=utf-8");
-
-    print join(";\n\n", $output) .";\n\n";
-
-    if (!empty($_SERVER['REMOTE_ADDR'])) {
-      printf("--- backtrace (time: %s) ---\n", microtime());
-      print mcms::backtrace();
-    }
-
-    die();
-  }
-}
-
 // Разбивает текущий запрос на составляющие.
 function bebop_split_url($url = null)
 {
@@ -223,9 +184,11 @@ function bebop_combine_url(array $url, $escape = true)
       }
 
       elseif ($v !== '' and !in_array($k, $forbidden)) {
-        if ('destination' === $k and 'CURRENT' === $v)
-          $v = $_SERVER['REQUEST_URI'];
-        $pairs[] = $k .'='. urlencode($v);
+        if (('destination' === $k) and ('CURRENT' === $v)) {
+          $pairs[] = $k .'='. urlencode($_SERVER['REQUEST_URI']);
+        } else {
+          $pairs[] = $k .'='. urlencode($v);
+        }
       }
     }
 
@@ -601,8 +564,6 @@ class mcms
             if ($k == 'class')
               $v = join(' ', $v);
             else {
-              // bebop_debug("Trying to assign this to <{$name} {$k}= />", $v, $parts, $content);
-              // throw new InvalidArgumentException(t("Свойство {$k} элемента HTML {$name} не может быть массивом."));
               $v = null;
             }
 
@@ -843,6 +804,44 @@ class mcms
     }
 
     return $res;
+  }
+
+  // Отладочные функции.
+  public static function debug()
+  {
+    if (bebop_is_debugger()) {
+      // mcms::db()->rollback();
+
+      if (ob_get_length())
+        ob_end_clean();
+
+      $output = array();
+
+      if (func_num_args()) {
+        foreach (func_get_args() as $arg) {
+          $output[] = var_export($arg, true);
+        }
+      } else {
+        $output[] = 'breakpoint';
+      }
+
+      bebop_on_json(array('args' => $output));
+
+      if (ob_get_length())
+        ob_end_clean();
+
+      if (!empty($_SERVER['REQUEST_METHOD']))
+        header("Content-Type: text/plain; charset=utf-8");
+
+      print join(";\n\n", $output) .";\n\n";
+
+      if (!empty($_SERVER['REMOTE_ADDR'])) {
+        printf("--- backtrace (time: %s) ---\n", microtime());
+        print mcms::backtrace();
+      }
+
+      die();
+    }
   }
 
   public static function log($op, $message, $nid = null)
@@ -1121,7 +1120,7 @@ class mcms
                   $result['interfaces'][$i][] = $classname;
               }
             } else {
-              bebop_debug(time(), $classname, $classpath, $m, $result);
+              mcms::debug($classname, $classpath, $m, $result);
             }
           }
         }

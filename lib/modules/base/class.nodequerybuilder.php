@@ -70,7 +70,7 @@ class NodeQueryBuilder
     $params = $this->params;
 
     if (!empty($this->query['#debug']))
-      bebop_debug($this, $sql, $params);
+      mcms::debug($this, $sql, $params);
   }
 
   // Оставляет только один класс, если их много, и если в условии есть

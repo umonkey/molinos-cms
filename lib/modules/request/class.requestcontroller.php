@@ -205,7 +205,7 @@ class RequestController
       // Обрабатываем виджеты, превращая их в контроллеры.
       foreach ($widgets as $widget) {
         if (!mcms::class_exists($class = $widget->classname)) {
-          // bebop_debug($class);
+          // mcms::debug($class);
           continue;
         }
 
@@ -214,7 +214,7 @@ class RequestController
         // Обрабатываем только виджеты, остальной мусор, если он сюда
         // как-то попал, пропускаем, чтобы не получить исключение.
         if (!($obj instanceof Widget))
-          bebop_debug($obj);
+          mcms::debug($obj);
 
         // Параметризация виджета.
         $ctx = RequestContext::getWidget(
@@ -379,7 +379,7 @@ class RequestController
         if (bebop_is_json() and array_key_exists($_GET['widget'], $blocks) and !empty($blocks[$_GET['widget']]))
           bebop_on_json($blocks[$_GET['widget']]);
 
-        bebop_debug("Widget {$_GET['widget']} not found.", $blocks);
+        mcms::debug("Widget {$_GET['widget']} not found.", $blocks);
         throw new PageNotFoundException();
       }
 
@@ -395,7 +395,7 @@ class RequestController
     $profile['__smarty'] = microtime(true) - $time;
 
     if (!empty($_GET['widget_debug']))
-      bebop_debug($blocks);
+      mcms::debug($blocks);
 
     $profile['__total'] = microtime(true) - $profile['__total'];
     $profile['__request'] = microtime(true) - $this->begin;
@@ -527,7 +527,7 @@ class RequestController
         $redirect = $_SERVER['REQUEST_URI'];
     }
 
-    // bebop_debug($redirect);
+    // mcms::debug($redirect);
 
     if (bebop_is_debugger() and !empty($_GET['postprofile']))
       exit($this->printProfileData());

@@ -97,7 +97,7 @@ class SubscriptionWidget extends Widget
 
       $list = TagNode::getTags('select', array('enabled' => array_keys($tags)));
 
-      // bebop_debug($tags, $list);
+      // mcms::debug($tags, $list);
 
       $form = new Form(array(
         'title' => t($this->me->title),

@@ -147,7 +147,7 @@ class NodeBase
     $qb->getCountQuery($sql, $params);
 
     if (!empty($query['#debug']))
-      bebop_debug($query, $sql, $params);
+      mcms::debug($query, $sql, $params);
 
     return mcms::db()->getResult($sql . " -- Node::count()", $params);
   }
