@@ -28,6 +28,6 @@ class BaseModule implements iRemoteCall
 
     bebop_on_json(array('status' => 'ok'));
 
-    bebop_redirect($next);
+    mcms::redirect($next);
   }
 };

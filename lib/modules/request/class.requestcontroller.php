@@ -26,7 +26,7 @@ class RequestController
 
       $this->run();
     } catch (NotInstalledException $e) {
-      bebop_redirect('/install.php?msg=notable');
+      mcms::redirect('/install.php?msg=notable');
     }
   }
 
@@ -113,7 +113,7 @@ class RequestController
         DBCache::getInstance()->flush(true);
       }
 
-      exit(bebop_redirect(bebop_combine_url(bebop_split_url(), false), 301, false));
+      exit(mcms::redirect(bebop_combine_url(bebop_split_url(), false), 301, false));
     }
 
     mcms::invoke('iRequestHook', 'hookRequest', array());
@@ -133,7 +133,7 @@ class RequestController
     $req = bebop_split_url();
     if (substr($req['path'], -1) != '/') {
       $req['path'] .= '/';
-      exit(bebop_redirect(bebop_combine_url($req)));
+      exit(mcms::redirect(bebop_combine_url($req)));
     }
 
     // Начинаем поиск отсюда.
@@ -318,7 +318,7 @@ class RequestController
     $pdo = mcms::db();
 
     if (empty($this->widgets) and empty($this->page->parent_id))
-      bebop_redirect(self::getDomainConfigLink());
+      mcms::redirect(self::getDomainConfigLink());
 
     // Сюда складываем время выполнения виджетов.
     $profile = array('__total' => microtime(true));
@@ -532,7 +532,7 @@ class RequestController
     if (bebop_is_debugger() and !empty($_GET['postprofile']))
       exit($this->printProfileData());
 
-    bebop_redirect($redirect);
+    mcms::redirect($redirect);
   }
 
   // Декодирование кнопок.  Проблема в том, что значение элемента <input> -- его текст,
@@ -581,7 +581,7 @@ class RequestController
         if (in_array($domain, $branch['aliases'])) {
           $url = bebop_split_url();
           $url['host'] = $branch['name'];
-          exit(bebop_redirect(bebop_combine_url($url)));
+          exit(mcms::redirect(bebop_combine_url($url)));
         }
       }
     }

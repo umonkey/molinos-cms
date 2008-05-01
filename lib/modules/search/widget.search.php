@@ -290,7 +290,7 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
     case 'search-form':
       $url = bebop_split_url();
       $url['args'][$this->getInstanceName()]['q'] = $data['search_string'];
-      bebop_redirect($url);
+      mcms::redirect($url);
     }
   }
 

@@ -12,7 +12,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       mcms::flush(false);
       mcms::flush(true);
 
-      bebop_redirect(bebop_split_url());
+      mcms::redirect(bebop_split_url());
     }
 
     $result = array();
@@ -57,7 +57,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $url = bebop_split_url();
       $url['args']['search'] = empty($_POST['search']) ? null : $_POST['search'];
-      bebop_redirect($url);
+      mcms::redirect($url);
     }
 
     switch ($mode = $ctx->get('mode', 'status')) {
@@ -230,7 +230,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
   private static function onGetLogout(RequestContext $ctx)
   {
     mcms::user()->authorize();
-    bebop_redirect($_GET['destination']);
+    mcms::redirect($_GET['destination']);
   }
 
   private static function onGetStatus(RequestContext $ctx)
@@ -324,11 +324,11 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     case 'modconf':
       self::hookModConf($ctx);
-      bebop_redirect('/admin/?cgroup=structure&mode=modules');
+      mcms::redirect('/admin/?cgroup=structure&mode=modules');
       break;
     }
 
-    bebop_redirect($ctx->get('destination', '/'));
+    mcms::redirect($ctx->get('destination', '/'));
   }
 
   private static function hookModList(RequestContext $ctx)

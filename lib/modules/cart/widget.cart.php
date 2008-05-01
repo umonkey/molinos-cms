@@ -139,7 +139,7 @@ class CartWidget extends Widget
 
     $url = bebop_split_url();
     $url['args'][$this->getInstanceName()]['add'] = null;
-    bebop_redirect($url);
+    mcms::redirect($url);
   }
 
   protected function onGetPurge(array $options)
@@ -151,7 +151,7 @@ class CartWidget extends Widget
 
     $url = bebop_split_url();
     $url['args'][$this->getInstanceName()] = null;
-    bebop_redirect($url);
+    mcms::redirect($url);
   }
 
   protected function onGetDetails(array $options)

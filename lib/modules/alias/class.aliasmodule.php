@@ -7,7 +7,7 @@ class AliasModule implements iRequestHook
     if (null === $ctx) {
       try {
         if (null !== ($next = mcms::db()->getResult("SELECT `dst` FROM `node__alias` WHERE `src` = :src", array(':src' => $_SERVER['REQUEST_URI']))))
-          bebop_redirect($next, 301);
+          mcms::redirect($next, 301);
       } catch (PDOException $e) {
       }
     }

@@ -104,7 +104,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
         $xmlstr = $zip->getFromName("siteprofile.xml");
       }
       else { // неизвестный тип файла
-         bebop_redirect("/admin/?mode=exchange&preset=export&result=badfiletype");
+         mcms::redirect("/admin/?mode=exchange&preset=export&result=badfiletype");
       }
 
       mcms::db()->clearDB();
@@ -119,7 +119,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       self::import($xmlstr);
       unlink($newfn);
 
-      bebop_redirect("/admin/?mode=exchange&preset=export&result=importok");
+      mcms::redirect("/admin/?mode=exchange&preset=export&result=importok");
     }
 
     else if ($exchmode == 'upgradetoMySQL') {
@@ -144,7 +144,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       // Логинимся в качестве рута.
       User::authorize('root', null, true);
 
-      bebop_redirect("/admin/?module=exchange&preset=export&result=upgradeok");
+      mcms::redirect("/admin/?module=exchange&preset=export&result=upgradeok");
     }
   }
 

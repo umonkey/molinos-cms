@@ -15,7 +15,7 @@ class NodeApiModule implements iRemoteCall
     elseif (null === ($next = $ctx->get('destination')))
       $next = '/';
 
-    bebop_redirect($next);
+    mcms::redirect($next);
   }
 
   private static function doMassAction(RequestContext $ctx)
@@ -54,7 +54,7 @@ class NodeApiModule implements iRemoteCall
       else
         $link = "/node/{$node->id}/";
 
-      bebop_redirect($link);
+      mcms::redirect($link);
 
     case 'publish':
     case 'enable':

@@ -167,7 +167,7 @@ class UserWidget extends Widget
     $url['args'][$this->me->name] = array(
       'status' => 'activated',
       );
-    exit(bebop_redirect(bebop_combine_url($url, false)));
+    exit(mcms::redirect(bebop_combine_url($url, false)));
   }
 
   protected function onGetRestore(array $options)
@@ -216,7 +216,7 @@ class UserWidget extends Widget
       'status' => 'ok',
       ));
 
-    bebop_redirect($url);
+    mcms::redirect($url);
   }
 
   private function getLoginForm(array $options)
@@ -583,7 +583,7 @@ class UserWidget extends Widget
       $next = bebop_combine_url($url, false);
     }
 
-    bebop_redirect($next);
+    mcms::redirect($next);
   }
 
   // Формирует урл для нужного действия.

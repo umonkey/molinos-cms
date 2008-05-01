@@ -308,7 +308,7 @@ class ListWidget extends Widget
           'search' => empty($post['search']) ? null : $post['search'],
           );
 
-        bebop_redirect($url);
+        mcms::redirect($url);
 
         return bebop_combine_url($url, false);
       }

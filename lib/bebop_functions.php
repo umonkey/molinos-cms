@@ -1,46 +1,6 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-function bebop_redirect($path, $status = 301)
-{
-    if (is_array($path))
-      $path = bebop_combine_url($path, false);
-    else
-      $path = l($path);
-
-    if ($_SERVER['REQUEST_METHOD'] == 'POST')
-      $status = 303;
-
-    if (empty($_GET['reload'])) {
-      if (!in_array($status, array('301', '302', '303', '307')))
-        throw new Exception("Статус перенаправления {$status} не определён в стандарте HTTP/1.1");
-
-      try {
-        mcms::db()->commit();
-        mcms::flush(mcms::FLUSH_NOW);
-      } catch (NotInstalledException $e) {
-      }
-    }
-
-    if (substr($next = $path, 0, 1) == '/') {
-      $proto = 'http'.((array_key_exists('HTTPS', $_SERVER) and $_SERVER['HTTPS'] == 'on') ? 's' : '');
-      $domain = $_SERVER['HTTP_HOST'];
-      $next = $proto.'://'. $domain . $path;
-    }
-
-    // Если нас вызвали через AJAX, просто возвращаем адрес редиректа.
-    if (!empty($_POST['ajax']))
-      exit($next);
-
-    if ($path == $_SERVER['REQUEST_URI'])
-      $next .= ((false == strstr($next, '?')) ? '?' : '&') .'rnd='. rand();
-
-    mcms::log('redirect', $next);
-
-    header('Location: '. $next);
-    exit();
-}
-
 // Проверяет, является ли пользователь отладчиком.
 function bebop_is_debugger()
 {
@@ -806,6 +766,46 @@ class mcms
     return $res;
   }
 
+  public static function redirect($path, $status = 301)
+  {
+      if (is_array($path))
+        $path = bebop_combine_url($path, false);
+      else
+        $path = l($path);
+
+      if ($_SERVER['REQUEST_METHOD'] == 'POST')
+        $status = 303;
+
+      if (empty($_GET['reload'])) {
+        if (!in_array($status, array('301', '302', '303', '307')))
+          throw new Exception("Статус перенаправления {$status} не определён в стандарте HTTP/1.1");
+
+        try {
+          mcms::db()->commit();
+          mcms::flush(mcms::FLUSH_NOW);
+        } catch (NotInstalledException $e) {
+        }
+      }
+
+      if (substr($next = $path, 0, 1) == '/') {
+        $proto = 'http'.((array_key_exists('HTTPS', $_SERVER) and $_SERVER['HTTPS'] == 'on') ? 's' : '');
+        $domain = $_SERVER['HTTP_HOST'];
+        $next = $proto.'://'. $domain . $path;
+      }
+
+      // Если нас вызвали через AJAX, просто возвращаем адрес редиректа.
+      if (!empty($_POST['ajax']))
+        exit($next);
+
+      if ($path == $_SERVER['REQUEST_URI'])
+        $next .= ((false == strstr($next, '?')) ? '?' : '&') .'rnd='. rand();
+
+      mcms::log('redirect', $next);
+
+      header('Location: '. $next);
+      exit();
+  }
+
   // Отладочные функции.
   public static function debug()
   {
@@ -1003,7 +1003,7 @@ class mcms
       $url = bebop_split_url();
       $url['args']['reload'] = null;
       $url['args']['FLUSH'] = 1;
-      bebop_redirect(str_replace('FLUSH', 'flush', bebop_combine_url($url, false)));
+      mcms::redirect(str_replace('FLUSH', 'flush', bebop_combine_url($url, false)));
     }
 
     return $result;

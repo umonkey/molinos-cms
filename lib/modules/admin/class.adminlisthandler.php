@@ -57,8 +57,8 @@ class AdminListHandler
     if (empty($data) and count($this->types) == 1 and null === $this->ctx->get('search')) {
       // Добавление справочника.
       if ('dictlist' == $this->ctx->get('preset'))
-        bebop_redirect("/admin/?mode=create&cgroup={$_GET['cgroup']}&dictionary=1&welcome=1&type={$this->types[0]}&destination=CURRENT");
-      // bebop_redirect("/admin/?mode=create&cgroup={$_GET['cgroup']}&type={$this->types[0]}&destination=CURRENT");
+        mcms::redirect("/admin/?mode=create&cgroup={$_GET['cgroup']}&dictionary=1&welcome=1&type={$this->types[0]}&destination=CURRENT");
+      // mcms::redirect("/admin/?mode=create&cgroup={$_GET['cgroup']}&type={$this->types[0]}&destination=CURRENT");
     }
 
     $output = '<h2>'. $this->title .'</h2>';

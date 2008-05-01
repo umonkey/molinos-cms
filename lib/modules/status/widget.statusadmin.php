@@ -60,6 +60,6 @@ class StatusAdminWidget extends Widget
     if (empty($_GET['destination']))
       $_GET['destination'] = '/admin/';
 
-    bebop_redirect($_GET['destination']);
+    mcms::redirect($_GET['destination']);
   }
 };

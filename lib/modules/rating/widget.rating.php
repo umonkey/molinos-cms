@@ -141,7 +141,7 @@ class RatingWidget extends Widget implements iNodeHook
       ? bebop_combine_url($url)
       : $url['args']['destination'];
 
-    exit(bebop_redirect($destination));
+    exit(mcms::redirect($destination));
   }
 
   protected function onGetRate(array $options)
@@ -157,7 +157,7 @@ class RatingWidget extends Widget implements iNodeHook
 
     $url = bebop_split_url();
     $url['args'][$this->getInstanceName()] = null;
-    bebop_redirect($url);
+    mcms::redirect($url);
   }
 
   // Формирование формы со статистикой.

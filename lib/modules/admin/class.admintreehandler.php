@@ -57,7 +57,7 @@ class AdminTreeHandler
       $data = self::getNodeTree();
 
       if (empty($data))
-        bebop_redirect("/admin/?mode=create&type={$this->type}&destination=CURRENT");
+        mcms::redirect("/admin/?mode=create&type={$this->type}&destination=CURRENT");
 
       return $data;
     default:

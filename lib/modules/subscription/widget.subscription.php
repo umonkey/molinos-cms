@@ -161,7 +161,7 @@ class SubscriptionWidget extends Widget
 
       $url = bebop_split_url();
       $url['args'][$this->getInstanceName()] = array('status' => 'wait');
-      bebop_redirect($url);
+      mcms::redirect($url);
     }
   }
 };
