@@ -20,10 +20,11 @@ class BebopCache
 
     private static function chooseEngine()
     {
-        $engines = array('MemCacheD_Cache', 'APC_Cache', 'Local_Cache');
+        $engines = array('memcache' => 'MemCacheD_Cache', 'apc' => 'APC_Cache', 'local' => 'Local_Cache');
+        $disabled = preg_split('/, */', mcms::config('cache_disable'), -1, PREG_SPLIT_NO_EMPTY);
 
-        foreach ($engines as $engine) {
-            if (mcms::class_exists($engine) and call_user_func(array($engine, 'isAvailable'))) {
+        foreach ($engines as $key => $engine) {
+            if (!in_array($key, $disabled) and mcms::class_exists($engine) and call_user_func(array($engine, 'isAvailable'))) {
                 self::$type = $engine;
                 break;
             }
