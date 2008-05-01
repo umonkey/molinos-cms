@@ -30,6 +30,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     $tmp = new AdminMenu();
     $result['dashboard'] = $tmp->getHTML();
+    $result['base'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/';
 
     $output = bebop_render_object('page', 'admin', 'admin', $result);
     $output .= sprintf('<!-- request time: %s sec. -->', microtime(true) - MCMS_START_TIME);

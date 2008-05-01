@@ -98,19 +98,19 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
   private function getDebugLink(array $node)
   {
     if (!empty($node['id']))
-      return $this->getIcon('/lib/modules/admin/img/debug.gif', "/nodeapi.rpc?action=dump&node={$node['id']}", t('Поднять'));
+      return $this->getIcon('lib/modules/admin/img/debug.gif', "/nodeapi.rpc?action=dump&node={$node['id']}", t('Поднять'));
   }
 
   private function getRaiseLink(array $node)
   {
     if (!empty($node['id']))
-      return $this->getIcon('/themes/admin/img/moveup.png', "/nodeapi.rpc?action=raise&node={$node['id']}&destination=CURRENT", t('Поднять'));
+      return $this->getIcon('themes/admin/img/moveup.png', "/nodeapi.rpc?action=raise&node={$node['id']}&destination=CURRENT", t('Поднять'));
   }
 
   private function getSinkLink(array $node)
   {
     if (!empty($node['id']))
-      return $this->getIcon('/themes/admin/img/movedown.png', "/nodeapi.rpc?action=sink&node={$node['id']}&destination=CURRENT", t('Поднять'));
+      return $this->getIcon('themes/admin/img/movedown.png', "/nodeapi.rpc?action=sink&node={$node['id']}&destination=CURRENT", t('Поднять'));
   }
 
   private function getZoomLink(array $node)
@@ -124,12 +124,12 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
     if (!empty($node['deleted']))
       return;
 
-    return $this->getIcon('/themes/admin/img/zoom.png', str_replace(array('NODEID', 'NODENAME'), array($node['id'], $node['name']), $this->zoomlink), t('Найти'));
+    return $this->getIcon('themes/admin/img/zoom.png', str_replace(array('NODEID', 'NODENAME'), array($node['id'], $node['name']), $this->zoomlink), t('Найти'));
   }
 
   private function getIcon($img, $href, $title)
   {
-    $path = substr($img, 1);
+    $path = substr($img, 0);
 
     if (!is_readable($path))
       return;

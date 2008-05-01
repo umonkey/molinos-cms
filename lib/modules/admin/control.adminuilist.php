@@ -152,7 +152,7 @@ class AdminUIListControl extends Control
               ));
           else
             $tmp = mcms::html('img', array(
-              'src' => '/themes/admin/img/media-floppy.png',
+              'src' => 'themes/admin/img/media-floppy.png',
               'width' => 16,
               'height' => 16,
               'alt' => t('Скачать'),
@@ -266,7 +266,7 @@ class AdminUIListControl extends Control
     if (!bebop_is_debugger() or empty($node['id']))
       return;
 
-    return $this->getIcon('/lib/modules/admin/img/debug.gif', "/nodeapi.rpc?action=dump&node=". $node['id'], t('Просмотреть внутренности'));
+    return $this->getIcon('lib/modules/admin/img/debug.gif', "/nodeapi.rpc?action=dump&node=". $node['id'], t('Просмотреть внутренности'));
   }
 
   private function getViewLink(array $node)
@@ -274,7 +274,7 @@ class AdminUIListControl extends Control
     if (empty($node['class']) or empty($node['id']) or !empty($node['deleted']) or empty($node['published']))
       return;
 
-    return $this->getIcon('/themes/admin/img/icon-www.png', '/nodeapi.rpc?action=locate&node='. $node['id'], t('Найти на сайте'));
+    return $this->getIcon('themes/admin/img/icon-www.png', '/nodeapi.rpc?action=locate&node='. $node['id'], t('Найти на сайте'));
   }
 
   private function getZoomLink(array $node)
@@ -288,12 +288,12 @@ class AdminUIListControl extends Control
     if (!empty($node['deleted']))
       return;
 
-    return $this->getIcon('/themes/admin/img/zoom.png', str_replace(array('NODEID', 'NODENAME'), array($node['id'], $node['name']), $this->zoomlink), t('Найти'));
+    return $this->getIcon('themes/admin/img/zoom.png', str_replace(array('NODEID', 'NODENAME'), array($node['id'], $node['name']), $this->zoomlink), t('Найти'));
   }
 
   private function getIcon($img, $href, $title)
   {
-    $path = substr($img, 1);
+    $path = substr($img, 0);
 
     if (!is_readable($path))
       return;
