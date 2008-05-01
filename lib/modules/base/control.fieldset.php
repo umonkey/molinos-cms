@@ -18,16 +18,18 @@ class FieldSetControl extends Control
 
   public function getHTML(array $data)
   {
-    $output = '';
+    $content = self::getChildrenHTML($data);
 
-    $output .= mcms::html('legend', $this->label);
-    $output .= self::getChildrenHTML($data);
+    if (!empty($content)) {
+      $output = mcms::html('legend', $this->label);
+      $output .= $content;
 
-    $this->addClass('tabable');
+      $this->addClass('tabable');
 
-    return mcms::html('fieldset', array(
-      'class' => $this->class,
-      ), $output);
+      return mcms::html('fieldset', array(
+        'class' => $this->class,
+        ), $output);
+    }
   }
 
   protected function getChildrenHTML(array $data)
