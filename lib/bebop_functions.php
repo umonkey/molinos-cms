@@ -22,17 +22,22 @@ function bebop_redirect($path, $status = 301)
       }
     }
 
-    if (substr($path, 0, 1) == '/') {
+    if (substr($next = $path, 0, 1) == '/') {
       $proto = 'http'.((array_key_exists('HTTPS', $_SERVER) and $_SERVER['HTTPS'] == 'on') ? 's' : '');
       $domain = $_SERVER['HTTP_HOST'];
-      $path = $proto.'://'.$domain.$path;
+      $next = $proto.'://'. $domain . $path;
     }
 
     // Если нас вызвали через AJAX, просто возвращаем адрес редиректа.
     if (!empty($_POST['ajax']))
-      exit($path);
+      exit($next);
 
-    header('Location: '. $path);
+    if ($path == $_SERVER['REQUEST_URI'])
+      $next .= ((false == strstr($next, '?')) ? '?' : '&') .'rnd='. rand();
+
+    mcms::log('redirect', $next);
+
+    header('Location: '. $next);
     exit();
 }
 
@@ -844,6 +849,8 @@ class mcms
   {
     if (mcms::ismodule('syslog'))
       SysLogModule::log($op, $message, $nid);
+    else
+      error_log("[{$op}] {$message}", 0);
   }
 
   public static function message($text = null)
