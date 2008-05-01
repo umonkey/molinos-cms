@@ -13,9 +13,10 @@ class MemCacheD_Cache implements iBebopCacheEngine
     private function __construct()
     {
         $delta = (empty($_GET['flush']) and !empty($_SERVER['REMOTE_ADDR'])) ? 0 : 1;
+        $host = mcms::config('memcache_host', 'localhost');
 
         $this->cache = new Memcache();
-        $this->cache->pconnect('localhost');
+        $this->cache->pconnect($host);
         $this->setPrefix($delta);
     }
 
