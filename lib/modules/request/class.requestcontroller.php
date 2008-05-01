@@ -586,6 +586,10 @@ class RequestController
       }
     }
 
+    // Используем первый доступный домен.
+    if (!empty($tree))
+      return array_shift($tree);
+
     $message = "Запрошенное доменное имя не обслуживается этим сервером.";
     $message .= $this->getValidDomains($tree);
 
