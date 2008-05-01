@@ -27,6 +27,9 @@ class mcms_sqlite_driver extends PDO_Singleton
       case 1: // General error: 1 no such table: xyz.
         throw new TableNotFoundException(trim(strrchr($info[2], ' ')), $sql, $params);
 
+      case 8:
+        throw new ReadOnlyDatabaseException();
+
       default:
         throw new McmsPDOException($e, $sql);
       }

@@ -73,8 +73,6 @@ class RequestController
         break;
       }
     } catch (Exception $e) {
-      mcms::debug($e);
-
       if (ob_get_length())
         ob_end_clean();
 
