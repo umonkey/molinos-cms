@@ -36,6 +36,13 @@ function bebop_skip_checks()
 // Разбивает текущий запрос на составляющие.
 function bebop_split_url($url = null)
 {
+  static $clean = null;
+
+  $tmpurl = $url;
+
+  if (null === $clean)
+    $clean = mcms::config('handler') ? true : false;
+
   if ($url === null)
     $url = $_SERVER['REQUEST_URI'];
 
@@ -48,9 +55,21 @@ function bebop_split_url($url = null)
     $tmp['args'] = array();
   }
 
-  if (!empty($tmp['args']['q'])) {
-    $tmp['path'] = $tmp['args']['q'];
-    unset($tmp['args']['q']);
+  if (!$clean) {
+    // Если указан параметр q — отдаём предпочтение ему.
+    if (!empty($tmp['args']['q'])) {
+      $tmp['path'] = $tmp['args']['q'];
+      unset($tmp['args']['q']);
+    }
+
+    elseif ($tmp['path'] . basename($_SERVER['SCRIPT_NAME']) == $_SERVER['SCRIPT_NAME']) {
+      $tmp['path'] = '/';
+    }
+
+    // Если путь совпадает со скриптом — эмулируем главную страницу.
+    elseif ($tmp['path'] == $_SERVER['SCRIPT_NAME']) {
+      $tmp['path'] = '/';
+    }
   }
 
   return $tmp;
@@ -89,11 +108,16 @@ function parse_request_args($string)
 // Заворачивает результат работы предыдущей функции обратно.
 function bebop_combine_url(array $url, $escape = true)
 {
+  static $clean = null;
+
+  if (null === $clean)
+    $clean = mcms::config('handler') ? true : false;
+
   $result = '';
 
-  if (!mcms::config('handler') and ('/' == substr($url['path'], 0, 1))) {
+  if (!$clean and ('/' == substr($url['path'], 0, 1))) {
     $url['args']['q'] = $url['path'];
-    $url['path'] = '/index.php';
+    $url['path'] = $_SERVER['SCRIPT_NAME'];
   }
 
   $forbidden = array('nocache', 'flush', 'reload');
@@ -285,7 +309,7 @@ function bebop_on_json(array $result)
 // Применяет шаблон к данным.
 function bebop_render_object($type, $name, $theme = null, $data)
 {
-  $__root = $_SERVER['DOCUMENT_ROOT'];
+  $__root = MCMS_ROOT;
 
   if (null === $theme) {
     $ctx = RequestContext::getGlobal();
@@ -679,12 +703,14 @@ class mcms
     }
   }
 
-  public static function config($key)
+  public static function config($key, $default = null)
   {
     if (!class_exists('BebopConfig'))
       self::fatal('Отсутствует поддержка конфигурационных файлов.');
 
-    return BebopConfig::getInstance()->$key;
+    return isset(BebopConfig::getInstance()->$key)
+      ? BebopConfig::getInstance()->$key
+      : $default;
   }
 
   public static function modconf($modulename, $key = null)
@@ -768,42 +794,42 @@ class mcms
 
   public static function redirect($path, $status = 301)
   {
-      if (is_array($path))
-        $path = bebop_combine_url($path, false);
-      else
-        $path = l($path);
+    if (is_array($path))
+      $path = bebop_combine_url($path, false);
+    else
+      $path = l($path);
 
-      if ($_SERVER['REQUEST_METHOD'] == 'POST')
-        $status = 303;
+    if ($_SERVER['REQUEST_METHOD'] == 'POST')
+      $status = 303;
 
-      if (empty($_GET['reload'])) {
-        if (!in_array($status, array('301', '302', '303', '307')))
-          throw new Exception("Статус перенаправления {$status} не определён в стандарте HTTP/1.1");
+    if (empty($_GET['reload'])) {
+      if (!in_array($status, array('301', '302', '303', '307')))
+        throw new Exception("Статус перенаправления {$status} не определён в стандарте HTTP/1.1");
 
-        try {
-          mcms::db()->commit();
-          mcms::flush(mcms::FLUSH_NOW);
-        } catch (NotInstalledException $e) {
-        }
+      try {
+        mcms::db()->commit();
+        mcms::flush(mcms::FLUSH_NOW);
+      } catch (NotInstalledException $e) {
       }
+    }
 
-      if (substr($next = $path, 0, 1) == '/') {
-        $proto = 'http'.((array_key_exists('HTTPS', $_SERVER) and $_SERVER['HTTPS'] == 'on') ? 's' : '');
-        $domain = $_SERVER['HTTP_HOST'];
-        $next = $proto.'://'. $domain . $path;
-      }
+    if (substr($next = $path, 0, 1) == '/') {
+      $proto = 'http'.((array_key_exists('HTTPS', $_SERVER) and $_SERVER['HTTPS'] == 'on') ? 's' : '');
+      $domain = $_SERVER['HTTP_HOST'];
+      $next = $proto.'://'. $domain . $path;
+    }
 
-      // Если нас вызвали через AJAX, просто возвращаем адрес редиректа.
-      if (!empty($_POST['ajax']))
-        exit($next);
+    // Если нас вызвали через AJAX, просто возвращаем адрес редиректа.
+    if (!empty($_POST['ajax']))
+      exit($next);
 
-      if ($path == $_SERVER['REQUEST_URI'])
-        $next .= ((false == strstr($next, '?')) ? '?' : '&') .'rnd='. rand();
+    if ($path == $_SERVER['REQUEST_URI'])
+      $next .= ((false == strstr($next, '?')) ? '?' : '&') .'rnd='. rand();
 
-      mcms::log('redirect', $next);
+    mcms::log('redirect', $next);
 
-      header('Location: '. $next);
-      exit();
+    header('Location: '. $next);
+    exit();
   }
 
   // Отладочные функции.
@@ -1263,7 +1289,7 @@ class mcms
         $output .= sprintf("%2d. ", $k);
 
         if (!empty($v['file']) and !empty($v['line']))
-          $output .= sprintf('%s(%d) — ', ltrim(str_replace($_SERVER['DOCUMENT_ROOT'], '', $v['file']), '/'), $v['line']);
+          $output .= sprintf('%s(%d) — ', ltrim(str_replace(MCMS_ROOT, '', $v['file']), '/'), $v['line']);
         else
           $output .= '??? — ';
 
@@ -1296,7 +1322,7 @@ class mcms
         printf("Params: %s\n", preg_replace('/\s*[\n\r]+\s*/', ' ', var_export($tmp, true)));
     }
 
-    printf("\nLocation: %s(%d)\n", str_replace($_SERVER['DOCUMENT_ROOT'], '', $e->getFile()), $e->getLine());
+    printf("\nLocation: %s(%d)\n", ltrim(str_replace(MCMS_ROOT, '', $e->getFile()), '/'), $e->getLine());
 
     print $message;
 
@@ -1316,7 +1342,7 @@ class mcms
 
     if (bebop_is_debugger()) {
       $output = "\nError {$errno}: {$errstr}.\n";
-      $output .= sprintf("File: %s at line %d.\n", str_replace($_SERVER['DOCUMENT_ROOT'] .'/', '', $errfile), $errline);
+      $output .= sprintf("File: %s at line %d.\n", ltrim(str_replace(MCMS_ROOT, '', $errfile), '/'), $errline);
       $output .= "\nDon't panic.  You see this message because you're listed as a debugger.\n";
       $output .= "Regular web site visitors don't see this message.\n";
       $output .= "They most likely see a White Screen Of Death. ;)\n\n";
@@ -1383,7 +1409,7 @@ class mcms
     // Быстрая проверка на случай существования, чтобы не парсить лишний раз.
     if (!is_dir($path)) {
       $parts = explode('/', $path);
-      $path = substr($path, 0, 1) == '/' ? '' : $_SERVER['DOCUMENT_ROOT'];
+      $path = substr($path, 0, 1) == '/' ? '' : MCMS_ROOT;
 
       while (!empty($parts)) {
         $dir = array_shift($parts);
@@ -1391,7 +1417,7 @@ class mcms
 
         if (!is_dir($next)) {
           if (!is_writable($path)) {
-            throw new RuntimeException(null === $msg ? t('Каталог %path отсутствует и не может быть создан.') : $msg);
+            throw new RuntimeException(null === $msg ? t('Каталог %path отсутствует и не может быть создан.', array('%path' => $next)) : $msg);
           } else {
             mkdir($next, 0750);
           }

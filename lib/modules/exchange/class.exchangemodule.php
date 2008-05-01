@@ -64,7 +64,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
         if ($curnode['class'] == 'domain') {
           if (array_key_exists('theme', $curnode)) {
              $thm = $curnode['theme'];
-             self::addToZip($_SERVER["DOCUMENT_ROOT"] ."/themes/{$thm}", $zip, "themes/{$thm}");
+             self::addToZip(MCMS_ROOT ."/themes/{$thm}", $zip, "themes/{$thm}");
           }
         }
       }
@@ -112,7 +112,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       Installer::CreateTables();
 
       if ($filetype == '.zip') {
-        $zip->extractTo($_SERVER["DOCUMENT_ROOT"]);
+        $zip->extractTo(MCMS_ROOT);
         $zip->close();
       }
 

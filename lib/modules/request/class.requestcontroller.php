@@ -73,6 +73,8 @@ class RequestController
         break;
       }
     } catch (Exception $e) {
+      mcms::debug($e);
+
       if (ob_get_length())
         ob_end_clean();
 
@@ -131,6 +133,7 @@ class RequestController
 
     // Убедимся, что на конце урла есть слэш.
     $req = bebop_split_url();
+
     if (substr($req['path'], -1) != '/') {
       $req['path'] .= '/';
       exit(mcms::redirect(bebop_combine_url($req)));
@@ -585,10 +588,6 @@ class RequestController
         }
       }
     }
-
-    // Используем первый доступный домен.
-    if (!empty($tree))
-      return array_shift($tree);
 
     $message = "Запрошенное доменное имя не обслуживается этим сервером.";
     $message .= $this->getValidDomains($tree);

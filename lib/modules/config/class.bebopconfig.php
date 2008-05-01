@@ -24,7 +24,7 @@ class BebopConfig
       if ($this->path !== null and 'default.php' != basename($this->path))
         return $this->path;
 
-      $prefix = $_SERVER['DOCUMENT_ROOT'] .'/conf/';
+      $prefix = MCMS_ROOT .'/conf/';
 
       $result = array();
 

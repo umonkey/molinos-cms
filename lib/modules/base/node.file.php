@@ -22,7 +22,7 @@ class FileNode extends Node implements iContentType
   // Удаление версий файла из кэша.
   private function purge()
   {
-    $path = $_SERVER['DOCUMENT_ROOT'] .'/attachment/'. $this->id .'*';
+    $path = MCMS_ROOT .'/attachment/'. $this->id .'*';
 
     if (false !== ($files = glob($path))) {
       foreach ($files as $filename) {

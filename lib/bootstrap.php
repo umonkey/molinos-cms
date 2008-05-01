@@ -1,14 +1,17 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2
 
+define('MCMS_ROOT', dirname(dirname(__FILE__)));
+define('MCMS_START_TIME', microtime(true));
+
 // Выходим на корневой каталог админки.
-chdir(dirname(dirname(__FILE__)));
+chdir(MCMS_ROOT);
 
 // Некоторые файлы загружаем принудительно, т.к. без них работать не получится.
-// require(dirname(__FILE__).'/modules/cache/class.bebopcache.php');
-require(dirname(__FILE__).'/modules/config/class.bebopconfig.php');
-require(dirname(__FILE__).'/modules/pdo/class.pdo_singleton.php');
+// require(MCMS_ROOT .'/lib/modules/cache/class.bebopcache.php');
+require(MCMS_ROOT .'/lib/modules/config/class.bebopconfig.php');
+require(MCMS_ROOT .'/lib/modules/pdo/class.pdo_singleton.php');
 
 // Загружаем основные файлы.
-require(dirname(__FILE__) .'/bebop_functions.php');
-require(dirname(__FILE__) .'/bebop_autoload.php');
+require(MCMS_ROOT .'/lib/bebop_functions.php');
+require(MCMS_ROOT .'/lib/bebop_autoload.php');

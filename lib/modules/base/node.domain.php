@@ -93,7 +93,7 @@ class DomainNode extends Node implements iContentType
     $result = array();
 
     $su = mcms::user()->hasAccess('u', 'domain');
-    $themes = glob($_SERVER['DOCUMENT_ROOT'] .'/themes/'.'*');
+    $themes = glob(MCMS_ROOT .'/themes/'.'*');
 
     if (!empty($themes)) {
       foreach ($themes as $theme) {
@@ -172,7 +172,7 @@ class DomainNode extends Node implements iContentType
   private function getTemplateFile($type = 'page')
   {
     // Здесь будем искать шаблоны.
-    $path = "{$_SERVER['DOCUMENT_ROOT']}/themes/{$this->theme}/templates";
+    $path = MCMS_ROOT ."/themes/{$this->theme}/templates";
 
     if ($this->parent_id === null and $type == 'page')
       $this->name = 'index';
