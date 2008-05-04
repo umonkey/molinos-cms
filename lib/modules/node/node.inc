@@ -1046,7 +1046,7 @@ class NodeBase implements iFormObject
 
     if (!empty($this->files)) {
       foreach ($this->files as $key => $file) {
-        if (is_numeric($key))
+        if (is_numeric($key) and $key != '__bebop')
           $tab->addControl(new AttachmentControl(array(
             'extended' => true,
             'value' => 'node_content_files['. $key .']',
