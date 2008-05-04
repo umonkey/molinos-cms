@@ -106,7 +106,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
       else
         $doctype = null;
 
-      if (!$this->tree)
+      if (!$this->tree or true)
         $form->addControl(new DocSearchControl(array(
           'value' => 'document_list_search',
           'widget' => $this->getInstanceName(),
