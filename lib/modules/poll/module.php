@@ -216,6 +216,30 @@ class PollWidget extends Widget implements iNodeHook, iModuleConfig
 
       $t->commit();
     }
+
+    try {
+      Node::load(array('class' => 'type', 'name' => 'poll'));
+    } catch (ObjectNotFoundException $e) {
+      $node = Node::create('type', array(
+        'name' => 'poll',
+        'published' => true,
+        'title' => 'Опрос',
+        'fields' => array(
+          'name' => array(
+            'label' => 'Заголовок',
+            'type' => 'TextLineControl',
+            'required' => true,
+            ),
+          'answers' => array(
+            'label' => 'Варианты ответа',
+            'type' => 'TextAreaControl',
+            'required' => true,
+            'description' => 'По одному варианту в строке.',
+            ),
+          ),
+        ));
+      $node->save();
+    }
   }
 };
 
