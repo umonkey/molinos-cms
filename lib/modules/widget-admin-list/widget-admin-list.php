@@ -193,6 +193,9 @@ class ListAdminWidget extends ListWidget
       'limit' => $pagelim,
       );
 
+    if (empty($query['#sort']) and !empty($query['class']) and 'file' == $query['class'])
+      $query['#sort'] = array('id' => 'desc');
+
     $nodelist = Node::find($query, $pagelim, $pagelim ? (($pagenum - 1) * $pagelim) : null);
 
     foreach ($nodelist as $node) {
