@@ -63,6 +63,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     }
 
     switch ($mode = $ctx->get('mode', 'status')) {
+    case 'search':
     case 'list':
     case 'tree':
     case 'edit':
@@ -317,8 +318,58 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     return $output;
   }
 
+  private static function onGetSearch(RequestContext $ctx)
+  {
+    $form = new Form(array(
+      'title' => 'Поиск документов',
+      'action' => '/admin.rpc?action=search',
+      'class' => 'advSearchForm',
+      ));
+    $form->addControl(new HiddenControl(array(
+      'value' => 'search_from',
+      'default' => $ctx->get('from'),
+      )));
+
+    $form->addControl(new TextLineControl(array(
+      'value' => 'search_term',
+      'label' => t('Искать текст'),
+      'description' => t('Работает для заголовков и индексированных полей.'),
+      )));
+    $form->addControl(new EnumControl(array(
+      'value' => 'search_type',
+      'label' => 'Тип документа',
+      'options' => TypeNode::getAccessible(),
+      )));
+    $form->addControl(new NodeLinkControl(array(
+      'value' => 'search_author',
+      'label' => 'Автор',
+      'values' => 'user.name',
+      )));
+    $form->addControl(new EnumControl(array(
+      'value' => 'search_tags',
+      'label' => 'В разделе',
+      'options' => TagNode::getTags('select'),
+      )));
+    $form->addControl(new BoolControl(array(
+      'value' => 'search_tags_recurse',
+      'label' => t('и в подразделах'),
+      'default' => true,
+      )));
+    $form->addControl(new SubmitControl(array(
+      'text' => t('Найти'),
+      )));
+
+    $output = $form->getHTML(array());
+
+    bebop_on_json(array('html' => $output));
+
+    return $output;
+  }
+
   public static function hookRemoteCall(RequestContext $ctx)
   {
+    $next = $ctx->get('destination', '/');
+
     switch ($ctx->get('action')) {
     case 'modlist':
       self::hookModList($ctx);
@@ -326,11 +377,30 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     case 'modconf':
       self::hookModConf($ctx);
-      mcms::redirect('/admin/?cgroup=structure&mode=modules');
+      die(mcms::redirect('/admin/?cgroup=structure&mode=modules'));
+
+    case 'search':
+      $terms = array();
+
+      foreach (array('term' => '', 'author' => 'uid:', 'type' => 'class:') as $k => $v)
+        if (null !== ($tmp = $ctx->post('search_'. $k)) and !empty($tmp))
+          $terms[] = $v . $tmp;
+
+      if (null !== ($tmp = $ctx->post('search_tags'))) {
+        if ($ctx->post('search_tags_recurse'))
+          $tmp = join(',', mcms::db()->getResultsV('id', 'SELECT `n`.`id` FROM `node` `n`, `node` `parent` WHERE `n`.`class` = \'tag\' AND `n`.`deleted` = 0 AND `parent`.`id` = :tid AND `n`.`left` >= `parent`.`left` AND `n`.`right` <= `parent`.`right`', array(':tid' => $tmp)));
+        $terms[] = 'tags:'. $tmp;
+      }
+
+      $url = bebop_split_url($ctx->post('search_from'));
+      $url['args']['search'] = join(' ', $terms);
+
+      $next = bebop_combine_url($url, false);
+
       break;
     }
 
-    mcms::redirect($ctx->get('destination', '/'));
+    mcms::redirect($next);
   }
 
   private static function hookModList(RequestContext $ctx)

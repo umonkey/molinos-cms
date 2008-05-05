@@ -578,4 +578,17 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       'published',
       );
   }
+
+  public static function getAccessible($mode = 'r')
+  {
+    $result = array();
+
+    foreach (self::getSchema() as $k => $v)
+      if (mcms::user()->hasAccess('r', $k))
+        $result[$k] = empty($v['title']) ? $k : $v['title'];
+
+    asort($result);
+
+    return $result;
+  }
 };

@@ -86,6 +86,11 @@ class AdminUISearchControl extends Control
       'value' => 'Найти',
       ));
 
+    $output .= '&nbsp;|&nbsp;';
+    $output .= mcms::html('a', array(
+      'href' => '/admin/?mode=search&from='. urlencode($_SERVER['REQUEST_URI']),
+      ), 'Расширенный поиск');
+
     return $output;
   }
 };
