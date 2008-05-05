@@ -283,8 +283,8 @@ class RequestController
 
       switch ($_SERVER["REQUEST_METHOD"]) {
       case 'GET':
+      case 'HEAD':
         $this->runGet();
-
         break;
 
       case 'POST':
@@ -616,8 +616,11 @@ class RequestController
       $data = $blocks['widgets'][$_GET['widget']];
       header('Content-Type: text/html; charset=utf-8');
       header('Content-Length: '. strlen($data));
-      die($data);
+      die($_SERVER['REQUEST_METHOD'] == 'GET' ? $data : null);
     }
+
+    if ($_SERVER['REQUEST_METHOD'] == 'HEAD')
+      return;
 
     // Рендерим страницу.
     $time = microtime(true);
