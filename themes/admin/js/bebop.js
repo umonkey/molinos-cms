@@ -28,12 +28,18 @@ if ($.browser.msie && $.browser.version < 7 ){
  */
 $(document).ready(function () {
 	
-	// Превращение филдсетов в табы
-	if ($('form.tabbed').length != 0) {
-		$('form.tabbed').formtabber({
-			active: 0
-		});
-	}
+	$('.tabbed').tabber({
+		active: 0,
+		selectors: {
+			tab: 'fieldset.tabable',
+			header: '>legend'
+		},
+		classes: {
+			tab: 'tab-content',
+			controls: 'ftabber-tabs',
+			container: 'ftabber-form'
+		}
+	});
 	
 	var win = window.opener ? window.opener : window.dialogArguments, c;
   	if (win) { tinyMCE = win.tinyMCE; }
