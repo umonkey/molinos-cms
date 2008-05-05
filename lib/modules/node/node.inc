@@ -839,7 +839,8 @@ class NodeBase implements iFormObject
 
       // Определяем ближайшее верхнее значение.
       $my = $pdo->getResult("SELECT `order` FROM `node__rel` WHERE `tid` = :tid AND `nid` = :nid", array(':tid' => $parent, ':nid' => $this->id));
-      $order = $pdo->getResult("SELECT MAX(`order`) FROM `node__rel` WHERE `tid` = :tid AND `order` < :order", array(':tid' => $parent, ':order' => $my));
+      $order = $pdo->getResult("SELECT MAX(`order`) FROM `node__rel` WHERE `tid` = :tid AND `order` < :order AND `nid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 1 OR `class` IN ('type', 'file'))", array(':tid' => $parent, ':order' => $my));
+      // $next = $pdo->getResult("SELECT MIN(`order`) FROM `node__rel` WHERE `tid` = :tid AND `order` > :order AND `nid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 1 OR `class` IN ('type', 'file'))", array(':tid' => $parent, ':order' => $my));
 
       // Двигать некуда.
       if (null === $order)
@@ -871,7 +872,7 @@ class NodeBase implements iFormObject
 
       // Определяем ближайшее нижнее значение.
       $my = $pdo->getResult("SELECT `order` FROM `node__rel` WHERE `tid` = :tid AND `nid` = :nid", array(':tid' => $parent, ':nid' => $this->id));
-      $next = $pdo->getResult("SELECT MIN(`order`) FROM `node__rel` WHERE `tid` = :tid AND `order` > :order", array(':tid' => $parent, ':order' => $my));
+      $next = $pdo->getResult("SELECT MIN(`order`) FROM `node__rel` WHERE `tid` = :tid AND `order` > :order AND `nid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 1 OR `class` IN ('type', 'file'))", array(':tid' => $parent, ':order' => $my));
 
       if (null === $next)
         return false;
