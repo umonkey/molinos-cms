@@ -386,9 +386,11 @@ class AdminUIModule implements iAdminUI, iRemoteCall
         if (null !== ($tmp = $ctx->post('search_'. $k)) and !empty($tmp))
           $terms[] = $v . $tmp;
 
-      if (null !== ($tmp = $ctx->post('search_tags'))) {
-        if ($ctx->post('search_tags_recurse'))
-          $tmp = join(',', mcms::db()->getResultsV('id', 'SELECT `n`.`id` FROM `node` `n`, `node` `parent` WHERE `n`.`class` = \'tag\' AND `n`.`deleted` = 0 AND `parent`.`id` = :tid AND `n`.`left` >= `parent`.`left` AND `n`.`right` <= `parent`.`right`', array(':tid' => $tmp)));
+      if ($tmp = $ctx->post('search_tags')) {
+        if ($ctx->post('search_tags_recurse')) {
+          if (is_array($ids = mcms::db()->getResultsV('id', 'SELECT `n`.`id` FROM `node` `n`, `node` `parent` WHERE `n`.`class` = \'tag\' AND `n`.`deleted` = 0 AND `parent`.`id` = :tid AND `n`.`left` >= `parent`.`left` AND `n`.`right` <= `parent`.`right`', array(':tid' => $tmp))))
+            $tmp = join(',', $ids);
+        }
         $terms[] = 'tags:'. $tmp;
       }
 
