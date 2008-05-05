@@ -86,7 +86,7 @@ class PollWidget extends Widget
           'value' => 'vote',
           );
 
-        if ($node->mode == 'multi')
+        if ($node->mode == 'multi' or !empty($node->multiple))
           $class = 'SetControl';
         else
           $class = 'EnumRadioControl';
@@ -120,12 +120,15 @@ class PollWidget extends Widget
         if (!($uid = AuthCore::getInstance()->getUser()->getUid()))
           $uid = null;
 
-        PDO_Singleton::getInstance()->exec("INSERT INTO `node__poll` (`nid`, `uid`, `ip`, `option`) VALUES (:nid, :uid, :ip, :option)", array(
-          ':nid' => $poll->id,
-          ':uid' => $uid,
-          ':ip' => $_SERVER['REMOTE_ADDR'],
-          ':option' => isset($data['vote']) ? $data['vote'] : null,
-          ));
+        if (!empty($data['vote'])) {
+          foreach ((array)$data['vote'] as $vote)
+            PDO_Singleton::getInstance()->exec("INSERT INTO `node__poll` (`nid`, `uid`, `ip`, `option`) VALUES (:nid, :uid, :ip, :option)", array(
+              ':nid' => $poll->id,
+              ':uid' => $uid,
+              ':ip' => $_SERVER['REMOTE_ADDR'],
+              ':option' => $vote,
+              ));
+        }
       }
 
       break;
