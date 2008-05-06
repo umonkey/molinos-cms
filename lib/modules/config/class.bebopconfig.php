@@ -172,7 +172,8 @@ class BebopConfig
         // А такое вообще может быть?
         throw new RuntimeException(t("Не удалось сохранить конфигурационный файл в {$this->path}."));
 
-      chmod($path, 0660);
+      // FIXME: если файл существует, и не наш — получаем нотис.
+      // chmod($path, 0660);
     }
 
     private function dumpSection(array $data)
