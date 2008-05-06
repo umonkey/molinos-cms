@@ -87,10 +87,10 @@ table.modinfo th {
   background: transparent url(../img/information.png) no-repeat top left;
 }
 
-form.tabbed fieldset {
+form.tabbed fieldset.tabable {
   border: 0;
   padding: 0;
 }
-form.tabbed fieldset legend {
+form.tabbed fieldset.tabable legend.tabable {
   display: none;
 }

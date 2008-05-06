@@ -514,13 +514,15 @@ td.nowrap {
   padding: 4px 10px;
 }
 
-label.radio-label input {
+label.radio input {
   float: left;
   clear: left;
 }
-label.radio-label span {
+label.radio span {
   font-weight: normal;
-  margin-left: 2em;
-  margin-bottom: 1em;
+  margin: .5em 0 .5em 2em;
   display: block;
+}
+legend.radio {
+  font-size: 1.5em;
 }
