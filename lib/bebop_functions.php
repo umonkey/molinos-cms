@@ -72,6 +72,11 @@ function bebop_split_url($url = null)
     }
   }
 
+  if (empty($tmp['host']))
+    $tmp['host'] = $_SERVER['HTTP_HOST'];
+
+  $tmp['scheme'] = (empty($_SERVER['HTTPS']) or 'on' != $_SERVER['HTTPS']) ? 'http' : 'https';
+
   return $tmp;
 }
 
@@ -115,9 +120,19 @@ function bebop_combine_url(array $url, $escape = true)
 
   $result = '';
 
+  if (empty($url['host']))
+    $url['host'] = $_SERVER['HTTP_HOST'];
+  if (empty($url['scheme']))
+    $url['scheme'] = 'http';
+
   if (!$clean and ('/' == substr($url['path'], 0, 1))) {
-    $url['args']['q'] = $url['path'];
-    $url['path'] = $_SERVER['SCRIPT_NAME'];
+    // Запросы к корню сайта оставляем чистыми.
+    if (($url['path'] == '/') and empty($url['args'])) {
+      $url['path'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/';
+    } else {
+      $url['args']['q'] = $url['path'];
+      $url['path'] = $_SERVER['SCRIPT_NAME'];
+    }
   }
 
   $forbidden = array('nocache', 'flush', 'reload');
@@ -125,9 +140,8 @@ function bebop_combine_url(array $url, $escape = true)
   if (bebop_is_json())
     $forbidden[] = 'widget';
 
-  // Если текущий хост отличается от нужного -- делаем абсолютную ссылку.
-  if (!empty($url['host']) and ($_SERVER['HTTP_HOST'] != $url['host'] or !empty($url['#absolute']) or in_array('absolute', $url['args'])))
-    $result .= 'http://'. $url['host'];
+  if (!empty($url['#absolute']) or $url['host'] != $_SERVER['HTTP_HOST'])
+    $result .= $url['scheme']. '://'. $url['host'];
 
   if (strstr($url['path'], '#') !== false) {
     $parts = explode('#', $url['path']);
@@ -190,7 +204,7 @@ function bebop_combine_url(array $url, $escape = true)
 }
 
 // Возвращает отформатированную ссылку.
-function l($url, $title = null, array $options = null)
+function l($url, $title = null, array $options = null, $absolute = false)
 {
   if (!mcms::config('handler') and ('/attachment/' == substr($url, 0, 12)))
     return dirname($_SERVER['SCRIPT_NAME']) .'/att.php?q='. urlencode(substr($url, 12));
@@ -200,17 +214,21 @@ function l($url, $title = null, array $options = null)
   elseif (!is_string($url))
     throw new RuntimeException(t('Ссылка для l() должна быть строкой.'));
 
+  // FIXME
   if (stripos($url, 'install.php'))
      return $url;
 
-  if ('/' == substr($url, 0, 1)) {
-    $url = bebop_split_url($url);
+  $parts = bebop_split_url($url);
 
+  if ($parts['host'] == $_SERVER['HTTP_HOST']) {
     foreach (array('smarty.debug', 'flush', 'nocache') as $k)
-      if (array_key_exists($k, $url['args']))
-        unset($url['args'][$k]);
+      if (array_key_exists($k, $parts['args']))
+        unset($parts['args'][$k]);
 
-    $url = bebop_combine_url($url, false);
+    if ($absolute)
+      $parts['#absolute'] = true;
+
+    $url = bebop_combine_url($parts, false);
   }
 
   $options['href'] = $url;
@@ -341,7 +359,7 @@ function bebop_render_object($type, $name, $theme = null, $data)
 
   foreach ($__options as $__filename) {
     if (file_exists($__fullpath = $__root .'/'. $__filename)) {
-      $data['prefix'] = '/'. dirname(dirname($__filename));
+      $data['prefix'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/'. dirname(dirname($__filename));
 
       ob_start();
 
@@ -1345,7 +1363,13 @@ class mcms
       $output .= sprintf("File: %s at line %d.\n", ltrim(str_replace(MCMS_ROOT, '', $errfile), '/'), $errline);
       $output .= "\nDon't panic.  You see this message because you're listed as a debugger.\n";
       $output .= "Regular web site visitors don't see this message.\n";
-      $output .= "They most likely see a White Screen Of Death. ;)\n\n";
+
+      if ($errno & 4437)
+        $output .= "They most likely see a White Screen Of Death.\n\n";
+      elseif (ini_get('error_reporting'))
+        $output .= "They most likely see some damaged HTML markup.\n\n";
+      else
+        $output .= "\n";
 
       $output .= "--- backtrace ---\n";
       $output .= mcms::backtrace();
