@@ -1,6 +1,6 @@
 .hint {
   padding-right: 20px;
-  background: transparent url(/themes/admin/img/help.gif) no-repeat center right;
+  background: transparent url(../img/help.gif) no-repeat center right;
 }
 
 a {
@@ -81,10 +81,10 @@ table.modinfo th {
   height: 16px;
 }
 .modlist .configure {
-  background: transparent url(/themes/admin/img/configure.png) no-repeat top left;
+  background: transparent url(../img/configure.png) no-repeat top left;
 }
 .modlist .information {
-  background: transparent url(/themes/admin/img/information.png) no-repeat top left;
+  background: transparent url(../img/information.png) no-repeat top left;
 }
 
 form.tabbed fieldset {

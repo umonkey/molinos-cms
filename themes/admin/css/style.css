@@ -8,7 +8,7 @@ body {
   padding: 0;
   text-align: left;
   font-size: 83%;
-  behavior: url(/themes/admin/csshover2.htc);
+  behavior: url(../csshover2.htc);
 }
 
 form, p, img, ul, ol, h1, h2, h3, h4, h5, h6, table, td, th {
@@ -37,7 +37,7 @@ a:hover .tip {border-bottom: none;}
 i {width: 99%;}
 
 img.png {
-  behavior: url(/themes/admin/png.htc);
+  behavior: url(../png.htc);
   position: relative;
 }
 
@@ -276,7 +276,7 @@ form.tabbed .tab-content {
   padding: 4px 14px 14px 32px;
   font-style: italic;
   float: right;
-  background: transparent url(/themes/admin/img/idea.png) no-repeat top left;
+  background: transparent url(../img/idea.png) no-repeat top left;
 }
 #center .intro p {
   margin-top: 1em;
@@ -491,7 +491,7 @@ td.nowrap {
 }
 
 .nodelist .editlink {
-  background: transparent url(/themes/admin/img/icon-edit.png) no-repeat top left;
+  background: transparent url(../img/icon-edit.png) no-repeat top left;
   display: block;
   width: 16px;
   height: 16px;
@@ -512,4 +512,15 @@ td.nowrap {
   margin: .5em 0 1em;
   font-style: italic;
   padding: 4px 10px;
+}
+
+label.radio-label input {
+  float: left;
+  clear: left;
+}
+label.radio-label span {
+  font-weight: normal;
+  margin-left: 2em;
+  margin-bottom: 1em;
+  display: block;
 }
