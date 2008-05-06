@@ -24,26 +24,35 @@ class AuthModule implements iModuleConfig
       'required' => true,
       'default' => 'open',
       )));
-    $form->addControl($tab);
-
-    $tab = new FieldSetControl(array(
-      'name' => 'tab_anon',
-      'label' => t('Анонимные пользователи'),
-      ));
     $tab->addControl(new SetControl(array(
-      'value' => 'config_groups_anon',
-      'label' => t('Состоят в группах'),
-      'options' => self::getGroups(),
+      'value' => 'config_profile_fields',
+      'label' => t('Запрашиваемые атрибуты'),
+      'options' => array(
+        'email' => 'Email',
+        'fullname' => 'Полное имя',
+        'dob' => 'Дата рождения',
+        'gender' => 'Пол',
+        'postcode' => 'Почтовый индекс',
+        'country' => 'Страна',
+        'language' => 'Предпочтительный язык',
+        'timezone' => 'Часовой пояс',
+        ),
+      'description' => t('Поля приведены в соответствии со <a href=\'@url\'>спецификацией</a>.', array('@url' => 'http://openid.net/specs/openid-simple-registration-extension-1_0.html#response_format')),
       )));
     $form->addControl($tab);
 
     $tab = new FieldSetControl(array(
-      'name' => 'tab_new',
-      'label' => t('Новые'),
+      'name' => 'tab_groups',
+      'label' => t('Доступ'),
       ));
     $tab->addControl(new SetControl(array(
+      'value' => 'config_groups_anon',
+      'label' => t('Группы для анонимных посетителей'),
+      'options' => self::getGroups(),
+      )));
+    $tab->addControl(new SetControl(array(
       'value' => 'config_groups',
-      'label' => t('Добавляются в группы'),
+      'label' => t('При регистрации помещать в'),
       'options' => self::getGroups(),
       )));
     $form->addControl($tab);
