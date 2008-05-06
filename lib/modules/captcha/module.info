@@ -1,0 +1,6 @@
+group = Service
+version = 8.5
+
+[name]
+en = Captcha module
+ru = Предотвращение автоматизированного заполнения форм.
