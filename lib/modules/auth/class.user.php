@@ -306,7 +306,7 @@ class User
     } 
   }
 
-  public static function  getStore() 
+  public static function getStore() 
   {
     /**
      * This is where the example will store its OpenID information.
@@ -314,14 +314,7 @@ class User
      * created elsewhere.  After you're done playing with the example
      * script, you'll have to remove this directory manually.
      */
-    $store_path = $_SERVER['DOCUMENT_ROOT']."/tmp/openid";
-
-    if (!file_exists($store_path) &&
-        !mkdir($store_path)) {
-        print "Could not create the FileStore directory '$store_path'. ".
-            " Please check the effective permissions.";
-        exit(0);
-    }
+    $store_path = mcms::mkdir(mcms::config('tmpdir') .'/openid', 'Could not create the FileStore directory (%path), please check the effective permissions.');
     return new Auth_OpenID_FileStore($store_path);
   }
 
@@ -335,29 +328,14 @@ class User
     return new Auth_OpenID_Consumer($store);
   }
 
-  public static  function getScheme() 
-  {
-    $scheme = 'http';
-    if (isset($_SERVER['HTTPS']) and $_SERVER['HTTPS'] == 'on') {
-        $scheme .= 's';
-    }
-    return $scheme;
-  } 
-
   public static function getReturnTo() 
   {
-    $s =  sprintf("%s://%s:%s/index.php?action=login&q=\%2Fbase.rpc",
-                   self::getScheme(), $_SERVER['SERVER_NAME'], 
-                   $_SERVER['SERVER_PORT'],dirname($_SERVER['PHP_SELF']) );
-    return $s;
+    return l('/base.rpc?action=login', null, null, true);
   }
 
   public static function getTrustRoot() 
   {
-    return sprintf("%s://%s:%s/",
-                   self::getScheme(), $_SERVER['SERVER_NAME'],
-                   $_SERVER['SERVER_PORT'],
-                   dirname($_SERVER['PHP_SELF']));
+    return l('/', null, null, true);
   } 
 
   public static function includeOpenID()
