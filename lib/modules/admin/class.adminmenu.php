@@ -135,6 +135,9 @@ class AdminMenu implements iAdminMenu
         'href' => '/admin/?mode=list&preset=widgets',
         'title' => t('Виджеты'),
         );
+    }
+
+    if ($user->hasAccess('u', 'moduleinfo')) {
       $icons[] = array(
         'group' => 'structure',
         'href' => '/admin/?mode=modules',
