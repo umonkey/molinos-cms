@@ -14,10 +14,9 @@ class User
   {
     if (null !== $node) {
       $this->node = $node;
-      return;
     }
 
-    if (null === ($this->session = SessionData::load()) or null === ($uid = $this->session->uid)) {
+    elseif (null === ($this->session = SessionData::load()) or null === ($uid = $this->session->uid)) {
       $this->node = Node::create('user', array(
         'name' => 'anonymous',
         ));
@@ -42,6 +41,12 @@ class User
           ));
       }
     }
+
+    if (null !== $this->node and 'anonymous' != $this->node->name)
+      mcms::log('auth', t('user=%user, groups=%groups', array(
+        '%user' => $this->node->name,
+        '%groups' => join(',', array_keys($this->getGroups())),
+        )));
   }
 
   public function hasAccess($mode, $type)
