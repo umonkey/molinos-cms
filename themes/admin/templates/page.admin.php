@@ -63,7 +63,7 @@ function get_version_info()
 
     <script type="text/javascript" language="javascript" src="themes/all/jquery/jquery.js"></script>
     <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.ifixpng.js" ></script>
-    <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.formtabber.js"></script>
+    <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.mcms.tabber.js"></script>
     <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.dimensions.js" ></script>
     <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.bgiframe.js" ></script>
     <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.suggest.js" ></script>
