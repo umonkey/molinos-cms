@@ -63,8 +63,8 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
         if ($curnode['class'] == 'domain') {
           if (array_key_exists('theme', $curnode)) {
-             $thm = $curnode['theme'];
-             self::addToZip(MCMS_ROOT ."/themes/{$thm}", $zip, "themes/{$thm}");
+            if (is_dir($thm = $curnode['theme']))
+              self::addToZip(MCMS_ROOT ."/themes/{$thm}", $zip, "themes/{$thm}");
           }
         }
       }
@@ -75,10 +75,10 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       if (!file_exists($zipfilepath))
         throw new RuntimeException(t('Не удалось экспортировать данные.'));
 
-      header ("Content-Type: application/octet-stream");
-      header ("Accept-Ranges: bytes");
-      header ("Content-Length: ". filesize($zipfilepath));
-      header ("Content-Disposition: attachment; filename=". $zipfile);
+      header('Content-Type: application/octet-stream');
+      header('Accept-Ranges: bytes');
+      header('Content-Length: '. filesize($zipfilepath));
+      header('Content-Disposition: attachment; filename='. $zipfile);
 
       readfile($zipfilepath);
       unlink($zipfilepath);
