@@ -105,12 +105,56 @@ class User
   // будет загружен обычный анонимный профиль, без поддержки сессий.
   public static function identify()
   {
+    if (array_key_exists('openid_mode',$_GET))
+      self::openIDAuthorize($_GET['openid_mode']);
+
     if (null === self::$instance)
       self::$instance = new User();
 
     return self::$instance;
   }
 
+  private static function openIDAuthorize($openid_mode)
+  {
+    self::includeOpenID();
+
+    if ('id_res' == $openid_mode) {
+      $openid = $_GET['openid_identity'];
+  
+      if (!count($nodes = Node::find(array('class' => 'user', 'name' => $openid)))) {
+        //сохраним юзера
+        $node = Node::create('user', array(
+          'parent_id' => null,
+          'name' => $openid, 
+          'reset_groups' => '1', 
+          'class' => 'user'
+          ));
+
+        $node->Save();
+      } else {
+        $node = Node::load(array('class' => 'user', 'name' => $openid));
+      }
+
+      // Это хак. Нужен, чтобы тут bebop_split_url при вызове из RPCHandler
+      // всегда гарантированно вернул NULL и мы во второй раз не свалились в
+      // BaseModule. В случае с livejournal всё проходит нормально, 
+      // ($_SERVER['REQUEST_URI'] в данной точке сам по себе пуст), однако с 
+      // myopenid.com, видимо из-за того, что он использует автосабмит формы, 
+      // он остаётся не пустым.
+      unset($_SERVER['REQUEST_URI']);
+  
+      $sid = md5($openid. microtime() . $_SERVER['HTTP_HOST']);
+
+      // Сохраняем сессию в БД.
+      SessionData::db($sid, array('uid' => $node->id));
+      setcookie('mcmsid', $sid, time() + 60*60*24*30);
+      self::$instance = new User($node);
+    } else {
+      // Login canceled
+      mcms::redirect("/index.php?action=logout");
+    } 
+  }
+  
   // Идентифицирует или разлогинивает пользователя.
   public static function authorize()
   {
@@ -124,27 +168,31 @@ class User
     }
 
     elseif (count($args) >= 2) {
-      $node = Node::load(array('class' => 'user', 'name' => $args[0]));
+      if (strpos($args[0],'@')) { //e-mail в качестве логина
+        $node = Node::load(array('class' => 'user', 'name' => $args[0]));
+     
+        if ($node->password != md5($args[1]) and empty($args[2]))
+          throw new ForbiddenException(t('Введён неверный пароль.'));
 
-      if ($node->password != md5($args[1]) and empty($args[2]))
-        throw new ForbiddenException(t('Введён неверный пароль.'));
-        // throw new ValidationException('password', t('Введён неверный пароль.'));
+        if (!$node->published)
+          throw new ForbiddenException(t('Ваш профиль заблокирован.'));
 
-      if (!$node->published)
-        throw new ForbiddenException(t('Ваш профиль заблокирован.'));
+        // Создаём уникальный идентификатор сессии.
+        $sid = md5($node->login . $node->password . microtime() . $_SERVER['HTTP_HOST']);
 
-      // Создаём уникальный идентификатор сессии.
-      $sid = md5($node->login . $node->password . microtime() . $_SERVER['HTTP_HOST']);
-
-      // Сохраняем сессию в БД.
-      SessionData::db($sid, array('uid' => $node->id));
-
-      setcookie('mcmsid', $sid, time() + 60*60*24*30);
-
-      self::$instance = new User($node);
-    }
-
-    else {
+        // Сохраняем сессию в БД.
+        SessionData::db($sid, array('uid' => $node->id));
+        setcookie('mcmsid', $sid, time() + 60*60*24*30);
+        self::$instance = new User($node);
+      }
+      
+      // Возможно, это не e-mail, а openID.
+      else {
+        self::includeOpenID();
+        self::OpenIDVerify($args[0]);
+        exit(); 
+      } 
+    } else {
       throw new InvalidArgumentException(t('Метод User::authorize() принимает либо два параметра, либо ни одного.'));
     }
   }
@@ -192,5 +240,136 @@ class User
 
     if (!$this->hasGroup($name) and !bebop_skip_checks())
       throw new ForbiddenException();
+  }
+
+  public static function OpenIDVerify($openid)
+  {
+    $consumer = self::getConsumer();
+
+    // Begin the OpenID authentication process.
+    // No auth request means we can't begin OpenID.
+
+    if (!($auth_request = $consumer->begin($openid)))
+      mcms::redirect("/index.php?action=logout");
+
+    $sreg_request = Auth_OpenID_SRegRequest::build(
+      array('nickname'), // Required
+      array('fullname', 'email') // Optional
+      );
+
+    if ($sreg_request)
+      $auth_request->addExtension($sreg_request);
+
+    $policy_uris = $_GET['policies'];
+
+    $pape_request = new Auth_OpenID_PAPE_Request($policy_uris);
+
+    if ($pape_request)
+      $auth_request->addExtension($pape_request);
+
+    // Redirect the user to the OpenID server for authentication.
+    // Store the token for this authentication so we can verify the
+    // response.
+
+    // For OpenID 1, send a redirect.  For OpenID 2, use a Javascript
+    // form to send a POST request to the server.
+    if ($auth_request->shouldSendRedirect()) {
+      $redirect_url = $auth_request->redirectURL(self::getTrustRoot(), self::getReturnTo());
+
+      if (Auth_OpenID::isFailure($redirect_url)) {
+        // If the redirect URL can't be built, display an error message.
+        displayError("Could not redirect to server: " . $redirect_url->message);
+      } else {
+        // Send redirect.
+        header("Location: ".$redirect_url);
+      }
+    } else {
+      // Generate form markup and render it.
+      $form_id = 'openid_message';
+      $form_html = $auth_request->formMarkup(self::getTrustRoot(), self::getReturnTo(), false, array('id' => $form_id));
+
+      // Display an error if the form markup couldn't be generated;
+      // otherwise, render the HTML.
+      if (Auth_OpenID::isFailure($form_html)) {
+        displayError("Could not redirect to server: " . $form_html->message);
+      } else {
+        $page_contents = array(
+          "<html><head><title>",
+          "OpenID transaction in progress",
+          "</title></head>",
+          "<body onload='document.getElementById(\"".$form_id."\").submit()'>",
+          $form_html,
+          "</body></html>");
+
+        print implode("\n", $page_contents);
+      }
+    } 
+  }
+
+  public static function  getStore() 
+  {
+    /**
+     * This is where the example will store its OpenID information.
+     * You should change this path if you want the example store to be
+     * created elsewhere.  After you're done playing with the example
+     * script, you'll have to remove this directory manually.
+     */
+    $store_path = $_SERVER['DOCUMENT_ROOT']."/tmp/openid";
+
+    if (!file_exists($store_path) &&
+        !mkdir($store_path)) {
+        print "Could not create the FileStore directory '$store_path'. ".
+            " Please check the effective permissions.";
+        exit(0);
+    }
+    return new Auth_OpenID_FileStore($store_path);
+  }
+
+  public static  function getConsumer() 
+  {
+    /**
+     * Create a consumer object using the store object created
+     * earlier.
+     */
+    $store = self::getStore();
+    return new Auth_OpenID_Consumer($store);
+  }
+
+  public static  function getScheme() 
+  {
+    $scheme = 'http';
+    if (isset($_SERVER['HTTPS']) and $_SERVER['HTTPS'] == 'on') {
+        $scheme .= 's';
+    }
+    return $scheme;
+  } 
+
+  public static function getReturnTo() 
+  {
+    $s =  sprintf("%s://%s:%s/index.php?action=login&q=\%2Fbase.rpc",
+                   self::getScheme(), $_SERVER['SERVER_NAME'], 
+                   $_SERVER['SERVER_PORT'],dirname($_SERVER['PHP_SELF']) );
+    return $s;
+  }
+
+  public static function getTrustRoot() 
+  {
+    return sprintf("%s://%s:%s/",
+                   self::getScheme(), $_SERVER['SERVER_NAME'],
+                   $_SERVER['SERVER_PORT'],
+                   dirname($_SERVER['PHP_SELF']));
+  } 
+
+  public static function includeOpenID()
+  {
+    $path_extra = dirname(__FILE__);
+    $path = ini_get('include_path');
+    $path = $path_extra . PATH_SEPARATOR . $path;
+    ini_set('include_path', $path); 
+
+    require_once "Auth/OpenID/Consumer.php";
+    require_once "Auth/OpenID/FileStore.php";
+    require_once "Auth/OpenID/SReg.php";
+    require_once "Auth/OpenID/PAPE.php";   
   }
 }

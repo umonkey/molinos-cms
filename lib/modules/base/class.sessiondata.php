@@ -45,11 +45,11 @@ class SessionData
     if (array_key_exists($key, $this->data))
       unset($this->data[$key]);
   }
-  
+
   public static function db($sid, array $data = null)
   {
     if (mcms::db()->getDbType() == 'SQLite')
-      return self::db_file($sid, $data);   
+      return self::db_file($sid, $data);
 
     try {
       $cache = BebopCache::getInstance();
@@ -82,45 +82,44 @@ class SessionData
 
         $cache->{'session:'. $sid} = $data;
       }
-    } 
+    }
     catch (TableNotFoundException $e) {
-        $t = new TableInfo('node__session');
+      $t = new TableInfo('node__session');
 
-        if (!$t->exists()) {
-          $t->columnSet('sid', array(
-            'type' => 'char(32)',
-            'required' => true,
-            'key' => 'pri',
-            ));
-          $t->columnSet('created', array(
-            'type' => 'datetime',
-            'required' => true,
-            'key' => 'mul',
-            ));
-          $t->columnSet('data', array(
-            'type' => 'blob',
-            'required' => true,
-            ));
-          $t->commit();
+      if (!$t->exists()) {
+        $t->columnSet('sid', array(
+          'type' => 'char(32)',
+          'required' => true,
+          'key' => 'pri',
+          ));
+        $t->columnSet('created', array(
+          'type' => 'datetime',
+          'required' => true,
+          'key' => 'mul',
+          ));
+        $t->columnSet('data', array(
+          'type' => 'blob',
+          'required' => true,
+          ));
+        $t->commit();
 
-          return self::db($sid, $data);
-        }
+        return self::db($sid, $data);
       }
+    }
   }
 
   private static function db_file($sid, array $data = null)
   {
     $cache = BebopCache::getInstance();
+    ini_set("session.use_only_cookies", 1);
 
     session_name('mcmsid'); // Это вроде как не нужно, но на всякий случай... — hex
     session_id($sid);
-
-    session_save_path(mcms::mkdir(mcms::mkdir(mcms::config('tmpdir') .'/sessions')));
+    session_start();
+    session_save_path(mcms::mkdir(mcms::config('tmpdir') .'/sessions'));
 
     // Чтение сессии.
     if (null === $data) {
-      session_start();
-
       if (is_array($tmp = $cache->{'session:'. $sid}))
         return $tmp;
 
