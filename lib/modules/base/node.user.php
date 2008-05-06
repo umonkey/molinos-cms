@@ -15,6 +15,8 @@ class UserNode extends Node implements iContentType
   // Шифруем пароль.
   public function save($clear = true)
   {
+    $isnew = empty($this->id);
+
     if (empty($this->login))
       $this->login = $this->name;
 
@@ -30,6 +32,12 @@ class UserNode extends Node implements iContentType
     // parent::checkUnique('email', t('Пользователь с электронным адресом %name уже есть.', array('%name' => $this->email)));
 
     parent::save($clear);
+
+    if ($isnew and is_array($authconf = mcms::modconf('auth'))) {
+      if (!empty($authconf['groups'])) {
+        $this->linkSetParents($authconf['groups'], 'group');
+      }
+    }
   }
 
   public function duplicate()
@@ -49,9 +57,23 @@ class UserNode extends Node implements iContentType
     if (!$simple and (null !== ($tab = $this->formGetGroups())))
       $form->addControl($tab);
 
+    if ($this->id) {
+      $tmp = $form->findControl('node_content_name');
+
+      if (false === strstr($this->name, '@')) {
+        if ($tmp)
+          $tmp->label = 'OpenID';
+        $form->replaceControl('node_content_password', null);
+      } else {
+        if ($tmp)
+          $tmp->label = 'Email';
+        $form->replaceControl('node_content_email', null);
+      }
+    }
+
     $form->title = (null === $this->id)
       ? t('Новый пользователь')
-      : t('Профиль пользователя %login', array('%login' => $this->login));
+      : t('Пользователь %name', array('%name' => $this->name));
 
     return $form;
   }
