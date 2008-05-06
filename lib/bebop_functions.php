@@ -844,7 +844,7 @@ class mcms
     if ($path == $_SERVER['REQUEST_URI'])
       $next .= ((false == strstr($next, '?')) ? '?' : '&') .'rnd='. rand();
 
-    mcms::log('redirect', $next);
+    // mcms::log('redirect', $next);
 
     header('Location: '. $next);
     exit();
