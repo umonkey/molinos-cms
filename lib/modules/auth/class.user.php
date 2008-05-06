@@ -105,7 +105,7 @@ class User
   // будет загружен обычный анонимный профиль, без поддержки сессий.
   public static function identify()
   {
-    if (array_key_exists('openid_mode',$_GET))
+    if (array_key_exists('openid_mode', $_GET))
       self::openIDAuthorize($_GET['openid_mode']);
 
     if (null === self::$instance)
@@ -118,31 +118,56 @@ class User
   {
     self::includeOpenID();
 
+    if ('none' == ($mode = mcms::modconf('auth', 'mode', 'open')))
+      throw new RuntimeException(t('Поддержка OpenID отключена администратором.'));
+
     if ('id_res' == $openid_mode) {
-      $openid = $_GET['openid_identity'];
-  
+      foreach (array('openid1_claimed_id', 'openid_claimed_id', 'openid_identity') as $key) {
+        if (!empty($_GET[$key])) {
+          $tmp = bebop_split_url($_GET[$key]);
+          break;
+        }
+      }
+
+      if (empty($tmp))
+        throw new RuntimeException('OpenID провайдер не вернул идентификатор.');
+
+      $openid = $tmp['host'];
+
       if (!count($nodes = Node::find(array('class' => 'user', 'name' => $openid)))) {
-        //сохраним юзера
+        if ('open' != $mode)
+          throw new ForbiddenException(t('Извините, автоматическая регистрация пользователей через OpenID отключена.'));
+
+        $fieldmap = array(
+          'sreg_email' => 'email',
+          'sreg_fullname' => 'fullname',
+          'sreg_nickname' => 'nickname',
+          );
+
         $node = Node::create('user', array(
           'parent_id' => null,
-          'name' => $openid, 
-          'reset_groups' => '1', 
-          'class' => 'user'
+          'name' => $openid,
+          'published' => true,
           ));
 
-        $node->Save();
+        foreach ($fieldmap as $k => $v) {
+          if (!empty($_GET[$key = 'openid_'. $k]))
+            $node->$v = $_GET[$key];
+        }
+
+        $node->save();
       } else {
         $node = Node::load(array('class' => 'user', 'name' => $openid));
       }
 
       // Это хак. Нужен, чтобы тут bebop_split_url при вызове из RPCHandler
       // всегда гарантированно вернул NULL и мы во второй раз не свалились в
-      // BaseModule. В случае с livejournal всё проходит нормально, 
-      // ($_SERVER['REQUEST_URI'] в данной точке сам по себе пуст), однако с 
-      // myopenid.com, видимо из-за того, что он использует автосабмит формы, 
+      // BaseModule. В случае с livejournal всё проходит нормально,
+      // ($_SERVER['REQUEST_URI'] в данной точке сам по себе пуст), однако с
+      // myopenid.com, видимо из-за того, что он использует автосабмит формы,
       // он остаётся не пустым.
       unset($_SERVER['REQUEST_URI']);
-  
+
       $sid = md5($openid. microtime() . $_SERVER['HTTP_HOST']);
 
       // Сохраняем сессию в БД.
@@ -152,9 +177,9 @@ class User
     } else {
       // Login canceled
       mcms::redirect("/index.php?action=logout");
-    } 
+    }
   }
-  
+
   // Идентифицирует или разлогинивает пользователя.
   public static function authorize()
   {
@@ -170,7 +195,7 @@ class User
     elseif (count($args) >= 2) {
       if (strpos($args[0],'@')) { //e-mail в качестве логина
         $node = Node::load(array('class' => 'user', 'name' => $args[0]));
-     
+
         if ($node->password != md5($args[1]) and empty($args[2]))
           throw new ForbiddenException(t('Введён неверный пароль.'));
 
@@ -185,13 +210,13 @@ class User
         setcookie('mcmsid', $sid, time() + 60*60*24*30);
         self::$instance = new User($node);
       }
-      
+
       // Возможно, это не e-mail, а openID.
       else {
         self::includeOpenID();
         self::OpenIDVerify($args[0]);
-        exit(); 
-      } 
+        exit();
+      }
     } else {
       throw new InvalidArgumentException(t('Метод User::authorize() принимает либо два параметра, либо ни одного.'));
     }
@@ -274,7 +299,7 @@ class User
     // For OpenID 1, send a redirect.  For OpenID 2, use a Javascript
     // form to send a POST request to the server.
     if ($auth_request->shouldSendRedirect()) {
-      $redirect_url = $auth_request->redirectURL(self::getTrustRoot(), self::getReturnTo());
+      $redirect_url = $auth_request->redirectURL(self::getTrustRoot(), self::getReturnTo($openid));
 
       if (Auth_OpenID::isFailure($redirect_url)) {
         // If the redirect URL can't be built, display an error message.
@@ -303,10 +328,10 @@ class User
 
         print implode("\n", $page_contents);
       }
-    } 
+    }
   }
 
-  public static function getStore() 
+  public static function getStore()
   {
     /**
      * This is where the example will store its OpenID information.
@@ -318,7 +343,7 @@ class User
     return new Auth_OpenID_FileStore($store_path);
   }
 
-  public static  function getConsumer() 
+  public static  function getConsumer()
   {
     /**
      * Create a consumer object using the store object created
@@ -328,26 +353,28 @@ class User
     return new Auth_OpenID_Consumer($store);
   }
 
-  public static function getReturnTo() 
+  public static function getReturnTo($id = null)
   {
-    return l('/base.rpc?action=login', null, null, true);
+    $url = l('/base.rpc?action=login&id='. urlencode($id), null, null, true);
+    // mcms::debug($url, $id);
+    return $url;
   }
 
-  public static function getTrustRoot() 
+  public static function getTrustRoot()
   {
     return l('/', null, null, true);
-  } 
+  }
 
   public static function includeOpenID()
   {
     $path_extra = dirname(__FILE__);
     $path = ini_get('include_path');
     $path = $path_extra . PATH_SEPARATOR . $path;
-    ini_set('include_path', $path); 
+    ini_set('include_path', $path);
 
     require_once "Auth/OpenID/Consumer.php";
     require_once "Auth/OpenID/FileStore.php";
     require_once "Auth/OpenID/SReg.php";
-    require_once "Auth/OpenID/PAPE.php";   
+    require_once "Auth/OpenID/PAPE.php";
   }
 }
