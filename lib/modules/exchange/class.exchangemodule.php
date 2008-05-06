@@ -153,47 +153,49 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
   {
     $list = Node::find($arg);
 
-    $str = "<?xml version=\"1.0\" standalone=\"yes\"?>";
-    $str .= "<root><info name='{$profilename}'><description><![CDATA[{$profiledescr}]]></description></info>\n";
-    $str .= "<nodes>";
+    $str = "<?xml version=\"1.0\" standalone=\"yes\"?>\n";
+    $str .= "<root>\n<info name='{$profilename}'>\n<description><![CDATA[{$profiledescr}]]></description>\n</info>\n";
+    $str .= "<nodes>\n";
 
     foreach ($list as $tmp) {
       $arr = $tmp->getRaw();
       $arrarr = array();
-      $srlz = "";
+      $srlz = "\n";
 
       foreach ($arr as $key => $val) {
-        if ($key == 'code' and is_numeric($val))
+        if ('left' == $key or 'right' == $key or 'rid' == $key or empty($val) or ('code' == $key and is_numeric($val))) {
+          unset($arr[$key]);
           continue;
+        }
 
         if (is_array($val)) {
           $arrarr[$key] = $val;
-          $srlz .= mcms::html($key, "<![CDATA[". serialize($val) ."]]>");
+          $srlz .= mcms::html($key, "<![CDATA[". serialize($val) ."]]>") ."\n";
           unset($arr[$key]);
         }
       }
 
-      $str .= mcms::html('node', $arr, $srlz);
+      $str .= mcms::html('node', $arr, $srlz) ."\n";
     }
 
-    $str .= "</nodes>";
-    $str .= "<links>";
+    $str .= "</nodes>\n";
+    $str .= "<links>\n";
 
     $arr = mcms::db()->getResults("SELECT `tid`, `nid`, `key`, `order` FROM `node__rel` ORDER BY `tid`, `order`");
 
     foreach ($arr as $el)
-      $str .= mcms::html('link',$el);
+      $str .= mcms::html('link', $el) ."\n";
 
-    $str .= "</links>";
-    $str .= "<accessrights>";
+    $str .= "</links>\n";
+    $str .= "<accessrights>\n";
 
     $arr = mcms::db()->getResults("SELECT `nid`, `uid`, `c`, `r`, `u`, `d` FROM `node__access` ORDER BY `nid`");
 
     foreach ($arr as $el)
-      $str .= mcms::html('access', $el);
+      $str .= mcms::html('access', $el) ."\n";
 
-    $str .= "</accessrights>";
-    $str .= "</root>";
+    $str .= "</accessrights>\n";
+    $str .= "</root>\n";
 
     return $str;
   }
