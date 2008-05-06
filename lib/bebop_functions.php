@@ -731,7 +731,7 @@ class mcms
       : $default;
   }
 
-  public static function modconf($modulename, $key = null)
+  public static function modconf($modulename, $key = null, $default = null)
   {
     static $cache = array();
 
@@ -758,7 +758,7 @@ class mcms
     }
 
     if (null !== $key)
-      return empty($cache[$modulename][$key]) ? null : $cache[$modulename][$key];
+      return empty($cache[$modulename][$key]) ? $default : $cache[$modulename][$key];
     else
       return $cache[$modulename];
   }
