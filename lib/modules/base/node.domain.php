@@ -320,6 +320,8 @@ class DomainNode extends Node implements iContentType
         $form->addControl($tab);
     }
 
+    $this->fixThemes($form);
+
     if (null === $this->id)
       $form->title = t('Добавление домена или страницы');
     elseif (null === $this->parent_id)
@@ -441,7 +443,7 @@ class DomainNode extends Node implements iContentType
           ),
         'theme' => array(
           'label' => 'Шкура',
-          'type' => 'TextLineControl',
+          'type' => 'EnumControl',
           'description' => 'Имя папки с шаблонами для этой страницы.',
           ),
         'content_type' => array(
@@ -470,5 +472,25 @@ class DomainNode extends Node implements iContentType
           ),
         ),
       );
+  }
+
+  // Формирует выпадающий список с именами доступных шкур.
+  private function fixThemes(Form &$form)
+  {
+    if (null !== ($tmp = $form->findControl('node_content_theme'))) {
+      $dirs = array();
+
+      foreach (glob(MCMS_ROOT .'/themes/'.'*', GLOB_ONLYDIR) as $dir) {
+        if (!in_array($dir = basename($dir), array('all', 'admin')))
+          $dirs[$dir] = $dir;
+      }
+
+      if (!empty($this->theme) and !in_array($this->theme, $dirs))
+        $dirs[$this->theme] = $this->theme;
+
+      asort($dirs);
+
+      $tmp->options = $dirs;
+    }
   }
 };
