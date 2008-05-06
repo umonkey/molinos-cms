@@ -15,7 +15,7 @@ h1 a {
   display: block;
   width: 200px;
   height: 94px;
-  background: white url(/themes/admin/img/cms-logo-landscape.png) no-repeat top left;
+  background: white url(../admin/img/cms-logo-landscape.png) no-repeat top left;
   margin: 64px auto 0;
 }
 
