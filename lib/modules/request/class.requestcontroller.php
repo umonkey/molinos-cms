@@ -319,7 +319,8 @@ class RequestController
     $pdo = mcms::db();
 
     if (empty($this->widgets) and empty($this->page->parent_id))
-      mcms::redirect(self::getDomainConfigLink());
+      if (null !== ($tmp = self::getDomainConfigLink()))
+        mcms::redirect($tmp);
 
     // Сюда складываем время выполнения виджетов.
     $profile = array('__total' => microtime(true));
@@ -786,6 +787,7 @@ class RequestController
 
   private function getDomainConfigLink()
   {
-    return '/admin/?cgroup=structure&mode=tree&preset=pages&msg=welcome';
+    if (!mcms::user()->id or mcms::user()->hasAccess('c', 'domain'))
+      return '/admin/?cgroup=structure&mode=tree&preset=pages&msg=welcome&rnd='. rand();
   }
 }
