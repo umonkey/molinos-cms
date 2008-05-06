@@ -8,5 +8,6 @@
     <h1><a href="http://code.google.com/p/molinos-cms/"><span><?=$error['message']?></span></a></h1>
     <p class='main'><?=$error['description']?></p>
     <?php if (!empty($error['note'])): ?><p><?=$error['note']?></p><?php endif; ?>
+    <?php if ($error['code'] == 403) print l('/base.rpc?action=logout', 'Выйти'); ?>
   </body>
 </html>
