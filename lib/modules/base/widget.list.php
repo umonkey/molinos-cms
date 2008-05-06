@@ -100,9 +100,6 @@ class ListWidget extends Widget
     $options['picker'] = $ctx->get('picker');
     $options['limit'] = $ctx->get('limit', $this->limit);
 
-    if ('download' == ($options['mode'] = $ctx->get('mode', 'list')))
-      $options['format'] = $ctx->get('format', 'xml');
-
     if (!is_array($options['filter'] = $ctx->get('filter')))
       $options['filter'] = array();
 
@@ -190,48 +187,6 @@ class ListWidget extends Widget
     return $this->options = $options;
   }
 
-  protected function onGetDownload(array $options)
-  {
-    $output = '';
-
-    $nodes = Node::find($filter = $this->queryGet());
-    $schema = TypeNode::getSchema();
-
-    switch ($options['format']) {
-    case 'xml':
-      $output .= '<?xml version="1.0"?>';
-      $output .= '<data>';
-
-      foreach ($nodes as $node) {
-        $output .= "<node id='{$node->id}' revision='{$node->rid}' type='{$node->class}' classname='". mcms_plain($schema[$node->class]['title']) ."' uid='{$node->uid}' created='{$node->created}' updated='{$node->updated}'>";
-
-        if (!empty($schema[$node->class]['fields']) and is_array($schema[$node->class]['fields'])) {
-          $fields = $schema[$node->class]['fields'];
-
-          foreach ($fields as $k => $v) {
-            if ($node->$k !== null and $node->$k !== '') {
-              $value = is_array($node->$k) ? serialize($node->$k) : $node->$k;
-              $output .= "<field name='{$k}' title='". mcms_plain($v['label']) ."'>". mcms_plain($value) ."</field>";
-            }
-          }
-        }
-
-        $output .= "</node>";
-      }
-
-      $output .= '</data>';
-
-      header('Content-Type: text/xml; charset=utf-8');
-      break;
-
-    default:
-      throw new PageNotFoundException();
-    }
-
-    header('Content-Length: '. strlen($output));
-    die($output);
-  }
-
   protected function onGetList(array $options)
   {
     if (($filter = $this->queryGet()) === null)
@@ -295,7 +250,11 @@ class ListWidget extends Widget
   // Обработка GET запросов.
   public function onGet(array $options)
   {
-    return $this->dispatch(array($options['mode']), $options);
+    try {
+      return $this->dispatch(array($options['mode']), $options);
+    } catch (NoIndexException $e) {
+      return array('error' => t('Не удалось получить список документов: отсутствуют индексы.'));
+    }
   }
 
   public function onPost(array $options, array $post, array $files)
