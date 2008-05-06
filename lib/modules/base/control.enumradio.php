@@ -45,7 +45,7 @@ class EnumRadioControl extends Control
           'checked' => ($selected == $k) ? 'checked' : null,
           'value' => $k,
           ));
-        $options .= mcms::html('label', $option . $v);
+        $options .= mcms::html('label', array('class' => 'radio-label'), $option .'<span>'. $v .'</span>');
       }
 
     if (empty($options))
