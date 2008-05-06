@@ -278,10 +278,11 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       }
     }
 
-    $at = array();
+    // Внесём записи в `node__access`
 
-    //внесём записи в `node__access`
     foreach ($xml->accessrights->access as $acc) {
+      $at = array();
+
       foreach ($acc->attributes() as $a => $v)
         $at[$a] = strval($v);
 
@@ -295,17 +296,13 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
         $uid = $newid[$ud];
 
       if (!empty($nid) and !empty($uid)) {
+        $c = empty($at['c']) ? 0 : 1;
+        $r = empty($at['r']) ? 0 : 1;
+        $u = empty($at['u']) ? 0 : 1;
+        $d = empty($at['d']) ? 0 : 1;
 
-        $c = $r = $u = $d = 0;
-
-        if (array_key_exists('c',$at))
-          $c = $at['c'];
-        if (array_key_exists('r',$at))
-          $r = $at['r'];
-        if (array_key_exists('u',$at))
-          $u = $at['u'];
-        if (array_key_exists('d',$at))
-          $d = $at['d'];
+        if (($nid == 2) and ($uid == 15))
+          mcms::debug($at, $c, $r, $u, $d);
 
         mcms::db()->exec("INSERT INTO `node__access`(`nid`, `uid`, `c`, `r`, `u`, `d`) VALUES (:nid, :uid, :c, :r, :u, :d)", array(
           ':nid' => $nid,
