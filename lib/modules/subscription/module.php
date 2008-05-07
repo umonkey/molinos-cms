@@ -22,6 +22,19 @@ class SubscriptionWidget extends Widget
       );
   }
 
+  public static function formGetConfig()
+  {
+    $form = parent::formGetConfig();
+
+    $form->addControl(new BoolControl(array(
+      'value' => 'config_hidden',
+      'label' => t('Подписывать на все разделы'),
+      'description' => t("Выбор разделов не предоставляется — используются все!"),
+      )));
+
+    return $form;
+  }
+
   // Препроцессор параметров.
   public function getRequestOptions(RequestContext $ctx)
   {
@@ -99,19 +112,7 @@ class SubscriptionWidget extends Widget
   {
     switch ($id) {
     case 'subscription-form':
-      $tags = array();
-
-      foreach (Node::find(array('class' => 'tag', '#files' => false)) as $t)
-        if (!empty($t->bebop_subscribe))
-          $tags[$t->id] = $t->name;
-
-      if (count($tags) > 1) {
-        $list = TagNode::getTags('select', array('enabled' => array_keys($tags)));
-
-        foreach ($list as $k => $v)
-          if (!array_key_exists($k, $tags))
-            unset($list[$k]);
-      }
+      $tags = $this->listSections();
 
       $form = new Form(array(
         'title' => t($this->me->title),
@@ -122,17 +123,19 @@ class SubscriptionWidget extends Widget
         'value' => 'email',
         )));
 
-      if (count($tags) == 1)
-        $form->addControl(new HiddenControl(array(
-          'value' => 'sections[]',
-          'default' => array_pop(array_keys($tags)),
-          )));
-      else
-        $form->addControl(new SetControl(array(
-          'label' => t('Подписаться на'),
-          'options' => $list,
-          'value' => 'sections',
-          )));
+      if (!$this->hidden) {
+        if (count($tags) == 1)
+          $form->addControl(new HiddenControl(array(
+            'value' => 'sections[]',
+            'default' => array_pop(array_keys($tags)),
+            )));
+        else
+          $form->addControl(new SetControl(array(
+            'label' => t('Подписаться на'),
+            'options' => $tags,
+            'value' => 'sections',
+            )));
+      }
       $form->addControl(new SubmitControl(array(
         'text' => t('Подписаться'),
         )));
@@ -145,6 +148,9 @@ class SubscriptionWidget extends Widget
   {
     switch ($id) {
     case 'subscription-form':
+      if ($this->hidden)
+        $data['sections'] = array_keys($this->listSections());
+
       if (empty($data['sections']) or empty($data['email'])) {
         $tmp = bebop_split_url();
         $tmp['args'][$this->getInstanceName()]['status'] = 'empty';
@@ -187,5 +193,26 @@ class SubscriptionWidget extends Widget
       $url['args'][$this->getInstanceName()] = array('status' => 'wait');
       bebop_redirect($url);
     }
+  }
+
+  private function listSections()
+  {
+    $tags = array();
+
+    foreach (Node::find(array('class' => 'tag', '#files' => false)) as $t)
+      if (!empty($t->bebop_subscribe))
+        $tags[$t->id] = $t->name;
+
+    /*
+    if (count($tags) > 1) {
+      $list = TagNode::getTags('select', array('enabled' => array_keys($tags)));
+
+      foreach ($list as $k => $v)
+        if (!array_key_exists($k, $tags))
+          unset($list[$k]);
+    }
+    */
+
+    return $tags;
   }
 };
