@@ -1,5 +1,5 @@
 /* Silver */
-#center .o2k7SkinSilver .mceToolbar .mceToolbarStart span, #center .o2k7SkinSilver .mceButton, #center .o2k7SkinSilver .mceSplitButton, #center .o2k7SkinSilver .mceSeparator, #center .o2k7SkinSilver .mceSplitButton span.mceOpen, #center .o2k7SkinSilver .mceListBox .mceOpen {background-image:url(img/button_bg_silver.png)}
-#center .o2k7SkinSilver table, #center .o2k7SkinSilver .mceMenuItemTitle a {background:#eee}
-#center .o2k7SkinSilver .mceListBox .mceText {background:#FFF}
-#center .o2k7SkinSilver .mceExternalToolbar, #center .o2k7SkinSilver .mceListBox .mceText, #center .o2k7SkinSilver div.mceMenu, #center .o2k7SkinSilver table.mceLayout, #center .o2k7SkinSilver .mceMenuItemTitle a, #center .o2k7SkinSilver table.mceLayout tr.mceFirst td, #center .o2k7SkinSilver table.mceLayout, #center .o2k7SkinSilver .mceMenuItemTitle a, #center .o2k7SkinSilver table.mceLayout tr.mceLast td, #center .o2k7SkinSilver .mceIframeContainer {border-color: #bbb}
+.o2k7SkinSilver .mceToolbar .mceToolbarStart span, .o2k7SkinSilver .mceButton, .o2k7SkinSilver .mceSplitButton, .o2k7SkinSilver .mceSeparator, .o2k7SkinSilver .mceSplitButton span.mceOpen, .o2k7SkinSilver .mceListBox .mceOpen {background-image:url(img/button_bg_silver.png)}
+.o2k7SkinSilver table, .o2k7SkinSilver .mceMenuItemTitle a {background:#eee}
+.o2k7SkinSilver .mceListBox .mceText {background:#FFF}
+.o2k7SkinSilver .mceExternalToolbar, .o2k7SkinSilver .mceListBox .mceText, .o2k7SkinSilver div.mceMenu, .o2k7SkinSilver table.mceLayout, .o2k7SkinSilver .mceMenuItemTitle a, .o2k7SkinSilver table.mceLayout tr.mceFirst td, .o2k7SkinSilver table.mceLayout, .o2k7SkinSilver .mceMenuItemTitle a, .o2k7SkinSilver table.mceLayout tr.mceLast td, .o2k7SkinSilver .mceIframeContainer {border-color: #bbb}
