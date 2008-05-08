@@ -70,7 +70,7 @@ class DocListControl extends Control
     $output = '';
 
     foreach ($documents as $nid => $doc) {
-      if (empty($doc['internal']))
+      if (empty($doc['internal']) and empty($this->picker))
         $check = mcms::html('input', array(
           'type' => 'checkbox',
           'value' => $nid,

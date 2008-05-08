@@ -106,7 +106,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
       else
         $doctype = null;
 
-      if (!$this->tree or true)
+      if (!$this->tree)
         $form->addControl(new DocSearchControl(array(
           'value' => 'document_list_search',
           'widget' => $this->getInstanceName(),
@@ -115,11 +115,12 @@ class ListAdminWidget extends ListWidget implements iDashboard
           'doctype' => $doctype,
           )));
 
-      $form->addControl(new DocMassControl(array(
-        'value' => 'document_list_mass',
-        'class' => 'tb_2_top',
-        'table' => 'contentTable',
-        )));
+      if (empty($this->options['picker']))
+        $form->addControl(new DocMassControl(array(
+          'value' => 'document_list_mass',
+          'class' => 'tb_2_top',
+          'table' => 'contentTable',
+          )));
 
       $form->addControl(new DocListControl(array(
         'id' => 'contentTable',
@@ -240,6 +241,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
           } else {
             $a['href'] = "/attachment/{$node->id}";
             $a['class'][] = 'returnHref';
+            $a['onclick'] = "mcms_picker.mySubmit('{$a['href']}')";
           }
 
           $link = false;
@@ -428,7 +430,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
 
     $storage = rtrim(mcms::config('filestorage'), '/') .'/';
 
-    $mod = empty($this->options['picker']) ? '' : " class='returnHref'";
+    $mod = empty($this->options['picker']) ? '' : " class='returnHref' onclick='mcms_picker.mySubmit(\"/attachment/{$node->id}\")'";
 
     if ('image/' != substr($node->filetype, 0, 6)) {
       $output = "<a href='/attachment/{$node->id}' title='". t('Скачать файл') ."'><img src='/themes/admin/img/media-floppy.png' alt='download' width='16' height='16' class='filepreview' /></a>";

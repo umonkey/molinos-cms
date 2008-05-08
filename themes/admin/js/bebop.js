@@ -28,18 +28,12 @@ if ($.browser.msie && $.browser.version < 7 ){
  */
 $(document).ready(function () {
 	
-	$('.tabbed').tabber({
-		active: 0,
-		selectors: {
-			tab: 'fieldset.tabable',
-			header: '>legend'
-		},
-		classes: {
-			tab: 'tab-content',
-			controls: 'ftabber-tabs',
-			container: 'ftabber-form'
-		}
-	});
+	// Превращение филдсетов в табы
+	if ($('form.tabbed').length != 0) {
+		$('form.tabbed').formtabber({
+			active: 0
+		});
+	}
 	
 	var win = window.opener ? window.opener : window.dialogArguments, c;
   	if (win) { tinyMCE = win.tinyMCE; }
@@ -181,7 +175,20 @@ function bebop_fix_domain_defaultsection()
 
 function mcms_file_pick(field_name, url, type, win)
 {
-  window.open('/admin/files/picker/?BebopFiles.picker='+ field_name +'&window='+ win.name, '_blank');
+  tinyMCE.activeEditor.windowManager.open({
+    file : '/admin/files/picker/?BebopFiles.picker='+ field_name +'&window='+ win.name,
+    title : 'My File Browser',
+    width : 420,  // Your dimensions may differ - toy around with them!
+    height : 400,
+    resizable : "yes",
+    inline : "yes",  // This parameter only has an effect if you use the inlinepopups plugin!
+    close_previous : "no"
+  }, {
+    window : win,
+    input : field_name
+  });
+
+  return false;
 }
 
 function mcms_gup(name)
@@ -198,10 +205,19 @@ function mcms_gup(name)
 
 function mcms_picker_return(href)
 {
+  alert('ok');
+  alert(tinyMCE.getWindowArg("window"));
+
   var fileid = href.replace('/attachment/', '');
 
   if (mcms_picker_id == 'src' || mcms_picker_id == 'href') {
-    var tiny = window.opener.document.getElementById(mcms_gup('window')).document;
+
+    var gup = mcms_gup('window');
+
+    if (gup != '') {
+      var tiny = window.opener.document.getElementById(gup).document;
+      alert(window.opener.document.getElementById(gup));
+    }
 
     if (tiny)
       $('#'+ mcms_picker_id, tiny).val(href);
