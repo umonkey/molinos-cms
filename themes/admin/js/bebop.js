@@ -68,16 +68,6 @@ $(document).ready(function () {
 
   bebop_fix_files();
 
-  $('.returnHref a').click(function () {
-    mcms_picker_return($(this).attr('href'));
-    return false;
-  });
-
-  $('a.returnHref').click(function () {
-    mcms_picker_return($(this).attr('href'));
-    return false;
-  });
-
   $('.control-FieldControl-wrapper .selector').click(function () {
     var field = $(this).attr('href').replace(/.*#/, '');
 
@@ -188,54 +178,6 @@ function mcms_file_pick(field_name, url, type, win)
     input : field_name
   });
 
-  return false;
-}
-
-function mcms_gup(name)
-{
-  name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-  var regexS = "[\\?&]"+name+"=([^&#]*)";
-  var regex = new RegExp(regexS);
-  var results = regex.exec(window.location.href);
-  if (results == null)
-    return "";
-  else
-    return results[1];
-}
-
-function mcms_picker_return(href)
-{
-  alert('ok');
-  alert(tinyMCE.getWindowArg("window"));
-
-  var fileid = href.replace('/attachment/', '');
-
-  if (mcms_picker_id == 'src' || mcms_picker_id == 'href') {
-
-    var gup = mcms_gup('window');
-
-    if (gup != '') {
-      var tiny = window.opener.document.getElementById(gup).document;
-      alert(window.opener.document.getElementById(gup));
-    }
-
-    if (tiny)
-      $('#'+ mcms_picker_id, tiny).val(href);
-    else
-      alert('Не удалось достучаться до формы подбора изображения.');
-  } else {
-    // Заменяем старый предпросмотр новым.
-    window.opener.jQuery('#'+ mcms_picker_id +'-preview').remove();
-    window.opener.jQuery('#'+ mcms_picker_id +'-input').before("<img id='"+ mcms_picker_id +"-preview' src='/attachment/"+ fileid +",100,100,d' alt='preview' style='margin: 0 4px 4px 0; float: left;' />");
-
-    // Заменяем скрытое значение.
-    window.opener.jQuery('#'+ mcms_picker_id +'-hidden').attr('value', fileid);
-
-    // Сбрасываем отметку об удалении.
-    window.opener.jQuery('#center #'+ mcms_picker_id +'-delete').attr('checked', '');
-  }
-
-  window.close();
   return false;
 }
 
