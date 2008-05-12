@@ -527,5 +527,12 @@ legend.radio {
   font-size: 1.5em;
 }
 
-.fprop.TextLineControl {
+/* Подсветка идентификаторов пользователей */
+table.nodelist a.openid {
+  padding-left: 20px;
+  background: transparent url(../img/openid.png) no-repeat center left;
+}
+table.nodelist a.email {
+  padding-left: 20px;
+  background: transparent url(../img/email.png) no-repeat center left;
 }

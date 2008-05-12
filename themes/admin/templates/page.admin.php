@@ -12,7 +12,7 @@ function render_notifications()
 function render_username()
 {
   $user = mcms::user();
-  return (null === $user->fullname) ? $user->name : $user->fullname;
+  return empty($user->fullname) ? $user->name : $user->fullname;
 }
 
 function render_reboot_link()

@@ -60,7 +60,7 @@ class UserNode extends Node implements iContentType
     if ($this->id) {
       $tmp = $form->findControl('node_content_name');
 
-      if (false === strstr($this->name, '@')) {
+      if (false === strstr($this->name, '@') and false !== strstr($this->name, '.')) {
         if ($tmp)
           $tmp->label = 'OpenID';
         $form->replaceControl('node_content_password', null);

@@ -125,6 +125,8 @@ class AdminUIListControl extends Control
     return $output .'</tr>';
   }
 
+  // Конверсия значения поля в текстовую форму.  Если метод возвращает
+  // NULL (или ничего не возвращает), значение используется в чистом виде.
   private function resolveField($field, $value, array $node = null)
   {
     switch ($field) {
@@ -188,6 +190,22 @@ class AdminUIListControl extends Control
 
     case 'filesize':
       return number_format($value, 0);
+
+    case 'name':
+      if (isset($node['class']) and 'user' == $node['class']) {
+        if (strstr($value, '@'))
+          $class = 'email';
+        elseif (strstr($value, '.'))
+          $class = 'openid';
+        else
+          $class = null;
+
+        return mcms::html('a', array(
+          'href' => '/admin/?mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination=CURRENT',
+          'class' => $class,
+          ), $value);
+      }
+      break;
     }
   }
 
