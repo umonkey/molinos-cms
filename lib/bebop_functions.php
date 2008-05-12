@@ -75,7 +75,8 @@ function bebop_split_url($url = null)
   if (empty($tmp['host']))
     $tmp['host'] = $_SERVER['HTTP_HOST'];
 
-  $tmp['scheme'] = (empty($_SERVER['HTTPS']) or 'on' != $_SERVER['HTTPS']) ? 'http' : 'https';
+  if (empty($tmp['scheme']))
+    $tmp['scheme'] = (empty($_SERVER['HTTPS']) or 'on' != $_SERVER['HTTPS']) ? 'http' : 'https';
 
   return $tmp;
 }
@@ -122,8 +123,11 @@ function bebop_combine_url(array $url, $escape = true)
 
   if (empty($url['host']))
     $url['host'] = $_SERVER['HTTP_HOST'];
+
   if (empty($url['scheme']))
     $url['scheme'] = 'http';
+  elseif ('mailto' == $url['scheme'])
+    return 'mailto:'. mcms_plain($url['path']);
 
   if (!$clean and ('/' == substr($url['path'], 0, 1))) {
     // Запросы к корню сайта оставляем чистыми.
