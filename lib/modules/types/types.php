@@ -957,6 +957,9 @@ class EnumRadioControl extends Control
 
   public function getHTML(array $data)
   {
+    if (empty($this->options))
+      return '';
+
     $selected = empty($data[$this->value]) ? null : $data[$this->value];
 
     if (null === $selected) {
