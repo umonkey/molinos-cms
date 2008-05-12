@@ -325,55 +325,13 @@ class Tagger
     $revdata = array();
 
     $extra = array('fields' => array('rid'), 'params' => array('rid' => null));
-
     $schema = TypeNode::getSchema($node['class']);
-
-    // Добавляем отсутствующие поля, описанные в схеме.
-    if (!empty($schema['fields'])) {
-      foreach ($schema['fields'] as $field => $meta) {
-        $ctt = mcms_ctlname($meta['type']);
-
-        if ($ctt == 'BoolControl')
-          $value = empty($node[$field]) ? 0 : 1;
-
-        elseif ($ctt == 'FloatControl')
-          $value = floatval($node[$field]);
-
-        elseif ($ctt == 'NodeLinkControl')
-          $value = (empty($node[$field]) and empty($meta['required'])) ? null : intval($node[$field]);
-
-        elseif ($ctt == 'NumberControl')
-          $value = (empty($node[$field]) and empty($meta['required'])) ? null : $node[$field];
-
-        elseif ($ctt == 'DateTimeControl')
-          $value = (empty($node[$field]) and empty($meta['required'])) ? null : $node[$field];
-
-        elseif (!empty($node[$field]))
-          $value = $node[$field];
-
-        elseif (array_key_exists('default', $meta))
-          $value = $meta['default'];
-
-        else
-          $value = null;
-
-        $node[$field] = $value;
-      }
-    }
 
     // Раскладываем поля объекта по полочкам.
     foreach ($node as $k => $v) {
       if ($this->isReservedName($k))
         continue;
-
-      if (!empty($schema['fields'][$k]['indexed'])) {
-        $extra['fields'][] = $k;
-        $extra['params'][$k] = $v;
-      }
-
-      else {
-        $revdata[$k] = $v;
-      }
+      $revdata[$k] = $v;
     }
 
     // Сохраняем ключевую часть ревизии.
@@ -399,22 +357,6 @@ class Tagger
         '%nid' => $node['id'],
         '%message' => bebop_is_debugger() ? $e->getMessage() : t('недоступно'),
         )));
-    }
-
-    // Сохраняем дополнительные данные.
-    if ($this->classHasExtraFields($node['class'])) {
-      try {
-        $extra['params']['rid'] = $node['rid'];
-        $key = $forcerev ? 'rid' : '#nokey';
-
-        $this->rowUpdate('node_'. $node['class'], $key, $extra['params'], null, true);
-      } catch (PDOException $e) {
-        throw new Exception(t("Не удалось сохранить расширенные данные для объекта %nid@%rid, сообщение: %message.", array(
-          '%nid' => $node['id'],
-          '%rid' => $node['rid'],
-          '%message' => bebop_is_debugger() ? $e->getMessage() : t('сообщение недоступно'),
-          )));
-      }
     }
 
     // Обновляем заголовок.
