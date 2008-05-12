@@ -3,13 +3,20 @@
 
 function smarty_function_mcms_render_document($params, &$smarty)
 {
-  if (empty($params['doc']) or !is_array($params['doc']))
-    return null;
+  $class = null;
 
-  $html = bebop_render_object('type', $params['doc']['class'], null, array('document' => $params['doc']));
+  foreach ($params as $p)
+    if (is_array($p) and array_key_exists('class', $p))
+      $class = $p['class'];
 
-  if (isset($params['assign']))
-    $smarty->assign($params['assign'], $html);
-  else
-    return $html;
+  if (null !== $class) {
+    $args = $params;
+
+    $html = bebop_render_object('type', $class, null, $args);
+
+    if (isset($params['assign']))
+      $smarty->assign($params['assign'], $html);
+    else
+      return $html;
+  }
 }
