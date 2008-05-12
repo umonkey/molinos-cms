@@ -238,6 +238,13 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
   private static function onGetStatus(RequestContext $ctx)
   {
+    if ('setpass' == $ctx->get('msg')) {
+      return t('<h2>Добро пожаловать в Molinos.CMS!</h2>'
+        .'<p>Вы успешно установили систему.  Сейчас она работает в открытом режиме — любой пользователь будет автоматически идентифицирован как разработчик и получит полный набор прав, поэтому вы, скорее всего, первым делом захотите <a href=\'@url\'>установить пароль</a> на эту учётную запись.</p>', array(
+        '@url' => '/admin/?cgroup=access&mode=edit&id='. mcms::user()->id,
+        ));
+    }
+
     return 'Система в порядке.';
   }
 
