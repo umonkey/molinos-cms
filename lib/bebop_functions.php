@@ -436,6 +436,12 @@ function bebop_session_start($check = false)
   global $bebop_session_status;
 
   if (!$check and !$bebop_session_status) {
+    if (!is_dir($path = dirname(dirname(__FILE__)) .'/tmp/sessions'))
+      mkdir($path, 0755, true);
+
+    if (is_dir($path) and is_writable($path))
+      session_save_path($path);
+
     session_start();
     $bebop_session_status = true;
   }
