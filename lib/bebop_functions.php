@@ -348,9 +348,6 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
   } elseif (!is_array($data)) {
     $data = array($data);
   }
-  $classmap = mcms::getClassMap();
-  $defaulttemplate = str_replace('.php','.phtml',$classmap[$classname]);
-  $defaulttemplate = str_replace($_SERVER['DOCUMENT_ROOT'].'/','',$defaulttemplate);
 
   // Варианты шаблонов для этого объекта.
   $__options = array(
@@ -362,15 +359,20 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
     "themes/all/templates/{$type}.{$name}.php",
     "themes/all/templates/{$type}.default.tpl",
     "themes/all/templates/{$type}.default.php",
-    $defaulttemplate,
     );
+
+  // Если класс существует — добавляем его дефолтный шаблон в конец.
+  if (array_key_exists($classname, $classmap = mcms::getClassMap()))
+    $__options[] = ltrim(str_replace(MCMS_ROOT, str_replace('.php', '.phtml', $classmap[$classname])), '/');
 
   foreach ($__options as $__filename) {
     if (file_exists($__fullpath = $__root .'/'. $__filename)) {
       $data['prefix'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/'. dirname(dirname($__filename));
 
       ob_start();
-      $filetype = substr($__filename, -4);
+
+      $filetype = substr($__filename, strrpos($__filename, "."));
+
       if ($filetype == '.tpl') {
         if (class_exists('BebopSmarty')) {
           $__smarty = new BebopSmarty($type == 'page');
@@ -394,7 +396,7 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
         }
       }
 
-      elseif (($filetype == '.php') or (substr($__filename, -6) == '.phtml')) {
+      elseif (($filetype == '.php') or ($filetype == '.phtml')) {
         extract($data, EXTR_SKIP);
         include($__fullpath);
       }
