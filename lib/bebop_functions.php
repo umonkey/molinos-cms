@@ -329,7 +329,7 @@ function bebop_on_json(array $result)
 }
 
 // Применяет шаблон к данным.
-function bebop_render_object($type, $name, $theme = null, $data)
+function bebop_render_object($type, $name, $theme = null, $data, $classname = null)
 {
   $__root = MCMS_ROOT;
 
@@ -348,6 +348,9 @@ function bebop_render_object($type, $name, $theme = null, $data)
   } elseif (!is_array($data)) {
     $data = array($data);
   }
+  $classmap = mcms::getClassMap();
+  $defaulttemplate = str_replace('.php','.phtml',$classmap[$classname]);
+  $defaulttemplate = str_replace($_SERVER['DOCUMENT_ROOT'].'/','',$defaulttemplate);
 
   // Варианты шаблонов для этого объекта.
   $__options = array(
@@ -359,6 +362,7 @@ function bebop_render_object($type, $name, $theme = null, $data)
     "themes/all/templates/{$type}.{$name}.php",
     "themes/all/templates/{$type}.default.tpl",
     "themes/all/templates/{$type}.default.php",
+    $defaulttemplate,
     );
 
   foreach ($__options as $__filename) {
@@ -366,8 +370,8 @@ function bebop_render_object($type, $name, $theme = null, $data)
       $data['prefix'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/'. dirname(dirname($__filename));
 
       ob_start();
-
-      if (substr($__filename, -4) == '.tpl') {
+      $filetype = substr($__filename, -4);
+      if ($filetype == '.tpl') {
         if (class_exists('BebopSmarty')) {
           $__smarty = new BebopSmarty($type == 'page');
           $__smarty->template_dir = ($__dir = dirname($__fullpath));
@@ -390,7 +394,7 @@ function bebop_render_object($type, $name, $theme = null, $data)
         }
       }
 
-      elseif (substr($__filename, -4) == '.php') {
+      elseif (($filetype == '.php') or (substr($__filename, -6) == '.phtml')) {
         extract($data, EXTR_SKIP);
         include($__fullpath);
       }
@@ -974,7 +978,7 @@ class mcms
 
   public static function captchaGen()
   {
-    if (mcms::user()->id != 0)
+    if ((mcms::user()->id != 0) or !mcms::ismodule('captcha'))
       return null;
 
     $result = strtolower(substr(base64_encode(rand()), 0, 6));
@@ -1168,7 +1172,7 @@ class mcms
                   $result['interfaces'][$i][] = $classname;
               }
             } else {
-              mcms::debug($classname, $classpath, $m, $result);
+              mcms::log('modscanner', "No suitable class in ". $classpath);
             }
           }
         }

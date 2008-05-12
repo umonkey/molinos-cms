@@ -43,6 +43,12 @@ abstract class Widget implements iWidget
     return $this->me->name;
   }
 
+  // Возвращает имя виджета.
+  public function getClassName()
+  {
+    return $this->me->classname;
+  }
+
   // Возвращает описание виджета.
   public static function getInfo($class)
   {
@@ -192,7 +198,7 @@ abstract class Widget implements iWidget
   }
 
   // Вызывает метод в соответствии с запросом.
-  protected final function dispatch(array $params, array $options)
+  protected final function dispatch(array $params, array &$options)
   {
     $method = 'on';
 
@@ -201,7 +207,7 @@ abstract class Widget implements iWidget
     foreach ($params as $part)
       $method .= ucfirst(strtolower($part));
 
-    if (($method != 'onGet') and method_exists($this, $method))
+    if ($method != 'onGet' and method_exists($this, $method))
       return $this->$method($options);
 
     mcms::debug("No handler {$method} in class ". get_class($this));
@@ -209,12 +215,14 @@ abstract class Widget implements iWidget
   }
 
   // Форматирование.
-  public final function render($page, $args)
+  public final function render($page, $args, $class)
   {
     $args['instance'] = $this->getInstanceName();
     $args['lang'] = $page->language;
 
-    if (null === ($output = bebop_render_object('widget', $this->getInstanceName(), $page->theme, $args)) and !empty($args['html']) and is_string($args['html']))
+    $output = bebop_render_object('widget', $this->getInstanceName(), $page->theme, $args, $class);
+
+    if ((null === $output) and !empty($args['html']) and is_string($args['html']))
       $output = $args['html'];
 
     return $output;
