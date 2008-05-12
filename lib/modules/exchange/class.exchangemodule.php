@@ -142,7 +142,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       self::import($xmlstr);
 
       // Логинимся в качестве рута.
-      User::authorize('root', null, true);
+      User::authorize(mcms::user()->name, null, true);
 
       mcms::redirect("/admin/?module=exchange&preset=export&result=upgradeok");
     }
