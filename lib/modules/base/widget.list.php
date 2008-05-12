@@ -251,6 +251,7 @@ class ListWidget extends Widget
   public function onGet(array $options)
   {
     try {
+      $options['mode'] = 'list';
       return $this->dispatch(array($options['mode']), $options);
     } catch (NoIndexException $e) {
       return array('error' => t('Не удалось получить список документов: отсутствуют индексы.'));

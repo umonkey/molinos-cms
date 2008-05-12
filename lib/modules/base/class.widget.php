@@ -201,7 +201,7 @@ abstract class Widget implements iWidget
     foreach ($params as $part)
       $method .= ucfirst(strtolower($part));
 
-    if ($method != 'onGet' and method_exists($this, $method))
+    if (($method != 'onGet') and method_exists($this, $method))
       return $this->$method($options);
 
     mcms::debug("No handler {$method} in class ". get_class($this));

@@ -24,6 +24,8 @@ class AdminUISearchControl extends Control
 
   private function getLeftPart()
   {
+    $output = '';
+
     if (null !== ($tmp = $this->getCreateHTML()))
       $output .= $tmp . '&nbsp;|&nbsp;';
 
