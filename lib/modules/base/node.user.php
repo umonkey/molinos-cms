@@ -17,8 +17,8 @@ class UserNode extends Node implements iContentType
   {
     $isnew = empty($this->id);
 
-    if (empty($this->login))
-      $this->login = $this->name;
+    if (false == strstr($this->name, '@'))
+      $this->name = bebop_combine_url($tmp = bebop_split_url($this->name), false, true);
 
     // Возвращаем старый пароль, если не изменился.
     if (empty($this->password))
@@ -57,10 +57,17 @@ class UserNode extends Node implements iContentType
     if (!$simple and (null !== ($tab = $this->formGetGroups())))
       $form->addControl($tab);
 
+    $form->title = (null === $this->id)
+      ? t('Новый пользователь')
+      : t('Пользователь %name', array('%name' => $this->name));
+
     if ($this->id) {
       $tmp = $form->findControl('node_content_name');
 
-      if (false === strstr($this->name, '@') and false !== strstr($this->name, '.')) {
+      if ('cms-bugs@molinos.ru' == $this->name) {
+        $tmp->description = t('Замените это на свой почтовый адрес или OpenID, если он у вас есть.');
+        $form->title = t('Встроенный администратор');
+      } elseif (false === strstr($this->name, '@') and false !== strstr($this->name, '.')) {
         if ($tmp)
           $tmp->label = 'OpenID';
         $form->replaceControl('node_content_password', null);
@@ -70,10 +77,6 @@ class UserNode extends Node implements iContentType
         $form->replaceControl('node_content_email', null);
       }
     }
-
-    $form->title = (null === $this->id)
-      ? t('Новый пользователь')
-      : t('Пользователь %name', array('%name' => $this->name));
 
     return $form;
   }
