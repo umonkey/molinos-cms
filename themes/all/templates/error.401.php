@@ -25,13 +25,12 @@ $lreturn = bebop_combine_url($tmp);
     <title><?php print $_SERVER['HTTP_HOST']; ?> — авторизация</title>
     <meta http-equiv='Content-Type' content='application/xhtml+xml; charset=UTF-8' />
     <meta name='robots' content='index,follow' />
-    <link rel='shortcut icon' href='themes/all/img/lock.png' type='image/png' />
-    <link rel='stylesheet' href='themes/all/401.css' type='text/css' />
-    <link rel='stylesheet' href='themes/all/refpoint.reset.css' type='text/css' />
-    <link rel='stylesheet' href='themes/all/refpoint.typography-16.css' type='text/css' />
+    <link rel='shortcut icon' href='<?php print $prefix; ?>/img/lock.png' type='image/png' />
+    <link rel='stylesheet' href='<?php print $prefix; ?>/401.css' type='text/css' />
+    <link rel='stylesheet' href='<?php print $prefix; ?>/refpoint.reset.css' type='text/css' />
+    <link rel='stylesheet' href='<?php print $prefix; ?>/refpoint.typography-16.css' type='text/css' />
 
-    <script type='text/javascript' language='javascript' src='themes/all/401.js'></script>
-    <script type='text/javascript' language='javascript'>function show_restore() { document.getElementById('user-login-form').style.display = 'none'; document.getElementById('profile-remind-form').style.display = 'block'; return false; } function show_login() { document.getElementById('user-login-form').style.display = 'block'; document.getElementById('profile-remind-form').style.display = 'none'; return false; }</script>
+    <script type='text/javascript' language='javascript'>function show_restore() { alert('restore'); document.getElementById('user-login-form').style.display = 'none'; document.getElementById('profile-remind-form').style.display = 'block'; return false; } function show_login() { document.getElementById('user-login-form').style.display = 'block'; document.getElementById('profile-remind-form').style.display = 'none'; return false; }</script>
 
     <base href="<?php print rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/'; ?>" />
   </head>
