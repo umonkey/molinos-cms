@@ -48,6 +48,12 @@ function bebop_split_url($url = null)
 
   $tmp = parse_url($url);
 
+  // Если путь не содержит слэш, но содержит точки — копируем в хост.
+  if ('/' !== substr($tmp['path'], 0, 1) and strstr($tmp['path'], '.')) {
+    $tmp['host'] = $tmp['path'];
+    $tmp['path'] = '/';
+  }
+
   if (array_key_exists('query', $tmp)) {
     $tmp['args'] = parse_request_args($tmp['query']);
     unset($tmp['query']);
