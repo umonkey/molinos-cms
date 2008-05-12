@@ -23,7 +23,10 @@ class SubmitControl extends Control
     if ($this->captcha and null !== ($cval = mcms::captchaGen())) {
       $key = mcms_encrypt($cval);
 
-      $output .= '<img src="/captcha/index.php?seed='. $key .'" alt="captcha" />';
+      $output .= mcms::html('img', array(
+        'src' => '/captcha.rpc?seed='. $key,
+        'alt' => 'captcha',
+        ));
       $output .= '<div class="captchablock">';
       $output .= '<label for="captcha-'.$this->id.'">Введите текст с картинки:</label>';
       $output .= '<input id="captcha-'.$this->id.'" type="text" name="captcha[]" />';
