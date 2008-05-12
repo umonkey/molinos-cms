@@ -273,10 +273,15 @@ class Tagger
       $rgt = $lft + 1;
 
       try {
-        mcms::db()->exec("UPDATE `node` SET `left` = `left` + 2 WHERE `left` >= :left", array(':left' => $lft));
-        mcms::db()->exec("UPDATE `node` SET `right` = `right` + 2 WHERE `right` >= :left", array(':left' => $lft));
+        $db = mcms::db();
+
+        $order = $db->hasOrderedUpdates() ? ' ORDER BY `left` DESC' : '';
+        $db->exec("UPDATE `node` SET `left` = `left` + 2 WHERE `left` >= :left". $order, array(':left' => $lft));
+
+        $order = $db->hasOrderedUpdates() ? ' ORDER BY `right` DESC' : '';
+        $db->exec("UPDATE `node` SET `right` = `right` + 2 WHERE `right` >= :left". $order, array(':left' => $lft));
       } catch (PDOException $e) {
-        throw new Exception("Could not allocate left/right span for a node of class `{$node['class']}` with parent_id = {$node['parent_id']}");
+        throw new Exception("Could not allocate left/right span for a node of class `{$node['class']}` with parent_id = {$node['parent_id']}: ". $e->getMessage() ." (l/r={$lft}/{$rgt})");
       }
     }
 
