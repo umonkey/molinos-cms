@@ -1350,7 +1350,7 @@ class mcms
 
     printf("\nLocation: %s(%d)\n", ltrim(str_replace(MCMS_ROOT, '', $e->getFile()), '/'), $e->getLine());
 
-    print $message;
+    // print $message;
 
     print "\n--- backtrace ---\n";
     print mcms::backtrace($e);

@@ -5,6 +5,8 @@ body {
 
 a, .fakelink {
   color: #0033ff;
+  cursor: hand;
+  text-decoration: underline;
 }
 
 .modlist th {

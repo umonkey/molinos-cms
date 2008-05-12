@@ -32,7 +32,6 @@ class TableInfo
       }
     }
 
-
     public function getColumns()
     {
         return $this->columns;
@@ -75,7 +74,6 @@ class TableInfo
         }
     }
 
-
     private function needsUpdate($name, array $new)
     {
       if (!array_key_exists($name, $this->columns))
@@ -104,10 +102,18 @@ class TableInfo
     public function columnDel($name)
     {
       if ($this->columnExists($name)) {
-        $this->coldel[] = $name;
+        // $this->coldel[] = $name;
+        $this->alter[] = "DROP COLUMN `{$name}`";
+
         unset($this->columns[$name]);
+
+        /*
+        // TODO: это очень нужно?  при удалении колонки индекс сам не удалится?
+        // Кроме того, изменять структуру здесь нельзя, надо только формировать
+        // инструкции, а выполнять их будут в commit() или после getSQL().
         $sql = "DROP INDEX IF EXISTS `IDX_".$this->name."_".$name."`";
         mcms::db()->exec($sql);
+        */
       }
     }
 
@@ -125,8 +131,10 @@ class TableInfo
     // Форматирует код для изменения структуры таблицы.
     public function addSql($name, array $spec, $modify)
     {
-      list($sql,$ix) = mcms::db()->addSql($name,  $spec, $modify, $this->isnew);
-         $this->alter[] = $sql;
+      list($sql, $ix) = mcms::db()->addSql($name, $spec, $modify, $this->isnew);
+
+      $this->alter[] = $sql;
+
       if ($ix)
         $this->index[] = $ix;
     }
@@ -136,32 +144,34 @@ class TableInfo
       $tblname = $this->name;
 
       if (!empty($this->coldel)) {
-         mcms::db()->dropColumn($tblname,$this->coldel, $this->columns);
-      }
-      else{
+         mcms::db()->dropColumn($tblname, $this->coldel, $this->columns);
+      } else {
         if (null !== ($sql = $this->getSql())) {
           mcms::db()->exec($sql);
         }
       }
 
       // Добавим индексы
+      // FIXME: нет проверки на существование индекса.
+      /*
       for ($i = 0; $i < count($this->index); $i++) {
         $el = $this->index[$i];
         $sql = "CREATE INDEX `IDX_{$tblname}_{$el}` on `{$tblname}` (`{$el}`)";
         mcms::db()->exec($sql);
       }
+      */
 
       $this->index = $this->alter = array();
 
       mcms::db()->commit();
     }
 
-    protected function getSql()
+    public function getSql()
     {
       if (empty($this->alter))
         return null;
 
-      $sql = mcms::db()->getSql($this->name,$this->alter,$this->isnew);
+      $sql = mcms::db()->getSql($this->name, $this->alter, $this->isnew);
       return $sql;
     }
 

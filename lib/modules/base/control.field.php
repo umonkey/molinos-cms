@@ -16,82 +16,111 @@ class FieldControl extends Control
     parent::__construct($form, array('value'));
   }
 
+  private function isnull(array $data, $key, $default = null)
+  {
+    return array_key_exists($key, $data) ? $data[$key] : $default;
+  }
+
+  private function addProperty(array $data, $name, $title, $content = 'пример')
+  {
+    $output = mcms::html('td', array('class' => 'fname'), $title .':');
+    $output .= mcms::html('td', array('class' => 'fprops'), $content);
+
+    return mcms::html('tr', array(
+      'class' => 'fprop '. $name,
+      ), $output);
+  }
+
   public function getHTML(array $data)
   {
+    $id = $this->id;
+
     if (null === $this->name or empty($data[$this->value][$this->name]))
-      $data = array(
-        'label' => t('Новое поле'),
-        );
+      $data = array('label' => t('Новое поле'));
     else
       $data = $data[$this->value][$this->name];
 
-    $name = (null === $this->name) ? 'new-field' : $this->name;
-
-    $rows = array();
-
-    $rows['Заголовок'] = mcms::html('input', array(
+    $body = $this->addProperty($data, 'name', 'Имя', mcms::html('input', array(
       'type' => 'text',
-      'class' => array('form-text', 'form-title'),
-      'value' => empty($data['label']) ? null : $data['label'],
-      'name' => "{$this->value}[{$name}][label]",
-      ));
-    $rows['Имя'] = (null === $this->name) ? mcms::html('input', array(
+      'value' => $this->name,
+      'name' => "{$this->value}[{$id}][name]",
+      )));
+    $body .= $this->addProperty($data, 'title', 'Заголовок', mcms::html('input', array(
       'type' => 'text',
-      'class' => 'form-text',
-      'name' => "{$this->value}[{$name}][name]",
-      'value' => empty($data['name']) ? null : $data['name'],
-      )) : null;
-    $rows['Тип'] = mcms::html('select', array(
-      'name' => "{$this->value}[{$name}][type]",
-      ), $this->getTypes(empty($data['type']) ? null : $data['type']));
-    $rows['Описание'] = mcms::html('textarea', array(
-      'name' => "{$this->value}[{$name}][description]",
-      'class' => 'form-text resizable',
-      ), empty($data['description']) ? null : mcms_plain($data['description'])) ."<p class='note'>". t('Выводится под полем для ввода, содержит подсказку для пользователя.') ."</p>";
-    $rows['По&nbsp;умолчанию'] = mcms::html('input', array(
-      'type' => 'text',
-      'class' => 'form-text',
-      'name' => "{$this->value}[{$name}][default]",
-      'value' => array_key_exists('default', $data) ? $data['default'] : null,
-      ));
-    $rows['Значения'] = mcms::html('textarea', array(
-      'name' => "{$this->value}[{$name}][values]",
-      'class' => 'form-text resizable',
-      ), empty($data['values']) ? null : mcms_plain($data['values'])) ."<p class='note'>". t('Используется списками значений и набором флагов.') ."</p>";
-    $rows['Обязательное'] = mcms::html('input', array(
-      'type' => 'checkbox',
-      'name' => "{$this->value}[{$name}][required]",
-      'value' => 1,
-      'checked' => !empty($data['required'])
-      ));
-    $rows['Индекс'] = mcms::html('input', array(
-      'type' => 'checkbox',
-      'name' => "{$this->value}[{$name}][indexed]",
-      'value' => 1,
-      'checked' => !empty($data['indexed'])
-      ));
-    $rows['Удалить'] = (null !== $this->name) ? mcms::html('input', array(
-      'type' => 'checkbox',
-      'name' => "{$this->value}[{$name}][delete]",
-      'value' => 1,
-      )) : null;
+      'value' => $this->isnull($data, 'label'),
+      'name' => "{$this->value}[{$id}][label]",
+      )));
+    $body .= $this->addProperty($data, 'type', 'Тип', mcms::html('select', array(
+      'value' => $this->isnull($data, 'type'),
+      'name' => "{$this->value}[{$id}][type]",
+      ), $this->getTypes($this->isnull($data, 'type', 'TextLineControl'))));
 
-    if (null === ($n1 = $n2 = $this->name)) {
-      $n1 = 'new-field';
-      $n2 = 'Добавить поле';
+    $body .= $this->addProperty($data, 'dictionary', 'Справочник', mcms::html('select', array(
+      'name' => "{$this->value}[{$id}][dictionary]",
+      ), $this->getDictionaries($this->isnull($data, 'dictionary', $this->isnull($data, 'values')))));
+
+    $body .= $this->addProperty($data, 'default', 'По умолчанию', mcms::html('input', array(
+      'type' => 'text',
+      'value' => $this->isnull($data, 'default'),
+      'name' => "{$this->value}[{$id}][default]",
+      )));
+    $body .= $this->addProperty($data, 'values', 'Значения', mcms::html('input', array(
+      'type' => 'text',
+      'value' => $this->isnull($data, 'values'),
+      'name' => "{$this->value}[{$id}][values]",
+      )));
+    $body .= $this->addProperty($data, 'required', 'Обязательное', mcms::html('input', array(
+      'type' => 'checkbox',
+      'checked' => $this->isnull($data, 'required') ? 'checked' : null,
+      'name' => "{$this->value}[{$id}][required]",
+      'value' => 1,
+      )));
+    $body .= $this->addProperty($data, 'indexed', 'Индекс', mcms::html('input', array(
+      'type' => 'checkbox',
+      'checked' => $this->isnull($data, 'indexed') ? 'checked' : null,
+      'name' => "{$this->value}[{$id}][indexed]",
+      'value' => 1,
+      )));
+    $body .= $this->addProperty($data, 'delete', 'Удалить', mcms::html('input', array(
+      'type' => 'checkbox',
+      'name' => "{$this->value}[{$id}][delete]",
+      'value' => 1,
+      )));
+
+    $classes = 'caption fakelink';
+
+    if (!isset($this->name))
+      $classes .= ' addnew';
+
+    $output = mcms::html('span', array('class' => $classes), $this->name ? $this->name : 'добавить...');
+    $output .= mcms::html('table', array('class' => 'fprops nojs'), $body);
+
+    return $this->wrapHTML(mcms::html('div', array(
+      'id' => $this->name ? "field-{$this->name}-editor" : null,
+      'class' => 'fprop '. $this->isnull($data, 'type', 'TypeTextControl'),
+      ), $output), false);
+  }
+
+  protected function wrapHTML($output)
+  {
+    static $lock = false;
+
+    if (!$lock) {
+      $output .= mcms::html('script', array(
+        'language' => 'javascript',
+        'type' => 'text/javascript',
+        'src' => '/lib/modules/base/control.field.js',
+        ));
+      $output .= mcms::html('link', array(
+        'rel' => 'stylesheet',
+        'type' => 'text/css',
+        'href' => '/lib/modules/base/control.field.css',
+        ));
+
+      $lock = true;
     }
 
-    $output = "<div id='field-{$n1}-editor'>"
-      ."<span class='caption'><a class='selector' href='". mcms_plain($_SERVER['REQUEST_URI']) ."#{$n1}'>{$n2}</a></span>"
-      ."<table class='hidden'>";
-
-    foreach ($rows as $title => $content)
-      if (null !== $content)
-        $output .= "<tr><td class='right'>{$title}:</td><td>{$content}</td></tr>";
-
-    $output .= "</table></div>";
-
-    return $this->wrapHTML($output, false);
+    return $output;
   }
 
   private function getTypes($current = null)
@@ -101,7 +130,7 @@ class FieldControl extends Control
     if (null !== $current)
       $current = mcms_ctlname($current);
 
-    foreach (mcms::getImplementors('iFormControl') as $class) {
+    foreach ($tmp = mcms::getImplementors('iFormControl') as $class) {
       if (mcms::class_exists($class)) {
         if ('Control' != $class) {
           $info = call_user_func(array($class, 'getInfo'));
@@ -120,5 +149,34 @@ class FieldControl extends Control
         ), $v);
 
     return join('', $output);
+  }
+
+  // FIXME: переделать так, чтобы отображались только справочники.
+  private function getDictionaries($current = null)
+  {
+    $options = array();
+
+    if ((null !== $current) and (false !== strpos($current, '.')))
+      $current = substr($current, 0, strpos($current, '.'));
+
+    foreach (TypeNode::getSchema() as $k => $v)
+      $options[$k] = $v['title'];
+
+    asort($options);
+
+    $output = '';
+
+    foreach ($options as $k => $v)
+      $output .= mcms::html('option', array(
+        'value' => $k,
+        'selected' => ($k == $current) ? 'selected' : null,
+        ), $v);
+
+    /*
+    if ($this->name == 'company')
+      mcms::debug($current, $options, $this);
+    */
+
+    return $output;
   }
 };

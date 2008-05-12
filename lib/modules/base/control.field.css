@@ -1,0 +1,36 @@
+table.fprops {
+  margin-left: 20px;
+}
+
+/* По умолчанию скрываем некоторые расширенные свойства. */
+tr.fprop.values,
+tr.fprop.default,
+tr.fprop.dictionary {
+  display: none;
+}
+
+div.fprop.TextLineControl tr.fprop.default {
+  display: table-row;
+}
+div.fprop.NodeLinkControl tr.fprop.dictionary {
+  display: table-row;
+}
+div.fprop.TextHTMLControl tr.fprop.indexed,
+div.fprop.TextAreaControl tr.fprop.indexed,
+div.fprop.AttachmentControl tr.fprop.indexed,
+div.fprop.PasswordControl tr.fprop.indexed,
+div.fprop.SetControl tr.fprop.indexed,
+div.fprop.NodeLinkControl tr.fprop.indexed {
+  display: none;
+}
+
+div.fprop.BoolControl tr.fprop.required,
+div.fprop.PasswordControl tr.fprop.required {
+  display: none;
+}
+
+div.fprop.EnumControl tr.fprop.values,
+div.fprop.EnumRadioControl tr.fprop.values,
+div.fprop.SetControl tr.fprop.values {
+  display: table-row;
+}

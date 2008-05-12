@@ -345,10 +345,13 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       'name' => 'fields',
       'label' => t('Поля'),
       ));
-    
+
+    $id = 1;
+
     if (!empty($this->fields)) {
       foreach ($this->fields as $k => $v) {
         $field = new FieldControl(array(
+          'id' => 'field'. $id++,
           'name' => $k,
           'value' => 'node_content_fields',
           'label' => empty($v['label']) ? $k : $v['label'],
@@ -356,7 +359,9 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
         $form->addControl($field);
       }
     }
+
     $form->addControl(new FieldControl(array(
+      'id' => 'field'. $id++,
       'name' => null,
       'value' => 'node_content_fields',
       )));
@@ -414,11 +419,13 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       $this->data['published'] = true;
     }
 
+    // TODO: этот блок раньше был ПОД formProcess(), почему?  Были какие-то
+    // с ним проблемы, я не помню какие.  Надо проверить ещё раз, везде ли
+    // сейчас работает, и поправить, если надо.  И задокументировать! — hex, 12.05.08
+    $this->updateFields($data);
+
     // Обновляем базовые свойства, типа имени и описания.
     parent::formProcess($data);
-
-    // Теперь, когда имя типа известно, можно обновить поля.
-    $this->updateFields($data);
 
     if (empty($this->fields)) {
       mcms::db()->rollBack();
@@ -434,21 +441,25 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   protected function updateFields(array $data)
   {
-    $fields = empty($data['node_content_fields']) ? array() : $data['node_content_fields'];
+    $fields = array();
 
-    foreach ($fields as $k => $v) {
-      if (!empty($v['delete'])) {
-        unset($fields[$k]);
-      }
+    if (empty($data['node_content_fields']) or !is_array($data['node_content_fields']))
+      throw new ValidationException(t('Поля документа не заполнены.'));
 
-      elseif ('new-field' == $k) {
-        if (empty($v['name']))
-          unset($fields[$k]);
-        else {
-          $fields[$v['name']] = $v;
-          unset($fields[$v['name']]['name']);
-          unset($fields[$k]);
-        }
+    foreach ($data['node_content_fields'] as $f) {
+      if (!empty($f['name']) and empty($f['delete'])) {
+        if (strspn(mb_strtolower($f['name']), '0123456789abcdefghijklmnopqrstuvwxyz_') != strlen($f['name']))
+          throw new ValidationException('Имя поля может содержать только цифры, буквы и прочерк.');
+
+        if (array_key_exists(strtolower($f['name']), $fields))
+          throw new ValidationException(t('Поле %name описано дважды.', array('%name' => $f['name'])));
+
+        foreach ($f as $k => $v)
+          if (empty($v))
+            unset($f[$k]);
+
+        $fields[$f['name']] = $f;
+        unset($fields[$f['name']]['name']);
       }
     }
 
@@ -466,16 +477,8 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
         'key' => 'pri',
         ));
 
-    $old = (array)$this->oldfields;
-    $new = (array)$this->fields;
-
-    // Удаляем старые поля.
-    foreach ($old as $k => $v)
-      if (!self::isReservedFieldName($k) and !empty($v['indexed']) and empty($new[$k]['indexed']))
-        $t->columnDel($k);
-
     // Добавляем новые поля.
-    foreach ($new as $k => $v) {
+    foreach ((array)$this->fields as $k => $v) {
       if (self::isReservedFieldName($k))
         $v['indexed'] = false;
 
@@ -492,6 +495,12 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
           $t->columnSet($k, $spec);
         }
       }
+    }
+
+    // Удалим ненужные индексы.
+    foreach (array_keys($t->getColumns()) as $idx) {
+      if ($idx != 'rid' and empty($this->fields[$idx]['indexed']))
+        $t->columnDel($idx);
     }
 
     // Если таблица создаётся, и колонка всего одна — rid — пропускаем.
