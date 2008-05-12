@@ -946,8 +946,8 @@ class mcms
 
     $body .= '<blockquote><em>'. mcms_plain($e->getMessage()) .'</em></blockquote>';
 
-    $body .= t('<p>Here is the stack trace:</p><blockquote>%stack</blockquote>', array(
-      '%stack' => str_replace("\n", '<br/>', $e->getTraceAsString()),
+    $body .= t('<p>Here is the stack trace:</p><pre>%stack</pre>', array(
+      '%stack' => mcms::backtrace($e),
       ));
 
     if (mcms::user()->id)
@@ -1290,31 +1290,39 @@ class mcms
     return $version;
   }
 
-  public static function backtrace(array $stack = null)
+  public static function backtrace($stack = null)
   {
     $output = '';
 
-    if (null === $stack)
+    if ($stack instanceof Exception) {
+      $tmp = $stack->getTrace();
+      array_unshift($tmp, array(
+        'file' => $stack->getFile(),
+        'line' => $stack->getLine(),
+        'function' => sprintf('throw new %s', get_class($stack)),
+        ));
+      $stack = $tmp;
+    } elseif (null === $stack or !is_array($stack)) {
       $stack = debug_backtrace();
+      array_shift($stack);
+    }
 
     foreach ($stack as $k => $v) {
-      if ($k > 0) {
-        if (!empty($v['class']))
-          $func = $v['class'] .$v['type']. $v['function'];
-        else
-          $func = $v['function'];
+      if (!empty($v['class']))
+        $func = $v['class'] .$v['type']. $v['function'];
+      else
+        $func = $v['function'];
 
-        $output .= sprintf("%2d. ", $k);
+      $output .= sprintf("%2d. ", $k + 1);
 
-        if (!empty($v['file']) and !empty($v['line']))
-          $output .= sprintf('%s(%d) — ', ltrim(str_replace(MCMS_ROOT, '', $v['file']), '/'), $v['line']);
-        else
-          $output .= '??? — ';
+      if (!empty($v['file']) and !empty($v['line']))
+        $output .= sprintf('%s(%d) — ', ltrim(str_replace(MCMS_ROOT, '', $v['file']), '/'), $v['line']);
+      else
+        $output .= '??? — ';
 
-        $output .= $func .'()';
+      $output .= $func .'()';
 
-        $output .= "\n";
-      }
+      $output .= "\n";
     }
 
     return $output;
@@ -1345,7 +1353,7 @@ class mcms
     print $message;
 
     print "\n--- backtrace ---\n";
-    print mcms::backtrace($e->getTrace());
+    print mcms::backtrace($e);
 
     exit();
   }
@@ -1353,6 +1361,9 @@ class mcms
   public static function error_handler($errno, $errstr, $errfile, $errline, array $context)
   {
     if ($errno == 2048)
+      return;
+
+    if ($errno == 2 and substr($errstr, 0, 5) == 'dl():')
       return;
 
     if (ob_get_length())
@@ -1390,12 +1401,12 @@ class mcms
       if (null !== ($re = mcms::config('backtracerecipient'))) {
         $release = substr(mcms::version(), 0, -(strrpos(mcms::version(), '.') + 1));
 
-        $message = t('<p>На сайте <a href=\'@url\'>%host</a> возникла <em>фатальная</em> ошибка #%code в строке %line файла <code>%file</code>.  Текст ошибки: %text.</p><p>Стэк вызова, к сожалению, <a href=\'@function\'>недоступен</a>.</p><p>Molinos.CMS v%version — <a href=\'@changelog\'>ChangeLog</a> | <a href=\'@issues\'>issues</a></p>', array(
+        $message = t('<p>На сайте <a href=\'@url\'>%host</a> возникла <em>фатальная</em> ошибка #%code в строке %line файла <code>%file</code>.  Текст ошибки: %text.</p><p>Стэк вызова, к сожалению, <a href=\'@function\'>недоступен</a>.</p><p>Molinos.CMS v%version — <a href=\'@changelog\'>ChangeLog</a> | <a href=\'@issues\'>Issues</a></p>', array(
           '%host' => $_SERVER['HTTP_HOST'],
           '@url' => "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}",
           '%code' => $e['type'],
           '%line' => $e['line'],
-          '%file' => $e['file'],
+          '%file' => ltrim(str_replace(MCMS_ROOT, '', $e['file']), '/'),
           '%text' => $e['message'],
           '%version' => mcms::version(),
           '@changelog' => "http://code.google.com/p/molinos-cms/wiki/ChangeLog_". str_replace('.', '', $release),
@@ -1421,7 +1432,7 @@ class mcms
             ."   Локация: %s(%s)\n"
             ." Сообщение: %s\n"
             ."    Версия: %s\n",
-            $e['type'], $e['file'], $e['line'], $e['message'], mcms::version());
+            $e['type'], ltrim(str_replace(MCMS_ROOT, '', $e['file']), '/'), $e['line'], $e['message'], mcms::version());
 
         die();
       }
@@ -1456,5 +1467,5 @@ class mcms
 };
 
 set_exception_handler('mcms::eh');
-set_error_handler('mcms::error_handler', E_ERROR|E_WARNING|E_PARSE);
+set_error_handler('mcms::error_handler', E_ERROR /*|E_WARNING|E_PARSE*/);
 register_shutdown_function('mcms::shutdown_handler');
