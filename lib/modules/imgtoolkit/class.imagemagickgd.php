@@ -50,20 +50,25 @@ class ImageMagickGD
         switch ($this->mime) {
             case 'image/jpeg':
             case 'image/pjpeg':
-                $this->img = imagecreatefromjpeg($path);
+                $func = 'imagecreatefromjpeg';
                 break;
             case 'image/png':
             case 'image/x-png':
-                $this->img = imagecreatefrompng($path);
+                $func = 'imagecreatefrompng';
                 break;
             case 'image/gif':
-                $this->img = imagecreatefromgif($path);
+                $func = 'imagecreatefromgif';
                 break;
             default:
                 $this->error = "bad file";
                 $this->errorlong = "unknown image file format";
                 return false;
         }
+
+        if (function_exists($func))
+          $this->img = call_user_func($func, $path);
+        else
+          throw new RuntimeException(t('GD does not provide the %func() function.', array('%func' => $func)));
 
         return ($this->img !== FALSE);
     }
