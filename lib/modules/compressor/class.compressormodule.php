@@ -94,7 +94,7 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook
     $result = mcms::config('filestorage') .'/mcms-'. md5($filename) .'.js';
 
     if (!file_exists($result) or (filemtime($filename) > filemtime($result)))
-      file_put_contents($result, JSMin::minify(file_get_contents($filename)));
+      file_put_contents($result, file_get_contents($filename));
 
     return $result;
   }
@@ -124,6 +124,8 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook
         if (file_exists($filename = getcwd() .'/'. $file)) {
           $tmp = file_get_contents($filename);
           $bulk .= $tmp;
+        } else {
+          mcms::log('compressor', t('%file skipped — not found', array('%file' => $file)));
         }
       }
 
@@ -140,8 +142,10 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook
   {
     $result = mcms::config('filestorage') .'/mcms-'. md5($filename) .'.css';
 
-    if (!file_exists(getcwd() . $filename))
+    if (!file_exists(getcwd() . $filename)) {
+      mcms::log('compressor', t('%file not found.', array('%file' => $filename)));
       return null;
+    }
 
     if (!file_exists($result) or (filemtime(getcwd() . $filename) > filemtime($result))) {
       $data = file_get_contents(getcwd() . $filename);
