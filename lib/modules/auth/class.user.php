@@ -198,7 +198,7 @@ class User
     }
 
     elseif (count($args) >= 2) {
-      if (strpos($args[0],'@')) { //e-mail в качестве логина
+      if (strpos($args[0], '@') or false === strpos($args[0], '.')) { //e-mail в качестве логина
         $node = Node::load(array('class' => 'user', 'name' => $args[0]));
 
         if ($node->password != md5($args[1]) and empty($args[2]))
@@ -290,7 +290,7 @@ class User
     if ($sreg_request)
       $auth_request->addExtension($sreg_request);
 
-    $policy_uris = $_GET['policies'];
+    $policy_uris = empty($_GET['policies']) ? null : $_GET['policies'];
 
     $pape_request = new Auth_OpenID_PAPE_Request($policy_uris);
 
