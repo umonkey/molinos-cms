@@ -234,7 +234,15 @@ class User
         throw new ForbiddenException();
       return $this->session;
     }
+
     return $this->node->$key;
+  }
+
+  public function __isset($key)
+  {
+    if ('session' === $key)
+      return null !== $this->session;
+    return isset($this->node->$key);
   }
 
   public function getGroups()
