@@ -792,7 +792,7 @@ class NumberControl extends Control
 
   public static function getSQL()
   {
-    return 'DECIMAL(10,2)';
+    return 'INTEGER';
   }
 
   public function getHTML(array $data)
@@ -819,6 +819,11 @@ class FloatControl extends NumberControl
     return array(
       'name' => t('Число (дробное)'),
       );
+  }
+
+  public static function getSQL()
+  {
+    return 'DECIMAL(10,2)';
   }
 };
 
@@ -1174,8 +1179,10 @@ class NodeLinkControl extends Control
       'readonly' => $this->readonly ? 'readonly' : null,
       ));
 
+    /*
     if (!$this->readonly)
       $output .= '<script language=\'javascript\'>$(\'#'. $this->id .'\').suggest(\'/autocomplete.rpc?source='. $this->values .'\');</script>';
+    */
 
     return $this->wrapHTML($output);
   }
