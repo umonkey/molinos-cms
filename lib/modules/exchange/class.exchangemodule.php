@@ -396,8 +396,10 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       'upgradeok' => 'Upgrade до Mysql прошёл успешно'
       );
 
+    /*
     if ($result)
       $form->addControl(new InfoControl(array('text' => $resstr[$result])));
+    */
 
     $options = array(
        'export' => t('Бэкап'),
