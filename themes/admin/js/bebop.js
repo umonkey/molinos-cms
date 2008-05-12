@@ -191,6 +191,27 @@ $(document).ready(function () {
     $('form#mod_exchange :radio').change(fix_backup_mode);
     fix_backup_mode();
   }
+
+	$('#top_menu_controls ul li.current').addClass('current_strong');
+
+  	$('#top_menu_controls ul li').mouseover(function(){
+		$('#top_menu_controls ul li').removeClass('current');
+		$(this).addClass('current');
+	});
+	
+	$('#top_menu_controls ul li ul li').mouseover(function(){
+		$(this).parent().parent().addClass('current');
+	});
+	
+	$('#top_menu_controls ul li ul').mouseout(function(){
+		$('#top_menu_controls ul li').removeClass('current');
+		$('#top_menu_controls ul li.current_strong').addClass('current');
+	});
+
+	$('#top_menu_controls_bottom').mouseout(function(){
+		$('#top_menu_controls ul li').removeClass('current');
+		$('#top_menu_controls ul li.current_strong').addClass('current');
+	});
 });
 
 function fix_backup_mode()
