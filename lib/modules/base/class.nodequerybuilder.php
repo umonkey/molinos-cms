@@ -46,6 +46,7 @@ class NodeQueryBuilder
     $this->addSortFields();
 
     // Если мы работаем с одним классом, добавляем его специальные поля в запрос сразу.
+    /*
     if (null !== $fields and null !== ($class = $this->getClassName())) {
       $schema = TypeNode::getSchema($class);
       $reserved = TypeNode::getReservedNames();
@@ -58,6 +59,7 @@ class NodeQueryBuilder
           }
       }
     }
+    */
 
     if ($fields === null)
       $fields = '*';

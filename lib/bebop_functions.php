@@ -216,8 +216,9 @@ function bebop_combine_url(array $url, $escape = true)
 // Возвращает отформатированную ссылку.
 function l($url, $title = null, array $options = null, $absolute = false)
 {
-  if (!mcms::config('handler') and ('/attachment/' == substr($url, 0, 12)))
-    return dirname($_SERVER['SCRIPT_NAME']) .'/att.php?q='. urlencode(substr($url, 12));
+  if (!mcms::config('handler') and ('/attachment/' == substr($url, 0, 12))) {
+    return rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/att.php?q='. urlencode(substr($url, 12));
+  }
 
   if (empty($url))
     throw new RuntimeException(t('Не указана ссылка для l().'));
@@ -416,6 +417,15 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
 // Определяет тип файла.
 function bebop_get_file_type($filename, $realname = null)
 {
+  if (false !== strstr($filename, '.')) {
+    switch (substr($filename, strrpos($filename, '.'))) {
+    case '.pdf':
+      return 'application/pdf';
+    case '.desktop':
+      return 'application/x-gnome-shortcut';
+    }
+  }
+
   $result = 'application/octet-stream';
 
   if (function_exists('mime_content_type')) {

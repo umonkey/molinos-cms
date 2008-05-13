@@ -69,6 +69,12 @@ class FieldControl extends Control
       'value' => $this->isnull($data, 'default'),
       'name' => "{$this->value}[{$id}][default]",
       )));
+    $body .= $this->addProperty($data, 'extensions', 'Расширения', mcms::html('input', array(
+      'type' => 'text',
+      'class' => 'clonable',
+      'value' => $this->isnull($data, 'extensions', 'png, gif, jpg'),
+      'name' => "{$this->value}[{$id}][extensions]",
+      )));
     $body .= $this->addProperty($data, 'values', 'Значения', mcms::html('input', array(
       'type' => 'text',
       'class' => 'clonable',
@@ -87,6 +93,20 @@ class FieldControl extends Control
       'class' => 'clonable',
       'checked' => $this->isnull($data, 'indexed') ? 'checked' : null,
       'name' => "{$this->value}[{$id}][indexed]",
+      'value' => 1,
+      )));
+    $body .= $this->addProperty($data, 'archive', 'Подбирать из архива', mcms::html('input', array(
+      'type' => 'checkbox',
+      'class' => 'clonable',
+      'checked' => $this->isnull($data, 'archive') ? 'checked' : null,
+      'name' => "{$this->value}[{$id}][archive]",
+      'value' => 1,
+      )));
+    $body .= $this->addProperty($data, 'unzip', 'Поддержка .zip', mcms::html('input', array(
+      'type' => 'checkbox',
+      'class' => 'clonable',
+      'checked' => $this->isnull($data, 'unzip') ? 'checked' : null,
+      'name' => "{$this->value}[{$id}][unzip]",
       'value' => 1,
       )));
     $body .= $this->addProperty($data, 'delete', 'Удалить', mcms::html('input', array(

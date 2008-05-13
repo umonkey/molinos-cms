@@ -5,7 +5,10 @@ table.fprops {
 /* По умолчанию скрываем некоторые расширенные свойства. */
 tr.fprop.values,
 tr.fprop.default,
-tr.fprop.dictionary {
+tr.fprop.dictionary,
+tr.fprop.archive,
+tr.fprop.extensions,
+tr.fprop.unzip {
   display: none;
 }
 
@@ -32,5 +35,11 @@ div.fprop.PasswordControl tr.fprop.required {
 div.fprop.EnumControl tr.fprop.values,
 div.fprop.EnumRadioControl tr.fprop.values,
 div.fprop.SetControl tr.fprop.values {
+  display: table-row;
+}
+
+div.fprop.AttachmentControl tr.fprop.archive,
+div.fprop.AttachmentControl tr.fprop.extensions,
+div.fprop.AttachmentControl tr.fprop.unzip {
   display: table-row;
 }

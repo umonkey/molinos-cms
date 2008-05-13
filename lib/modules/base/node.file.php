@@ -198,6 +198,7 @@ class FileNode extends Node implements iContentType
       $form->addControl(new AttachmentControl(array(
         'value' => '__file_node_update',
         'label' => t('Загрузите новый файл'),
+        'unzip' => true,
         )));
 
       $form->addControl(new SetControl(array(

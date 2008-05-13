@@ -14,7 +14,13 @@ class AttachmentControl extends Control
   {
     parent::__construct($form, array('value'));
 
-    $this->description .= '<p>'. t("Максимальный размер файла: %size.", array('%size' => ini_get('upload_max_filesize'))) .'</p>';
+    $parts = array();
+    $parts[] = t("Максимальный размер файла: %size.", array('%size' => ini_get('upload_max_filesize')));
+
+    if (!empty($this->extensions))
+      $parts[] = t('Допустимые типы файлов: %list.', array('%list' => $this->extensions));
+
+    $this->description .= '<p>'. join('  ', $parts) .'</p>';
   }
 
   public function getHTML(array $data)
@@ -24,14 +30,25 @@ class AttachmentControl extends Control
     $output = mcms::html('input', array(
       'type' => 'file',
       'name' => $this->value,
-      'id' => $this->id .'-input'
+      'id' => $this->id .'-input',
+      'class' => 'form-file'. ($this->archive ? ' archive' : ''),
       ));
+
+    if ($this->unzip)
+      $output .= '<br/>'. mcms::html('input', array(
+        'type' => 'checkbox',
+        'name' => $this->value .'[unzip]',
+        'value' => 1,
+        ), 'Распаковать ZIP');
+
+    /*
     $output .= mcms::html('input', array(
       'type' => 'hidden',
       'name' => $this->value .'[id]',
       'value' => empty($data['id']) ? null : $data['id'],
       'id' => $this->id .'-hidden',
       ));
+    */
 
     return $this->wrapHTML($output);
   }

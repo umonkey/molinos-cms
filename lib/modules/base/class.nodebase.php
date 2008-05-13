@@ -1002,6 +1002,7 @@ class NodeBase
           if (mcms_ctlname($v['type']) == 'AttachmentControl') {
             $v['value'] = 'node_content_files['. $k .']';
             $v['medium'] = true;
+            $v['unzip'] = false; // не разрешаем распаковывать зипы, загружаемые в поля.
           } else {
             $v['value'] = 'node_content_'. $k;
           }
@@ -1274,6 +1275,11 @@ class NodeBase
 
     if (!empty($data['node_content_files'])) {
       foreach ($data['node_content_files'] as $field => $fileinfo) {
+        switch ($fileinfo['error']) {
+        case UPLOAD_ERR_INI_SIZE:
+          throw new ValidationException(t('Файл %name слишком большой; максимальный размер файла: %size.', array('%name' => $fileinfo['name'], '%size' => ini_get('upload_max_filesize'))));
+        }
+
         if (!is_array($fileinfo))
           continue;
 
