@@ -25,7 +25,10 @@ class mcms_sqlite_driver extends PDO_Singleton
 
       switch ($info[1]) {
       case 1: // General error: 1 no such table: xyz.
-        throw new TableNotFoundException(trim(strrchr($info[2], ' ')), $sql, $params);
+        if (false !== strstr($info[2], 'no such table'))
+          throw new TableNotFoundException(trim(strrchr($info[2], ' ')), $sql, $params);
+        throw new McmsPDOException($e, $sql);
+        break;
 
       case 8:
         throw new ReadOnlyDatabaseException();
@@ -36,6 +39,14 @@ class mcms_sqlite_driver extends PDO_Singleton
     }
 
     return $sth;
+  }
+
+  public function prepare($sql)
+  {
+    if (false !== strstr($sql, 'UTC_TIMESTAMP()'))
+      $sql = str_replace('UTC_TIMESTAMP()', '\''. date('Y-m-d H:i:s', time() - date('Z', time())) .'\'', $sql);
+
+    return parent::prepare($sql);
   }
 
   public function clearDB()
