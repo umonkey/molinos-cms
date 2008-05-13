@@ -1469,6 +1469,11 @@ class mcms
 
     return realpath($path);
   }
+
+  public static function now()
+  {
+    return date('Y-m-d H:i:s', time() - date('Z', time()));
+  }
 };
 
 set_exception_handler('mcms::eh');
