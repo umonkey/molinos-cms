@@ -179,6 +179,7 @@ class AdminListHandler
         break;
       case 'schema':
         $this->types = array('type');
+        $this->actions = array('delete', 'publish', 'unpublish', 'clone', 'reindex');
         $this->title = t('Типы документов');
         $this->columns = array('name', 'title', 'description', 'created');
         $this->limit = null;

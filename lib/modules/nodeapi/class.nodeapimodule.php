@@ -62,6 +62,11 @@ class NodeApiModule implements iRemoteCall
 
       mcms::redirect($link);
 
+    case 'reindex':
+      $node = Node::load(array('class' => 'type', 'id' => $nid));
+      $node->updateTable();
+      break;
+
     case 'publish':
     case 'enable':
       if (null !== $nid) {

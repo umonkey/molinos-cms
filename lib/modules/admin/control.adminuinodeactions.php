@@ -110,6 +110,8 @@ class AdminUINodeActionsControl extends Control
       return t('восстановить');
     case 'erase':
       return t('удалить окончательно');
+    case 'reindex':
+      return t('индексировать');
     default:
       return $action;
     }

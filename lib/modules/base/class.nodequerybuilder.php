@@ -216,11 +216,11 @@ class NodeQueryBuilder
           if (!in_array(mcms_ctlname($meta['type']), array('TextLineControl', 'EmailControl')))
             continue;
 
-          $this->addTable('node_'. $class);
+          $this->addTable('node__idx_'. $class);
 
           $param = $this->getNextParam();
 
-          $matches[] = "`node_{$class}`.`{$field}` LIKE {$param}";
+          $matches[] = "`node__idx_{$class}`.`{$field}` LIKE {$param}";
           $this->params[$param] = $needle;
         }
       }
@@ -353,8 +353,8 @@ class NodeQueryBuilder
 
         else {
           $parts = explode('.', $field);
-          $field = "`node_{$parts[0]}`.`{$parts[1]}`";
-          $this->addTable('node_'. $parts[0]);
+          $field = "`node__idx_{$parts[0]}`.`{$parts[1]}`";
+          $this->addTable('node__idx_'. $parts[0]);
         }
 
         $this->order[] = "{$field} {$dir}";
@@ -374,7 +374,7 @@ class NodeQueryBuilder
     switch ($this->query['#special']) {
     case 'orphan':
       $this->where[] = "`node`.`id` NOT IN (SELECT `nid` FROM `node__rel` WHERE `tid` IN (SELECT `id` FROM `node` WHERE `class` = 'tag'))";
-      $this->where[] = "`node`.`class` IN (SELECT `n`.`id` FROM `node` `n` INNER JOIN `node_type` `t` ON `t`.`rid` = `n`.`rid` WHERE `n`.`class` = 'type' AND `t`.`hidden` = 0 AND `t`.`system` = 0)";
+      $this->where[] = "`node`.`class` IN (SELECT `n`.`id` FROM `node` `n` INNER JOIN `node__idx_type` `t` ON `t`.`id` = `n`.`id` WHERE `n`.`class` = 'type' AND `t`.`hidden` = 0 AND `t`.`system` = 0)";
       break;
 
     case 'lost':
@@ -521,8 +521,8 @@ class NodeQueryBuilder
           $schema = TypeNode::getSchema($class);
 
           if (!empty($schema['fields'][$field]['indexed'])) {
-            $this->addTable('node_'. $class);
-            $mask = "`node_{$class}`.`{$field}`";
+            $this->addTable('node__idx_'. $class);
+            $mask = "`node__idx_{$class}`.`{$field}`";
           }
         }
       }
@@ -533,8 +533,8 @@ class NodeQueryBuilder
       $schema = TypeNode::getSchema($table);
 
       if (!empty($schema['fields'][$field]['indexed'])) {
-        $this->addTable('node_'. $table);
-        $mask = "`node_{$table}`.`{$field}`";
+        $this->addTable('node__idx_'. $table);
+        $mask = "`node__idx_{$table}`.`{$field}`";
       }
     }
 
@@ -549,7 +549,7 @@ class NodeQueryBuilder
   {
     if (!in_array($name, $this->tables)) {
       $this->tables[] = $name;
-      $this->where[] = "`{$name}`.`rid` = `node__rev`.`rid`";
+      $this->where[] = "`{$name}`.`id` = `node`.`id`";
     }
   }
 

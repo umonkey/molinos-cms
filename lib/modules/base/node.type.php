@@ -466,12 +466,14 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     $this->fields = $fields;
   }
 
-  private function updateTable()
+  public function updateTable()
   {
-    $t = new TableInfo('node_'. $this->name);
+    mcms::user()->checkAccess('u', 'type');
+
+    $t = new TableInfo('node__idx_'. $this->name);
 
     if (!$t->columnExists('rid'))
-      $t->columnSet('rid', array(
+      $t->columnSet('id', array(
         'type' => 'int(10)',
         'required' => true,
         'key' => 'pri',
@@ -499,12 +501,12 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     // Удалим ненужные индексы.
     foreach (array_keys($t->getColumns()) as $idx) {
-      if ($idx != 'rid' and empty($this->fields[$idx]['indexed']))
+      if ($idx != 'id' and empty($this->fields[$idx]['indexed']))
         $t->columnDel($idx);
     }
 
     // Если таблица создаётся, и колонка всего одна — rid — пропускаем.
-    if (!$t->exists() and $t->columnCount() == 1 and $t->columnExists('rid'))
+    if (!$t->exists() and $t->columnCount() == 1 and $t->columnExists('id'))
       return;
 
     $t->commit();
