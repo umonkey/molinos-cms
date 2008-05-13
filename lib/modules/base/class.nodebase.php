@@ -1345,15 +1345,6 @@ class NodeBase
       FileNode::getFilesFromFTP($data['node_ftp_files'], $this->id);
     }
   }
-  
-  private function getUTCTime()
-  {
-    $curtime = time();
-    $utcdiff = date('Z', $curtime);
-    $utctime = $curtime-$utcdiff;
-    $tm = date('Y-m-d H:i:s', $utctime);
-    return $tm;
-  }  
 
   // Сохранение объекта в БД.
   private function dbWrite()
