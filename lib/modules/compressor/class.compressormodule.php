@@ -1,8 +1,28 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class CompressorModule implements iModuleConfig, iPageHook, iRequestHook
+class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemoteCall
 {
+  public static function hookRemoteCall(RequestContext $ctx)
+  {
+    $type = $ctx->get('type');
+    $fn = $ctx->get('hash');
+
+    $filepath = mcms::config('filestorage') ."/mcms-{$fn}.{$type}";
+
+    if ($type == 'js')
+      $type = "javascript";
+
+    $maxAge = 3600*24;
+
+    header('Expires: '. gmdate("D, d M Y H:i:s", time() + $maxAge) .' GMT');
+    header('Pragma: cache');
+    header('Cache-Control: public; max-age='. $maxAge);
+    header("Content-type: text/{$type};charset: UTF-8");
+    readfile($filepath);
+    exit();
+  }
+
   public static function hookPage(&$output, Node $page)
   {
     if ('text/html' != $page->content_type)
@@ -71,8 +91,8 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook
 
     if (!empty($scripts)) {
       $scripts = array_unique($scripts);
-
-      $filename = mcms::config('filestorage') .'/mcms-'. md5(join(',', $scripts)) .'.js';
+      $md5name =  md5(join(',', $scripts));
+      $filename = mcms::config('filestorage') .'/mcms-'. $md5name.'.js';
 
       // Если файл с нужным именем не существует — создаём его.
       if (!file_exists($filename)) {
@@ -84,7 +104,8 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook
         file_put_contents($filename, $tmp);
       }
 
-      $output = str_replace('</head>', "<script type='text/javascript' language='javascript' src='/{$filename}'></script></head>", $output);
+      $url = l("/compressor.rpc?type=js&hash={$md5name}");
+      $output = str_replace('</head>', "<script type='text/javascript' language='javascript' src='{$url}'></script></head>", $output);
     }
   }
 
@@ -129,11 +150,14 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook
         }
       }
 
-      $path = mcms::config('filestorage') .'/mcms-'. md5($bulk) .'.css';
+      $md5name = md5($bulk);
+      $path = mcms::config('filestorage') .'/mcms-'.$md5name .'.css';
 
       file_put_contents($path, $bulk);
 
-      $output = str_replace('</head>', "<link rel='stylesheet' type='text/css' href='/{$path}' /></head>", $output);
+      $url = l("/compressor.rpc?type=css&hash={$md5name}");
+
+      $output = str_replace('</head>', "<link rel='stylesheet' type='text/css' href='{$url}' /></head>", $output);
     }
   }
 
