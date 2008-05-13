@@ -202,6 +202,8 @@ class NodeBase
   {
     if (!is_array($this->data))
       return null;
+    if ('code' === $key and empty($this->data['code']))
+      return $this->data['id'];
     return array_key_exists($key, $this->data) ? $this->data[$key] : null;
   }
 
@@ -1379,7 +1381,7 @@ class NodeBase
         'left' => $node['left'],
         'right' => $node['right'],
         'uid' => $node['uid'],
-        'created' => $node['created'],
+        'created' => empty($node['created']) ? mcms::now() : $node['created'],
         'updated' => mcms::now(),
         'published' => empty($node['published']) ? 0 : 1,
         'deleted' => empty($node['deleted']) ? 0 : 1,
@@ -1566,8 +1568,9 @@ class NodeBase
       }
     }
 
-    $sql = "REPLACE INTO `node__idx_{$this->class}` (`". join('`, `', $fields) ."`) VALUES (". join(', ', array_keys($params)) .")";
-
-    mcms::db()->exec($sql, $params);
+    if (count($fields) > 1) {
+      $sql = "REPLACE INTO `node__idx_{$this->class}` (`". join('`, `', $fields) ."`) VALUES (". join(', ', array_keys($params)) .")";
+      mcms::db()->exec($sql, $params);
+    }
   }
 };
