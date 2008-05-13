@@ -145,7 +145,7 @@ function bebop_combine_url(array $url, $escape = true)
     }
   }
 
-  $forbidden = array('nocache', 'flush', 'reload');
+  $forbidden = array('nocache');
 
   if (bebop_is_json())
     $forbidden[] = 'widget';
@@ -231,7 +231,7 @@ function l($url, $title = null, array $options = null, $absolute = false)
   $parts = bebop_split_url($url);
 
   if ($parts['host'] == $_SERVER['HTTP_HOST']) {
-    foreach (array('smarty.debug', 'flush', 'nocache') as $k)
+    foreach (array('smarty.debug') as $k)
       if (array_key_exists($k, $parts['args']))
         unset($parts['args'][$k]);
 
@@ -836,15 +836,13 @@ class mcms
     if ($_SERVER['REQUEST_METHOD'] == 'POST')
       $status = 303;
 
-    if (empty($_GET['reload'])) {
-      if (!in_array($status, array('301', '302', '303', '307')))
-        throw new Exception("Статус перенаправления {$status} не определён в стандарте HTTP/1.1");
+    if (!in_array($status, array('301', '302', '303', '307')))
+      throw new Exception("Статус перенаправления {$status} не определён в стандарте HTTP/1.1");
 
-      try {
-        mcms::db()->commit();
-        mcms::flush(mcms::FLUSH_NOW);
-      } catch (NotInstalledException $e) {
-      }
+    try {
+      mcms::db()->commit();
+      mcms::flush(mcms::FLUSH_NOW);
+    } catch (NotInstalledException $e) {
     }
 
     if (substr($next = $path, 0, 1) == '/') {
@@ -1044,11 +1042,9 @@ class mcms
     if (file_exists($filename) and (filemtime($filename) < filemtime('lib/modules')))
       unlink($filename);
 
-    if (!bebop_is_debugger() or empty($_GET['reload'])) {
-      if (file_exists($filename) and is_readable($filename) and filesize($filename)) {
-        if (is_array($result = unserialize(file_get_contents($filename))))
-          return $result;
-      }
+    if (file_exists($filename) and is_readable($filename) and filesize($filename)) {
+      if (is_array($result = unserialize(file_get_contents($filename))))
+        return $result;
     }
 
     $result = self::getModuleMapScan();
@@ -1058,13 +1054,6 @@ class mcms
 
     if (is_writable(dirname($filename)))
       file_put_contents($filename, serialize($result));
-
-    if (!empty($_GET['reload'])) {
-      $url = bebop_split_url();
-      $url['args']['reload'] = null;
-      $url['args']['FLUSH'] = 1;
-      mcms::redirect(str_replace('FLUSH', 'flush', bebop_combine_url($url, false)));
-    }
 
     return $result;
   }

@@ -106,16 +106,6 @@ class RequestController
 
   private function parsePath()
   {
-    // Очистка кэша.
-    if (!empty($_GET['flush'])) {
-      if (bebop_is_debugger()) {
-        DBCache::getInstance()->flush(false);
-        DBCache::getInstance()->flush(true);
-      }
-
-      exit(mcms::redirect(bebop_combine_url(bebop_split_url(), false), 301, false));
-    }
-
     mcms::invoke('iRequestHook', 'hookRequest', array());
 
     // Запрашиваем структуру домена.  Если запрошен несуществующий
@@ -196,7 +186,7 @@ class RequestController
       // FIXME: почему-то в кэш мусор попадает
       $widgets = false; // mcms::cache($key);
 
-      if ($widgets === false or (bebop_is_debugger() and !empty($_GET['flush']))) {
+      if ($widgets === false) {
         $widgets = Node::find(array('class' => 'widget', 'id' => $this->page->linkListChildren('widget', true)));
         mcms::cache($key, $widgets);
       }

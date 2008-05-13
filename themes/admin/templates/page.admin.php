@@ -76,7 +76,7 @@ function get_version_info()
             <div class="greeting">Здравствуйте, <?php print render_username(); ?>.</div>
             <?php print l('/admin/?cgroup=access&mode=edit&id='. mcms::user()->id .'&destination=CURRENT', 'Настройки', array('title' => 'Редактирование профиля')); ?>
             <?php if ('MySQL' == mcms::db()->getDbType() and is_readable('phpminiadmin.php')): ?><a target="_blank" href="/phpminiadmin.php?showcfg=1">БД</a><?php endif; ?>
-            <a href="<?php print l('/admin/?destination=CURRENT'); ?>&amp;reload=1&flush=1" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
+            <a href="<?php print l('/admin.rpc?action=reload&destination=CURRENT'); ?>&amp;reload=1&flush=1" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
             <?php print l('/base.rpc?action=logout&destination=/', 'Выйти', array('id' => 'lnk_exit')); ?>
           </div>
         </div><!-- id=top_toolbar -->

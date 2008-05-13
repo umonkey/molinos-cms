@@ -8,13 +8,6 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     if (!count(mcms::user()->getAccess('u')))
       throw new ForbiddenException();
 
-    if (bebop_is_debugger() and !empty($_GET['flush'])) {
-      mcms::flush(false);
-      mcms::flush(true);
-
-      mcms::redirect(bebop_split_url());
-    }
-
     $result = array();
 
     $m = $ctx->get('module');
@@ -379,6 +372,20 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     $next = $ctx->get('destination', '/');
 
     switch ($ctx->get('action')) {
+    case 'reload':
+      if (file_exists($tmp = mcms::config('tmpdir') .'/.modmap.php'))
+        unlink($tmp);
+
+      foreach (glob(mcms::config('tmpdir') .'/.pcache.*') as $tmp)
+        unlink($tmp);
+
+      DBCache::getInstance()->flush(false);
+      DBCache::getInstance()->flush(true);
+
+      mcms::flush();
+      mcms::flush(mcms::FLUSH_NOW);
+      break;
+
     case 'modlist':
       self::hookModList($ctx);
       break;

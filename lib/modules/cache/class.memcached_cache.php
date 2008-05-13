@@ -12,7 +12,7 @@ class MemCacheD_Cache implements iBebopCacheEngine
 
     private function __construct()
     {
-        $delta = (empty($_GET['flush']) and !empty($_SERVER['REMOTE_ADDR'])) ? 0 : 1;
+        $delta = 0;
         $host = mcms::config('cache_memcache_host', 'localhost');
 
         $this->cache = new Memcache();
@@ -23,7 +23,7 @@ class MemCacheD_Cache implements iBebopCacheEngine
     private function setPrefix($delta = 0)
     {
         // Базовый префикс для работы с кэшем.
-        $this->prefix = 'bbp:'.hash('crc32', __FILE__).':';
+        $this->prefix = 'bbp:'. hash('crc32', __FILE__) .':';
 
         // Вычисляем (и обновляем) серийный номер.
         $serial = $this->memcached_serial;
