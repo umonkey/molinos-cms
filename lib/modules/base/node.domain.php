@@ -230,7 +230,9 @@ class DomainNode extends Node implements iContentType
       // FIXME: переписать getObjectTree()!
 
       foreach ($roots as $root) {
-        $branch = Tagger::getInstance()->getObjectTree($root->id);
+        $root->loadChildren();
+
+        $branch = $root->getChildren('nested');
 
         // Правим имя домена.
         $branch['name'] = self::getRealDomainName($branch['name']);
