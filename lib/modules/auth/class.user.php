@@ -127,17 +127,17 @@ class User
       throw new RuntimeException(t('Поддержка OpenID отключена администратором.'));
 
     if ('id_res' == $openid_mode) {
+      $openid = null;
+
       foreach (array('openid1_claimed_id', 'openid_claimed_id', 'openid_identity') as $key) {
         if (!empty($_GET[$key])) {
-          $tmp = bebop_split_url($_GET[$key]);
+          $openid = $_GET[$key];
           break;
         }
       }
 
-      if (empty($tmp))
+      if (null === $openid)
         throw new RuntimeException('OpenID провайдер не вернул идентификатор.');
-
-      $openid = $tmp['host'];
 
       if (!count($nodes = Node::find(array('class' => 'user', 'name' => $openid)))) {
         if ('open' != $mode)
