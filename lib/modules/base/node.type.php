@@ -470,6 +470,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   {
     mcms::user()->checkAccess('u', 'type');
 
+    $reindex = false;
     $t = new TableInfo('node__idx_'. $this->name);
 
     if (!$t->columnExists('rid'))
@@ -494,6 +495,10 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
             'key' => 'mul',
             'default' => (isset($v['default']) and '' !== $v['default']) ? $v['default'] : null,
             );
+
+          if (!$t->columnExists($k))
+            $reindex = true;
+
           $t->columnSet($k, $spec);
         }
       }
@@ -511,7 +516,8 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     $t->commit();
 
-    mcms::db()->exec("DELETE FROM `'node__idx_{$this->name}`");
+    if ($reindex)
+      mcms::db()->exec("DELETE FROM `node__idx_{$this->name}`");
   }
 
   private static function checkFieldName($name)
