@@ -877,7 +877,7 @@ class mcms
 
       if (func_num_args()) {
         foreach (func_get_args() as $arg) {
-          $output[] = var_export($arg, true);
+          $output[] = preg_replace('/ =>\s+/', ' => ', var_export($arg, true));
         }
       } else {
         $output[] = 'breakpoint';
