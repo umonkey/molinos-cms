@@ -1457,12 +1457,35 @@ class NodeBase
   private function dbExpandParent(array &$node)
   {
     if (empty($node['id']) and !empty($node['parent_id'])) {
-      $parent = mcms::db()->getResults("SELECT `left`, `right` FROM `node` WHERE `id` = :parent AND `lang` = :lang",
-        array(':parent' => $node['parent_id'], 'lang' => $node['lang']));
+      $parent = array_shift(mcms::db()->getResults("SELECT `left`, `right` FROM `node` WHERE `id` = :parent AND `lang` = :lang",
+        array(':parent' => $node['parent_id'], 'lang' => $node['lang'])));
 
-      mcms::debug($parent);
+      // Родитель сам вне дерева — прописываем его.
+      if (empty($parent['left']) or empty($parent['right'])) {
+        $pos = $this->dbGetNextId('node', 'right');
 
-      mcms::fatal('FIXME: expand the parent node please.', $node);
+        $parent['left'] = $pos;
+        $parent['right'] = $pos + 3;
+
+        $node['left'] = $pos + 1;
+        $node['right'] = $pos + 2;
+
+        mcms::db()->exec("UPDATE `node` SET `left` = :left, `right` = :right WHERE `id` = :id AND `lang` = :lang", array(
+          'left' => $parent['left'],
+          'right' => $parent['right'],
+          'id' => $node['parent_id'],
+          'lang' => $node['lang'],
+          ));
+      }
+
+      // Раздвигаем родителя.
+      else {
+        $node['left'] = $parent['right'];
+        $node['right'] = $node['left'] + 1;
+
+        mcms::db()->exec("UPDATE `node` SET `left` = `left` + 2 WHERE `left` >= :pos", array(':pos' => $node['left']));
+        mcms::db()->exec("UPDATE `node` SET `right` = `right` + 2 WHERE `right` >= :pos", array(':pos' => $node['left']));
+      }
     }
   }
 
