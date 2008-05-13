@@ -18,6 +18,8 @@ class TableNotFoundException extends Exception
       throw new NotInstalledException();
     }
 
+    mcms::debug("Table {$table} not found.", $sql, $params);
+
     parent::__construct("Таблица {$table} не найдена.");
   }
 
