@@ -42,11 +42,14 @@ class User
       }
     }
 
-    if (null !== $this->node and 'anonymous' != $this->node->name)
+    if (null !== $this->node and 'anonymous' != $this->node->name) {
+      /*
       mcms::log('auth', t('user=%user, groups=%groups', array(
         '%user' => $this->node->name,
         '%groups' => join(',', array_keys($this->getGroups())),
         )));
+      */
+    }
   }
 
   public function hasAccess($mode, $type)
