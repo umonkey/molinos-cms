@@ -1430,6 +1430,8 @@ class NodeBase
 
     if (empty($this->data['id']) or empty($this->data['rid']))
       mcms::fatal('Either id or rid not defined.', $this->data);
+
+    $this->reindex();
   }
 
   // Вытаскиывает из $data значения полей, перечисленных в $fields.  Возвращает
@@ -1547,5 +1549,25 @@ class NodeBase
     }
 
     return $nodes;
+  }
+
+  // Индексирование объекта.
+  public function reindex()
+  {
+    $fields = array('id');
+    $params = array(':id' => $this->id);
+
+    $schema = TypeNode::getSchema($this->class);
+
+    foreach ($schema['fields'] as $k => $v) {
+      if (!empty($v['indexed'])) {
+        $fields[] = $k;
+        $params[':'. $k] = $this->$k;
+      }
+    }
+
+    $sql = "REPLACE INTO `node__idx_{$this->class}` (`". join('`, `', $fields) ."`) VALUES (". join(', ', array_keys($params)) .")";
+
+    mcms::db()->exec($sql, $params);
   }
 };
