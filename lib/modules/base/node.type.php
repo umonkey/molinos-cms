@@ -510,6 +510,8 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       return;
 
     $t->commit();
+
+    mcms::db()->exec("DELETE FROM `'node__idx_{$this->name}`");
   }
 
   private static function checkFieldName($name)
@@ -603,32 +605,5 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     asort($result);
 
     return $result;
-  }
-
-  public static function getIndexStats()
-  {
-    $stat = array(
-      '_total' => 0,
-      );
-
-    foreach (self::getSchema() as $type => $meta) {
-      $indexed = false;
-
-      foreach ($meta['fields'] as $v) {
-        if (!empty($v['indexed'])) {
-          $indexed = true;
-          break;
-        }
-      }
-
-      if ($indexed) {
-        if ($count = mcms::db()->getResult("SELECT COUNT(*) FROM `node` `n` WHERE `n`.`class` = '{$type}' AND `n`.`deleted` = 0 AND NOT EXISTS (SELECT 1 FROM `node__idx_{$type}` `n1` WHERE `n1`.`id` = `n`.`id`)")) {
-          $stat[$type] = $count;
-          $stat['_total'] += $count;
-        }
-      }
-    }
-
-    return empty($stat['_total']) ? null : $stat;
   }
 };
