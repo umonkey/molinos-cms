@@ -113,9 +113,6 @@ class SessionData
     $cache = BebopCache::getInstance();
     ini_set("session.use_only_cookies", 1);
 
-    if (isset($_SESSION))
-      mcms::fatal('SessionData::load() recursion.');
-
     session_name('mcmsid'); // Это вроде как не нужно, но на всякий случай... — hex
     session_id($sid);
     session_start();
