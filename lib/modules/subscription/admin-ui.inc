@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler, iDashboard
+class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler, iDashboard, iRemoteCall
 {
   public function __construct(Node $node)
   {
@@ -152,7 +152,11 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
 
       // Отправляем документы.
       foreach (Node::find(array('id' => $nids)) as $node) {
-        bebop_mail(null, trim($row['email']), $node->name, $node->text);
+        $text = $node->text;
+        $text .= sprintf('<p><a href=\'%s\'>Перестать получать эти новости</a></p>',
+          mcms_plain("http://{$_SERVER['HTTP_HOST']}/subscription.rpc?remove={$row['id']}&hash=". md5($row['email'])));
+
+        bebop_mail(null, trim($row['email']), $node->name, $text);
         printf("    sent mail to %s: %s\n", trim($row['email']), $node->name);
         $last = max($last, $node->id);
       }
@@ -306,5 +310,17 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
         );
 
     return $icons;
+  }
+
+  public static function hookRemoteCall(RequestContext $ctx)
+  {
+    $row = array_shift(mcms::db()->getResults("SELECT * FROM `node__subscription_emails` WHERE `id` = :id", array(':id' => $ctx->get('remove'))));
+
+    if (md5($row['email']) != $ctx->get('hash'))
+      throw new ForbiddenException();
+
+    mcms::db()->exec("DELETE FROM `node__subscription_emails` WHERE `id` = :id", array(':id' => $ctx->get('remove')));
+
+    bebop_redirect('/?subscription=removed');
   }
 };

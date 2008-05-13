@@ -5,5 +5,6 @@ interface[iWidget] = SubscriptionWidget, SubscriptionAdminWidget
 interface[iAdminWidget] = SubscriptionAdminWidget
 interface[iScheduler] = SubscriptionAdminWidget
 interface[iDashboard] = SubscriptionAdminWidget
+interface[iRemoteCall] = SubscriptionAdminWidget
 name[en] = Email Subscription
 name[ru] = Рассылка новостей по почте
