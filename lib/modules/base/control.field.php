@@ -42,47 +42,56 @@ class FieldControl extends Control
 
     $body = $this->addProperty($data, 'name', 'Имя', mcms::html('input', array(
       'type' => 'text',
+      'class' => 'clonable',
       'value' => $this->name,
       'name' => "{$this->value}[{$id}][name]",
       )));
     $body .= $this->addProperty($data, 'title', 'Заголовок', mcms::html('input', array(
       'type' => 'text',
+      'class' => 'clonable',
       'value' => $this->isnull($data, 'label'),
       'name' => "{$this->value}[{$id}][label]",
       )));
     $body .= $this->addProperty($data, 'type', 'Тип', mcms::html('select', array(
       'value' => $this->isnull($data, 'type'),
+      'class' => 'clonable',
       'name' => "{$this->value}[{$id}][type]",
       ), $this->getTypes($this->isnull($data, 'type', 'TextLineControl'))));
 
     $body .= $this->addProperty($data, 'dictionary', 'Справочник', mcms::html('select', array(
       'name' => "{$this->value}[{$id}][dictionary]",
+      'class' => 'clonable',
       ), $this->getDictionaries($this->isnull($data, 'dictionary', $this->isnull($data, 'values')))));
 
     $body .= $this->addProperty($data, 'default', 'По умолчанию', mcms::html('input', array(
       'type' => 'text',
+      'class' => 'clonable',
       'value' => $this->isnull($data, 'default'),
       'name' => "{$this->value}[{$id}][default]",
       )));
     $body .= $this->addProperty($data, 'values', 'Значения', mcms::html('input', array(
       'type' => 'text',
+      'class' => 'clonable',
       'value' => $this->isnull($data, 'values'),
       'name' => "{$this->value}[{$id}][values]",
       )));
     $body .= $this->addProperty($data, 'required', 'Обязательное', mcms::html('input', array(
       'type' => 'checkbox',
+      'class' => 'clonable',
       'checked' => $this->isnull($data, 'required') ? 'checked' : null,
       'name' => "{$this->value}[{$id}][required]",
       'value' => 1,
       )));
     $body .= $this->addProperty($data, 'indexed', 'Индекс', mcms::html('input', array(
       'type' => 'checkbox',
+      'class' => 'clonable',
       'checked' => $this->isnull($data, 'indexed') ? 'checked' : null,
       'name' => "{$this->value}[{$id}][indexed]",
       'value' => 1,
       )));
     $body .= $this->addProperty($data, 'delete', 'Удалить', mcms::html('input', array(
       'type' => 'checkbox',
+      'class' => 'clonable',
       'name' => "{$this->value}[{$id}][delete]",
       'value' => 1,
       )));
