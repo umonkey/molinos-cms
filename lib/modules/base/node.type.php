@@ -195,8 +195,8 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if ($reload or (!is_array($result = mcms::pcache('schema')) or empty($result))) {
       $result = array();
 
-      foreach (Tagger::getInstance()->getChildrenData("SELECT `n`.`id` as `id`, `n`.`rid` as `rid`, `r`.`name` as `name`, `r`.`data` as `data` FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0", false, false, false) as $type)
-        $result[$type['name']] = $type;
+      foreach (NodeBase::dbRead("SELECT `n`.`id` as `id`, `n`.`class` AS `class`, `n`.`rid` as `rid`, `r`.`name` as `name`, `r`.`data` as `data` FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0") as $n)
+        $result[$n->name] = $n->getRaw();
 
       mcms::pcache('schema', $result);
     }
@@ -561,7 +561,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   public static function isReservedFieldName($field)
   {
-    return Tagger::isReservedName($field);
+    return in_array($field, array('id', 'rid', 'nid', 'lang', 'parent_id', 'class', 'code', 'left', 'right', 'uid', 'created', 'updated', 'published', 'deleted', 'name', 'data'));
   }
 
   public static function getInternal()

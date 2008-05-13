@@ -227,6 +227,8 @@ class DomainNode extends Node implements iContentType
     if (!is_array($result)) {
       $roots = Node::find(array('class' => 'domain', 'parent_id' => null));
 
+      // FIXME: переписать getObjectTree()!
+
       foreach ($roots as $root) {
         $branch = Tagger::getInstance()->getObjectTree($root->id);
 

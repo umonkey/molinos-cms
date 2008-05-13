@@ -84,7 +84,6 @@ class SubscriptionAdminWidget extends Widget implements iScheduler, iAdminMenu
 
   public function onPost(array $options, array $post, array $files)
   {
-    $tg = Tagger::getInstance();
     $pdo = mcms::db();
 
     $pdo->exec("UPDATE `node_type` SET `sendmail` = 0");

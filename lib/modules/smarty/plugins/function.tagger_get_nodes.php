@@ -3,14 +3,5 @@
 
 function smarty_function_tagger_get_nodes($params, &$smarty)
 {
-  if (!empty($params['tags']) and !empty($params['assign'])) {
-    $tags = is_array($params['tags']) ? $params['tags'] : array($params['tags']);
-
-    // Добавляем фильтрацию по типу.
-    $filters = empty($params['class']) ? null : array("`n`.`class` = '". $params['class'] ."'");
-
-    $nodes = Tagger::getInstance()->getDocumentsFor($tags, null, $filters);
-
-    $smarty->assign($params['assign'], $nodes);
-  }
+  throw new SmartyException(t('{tagger_get_nodes} больше не поддерживается.'));
 }

@@ -126,13 +126,17 @@ class NodeApiModule implements iRemoteCall
       break;
 
     case 'raise':
-      if (null === $ctx->get('section'))
-        Tagger::getInstance()->nodeMoveUp($nid);
+      if (null === $ctx->get('section')) {
+        $tmp = new NodeExtras();
+        $tmp->moveUp($nid);
+      }
       break;
 
     case 'sink':
-      if (null === $ctx->get('section'))
-        Tagger::getInstance()->nodeMoveDown($nid);
+      if (null === $ctx->get('section')) {
+        $tmp = new NodeExtras();
+        $tmp->moveDown($nid);
+      }
       break;
 
     default:

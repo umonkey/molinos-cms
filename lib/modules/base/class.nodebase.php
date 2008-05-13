@@ -98,15 +98,13 @@ class NodeBase
     $fetch_att = !array_key_exists('#files', $query) or !empty($query['#files']);
 
     // Список запрашиваемых полей.
-    $fields = array('`node`.`id`', '`node`.`rid`', '`node`.`code`', '`node`.`class`', '`node`.`parent_id`', '`node`.`uid`', '`node`.`created`', '`node`.`updated`', '`node`.`lang`', '`node`.`published`', '`node`.`deleted`', '`node`.`left`', '`node`.`right`', '`node__rev`.`name`', '`node__rev`.`data`');
+    $fields = array('`node`.`id`', '`node`.`rid`', '`node`.`code`',
+      '`node`.`class`', '`node`.`parent_id`', '`node`.`uid`', '`node`.`created`',
+      '`node`.`updated`', '`node`.`lang`', '`node`.`published`', '`node`.`deleted`',
+      '`node`.`left`', '`node`.`right`', '`node__rev`.`name`', '`node__rev`.`data`');
 
     $qb = new NodeQueryBuilder($query);
     $qb->getSelectQuery($sql, $params, $fields);
-
-    // Если у нас получился только один класс -- запрос оптимизирован и содержит
-    // все необходимые поля, запрашивать их отдельно не надо.
-    if (null !== $qb->getClassName())
-      $fetch_extra = false;
 
     // Листалка.
     if (!empty($limit) and !empty($offset))
@@ -123,18 +121,7 @@ class NodeBase
 
     mcms::db()->log("--- Finding nodes ---");
 
-    $sth = mcms::db()->exec($sql, $params);
-
-    $data = array();
-    $count = 0;
-
-    foreach (Tagger::getInstance()->getChildrenData($sth, $fetch_extra, $fetch_att) as $k => $v) {
-      $count++;
-      $data[$k] = Node::create($v['class'], $v);
-      self::setCached($k, $v);
-    }
-
-    return $data;
+    return self::dbRead($sql, $params);
   }
 
   // Возвращает количество документов, удовлетворяющих условию.
@@ -157,41 +144,7 @@ class NodeBase
   {
     $isnew = !isset($this->id);
 
-    // Здесь хранятся идентификаторы создаваемых документов.
-    static $mydocs = array();
-
-    if ($this->id)
-      mcms::db()->log("--- Saving node {$this->id} ---");
-    else
-      mcms::db()->log("--- Creating a {$this->class} node ---");
-
-    $tg = Tagger::getInstance();
-
-    if (array_key_exists('files', $this->data))
-      unset($this->data['files']);
-
-    if ($clear)
-      $this->data = $tg->clean($this->data);
-
-    if (empty($this->data['created']))
-      $this->data['created'] = $this->getUTCTime();
-
-    if (!array_key_exists('published', $this->data))
-      $this->data['published'] = 0;
-
-    /*
-    if ($this->id === null and null === $this->uid)
-      $this->data['uid'] = mcms::user()->id;
-    */
-
-    $tg->nodeSave($this->data, $this->forcedrev);
-
-    // Сохраняем номер ревизии для последующего повторного использования.
-    if (array_key_exists('rid', $this->data))
-      $this->forcedrev = $this->data['rid'];
-
-    if ($isnew)
-      $mydocs[] = $this->id;
+    $this->dbWrite();
 
     mcms::flush();
 
@@ -370,7 +323,7 @@ class NodeBase
   public static function create($class, array $data = null)
   {
     if (!is_string($class))
-      throw new InvalidArgumentException(t('Тип создаваемого объекта должен быть строкой.'));
+      throw new InvalidArgumentException(t('Тип создаваемого объекта должен быть строкой, а не «%type».', array('%type' => gettype($class))));
 
     if (!mcms::class_exists($host = ucfirst(strtolower($class)) .'Node'))
       $host = 'Node';
@@ -595,12 +548,10 @@ class NodeBase
       ."WHERE `self`.`left` BETWEEN `parent`.`left` AND `parent`.`right` AND `self`.`id` = {$tmp} AND `rev`.`rid` = `parent`.`rid` "
       ."ORDER BY `parent`.`left` -- NodeBase::getParents({$tmp})";
 
-    $data = Tagger::getInstance()->getChildrenData($sql);
+    $nodes = self::dbRead($sql);
 
-    if (!$current)
-      foreach ($data as $k => $v)
-        if ($v['id'] == $this->id)
-          unset($data[$k]);
+    if (!$current and array_key_exists($this->id, $nodes))
+      unset($nodes[$this->id]);
 
     return $data;
   }
@@ -928,7 +879,8 @@ class NodeBase
   public function orderUp($parent = null)
   {
     if (null === $parent) {
-      Tagger::getInstance()->nodeMoveUp($this->id);
+      $tmp = new NodeExtras();
+      $tmp->moveUp($this->id);
     } elseif (null !== $this->id) {
       $pdo = mcms::db();
 
@@ -960,7 +912,8 @@ class NodeBase
   public function orderDown($parent = null)
   {
     if (null === $parent) {
-      Tagger::getInstance()->nodeMoveDown($this->id);
+      $tmp = new NodeExtras();
+      $tmp->moveDown($this->id);
     } elseif (null !== $this->id) {
       $pdo = mcms::db();
 
@@ -1396,4 +1349,152 @@ class NodeBase
     $tm = date('Y-m-d H:i:s', $utctime);
     return $tm;
   }  
+
+  // Сохранение объекта в БД.
+  private function dbWrite()
+  {
+    $extra = $this->data;
+
+    // Вытаскиваем данные, которые идут в поля таблиц.
+    $node = $this->dbWriteExtract($extra, array('id', 'lang', 'parent_id', 'class', 'code', 'left', 'right', 'uid', 'created', 'published', 'deleted'));
+    $node_rev = $this->dbWriteExtract($extra, array('name'));
+
+    // Выделяем место в иерархии, если это необходимо.
+    $this->dbExpandParent($node);
+
+    // Удаляем лишние поля.
+    $this->dbWriteExtract($extra, array('rid', 'updated', 'files'), true);
+
+    // Создание новой ноды.
+    if (empty($node['id'])) {
+      mcms::db()->exec($sql = "INSERT INTO `node` (`id`, `lang`, `parent_id`, `class`, `code`, `left`, `right`, `uid`, `created`, `updated`, `published`, `deleted`) VALUES (:id, :lang, :parent_id, :class, :code, :left, :right, :uid, :created, :updated, :published, :deleted)", $params = array(
+        'id' => $this->dbGetNextId('node', 'id'),
+        'lang' => $node['lang'],
+        'parent_id' => $node['parent_id'],
+        'class' => $node['class'],
+        'code' => is_numeric($node['code']) ? null : $node['code'],
+        'left' => $node['left'],
+        'right' => $node['right'],
+        'uid' => $node['uid'],
+        'created' => $node['created'],
+        'updated' => mcms::now(),
+        'published' => empty($node['published']) ? 0 : 1,
+        'deleted' => empty($node['deleted']) ? 0 : 1,
+        ));
+
+      $this->data['id'] = $node['id'] = mcms::db()->lastInsertId();
+
+      if (empty($this->data['id'])) {
+        mcms::debug($sql, $params);
+      }
+    }
+
+    // Обновление существующей ноды.
+    else {
+      mcms::db()->exec("UPDATE `node` SET `code` = :code, `uid` = :uid, `created` = :created, `updated` = :updated, `published` = :published, `deleted` = :deleted WHERE `id` = :id AND `lang` = :lang", array(
+        'code' => is_numeric($node['code']) ? null : $node['code'],
+        'uid' => $node['uid'],
+        'created' => $node['created'],
+        'updated' => mcms::now(),
+        'published' => empty($node['published']) ? 0 : 1,
+        'deleted' => empty($node['deleted']) ? 0 : 1,
+        'id' => $node['id'],
+        'lang' => $node['lang'],
+        ));
+    }
+
+    // Сохранение ревизии.
+    mcms::db()->exec($sql = "INSERT INTO `node__rev` (`nid`, `uid`, `name`, `created`, `data`) VALUES (:nid, :uid, :name, :created, :data)", $params = array(
+      'nid' => $node['id'],
+      'uid' => $node['uid'],
+      'name' => $node_rev['name'],
+      'created' => mcms::now(),
+      'data' => empty($extra) ? null : serialize($extra),
+      ));
+    $this->data['rid'] = mcms::db()->lastInsertId();
+
+    if (empty($this->data['rid'])) {
+      mcms::debug('Error saving revision', $this->data, $sql, $params);
+      throw new RuntimeException(t('Не удалось получить номер сохранённой ревизии.'));
+    }
+
+    // Замена старой ревизии новой.
+    mcms::db()->exec("UPDATE `node` SET `rid` = :rid WHERE `id` = :id AND `lang` = :lang", array(
+      'rid' => $this->data['rid'],
+      'id' => $node['id'],
+      'lang' => $node['lang'],
+      ));
+
+    if (empty($this->data['id']) or empty($this->data['rid']))
+      mcms::fatal('Either id or rid not defined.', $this->data);
+  }
+
+  // Вытаскиывает из $data значения полей, перечисленных в $fields.  Возвращает
+  // их в виде массива, из исходного массива поля удаляются.  При $cleanup из
+  // него также удаляются пустые значения (empty()).
+  private function dbWriteExtract(array &$data, array $fields, $cleanup = false)
+  {
+    $tmp = array();
+
+    foreach ($fields as $f) {
+      if (array_key_exists($f, $data)) {
+        $tmp[$f] = $data[$f];
+        unset($data[$f]);
+      } else {
+        $tmp[$f] = null;
+      }
+    }
+
+    if ($cleanup) {
+      foreach ($data as $k => $v) {
+        if (empty($v))
+          unset($data[$k]);
+      }
+    }
+
+    return $tmp;
+  }
+
+  // Если создаётся новый документ, и для него указан родитель — вписываем
+  // в иерархию, в противном случае ничего не делаем.
+  private function dbExpandParent(array &$node)
+  {
+    if (empty($node['id']) and !empty($node['parent_id'])) {
+      $parent = mcms::db()->getResults("SELECT `left`, `right` FROM `node` WHERE `id` = :parent AND `lang` = :lang",
+        array(':parent' => $node['parent_id'], 'lang' => $node['lang']));
+
+      mcms::debug($parent);
+
+      mcms::fatal('FIXME: expand the parent node please.', $node);
+    }
+  }
+
+  // Возвращает следующий доступный идентификатор для таблицы.
+  // FIXME: при большой конкуренции будут проблемы.
+  private function dbGetNextId($table, $field)
+  {
+    return mcms::db()->getResult("SELECT MAX(`{$field}`) FROM `{$table}`") + 1;
+  }
+
+  // Чтение данных.  Входной параметр — массив условий, например:
+  //  "`node`.`id` IN (1, 2, 3)"
+  public static function dbRead($sql, array $params = null)
+  {
+    $nodes = array();
+
+    foreach (mcms::db()->getResults($sql, $params) as $row) {
+      // Складывание массивов таким образом может привести к перетиранию
+      // системных полей, но в нормальной ситуации такого быть не должно:
+      // при сохранении мы удаляем всё системное перед сериализацией.
+      // Зато такой подход быстрее ручного перебора.
+      if (!empty($row['data']))
+        $row = array_merge($row, unserialize($row['data']));
+
+      unset($row['data']);
+
+      $nodes[$row['id']] = Node::create($row['class'], $row);
+    }
+
+    return $nodes;
+  }
 };
