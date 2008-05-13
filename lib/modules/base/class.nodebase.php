@@ -71,6 +71,8 @@ class NodeBase
     if (!is_array($id))
       $id = array('id' => $id);
 
+    $id['#recurse'] = 1;
+
     $data = self::find($id);
 
     if (empty($data))

@@ -91,15 +91,14 @@ class NodeLinkControl extends Control
     }
   }
 
+  // Возвращает текущее значение поля.
   private function getCurrentValue(array $data, $id = false)
   {
-    if (isset($this->value) and !empty($data[$this->value])) {
-      if (count($parts = explode('.', $this->values)) == 2) {
-        if (count($nodes = array_values(Node::find(array('class' => $parts[0], 'id' => $data[$this->value]), 1))) == 1)
-          return $id
-            ? $nodes[0]->id
-            : $nodes[0]->$parts[1];
-      }
-    }
+    $value = array_key_exists($this->value, $data) ? $data[$this->value] : null;
+
+    if ($id)
+      return ($value instanceof Node) ? $value->id : $value;
+
+    mcms::debug($value);
   }
 };
