@@ -220,7 +220,7 @@ abstract class Widget implements iWidget
     $args['instance'] = $this->getInstanceName();
     $args['lang'] = $page->language;
 
-    $output = bebop_render_object('widget', $this->getInstanceName(), $page->theme, $args, $class);
+    $output = bebop_render_object('widget', $this->getInstanceName(), $page->theme, $args, get_class($this));
 
     if ((null === $output) and !empty($args['html']) and is_string($args['html']))
       $output = $args['html'];
