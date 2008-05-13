@@ -15,13 +15,6 @@ function render_username()
   return empty($user->fullname) ? $user->name : $user->fullname;
 }
 
-function render_reboot_link()
-{
-  $url = bebop_split_url();
-  $url['args']['reload'] = 1;
-  return bebop_combine_url($url, true);
-}
-
 function get_version_info()
 {
   $version = preg_replace('/^(\d+)\.(\d+)\.(\d+)$/', '<a href=\'http://code.google.com/p/molinos-cms/wiki/ChangeLog_\1\2\'>\1.\2.\3</a>', mcms::version());
@@ -83,7 +76,7 @@ function get_version_info()
             <div class="greeting">Здравствуйте, <?php print render_username(); ?>.</div>
             <?php print l('/admin/?cgroup=access&mode=edit&id='. mcms::user()->id .'&destination=CURRENT', 'Настройки', array('title' => 'Редактирование профиля')); ?>
             <?php if ('MySQL' == mcms::db()->getDbType() and is_readable('phpminiadmin.php')): ?><a target="_blank" href="/phpminiadmin.php?showcfg=1">БД</a><?php endif; ?>
-            <a href="<?php print render_reboot_link(); ?>" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
+            <a href="<?php print l('/admin/?destination=CURRENT'); ?>&amp;reload=1&flush=1" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
             <?php print l('/base.rpc?action=logout&destination=/', 'Выйти', array('id' => 'lnk_exit')); ?>
           </div>
         </div><!-- id=top_toolbar -->
