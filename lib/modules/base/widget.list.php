@@ -22,7 +22,7 @@ class ListWidget extends Widget
   {
     $types = array();
 
-    foreach (Node::find(array('class' => 'type', '#sort' => array('type.title' => 'asc'))) as $type)
+    foreach (Node::find(array('class' => 'type')) as $type)
       // if (!in_array($type->name, TypeNode::getInternal()))
         $types[$type->id] = $type->title;
 
