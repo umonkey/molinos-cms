@@ -1257,9 +1257,14 @@ class NodeBase
 
     if (array_key_exists('fields', $schema)) {
       foreach ($schema['fields'] as $k => $v) {
-        if ($k != 'parent_id' and $k != 'fields' and $k != 'config') {
+        if ($k != 'parent_id' and $k != 'fields' and $k != 'config' and $k != 'uid') {
           switch (mcms_ctlname($v['type'])) {
           case 'AttachmentControl':
+            break;
+
+          case 'NodeLinkControl':
+            $value = array_key_exists($key = 'node_content_'. $k, $data) ? $data[$key] : null;
+            $this->linkAddChild($value, $k);
             break;
 
           default:
@@ -1271,7 +1276,7 @@ class NodeBase
     }
 
     if (array_key_exists('#node_override', $data))
-        $this->data = array_merge($this->data, $data['#node_override']);
+      $this->data = array_merge($this->data, $data['#node_override']);
 
     $this->save();
 

@@ -14,6 +14,9 @@ class NodeLinkControl extends Control
 
   public function __construct(array $form)
   {
+    if (empty($form['values']) and !empty($form['dictionary']))
+      $form['values'] = $form['dictionary'] .'.name';
+
     parent::__construct($form, array('value'));
   }
 

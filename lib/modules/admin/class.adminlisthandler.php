@@ -344,9 +344,12 @@ class AdminListHandler
     case 'schema':
       $tmp = array();
 
-      foreach ($result as $k => $v)
-        if (!bebop_is_debugger() and in_array($v['name'], $itypes) or !empty($v['isdictionary']))
+      foreach ($result as $k => $v) {
+        if (!empty($v['isdictionary']))
           unset($result[$k]);
+        elseif (!bebop_is_debugger() and in_array($v['name'], $itypes))
+          unset($result[$k]);
+      }
 
       foreach ($result as $v) {
         if (!in_array($v['name'], $itypes)) {
