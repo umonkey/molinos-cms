@@ -86,6 +86,8 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
       $output[] = $tmp;
     if (null !== ($tmp = $this->getZoomLink($node)))
       $output[] = $tmp;
+    if (null !== ($tmp = $this->getAddLink($node)))
+      $output[] = $tmp;
 
     if (!empty($output)) {
       return mcms::html('td', array(
@@ -125,6 +127,12 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
       return;
 
     return $this->getIcon('themes/admin/img/zoom.png', str_replace(array('NODEID', 'NODENAME'), array($node['id'], $node['name']), $this->zoomlink), t('Найти'));
+  }
+
+  private function getAddLink(array $node)
+  {
+    if (mcms::user()->hasAccess('c', $node['class']))
+      return $this->getIcon('themes/admin/img/icon-add.png', "/admin/?cgroup={$_GET['cgroup']}&mode=create&type={$node['class']}&destination=CURRENT", 'title');
   }
 
   private function getIcon($img, $href, $title)
