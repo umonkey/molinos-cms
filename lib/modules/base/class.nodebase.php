@@ -121,7 +121,7 @@ class NodeBase
 
     mcms::db()->log("--- Finding nodes ---");
 
-    return self::dbRead($sql, $params, !empty($query['#recurse']));
+    return self::dbRead($sql, $params, empty($query['#recurse']) ? 0 : intval($query['#recurse']));
   }
 
   // Возвращает количество документов, удовлетворяющих условию.
@@ -1478,7 +1478,7 @@ class NodeBase
 
   // Чтение данных.  Входной параметр — массив условий, например:
   //  "`node`.`id` IN (1, 2, 3)"
-  public static function dbRead($sql, array $params = null, $recurse = false)
+  public static function dbRead($sql, array $params = null, $recurse = 0)
   {
     $nodes = array();
 
@@ -1503,7 +1503,20 @@ class NodeBase
         $map[$l['nid']][] = $l;
 
       if (!empty($map)) {
-        mcms::debug($nodes, $map, $sql);
+        $extras = Node::find(array('id' => array_keys($map), '#recurse' => $recurse - 1));
+
+        foreach ($map as $k => $v) {
+          if (array_key_exists($k, $extras)) {
+            foreach ($v as $link) {
+              $extra = $extras[$link['nid']];
+
+              if (null !== $link['key'])
+                $nodes[$link['tid']]->$link['key'] = $extra;
+              elseif ('file' == $extra->class)
+                $nodes[$link['tid']]->files[] = $extra;
+            }
+          }
+        }
       }
     }
 
