@@ -907,6 +907,15 @@ class mcms
       if (!empty($_SERVER['REMOTE_ADDR'])) {
         printf("--- backtrace (time: %s) ---\n", microtime());
         print mcms::backtrace();
+
+        if (null !== ($log = mcms::db()->getLog())) {
+          $idx = 1;
+          printf("\n--- SQL log ---\n");
+
+          foreach ($log as $sql)
+            if (substr($sql, 0, 2) != '--')
+              printf("%3d. %s\n", $idx++, $sql);
+        }
       }
 
       die();
