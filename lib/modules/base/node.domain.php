@@ -40,7 +40,7 @@ class DomainNode extends Node implements iContentType
   }
 
   // Проверяем на уникальность, разворачиваем basedomain.
-  public function save($clear = true, $forcedrev = null)
+  public function save()
   {
     $this->fixAliases();
 
@@ -49,7 +49,7 @@ class DomainNode extends Node implements iContentType
 
     parent::checkUnique('name', t('Страница с таким именем уже существует.'), array('parent_id' => $this->parent_id));
 
-    parent::save($clear, $forcedrev);
+    parent::save();
   }
 
   public function duplicate()

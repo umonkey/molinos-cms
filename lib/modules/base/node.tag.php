@@ -3,7 +3,7 @@
 
 class TagNode extends Node implements iContentType
 {
-  public function save($clear = true, $forcedrev = null)
+  public function save()
   {
     if (null === $this->parent_id) {
       try {
@@ -13,7 +13,7 @@ class TagNode extends Node implements iContentType
       }
     }
 
-    parent::save($clear, $forcedrev);
+    parent::save();
   }
 
   // Возвращает список существующих разделов, в виде плоского списка

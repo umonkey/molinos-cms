@@ -4,7 +4,7 @@
 class WidgetNode extends Node implements iContentType
 {
   // Проверяем на уникальность.
-  public function save($clear = true)
+  public function save()
   {
     if ($isnew = (null === $this->id))
       $this->data['published'] = true;
@@ -20,7 +20,7 @@ class WidgetNode extends Node implements iContentType
     if ($this->id === null and Node::count(array('class' => 'widget', 'name' => $this->name)))
       throw new InvalidArgumentException("Виджет с таким именем уже существует.");
 
-    return parent::save(false);
+    return parent::save();
   }
 
   public function getDefaultSchema()

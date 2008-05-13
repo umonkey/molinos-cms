@@ -4,7 +4,7 @@
 class GroupNode extends Node implements iContentType
 {
   // Проверяем уникальность.
-  public function save($clear = true)
+  public function save()
   {
     if (empty($this->login))
       $this->login = $this->name;
@@ -14,7 +14,7 @@ class GroupNode extends Node implements iContentType
         throw new UserErrorException("Имя занято", 400, "Имя занято", "Группа с названием &laquo;{$this->name}&raquo; уже существует.");
     }
 
-    parent::save($clear);
+    parent::save();
   }
 
   public function duplicate()

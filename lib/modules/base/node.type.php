@@ -32,7 +32,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     }
   }
 
-  public function save($clear = true, $forcedrev = null)
+  public function save()
   {
     $isnew = (null === $this->id);
 
@@ -44,7 +44,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     parent::checkUnique('name', t('Тип документа со внутренним именем %name уже есть.', array('%name' => $this->name)));
 
     // Всегда сохраняем без очистки.
-    parent::save(false, $forcedrev);
+    parent::save();
 
     $this->updateTable();
 

@@ -13,7 +13,7 @@ class UserNode extends Node implements iContentType
   }
 
   // Шифруем пароль.
-  public function save($clear = true)
+  public function save()
   {
     $isnew = empty($this->id);
 
@@ -31,7 +31,7 @@ class UserNode extends Node implements iContentType
     parent::checkUnique('name', t('Пользователь с именем %name уже есть.', array('%name' => $this->name)));
     // parent::checkUnique('email', t('Пользователь с электронным адресом %name уже есть.', array('%name' => $this->email)));
 
-    parent::save($clear);
+    parent::save();
 
     if ($isnew and is_array($authconf = mcms::modconf('auth'))) {
       if (!empty($authconf['groups'])) {

@@ -8,9 +8,6 @@ class NodeBase
   // Сюда складываем загруженные ноды.
   static private $cache = array();
 
-  // Номер ревизии, в который принудительно сохраняемся.
-  protected $forcedrev = null;
-
   // Проверяет наличие других объектов с таким именем.
   protected function checkUnique($field, $message = null, array $filter = array())
   {
@@ -140,7 +137,7 @@ class NodeBase
   }
 
   // Сохранение объекта.
-  public function save($clear = false)
+  public function save()
   {
     $isnew = !isset($this->id);
 
@@ -374,7 +371,7 @@ class NodeBase
       throw new ForbiddenException(t("У вас нет прав на удаление объекта &laquo;%name&raquo;.", array('%name' => $this->name)));
 
     $this->deleted = false;
-    $this->save(false);
+    $this->save();
 
     mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'restore'));
 

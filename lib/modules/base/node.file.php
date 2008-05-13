@@ -4,7 +4,7 @@
 class FileNode extends Node implements iContentType
 {
   // Определяем размеры.
-  public function save($clear = true)
+  public function save()
   {
     $path = mcms::config('filestorage');
     $path .= '/'. $this->filepath;
@@ -14,7 +14,7 @@ class FileNode extends Node implements iContentType
       $this->height = $info[1];
     }
 
-    parent::save($clear);
+    parent::save();
 
     $this->purge();
   }

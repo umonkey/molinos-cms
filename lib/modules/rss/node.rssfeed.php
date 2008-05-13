@@ -3,11 +3,11 @@
 
 class RssfeedNode extends Node
 {
-  public function save($clear = true)
+  public function save()
   {
     parent::checkUnique('name', t('RSS лента с таким именем уже существует.'));
 
-    return parent::save($clear);
+    return parent::save();
   }
 
   public function formGet($simple = false)
