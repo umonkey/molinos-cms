@@ -238,7 +238,33 @@ class AdminUIModule implements iAdminUI, iRemoteCall
         ));
     }
 
-    return 'Система в порядке.';
+    $output = self::getUnindexed();
+
+    return $output ? $output: 'Система в порядке.';
+  }
+
+  private static function getUnindexed()
+  {
+    $count = 0;
+
+    foreach (TypeNode::getSchema() as $type => $meta) {
+      $indexed = false;
+
+      foreach ($meta['fields'] as $v) {
+        if (!empty($v['indexed'])) {
+          $indexed = true;
+          break;
+        }
+      }
+
+      if ($indexed) {
+        $tmpcount = mcms::db()->getResult("SELECT COUNT(*) FROM `node` `n` WHERE `n`.`class` = '{$type}' AND `n`.`deleted` = 0 AND NOT EXISTS (SELECT 1 FROM `node__idx_{$type}` `n1` WHERE `n1`.`id` = `n`.`id`)");
+        $count += $tmpcount;
+      }
+    }
+
+    if ($count)
+      return t('<p>%count объектов нуждаются в индексации.  Они будут проиндексирвоаны при выполнении планировщика, или вы можете <a href=\'@url\'>проиндексировать их вручную</a>.', array('%count' => $count, '@url' => '/admin.rpc?action=reindex'));
   }
 
   private static function onGetModules(RequestContext $ctx)
@@ -386,6 +412,10 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       mcms::flush(mcms::FLUSH_NOW);
       break;
 
+    case 'reindex':
+      $next = self::doReindex();
+      break;
+
     case 'modlist':
       self::hookModList($ctx);
       break;
@@ -453,5 +483,23 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     $node->config = $conf;
     $node->save();
+  }
+
+  private static function doReindex()
+  {
+    $next = '/admin/';
+
+    if (null !== ($stat = TypeNode::getIndexStats())) {
+      if ('_total' != ($class = array_pop(array_keys($stat)))) {
+        $ids = mcms::db()->getResultsV('id', "SELECT `n`.`id` FROM `node` `n` WHERE `n`.`deleted` = 0 AND `n`.`class` = :class AND NOT EXISTS (SELECT 1 FROM `node__idx_{$class}` `i` WHERE `i`.`id` = `n`.`id`) LIMIT 50", array(':class' => $class));
+
+        foreach ($count = Node::find(array('class' => $class, 'id' => $ids)) as $n)
+          $n->reindex();
+
+        $next = '/admin.rpc?action=reindex&rnd='. rand();
+      }
+    }
+
+    return $next;
   }
 };
