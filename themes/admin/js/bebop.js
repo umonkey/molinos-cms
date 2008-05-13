@@ -280,8 +280,8 @@ function bebop_fix_file_mode_selection(sel)
 
 function bebop_fix_files()
 {
-  $('#center :file').each(function (i) {
-    var f = $('#center :file').eq(i);
+  $('#center .form-file.archive').each(function (i) {
+    var f = $('#center .form-file.archive').eq(i);
     var id = f.attr('id').replace('-input', '');
 
     var html = ""
