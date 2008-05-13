@@ -121,8 +121,8 @@ class MenuWidget extends Widget
     // Определяем путь к текущему разделу.
     if (null === $this->ctx->section_id)
       $path = array();
-    else
-      $path = $this->ctx->section->getParents();
+    elseif (!is_array($path = $this->ctx->section->getParents()))
+      $path = array();
 
     // Загружаем детей.
     $root->loadChildren();
