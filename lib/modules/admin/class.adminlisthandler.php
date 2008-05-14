@@ -46,6 +46,8 @@ class AdminListHandler
 
     $this->limit = $ctx->get('limit', 10);
     $this->page = $ctx->get('page', 1);
+    $this->noedit = false;
+    $this->pgcount = 0;
   }
 
   public function getHTML($preset = null)
@@ -73,14 +75,17 @@ class AdminListHandler
         $form->addControl(new AdminUINodeActionsControl(array(
           'actions' => $this->actions,
           )));
+
       $form->addControl(new AdminUIListControl(array(
         'columns' => $this->columns,
         'picker' => $this->ctx->get('picker'),
         'selectors' => $this->selectors,
+        'noedit' => $this->noedit,
         'columntitles' => $this->columntitles,
         'linkfield' => $this->linkfield,
         'zoomlink' => $this->zoomlink,
         )));
+
       if (empty($_GET['picker']))
         $form->addControl(new AdminUINodeActionsControl(array(
           'actions' => $this->actions,
@@ -128,6 +133,7 @@ class AdminListHandler
     return $form->getHTML(array());
   }
 
+
   private function getPager()
   {
     return mcms::pager($this->getCount(), $this->page, $this->limit);
@@ -136,7 +142,6 @@ class AdminListHandler
   protected function setUp($preset = null)
   {
     unset($this->title);
-
     // Некоторые заготовки.
     if (null !== ($this->preset = $preset)) {
       switch ($preset) {
@@ -344,12 +349,9 @@ class AdminListHandler
     case 'schema':
       $tmp = array();
 
-      foreach ($result as $k => $v) {
-        if (!empty($v['isdictionary']))
+      foreach ($result as $k => $v)
+        if (!bebop_is_debugger() and in_array($v['name'], $itypes) or !empty($v['isdictionary']))
           unset($result[$k]);
-        elseif (!bebop_is_debugger() and in_array($v['name'], $itypes))
-          unset($result[$k]);
-      }
 
       foreach ($result as $v) {
         if (!in_array($v['name'], $itypes)) {
@@ -384,11 +386,11 @@ class AdminListHandler
 
   protected function getCount()
   {
-    if (null === $this->count) {
+    if (null === $this->pgcount) {
       $filter = $this->getNodeFilter();
-      $this->count = Node::count($filter);
+      $this->pgcount = Node::count($filter);
     }
 
-    return $this->count;
+    return $this->pgcount;
   }
 };
