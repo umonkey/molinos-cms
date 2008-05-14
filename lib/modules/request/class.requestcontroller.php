@@ -84,6 +84,8 @@ class RequestController
       if (bebop_is_debugger())
         $message = get_class($e) .': '. $message;
 
+      mcms::log('exception', get_class($e) .': '. $message);
+
       bebop_on_json(array('message' => $message));
 
       if ($this->renderError($e))
