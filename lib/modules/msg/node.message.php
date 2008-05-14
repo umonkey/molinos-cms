@@ -18,11 +18,14 @@ class MessageNode extends Node
           BebopMimeMail::send(null, $email, $this->name, $this->text);
           $this->data['sent'] = 1;
         }
+
+        // Сохраняем в базе только если пользователь найден.
+        // Чтобы можно было спокойно вызывать mcms::()mail для
+        // любых объектов, не парясь с проверкой на class=user.
+        return parent::save();
       } catch (ObjectNotFoundException $e) {
       }
     }
-
-    return parent::save();
   }
 
   public function getDefaultSchema()
