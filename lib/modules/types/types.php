@@ -813,7 +813,7 @@ class NumberControl extends Control
 
   public static function getSQL()
   {
-    return 'VARCHAR(255)';
+    return 'INTEGER';
   }
 
   public function getHTML(array $data)
@@ -840,6 +840,11 @@ class FloatControl extends NumberControl
     return array(
       'name' => t('Число (дробное)'),
       );
+  }
+
+  public static function getSQL()
+  {
+    return 'DECIMAL(10,2)';
   }
 };
 
