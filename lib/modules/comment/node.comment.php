@@ -3,6 +3,14 @@
 
 class CommentNode extends Node
 {
+  public function save()
+  {
+    if (empty($this->name))
+      $this->name = t('Комментарий от %name', array('%name' => mcms::user()->name));
+
+    return parent::save();
+  }
+
   public function formGet($simple = false)
   {
     $form = parent::formGet($simple);
