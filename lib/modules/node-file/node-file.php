@@ -94,6 +94,11 @@ class FileNode extends Node implements iContentType
     // Находим существующий файл.
     try {
       $node = Node::load(array('class' => 'file', 'filepath' => $this->filepath));
+
+      // Исправление для Issue 300: файла физически нет, и заменить ноду нельзя.
+      if (!file_exists($storage .'/'. $this->filepath))
+        throw new ObjectNotFoundException();
+
       $this->data = $node->data;
     }
 
