@@ -66,21 +66,26 @@ class NodeLinkControl extends Control
   {
     if (count($parts = explode('.', $this->values, 2)) == 2) {
       if (Node::count($filter = array('class' => $parts[0], 'published' => 1, '#sort' => array('name' => 'asc'))) < self::limit) {
+        foreach (Node::find($filter) as $tmp) {
+          $name = $tmp->name;
+
+          if ($tmp->class == 'user' and !empty($tmp->fullname))
+            $name = $tmp->fullname;
+
+          $values[$tmp->id] = $name;
+        }
+
+        asort($values);
+
         $options = '';
 
         if (!$this->required)
           $options .= '<option></option>';
 
-        foreach (Node::find($filter) as $tmp) {
-          $name = $tmp->name;
-
-          // FIXME: поправить интранет, заменить на fullname.
-          if ($tmp->class == 'user' and isset($tmp->login))
-            $name = $tmp->login;
-
+        foreach ($values as $id => $name) {
           $options .= mcms::html('option', array(
-            'selected' => ($value == $tmp->id) ? 'selected' : null,
-            'value' => $tmp->id,
+            'selected' => ($value == $id) ? 'selected' : null,
+            'value' => $id,
             ), $name);
         }
 
