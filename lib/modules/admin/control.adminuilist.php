@@ -109,7 +109,8 @@ class AdminUIListControl extends Control
       $output .= '<th class=\'selector\'>&nbsp;</th>';
 
     // Редактирование.
-    $output .= '<th class=\'actions\'>&nbsp;</th>';
+    if (!$this->noedit)
+      $output .= '<th class=\'actions\'>&nbsp;</th>';
 
     foreach ($this->columns as $col) {
       $output .= "<th class='field-{$col}'>";
@@ -276,6 +277,9 @@ class AdminUIListControl extends Control
         'class' => 'actions',
         'style' => 'padding-left: 4px; padding-right: 4px; width: '. (18 * count($output)) .'px',
         ), join('', $output));
+    }
+    else {
+      return "<td></td>";
     }
   }
 
