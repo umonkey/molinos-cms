@@ -9,17 +9,23 @@ class SyslogListHandler extends AdminListHandler
     $this->columns = array('timestamp', 'nid', 'uid', 'username', 'ip', 'operation', 'message');
     $this->actions = array();
     $this->selectors = false;
+    $this->noedit = true;
+  }
+
+  public function __construct(RequestContext $ctx)
+  {
+    parent::__construct($ctx);
   }
 
   protected function getData()
   {
     $offset = ($this->page - 1) * $this->limit;
 
-    if (null === ($tmp = $this->ctx->get('search')))
-      $data = mcms::db()->getResults("SELECT * FROM `node__log` ORDER BY `lid` DESC LIMIT {$offset}, {$this->limit}");
-    else
-      $data = mcms::db()->getResults("SELECT * FROM `node__log` WHERE `message` LIKE :search ORDER BY `lid` DESC LIMIT {$offset}, {$this->limit}", array(':search' => '%'. $tmp .'%'));
+    $sql = "SELECT `timestamp`,`nid`,`uid`,`username`,`ip`,`operation`,`message`
+           FROM node__log ORDER BY `lid` DESC limit :start, :lim ";
 
+    $data = mcms::db()->getResults($sql, array(':start' => $offset, ':lim' => $this->limit));
+    $this->pgcount  = mcms::db()->getResult("SELECT COUNT(*) FROM `node__log`")*1;
     return $data;
   }
 };
