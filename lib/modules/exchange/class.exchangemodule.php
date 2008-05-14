@@ -459,11 +459,11 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
         'label' => t('Пароль этого пользователя'),
         'wrapper_id' => 'db-password',
         )));
-
-      $form->addControl(new SubmitControl(array(
-        'text' => t('Произвести выбранную операцию'),
-        )));
     }
+
+    $form->addControl(new SubmitControl(array(
+      'text' => t('OK'),
+      )));
 
     return $form->getHTML(array());
   }
