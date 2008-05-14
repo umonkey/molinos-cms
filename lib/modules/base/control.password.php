@@ -25,8 +25,15 @@ class PasswordControl extends Control
     $output = mcms::html('input', array(
       'type' => 'password',
       'id' => $this->id,
-      'class' => 'form-text',
-      'name' => $this->value,
+      'class' => 'form-text form-password1',
+      'name' => $this->value .'[]',
+      'value' => null,
+      ));
+    $output .= mcms::html('input', array(
+      'type' => 'password',
+      'id' => $this->id,
+      'class' => 'form-text form-password2',
+      'name' => $this->value .'[]',
       'value' => null,
       ));
 

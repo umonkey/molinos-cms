@@ -1269,6 +1269,18 @@ class NodeBase
             $this->linkAddChild($value, $k);
             break;
 
+          case 'PasswordControl':
+            $values = array_key_exists($key = 'node_content_'. $k, $data) ? $data[$key] : null;
+
+            if (!empty($values)) {
+              if ($values[0] != $values[1])
+                throw new ValidationException($k);
+
+              $this->$k = $values[0];
+            }
+
+            break;
+
           default:
             $key = 'node_content_'. $k;
             $this->$k = array_key_exists($key, $data) ? $data[$key] : null;
