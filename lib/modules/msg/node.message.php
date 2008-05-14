@@ -9,8 +9,13 @@ class MessageNode extends Node
       try {
         $dst = Node::load(array('class' => 'user', 'id' => $this->re));
 
-        if (isset($dst->email) and class_exists('BebopMimeMail')) {
-          BebopMimeMail::send(null, $dst->email, $this->name, $this->text);
+        if (!empty($dst->email))
+          $email = $dst->email;
+        elseif (false !== strstr($dst->name, '@'))
+          $email = $dst->name;
+
+        if (!empty($email) and class_exists('BebopMimeMail')) {
+          BebopMimeMail::send(null, $email, $this->name, $this->text);
           $this->data['sent'] = 1;
         }
       } catch (ObjectNotFoundException $e) {
