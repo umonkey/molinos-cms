@@ -5,6 +5,9 @@ class BebopMimeMail implements iModuleConfig
 {
   public static function send($from, $to, $subject, $body, array $attachments = null, array $headers = null)
   {
+    if (empty($to))
+      throw new InvalidArgumentException(t('Получатель сообщения не указан.'));
+
     if (empty($from))
       if (($from = mcms::config('mail_from')) === null)
         $from = "Molinos.CMS <no-reply@{$_SERVER['HTTP_HOST']}>";
@@ -13,7 +16,9 @@ class BebopMimeMail implements iModuleConfig
       $body = '<html><head><title>'. mcms_plain($subject) .'</title></head><body>'. $body .'</body></html>';
 
     if (!is_array($to))
-      $to = preg_split('/, */', $to);
+      $to = preg_split('/, */', $to, PREG_SPLIT_NO_EMPTY);
+
+    mcms::log('mail', t('to=%to, subject=%subject', array('%to' => join(',', $to), '%subject' => $subject)));
 
     $mail = new htmlMimeMail();
 
