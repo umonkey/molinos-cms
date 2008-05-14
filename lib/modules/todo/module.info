@@ -1,0 +1,5 @@
+group = Service
+
+[name]
+en = Todo Manager
+ru = Управление задачами
