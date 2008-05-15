@@ -44,8 +44,11 @@ class TodoNode extends Node
       'checked' => empty($this->closed) ? null : 'checked',
       ));
     $output .= mcms::html('span', array(
+      'class' => 'delete',
+      ));
+    $output .= mcms::html('span', array(
       'class' => 'description',
-      ), $this->name);
+      ), l("/node/comments/{$this->id}/", $this->name));
 
     return mcms::html('div', array(
       'class' => 'todo',

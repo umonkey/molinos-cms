@@ -1,0 +1,32 @@
+<?php
+
+function show_todo(array $list, $type, $title)
+{
+  print mcms::html('h3', array(
+    'class' => "cold todolist {$type}". (empty($list[$type]) ? ' empty' : ''),
+  ), mcms::html('span', $title));
+
+  if ('open' == $type)
+    print mcms::html('p', array(
+      'class' => 'todolist emptymsg '. $type .' '. (empty($list[$type]) ? '' : 'hide'),
+      ), 'Этот список пока пуст.  Вам нужно добавить или изменить задание, тогда здесь что-нибудь появится.');
+
+  print "<div class='todolist {$type}'>";
+
+  if (!empty($list[$type])) {
+    foreach ($list[$type] as $task)
+      print $task['__html'];
+  }
+
+  print '</div>';
+}
+
+show_todo($list, 'open', 'TODO'. ($relname ? ': '. $relname : ''))
+
+?><form id='todosubmitform' method='post' action='<?php print l('/todo.rpc?action=add&destination=CURRENT'); ?>'>
+<input type='hidden' name='rel' value='<?php print $rel; ?>' />
+<input id='todotext' type='text' name='name' />
+<input type='submit' value='добавить' class='submit' />
+</form>
+
+<?php show_todo($list, 'closed', 'Выполненные задачки'); ?>

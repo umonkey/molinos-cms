@@ -1,0 +1,44 @@
+.todolist .description {
+  font-size: 10pt;
+}
+
+/* Чтобы длинные названия при переносе не выводились под чекбоксом */
+.todolist .description {
+  display: block;
+}
+
+/* Чтобы чекбокс всегда был слева от описания */
+.todolist input.checkbox {
+  float: left;
+  margin-right: .5em;
+}
+
+/* Чтобы не наползали друг на друга */
+.todolist .todo {
+  margin-bottom: .5em;
+  clear: left;
+}
+
+div.todolist.closed .description {
+  color: gray;
+}
+
+h3.todolist.closed {
+  margin-top: 1em;
+}
+h3.todolist.closed.empty {
+  display: none;
+}
+p.todolist.hide {
+  display: none;
+}
+
+.todolist.closed .delete {
+  display: block;
+  float: left;
+  width: 16px;
+  height: 16px;
+  background: transparent url(img/trash.png) no-repeat top left;
+  margin-right: 4px;
+  cursor: hand;
+}
