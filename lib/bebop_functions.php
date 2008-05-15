@@ -379,9 +379,9 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
 
       ob_start();
 
-      $filetype = substr($__filename, strrpos($__filename, "."));
+      $ext = strrchr($__filename, '.');
 
-      if ($filetype == '.tpl') {
+      if ($ext == '.tpl') {
         if (class_exists('BebopSmarty')) {
           $__smarty = new BebopSmarty($type == 'page');
           $__smarty->template_dir = ($__dir = dirname($__fullpath));
@@ -404,12 +404,27 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
         }
       }
 
-      elseif (($filetype == '.php') or ($filetype == '.phtml')) {
+      elseif ($ext == '.php' or $ext == '.phtml') {
         extract($data, EXTR_SKIP);
         include($__fullpath);
       }
 
       $output = ob_get_clean();
+
+      if (file_exists($tmp = str_replace($ext, '.css', $__filename)))
+        $output .= mcms::html('link', array(
+          'rel' => 'stylesheet',
+          'type' => 'text/css',
+          'href' => '/'. $tmp,
+          ));
+
+      if (file_exists($tmp = str_replace($ext, '.js', $__filename)))
+        $output .= mcms::html('script', array(
+          'type' => 'text/javascript',
+          'language' => 'javascript',
+          'src' => '/'. $tmp,
+          ));
+
       return trim($output);
     }
   }
