@@ -153,5 +153,11 @@ class NodeApiModule implements iRemoteCall
     default:
       mcms::debug($ctx, $_POST);
     }
+
+    bebop_on_json(array(
+      'action' => $action,
+      'node' => $nid,
+      'status' => 'ok',
+      ));
   }
 };
