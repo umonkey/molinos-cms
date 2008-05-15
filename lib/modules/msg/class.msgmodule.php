@@ -20,7 +20,7 @@ class MsgModule
 
   private static function getUid($re)
   {
-    if (null === $re)
+    if (empty($re))
       return mcms::user()->id;
     elseif ($re instanceof Node)
       return $re->id;
