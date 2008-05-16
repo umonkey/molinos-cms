@@ -114,7 +114,10 @@ class DocWidget extends Widget
             if (empty($result['document'][$k]))
               $result['document'][$k] = null;
             else {
-              $parts = explode('.', $v['values'], 2);
+              if (!empty($v['dictionary']))
+                $parts = array($v['dictionary'], 'name');
+              else
+                $parts = explode('.', $v['values'], 2);
 
               if (count($tmp = array_values(Node::find(array('class' => $parts[0], 'id' => $result['document'][$k]), 1))))
                 $result['document'][$k] = $tmp[0]->getRaw();
