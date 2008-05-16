@@ -1374,8 +1374,10 @@ class NodeBase
 
     // Создание новой ноды.
     if (empty($node['id'])) {
+      $node_id = $this->dbGetNextId();
+
       mcms::db()->exec($sql = "INSERT INTO `node` (`id`, `lang`, `parent_id`, `class`, `code`, `left`, `right`, `uid`, `created`, `updated`, `published`, `deleted`) VALUES (:id, :lang, :parent_id, :class, :code, :left, :right, :uid, :created, :updated, :published, :deleted)", $params = array(
-        'id' => $this->dbGetNextId('node', 'id'),
+        'id' => $node_id,
         'lang' => $node['lang'],
         'parent_id' => $node['parent_id'],
         'class' => $node['class'],
@@ -1389,11 +1391,7 @@ class NodeBase
         'deleted' => empty($node['deleted']) ? 0 : 1,
         ));
 
-      $this->data['id'] = $node['id'] = mcms::db()->lastInsertId();
-
-      if (empty($this->data['id'])) {
-        mcms::debug($sql, $params);
-      }
+      $this->data['id'] = $node['id'] = $node_id;
     }
 
     // Обновление существующей ноды.
@@ -1474,7 +1472,7 @@ class NodeBase
 
       // Родитель сам вне дерева — прописываем его.
       if (empty($parent['left']) or empty($parent['right'])) {
-        $pos = $this->dbGetNextId('node', 'right');
+        $pos = $this->dbGetNextValue('node', 'right');
 
         $parent['left'] = $pos;
         $parent['right'] = $pos + 3;
@@ -1501,9 +1499,35 @@ class NodeBase
     }
   }
 
+  // Возвращает следующий доступный идентификатор для таблицы node.
+  private function dbGetNextId()
+  {
+    try {
+      mcms::db()->exec("insert into node__seq values()");
+      return  mcms::db()->lastInsertId();
+    }
+
+    catch (TableNotFoundException $e) {
+      $t = new TableInfo('node__seq');
+      $t->columnSet('id', array(
+        'type' => 'int',
+        'required' => true,
+        'key' => 'pri',
+        'autoincrement' => true
+        ));
+      $t->commit();
+
+      $curid = dbGetNextValue('node', 'id') - 1;
+
+      mcms::db()->exec("INSERT INTO `node__seq` VALUES (:cur)", array(':cur' => $curid));
+
+      return $this->dbGetNextId();
+    }
+  }
+
   // Возвращает следующий доступный идентификатор для таблицы.
   // FIXME: при большой конкуренции будут проблемы.
-  private function dbGetNextId($table, $field)
+  private function dbGetNextValue($table, $field)
   {
     return mcms::db()->getResult("SELECT MAX(`{$field}`) FROM `{$table}`") + 1;
   }
