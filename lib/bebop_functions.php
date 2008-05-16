@@ -439,6 +439,15 @@ function bebop_get_file_type($filename, $realname = null)
       return 'application/pdf';
     case '.desktop':
       return 'application/x-gnome-shortcut';
+    case '.bmp':
+      return 'image/bmp';
+    case '.gif':
+      return 'image/gif';
+    case '.jpg':
+    case '.jpeg':
+      return 'image/jpeg';
+    case '.png':
+      return 'image/png';
     }
   }
 
@@ -449,8 +458,9 @@ function bebop_get_file_type($filename, $realname = null)
   }
 
   elseif (function_exists('finfo_open')) {
-    if (false !== ($r = finfo_open(FILEINFO_MIME))) {
+    if (false !== ($r = finfo_open(FILEINFO_MIME, '/usr/local/share/file/magic.mime'))) {
       $result = finfo_file($r, $filename);
+      var_dump($r);
       $result = str_replace(strrchr($result, ';'), '', $result);
       finfo_close($r);
     }
@@ -1170,13 +1180,13 @@ class mcms
 
           // Строим список интерфейсов.
           if ($type !== 'interface') {
-            if (preg_match('@^\s*(abstract\s+){0,1}class\s+([^\s]+)(\s+extends\s+([^\s]+))*(\s+implements\s+(.+))*@im', file_get_contents($classpath), $m)) {
+            if (preg_match('@^\s*(abstract\s+){0,1}class\s+([^\s]+)(\s+extends\s+([^\s]+))*(\s+implements\s+([^\n\r]+))*@im', file_get_contents($classpath), $m)) {
               $classname = $m[2];
 
               $result['modules'][$modname]['classes'][] = $classname;
 
               if (!empty($m[6]))
-                $interfaces = explode(',', str_replace(' ', '', $m[6]));
+                $interfaces = preg_split('/,\s*/', $m[6], PREG_SPLIT_NO_EMPTY);
               else
                 $interfaces = array();
 
