@@ -42,77 +42,57 @@ class FieldControl extends Control
 
     $body = $this->addProperty($data, 'name', 'Имя', mcms::html('input', array(
       'type' => 'text',
-      'class' => 'clonable',
       'value' => $this->name,
+      'class' => 'nextid',
       'name' => "{$this->value}[{$id}][name]",
       )));
     $body .= $this->addProperty($data, 'title', 'Заголовок', mcms::html('input', array(
       'type' => 'text',
-      'class' => 'clonable',
       'value' => $this->isnull($data, 'label'),
+      'class' => 'nextid',
       'name' => "{$this->value}[{$id}][label]",
       )));
     $body .= $this->addProperty($data, 'type', 'Тип', mcms::html('select', array(
       'value' => $this->isnull($data, 'type'),
-      'class' => 'clonable',
+      'class' => 'nextid',
       'name' => "{$this->value}[{$id}][type]",
       ), $this->getTypes($this->isnull($data, 'type', 'TextLineControl'))));
 
     $body .= $this->addProperty($data, 'dictionary', 'Справочник', mcms::html('select', array(
       'name' => "{$this->value}[{$id}][dictionary]",
-      'class' => 'clonable',
+      'class' => 'nextid',
       ), $this->getDictionaries($this->isnull($data, 'dictionary', $this->isnull($data, 'values')))));
 
     $body .= $this->addProperty($data, 'default', 'По умолчанию', mcms::html('input', array(
       'type' => 'text',
-      'class' => 'clonable',
       'value' => $this->isnull($data, 'default'),
+      'class' => 'nextid',
       'name' => "{$this->value}[{$id}][default]",
-      )));
-    $body .= $this->addProperty($data, 'extensions', 'Расширения', mcms::html('input', array(
-      'type' => 'text',
-      'class' => 'clonable',
-      'value' => $this->isnull($data, 'extensions', 'png, gif, jpg'),
-      'name' => "{$this->value}[{$id}][extensions]",
       )));
     $body .= $this->addProperty($data, 'values', 'Значения', mcms::html('input', array(
       'type' => 'text',
-      'class' => 'clonable',
       'value' => $this->isnull($data, 'values'),
+      'class' => 'nextid',
       'name' => "{$this->value}[{$id}][values]",
       )));
     $body .= $this->addProperty($data, 'required', 'Обязательное', mcms::html('input', array(
       'type' => 'checkbox',
-      'class' => 'clonable',
       'checked' => $this->isnull($data, 'required') ? 'checked' : null,
       'name' => "{$this->value}[{$id}][required]",
+      'class' => 'nextid',
       'value' => 1,
       )));
     $body .= $this->addProperty($data, 'indexed', 'Индекс', mcms::html('input', array(
       'type' => 'checkbox',
-      'class' => 'clonable',
       'checked' => $this->isnull($data, 'indexed') ? 'checked' : null,
       'name' => "{$this->value}[{$id}][indexed]",
-      'value' => 1,
-      )));
-    $body .= $this->addProperty($data, 'archive', 'Подбирать из архива', mcms::html('input', array(
-      'type' => 'checkbox',
-      'class' => 'clonable',
-      'checked' => $this->isnull($data, 'archive') ? 'checked' : null,
-      'name' => "{$this->value}[{$id}][archive]",
-      'value' => 1,
-      )));
-    $body .= $this->addProperty($data, 'unzip', 'Поддержка .zip', mcms::html('input', array(
-      'type' => 'checkbox',
-      'class' => 'clonable',
-      'checked' => $this->isnull($data, 'unzip') ? 'checked' : null,
-      'name' => "{$this->value}[{$id}][unzip]",
+      'class' => 'nextid',
       'value' => 1,
       )));
     $body .= $this->addProperty($data, 'delete', 'Удалить', mcms::html('input', array(
       'type' => 'checkbox',
-      'class' => 'clonable',
       'name' => "{$this->value}[{$id}][delete]",
+      'class' => 'nextid',
       'value' => 1,
       )));
 
