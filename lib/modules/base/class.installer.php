@@ -41,12 +41,12 @@ class Installer
 
       $t->columnSet('left', array(
         'type' => 'int',
-        'required' => 1,
+        'required' => 0,
         'key' => 'mul'
         ));
       $t->columnSet('right', array(
         'type' => 'int',
-        'required' => 1,
+        'required' => 0,
         'key' => 'mul'
        ));
       $t->columnSet('uid', array(
@@ -187,6 +187,17 @@ class Installer
         ));
       $t->columnSet('data', array(
         'type' => 'mediumblob',
+        ));
+      $t->commit();
+    }
+
+    $t = new TableInfo('node__seq');
+    if (!$t->exists()) {
+      $t->columnSet('id', array(
+        'type' => 'int',
+        'required' => true,
+        'key' => 'pri',
+        'autoincrement' => true
         ));
       $t->commit();
     }
