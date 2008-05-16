@@ -1071,6 +1071,12 @@ class NodeBase
     foreach ($tabs as $tab)
       $form->addControl($tab);
 
+    $form->addControl(new BoolControl(array(
+      'value' => 'node_content_published',
+      'label' => t('Опубликовать'),
+      'default' => $this->published,
+      )));
+
     $form->addControl(new SubmitControl(array(
       'text' => 'Сохранить',
       )));
@@ -1095,13 +1101,6 @@ class NodeBase
 
     $intro = array();
 
-    /*
-    if (null === $this->id)
-      $intro[] = t('Вы создаёте документ типа &laquo;%type&raquo;.', array('%type' => $schema['title'])) . $description;
-    else
-      $intro[] = t('Вы изменяете документ типа &laquo;%type&raquo;.', array('%type' => $schema['title'])) . $description;
-    */
-
     if (mcms::user()->hasAccess('u', 'type') and $this->class != 'type' and substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/') {
       if (empty($schema['isdictionary']))
         $intro[] = t("Вы можете <a href='@typelink'>настроить этот тип</a>, добавив новые поля.", array(
@@ -1112,15 +1111,6 @@ class NodeBase
           '@typelink' => "/admin/?mode=edit&id={$schema['id']}&destination=CURRENT",
           ));
     }
-
-    /*
-    if (!empty($schema['fields']))
-      foreach ($schema['fields'] as $k => $v)
-        if (!empty($v['required'])) {
-          $intro[] = t('Поля, отмеченные звёздочкой, обязательны для заполнения.');
-          break;
-        }
-    */
 
     if (!empty($intro))
       return new InfoControl(array(
@@ -1363,6 +1353,8 @@ class NodeBase
     if (!empty($schema['hasfiles']) and !empty($data['node_ftp_files'])) {
       FileNode::getFilesFromFTP($data['node_ftp_files'], $this->id);
     }
+
+    $this->data['published'] = !empty($data['node_content_published']);
   }
 
   // Сохранение объекта в БД.
