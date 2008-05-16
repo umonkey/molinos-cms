@@ -19,15 +19,34 @@ class NodeIndexer
         }
       }
 
-      if ($indexed) {
-        if ($count = mcms::db()->getResult("SELECT COUNT(*) FROM `node` `n` WHERE `n`.`class` = '{$type}' AND `n`.`deleted` = 0 AND NOT EXISTS (SELECT 1 FROM `node__idx_{$type}` `n1` WHERE `n1`.`id` = `n`.`id`)")) {
-          $stat[$type] = $count;
-          $stat['_total'] += $count;
-        }
-      }
+      if ($indexed)
+        self::countTable($type, $stat, $meta);
     }
 
     return empty($stat['_total']) ? null : $stat;
+  }
+
+  private static function countTable($type, array &$stat, array $schema)
+  {
+    $table = 'node__idx_'. $type;
+
+    try {
+      if ($count = mcms::db()->getResult("SELECT COUNT(*) FROM `node` `n` WHERE `n`.`class` = '{$type}' AND `n`.`deleted` = 0 AND NOT EXISTS (SELECT 1 FROM `{$table}` `n1` WHERE `n1`.`id` = `n`.`id`)")) {
+        $stat[$type] = $count;
+        $stat['_total'] += $count;
+      }
+    }
+
+    catch (TableNotFoundException $e) {
+      if ($table == $e->getTableName()) {
+        $node = Node::create('type', $schema);
+        $node->updateTable();
+
+        return self::countTable($type, $stat, $schema);
+      } else {
+        throw $e;
+      }
+    }
   }
 
   public static function run()
