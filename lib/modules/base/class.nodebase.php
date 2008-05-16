@@ -1071,11 +1071,12 @@ class NodeBase
     foreach ($tabs as $tab)
       $form->addControl($tab);
 
-    $form->addControl(new BoolControl(array(
-      'value' => 'node_content_published',
-      'label' => t('Опубликовать'),
-      'default' => $this->published,
-      )));
+    if ($this->canPublish())
+      $form->addControl(new BoolControl(array(
+        'value' => 'node_content_published',
+        'label' => t('Опубликовать'),
+        'default' => $this->published,
+        )));
 
     $form->addControl(new SubmitControl(array(
       'text' => 'Сохранить',
@@ -1354,7 +1355,15 @@ class NodeBase
       FileNode::getFilesFromFTP($data['node_ftp_files'], $this->id);
     }
 
-    $this->data['published'] = !empty($data['node_content_published']);
+    if ($this->canPublish())
+      $this->data['published'] = !empty($data['node_content_published']);
+  }
+
+  // Проверка, может ли пользователь публиковать документ.
+  // FIXME: завязать на права.
+  private function canPublish()
+  {
+    return !in_array($this->class, array('group', 'user'));
   }
 
   // Сохранение объекта в БД.
