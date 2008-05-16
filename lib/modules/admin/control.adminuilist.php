@@ -78,7 +78,7 @@ class AdminUIListControl extends Control
           $row .= mcms::html('a', array(
             'href' => $href,
             'class' => isset($this->picker) ? 'returnHref' : null,
-            ), empty($value) ? '(без названия)' : $value);
+            ), empty($value) ? '(без названия)' : mcms_plain($value, false));
         } elseif (empty($value))
           $row .= '&nbsp;';
         else
@@ -321,7 +321,7 @@ class AdminUIListControl extends Control
       return;
 
     $tmp = mcms::html('img', array(
-      'src' => $img,
+      'src' => '/'. $img,
       'width' => 16,
       'height' => 16,
       'alt' => $title,
