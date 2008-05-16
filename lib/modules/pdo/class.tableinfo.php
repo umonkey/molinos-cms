@@ -29,6 +29,12 @@ class TableInfo
       if (!is_array($this->columns)){
          $this->isnew = true;
          $this->columns = array();
+         $this->cur_indexes = array();
+      }
+      else {
+        foreach ($this->columns as $el) {
+          $this->cur_indexes[$el] = $el['key'];
+        }
       }
     }
 
@@ -152,14 +158,15 @@ class TableInfo
       }
 
       // Добавим индексы
-      // FIXME: нет проверки на существование индекса.
-      /*
       for ($i = 0; $i < count($this->index); $i++) {
         $el = $this->index[$i];
-        $sql = "CREATE INDEX `IDX_{$tblname}_{$el}` on `{$tblname}` (`{$el}`)";
-        mcms::db()->exec($sql);
+
+        if (empty($this->cur_indexes[$el])) {
+          $sql = "CREATE INDEX `IDX_{$tblname}_{$el}` on `{$tblname}` (`{$el}`)";
+          mcms::db()->exec($sql);
+        }
       }
-      */
+
 
       $this->index = $this->alter = array();
 
