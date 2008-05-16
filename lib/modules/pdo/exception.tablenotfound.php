@@ -5,11 +5,13 @@ class TableNotFoundException extends Exception
 {
   private $sql = null;
   private $params = null;
+  private $table = null;
 
   public function __construct($table, $sql = null, $params = null)
   {
     $this->sql = $sql;
     $this->params = $params;
+    $this->table = $table;
 
     switch ($table) {
     case 'node':
@@ -29,5 +31,10 @@ class TableNotFoundException extends Exception
   public function getParams()
   {
     return bebop_is_debugger() ? $this->params : null;
+  }
+
+  public function getTableName()
+  {
+    return $this->table;
   }
 }
