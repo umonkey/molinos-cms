@@ -305,7 +305,7 @@ class NodeBase
 
     // Вызываем дополнительную обработку.
     try {
-      mcms::invoke('iNodeHook', 'hookNodeDelete', array(Node::load(array('id' => $nid, 'deleted' => array(0, 1))), 'erase'));
+      mcms::invoke('iNodeHook', 'hookNodeDelete', array($this, 'erase'));
     } catch (Exception $e) {
     }
 
