@@ -12,9 +12,12 @@ class TodoRPC implements iRemoteCall
       $node = Node::create('todo', array(
         'name' => $ctx->post('name'),
         'uid' => mcms::user()->id,
+        'to' => $ctx->post('user', mcms::user()->id),
         'published' => 1,
         'rel' => $ctx->post('rel'),
         ));
+
+      mcms::log('todo', serialize($node->getRaw()));
 
       if (empty($node->name)) {
         $msg = t('не указан текст задачи.');
@@ -54,6 +57,17 @@ class TodoRPC implements iRemoteCall
         $node->closed = null;
 
       $node->save();
+
+      if (null !== ($comment = $ctx->post('comment'))) {
+        $tmp = Node::create('comment', array(
+          'uid' => mcms::user()->id,
+          'author' => mcms::user()->name,
+          'name' => t('Комментарий к напоминанию'),
+          'text' => $comment,
+          ));
+        $tmp->save();
+        $tmp->linkAddParent($node->id);
+      }
 
       $state = $node->closed ? 'closed' : 'open';
 

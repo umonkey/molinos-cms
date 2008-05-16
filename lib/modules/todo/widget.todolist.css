@@ -1,4 +1,10 @@
+.todolist {
+  margin-top: -10px;
+  margin-bottom: 50px;
+}
+
 .todolist .description {
+  display: block;
   font-size: 10pt;
 }
 
@@ -41,4 +47,39 @@ p.todolist.hide {
   background: transparent url(img/trash.png) no-repeat top left;
   margin-right: 4px;
   cursor: hand;
+}
+
+#todotext {
+  width: 500px;
+}
+.todo-setuser {
+  margin-top: .5em;
+}
+
+#todosubmitform label {
+  font-weight: bold;
+  margin-right: .5em;
+  width: 100px;
+  float: left;
+  clear: left;
+  text-align: right;
+  vertical-align: middle;
+  margin-top: 2px;
+}
+#todosubmitform .hint {
+  color: #aaa;
+  margin-bottom: 1em;
+  margin-top: .25em;
+}
+#todosubmitform .hint:hover {
+  color: #888;
+}
+
+.todo .disabled {
+  visibility: hidden;
+}
+
+.todo .userlink {
+  padding-left: 18px;
+  background: transparent url(img/user.png) no-repeat top left;
 }

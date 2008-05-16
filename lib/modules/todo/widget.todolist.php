@@ -15,12 +15,15 @@ class TodoListWidget extends Widget
   {
     $options = parent::getRequestOptions($ctx);
 
+    $options['uid'] = mcms::user()->id;
     $options['mode'] = $ctx->get('mode');
 
-    if (null !== ($options['rel'] = $ctx->document_id))
-      $options['relname'] = $ctx->document->name;
-    else
+    if (null === ($options['rel'] = $ctx->document_id))
       $options['relname'] = null;
+    elseif ('user' == $ctx->document->class)
+      $options['relname'] = empty($ctx->document->fullname) ? $ctx->document->name : $ctx->document->fullname;
+    else
+      $options['relname'] = $ctx->document->name;
 
     return $this->options = $options;
   }
@@ -43,6 +46,20 @@ class TodoListWidget extends Widget
       $result['count']++;
     }
 
+    $result['users'] = $this->getUsers();
+
+    return $result;
+  }
+  
+  private function getUsers()
+  {
+    $result = array();
+    
+    foreach (Node::find(array('class' => 'user')) as $node)
+      $result[$node->id] = empty($node->fullname) ? $node->name : $node->fullname;
+      
+    asort($result);
+    
     return $result;
   }
 
