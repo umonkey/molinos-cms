@@ -42,7 +42,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $zipfile = "siteprofile.zip";
       $zipfilepath = mcms::config('tmpdir') ."/export/{$zipfile}";
 
-      mcms::mkdir(dirname($zipfilepath), t('Не удалось создать временный каталог для импорта экспорта данных.'));
+      mcms::mkdir(dirname($zipfilepath), t('Не удалось создать временный каталог для экспорта данных.'));
 
       $zip = new ZipArchive;
       $zip->open($zipfilepath, ZipArchive::OVERWRITE);
@@ -109,7 +109,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
       mcms::db()->clearDB();
 
-      Installer::CreateTables();
+      //Installer::CreateTables();
 
       if ($filetype == '.zip') {
         $zip->extractTo(MCMS_ROOT);
@@ -133,11 +133,9 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $xmlstr = self::export('Mysql-upgrade', 'Профиль для апгрейда до MySQL');
       mcms::db()->clearDB(); // функция очистки базы делает также её бэкап
 
-      Installer::WriteConfig($data,$olddsn); //запишем конфиг новым dsn
+      InstallModule::WriteConfig($data,$olddsn); //запишем конфиг новым dsn
 
       PDO_Singleton::getInstance('default', true); // принудительный перевод PDO_Singleton в Mysql
-
-      Installer::CreateTables();
 
       self::import($xmlstr);
 
@@ -462,8 +460,8 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     }
 
     $form->addControl(new SubmitControl(array(
-      'text' => t('OK'),
-      )));
+      'text' => t('Произвести выбранную операцию'),
+       )));
 
     return $form->getHTML(array());
   }
