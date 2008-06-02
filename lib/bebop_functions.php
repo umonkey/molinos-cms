@@ -904,8 +904,7 @@ class mcms
     if ($path == $_SERVER['REQUEST_URI'])
       $next .= ((false == strstr($next, '?')) ? '?' : '&') .'rnd='. rand();
 
-    // mcms::log('redirect', $next);
-
+    $next = str_replace('%2F','/',$next);
     header('Location: '. $next);
     exit();
   }
@@ -1321,7 +1320,9 @@ class mcms
     if (!empty($_SERVER['REQUEST_METHOD']))
       header("Content-Type: text/plain; charset=utf-8");
 
-    print join(";\n\n", $output) .";\n\n";
+    $o = join(";\n\n", $output) .";\n\n";
+    print $o;
+    mcms::log("error.fatal", $o);
 
     if (!empty($_SERVER['REMOTE_ADDR'])) {
       print "--- backtrace ---\n";
@@ -1394,20 +1395,27 @@ class mcms
     if (ob_get_length())
       ob_end_clean();
 
+    $str1 = $str2 = $str3 = $str4 = '';
     header('Content-Type: text/plain; charset=utf-8');
+    $str1 = sprintf("%s: %s\n", get_class($e), $e->getMessage());
+    print($str1);
 
-    printf("%s: %s\n", get_class($e), $e->getMessage());
-
-    if ($e instanceof UserErrorException)
-      printf("Description: %s\n", $e->getNote());
-
-    if ($e instanceof TableNotFoundException) {
-      if (null !== ($tmp = $e->getQuery()))
-        printf("\nSQL:    %s\n", $tmp);
-      if (null !== ($tmp = $e->getParams()))
-        printf("Params: %s\n", preg_replace('/\s*[\n\r]+\s*/', ' ', var_export($tmp, true)));
+    if ($e instanceof UserErrorException) {
+      $str2 = sprintf("Description: %s\n", $e->getNote());
+      print($str2);
     }
 
+    if ($e instanceof TableNotFoundException) {
+      if (null !== ($tmp = $e->getQuery())) {
+        $str3 = sprintf("\nSQL:    %s\n", $tmp);
+        print($str3);
+      }
+      if (null !== ($tmp = $e->getParams())) {
+        $str4 = sprintf("Params: %s\n", preg_replace('/\s*[\n\r]+\s*/', ' ', var_export($tmp, true)));
+        print($str4);
+      }
+    }
+    mcms::log(get_class($e), "{$str1}{$str2}{$str3}{$str4}");
     printf("\nLocation: %s(%d)\n", ltrim(str_replace(MCMS_ROOT, '', $e->getFile()), '/'), $e->getLine());
 
     // print $message;
