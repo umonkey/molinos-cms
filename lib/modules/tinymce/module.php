@@ -16,8 +16,9 @@ class TinyMceModule implements iModuleConfig, iPageHook
       'value' => 'config_theme',
       'label' => t('Режим работы'),
       'options' => array(
-        'simple' => 'упрощённый',
-        'advanced' => 'нормальный',
+        'simple' => 'минимальный',
+        'advanced' => 'упрощённый',
+        'fat' => 'нормальный',
         'overkill' => 'на стероидах',
         ),
       'required' => true,
@@ -111,6 +112,7 @@ class TinyMceModule implements iModuleConfig, iPageHook
     switch ($config['theme']) {
     case 'simple':
     case 'advanced':
+    case 'fat':
     case 'overkill':
       if (!empty($config['gzip']))
         $files[] = $path .'/template_'. $config['theme'] .'_gzip.js';
