@@ -51,60 +51,34 @@ class SessionData
     if (mcms::db()->getDbType() == 'SQLite')
       return self::db_file($sid, $data);
 
-    try {
-      $cache = BebopCache::getInstance();
+    $cache = BebopCache::getInstance();
 
-      // Чтение сессии.
-      if (null === $data) {
-        if (is_array($tmp = $cache->{'session:'. $sid}))
-          return $tmp;
+    // Чтение сессии.
+    if (null === $data) {
+      if (is_array($tmp = $cache->{'session:'. $sid}))
+        return $tmp;
 
-        $tmp = mcms::db()->getResult("SELECT `data` FROM `node__session` WHERE `sid` = :sid", array(
-          ':sid' => $sid,
-          ));
-
-        return (null === $tmp) ? null : unserialize($tmp);
-      }
-
-      // Удаление сессии.
-      elseif (empty($data)) {
-        unset($cache->{'session:'. $sid});
-        mcms::db()->exec("DELETE FROM `node__session` WHERE `sid` = :sid", array(':sid' => $sid));
-      }
-
-      // Обновление сессии.
-      else {
-        mcms::db()->exec("REPLACE INTO `node__session` (`sid`, `created`, `data`) VALUES (:sid, :tm, :data)", array(
-          ':sid' => $sid,
-          ':tm' => date('Y-m-d H:i:s', time() - date('Z', time())),
-          ':data' => serialize($data),
-          ));
-
-        $cache->{'session:'. $sid} = $data;
-      }
+      $tmp = mcms::db()->getResult("SELECT `data` FROM `node__session` WHERE `sid` = :sid", array(
+        ':sid' => $sid,
+        ));
+      return (null === $tmp) ? null : unserialize($tmp);
     }
-    catch (TableNotFoundException $e) {
-      $t = new TableInfo('node__session');
 
-      if (!$t->exists()) {
-        $t->columnSet('sid', array(
-          'type' => 'char(32)',
-          'required' => true,
-          'key' => 'pri',
-          ));
-        $t->columnSet('created', array(
-          'type' => 'datetime',
-          'required' => true,
-          'key' => 'mul',
-          ));
-        $t->columnSet('data', array(
-          'type' => 'blob',
-          'required' => true,
-          ));
-        $t->commit();
+    // Удаление сессии.
+    elseif (empty($data)) {
+      unset($cache->{'session:'. $sid});
+      mcms::db()->exec("DELETE FROM `node__session` WHERE `sid` = :sid", array(':sid' => $sid));
+    }
 
-        return self::db($sid, $data);
-      }
+    // Обновление сессии.
+    else {
+      mcms::db()->exec("REPLACE INTO `node__session` (`sid`, `created`, `data`) VALUES (:sid, :tm, :data)", array(
+        ':sid' => $sid,
+        ':tm' => date('Y-m-d H:i:s', time() - date('Z', time())),
+        ':data' => serialize($data),
+        ));
+
+      $cache->{'session:'. $sid} = $data;
     }
   }
 

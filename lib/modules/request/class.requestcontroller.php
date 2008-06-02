@@ -126,6 +126,7 @@ class RequestController
 
     if (substr($req['path'], -1) != '/') {
       $req['path'] .= '/';
+
       exit(mcms::redirect(bebop_combine_url($req)));
     }
 
@@ -244,6 +245,7 @@ class RequestController
         isset($url['args']) ? $url['args'] : array(),
         $this->post_vars
         );
+
       return AdminUIModule::onGet($ctx);
     }
   }
@@ -560,9 +562,12 @@ class RequestController
     }
   }
 
-  // Вовзаращает дерево урлов для текущего домена.
+  // Возвращает дерево урлов для текущего домена.
   private function getUrlsForDomain($domain)
   {
+    if (!InstallModule::checkInstalled())
+       mcms::redirect("/index.php?q=%2Finstall.rpc");
+
     $tree = DomainNode::getSiteMap();
 
     if (is_array($tree)) {

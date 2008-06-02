@@ -46,6 +46,16 @@ function bebop_split_url($url = null)
   if ($url === null)
     $url = $_SERVER['REQUEST_URI'];
 
+  //чтобы parse_url сработал правильно, надо в строке параметров заменить
+  //слэши на %2F (особенно актуально это для OpenID).
+
+  $parts = explode('?',$url);
+  $query = implode('',array_slice($parts, 1));
+  $query = str_replace('/','%2F',$query);
+
+  if (count($parts)>1)
+    $url = $parts[0].'?'.$query;
+
   $tmp = parse_url($url);
 
   // Если путь не содержит слэш, но содержит точки — копируем в хост.
@@ -339,6 +349,7 @@ function bebop_on_json(array $result)
 function bebop_render_object($type, $name, $theme = null, $data, $classname = null)
 {
   $__root = MCMS_ROOT;
+  $data['base'] = $_SERVER["HTTP_HOST"].$data['base'];
 
   if (null === $theme) {
     $ctx = RequestContext::getGlobal();
@@ -458,9 +469,8 @@ function bebop_get_file_type($filename, $realname = null)
   }
 
   elseif (function_exists('finfo_open')) {
-    if (false !== ($r = finfo_open(FILEINFO_MIME, '/usr/local/share/file/magic.mime'))) {
+    if (false !== ($r = finfo_open(FILEINFO_MIME))) {
       $result = finfo_file($r, $filename);
-      var_dump($r);
       $result = str_replace(strrchr($result, ';'), '', $result);
       finfo_close($r);
     }

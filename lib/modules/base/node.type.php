@@ -432,6 +432,8 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       throw new InvalidArgumentException(t('Попытка очистить поля типа документа.'));
     }
 
+    // FIXME: у нас из parent::formProcess и так уже вызывается
+    // TypeNode->save. Насколько необходим повторный вызов?
     $this->save();
 
     // Подключаем виджеты.
@@ -468,12 +470,11 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   public function updateTable()
   {
-    mcms::user()->checkAccess('u', 'type');
+    //mcms::user()->checkAccess('u', 'type');
 
-    $reindex = false;
     $t = new TableInfo('node__idx_'. $this->name);
 
-    if (!$t->columnExists('rid'))
+    if (!$t->columnExists('id'))
       $t->columnSet('id', array(
         'type' => 'int(10)',
         'required' => true,
@@ -495,10 +496,6 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
             'key' => 'mul',
             'default' => (isset($v['default']) and '' !== $v['default']) ? $v['default'] : null,
             );
-
-          if (!$t->columnExists($k))
-            $reindex = true;
-
           $t->columnSet($k, $spec);
         }
       }
@@ -516,8 +513,8 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     $t->commit();
 
-    if ($reindex)
-      mcms::db()->exec("DELETE FROM `node__idx_{$this->name}`");
+    // FIXME: зачем удалять значения из таблицы?
+    // mcms::db()->exec("DELETE FROM `node__idx_{$this->name}`");
   }
 
   private static function checkFieldName($name)

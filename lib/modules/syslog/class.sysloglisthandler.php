@@ -19,19 +19,12 @@ class SyslogListHandler extends AdminListHandler
 
   protected function getData()
   {
-    try {
-      $offset = ($this->page - 1) * $this->limit;
+    $offset = ($this->page - 1) * $this->limit;
 
-      $sql = "SELECT `timestamp`, `nid`, `uid`, `username`, `ip`, `operation`, `message` FROM `node__log` ORDER BY `lid` DESC LIMIT {$offset}, {$this->limit}";
+    $sql = "SELECT `timestamp`, `nid`, `uid`, `username`, `ip`, `operation`, `message` FROM `node__log` ORDER BY `lid` DESC LIMIT {$offset}, {$this->limit}";
 
-      $data = mcms::db()->getResults($sql);
-      $this->pgcount  = mcms::db()->getResult("SELECT COUNT(*) FROM `node__log`")*1;
-    }
-
-    catch (TableNotFoundException $e) {
-      SysLogModule::createTable();
-      $data = null;
-    }
+    $data = mcms::db()->getResults($sql);
+    $this->pgcount = mcms::db()->getResult("SELECT COUNT(*) FROM `node__log`") * 1;
 
     return $data;
   }

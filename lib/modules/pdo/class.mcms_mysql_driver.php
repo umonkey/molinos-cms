@@ -69,7 +69,16 @@ class mcms_mysql_driver extends PDO_Singleton
         else
           $tname = null;
 
-        throw new TableNotFoundException($tname);
+        if (stristr($sql, 'DESCRIBE')) {
+          // Это MySQL. Проверка существования таблицы идёт через DESCRIBE в getTableInfo()
+          // Если её нет, надо выкинуть TableNotFoundException, чтобы TableInfo::exists() вернул false
+          throw new TableNotFoundException($tname);
+        }
+
+        else {
+         mcms::invoke('iSchemaManager', 'create', array(array('tblname' => $tname)));
+         return self::exec($sql, $params);
+        }
       }
 
       throw new McmsPDOException($e, $sql);

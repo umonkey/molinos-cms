@@ -24,7 +24,7 @@ class TableInfo
     // Получение информации о таблице.
     protected function scan($name)
     {
-      $this->columns = mcms::db()->getTableInfo($name);
+      $this->oldcolumns = $this->columns = mcms::db()->getTableInfo($name);
 
       if (!is_array($this->columns)){
          $this->isnew = true;
@@ -75,9 +75,12 @@ class TableInfo
         $modify = array_key_exists($name, $this->columns);
 
         if ($this->needsUpdate($name, $spec)) {
-            $this->columns[$name] = $spec;
             $this->addSql($name, $spec, $modify);
         }
+        //Вынесли из if. В addsql всё равно не попали, зато
+        //гарантированно существующее поле попадает в columns.
+        //это важно при удалении полей (при процедуре сравнения).
+        $this->columns[$name] = $spec;
     }
 
     private function needsUpdate($name, array $new)
@@ -109,7 +112,6 @@ class TableInfo
     {
       if ($this->columnExists($name)) {
         // $this->coldel[] = $name;
-        $this->alter[] = "DROP COLUMN `{$name}`";
 
         unset($this->columns[$name]);
 
@@ -149,12 +151,21 @@ class TableInfo
     {
       $tblname = $this->name;
 
-      if (!empty($this->coldel)) {
-         mcms::db()->dropColumn($tblname, $this->coldel, $this->columns);
-      } else {
-        if (null !== ($sql = $this->getSql())) {
-          mcms::db()->exec($sql);
+/*
+      if (!empty($this->oldcolumns)) {
+        //проверим, надо ли удалять какие-либо поля из таблицы
+        //Если хоть одно поле присутствует  в oldcolumns, но отсутствует в columns,  значит надо удалять
+        foreach ($this->oldcolumns as $k=>$v) {
+          if (!array_key_exists($k, $this->columns)) {
+            mcms::db()->dropColumn($tblname, $this->oldcolumns);
+            break;
+          }
         }
+      }
+*/
+
+      if (null !== ($sql = $this->getSql())) {
+        mcms::db()->exec($sql);
       }
 
       // Добавим индексы
@@ -167,7 +178,6 @@ class TableInfo
         }
       }
 
-
       $this->index = $this->alter = array();
 
       mcms::db()->commit();
@@ -179,6 +189,7 @@ class TableInfo
         return null;
 
       $sql = mcms::db()->getSql($this->name, $this->alter, $this->isnew);
+
       return $sql;
     }
 

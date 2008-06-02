@@ -25,8 +25,14 @@ class mcms_sqlite_driver extends PDO_Singleton
 
       switch ($info[1]) {
       case 1: // General error: 1 no such table: xyz.
-        if (false !== strstr($info[2], 'no such table'))
+        if (false !== strstr($info[2], 'no such table')) {
+          if (preg_match("/no such table:\s*(\S+)/i", $info[2], $matches)) {
+            mcms::invoke('iSchemaManager', 'create', array(array('tblname' => $matches[1])));
+            return self::exec($sql, $params);
+          }
           throw new TableNotFoundException(trim(strrchr($info[2], ' ')), $sql, $params);
+        }
+
         throw new McmsPDOException($e, $sql);
         break;
 
@@ -150,10 +156,10 @@ class mcms_sqlite_driver extends PDO_Singleton
     return $columns;
   }
 
-  public function dropColumn($tblname,$coldel, $columns)
+  public function dropColumn($tblname, $columns)
   {
     // В SQLite удаление полей из таблицы происходит по другому, нежели в mysql.
-    $n = rand(1000,100000);
+    $n = rand(1000, 100000);
     $sql = "ALTER TABLE `{$tblname}` RENAME TO `{$tblname}_old{$n}`";
 
     $this->exec($sql);
@@ -199,7 +205,8 @@ class mcms_sqlite_driver extends PDO_Singleton
 
     if (!$isnew) {
       if ($modify)
-        $sql .= "MODIFY COLUMN ";
+        //$sql .= "MODIFY COLUMN ";
+        return array('', '');//SQLite не поддерживает MODIFY COLUMN
       else
         $sql .= "ADD COLUMN ";
     }
@@ -227,6 +234,7 @@ class mcms_sqlite_driver extends PDO_Singleton
 
    public function getSql($name, array $alter, $isnew)
    {
+     if (empty($alter) or empty($alter[0])) return null;
      if ($isnew)
        $sql = "CREATE TABLE `{$name}` (";
      else

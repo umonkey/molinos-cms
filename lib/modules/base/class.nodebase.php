@@ -21,10 +21,12 @@ class NodeBase
       if (Node::count($filter))
         throw new DuplicateException($message ? $message : t('Такой объект уже существует.'));
     } catch (PDOException $e) {
-      throw new ValidationException($field, t('Объект %class требует уникальности по полю %field, однако индекс для этого поля отсутствует.  Необходимо настроить тип документа, включив индексирование этого поля.', array(
+/*
+      throw new ValidationException($field, t($fields.',Объект %class требует уникальности по полю %field, однако индекс для этого поля отсутствует.  Необходимо настроить тип документа, включив индексирование этого поля.', array(
         '%class' => $this->class,
         '%field' => $field,
         )));
+*/
     }
   }
 
@@ -70,8 +72,6 @@ class NodeBase
   {
     if (!is_array($id))
       $id = array('id' => $id);
-
-    $id['#recurse'] = 1;
 
     $data = self::find($id);
 
@@ -397,8 +397,11 @@ class NodeBase
       }
     }
 
-    if (empty($this->left) or empty($this->right))
-      throw new RuntimeException(t('Невозможно получить дочерние объекты: свойства left/right для объекта %id не заполнены.', array('%id' => $this->id)));
+    if (empty($this->left) or empty($this->right)) {
+      $this->data['children'] = null;
+      return;
+     // throw new RuntimeException(t('Невозможно получить дочерние объекты: свойства left/right для объекта %id не //заполнены.', array('%id' => $this->id)));
+    }
 
     // Загружаем детей в плоский список.
     $children = Node::find($filter = array(
@@ -1511,27 +1514,9 @@ class NodeBase
   // Возвращает следующий доступный идентификатор для таблицы node.
   private function dbGetNextId()
   {
-    try {
-      mcms::db()->exec("insert into node__seq values()");
-      return  mcms::db()->lastInsertId();
-    }
-
-    catch (TableNotFoundException $e) {
-      $t = new TableInfo('node__seq');
-      $t->columnSet('id', array(
-        'type' => 'int',
-        'required' => true,
-        'key' => 'pri',
-        'autoincrement' => true
-        ));
-      $t->commit();
-
-      $curid = dbGetNextValue('node', 'id') - 1;
-
-      mcms::db()->exec("INSERT INTO `node__seq` VALUES (:cur)", array(':cur' => $curid));
-
-      return $this->dbGetNextId();
-    }
+    mcms::db()->exec("insert into node__seq (n) values(1)");
+    $k = mcms::db()->lastInsertId();
+    return $k;
   }
 
   // Возвращает следующий доступный идентификатор для таблицы.
