@@ -1,14 +1,16 @@
 AddDefaultCharset utf-8
 
 <IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE application/javascript text/css
+  AddOutputFilterByType DEFLATE application/javascript text/css
 </IfModule>
 
-RewriteEngine on
+<IfModule mod_rewrite.c>
+  RewriteEngine on
 
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_URI} ^/(attachment)/(.*)$
-RewriteRule ^.*$ /att.php?folder=%1&q=%2 [L,QSA]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_URI} ^/(attachment)/(.*)$
+  RewriteRule ^.*$ /att.php?folder=%1&q=%2 [L,QSA]
 
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^.*$ /handler.php [L,QSA]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^.*$ /handler.php [L,QSA]
+</IfModule>
