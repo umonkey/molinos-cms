@@ -12,8 +12,14 @@ _admin_check_perm();
     <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/bebop.css" />
     <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/colors-green.css" />
 
+    <?php if (empty($_GET['window']) or 'find' != $_GET['window']): ?>
     <script language="javascript" type="text/javascript" src="/lib/modules/tinymce/editor/tiny_mce_popup.js"></script>
     <script src="<?=$prefix?>/js/picker.js" type="text/javascript" language="javascript"></script>
+    <?php else: ?>
+    <script src="<?=$prefix?>/../all/jquery/jquery.js" type="text/javascript" language="javascript"></script>
+    <script src="<?=$prefix?>/js/bebop.js" type="text/javascript" language="javascript"></script>
+    <script src="<?=$prefix?>/js/picker-redux.js" type="text/javascript" language="javascript"></script>
+    <?php endif; ?>
 
     <base href="<?=$page['base']?>" />
   </head>

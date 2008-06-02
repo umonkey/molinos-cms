@@ -165,20 +165,28 @@ function bebop_fix_domain_defaultsection()
 
 function mcms_file_pick(field_name, url, type, win)
 {
-  tinyMCE.activeEditor.windowManager.open({
-    file : '/admin/files/picker/?BebopFiles.picker='+ field_name +'&window='+ win.name,
-    title : 'My File Browser',
-    width : 420,  // Your dimensions may differ - toy around with them!
-    height : 400,
-    resizable : "yes",
-    inline : "yes",  // This parameter only has an effect if you use the inlinepopups plugin!
-    close_previous : "no"
-  }, {
-    window : win,
-    input : field_name
-  });
+  // Параметр не определён только при нажатии в ссылку «подобрать»
+  if (win === undefined) {
+    window.open('/admin/files/picker/?BebopFiles.picker='+ field_name + '&window=find');
+    return;
+  }
 
-  return false;
+  else {
+    tinyMCE.activeEditor.windowManager.open({
+      file : '/admin/files/picker/?BebopFiles.picker='+ field_name +'&window='+ win.name,
+      title : 'My File Browser',
+      width : 420,  // Your dimensions may differ - toy around with them!
+      height : 400,
+      resizable : "yes",
+      inline : "yes",  // This parameter only has an effect if you use the inlinepopups plugin!
+      close_previous : "no"
+    }, {
+      window : win,
+      input : field_name
+    });
+
+    return false;
+  }
 }
 
 function bebop_select(table, mode)
