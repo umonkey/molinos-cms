@@ -1366,7 +1366,7 @@ class NodeBase
   // FIXME: завязать на права.
   private function canPublish()
   {
-    return !in_array($this->class, array('group', 'user'));
+    return !in_array($this->class, array('group', 'user', 'type'));
   }
 
   // Сохранение объекта в БД.

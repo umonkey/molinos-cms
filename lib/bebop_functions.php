@@ -609,9 +609,9 @@ class mcms
       $content = '&nbsp;';
 
     // Прозрачная поддержка чистых урлов.
-    foreach (array('img' => 'src', 'a' => 'href', 'form' => 'action', 'script' => 'src') as $k => $v) {
+    foreach (array('img' => 'src', 'a' => 'href', 'form' => 'action', 'script' => 'src', 'link' => 'href') as $k => $v) {
       if ($k == $name and array_key_exists($v, $parts)) {
-        if ('/' != substr($parts[$v], 0, 1) or !is_readable(substr($parts[$v], 1)))
+        if ('/' != substr($parts[$v], 0, 1) or !is_readable($_SERVER['DOCUMENT_ROOT'] .'/'. substr($parts[$v], 1)))
           $parts[$v] = l($parts[$v]);
       }
     }
@@ -1537,6 +1537,14 @@ class mcms
   public static function now()
   {
     return date('Y-m-d H:i:s', time() - date('Z', time()));
+  }
+
+  public static function realpath($path)
+  {
+    if ('/' != substr($path, 0, 1))
+      $path = MCMS_PATH . ltrim($path, '/');
+
+    return $path;
   }
 };
 

@@ -34,7 +34,9 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
     if ('text/html' != $page->content_type)
       return;
 
-    if ((null === ($conf = mcms::modconf('compressor'))) or empty($conf['options']) or !is_array($conf['options']))
+    $conf = mcms::modconf('compressor', array('options' => array('js', 'css', 'html')));
+
+    if ((null === $conf) or empty($conf['options']) or !is_array($conf['options']))
       return;
 
     if (in_array('js', $conf['options']))
@@ -75,13 +77,16 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
 
   private static function fixJS(&$output)
   {
-    $scripts = array();
+    $scripts = $names = array();
 
     if (preg_match_all('@<script\s+[^>]+></script>@i', $output, $m)) {
       foreach ($m[0] as $script) {
-        if ((false !== strstr($script, 'language="javascript"')) or (false !== strstr($script, "language='javascript'"))) {
-          if (preg_match('@src="([^"]+)"@i', $script, $m) or preg_match("@src='([^']+)'@i", $script, $m)) {
-            if (false !== ($tmp = realpath(getcwd() . $m[1])) and '.js' == substr($tmp, -3) and '/' == substr($tmp, 0, 1)) {
+        $tmp = str_replace('"', "'", $script);
+
+        if (false !== strstr($tmp, " language='javascript'")) {
+          if (preg_match("@src='([^']+)'@i", $tmp, $m)) {
+            if (false !== ($tmp = realpath($_SERVER['DOCUMENT_ROOT'] . $m[1])) and '.js' == substr($tmp, -3) and '/' == substr($tmp, 0, 1)) {
+              $names[] = '// '. ltrim(str_replace($_SERVER['DOCUMENT_ROOT'], '', $tmp), '/') ."\n";
               $scripts[] = self::compressJS($tmp);
               $output = str_replace($script, '', $output);
             }
@@ -102,7 +107,7 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
 
       // Если файл с нужным именем не существует — создаём его.
       if (!file_exists($filename)) {
-        $tmp = '';
+        $tmp = join('', $names) ."\n";
 
         foreach ($scripts as $f)
           $tmp .= file_get_contents($f); // .';';
@@ -133,15 +138,19 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
 
   private static function fixCSS(&$output)
   {
-    $styles = array();
+    $styles = $names = array();
 
     if (preg_match_all('@<link\s+[^>]*>@i', $output, $m)) {
       foreach ($m[0] as $link) {
-        if ((false !== strstr($link, 'rel="stylesheet"')) or (false !== strstr($link, "rel='stylesheet'"))) {
-          if (preg_match('@href="([^"]+)"@i', $link, $m) or preg_match("@href='([^']+)'@i", $link, $m)) {
+        $tmp = str_replace('"', "'", $link);
+
+        if (false !== strstr($tmp, "rel='stylesheet'")) {
+          if (preg_match("@href='([^']+)'@i", $tmp, $m)) {
             if (false !== ($tmp = $m[1]) and '.css' == substr($tmp, -4) and '/' == substr($tmp, 0, 1)) {
-              if (null !== ($tmp = self::compressCSS($tmp)))
-                $styles[] = $tmp;
+              if (null !== ($ntmp = self::compressCSS($tmp))) {
+                $styles[] = $ntmp;
+                $names[] = ' * '. $tmp ."\n";
+              }
               $output = str_replace($link, '', $output);
             }
           }
@@ -150,11 +159,11 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
     }
 
     if (!empty($styles)) {
-      $bulk = '';
+      $bulk = "/*\n". join('', $names) ." */\n\n";
 
       foreach (array_unique($styles) as $file) {
-        if (file_exists($filename = getcwd() .'/'. $file)) {
-          $tmp = file_get_contents($filename);
+        if (file_exists($file)) {
+          $tmp = file_get_contents($file);
           $bulk .= $tmp;
         } else {
           mcms::log('compressor', t('%file skipped — not found', array('%file' => $file)));
@@ -179,15 +188,20 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
   // Code taken from Kohana.
   private static function compressCSS($filename)
   {
-    $result = self::path() .'/mcms-'. md5($filename) .'.css';
+    // Добавляем путь к сайту, если он не в корне.
+    $filename = mcms::realpath($filename);
 
-    if (!file_exists(getcwd() . $filename)) {
+    // Реальный путь к сжимаемому файлу.
+    if (!file_exists($rpath = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . $filename)) {
       mcms::log('compressor', t('%file not found.', array('%file' => $filename)));
       return null;
     }
 
-    if (!file_exists($result) or (filemtime(getcwd() . $filename) > filemtime($result))) {
-      $data = file_get_contents(getcwd() . $filename);
+    // Путь к временному файлу.
+    $result = self::path() .'/mcms-'. md5($filename) .'.css';
+
+    if (!file_exists($result) or (filemtime($rpath) > filemtime($result))) {
+      $data = file_get_contents($rpath);
 
       // Remove comments
       $data = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $data);
