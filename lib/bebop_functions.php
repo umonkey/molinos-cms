@@ -17,7 +17,7 @@ function bebop_is_debugger()
       $tmp = mcms::config('debuggers');
 
       if (empty($tmp))
-        $skip = true;
+        $skip = false;
       elseif (!in_array($_SERVER['REMOTE_ADDR'], $list = preg_split('/[, ]+/', $tmp)))
         $skip = true;
     }
@@ -349,7 +349,9 @@ function bebop_on_json(array $result)
 function bebop_render_object($type, $name, $theme = null, $data, $classname = null)
 {
   $__root = MCMS_ROOT;
-  $data['base'] = $_SERVER["HTTP_HOST"].$data['base'];
+
+  if (array_key_exists('base', $data))
+    $data['base'] = $_SERVER["HTTP_HOST"].$data['base'];
 
   if (null === $theme) {
     $ctx = RequestContext::getGlobal();
