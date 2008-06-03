@@ -223,8 +223,10 @@ class InfoSchema
         // FIXME: what?  отключено, потому что получается изменение 0 на 0 в node_file.filesize.
         if (array_key_exists('default', $info) and $info['default'] != @$data[$field]['COLUMN_DEFAULT'])
             $update = 'default';
+
+        // Кавычки вокруг значения добавлены по идее dliv27.
         if (array_key_exists('default', $info) and empty($info['pk']))
-            $sql .= " DEFAULT {$info['default']}";
+            $sql .= " DEFAULT '{$info['default']}'";
 
         // Проверяем автоинкремент.
         if (!empty($info['autoincrement']) != (@$data[$field]['EXTRA'] == 'auto_increment'))
