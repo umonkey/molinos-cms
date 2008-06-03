@@ -33,6 +33,8 @@ class DocListControl extends Control
   {
     $output = self::makeHTML('th', array(), '&nbsp;');
 
+    $sort = $this->sort;
+
     foreach ($this->columns as $key => $column) {
       if (null !== $this->widget and null !== $this->sortable and in_array($key, $this->sortable)) {
         $url = bebop_split_url();
