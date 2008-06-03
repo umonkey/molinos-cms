@@ -414,6 +414,8 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   // Обрабатывает подключение виджетов и полей, остальное передаёт родителю.
   public function formProcess(array $data)
   {
+    $there_were_fields = !empty($this->fields);
+
     if (!isset($this->id) and !empty($data['node_content_isdictionary'])) {
       $this->data['isdictionary'] = true;
       $this->data['published'] = true;
@@ -427,7 +429,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     // Обновляем базовые свойства, типа имени и описания.
     parent::formProcess($data);
 
-    if (empty($this->fields)) {
+    if ($there_were_fields and empty($this->fields)) {
       mcms::db()->rollBack();
       throw new InvalidArgumentException(t('Попытка очистить поля типа документа.'));
     }
