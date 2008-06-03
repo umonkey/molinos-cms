@@ -8,6 +8,7 @@ class ImageMagickGD
     var $error;
     var $errorlong;
     var $quality;
+    private $path;
 
     public function __construct()
     {
@@ -65,6 +66,7 @@ class ImageMagickGD
                 return false;
         }
 
+        $this->path = $path;
         return ($this->img !== FALSE);
     }
 
@@ -85,6 +87,16 @@ class ImageMagickGD
         }
 
         return ($rc === TRUE);
+    }
+
+    public function getOriginalSize()
+    {
+      return getOriginalSize($this->path);
+    }
+
+    public function getImageSize()
+    {
+      return array(imagesx($this->img), imagesy($this->img));
     }
 
     private function getScale($nw, $nh)
@@ -218,6 +230,131 @@ class ImageMagickGD
         imagedestroy($this->img);
         $this->img = $dst;
         return true;
+    }
+
+    public function rotate($angel = 0)
+    {
+      if (0 == $angel)
+        return true;
+
+      $output = imagerotate($this->img, $angel, 0);
+
+      imagedestroy($this->img);
+      $this->img = $output;
+
+      return true;
+    }
+
+    public function moveTo($dX, $dY)
+    {
+      list($w, $h) = $this->getImageSize();
+
+      if (imageistruecolor($this->img))
+        $dst = imagecreatetruecolor($w, $h);
+      else
+        $dst = imagecreate($w, $h);
+
+      if ($dst === FALSE) {
+        $this->error = "imagecreate failed";
+        $this->errorlong = "could not create a new {$w}x{$h} image";
+        return false;
+      }
+
+      $result = imagecopy($dst, $this->img, $dX, $dY, 0, 0, $w, $h);
+      imagedestroy($this->img);
+      $this->img = $dst;
+
+      return $result;
+    }
+
+    public function crop($dX, $dY, $dW, $dH)
+    {
+      list($w, $h) = $this->getImageSize();
+
+//      var_dump($dW, $dH, $dX, $dY);
+//      die;
+      if (imageistruecolor($this->img))
+        $dst = imagecreatetruecolor($dW, $dH);
+      else
+        $dst = imagecreate($dW, $dH);
+
+      if ($dst === FALSE) {
+        $this->error = "imagecreate failed";
+        $this->errorlong = "could not create a new {$w}x{$h} image";
+        return false;
+      }
+
+      $result = imagecopy($dst, $this->img, 0, 0, $dX, $dY, $dW, $dH);
+      imagedestroy($this->img);
+      $this->img = $dst;
+
+      return $result;
+    }
+
+    public function mirror($axis = 'v')
+    {
+      $width = imagesx($this->img);
+      $height = imagesy($this->img);
+      $output = imagecreatetruecolor($width, $height);
+
+      // 10 секунд не хватает, если растягивать на 150% изображение размером 1280х1024, а потом его переворачивать
+      if ('h' == $axis) {
+        // Хз, быстрее так или нет... По логике - да, но на практике нужно замерять
+        for ($y = 0; $y < $height; $y++) {
+          imagecopy($output, $this->img, 0, $y, 0, $height - $y - 1, $width, 1);
+        }
+        
+        /*
+        for ($x = 1; $x <= $width; $x++) {
+          for ($y = 0; $y < $height; $y++)
+            imagesetpixel($output, $x, $y, imagecolorat($this->img, ($width - $x), $y));
+        }
+        */
+      } else {
+        for ($x = 0; $x < $width; $x++) {
+          imagecopy($output, $this->img, $x, 0, $width - $x - 1, 0, 1, $height);
+        }
+        /*
+        for ($y = 1; $y <= $height; $y++) {
+          for ($x = 0; $x < $width; $x++)
+          imagesetpixel($output, $x, $y, imagecolorat($this->img, $x, ($height - $y)));
+        }
+        */
+      }
+
+      imagedestroy($this->img);
+      $this->img = $output;
+
+      return true;
+    }
+
+    public function watermark($watermarkFile)
+    {
+      $result = true;
+
+      $waterImage = imagecreatefrompng($watermarkFile);
+
+      if (false == $waterImage)
+        throw new RuntimeException('Водяной знак должен быть в формате PNG.');
+
+      imageAlphaBlending($waterImage, false);
+      imageSaveAlpha($waterImage, true);
+
+      $w = imagesx($waterImage);
+      $h = imagesy($waterImage);
+
+      $dummyImage = imagecreatetruecolor($w, $h);
+
+      // Создаем обрезанную копию под размер болванки наложения
+      imagecopy($dummyImage, $this->img, 0, 0, 0, 0, $w, $h);
+
+      // Наносим болванку водянки
+      //$result = imagecopymerge($dummyImage, $waterImage, 0, 0, 0, 0, $w, $h, 50);
+      $result = imagecopy($dummyImage, $waterImage, 0, 0, 0, 0, $w, $h);
+      imagedestroy($this->img);
+      $this->img = $dummyImage;
+
+      return $result;
     }
 };
 
