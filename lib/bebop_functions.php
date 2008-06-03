@@ -1245,9 +1245,16 @@ class mcms
       unlink($tmp);
   }
 
+  // Проверяет, существует ли указанный класс.  В отличие от базовой
+  // версии class_exists() не использует автозагрузку, но проверяет
+  // список классов, доступных для неё.
   public static function class_exists($name)
   {
-    return class_exists($name, false);
+    if (class_exists($name, false))
+      return true;
+    if (array_key_exists(strtolower($name), self::getClassMap()))
+      return true;
+    return false;
   }
 
   public static function pager($total, $current, $limit, $paramname = 'page', $default = 1)
