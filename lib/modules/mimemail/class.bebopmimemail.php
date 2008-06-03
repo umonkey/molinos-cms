@@ -16,7 +16,7 @@ class BebopMimeMail implements iModuleConfig
       $body = '<html><head><title>'. mcms_plain($subject) .'</title></head><body>'. $body .'</body></html>';
 
     if (!is_array($to))
-      $to = preg_split('/, */', $to, PREG_SPLIT_NO_EMPTY);
+      $to = preg_split('/, */', $to, -1, PREG_SPLIT_NO_EMPTY);
 
     mcms::log('mail', t('to=%to, subject=%subject', array('%to' => join(',', $to), '%subject' => $subject)));
 
