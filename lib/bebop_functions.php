@@ -1247,11 +1247,7 @@ class mcms
 
   public static function class_exists($name)
   {
-    if (array_key_exists(strtolower($name), self::getClassMap()))
-      return true;
-    if (in_array($name, get_declared_classes()))
-      return true;
-    return false;
+    return class_exists($name, false);
   }
 
   public static function pager($total, $current, $limit, $paramname = 'page', $default = 1)
