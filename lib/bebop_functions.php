@@ -1320,7 +1320,7 @@ class mcms
 
     $o = join(";\n\n", $output) .";\n\n";
     print $o;
-    mcms::log("error.fatal", $o);
+    // mcms::log("error.fatal", $o);
 
     if (!empty($_SERVER['REMOTE_ADDR'])) {
       print "--- backtrace ---\n";
@@ -1460,7 +1460,10 @@ class mcms
   public static function shutdown_handler()
   {
     try {
-      mcms::db()->rollback();
+      /*
+      if (class_exists('PDO_Singleton', false))
+        mcms::db()->rollback();
+      */
     } catch (Exception $e) { }
 
     if (null !== ($e = error_get_last()) and ($e['type'] & (E_ERROR|E_RECOVERABLE_ERROR))) {
