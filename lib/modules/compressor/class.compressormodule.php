@@ -3,17 +3,23 @@
 
 class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemoteCall
 {
+  private static function path()
+  {
+    return mcms::mkdir(mcms::config('tmpdir') .'/compressor');
+  }
+
   public static function hookRemoteCall(RequestContext $ctx)
   {
     $type = $ctx->get('type');
     $fn = $ctx->get('hash');
 
-    $filepath = mcms::config('filestorage') ."/mcms-{$fn}.{$type}";
+    if (!file_exists($filepath = self::path() ."/mcms-{$fn}.{$type}"))
+      throw new PageNotFoundException();
 
     if ($type == 'js')
       $type = "javascript";
 
-    $maxAge = 3600*24;
+    $maxAge = 3600 * 24;
 
     header('Expires: '. gmdate("D, d M Y H:i:s", time() + $maxAge) .' GMT');
     header('Pragma: cache');
@@ -92,7 +98,7 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
     if (!empty($scripts)) {
       $scripts = array_unique($scripts);
       $md5name =  md5(join(',', $scripts));
-      $filename = mcms::config('filestorage') .'/mcms-'. $md5name.'.js';
+      $filename = self::path() .'/mcms-'. $md5name.'.js';
 
       // Если файл с нужным именем не существует — создаём его.
       if (!file_exists($filename)) {
@@ -104,15 +110,20 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
         file_put_contents($filename, $tmp);
       }
 
-      $url = l("/compressor.rpc?type=js&hash={$md5name}");
-      $output = str_replace('</head>', "<script type='text/javascript' language='javascript' src='{$url}'></script></head>", $output);
+      $newscript = mcms::html('script', array(
+        'type' => 'text/javascript',
+        'language' => 'javascript',
+        'src' => '/compressor.rpc?type=js&hash='. $md5name,
+        ));
+
+      $output = str_replace('</head>', $newscript .'</head>', $output);
     }
   }
 
   // Упаковывает указанный файл, возвращает его имя.
   private static function compressJS($filename)
   {
-    $result = mcms::config('filestorage') .'/mcms-'. md5($filename) .'.js';
+    $result = self::path() .'/mcms-'. md5($filename) .'.js';
 
     if (!file_exists($result) or (filemtime($filename) > filemtime($result)))
       file_put_contents($result, file_get_contents($filename));
@@ -151,20 +162,24 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
       }
 
       $md5name = md5($bulk);
-      $path = mcms::config('filestorage') .'/mcms-'.$md5name .'.css';
+      $path = self::path() .'/mcms-'.$md5name .'.css';
 
       file_put_contents($path, $bulk);
 
-      $url = l("/compressor.rpc?type=css&hash={$md5name}");
+      $newlink = mcms::html('link', array(
+        'rel' => 'stylesheet',
+        'type' => 'text/css',
+        'href' => '/compressor.rpc?type=css&hash='. $md5name,
+        ));
 
-      $output = str_replace('</head>', "<link rel='stylesheet' type='text/css' href='{$url}' /></head>", $output);
+      $output = str_replace('</head>', $newlink .'</head>', $output);
     }
   }
 
   // Code taken from Kohana.
   private static function compressCSS($filename)
   {
-    $result = mcms::config('filestorage') .'/mcms-'. md5($filename) .'.css';
+    $result = self::path() .'/mcms-'. md5($filename) .'.css';
 
     if (!file_exists(getcwd() . $filename)) {
       mcms::log('compressor', t('%file not found.', array('%file' => $filename)));
@@ -238,7 +253,7 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
 
   private static function serveFile($filename)
   {
-    if (file_exists($path = mcms::config('filestorage') .'/'. $filename)) {
+    if (file_exists($path = self::path() .'/'. $filename)) {
       $data = file_get_contents($path);
 
       header('HTTP/1.1 200 OK');
