@@ -15,4 +15,4 @@ $um->runUpdates(array(
   'access',
   ));
 
-bebop_redirect('/admin/');
+mcms::redirect('/admin/');

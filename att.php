@@ -193,7 +193,7 @@ class StaticAttachment
       $download = true;
 
     if ($download and (null === $this->realname or $this->realname != $this->node['filename']))
-      bebop_redirect("/attachment/{$this->node['id']}/". urlencode($this->node['filename']));
+      mcms::redirect("/attachment/{$this->node['id']}/". urlencode($this->node['filename']));
 
     // Ещё раз загрузим файл для проверки прав.
     /*
