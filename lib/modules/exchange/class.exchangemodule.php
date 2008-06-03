@@ -301,9 +301,6 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
         $u = empty($at['u']) ? 0 : 1;
         $d = empty($at['d']) ? 0 : 1;
 
-        if (($nid == 2) and ($uid == 15))
-          mcms::debug($at, $c, $r, $u, $d);
-
         mcms::db()->exec("INSERT INTO `node__access`(`nid`, `uid`, `c`, `r`, `u`, `d`) VALUES (:nid, :uid, :c, :r, :u, :d)", array(
           ':nid' => $nid,
           ':uid' => $uid,
