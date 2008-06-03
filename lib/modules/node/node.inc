@@ -209,9 +209,6 @@ class NodeBase implements iFormObject
 
     if ($key != 'parent_id' and $key != 'deleted' and $key != 'uid') {
       $schema = TypeNode::getSchema($this->class);
-
-      if (empty($schema['fields'][$key]) and !bebop_skip_checks())
-        throw new InvalidArgumentException("there is no {$key} property in {$this->data['class']}");
     }
 
     $this->data[$key] = $val;
