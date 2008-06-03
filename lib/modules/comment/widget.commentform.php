@@ -168,7 +168,7 @@ class CommentFormWidget extends Widget
         if (empty($data[$key = 'comment_'. $k])) {
           $comment[$k] = null;
         } else {
-          switch (mcms_ctlname($v['type'])) {
+          switch ($v['type']) {
           case 'AttachmentControl':
             break;
           default:
@@ -191,7 +191,7 @@ class CommentFormWidget extends Widget
 
       // Обрабатываем файлы.
       foreach ($schema['fields'] as $k => $v) {
-        if (!empty($data[$key = 'comment_'. $k]) and 'AttachmentControl' == mcms_ctlname($v['type']) and !empty($data[$key]['tmp_name'])) {
+        if (!empty($data[$key = 'comment_'. $k]) and 'AttachmentControl' == $v['type'] and !empty($data[$key]['tmp_name'])) {
           $file = Node::create('file');
           $file->import($data[$key], false);
           $file->linkAddParent($node->id, $k);

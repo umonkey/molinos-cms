@@ -1005,8 +1005,8 @@ class NodeBase
         if ($k == 'fk' and $simple)
           continue;
 
-        if (mcms_ctlname($v['type']) != 'ArrayControl') {
-          if (mcms_ctlname($v['type']) == 'AttachmentControl') {
+        if ($v['type'] != 'ArrayControl') {
+          if ($v['type'] == 'AttachmentControl') {
             $v['value'] = 'node_content_files['. $k .']';
             $v['medium'] = true;
             $v['unzip'] = false; // не разрешаем распаковывать зипы, загружаемые в поля.
@@ -1221,7 +1221,7 @@ class NodeBase
       foreach ($schema['fields'] as $k => $v) {
         $value = null;
 
-        switch (mcms_ctlname($v['type'])) {
+        switch ($v['type']) {
         case 'AttachmentControl':
           if (isset($this->files[$k]))
             $value = $this->files[$k];
@@ -1254,7 +1254,7 @@ class NodeBase
     if (array_key_exists('fields', $schema)) {
       foreach ($schema['fields'] as $k => $v) {
         if ($k != 'parent_id' and $k != 'fields' and $k != 'config' and $k != 'uid') {
-          switch (mcms_ctlname($v['type'])) {
+          switch ($v['type']) {
           case 'AttachmentControl':
             break;
 

@@ -136,9 +136,6 @@ class FieldControl extends Control
   {
     $types = $output = array();
 
-    if (null !== $current)
-      $current = mcms_ctlname($current);
-
     foreach ($tmp = mcms::getImplementors('iFormControl') as $class) {
       if (mcms::class_exists($class)) {
         if ('Control' != $class) {

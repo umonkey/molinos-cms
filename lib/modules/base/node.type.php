@@ -168,7 +168,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
           $result[] = $name;
         else if (array_key_exists('fields', $info) and is_array($info['fields'])) {
           foreach ($info['fields'] as $field) {
-            if (mcms_ctlname($field['type']) == 'AttachmentControl') {
+            if ($field['type'] == 'AttachmentControl') {
               $result[] = $name;
               break;
             }

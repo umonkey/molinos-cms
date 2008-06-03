@@ -20,7 +20,7 @@ function smarty_function_bebop_render_document($params, &$smarty)
       continue;
     }
 
-    switch (mcms_ctlname($meta['type'])) {
+    switch ($meta['type']) {
       case 'TextAreaControl':
       case 'TextHTMLControl':
         $output .= '<h4>'. $meta['label'] .'</h4>';

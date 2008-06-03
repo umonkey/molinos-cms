@@ -533,13 +533,6 @@ function mcms_fetch_file($url, $content = true, $cache = true)
   }
 }
 
-function mcms_ctlname($name)
-{
-  if (substr($name, 0, 4) == 'Type')
-    return substr($name, 4) .'Control';
-  return $name;
-}
-
 function mcms_plain($text, $strip = true)
 {
   if ($strip)

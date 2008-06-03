@@ -93,7 +93,7 @@ abstract class Control implements iFormControl
   // Используется для прозрачной миграции со старых версий.
   public static function make(array $ctl)
   {
-    $class = mcms_ctlname($ctl['type']);
+    $class = $ctl['type'];
 
     if (mcms::class_exists($class))
       return new $class($ctl);

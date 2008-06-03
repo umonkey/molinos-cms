@@ -23,7 +23,7 @@ class MenuWidget extends Widget
     $schema = TypeNode::getSchema('tag');
 
     foreach ($schema['fields'] as $k => $v)
-      if (mcms_ctlname($v['type']) == 'URLControl')
+      if ($v['type'] == 'URLControl')
         $fields[$k] = $v['label'];
 
     asort($fields);
