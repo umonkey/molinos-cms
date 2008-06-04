@@ -140,8 +140,13 @@ function bebop_combine_url(array $url, $escape = true)
 
     // Если нет чистых урлов — добавляем index.php
     elseif (!$clean) {
-      $url['args']['q'] = $url['path'];
-      $url['path'] = '/index.php';
+      if ('/attachment/' == substr($url['path'], 0, 12)) {
+        $url['args']['q'] = substr($url['path'], 12);
+        $url['path'] = '/att.php';
+      } else {
+        $url['args']['q'] = $url['path'];
+        $url['path'] = '/index.php';
+      }
     }
   }
 
@@ -211,10 +216,6 @@ function bebop_combine_url(array $url, $escape = true)
 // Возвращает отформатированную ссылку.
 function l($url, $title = null, array $options = null, $absolute = false)
 {
-  if (!mcms::config('handler') and ('/attachment/' == substr($url, 0, 12))) {
-    return rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/att.php?q='. urlencode(substr($url, 12));
-  }
-
   if (empty($url))
     throw new RuntimeException(t('Не указана ссылка для l().'));
   elseif (!is_string($url))
