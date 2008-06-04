@@ -6,6 +6,7 @@ class ModuleAdminUI
   public function getList()
   {
     $map = $this->getModules();
+    $writable = BebopConfig::getInstance()->isWritable();
 
     $output = '';
 
@@ -20,7 +21,7 @@ class ModuleAdminUI
           'name' => 'selected[]',
           'value' => $modname,
           'checked' => empty($module['enabled']) ? null : 'checked',
-          'disabled' => ('core' == strtolower($group)) ? 'disabled' : null,
+          'disabled' => ('core' == strtolower($group) or !$writable) ? 'disabled' : null,
           )) ."</td>";
 
         if (!empty($module['implementors']['iModuleConfig']) and !empty($module['enabled']))
@@ -50,15 +51,24 @@ class ModuleAdminUI
       'class' => 'modlist',
       ), $output);
 
-    $output .= mcms::html('input', array(
-      'type' => 'submit',
-      'value' => t('Сохранить'),
-      ));
+    if ($writable) {
+      $output .= mcms::html('input', array(
+        'type' => 'submit',
+        'value' => t('Сохранить'),
+        ));
+    }
 
-    return '<h2>Список модулей</h2>'. mcms::html('form', array(
+    $html = '<h2>Список модулей</h2>';
+
+    if (!$writable)
+      $html .= t('<p class=\'intro\'>Конфигурационный файл закрыт для записи, изменение списка модулей невозможно.</p>');
+
+    $html .= mcms::html('form', array(
       'method' => 'post',
       'action' => "/admin.rpc?action=modlist&destination=CURRENT",
       ), $output);
+
+    return $html;
   }
 
   private function getModules()

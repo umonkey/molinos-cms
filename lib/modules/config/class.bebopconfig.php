@@ -208,4 +208,9 @@ class BebopConfig
       if (file_exists($path))
         copy($path, $backup);
     }
+
+    public function isWritable()
+    {
+      return is_writable($this->getFileName());
+    }
 }
