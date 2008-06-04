@@ -36,33 +36,15 @@ function bebop_skip_checks()
 // Разбивает текущий запрос на составляющие.
 function bebop_split_url($url = null)
 {
-  static $clean = null;
-
   $tmpurl = $url;
-
-  if (null === $clean)
-    $clean = mcms::config('handler') ? true : false;
 
   if ($url === null)
     $url = $_SERVER['REQUEST_URI'];
 
-  //чтобы parse_url сработал правильно, надо в строке параметров заменить
-  //слэши на %2F (особенно актуально это для OpenID).
-
-  $parts = explode('?',$url);
-  $query = implode('',array_slice($parts, 1));
-  $query = str_replace('/','%2F',$query);
-
-  if (count($parts)>1)
-    $url = $parts[0].'?'.$query;
-
   $tmp = parse_url($url);
 
-  // Если путь не содержит слэш, но содержит точки — копируем в хост.
-  if ('/' !== substr($tmp['path'], 0, 1) and strstr($tmp['path'], '.')) {
-    $tmp['host'] = $tmp['path'];
-    $tmp['path'] = '/';
-  }
+  if (false !== ($anchor = strstr($url, '#')))
+    $tmp['anchor'] = substr($anchor, 1);
 
   if (array_key_exists('query', $tmp)) {
     $tmp['args'] = parse_request_args($tmp['query']);
@@ -71,30 +53,38 @@ function bebop_split_url($url = null)
     $tmp['args'] = array();
   }
 
-  if (!$clean) {
-    // Если указан параметр q — отдаём предпочтение ему.
-    if (!empty($tmp['args']['q'])) {
-      $tmp['path'] = $tmp['args']['q'];
-      unset($tmp['args']['q']);
-    }
-
-    elseif ($tmp['path'] . basename($_SERVER['SCRIPT_NAME']) == $_SERVER['SCRIPT_NAME']) {
-      $tmp['path'] = '/';
-    }
-
-    // Если путь совпадает со скриптом — эмулируем главную страницу.
-    elseif ($tmp['path'] == $_SERVER['SCRIPT_NAME']) {
-      $tmp['path'] = '/';
-    }
+  // Если указан параметр q — отдаём предпочтение ему.
+  if (!empty($tmp['args']['q'])) {
+    $tmp['path'] = $tmp['args']['q'];
+    unset($tmp['args']['q']);
   }
 
-  if (empty($tmp['host']))
+  elseif ($tmp['path'] . basename($_SERVER['SCRIPT_NAME']) == $_SERVER['SCRIPT_NAME']) {
+    $tmp['path'] = '/';
+  }
+
+  // Если путь совпадает со скриптом — эмулируем главную страницу.
+  elseif ($tmp['path'] == $_SERVER['SCRIPT_NAME']) {
+    $tmp['path'] = '/';
+  }
+
+  if (!empty($tmp['host']))
+    ;
+  elseif (!empty($_SERVER['HTTP_HOST']))
     $tmp['host'] = $_SERVER['HTTP_HOST'];
+  else
+    $tmp['host'] = 'localhost';
 
   if (empty($tmp['scheme']))
     $tmp['scheme'] = (empty($_SERVER['HTTPS']) or 'on' != $_SERVER['HTTPS']) ? 'http' : 'https';
 
-  return $tmp;
+  return array(
+    'scheme' => $tmp['scheme'],
+    'host' => $tmp['host'],
+    'path' => $tmp['path'],
+    'args' => $tmp['args'],
+    'anchor' => $tmp['anchor'],
+    );
 }
 
 function parse_request_args($string)
@@ -135,43 +125,38 @@ function bebop_combine_url(array $url, $escape = true)
   if (null === $clean)
     $clean = mcms::config('handler') ? true : false;
 
-  $result = '';
+  // Применяем некоторые дефолты.
+  $url = array_merge(array(
+    'scheme' => 'http',
+    'host' => $_SERVER['HTTP_HOST'],
+    'path' => '/',
+    'args' => array(),
+    ), $url);
 
-  if (empty($url['host']))
-    $url['host'] = $_SERVER['HTTP_HOST'];
+  if ($url['host'] == 'localhost' or $url['host'] == $_SERVER['HTTP_HOST']) {
+    // Относительная ссылка на файл: добавляем путь к CMS.
+    if (file_exists(MCMS_ROOT .'/'. $url['path']))
+      $url['path'] = str_replace('//', '/', MCMS_PATH .'/'. $url['path']);
 
-  if (empty($url['scheme']))
-    $url['scheme'] = 'http';
-  elseif ('mailto' == $url['scheme'])
-    return 'mailto:'. mcms_plain($url['path']);
-
-  if (!$clean and ('/' == substr($url['path'], 0, 1))) {
-    // Запросы к корню сайта оставляем чистыми.
-    if (($url['path'] == '/') and empty($url['args'])) {
-      $url['path'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/';
-    } else {
+    // Если нет чистых урлов — добавляем index.php
+    elseif (!$clean) {
       $url['args']['q'] = $url['path'];
-      $url['path'] = $_SERVER['SCRIPT_NAME'];
+      $url['path'] = '/index.php';
     }
   }
 
-  $forbidden = array('nocache');
+  if ('mailto' == $url['scheme'])
+    return 'mailto:'. mcms_plain($url['path']);
+  else
+    $result = $url['scheme'] .'://';
 
-  if (bebop_is_json())
-    $forbidden[] = 'widget';
-
-  if (!empty($url['#absolute']) or $url['host'] != $_SERVER['HTTP_HOST'])
-    $result .= $url['scheme']. '://'. $url['host'];
-
-  if (strstr($url['path'], '#') !== false) {
-    $parts = explode('#', $url['path']);
-    $url['path'] = $parts[0];
-    $url['anchor'] = $parts[1];
-  }
+  $result .= $url['host'];
 
   $result .= $url['path'];
 
   if (!empty($url['args'])) {
+    $forbidden = array('nocache', 'widget');
+
     $pairs = array();
 
     ksort($url['args']);
@@ -202,7 +187,7 @@ function bebop_combine_url(array $url, $escape = true)
       }
 
       elseif ($v !== '' and !in_array($k, $forbidden)) {
-        if (('destination' === $k) and ('CURRENT' === $v)) {
+        if ('destination' === $k and 'CURRENT' === $v) {
           $pairs[] = $k .'='. urlencode($_SERVER['REQUEST_URI']);
         } else {
           $pairs[] = $k .'='. urlencode($v);
@@ -215,10 +200,10 @@ function bebop_combine_url(array $url, $escape = true)
   }
 
   if ($escape)
-    $result = mcms_plain($result);
+    $result = mcms_plain($result, false);
 
   if (!empty($url['anchor']))
-    $result .= '#'. $url['anchor'];
+    $result .= '#'. mcms_plain($url['anchor'], false);
 
   return $result;
 }
@@ -930,7 +915,7 @@ class mcms
 
       print join(";\n\n", $output) .";\n\n";
 
-      if (!empty($_SERVER['REMOTE_ADDR'])) {
+      if (true /* !empty($_SERVER['REMOTE_ADDR']) */) {
         printf("--- backtrace (time: %s) ---\n", microtime());
         print mcms::backtrace();
 
