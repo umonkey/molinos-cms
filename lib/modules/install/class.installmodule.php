@@ -11,16 +11,24 @@ class InstallModule implements iRemoteCall
 
     //$mode = $ctx->post('exchmode');
     $result = '';
-    switch ($_SERVER['REQUEST_METHOD']) {
-    case 'GET':
-      $data = self::onGet($ctx);
-      break;
-    case 'POST':
-      $data = self::onPost($ctx);
-      break;
-    default:
-      header('Content-Type: text/plain; charset=utf-8');
-      die('Sorry, what?');
+
+    try {
+      switch ($_SERVER['REQUEST_METHOD']) {
+      case 'GET':
+        $data = self::onGet($ctx);
+        break;
+      case 'POST':
+        $data = self::onPost($ctx);
+        break;
+      default:
+        header('Content-Type: text/plain; charset=utf-8');
+        die('Sorry, what?');
+      }
+    } catch (Exception $e) {
+      $data = array(
+        'title' => 'Ошибка',
+        'form' => '<p>'. $e->getMessage() .'</p>',
+        );
     }
 
     $output = bebop_render_object("system", "installer", "admin", $data);
@@ -232,26 +240,33 @@ class InstallModule implements iRemoteCall
   {
     $options = array();
 
-    foreach (PDO::getAvailableDrivers() as $el) {
-      switch ($title = $el) {
-      case 'sqlite':
-        $title = 'SQLite';
-        break;
-      case 'sqlite2':
-        $title = 'SQLite 2 (не рекоммендуется)';
-        break;
-      case 'mysql':
-        $title = 'MySQL';
-        break;
-      case 'dblib':
-        $title = 'DBLib (MSSQL, Sybase)';
-        break;
-      case 'odbc':
-        $title = 'ODBC';
-        break;
+    if (class_exists('PDO', false)) {
+      foreach (PDO::getAvailableDrivers() as $el) {
+        switch ($title = $el) {
+        case 'sqlite':
+          $title = 'SQLite';
+          break;
+        case 'sqlite2':
+          $title = 'SQLite 2 (не рекоммендуется)';
+          break;
+        case 'mysql':
+          $title = 'MySQL';
+          break;
+        case 'dblib':
+          $title = 'DBLib (MSSQL, Sybase)';
+          break;
+        case 'odbc':
+          $title = 'ODBC';
+          break;
+        }
+
+        $options[$el] = $title;
       }
 
-      $options[$el] = $title;
+      if (empty($options))
+        throw new Exception(t('Нет доступных драйверов PDO; рекоммендуем установить <a href=\'@url\'>PDO_SQLite</a>.', array('@url' => 'http://docs.php.net/manual/en/ref.pdo-sqlite.php')));
+    } else {
+      throw new Exception(t('Для использования Molinos.CMS нужно установить расширение <a href=\'@url\'>PDO</a>.', array('@url' => 'http://docs.php.net/manual/en/book.pdo.php')));
     }
 
     asort($options);
