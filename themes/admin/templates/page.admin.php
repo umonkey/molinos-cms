@@ -69,6 +69,7 @@ function get_dba_link()
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.dimensions.js" ></script>
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.bgiframe.js" ></script>
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.suggest.js" ></script>
+    <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.MultiFile.js" ></script>
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/js/bebop.js" ></script>
     <?php empty($base) or print mcms::html('base', array('href' => $base)); ?>
   </head>

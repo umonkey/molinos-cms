@@ -237,13 +237,27 @@ class RequestContext
     return self::$postdata;
   }
 
-  private static function getFiles(array &$data)
+  public static function getFiles(array &$data)
   {
     foreach ($_FILES as $field => $fileinfo) {
       if (is_array($fileinfo['name'])) {
         foreach (array_keys($fileinfo) as $key) {
-          foreach ($fileinfo[$key] as $k => $v)
-            $data[$field][$k][$key] = $v;
+          // FIXME: быстрый хак для работы плагина на jQuery.  Судя по документации,
+          // обращение к файлам действительно должно быть таким идиотским:
+          //   http://docs.php.net/manual/en/features.file-upload.multiple.php
+          //   $_FILES['userfile']['name'][0]
+          // При загрузке в двойной массив (file[name][]) — ещё глубже.
+          // Как бы это по-красивее пропарсить?
+          if (array_key_exists('__bebop', $tmp = $fileinfo[$key])) {
+            $tmp = $tmp['__bebop'];
+            $prefix = '__bebop';
+          } else {
+            $prefix = '';
+          }
+
+          foreach ($tmp as $k => $v) {
+            $data[$field][$prefix . $k][$key] = $v;
+          }
         }
       }
 

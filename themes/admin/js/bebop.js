@@ -28,6 +28,10 @@ if ($.browser.msie && $.browser.version < 7 ){
  */
 $(document).ready(function () {
 	
+	 $('input[name="node_content_files[__bebop]"]').MultiFile({
+
+	 });
+	
 	// Превращение филдсетов в табы
 	if ($('form.tabbed').length != 0) {
     $('.tabbed').tabber({

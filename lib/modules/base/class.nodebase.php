@@ -1298,7 +1298,7 @@ class NodeBase
         if (!is_array($fileinfo))
           continue;
 
-        $fkey = (!is_numeric($field) and $field != '__bebop') ? $field : null;
+        $fkey = (!is_numeric($field) and substr($field, 0, 7) != '__bebop') ? $field : null;
 
         // Удаление (отвязка) прикреплённого файла.
         if (!empty($fileinfo['delete'])) {
