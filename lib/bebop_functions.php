@@ -1320,7 +1320,7 @@ class mcms
     // mcms::log("error.fatal", $o);
 
     if (!empty($_SERVER['REMOTE_ADDR'])) {
-      print "--- backtrace ---\n";
+      printf("--- backtrace (time: %s) ---\n", microtime());
       print mcms::backtrace();
     }
 
