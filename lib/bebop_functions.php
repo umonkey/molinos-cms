@@ -235,10 +235,6 @@ function l($url, $title = null, array $options = null, $absolute = false)
   elseif (!is_string($url))
     throw new RuntimeException(t('Ссылка для l() должна быть строкой.'));
 
-  // FIXME
-  if (stripos($url, 'install.php'))
-     return $url;
-
   $parts = bebop_split_url($url);
 
   if ($parts['host'] == $_SERVER['HTTP_HOST']) {
@@ -610,9 +606,10 @@ class mcms
 
     // Прозрачная поддержка чистых урлов.
     foreach (array('img' => 'src', 'a' => 'href', 'form' => 'action', 'script' => 'src', 'link' => 'href') as $k => $v) {
-      if ($k == $name and array_key_exists($v, $parts)) {
-        if ('/' != substr($parts[$v], 0, 1) or !is_readable($_SERVER['DOCUMENT_ROOT'] .'/'. substr($parts[$v], 1)))
+      if ($k == $name and array_key_exists($v, $parts) and (false === strstr($parts[$v], '://'))) {
+        if ('/' != substr($parts[$v], 0, 1) or !is_readable($_SERVER['DOCUMENT_ROOT'] .'/'. substr($parts[$v], 1))) {
           $parts[$v] = l($parts[$v]);
+        }
       }
     }
 

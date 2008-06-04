@@ -321,7 +321,7 @@ class AdminUIListControl extends Control
       return;
 
     $tmp = mcms::html('img', array(
-      'src' => '/'. $img,
+      'src' => mcms::realpath($img),
       'width' => 16,
       'height' => 16,
       'alt' => $title,

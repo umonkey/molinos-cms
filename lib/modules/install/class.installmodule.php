@@ -46,14 +46,17 @@ class InstallModule implements iRemoteCall
 
   public static function onGet(RequestContext $ctx)
   {
+    self::checkEnvironment();
+
     if (null !== ($tmp = $ctx->get('result')))
       return self::getResult($tmp);
 
     $form = new Form(array(
       'title' => t('Инсталляция Molinos CMS'),
       'description' => t("Вам нужно последовательно заполнить все поля во всех вкладках."),
-      'class' => 'tabbed',
       ));
+
+    $form->addClass('tabbed');
 
     $tab = new FieldSetControl(array(
       'name' => 'site',
@@ -80,7 +83,7 @@ class InstallModule implements iRemoteCall
       'required' => true,
       'options' => self::listDrivers(),
       'id' => 'dbtype',
-      'description' => t('Для разработки рекоммендуется использовать SQLite; перенести сайт на MySQL будет можно.'),
+      'description' => t('Для разработки рекоммендуется использовать SQLite; перенести сайт на MySQL можно будет в несколько кликов.'),
       'default' => 'sqlite',
       )));
     $tab->addControl(new TextLineControl(array(
@@ -90,12 +93,12 @@ class InstallModule implements iRemoteCall
       )));
     $tab->addControl(new TextLineControl(array(
       'value' => 'db[host]',
-      'label' => t('MySQL сервер'),
+      'label' => t('Адрес сервер'),
       'wrapper_id' => 'db-server',
       )));
     $tab->addControl(new TextLineControl(array(
       'value' => 'db[user]',
-      'label' => t('Пользователь MySQL'),
+      'label' => t('Имя пользователя'),
       'wrapper_id' => 'db-user',
       )));
     $tab->addControl(new PasswordControl(array(
@@ -109,7 +112,6 @@ class InstallModule implements iRemoteCall
       'name' => 'profiles',
       'label' => t('Заготовка')
       ));
-
 
     $tab->addControl(new EnumControl(array(
       'value' => 'profile',
@@ -241,6 +243,12 @@ class InstallModule implements iRemoteCall
       case 'mysql':
         $title = 'MySQL';
         break;
+      case 'dblib':
+        $title = 'DBLib (MSSQL, Sybase)';
+        break;
+      case 'odbc':
+        $title = 'ODBC';
+        break;
       }
 
       $options[$el] = $title;
@@ -261,8 +269,27 @@ class InstallModule implements iRemoteCall
     return $options;
   }
 
-  public static function writeConfig(array $data,$olddsn = null)
+  private static function checkEnvironment()
   {
+    $errors = array();
+
+    if (file_exists('conf/default.ini') and !is_writable('conf/default.ini'))
+      $errors[] = t('Конфигурационный файл (conf/default.ini) закрыт для записи, инсталляция невозможна.');
+
+    elseif (!file_exists('conf/default.ini') and !is_writable('conf'))
+      $errors[] = t('Каталог с конфигурационными файлами (conf) закрыт для записи, инсталляция невозможна.');
+
+    if (!empty($errors))
+      throw new RuntimeException(join(';', $errors));
+  }
+
+  public static function writeConfig(array $data, $olddsn = null)
+  {
+    if (!empty($data['db']['pass']) and $data['db']['pass'][0] != $data['db']['pass'][1])
+      throw new InvalidArgumentException(t('Пароль для подключения к БД введён некорректно.'));
+    else
+      $data['db']['pass'] = $data['db']['pass'][0];
+
     if (empty($data['confirm']))
       throw new InvalidArgumentException("Вы не подтвердили свои намерения.");
 

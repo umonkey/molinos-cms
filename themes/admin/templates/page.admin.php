@@ -42,6 +42,15 @@ function get_version_info()
   return $version;
 }
 
+function get_dba_link()
+{
+  if ('MySQL' != mcms::db()->getDbType())
+    return;
+  
+  if (is_readable(MCMS_ROOT .'/phpminiadmin.php'))
+    return "<a target='_blank' href='". MCMS_PATH ."phpminiadmin.php?showcfg=1'>БД</a>";
+}
+
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
@@ -75,7 +84,7 @@ function get_version_info()
           <div class="right">
             <div class="greeting">Здравствуйте, <?php print render_username(); ?>.</div>
             <?php print l('/admin/?cgroup=access&mode=edit&id='. mcms::user()->id .'&destination=CURRENT', 'Настройки', array('title' => 'Редактирование профиля')); ?>
-            <?php if ('MySQL' == mcms::db()->getDbType() and is_readable('phpminiadmin.php')): ?><a target="_blank" href="/phpminiadmin.php?showcfg=1">БД</a><?php endif; ?>
+            <?php print get_dba_link(); ?>
             <a href="<?php print l('/admin.rpc?action=reload&destination=CURRENT'); ?>&amp;reload=1&flush=1" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
             <?php print l('/base.rpc?action=logout&destination=/', 'Выйти', array('id' => 'lnk_exit')); ?>
           </div>

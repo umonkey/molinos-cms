@@ -10,7 +10,14 @@ class mcms_sqlite_driver extends PDO_Singleton
     $this->dbfile = trim($conf['path'], '/');
     $dsn = 'sqlite:'. $this->dbfile;
 
-    parent::__construct($dsn, '', '');
+    try {
+      parent::__construct($dsn, '', '');
+    } catch (PDOException $e) {
+      if (file_exists($conf['path']))
+        throw new RuntimeException(t('Не удалось открыть базу данных.'));
+      else
+        throw new NotInstalledException();
+    }
 
     $this->dbtype = 'SQLite';
   }
