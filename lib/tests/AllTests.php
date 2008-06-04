@@ -12,6 +12,7 @@ require_once 'PHPUnit/TextUI/TestRunner.php';
 require 'ConstTest.php';
 require 'UrlTest.php';
 require 'HtmlTest.php';
+require 'FileTest.php';
 
 class AllTests
 {
@@ -27,6 +28,7 @@ class AllTests
     $suite->addTestSuite('ConstTest');
     $suite->addTestSuite('UrlTest');
     $suite->addTestSuite('HtmlTest');
+    $suite->addTestSuite('FileTest');
 
     return $suite;
   }
