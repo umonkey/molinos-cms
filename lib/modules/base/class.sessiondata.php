@@ -97,8 +97,10 @@ class SessionData
       if (is_array($tmp = $cache->{'session:'. $sid}))
         return $tmp;
 
-      $tmp = $_SESSION['data'];
-      return empty($tmp) ? null : unserialize($tmp);
+      if (empty($_SESSION['data']))
+        return null;
+      else
+        return unserialize($_SESSION['data']);
     }
 
     // Удаление сессии.
