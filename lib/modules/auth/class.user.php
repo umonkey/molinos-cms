@@ -116,6 +116,7 @@ class User
     if (array_key_exists('openid_mode', $_GET)) {
       $node = OpenIdProvider::openIDAuthorize($_GET['openid_mode']);
       $sid = md5($openid. microtime() . $_SERVER['HTTP_HOST']);
+      unset($_GET['openid_mode']); // чтобы повторно не сваливаться в этот IF
 
       // Сохраняем сессию в БД.
       SessionData::db($sid, array('uid' => $node->id));

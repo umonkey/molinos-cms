@@ -17,8 +17,8 @@ class UserNode extends Node implements iContentType
   {
     $isnew = empty($this->id);
 
-    if (false == strstr($this->name, '@'))
-      $this->name = bebop_combine_url($tmp = bebop_split_url($this->name), false, true);
+    if ((false == strstr($this->name, '@')) && (false == stristr($this->name, 'http://')))
+      $this->name = 'http://'.$this->name;
 
     // Возвращаем старый пароль, если не изменился.
     if (empty($this->password))
