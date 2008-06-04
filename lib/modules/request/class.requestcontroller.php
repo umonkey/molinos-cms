@@ -19,14 +19,23 @@ class RequestController
   {
     ob_start();
 
+    $url = bebop_split_url();
+
     try {
-      User::identify();
+      // FIXME: переписать нафиг этот класс!
+      // Issue 318.
+      if ('/install.rpc' == $url['path']) {
+        RequestContext::setGlobal();
+        InstallModule::hookRemoteCall(RequestContext::getGlobal());
+      } else {
+        User::identify();
 
-      self::checkServerSettings();
+        self::checkServerSettings();
 
-      $this->run();
+        $this->run();
+      }
     } catch (NotInstalledException $e) {
-      mcms::redirect('/install.php?msg=notable');
+      mcms::redirect('/install.rpc?msg=notable');
     }
   }
 
@@ -41,7 +50,7 @@ class RequestController
 
     try {
       if (!BebopConfig::getInstance()->isok())
-        throw new NotInstalledException("Не удалось найти конфигурационный файл.&nbsp; Скорее всего, CMS ещё не была проинсталлирована.&nbsp; Вы можете <a href='/install.php'>запустить процесс инсталляции</a> прямо сейчас.");
+        throw new NotInstalledException(t("Не удалось найти конфигурационный файл.&nbsp; Скорее всего, CMS ещё не была проинсталлирована. Вы можете <a href='@install'>запустить процесс инсталляции</a> прямо сейчас.", array('@install' => '/install.rpc')));
 
       $this->begin = microtime(true);
 
