@@ -1,8 +1,12 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2
 
+if (empty($_SERVER['DOCUMENT_ROOT']))
+  $_SERVER['DOCUMENT_ROOT'] = getcwd();
+
 define('MCMS_ROOT', dirname(dirname(__FILE__)));
-define('MCMS_PATH', '/'. trim(str_replace($_SERVER['DOCUMENT_ROOT'], '', MCMS_ROOT), '/') .'/');
+if (!defined('MCMS_PATH'))
+  define('MCMS_PATH', '/'. trim(str_replace($_SERVER['DOCUMENT_ROOT'], '', MCMS_ROOT), '/'));
 define('MCMS_START_TIME', microtime(true));
 
 // Выходим на корневой каталог админки.
