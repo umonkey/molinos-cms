@@ -1415,7 +1415,7 @@ class mcms
 
     // print $message;
 
-    print "\n--- backtrace ---\n";
+    printf("\n--- backtrace (time: %s) ---\n", microtime());
     print mcms::backtrace($e);
 
     exit();
