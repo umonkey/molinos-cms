@@ -45,6 +45,8 @@ function bebop_split_url($url = null)
 
   if (false !== ($anchor = strstr($url, '#')))
     $tmp['anchor'] = substr($anchor, 1);
+  else
+    $tmp['anchor'] = null;
 
   if (array_key_exists('query', $tmp)) {
     $tmp['args'] = parse_request_args($tmp['query']);
@@ -145,7 +147,7 @@ function bebop_combine_url(array $url, $escape = true)
         $url['path'] = '/att.php';
       } else {
         $url['args']['q'] = $url['path'];
-        $url['path'] = '/index.php';
+        $url['path'] = MCMS_PATH .'/index.php';
       }
     }
   }
@@ -1525,7 +1527,7 @@ class mcms
   public static function realpath($path)
   {
     if ('/' != substr($path, 0, 1))
-      $path = MCMS_PATH . ltrim($path, '/');
+      $path = str_replace('//', '/', MCMS_PATH .'/'. $path);
 
     return $path;
   }
