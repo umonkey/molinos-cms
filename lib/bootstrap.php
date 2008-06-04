@@ -2,7 +2,10 @@
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2
 
 if (empty($_SERVER['DOCUMENT_ROOT']))
-  $_SERVER['DOCUMENT_ROOT'] = getcwd();
+  $_SERVER['DOCUMENT_ROOT'] = realpath(dirname(__FILE__) .'/../');
+
+if (empty($_SERVER['HTTP_HOST']))
+  $_SERVER['HTTP_HOST'] = 'localhost';
 
 define('MCMS_ROOT', dirname(dirname(__FILE__)));
 if (!defined('MCMS_PATH'))
