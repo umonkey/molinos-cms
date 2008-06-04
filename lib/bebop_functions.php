@@ -575,6 +575,9 @@ class mcms
       $args = func_get_args();
       $name = array_shift($args);
 
+      if (empty($name))
+        throw new InvalidArgumentException(t('Попытка создать HTML элемент без имени.'));
+
       $parts = null;
       $content = null;
 
