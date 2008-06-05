@@ -144,7 +144,7 @@ function bebop_combine_url(array $url, $escape = true)
     elseif (!$clean) {
       if ('/attachment/' == substr($url['path'], 0, 12)) {
         $url['args']['q'] = substr($url['path'], 12);
-        $url['path'] = '/att.php';
+        $url['path'] = MCMS_PATH .'/att.php';
       } else {
         $url['args']['q'] = $url['path'];
         $url['path'] = MCMS_PATH .'/index.php';
