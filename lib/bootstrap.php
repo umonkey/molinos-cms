@@ -9,7 +9,7 @@ if (empty($_SERVER['HTTP_HOST']))
 
 define('MCMS_ROOT', dirname(dirname(__FILE__)));
 if (!defined('MCMS_PATH'))
-  define('MCMS_PATH', preg_replace('#/lib/modules/.*#', '', str_replace(DIRECTORY_SEPARATOR, '/', dirname($_SERVER['SCRIPT_NAME']))));
+  define('MCMS_PATH', rtrim(preg_replace('#/lib/modules/.*#', '', str_replace(DIRECTORY_SEPARATOR, '/', dirname($_SERVER['SCRIPT_NAME']))), '/') .'/');
 
 // FIXME: ^^^ этот вот preg_replace() мне не нравится, но нужен, чтобы если
 // сайт расположен в папке /test/, но обращение идёт не к index.php, а к файлу
