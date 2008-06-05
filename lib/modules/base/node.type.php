@@ -105,10 +105,16 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   public function delete()
   {
-    $t = new TableInfo('node_'. $this->name);
+    $t = new TableInfo('node__idx_'. $this->name);
     if ($t->exists()) {
       $t->delete();
     }
+
+    // удалим связанные с этим типом документы
+    mcms::db()->exec("DELETE FROM `node` WHERE `class` = :type", array(':type' => $this->name));
+
+    // удалим бесхозные ревизии
+    mcms::db()->exec("DELETE FROM `node__rev` WHERE `nid` NOT IN (SELECT `id` FROM `node`)");
 
     $rc = parent::delete();
 
@@ -543,8 +549,8 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     $t->commit();
 
-    // FIXME: зачем удалять значения из таблицы?
-    // mcms::db()->exec("DELETE FROM `node__idx_{$this->name}`");
+    //Значения в индексной таблице обновляются по cron
+    mcms::db()->exec("DELETE FROM `node__idx_{$this->name}`");
   }
 
   private static function checkFieldName($name)
