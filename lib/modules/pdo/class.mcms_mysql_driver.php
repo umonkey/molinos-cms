@@ -87,33 +87,43 @@ class mcms_mysql_driver extends PDO_Singleton
     return $sth;
   }
 
-  public function dropColumn($tblname,$coldel, $columns)
+  public function dropColumn($tblname, $coldel)
   {
-     foreach ($coldel as $name => $c) {
-        $sql = "ALTER TABLE `{$tblname}` DROP COLUMN `{$name}`";
-        $this->exec($sql);
-     }
+    $sql = "ALTER TABLE `{$tblname}` DROP COLUMN `$coldel`";
+    $this->exec($sql);
   }
 
- public function addSql($name, array $spec, $modify, $isnew)
- {
-   $sql = '';
-   $index = '';
+  public function addColumn($tblname, $columnName, $column)
+  {
+    list($sql, $ix) = $this->addSql($tblname, $column, false, false);
+    $alter[] = $sql;
+    if (null !== ($sql = $this->getSql($tblname, $alter, false))) {
+      $this->exec($sql);
+    }
+    if (!empty($ix)) {
+      $sql = "CREATE INDEX `IDX_{$tblname}_{$el}` on `{$tblname}` (`{$el}`)";
+    }
+  }
 
-   if (!$isnew) {
-     if ($modify)
+  public function addSql($name, array $spec, $modify, $isnew)
+  {
+    $sql = '';
+    $index = '';
+
+    if (!$isnew) {
+      if ($modify)
        $sql .= "MODIFY COLUMN ";
-     else
+      else
        $sql .= "ADD COLUMN ";
-   }
+    }
 
-   $sql .= "`{$name}` ";
-   $sql .= $spec['type'];
+    $sql .= "`{$name}` ";
+    $sql .= $spec['type'];
 
-   if ($spec['required'])
-     $sql .= ' NOT NULL';
-   else
-     $sql .= ' NULL';
+    if ($spec['required'])
+      $sql .= ' NOT NULL';
+    else
+      $sql .= ' NULL';
 
     if (null !== $spec['default'])
       $sql .= ' DEFAULT '. $spec['default'];

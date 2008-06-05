@@ -134,7 +134,7 @@ class mcms_sqlite_driver extends PDO_Singleton
       $c = array();
       $c['type'] = $arr[1];
       $c['required'] = false;
-      $c['key'] = 0;
+      $c['key'] = false;
       $c['default'] = null;
       $c['autoincrement'] = false;
 
@@ -165,9 +165,24 @@ class mcms_sqlite_driver extends PDO_Singleton
     return $columns;
   }
 
-  public function dropColumn($tblname, $columns)
+  public function addColumn($tblname, $columnName, $column)
   {
-    // В SQLite удаление полей из таблицы происходит по другому, нежели в mysql.
+    list($sql, $ix) = $this->addSql($columnName, $column, false, false);
+    $alter[] = $sql;
+
+    if (null !== ($sql = $this->getSql($tblname, $alter, false))) {
+      $this->exec($sql);
+    }
+
+    if (!empty($ix)) {
+      $sql = "CREATE INDEX `IDX_{$tblname}_{$columnName}` on `{$tblname}` (`{$columnName}`)";
+    }
+  }
+
+  public function recreateTable($tblname,  $columns, $oldcolumns)
+  {
+    // В SQLite для удаление полей из таблицы или модификация их типа возможна только
+    // путём пересоздания таблицы
     $n = rand(1000, 100000);
     $sql = "ALTER TABLE `{$tblname}` RENAME TO `{$tblname}_old{$n}`";
 
@@ -176,7 +191,7 @@ class mcms_sqlite_driver extends PDO_Singleton
     // создаём новую таблицу из тех полей, которые остались
     $index = $alter = array();
     $isnew = true;
-    $columnstr = "";
+    $oldcolumnstr = $columnstr = "";
 
     foreach ($columns as $name => $c) {
       list($sql, $ix) = $this->addSql($name, $c, false, $isnew);
@@ -184,8 +199,9 @@ class mcms_sqlite_driver extends PDO_Singleton
       $alter[] = $sql;
       $index[] = $ix;
 
-      // Удалим существующие индексы у старой таблицы
-      $columnstr .= "`{$name}`,";
+      if (array_key_exists($name, $oldcolumns)) { //вставке подлежат только те поля, которые уже были в таблице
+        $columnstr .= "`{$name}`,";
+      }
 
       if ($c['key']) {
         $sql = "DROP INDEX IF EXISTS `IDX_{$tblname}_{$name}`";
@@ -214,7 +230,7 @@ class mcms_sqlite_driver extends PDO_Singleton
 
     if (!$isnew) {
       if ($modify)
-        //$sql .= "MODIFY COLUMN ";
+        //$sql .= "MODIFY COLUMN "; //Вся модификация происходит в recreateTable
         return array('', '');//SQLite не поддерживает MODIFY COLUMN
       else
         $sql .= "ADD COLUMN ";

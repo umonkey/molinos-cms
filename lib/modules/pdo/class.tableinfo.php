@@ -32,20 +32,20 @@ class TableInfo
          $this->cur_indexes = array();
       }
       else {
-        foreach ($this->columns as $el) {
-          $this->cur_indexes[$el] = $el['key'];
+        foreach ($this->columns as $k => $el) {
+          $this->cur_indexes[$k] = $el['key'];
         }
       }
     }
 
     public function getColumns()
     {
-        return $this->columns;
+      return $this->columns;
     }
 
     public function columnCount()
     {
-        return count($this->columns);
+      return count($this->columns);
     }
 
     public function setNew($n)
@@ -55,32 +55,33 @@ class TableInfo
 
     public function columnSet($name, array $options = null)
     {
-        $spec = array(
-           'type' => 'varchar(255)',
-           'required' => false,
-           'key' => null,
-           'default' => null,
-           'autoincrement' => false,
-        );
+      $spec = array(
+         'type' => 'varchar(255)',
+         'required' => false,
+         'key' => null,
+         'default' => null,
+         'autoincrement' => false,
+      );
 
-       if (null !== $options) {
-            // Удаляем лишние ключи.
-           foreach (array_keys($options) as $key)
-              if (!array_key_exists($key, $spec))
-                 unset($options[$key]);
+      if (null !== $options) {
+         // Удаляем лишние ключи.
+         foreach (array_keys($options) as $key)
+           if (!array_key_exists($key, $spec))
+             unset($options[$key]);
 
            $spec = array_merge($spec, $options);
-        }
+      }
 
-        $modify = array_key_exists($name, $this->columns);
+      $modify = array_key_exists($name, $this->columns);
 
-        if ($this->needsUpdate($name, $spec)) {
-            $this->addSql($name, $spec, $modify);
-        }
-        //Вынесли из if. В addsql всё равно не попали, зато
-        //гарантированно существующее поле попадает в columns.
-        //это важно при удалении полей (при процедуре сравнения).
-        $this->columns[$name] = $spec;
+      if ($this->needsUpdate($name, $spec)) {
+         $this->addSql($name, $spec, $modify);
+      }
+
+      //Вынесли из if. В addsql всё равно не попали, зато
+      //гарантированно существующее поле попадает в columns.
+      //это важно при удалении полей (при процедуре сравнения).
+      $this->columns[$name] = $spec;
     }
 
     private function needsUpdate($name, array $new)
@@ -108,20 +109,13 @@ class TableInfo
       return false;
     }
 
-    public function columnDel($name)
+    public function columnDel($colname)
     {
-      if ($this->columnExists($name)) {
-        // $this->coldel[] = $name;
-
-        unset($this->columns[$name]);
-
-        /*
-        // TODO: это очень нужно?  при удалении колонки индекс сам не удалится?
-        // Кроме того, изменять структуру здесь нельзя, надо только формировать
-        // инструкции, а выполнять их будут в commit() или после getSQL().
-        $sql = "DROP INDEX IF EXISTS `IDX_".$this->name."_".$name."`";
-        mcms::db()->exec($sql);
-        */
+      if ($this->columnExists($colname)) {
+        if (mcms::db()->getDbType()=='MySQL') { //для SQLite поля удаляются в функции recreateTable
+            mcms::db()->dropColumn($this->name, $colname);
+        }
+        unset($this->columns[$colname]);
       }
     }
 
@@ -151,30 +145,23 @@ class TableInfo
     {
       $tblname = $this->name;
 
-/*
-      if (!empty($this->oldcolumns)) {
-        //проверим, надо ли удалять какие-либо поля из таблицы
-        //Если хоть одно поле присутствует  в oldcolumns, но отсутствует в columns,  значит надо удалять
-        foreach ($this->oldcolumns as $k=>$v) {
-          if (!array_key_exists($k, $this->columns)) {
-            mcms::db()->dropColumn($tblname, $this->oldcolumns);
-            break;
-          }
-        }
+      if ((mcms::db()->getDbType()=='SQLite') && !$this->isnew) {
+        //Для существующих в SQLite таблиц в случе их модификации убиваем их и создаём с новыми полями,
+        //старые значения при этом сохраняются
+        mcms::db()->recreateTable($tblname,  $this->columns, $this->oldcolumns);
       }
-*/
-
-      if (null !== ($sql = $this->getSql())) {
-        mcms::db()->exec($sql);
-      }
-
-      // Добавим индексы
-      for ($i = 0; $i < count($this->index); $i++) {
-        $el = $this->index[$i];
-
-        if (empty($this->cur_indexes[$el])) {
-          $sql = "CREATE INDEX `IDX_{$tblname}_{$el}` on `{$tblname}` (`{$el}`)";
+      else {
+        if ((null !== ($sql = $this->getSql()))) {
           mcms::db()->exec($sql);
+        }
+
+        for ($i = 0; $i < count($this->index); $i++) {
+          $el = $this->index[$i];
+
+          if (empty($this->cur_indexes[$el])) {
+            $sql = " CREATE INDEX `IDX_{$tblname}_{$el}` on `{$tblname}` (`{$el}`)";
+            mcms::db()->exec($sql);
+          }
         }
       }
 
