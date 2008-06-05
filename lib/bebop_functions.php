@@ -1178,7 +1178,7 @@ class mcms
               $result['modules'][$modname]['classes'][] = $classname;
 
               if (!empty($m[6]))
-                $interfaces = preg_split('/,\s*/', $m[6], -1, PREG_SPLIT_NO_EMPTY);
+                $interfaces = preg_split('/[,\s]+/', preg_replace('#/\*.*\*/#', '', $m[6]), -1, PREG_SPLIT_NO_EMPTY);
               else
                 $interfaces = array();
 
