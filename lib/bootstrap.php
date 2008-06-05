@@ -9,7 +9,8 @@ if (empty($_SERVER['HTTP_HOST']))
 
 define('MCMS_ROOT', dirname(dirname(__FILE__)));
 if (!defined('MCMS_PATH'))
-  define('MCMS_PATH', '/'. trim(str_replace($_SERVER['DOCUMENT_ROOT'], '', MCMS_ROOT), '/'));
+  define('MCMS_PATH', str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])));
+
 define('MCMS_START_TIME', microtime(true));
 
 // Выходим на корневой каталог админки.

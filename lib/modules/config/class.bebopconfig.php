@@ -52,6 +52,8 @@ class BebopConfig
         if (is_writable(dirname($this->path))) {
           copy($this->path, $tmp = $prefix .'default.ini');
           $this->path = $tmp;
+        } else {
+          $this->path = null;
         }
 
         return $this->path;
