@@ -1582,7 +1582,7 @@ class NodeBase
     $schema = TypeNode::getSchema($this->class);
 
     foreach ($schema['fields'] as $k => $v) {
-      if (!empty($v['indexed'])) {
+      if (!empty($v['indexed']) and !TypeNode::isReservedFieldName($k)) {
         $fields[] = $k;
         $params[':'. $k] = $this->$k;
       }
