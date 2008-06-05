@@ -20,6 +20,9 @@ class StaticAttachment
 
   public function __construct($get)
   {
+    if (empty($get['folder']))
+      $get['folder'] = 'attachment';
+
     if (count($path = explode('/', $get['q'])) > 1)
       $this->realname = $path[1];
 
@@ -206,8 +209,16 @@ class StaticAttachment
     $range_from = 0;
     $range_to = $this->node['filesize'];
 
-    if (!empty($this->nw) or !empty($this->nh))
-      $this->sendError(404, $this->node['filetype'] ." can not be resized");
+    if (!empty($this->nw) or !empty($this->nh)) {
+      if ($f = fopen($fname = MCMS_ROOT .'/themes/admin/img/media-floppy.png', 'rb')) {
+        header('Content-Type: image/png');
+        header('Content-Length: '. filesize($fname));
+        fpassthru($f);
+        exit;
+      } else {
+        $this->sendError(404, $this->node['filetype'] ." can not be resized");
+      }
+    }
 
     ini_set('zlib.output_compression', 0);
 
