@@ -18,25 +18,9 @@ class RPCHandler implements iRequestHook
           if (!empty($map['modules'][$module]['implementors']['iRemoteCall'])) {
             $ctx = RequestContext::getWidget(isset($url['args']) ? $url['args'] : array(), $_POST);
 
-            try {
-              foreach ($map['modules'][$module]['implementors']['iRemoteCall'] as $class) {
-                if (mcms::class_exists($class))
-                  call_user_func_array(array($class, 'hookRemoteCall'), array($ctx));
-              }
-            } catch (UserErrorException $e) {
-              mcms::db()->rollback();
-
-              header("HTTP/1.1 {$e->getCode()} Error");
-              header('Content-Type: text/plain; charset=utf-8');
-
-              printf("%s: %s; %s\n", $e->getMessage(), $e->getDescription(), $e->getNote());
-
-              if (bebop_is_debugger()) {
-                print "\n--- стэк вызова (виден только разработчикам) ---\n";
-                print mcms::backtrace($e->getTrace());
-              }
-
-              die();
+            foreach ($map['modules'][$module]['implementors']['iRemoteCall'] as $class) {
+              if (mcms::class_exists($class))
+                call_user_func_array(array($class, 'hookRemoteCall'), array($ctx));
             }
 
             mcms::db()->commit();
