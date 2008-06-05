@@ -4,17 +4,22 @@
 if (empty($_SERVER['DOCUMENT_ROOT']))
   $_SERVER['DOCUMENT_ROOT'] = realpath(dirname(__FILE__) .'/../');
 
-if (empty($_SERVER['HTTP_HOST']))
-  $_SERVER['HTTP_HOST'] = 'localhost';
-
 define('MCMS_ROOT', dirname(dirname(__FILE__)));
-if (!defined('MCMS_PATH'))
-  define('MCMS_PATH', rtrim(preg_replace('#/lib/modules/.*#', '', str_replace(DIRECTORY_SEPARATOR, '/', dirname($_SERVER['SCRIPT_NAME']))), '/') .'/');
+
+if (!defined('MCMS_PATH')) {
+  if (empty($_SERVER['HTTP_HOST'])) // запуск из консоли
+    define('MCMS_PATH', '/');
+  else
+    define('MCMS_PATH', rtrim(preg_replace('#/lib/modules/.*#', '', str_replace(DIRECTORY_SEPARATOR, '/', dirname($_SERVER['SCRIPT_NAME']))), '/') .'/');
+}
 
 // FIXME: ^^^ этот вот preg_replace() мне не нравится, но нужен, чтобы если
 // сайт расположен в папке /test/, но обращение идёт не к index.php, а к файлу
 // внутри модуля, скажем, /test/lib/modules/xyz.php, то без этого RE мы получим
 // вместо пути к админке /test/lib/modules/, что нам не нужно.
+
+if (empty($_SERVER['HTTP_HOST']))
+  $_SERVER['HTTP_HOST'] = 'localhost';
 
 define('MCMS_START_TIME', microtime(true));
 
