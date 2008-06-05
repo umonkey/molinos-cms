@@ -102,9 +102,9 @@ class TinyMceModule implements iModuleConfig, iPageHook
       return;
 
     if (empty($config['gzip'])) {
-      $html = '<script type=\'text/javascript\' src=\'/lib/modules/tinymce/editor/tiny_mce.js\'></script>';
+      $html = mcms::html('script', array('src' => 'lib/modules/tinymce/editor/tiny_mce.js'));
     } else {
-      $html = '<script type=\'text/javascript\' src=\'/lib/modules/tinymce/editor/tiny_mce_gzip.js\'></script>';
+      $html = mcms::html('script', array('src' => 'lib/modules/tinymce/editor/tiny_mce_gzip.js'));
     }
 
     if (!strlen($tmp = self::getInit($config)))
@@ -112,7 +112,9 @@ class TinyMceModule implements iModuleConfig, iPageHook
 
     $html .= $tmp;
 
-    $html .= '<script type=\'text/javascript\' src=\'/lib/modules/tinymce/file_picker.js\'></script>';
+    $html .= mcms::html('script', array(
+      'src' => 'lib/modules/tinymce/file_picker.js.php',
+      ));
 
     if (!empty($html))
       $output = str_replace('</head>', $html .'</head>', $output);
@@ -139,6 +141,9 @@ class TinyMceModule implements iModuleConfig, iPageHook
     foreach ($files as $f) {
       if (file_exists($f) and is_readable($f)) {
         $tmp = trim(file_get_contents($f));
+        $tmp = str_replace('MCMS_PATH', MCMS_PATH, $tmp);
+        $tmp = preg_replace('/\s+/', ' ', $tmp);
+        // $tmp = preg_replace('/([,:])\s+/', '\1', $tmp);
         $output .= '<script type=\'text/javascript\'>'. $tmp .'</script>';
       }
     }

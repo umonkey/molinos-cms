@@ -105,24 +105,6 @@ $(document).ready(function () {
 
   bebop_fix_files();
 
-  $('.returnHref a').click(function () {
-    var win = window.opener ? window.opener : window.dialogArguments, c;
-    if (win) { tinyMCE = win.tinyMCE; }
-
-    if (tinyMCE) {
-      var tmp_win = tinyMCE.getWindowArg('window');
-      if (tmp_win) {
-        tmp_win.document.getElementById('href').value = $(this).attr('href');
-      }
-      window.close();
-      return false;
-    }
-  });
-
-  $('a.returnHref').click(function () {
-    return mcms_picker_return($(this).attr('href'));
-  });
-
   $('.control-FieldControl-wrapper .selector').click(function () {
     var field = $(this).attr('href').replace(/.*#/, '');
 
@@ -353,14 +335,6 @@ function bebop_content_action(name, title)
   $('#contentForm').submit();
 }
 
-
-function bebopImageBrowser(field_name, url, type, win)
-{
-    if (field_name == 'src')
-      field_name += '&BebopFiles.search=image%2F';
-    window.open('/admin/files/picker/?BebopFiles.picker='+field_name, '_blank');
-}
-
 /**
  * Функция предназначена для отладки. Shortcut console.log'a.
  * Записывает в консоль Firebug'a передаваемые в нее данные. 
@@ -378,5 +352,36 @@ function bebop_selected_action(action)
   } else {
     $('.action_select option[value="'+ action +'"]').attr('selected', 'selected');
     $('form#nodelist-form').submit();
+  }
+}
+
+function mcms_file_pick_real(field_name, url, type, win, path)
+{
+  var picker = path +'/index.php?cgroup=content&mode=list&preset=files&q=%2Fadmin%2F&picker='+ field_name +'&window='+ (win === undefined ? 'find' : win.name);
+
+  if (type == 'image')
+    picker += '&search=image%2F';
+
+  // Параметр не определён только при нажатии в ссылку «подобрать»
+  if (win === undefined) {
+    window.open(picker);
+    return;
+  }
+
+  else {
+    tinyMCE.activeEditor.windowManager.open({
+      file : picker,
+      title : 'My File Browser',
+      width : 420,  // Your dimensions may differ - toy around with them!
+      height : 400,
+      resizable : "yes",
+      inline : "yes",  // This parameter only has an effect if you use the inlinepopups plugin!
+      close_previous : "no"
+    }, {
+      window : win,
+      input : field_name
+    });
+
+    return false;
   }
 }

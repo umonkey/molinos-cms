@@ -61,8 +61,11 @@ function get_dba_link()
     <link rel="stylesheet" type="text/css" href="<?php print $prefix; ?>/css/topmenu.css" />
     <link rel="stylesheet" type="text/css" href="<?php print $prefix; ?>/css/colors-green.css" />
 
+    <?php if (empty($_GET['picker'])): ?>
     <link rel="stylesheet" type="text/css" href="<?php print $prefix; ?>/../all/jquery/plugins/jquery.suggest.css" />
+    <?php endif; ?>
 
+    <?php if (empty($_GET['picker'])): ?>
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/jquery.js"></script>
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.ifixpng.js" ></script>
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.mcms.tabber.js"></script>
@@ -71,6 +74,11 @@ function get_dba_link()
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.suggest.js" ></script>
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.MultiFile.js" ></script>
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/js/bebop.js" ></script>
+    <?php else: ?>
+    <script type="text/javascript" language="javascript" src="<?php print MCMS_PATH; ?>/lib/modules/tinymce/editor/tiny_mce_popup.js" ></script>
+    <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/js/picker.js" ></script>
+    <?php endif; ?>
+
     <?php empty($base) or print mcms::html('base', array('href' => $base)); ?>
   </head>
   <body>
