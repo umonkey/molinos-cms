@@ -79,6 +79,8 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
   {
   }
 
+  // Склеивает все локальные внешние скрипты в один файл, вырезает старые подключения,
+  // вставляет новый скрипт в начало <head>.
   private static function fixJS(&$output)
   {
     $scripts = $names = array();
@@ -125,7 +127,7 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
         'src' => '/compressor.rpc?type=js&hash='. $md5name,
         ));
 
-      $output = str_replace('</head>', $newscript .'</head>', $output);
+      $output = str_replace('<head>', '<head>'. $newscript, $output);
     }
   }
 
