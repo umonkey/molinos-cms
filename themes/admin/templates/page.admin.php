@@ -74,10 +74,15 @@ function get_dba_link()
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.suggest.js" ></script>
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.MultiFile.js" ></script>
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/js/bebop.js" ></script>
+    <?php elseif ('find' == $_GET['window']): ?>
+    <script type="text/javascript" language="javascript" src="<?php print MCMS_PATH; ?>/lib/modules/tinymce/editor/tiny_mce_popup.js" ></script>
+    <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/js/picker-redux.js" ></script>
     <?php else: ?>
     <script type="text/javascript" language="javascript" src="<?php print MCMS_PATH; ?>/lib/modules/tinymce/editor/tiny_mce_popup.js" ></script>
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/js/picker.js" ></script>
     <?php endif; ?>
+
+    <script type="text/javascript" language="javascript">var mcms_path = '<?php print MCMS_PATH; ?>';</script>
 
     <?php empty($base) or print mcms::html('base', array('href' => $base)); ?>
   </head>

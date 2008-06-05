@@ -1010,6 +1010,7 @@ class NodeBase
             $v['value'] = 'node_content_files['. $k .']';
             $v['medium'] = true;
             $v['unzip'] = false; // не разрешаем распаковывать зипы, загружаемые в поля.
+            $v['archive'] = true;
           } else {
             $v['value'] = 'node_content_'. $k;
           }
@@ -1021,7 +1022,12 @@ class NodeBase
 
           $v['wrapper_id'] = "control-node-{$k}-wrapper";
 
-          $tabs['content']->addControl(Control::make($v));
+          $tmp = Control::make($v);
+
+          if ('AttachmentControl' == $v['type'])
+            $tmp->addClass('archive');
+
+          $tabs['content']->addControl($tmp);
         }
       }
     }

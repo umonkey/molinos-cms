@@ -78,7 +78,7 @@ class AdminUIListControl extends Control
           $row .= mcms::html('a', array(
             'href' => $href,
             'class' => isset($this->picker) ? 'returnHref' : null,
-            'onclick' => isset($this->picker) ? "mcms_picker.mySubmit(\"". l('/attachment/'. $node['id']) ."\")" : null,
+            'onclick' => isset($this->picker) ? "return mcms_picker.mySubmit(\"". l('/attachment/'. $node['id']) ."\",{$node['id']})" : null,
             ), empty($value) ? '(без названия)' : mcms_plain($value, false));
         } elseif (empty($value))
           $row .= '&nbsp;';
@@ -153,7 +153,7 @@ class AdminUIListControl extends Control
               'width' => 48,
               'height' => 48,
               'alt' => $node['filepath'],
-              'onclick' => isset($this->picker) ? "mcms_picker.mySubmit(\"". l('/attachment/'. $node['id']) ."\")" : null,
+              'onclick' => isset($this->picker) ? "return mcms_picker.mySubmit(\"". l('/attachment/'. $node['id']) ."\",{$node['id']})" : null,
               ));
           else
             $tmp = mcms::html('img', array(
