@@ -145,10 +145,10 @@ class TableInfo
     {
       $tblname = $this->name;
 
-      if ((mcms::db()->getDbType()=='SQLite') && !$this->isnew) {
-        //Для существующих в SQLite таблиц в случе их модификации убиваем их и создаём с новыми полями,
-        //старые значения при этом сохраняются
-        mcms::db()->recreateTable($tblname,  $this->columns, $this->oldcolumns);
+      if ((mcms::db()->getDbType() == 'SQLite') && !$this->isnew) {
+        // Для существующих в SQLite таблиц в случе их модификации убиваем их и создаём с новыми полями,
+        // старые значения при этом сохраняются
+        mcms::db()->recreateTable($tblname, $this->columns, $this->oldcolumns);
       }
       else {
         if ((null !== ($sql = $this->getSql()))) {

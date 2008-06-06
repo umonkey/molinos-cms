@@ -13,6 +13,7 @@ require 'ConstTest.php';
 require 'UrlTest.php';
 require 'HtmlTest.php';
 require 'FileTest.php';
+require 'SchemaTest.php';
 
 class AllTests
 {
@@ -29,6 +30,7 @@ class AllTests
     $suite->addTestSuite('UrlTest');
     $suite->addTestSuite('HtmlTest');
     $suite->addTestSuite('FileTest');
+    $suite->addTestSuite('SchemaTest');
 
     return $suite;
   }
