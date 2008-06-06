@@ -7,7 +7,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
 {
   public function testDummy()
   {
-    $this->assertNotEquals(l('/'), 'localhost');
+    $this->assertNotEquals('localhost', l('/'));
   }
 
   public function testRecombine()
@@ -15,7 +15,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
     $src = 'themes/admin/img/openid.png';
     $dst = bebop_combine_url(bebop_split_url($src));
 
-    $this->assertEquals($dst, 'http://localhost/themes/admin/img/openid.png');
+    $this->assertEquals('http://localhost/themes/admin/img/openid.png', $dst);
   }
 
   public function testLShort()
@@ -23,19 +23,19 @@ class UrlTest extends PHPUnit_Framework_TestCase
     $src = 'themes/admin/img/openid.png';
     $dst = l($src);
 
-    $this->assertEquals($dst, 'http://localhost/themes/admin/img/openid.png');
+    $this->assertEquals('http://localhost/themes/admin/img/openid.png', $dst);
   }
 
   public function testLText()
   {
     $tmp = l('themes/admin/img/openid.png', 'OpenID');
-    $this->assertEquals($tmp, '<a href=\'http://localhost/themes/admin/img/openid.png\'>OpenID</a>');
+    $this->assertEquals('<a href=\'http://localhost/themes/admin/img/openid.png\'>OpenID</a>', $tmp);
   }
 
   public function testLTextTitle()
   {
     $tmp = l('themes/admin/img/openid.png', 'OpenID', array('title' => '<>'));
-    $this->assertEquals($tmp, '<a title=\'&lt;&gt;\' href=\'http://localhost/themes/admin/img/openid.png\'>OpenID</a>');
+    $this->assertEquals('<a title=\'&lt;&gt;\' href=\'http://localhost/themes/admin/img/openid.png\'>OpenID</a>', $tmp);
   }
 
   /**
