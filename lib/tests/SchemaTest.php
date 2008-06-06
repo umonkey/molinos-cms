@@ -55,8 +55,6 @@ class SchemaTest extends PHPUnit_Framework_TestCase
       'key' => 'mul',
       ));
     $t->commit();
-
-    mcms::debug($this->getTableDef());
   }
 
   public function testRemoveDB()
