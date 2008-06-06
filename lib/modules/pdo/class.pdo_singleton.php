@@ -37,7 +37,6 @@ class PDO_Singleton extends PDO
     return self::$dbname;
   }
 
-
   public static function getInstance($name, $reload = false)
   {
     if (!array_key_exists($name, self::$instances) or $reload) {
