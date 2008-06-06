@@ -228,7 +228,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
           );
 
         if ($link) {
-          if (null === $text)
+          if ((null === $text) or (strlen(trim($text))==0))
             $text = t('(без названия)');
 
           if (!empty($node->description)) {
