@@ -116,13 +116,24 @@ class mcms_sqlite_driver extends PDO_Singleton
     $fields = preg_split("/,(?!\d)/", $sql); // чтобы не было сплитования в случае DECIMAL(10,2)
     $columns = array();
 
+    //Сейчас имеем базг в SQLite - $rows[0]['sql'] содержит на конце непарную ')',
+    //что вызывает глюки, если у  нас для последнего поля не указан размер. Надо эту
+    //скобку удалить, то только в том случае, если она действительно
+    //несимметрична (т.е. число скобок ( и ) не равно) - вдруг этот глюк исправят в последующих версиях SQLite,
+    //тогда удаление будет ненужным и вредным
+    $lastel = end($fields);
+    if (substr_count($lastel,'(') != substr_count($lastel,')')) {
+      $lastel = trim($lastel,')');
+      $fields[count($fields)-1] = $lastel;
+    }
+
     foreach ($fields as $v)    {
       // получим тип
       $p = strpos($v, ")"); // для int(10) и пр. вариантов с размерами
 
       if (!$p) {
         // тип datetime или какой-либо другой без указания размера
-        $arr = preg_split("/\s/", $v, 2, PREG_SPLIT_NO_EMPTY);
+        $arr = preg_split("/\s/", $v, -1, PREG_SPLIT_NO_EMPTY);
       } else {
         $f = substr($v, 0, $p + 1);
         $arr = preg_split("/\s/", $f, 2, PREG_SPLIT_NO_EMPTY);
@@ -138,26 +149,24 @@ class mcms_sqlite_driver extends PDO_Singleton
       $c['default'] = null;
       $c['autoincrement'] = false;
 
-      if ($p) {
-        $v =  substr($v,$p+1);
+      $v =  substr($v,$p+1);
 
-        // проверим на NOT NULL
-        if (preg_match("/NOT\s+NULL/i", $v))
-          $c['required'] = true;
+      // проверим на NOT NULL
+      if (preg_match("/NOT\s+NULL/i", $v))
+        $c['required'] = true;
 
-        // найдём дефолтное значение
-        if (preg_match("/DEFAULT\s+(\S+)\s/i", $v, $matches))
-          $c['default'] = str_replace('\'', '', $matches[1]);
+      // найдём дефолтное значение
+      if (preg_match("/DEFAULT\s+(\S+)\s*/i", $v, $matches))
+        $c['default'] = str_replace('\'', '', $matches[1]);
 
-        // определим, является ли это первичным ключём или нет
-        if (preg_match("/primary/i", $v)) {
-          $c['key'] = 'pri';
-          $c['autoincrement'] = true;
-        }
-
-        if ($indexes[$name])
-          $c['key'] = 'mul';
+      // определим, является ли это первичным ключём или нет
+      if (preg_match("/primary/i", $v)) {
+        $c['key'] = 'pri';
+        $c['autoincrement'] = true;
       }
+
+      if ($indexes[$name])
+        $c['key'] = 'mul';
 
       $columns[$name] = $c;
     }
@@ -211,6 +220,14 @@ class mcms_sqlite_driver extends PDO_Singleton
 
     if (null !== ($sql = $this->getSql($tblname, $alter, $isnew))) {
       $this->exec($sql);
+    }
+
+    //Создаём индексы
+    foreach ($columns as $name => $c) {
+      if (($c['key']) && ($c['key'] != 'pri')) {
+        $sql = "CREATE INDEX `IDX_{$tblname}_{$name}` on `{$tblname}` (`{$name}`)";
+        $this->exec($sql);
+      }
     }
 
     $columnstr = substr($columnstr, 0, -1);
