@@ -139,6 +139,9 @@ class BebopConfig
       if (empty($key))
         throw new InvalidArgumentException(t('Не указано имя параметра.'));
 
+      if ($this->data === null)
+        $this->readData();
+
       if (null != $section) {
         if (array_key_exists($section, $this->data) and is_array($this->data[$section]))
           $this->data[$section][$key] = $value;
