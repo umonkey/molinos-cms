@@ -127,6 +127,10 @@ class ListWidget extends Widget
       if (is_array($tmp = $ctx->get('classes')))
         $options['filter']['class'] = array_unique($tmp);
 
+      $tmp = $ctx->get('uid');
+      if (!empty($tmp))
+        $options['filter']['uid'] = $tmp;
+
       // Добавляем выборку по архиву.
       foreach (array('year', 'month', 'day') as $key) {
         if (null === ($tmp = $ctx->get($key)))
