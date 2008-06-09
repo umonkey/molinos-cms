@@ -223,7 +223,7 @@ class NodeBase
   public function publish($rev = null)
   {
     // Документ уже опубликован.
-    if ($this->published and $this->rid == $rev)
+    if ($this->prev_published and $this->rid == $rev)
       return;
 
     $this->data['published'] = true;
@@ -242,7 +242,7 @@ class NodeBase
 
   public function unpublish()
   {
-    if (!$this->published)
+    if (!$this->prev_published)
       return;
 
     // Скрываем документ.
@@ -254,7 +254,8 @@ class NodeBase
     // Даём другим модулям возможность обработать событие (например, mod_moderator).
     mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'unpublish'));
 
-    mcms::flush();
+    if ($this->prev_published)
+      mcms::flush(); //сбрасываем кэш только для ранее опубликованного документа
 
     return true;
   }
@@ -1363,6 +1364,9 @@ class NodeBase
     if (!empty($schema['hasfiles']) and !empty($data['node_ftp_files'])) {
       FileNode::getFilesFromFTP($data['node_ftp_files'], $this->id);
     }
+
+    //сохраним первоначальное значение статуса опубликованности документа
+    $this->prev_published = $this->data['published'];
 
     if ($this->canPublish())
       $this->data['published'] = !empty($data['node_content_published']);

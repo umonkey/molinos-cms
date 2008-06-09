@@ -41,13 +41,12 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
     if (!empty($data['reset_access'])) {
       if ($user->hasAccess('u', 'user'))
         $this->setAccess(empty($data['node_access']) ? array() : $data['node_access']);
-      if (count($user->getAccess('u'))) {
-        if ($this->published and empty($data['node_published']))
-          $this->unpublish();
-        elseif (!$this->published and !empty($data['node_published']))
-          $this->publish();
-      }
     }
+
+    if (empty($data['node_content_published']))
+      $this->unpublish();
+    elseif (!empty($data['node_content_published']))
+      $this->publish();
   }
 
   public static function formGetModuleConfig()
