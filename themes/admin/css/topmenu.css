@@ -6,7 +6,7 @@
 
 #top_menu_controls ul li {
 	list-style: none;
-	float: left;
+	display: inline;
 	margin-right: 10px;
 }
 
@@ -27,11 +27,14 @@
 }
 
 #top_menu_controls ul li ul {
+	width: 90%;
+	height: 27px;
 	position: absolute;
 	left: 20px;
 	margin-top: 28px;
 	display: none;
 	z-index: 0;
+	overflow: hidden;
 }
 #top_menu_controls ul li.current ul {
   display: block;
