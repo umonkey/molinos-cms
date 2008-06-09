@@ -1,6 +1,6 @@
 <?php
 
-require(realpath(dirname(__FILE__).'/../lib/bootstrap.php'));
+require(realpath(dirname(__FILE__) . '/lib/bootstrap.php'));
 
 $att = new ImageEditor($_GET);
 $att->sendFile();
