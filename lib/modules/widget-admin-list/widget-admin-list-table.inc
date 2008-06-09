@@ -195,13 +195,24 @@ class DocSearchControl extends Control
       $output .= $this->getSectionsHTML($data);
 
     $output .= "<input type='submit' value='Найти' /></div>";
-
-    if (isset($this->filterform))
-      $output .= "<div class='ctrl_right'><a href='". mcms_plain($this->filterform) ."' class='ctrl_filter'><span class='tip'>Фильтрация</span></a></div>";
+    $output .= $this->getFilterEtc();
 
     $output .= "</div>";
 
     return $output;
+  }
+
+  protected function getFilterEtc()
+  {
+    $output = '';
+
+    if (isset($this->orderform))
+      $output .= "<a href='". mcms_plain($this->orderform) ."' class='ctrl_order'><span class='tip'>Порядок</span></a>";
+
+    if (isset($this->filterform))
+      $output .= "<a href='". mcms_plain($this->filterform) ."' class='ctrl_filter'><span class='tip'>Фильтр</span></a>";
+
+    return empty($output) ? null : "<div class='ctrl_right'>{$output}</div>";
   }
 
   private function getNewLink($type = null)

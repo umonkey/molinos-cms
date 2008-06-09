@@ -66,6 +66,9 @@ class NodeQueryBuilder
     $sql = 'SELECT '. $fields .' '. $this->getFromPart();
     $sql .= ' '. $this->getOrderPart();
 
+    if (!empty($this->query['#debug']))
+      bebop_debug($this->query, $sql, $this->params);
+
     $params = $this->params;
   }
 

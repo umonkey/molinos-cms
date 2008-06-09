@@ -34,8 +34,15 @@ class ListAdminWidget extends ListWidget implements iDashboard
       $options['tid'] = $ctx->get('tid');
     }
 
-    if (null !== ($tmp = $ctx->get('sort')))
+    if (null === ($tmp = $ctx->get('sort'))) {
+      $options['sort'] = array('id' => 'desc');
+    }
+    elseif ('none' == $tmp) {
+      $options['manualorder'] = true;
+    }
+    else {
       $options['sort']= array($tmp => $ctx->get('sortmode', 'asc'));
+    }
 
     if (null !== ($tmp = $ctx->get('published')))
       $options['filter']['published'] = $tmp;
@@ -79,7 +86,16 @@ class ListAdminWidget extends ListWidget implements iDashboard
     if (is_array($this->filter))
       $options['filter'] = array_merge($this->filter, $options['filter']);
 
-    return parent::queryGet($options);
+    if (!empty($options['sort'])) {
+      if (array_key_exists('none', $options['sort']))
+        unset($options['sort']);
+    }
+
+    $tmp = parent::queryGet($options);
+
+    // $tmp['#debug'] = true;
+
+    return $tmp;
   }
 
   // РАБОТА С ФОРМАМИ.
@@ -92,7 +108,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
     case 'document-list':
       $columns = $this->columns;
 
-      if (!empty($this->options['filter']['tags']) and !array_key_exists('actions', $columns))
+      if (!empty($this->options['filter']['tags']) and !empty($this->options['manualorder']) and !array_key_exists('actions', $columns))
         $columns['actions'] = t('Действия');
 
       $form = new Form(array(
@@ -106,14 +122,28 @@ class ListAdminWidget extends ListWidget implements iDashboard
       else
         $doctype = null;
 
-      if (!$this->tree)
+      if (!$this->tree) {
+        $orderform = null;
+
+        if (!empty($this->options['filter']['tags']) and empty($this->options['manualorder'])) {
+          $url = bebop_split_url();
+
+          $args =& $url['args'][$this->getInstanceName()];
+          $args['sort'] = 'none';
+          $args['sortmode'] = null;
+
+          $orderform = bebop_combine_url($url, false);
+        }
+
         $form->addControl(new DocSearchControl(array(
           'value' => 'document_list_search',
           'widget' => $this->getInstanceName(),
           'sections' => $this->sections ? 'document_list_search_section' : null,
           'filterform' => $this->filterform,
+          'orderform' => $orderform,
           'doctype' => $doctype,
           )));
+      }
 
       if (empty($this->options['picker']))
         $form->addControl(new DocMassControl(array(
@@ -258,7 +288,7 @@ class ListAdminWidget extends ListWidget implements iDashboard
         $item[$field] = $text;
       }
 
-      if (!empty($this->options['filter']['tags']) and empty($this->options['sort']) and count($nodelist) > 1) {
+      if (!empty($this->options['filter']['tags']) and !empty($this->options['manualorder']) and count($nodelist) > 1) {
         $actions = array();
 
         $actions[] = l(t('поднять'), array($this->getInstanceName() => array('mode' => 'raise', 'nid' => $node->id, 'tid' => $this->options['filter']['tags'][0]), 'destination' => $_SERVER['REQUEST_URI']));
