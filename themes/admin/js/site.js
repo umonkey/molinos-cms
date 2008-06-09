@@ -5,7 +5,7 @@ var winIE = (navigator.userAgent.indexOf("Opera")==-1 && (d.getElementById &&  d
 function bodySize(){
 	if(winIE && d.documentElement.clientWidth) {
 		sObj = d.getElementsByTagName("body")[0].style;
-		sObj.width = (d.documentElement.clientWidth<1000) ? "1000px" : "100%";
+		sObj.width = (d.documentElement.clientWidth<770) ? "770px" : "100%";
 	}
 }
 
