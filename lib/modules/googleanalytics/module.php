@@ -75,7 +75,7 @@ class GoogleAnalyticsModule implements iModuleConfig, iPageHook
   {
     $config = mcms::modconf('googleanalytics');
 
-    if (!empty($config['account'])) {
+    if (!empty($config['account']) && !stristr($_SERVER['REQUEST_URI'], '/admin/')) {
       $html = '<script type=\'text/javascript\' src=\'http://www.google-analytics.com/urchin.js\'></script>';
       $html .= "<script type='text/javascript'>";
       $html .= "_uacct = '{$config['account']}';";
