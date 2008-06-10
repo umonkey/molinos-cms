@@ -5,6 +5,16 @@ require_once(dirname(__FILE__) .'/../bootstrap.php');
 
 class UrlTest extends PHPUnit_Framework_TestCase
 {
+  private function clean($clean = true)
+  {
+    BebopConfig::getInstance()->set('cleanurls', $clean);
+  }
+
+  private function dirty()
+  {
+    self::clean(false);
+  }
+
   public function testConst()
   {
     $this->assertEquals('/sites/testsite/', MCMS_PATH);
@@ -17,6 +27,8 @@ class UrlTest extends PHPUnit_Framework_TestCase
 
   public function testRoot()
   {
+    self::dirty();
+
     $good = 'http://localhost'. MCMS_PATH;
 
     $this->assertEquals($good, bebop_combine_url(array()));
@@ -71,6 +83,26 @@ class UrlTest extends PHPUnit_Framework_TestCase
   {
     $tmp = l('themes/admin/img/openid.png', 'OpenID', array('title' => '<>'));
     $this->assertEquals('<a title=\'&lt;&gt;\' href=\'http://localhost'. MCMS_PATH .'themes/admin/img/openid.png\'>OpenID</a>', $tmp);
+  }
+
+  public function testCleanRoot()
+  {
+    self::clean();
+    $this->assertEquals('http://localhost/sites/testsite/', l('/'));
+  }
+
+  public function testCleanIndex()
+  {
+    self::clean();
+    $this->assertEquals('http://localhost/sites/testsite/', l('index.php'));
+  }
+
+  public function testCleanAdmin()
+  {
+    self::clean();
+
+    $this->assertEquals('http://localhost/sites/testsite/admin/?test=ok', l('?q=admin&test=ok'));
+    $this->assertEquals('http://localhost/sites/testsite/admin/?test=ok', l('/admin/?test=ok'));
   }
 
   /**

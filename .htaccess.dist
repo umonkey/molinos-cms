@@ -9,8 +9,8 @@ AddDefaultCharset utf-8
 
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_URI} ^/(attachment)/(.*)$
-  RewriteRule ^.*$ /att.php?folder=%1&q=%2 [L,QSA]
+  RewriteRule ^.*$ att.php?folder=%1&q=%2 [L,QSA]
 
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^.*$ /handler.php [L,QSA]
+  RewriteRule ^(.*)$ index.php?__cleanurls=1&q=$1 [L,QSA]
 </IfModule>

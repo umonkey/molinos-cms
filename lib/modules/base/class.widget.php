@@ -99,6 +99,7 @@ abstract class Widget implements iWidget
 
     $options = array();
     $options['groups'] = array_keys($this->user->getGroups());
+    $options['__cleanurls'] = mcms::config('cleanurls');
 
     sort($options['groups']);
 

@@ -62,13 +62,15 @@ function bebop_split_url($url = null)
   }
 
   elseif ($tmp['path'] . basename($_SERVER['SCRIPT_NAME']) == $_SERVER['SCRIPT_NAME']) {
-    $tmp['path'] = '/';
+    $tmp['path'] = '';
   }
 
   // Если путь совпадает со скриптом — эмулируем главную страницу.
   elseif ($tmp['path'] == $_SERVER['SCRIPT_NAME']) {
-    $tmp['path'] = '/';
+    $tmp['path'] = '';
   }
+
+  $tmp['path'] = trim($tmp['path'], '/');
 
   if (!empty($tmp['host']))
     ;
@@ -124,8 +126,8 @@ function bebop_combine_url(array $url, $escape = true)
 {
   static $clean = null;
 
-  if (null === $clean)
-    $clean = mcms::config('handler') ? true : false;
+  if (null === $clean or empty($_SERVER['REMOTE_ADDR']))
+    $clean = mcms::config('cleanurls') ? true : false;
 
   // Применяем некоторые дефолты.
   $url = array_merge(array(
@@ -138,23 +140,28 @@ function bebop_combine_url(array $url, $escape = true)
   if ($url['host'] == 'localhost' or $url['host'] == $_SERVER['HTTP_HOST']) {
     // Относительная ссылка на файл: добавляем путь к CMS.
     if (file_exists(MCMS_ROOT .'/'. $url['path']))
-      $url['path'] = MCMS_PATH . ltrim($url['path'], '/');
+      $url['path'] = ltrim($url['path'], '/');
 
     // Если нет чистых урлов — добавляем index.php
     elseif (!$clean) {
       if ('/attachment/' == substr($url['path'], 0, 12)) {
         $url['args']['q'] = substr($url['path'], 12);
-        $url['path'] = MCMS_PATH .'att.php';
+        $url['path'] = 'att.php';
       } else {
         $url['args']['q'] = trim($url['path'], '/');
-        $url['path'] = MCMS_PATH;
+        $url['path'] = '';
       }
+    }
+
+    // Чистые урлы: убедимся, что в конце есть слэш (зачем? привычка?)
+    elseif (!empty($url['path'])) {
+      $url['path'] = rtrim($url['path'], '/') .'/';
     }
   }
 
   // Удаялем index.php
-  if (MCMS_PATH .'index.php' == $url['path'])
-    $url['path'] = MCMS_PATH;
+  if ('index.php' == $url['path'])
+    $url['path'] = '';
 
   if ('mailto' == $url['scheme'])
     return 'mailto:'. mcms_plain($url['path']);
@@ -163,7 +170,7 @@ function bebop_combine_url(array $url, $escape = true)
 
   $result .= $url['host'];
 
-  $result .= $url['path'];
+  $result .= MCMS_PATH . $url['path'];
 
   if (!empty($url['args'])) {
     $forbidden = array('nocache', 'widget');

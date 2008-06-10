@@ -78,6 +78,8 @@ class BebopConfig
         $this->data = $config;
         $this->isok = true;
       }
+
+      $this->data['cleanurls'] = !empty($_GET['__cleanurls']);
     }
 
     private function __isset($varname)
@@ -162,15 +164,16 @@ class BebopConfig
 
       // Сначала надо выгрузить все "простые" параметры, чтобы они не попали в какую-нибудь секцию.
       foreach ($this->data as $k => $v)
-        if (!is_array($v) && !empty($v))
+        if (!is_array($v) && !empty($v) and 'cleanurls' != $k)
           $output .= "{$k} = {$v}\n";
 
-      foreach ($this->data as $k => $v)
+      foreach ($this->data as $k => $v) {
         // Массив в параметрах есть — теперь пишем секцию.
         if (is_array($v)) {
           $str = $this->dumpSection($v);
           if (!empty($str))
             $output .= "\n[{$k}]\n" . $str;
+        }
       }
 
       if (!strlen($path = $this->getFileName()))
