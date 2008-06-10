@@ -334,8 +334,7 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
 {
   $__root = MCMS_ROOT;
 
-  if (array_key_exists('base', $data))
-    $data['base'] = $_SERVER["HTTP_HOST"].$data['base'];
+  $data['base'] = l('/'); // $_SERVER["HTTP_HOST"] . $data['base'];
 
   if (null === $theme) {
     $ctx = RequestContext::getGlobal();
@@ -372,7 +371,8 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
 
   foreach ($__options as $__filename) {
     if (file_exists($__fullpath = $__root .'/'. $__filename)) {
-      $data['prefix'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/'. dirname(dirname($__filename));
+      // $data['prefix'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/'. dirname(dirname($__filename));
+      $data['prefix'] = rtrim(dirname(dirname($__filename)), '/');
 
       ob_start();
 
@@ -494,7 +494,7 @@ function mcms_fetch_file($url, $content = true, $cache = true)
     curl_setopt($ch, CURLOPT_FILE, $fp);
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Molinos.CMS/' . mcms::version() . '; http://' . mcms::config('basedomain') . '/');
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Molinos.CMS/' . mcms::version() . '; ' . l('/'));
 
     if (!ini_get('safe_mode'))
       curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);

@@ -62,17 +62,17 @@ function get_dba_link()
     <link rel="stylesheet" type="text/css" href="<?php print $prefix; ?>/css/colors-green.css" />
 
     <?php if (empty($_GET['picker'])): ?>
-    <link rel="stylesheet" type="text/css" href="<?php print $prefix; ?>/../all/jquery/plugins/jquery.suggest.css" />
+    <link rel="stylesheet" type="text/css" href="themes/all/jquery/plugins/jquery.suggest.css" />
     <?php endif; ?>
 
     <?php if (empty($_GET['picker'])): ?>
-    <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/jquery.js"></script>
-    <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.ifixpng.js" ></script>
-    <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.mcms.tabber.js"></script>
-    <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.dimensions.js" ></script>
-    <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.bgiframe.js" ></script>
-    <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.suggest.js" ></script>
-    <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/../all/jquery/plugins/jquery.MultiFile.js" ></script>
+    <script type="text/javascript" language="javascript" src="themes/all/jquery/jquery.js"></script>
+    <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.ifixpng.js" ></script>
+    <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.mcms.tabber.js"></script>
+    <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.dimensions.js" ></script>
+    <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.bgiframe.js" ></script>
+    <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.suggest.js" ></script>
+    <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.MultiFile.js" ></script>
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/js/bebop.js" ></script>
     <?php elseif ('find' == $_GET['window']): ?>
     <script type="text/javascript" language="javascript" src="<?php print MCMS_PATH; ?>/lib/modules/tinymce/editor/tiny_mce_popup.js" ></script>
@@ -85,6 +85,8 @@ function get_dba_link()
     <script type="text/javascript" language="javascript">var mcms_path = '<?php print MCMS_PATH; ?>';</script>
 
     <?php empty($base) or print mcms::html('base', array('href' => $base)); ?>
+
+    <link rel="shortcut icon" href="themes/admin/icon.png" type="image/png" />
   </head>
   <body>
     <div id="preloaded_images"></div>
@@ -100,7 +102,7 @@ function get_dba_link()
             <?php print l('/admin/?cgroup=access&mode=edit&id='. mcms::user()->id .'&destination=CURRENT', 'Настройки', array('title' => 'Редактирование профиля')); ?>
             <?php print get_dba_link(); ?>
             <a href="<?php print l('/admin.rpc?action=reload&destination=CURRENT'); ?>&amp;reload=1&flush=1" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
-            <?php print l('/base.rpc?action=logout&destination='. MCMS_PAT .'index.php', 'Выйти', array('id' => 'lnk_exit')); ?>
+            <?php print l('/base.rpc?action=logout&destination=/', 'Выйти', array('id' => 'lnk_exit')); ?>
           </div>
         </div><!-- id=top_toolbar -->
 
