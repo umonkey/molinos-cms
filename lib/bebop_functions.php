@@ -138,19 +138,23 @@ function bebop_combine_url(array $url, $escape = true)
   if ($url['host'] == 'localhost' or $url['host'] == $_SERVER['HTTP_HOST']) {
     // Относительная ссылка на файл: добавляем путь к CMS.
     if (file_exists(MCMS_ROOT .'/'. $url['path']))
-      $url['path'] = str_replace('//', '/', MCMS_PATH .'/'. $url['path']);
+      $url['path'] = MCMS_PATH . ltrim($url['path'], '/');
 
     // Если нет чистых урлов — добавляем index.php
     elseif (!$clean) {
       if ('/attachment/' == substr($url['path'], 0, 12)) {
         $url['args']['q'] = substr($url['path'], 12);
-        $url['path'] = MCMS_PATH .'/att.php';
+        $url['path'] = MCMS_PATH .'att.php';
       } else {
         $url['args']['q'] = $url['path'];
-        $url['path'] = MCMS_PATH .'/index.php';
+        $url['path'] = MCMS_PATH;
       }
     }
   }
+
+  // Удаялем index.php
+  if (MCMS_PATH .'index.php' == $url['path'])
+    $url['path'] = MCMS_PATH;
 
   if ('mailto' == $url['scheme'])
     return 'mailto:'. mcms_plain($url['path']);
