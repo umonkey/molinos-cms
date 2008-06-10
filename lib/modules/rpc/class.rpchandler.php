@@ -10,7 +10,9 @@ class RPCHandler implements iRequestHook
 
       if ('.rpc' === substr($url['path'], -4)) {
         $map = mcms::getModuleMap();
-        $module = substr($url['path'], 1, -4);
+        $module = substr($url['path'], 0, -4);
+
+        mcms::debug($map, $module);
 
         if (array_key_exists($module, $map['modules'])) {
           mcms::db()->beginTransaction();

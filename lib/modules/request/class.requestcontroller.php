@@ -24,7 +24,7 @@ class RequestController
     try {
       // FIXME: переписать нафиг этот класс!
       // Issue 318.
-      if ('/install.rpc' == $url['path']) {
+      if ('install.rpc' == $url['path']) {
         RequestContext::setGlobal();
         InstallModule::hookRemoteCall(RequestContext::getGlobal());
       } else {
@@ -35,7 +35,7 @@ class RequestController
         $this->run();
       }
     } catch (NotInstalledException $e) {
-      mcms::redirect('/install.rpc?msg=notable');
+      mcms::redirect('install.rpc?msg=notable');
     }
   }
 
@@ -50,7 +50,7 @@ class RequestController
 
     try {
       if (!BebopConfig::getInstance()->isok())
-        throw new NotInstalledException(t("Не удалось найти конфигурационный файл.&nbsp; Скорее всего, CMS ещё не была проинсталлирована. Вы можете <a href='@install'>запустить процесс инсталляции</a> прямо сейчас.", array('@install' => '/install.rpc')));
+        throw new NotInstalledException(t("Не удалось найти конфигурационный файл.&nbsp; Скорее всего, CMS ещё не была проинсталлирована. Вы можете <a href='@install'>запустить процесс инсталляции</a> прямо сейчас.", array('@install' => 'install.rpc')));
 
       $this->begin = microtime(true);
 
@@ -133,11 +133,13 @@ class RequestController
     // Убедимся, что на конце урла есть слэш.
     $req = bebop_split_url();
 
+    /*
     if (substr($req['path'], -1) != '/') {
       $req['path'] .= '/';
 
-      exit(mcms::redirect(bebop_combine_url($req)));
+      exit(mcms::redirect(bebop_combine_url($req, false)));
     }
+    */
 
     // Начинаем поиск отсюда.
     $this->root = $root = $map;
@@ -173,6 +175,7 @@ class RequestController
     }
 
     // Запомним базовый адрес страницы.
+    // FIXME: не учитывается MCMS_PATH.
     $root['base'] = rtrim("http://{$_SERVER['HTTP_HOST']}/". ltrim(join('/', $ppath), '/'), '/') .'/';
 
     // Сохраним информацию о текущей странице.  Список детей не очищаем, если
@@ -245,11 +248,11 @@ class RequestController
   {
     $url = bebop_split_url($_SERVER['REQUEST_URI']);
 
-    if ('/info.php' == $url['path'] and bebop_is_debugger()) {
+    if ('info.php' == $url['path'] and bebop_is_debugger()) {
       die(phpinfo());
     }
 
-    if ('/admin/' == $url['path'] and mcms::class_exists('AdminUIModule')) {
+    if ('admin' == $url['path'] and mcms::class_exists('AdminUIModule')) {
       $ctx = RequestContext::getWidget(
         isset($url['args']) ? $url['args'] : array(),
         $this->post_vars
@@ -575,7 +578,7 @@ class RequestController
   private function getUrlsForDomain($domain)
   {
     if (!InstallModule::checkInstalled())
-       mcms::redirect("/index.php?q=%2Finstall.rpc");
+       mcms::redirect("install.rpc");
 
     $tree = DomainNode::getSiteMap();
 
@@ -794,6 +797,6 @@ class RequestController
   private function getDomainConfigLink()
   {
     if (!mcms::user()->id or mcms::user()->hasAccess('c', 'domain'))
-      return '/admin/?cgroup=structure&mode=tree&preset=pages&msg=welcome&rnd='. rand();
+      return '/admin/?cgroup=structure&mode=tree&preset=pages&msg=welcome&rnd='. mt_rand();
   }
 }

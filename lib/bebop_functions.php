@@ -57,7 +57,7 @@ function bebop_split_url($url = null)
 
   // Если указан параметр q — отдаём предпочтение ему.
   if (!empty($tmp['args']['q'])) {
-    $tmp['path'] = '/'. trim($tmp['args']['q'], '/') .'/';
+    $tmp['path'] = trim($tmp['args']['q'], '/');
     unset($tmp['args']['q']);
   }
 
@@ -889,7 +889,12 @@ class mcms
       exit($next);
 
     if ($path == $_SERVER['REQUEST_URI'])
-      $next .= ((false == strstr($next, '?')) ? '?' : '&') .'rnd='. rand();
+      $next .= ((false == strstr($next, '?')) ? '?' : '&') .'rnd='. mt_rand();
+
+    if (false !== (strstr($next, '&amp;')))
+      mcms::fatal('Redirect destination must not contain &amp;, please debug.');
+
+    mcms::log('redirect', $next);
 
     $next = str_replace('%2F','/',$next);
     header('Location: '. $next);
