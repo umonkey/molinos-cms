@@ -57,7 +57,7 @@ function bebop_split_url($url = null)
 
   // Если указан параметр q — отдаём предпочтение ему.
   if (!empty($tmp['args']['q'])) {
-    $tmp['path'] = $tmp['args']['q'];
+    $tmp['path'] = '/'. trim($tmp['args']['q'], '/') .'/';
     unset($tmp['args']['q']);
   }
 
@@ -146,7 +146,7 @@ function bebop_combine_url(array $url, $escape = true)
         $url['args']['q'] = substr($url['path'], 12);
         $url['path'] = MCMS_PATH .'att.php';
       } else {
-        $url['args']['q'] = $url['path'];
+        $url['args']['q'] = trim($url['path'], '/');
         $url['path'] = MCMS_PATH;
       }
     }

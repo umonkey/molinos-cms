@@ -35,6 +35,11 @@ class UrlTest extends PHPUnit_Framework_TestCase
     $this->assertEquals('http://localhost/?arg=ok', l('/index.php?arg=ok'));
   }
 
+  public function testAdmin()
+  {
+    $this->assertEquals('http://localhost/?q=admin', l('/admin/'));
+  }
+
   public function testRecombine()
   {
     $src = 'themes/admin/img/openid.png';
