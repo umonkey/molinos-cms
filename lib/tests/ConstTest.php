@@ -12,7 +12,7 @@ class ConstTest extends PHPUnit_Framework_TestCase
 
   public function testPath()
   {
-    $this->assertEquals(MCMS_PATH, '/');
+    $this->assertEquals(MCMS_PATH, '/sites/testsite/');
   }
 
   public function testCwd()

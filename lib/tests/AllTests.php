@@ -3,6 +3,8 @@
 // Based on Alexei Zakhlestine's MySQL Query Builder,
 // http://code.google.com/p/mysql-query-builder/source/browse/trunk/tests/AllTests.php
 
+define('MCMS_PATH', '/sites/testsite/');
+
 if (!defined('PHPUnit_MAIN_METHOD'))
   define('PHPUnit_MAIN_METHOD', 'AllTests::main');
 
