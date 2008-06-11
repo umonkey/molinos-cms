@@ -145,7 +145,7 @@ class RequestController
     $this->root = $root = $map;
 
     // Текущий путь, будем вырезать из него фрагменты по мере обработки.
-    $apath = ($req['path'] == '/') ? array() : explode('/', trim($req['path'], '/'));
+    $apath = (empty($req['path']) or $req['path'] == '/') ? array() : explode('/', trim($req['path'], '/'));
 
     // Разобранные элементы пути.
     $ppath = array();
