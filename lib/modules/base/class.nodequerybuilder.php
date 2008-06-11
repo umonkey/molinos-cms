@@ -340,6 +340,24 @@ class NodeQueryBuilder
   // Формирует массив полей для сортировки.
   private function addSortFields()
   {
+    if (is_string($this->query['#sort'])) {
+      $fieldarr = preg_split("/\s+/", $this->query['#sort'], -1, PREG_SPLIT_NO_EMPTY);
+
+      $this->query['#sort'] = array();
+      foreach ($fieldarr as $f) {
+        $dir = 'ASC';
+
+        $sign = substr($f,0,1);
+        if (($sign == '+') or ($sign == '-'))
+          $f = substr($f, 1);
+
+        if ($sign == '-')
+          $dir = 'DESC';
+
+        $this->query['#sort'][$f] = $dir;
+      }
+    }
+
     if (!empty($this->query['#sort']) and is_array($this->query['#sort'])) {
       foreach ($this->query['#sort'] as $field => $dir) {
         if ($field == 'name')
