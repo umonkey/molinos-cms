@@ -342,10 +342,10 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   {
     $user = mcms::user();
 
-    $url = bebop_split_url();
+    $url = new url();
 
     // Добавляем вкладку с правами.
-    if ($user->hasAccess('u', 'user') and substr($url['path'], 0, 7) == '/admin/') {
+    if ($user->hasAccess('u', 'user') and 'admin' == $url->path) {
       $options = array();
 
       foreach ($acc = $this->getAccess() as $k => $v)
