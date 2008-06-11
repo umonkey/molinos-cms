@@ -490,6 +490,9 @@ function bebop_get_file_type($filename, $realname = null)
     case '.ttf':
       $result = 'application/x-font-ttf';
       break;
+    case '.flv':
+      $result = 'video/flv';
+      break;
     }
   }
 
