@@ -36,194 +36,14 @@ function bebop_skip_checks()
 // Разбивает текущий запрос на составляющие.
 function bebop_split_url($url = null)
 {
-  $tmpurl = $url;
-
-  if ($url === null)
-    $url = $_SERVER['REQUEST_URI'];
-
-  $tmp = parse_url($url);
-
-  if (false !== ($anchor = strstr($url, '#')))
-    $tmp['anchor'] = substr($anchor, 1);
-  else
-    $tmp['anchor'] = null;
-
-  if (array_key_exists('query', $tmp)) {
-    $tmp['args'] = parse_request_args($tmp['query']);
-    unset($tmp['query']);
-  } else {
-    $tmp['args'] = array();
-  }
-
-  // Если указан параметр q — отдаём предпочтение ему.
-  if (!empty($tmp['args']['q'])) {
-    $tmp['path'] = trim($tmp['args']['q'], '/');
-    unset($tmp['args']['q']);
-  }
-
-  elseif ($tmp['path'] . basename($_SERVER['SCRIPT_NAME']) == $_SERVER['SCRIPT_NAME']) {
-    $tmp['path'] = '';
-  }
-
-  // Если путь совпадает со скриптом — эмулируем главную страницу.
-  elseif ($tmp['path'] == $_SERVER['SCRIPT_NAME']) {
-    $tmp['path'] = '';
-  }
-
-  $tmp['path'] = trim($tmp['path'], '/');
-
-  if (!empty($tmp['host']))
-    ;
-  elseif (!empty($_SERVER['HTTP_HOST']))
-    $tmp['host'] = $_SERVER['HTTP_HOST'];
-  else
-    $tmp['host'] = 'localhost';
-
-  if (empty($tmp['scheme']))
-    $tmp['scheme'] = (empty($_SERVER['HTTPS']) or 'on' != $_SERVER['HTTPS']) ? 'http' : 'https';
-
-  return array(
-    'scheme' => $tmp['scheme'],
-    'host' => $tmp['host'],
-    'path' => $tmp['path'],
-    'args' => $tmp['args'],
-    'anchor' => $tmp['anchor'],
-    );
-}
-
-function parse_request_args($string)
-{
-  $res = $keys = array();
-
-  foreach (explode('&', $string) as $element) {
-    $parts = explode('=', $element, 2);
-
-    $k = $parts[0];
-    if (count($parts) > 1)
-      $v = $parts[1];
-    else
-      $v = '';
-
-    // Упрощаем жизнь парсеру, удаляя пустые ключи.
-    if ($v == '')
-      continue;
-
-    // Заворачиваем начальные конструкции: "group.key"
-    $k = preg_replace('/^([a-z0-9_]+)\.([a-z0-9_]+)/i', '\1%5B\2%5D', $k);
-
-    // Заменяем все остальные точки на ][, т.к. они будут находиться внутри массива.
-    // $k = str_replace('.', '%5D%5B', $k);
-
-    $keys[] = $k .'='. $v;
-  }
-
-  parse_str(join('&', $keys), $res);
-  return $res;
+  $tmp = new url($url);
+  return $tmp->as_array();
 }
 
 // Заворачивает результат работы предыдущей функции обратно.
 function bebop_combine_url(array $url, $escape = true)
 {
-  static $clean = null;
-
-  if (null === $clean or empty($_SERVER['REMOTE_ADDR']))
-    $clean = mcms::config('cleanurls') ? true : false;
-
-  // Применяем некоторые дефолты.
-  $url = array_merge(array(
-    'scheme' => 'http',
-    'host' => $_SERVER['HTTP_HOST'],
-    'path' => '/',
-    'args' => array(),
-    ), $url);
-
-  if ($url['host'] == 'localhost' or $url['host'] == $_SERVER['HTTP_HOST']) {
-    // Относительная ссылка на файл: добавляем путь к CMS.
-    if (file_exists(MCMS_ROOT .'/'. $url['path']))
-      $url['path'] = ltrim($url['path'], '/');
-
-    // Если нет чистых урлов — добавляем index.php
-    elseif (!$clean) {
-      if ('/attachment/' == substr($url['path'], 0, 12)) {
-        $url['args']['q'] = substr($url['path'], 12);
-        $url['path'] = 'att.php';
-      } else {
-        $url['args']['q'] = trim($url['path'], '/');
-        $url['path'] = '';
-      }
-    }
-
-    // Чистые урлы: убедимся, что в конце есть слэш (зачем? привычка?)
-    elseif (!empty($url['path'])) {
-      $url['path'] = rtrim($url['path'], '/') .'/';
-    }
-  }
-
-  // Удаялем index.php
-  if ('index.php' == $url['path'])
-    $url['path'] = '';
-
-  if ('mailto' == $url['scheme'])
-    return 'mailto:'. mcms_plain($url['path']);
-  else
-    $result = $url['scheme'] .'://';
-
-  $result .= $url['host'];
-
-  $result .= MCMS_PATH . $url['path'];
-
-  if (!empty($url['args'])) {
-    $forbidden = array('nocache', 'widget');
-
-    $pairs = array();
-
-    ksort($url['args']);
-
-    foreach ($url['args'] as $k => $v) {
-      if ($v === null)
-        continue;
-
-      elseif (is_array($v)) {
-        foreach ($v as $argname => $argval) {
-          $prefix = $k .'.'. $argname;
-
-          if (is_array($argval)) {
-            foreach ($argval as $k1 => $v1) {
-              if (is_numeric($k1))
-                $pairs[] = $prefix .'[]='. urlencode($v1);
-              elseif (is_array($v1))
-                ;
-              else
-                $pairs[] = "{$prefix}[{$k1}]=". urlencode($v1);
-            }
-          }
-
-          elseif (null !== $argval and '' !== $argval) {
-            $pairs[] = $prefix .'='. urlencode($argval);
-          }
-        }
-      }
-
-      elseif ($v !== '' and !in_array($k, $forbidden)) {
-        if ('destination' === $k and 'CURRENT' === $v) {
-          $pairs[] = $k .'='. urlencode($_SERVER['REQUEST_URI']);
-        } else {
-          $pairs[] = $k .'='. urlencode($v);
-        }
-      }
-    }
-
-    if (!empty($pairs))
-      $result .= '?'. join('&', $pairs);
-  }
-
-  if ($escape)
-    $result = mcms_plain($result, false);
-
-  if (!empty($url['anchor']))
-    $result .= '#'. mcms_plain($url['anchor'], false);
-
-  return $result;
+  return strval(new url($url));
 }
 
 // Возвращает отформатированную ссылку.
@@ -1541,14 +1361,6 @@ class mcms
   public static function now()
   {
     return date('Y-m-d H:i:s', time() - date('Z', time()));
-  }
-
-  public static function realpath($path)
-  {
-    if ('/' != substr($path, 0, 1))
-      $path = str_replace('//', '/', MCMS_PATH .'/'. $path);
-
-    return $path;
   }
 };
 

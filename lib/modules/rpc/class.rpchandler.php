@@ -12,8 +12,6 @@ class RPCHandler implements iRequestHook
         $map = mcms::getModuleMap();
         $module = substr($url['path'], 0, -4);
 
-        mcms::debug($map, $module);
-
         if (array_key_exists($module, $map['modules'])) {
           mcms::db()->beginTransaction();
 

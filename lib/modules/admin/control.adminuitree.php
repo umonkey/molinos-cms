@@ -143,7 +143,7 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
       return;
 
     $tmp = mcms::html('img', array(
-      'src' => mcms::realpath($img),
+      'src' => $img,
       'width' => 16,
       'height' => 16,
       'alt' => $title,

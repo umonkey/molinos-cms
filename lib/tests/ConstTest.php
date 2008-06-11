@@ -7,12 +7,7 @@ class ConstTest extends PHPUnit_Framework_TestCase
 {
   public function testRoot()
   {
-    $this->assertEquals(MCMS_ROOT, dirname(dirname(dirname(__FILE__))));
-  }
-
-  public function testPath()
-  {
-    $this->assertEquals(MCMS_PATH, '/sites/testsite/');
+    $this->assertEquals(dirname(dirname(dirname(__FILE__))), MCMS_ROOT);
   }
 
   public function testCwd()

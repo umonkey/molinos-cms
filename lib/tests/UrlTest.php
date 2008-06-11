@@ -7,7 +7,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
 {
   private function clean($clean = true)
   {
-    BebopConfig::getInstance()->set('cleanurls', $clean);
+    url::__setclean($clean);
   }
 
   private function dirty()
@@ -17,7 +17,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
 
   public function testConst()
   {
-    $this->assertEquals('/sites/testsite/', MCMS_PATH);
+    $this->assertEquals(dirname(dirname(dirname(__FILE__))), MCMS_ROOT);
   }
 
   public function testDummy()
@@ -25,11 +25,17 @@ class UrlTest extends PHPUnit_Framework_TestCase
     $this->assertNotEquals('localhost', l('/'));
   }
 
+  public function testIsLocal()
+  {
+    $url = new url();
+    $this->assertEquals(true, $url->islocal);
+  }
+
   public function testRoot()
   {
     self::dirty();
 
-    $good = 'http://localhost'. MCMS_PATH;
+    $good = 'http://localhost/';
 
     $this->assertEquals($good, bebop_combine_url(array()));
     $this->assertEquals($good, l('/'));
@@ -37,24 +43,25 @@ class UrlTest extends PHPUnit_Framework_TestCase
 
   public function testRootWithArg()
   {
-    $good = 'http://localhost'. MCMS_PATH .'?arg=ok';
+    $good = 'http://localhost/?arg=ok';
 
     $this->assertEquals($good, l('/?arg=ok'));
   }
 
   public function testIndex()
   {
-    $this->assertEquals('http://localhost'. MCMS_PATH, l('/index.php'));
+    $this->assertEquals('http://localhost/', l('/index.php'));
   }
 
   public function testIndexWithArgs()
   {
-    $this->assertEquals('http://localhost'. MCMS_PATH .'?arg=ok', l('/index.php?arg=ok'));
+    $this->assertEquals('http://localhost/?arg=ok', l('/index.php?arg=ok'));
   }
 
   public function testAdmin()
   {
-    $this->assertEquals('http://localhost'. MCMS_PATH .'?q=admin', l('/admin/'));
+    self::dirty();
+    $this->assertEquals('http://localhost/?q=admin', l('/admin/'));
   }
 
   public function testRecombine()
@@ -62,7 +69,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
     $src = 'themes/admin/img/openid.png';
     $dst = bebop_combine_url(bebop_split_url($src));
 
-    $this->assertEquals('http://localhost'. MCMS_PATH .'themes/admin/img/openid.png', $dst);
+    $this->assertEquals('http://localhost/themes/admin/img/openid.png', $dst);
   }
 
   public function testLShort()
@@ -70,39 +77,39 @@ class UrlTest extends PHPUnit_Framework_TestCase
     $src = 'themes/admin/img/openid.png';
     $dst = l($src);
 
-    $this->assertEquals('http://localhost'. MCMS_PATH .'themes/admin/img/openid.png', $dst);
+    $this->assertEquals('http://localhost/themes/admin/img/openid.png', $dst);
   }
 
   public function testLText()
   {
     $tmp = l('themes/admin/img/openid.png', 'OpenID');
-    $this->assertEquals('<a href=\'http://localhost'. MCMS_PATH .'themes/admin/img/openid.png\'>OpenID</a>', $tmp);
+    $this->assertEquals('<a href=\'http://localhost/themes/admin/img/openid.png\'>OpenID</a>', $tmp);
   }
 
   public function testLTextTitle()
   {
     $tmp = l('themes/admin/img/openid.png', 'OpenID', array('title' => '<>'));
-    $this->assertEquals('<a title=\'&lt;&gt;\' href=\'http://localhost'. MCMS_PATH .'themes/admin/img/openid.png\'>OpenID</a>', $tmp);
+    $this->assertEquals('<a title=\'&lt;&gt;\' href=\'http://localhost/themes/admin/img/openid.png\'>OpenID</a>', $tmp);
   }
 
   public function testCleanRoot()
   {
     self::clean();
-    $this->assertEquals('http://localhost/sites/testsite/', l('/'));
+    $this->assertEquals('http://localhost/', l('/'));
   }
 
   public function testCleanIndex()
   {
     self::clean();
-    $this->assertEquals('http://localhost/sites/testsite/', l('index.php'));
+    $this->assertEquals('http://localhost/', l('index.php'));
   }
 
   public function testCleanAdmin()
   {
     self::clean();
 
-    $this->assertEquals('http://localhost/sites/testsite/admin/?test=ok', l('?q=admin&test=ok'));
-    $this->assertEquals('http://localhost/sites/testsite/admin/?test=ok', l('/admin/?test=ok'));
+    $this->assertEquals('http://localhost/admin/?test=ok', l('?q=admin&test=ok'));
+    $this->assertEquals('http://localhost/admin/?test=ok', l('/admin/?test=ok'));
   }
 
   /**

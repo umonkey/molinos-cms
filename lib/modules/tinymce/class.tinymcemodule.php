@@ -141,7 +141,7 @@ class TinyMceModule implements iModuleConfig, iPageHook
     foreach ($files as $f) {
       if (file_exists($f) and is_readable($f)) {
         $tmp = trim(file_get_contents($f));
-        $tmp = str_replace('MCMS_PATH', MCMS_PATH, $tmp);
+        $tmp = str_replace('MCMS_PATH', url::path(), $tmp);
         $tmp = preg_replace('/\s+/', ' ', $tmp);
         // $tmp = preg_replace('/([,:])\s+/', '\1', $tmp);
         $output .= '<script type=\'text/javascript\'>'. $tmp .'</script>';

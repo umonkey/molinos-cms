@@ -290,7 +290,7 @@ class AdminUIListControl extends Control
     if (!bebop_is_debugger() or empty($node['id']))
       return;
 
-    return $this->getIcon('lib/modules/admin/img/debug.gif', "/nodeapi.rpc?action=dump&node=". $node['id'], t('Просмотреть внутренности'));
+    return $this->getIcon('lib/modules/admin/img/debug.gif', "nodeapi.rpc?action=dump&node=". $node['id'], t('Просмотреть внутренности'));
   }
 
   private function getViewLink(array $node)
@@ -317,13 +317,8 @@ class AdminUIListControl extends Control
 
   private function getIcon($img, $href, $title)
   {
-    $path = substr($img, 0);
-
-    if (!is_readable($path))
-      return;
-
     $tmp = mcms::html('img', array(
-      'src' => mcms::realpath($img),
+      'src' => $img,
       'width' => 16,
       'height' => 16,
       'alt' => $title,

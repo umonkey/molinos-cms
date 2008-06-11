@@ -195,7 +195,7 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
   private static function compressCSS($filename)
   {
     // Добавляем путь к сайту, если он не в корне.
-    $filename = mcms::realpath($filename);
+    $filename = $filename;
 
     // Реальный путь к сжимаемому файлу.
     if (!file_exists($rpath = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . $filename)) {

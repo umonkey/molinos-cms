@@ -246,19 +246,25 @@ class RequestController
 
   private function parseSpecialPath()
   {
-    $url = bebop_split_url($_SERVER['REQUEST_URI']);
+    $url = new url();
 
-    if ('info.php' == $url['path'] and bebop_is_debugger()) {
-      die(phpinfo());
-    }
+    switch ($url->path) {
+    case 'info.php':
+      if (bebop_is_debugger())
+        phpinfo();
+      break;
 
-    if ('admin' == $url['path'] and mcms::class_exists('AdminUIModule')) {
-      $ctx = RequestContext::getWidget(
-        isset($url['args']) ? $url['args'] : array(),
-        $this->post_vars
-        );
+    case 'admin':
+      if (class_exists('AdminUIModule')) {
+        $ctx = RequestContext::getWidget($url->args, $this->post_vars);
 
-      return AdminUIModule::onGet($ctx);
+        if (null === ($tmp = AdminUIModule::onGet($ctx)))
+          throw new RuntimeException(t('Не удалось отобразить страницу административного интерфейса.'));
+
+        mcms::debug($tmp);
+        return $tmp;
+      }
+      break;
     }
   }
 

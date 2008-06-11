@@ -55,6 +55,8 @@ function get_dba_link()
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>Molinos.CMS</title>
+    <?php empty($base) or print mcms::html('base', array('href' => $base)); ?>
+
     <link rel="stylesheet" type="text/css" href="<?php print $prefix; ?>/css/bebop.css" />
     <link rel="stylesheet" type="text/css" href="<?php print $prefix; ?>/css/style.css" />
     <link rel="stylesheet" type="text/css" href="<?php print $prefix; ?>/css/notification.css" />
@@ -82,9 +84,7 @@ function get_dba_link()
     <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/js/picker.js" ></script>
     <?php endif; ?>
 
-    <script type="text/javascript" language="javascript">var mcms_path = '<?php print MCMS_PATH; ?>';</script>
-
-    <?php empty($base) or print mcms::html('base', array('href' => $base)); ?>
+    <script type="text/javascript" language="javascript">var mcms_path = '<?php print url::path(); ?>';</script>
 
     <link rel="shortcut icon" href="themes/admin/icon.png" type="image/png" />
   </head>

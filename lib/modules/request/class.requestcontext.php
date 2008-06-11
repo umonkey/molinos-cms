@@ -65,7 +65,7 @@ class RequestContext
 
     default:
       if (!empty($this->apath))
-        throw new PageNotFoundException();
+       throw new PageNotFoundException();
     }
 
     if (null === $this->root and is_numeric($page->defaultsection)) {

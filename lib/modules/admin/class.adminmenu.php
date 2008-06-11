@@ -3,11 +3,24 @@
 
 class AdminMenu implements iAdminMenu
 {
+  private function cache($value = null)
+  {
+    if (!empty($_GET['nocache']))
+      return null;
+
+    $key = 'adminmenu:'. (empty($_GET['cgroup']) ? 'content' : $_GET['cgroup']);
+
+    if (mcms::config('cleanurls'))
+      $key .= ':cleanurls';
+
+    return mcms::config($key, $value);
+  }
+
   public function getHTML()
   {
     $cgroup = empty($_GET['cgroup']) ? 'content' : $_GET['cgroup'];
 
-    if (is_string($tmp = BebopCache::getInstance()->{'adminmenu:'. $cgroup}) and empty($_GET['nocache']))
+    if (is_string($tmp = $this->cache()))
       return $tmp;
 
     $trans = array(
@@ -23,8 +36,7 @@ class AdminMenu implements iAdminMenu
     $output = '<ul>';
 
     foreach ($menu as $group => $icons) {
-      $url = bebop_split_url($icons[0]['href']);
-      $url['args']['cgroup'] = $group;
+      $url = $icons[0]['href'];
 
       if ($group == $cgroup)
         $output .= '<li class=\'current\'>';
@@ -32,7 +44,7 @@ class AdminMenu implements iAdminMenu
         $output .= '<li>';
 
       $output .= mcms::html('a', array(
-        'href' => bebop_combine_url($url, false),
+        'href' => $url,
         ), array_key_exists($group, $trans) ? $trans[$group] : $group);
 
       $output .= '<ul>';
