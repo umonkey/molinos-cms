@@ -272,10 +272,8 @@ form.tabbed .tab-content {
 
 #center .intro {
   margin-bottom: 4px;
-  max-width: 500px;
   padding: 4px 14px 14px 32px;
   font-style: italic;
-  float: right;
   background: transparent url(../img/idea.png) no-repeat top left;
 }
 #center .intro p {
