@@ -91,8 +91,8 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
 
         if (false !== strstr($tmp, " language='javascript'")) {
           if (preg_match("@src='([^']+)'@i", $tmp, $m)) {
-            if (false !== ($tmp = realpath($_SERVER['DOCUMENT_ROOT'] . $m[1])) and '.js' == substr($tmp, -3) and '/' == substr($tmp, 0, 1)) {
-              $names[] = '// '. ltrim(str_replace($_SERVER['DOCUMENT_ROOT'], '', $tmp), '/') ."\n";
+            if (false !== ($tmp = realpath(MCMS_ROOT .'/'. $m[1])) and '.js' == substr($tmp, -3)) {
+              $names[] = '// '. $m[1] ."\n";
               $scripts[] = self::compressJS($tmp);
               $output = str_replace($script, '', $output);
             }
@@ -152,7 +152,7 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
 
         if (false !== strstr($tmp, "rel='stylesheet'")) {
           if (preg_match("@href='([^']+)'@i", $tmp, $m)) {
-            if (false !== ($tmp = $m[1]) and '.css' == substr($tmp, -4) and '/' == substr($tmp, 0, 1)) {
+            if (false !== ($tmp = $m[1]) and '.css' == substr($tmp, -4)) {
               if (null !== ($ntmp = self::compressCSS($tmp))) {
                 $styles[] = $ntmp;
                 $names[] = ' * '. $tmp ."\n";
@@ -198,7 +198,7 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
     $filename = $filename;
 
     // Реальный путь к сжимаемому файлу.
-    if (!file_exists($rpath = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . $filename)) {
+    if (!file_exists($rpath = MCMS_ROOT .'/'. $filename)) {
       mcms::log('compressor', t('%file not found.', array('%file' => $filename)));
       return null;
     }
