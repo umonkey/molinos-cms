@@ -22,12 +22,70 @@ class BaseModule implements iRemoteCall
       }
       break;
     case 'logout':
-      mcms::user()->authorize();
+      $sid = $_COOKIE['mcmsid'];
+      session_name('mcmsid');
+      session_id($sid);
+      session_start();
+      session_save_path(mcms::mkdir(mcms::config('tmpdir') .'/sessions'));
+
+      if (is_array($_SESSION['uidstack']))
+        $uid = array_pop($_SESSION['uidstack']);
+
+      session_commit();
+
+      if (empty($uid))
+        mcms::user()->authorize();
+      else
+        self::login($_COOKIE['mcmsid'], $uid);
+
+      break;
+    case 'su':
+      if (!bebop_is_debugger() and mcms::config('debuggers'))
+        throw new ForbiddenException(t('У вас нет прав доступа к sudo'));
+
+      $curuid = User::identify()->id;
+
+      $sid = $_COOKIE['mcmsid'];
+      $username = $ctx->get('username');
+      if (empty($username))
+        $uid = $ctx->get('uid');
+      else {
+        $node = Node::load(array('class' => 'user', 'name' => $username));
+        $uid = $node->id;
+      }
+
+      session_name('mcmsid');
+      session_id($sid);
+      session_start();
+      session_save_path(mcms::mkdir(mcms::config('tmpdir') .'/sessions'));
+      if ($uid) {
+        if (!is_array($_SESSION['uidstack']))
+          $_SESSION['uidstack'] = array();
+
+        $_SESSION['uidstack'][] = $curuid;
+        session_commit();
+        self::login($sid, $uid);
+      }
+      else {
+        mcms::redirect("/admin/");
+      }
       break;
     }
-
     bebop_on_json(array('status' => 'ok'));
 
     mcms::redirect($next);
+  }
+
+  public static function login($sid, $uid)
+  {
+    $node = Node::load(array('class' => 'user', 'id' => $uid));
+
+    if (!$node->published)
+      throw new ForbiddenException(t('Ваш профиль заблокирован.'));
+
+    // Сохраняем сессию в БД.
+    SessionData::db($sid, array('uid' => $node->id));
+    setcookie('mcmsid', $sid, time() + 60*60*24*30);
+    mcms::redirect("/admin/");
   }
 };
