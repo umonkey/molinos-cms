@@ -5,6 +5,8 @@ class TagNode extends Node implements iContentType
 {
   public function save()
   {
+    $isnew = empty($this->id);
+
     if (null === $this->parent_id) {
       try {
         $node = Node::load(array('class' => 'tag', 'parent_id' => null, 'deleted' => 0));
@@ -14,6 +16,13 @@ class TagNode extends Node implements iContentType
     }
 
     parent::save();
+
+    // При добавлении раздела копируем родительский список типов.
+    if ($isnew and !empty($this->parent_id))
+      mcms::db()->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) "
+        ."SELECT :me, `nid`, `key`, `order` FROM `node__rel` "
+        ."WHERE `tid` = :parent AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = 'type')",
+        array(':me' => $this->id, ':parent' => $this->parent_id));
   }
 
   // Возвращает список существующих разделов, в виде плоского списка
