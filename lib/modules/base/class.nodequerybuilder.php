@@ -340,7 +340,7 @@ class NodeQueryBuilder
   // Формирует массив полей для сортировки.
   private function addSortFields()
   {
-    if (is_string($this->query['#sort'])) {
+    if (!empty($this->query['#sort']) and is_string($this->query['#sort'])) {
       $fieldarr = preg_split("/\s+/", $this->query['#sort'], -1, PREG_SPLIT_NO_EMPTY);
 
       $this->query['#sort'] = array();
