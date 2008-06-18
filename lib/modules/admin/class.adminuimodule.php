@@ -13,8 +13,13 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     $m = $ctx->get('module');
     if (null === ($module = $ctx->get('module')))
       $result['content'] = self::onGetInternal($ctx);
+
     elseif (!count($classes = mcms::getImplementors('iAdminUI', $module))) {
-      throw new PageNotFoundException();
+      throw new PageNotFoundException(null, t('Запрошенный модуль (%name) не поддерживает работу с административным интерфейсом.', array('%name' => $module)));
+    }
+
+    elseif (!class_exists($classes[0])) {
+      mcms::log(t('Класс %class, используемый админкой, не мог быть загружен.', array('%class' => $classes[0])));
     }
 
     else {

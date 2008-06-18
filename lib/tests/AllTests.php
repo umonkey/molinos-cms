@@ -14,6 +14,7 @@ require 'UrlTest.php';
 require 'HtmlTest.php';
 require 'FileTest.php';
 require 'SchemaTest.php';
+require 'UpdateTest.php';
 
 class AllTests
 {
@@ -31,6 +32,7 @@ class AllTests
     $suite->addTestSuite('HtmlTest');
     $suite->addTestSuite('FileTest');
     $suite->addTestSuite('SchemaTest');
+    $suite->addTestSuite('UpdateTest');
 
     return $suite;
   }

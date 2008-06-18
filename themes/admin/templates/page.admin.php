@@ -37,6 +37,12 @@ function get_version_info()
 
   $version .= '+'. ini_get('memory_limit') .')';
 
+  if (mcms::version() != ($available = mcms::version(mcms::VERSION_AVAILABLE))) {
+    $version .= t(' — <a href=\'@url\'>обновить</a>', array(
+      '@url' => '/admin/?cgroup=none&module=update',
+      ));
+  }
+
   // $version .= t(' — <a href=\'@url\'>проверить обновления</a>', array('@url' => '/admin/?mode=update'));
 
   return $version;
