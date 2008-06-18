@@ -308,10 +308,7 @@ function mcms_fetch_file($url, $content = true, $cache = true)
 {
   $outfile = mcms::config('tmpdir') . "/mcms-fetch.". md5($url);
 
-  // Проверяем, не вышло ли время хранения файла на диске, если истекло - удаляем файл.
-  // Если время жизни кэша не определено в конфигурации, принимаем его за астрономический один час.
-  if (null === ($ttl = mcms::config('file_cache_ttl')))
-    $ttl = 60 * 60;
+  $ttl = mcms::config('file_cache_ttl', 3600);
 
   if (file_exists($outfile) and (!$cache or ((time() - $ttl) > @filectime($outfile))))
     if (is_writable(dirname($outfile)))
@@ -326,6 +323,7 @@ function mcms_fetch_file($url, $content = true, $cache = true)
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_TIMEOUT, 5);
     curl_setopt($ch, CURLOPT_USERAGENT, 'Molinos.CMS/' . mcms::version() . '; ' . l('/'));
+    curl_setopt($ch, CURLOPT_VERBOSE, 1);
 
     if (!ini_get('safe_mode'))
       curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
@@ -339,6 +337,15 @@ function mcms_fetch_file($url, $content = true, $cache = true)
     if (200 != $code) {
       unlink($outfile);
       return null;
+    }
+
+    if (function_exists('get_headers')) {
+      $headers = get_headers($url, true);
+
+      if (!empty($headers['Content-Length']) and ($real = $headers['Content-Length']) != ($got = filesize($outfile))) {
+        unlink($outfile);
+        throw new RuntimeException(t('Не удалось скачать файл: вместо %real байтов было получено %got.', array('%got' => $got, '%real' => $real)));
+      }
     }
   }
 
@@ -397,6 +404,11 @@ class mcms
   const MEDIA_IMAGE = 4;
 
   const FLUSH_NOW = 1;
+
+  const VERSION_CURRENT = 1;
+  const VERSION_RELEASE = 2;
+  const VERSION_AVAILABLE = 3;
+  const VERSION_AVAILABLE_URL = 4;
 
   public static function html()
   {
@@ -1159,7 +1171,7 @@ class mcms
     return MsgModule::send($from, $to, $subject, $text);
   }
 
-  public static function version()
+  public static function version($mode = mcms::VERSION_CURRENT)
   {
     static $version = null;
 
@@ -1167,7 +1179,27 @@ class mcms
       if (is_readable($fname = 'lib/version.info'))
         $version = file_get_contents($fname);
       else
-        $version = 'trunk';
+        $version = 'unknown.trunk';
+    }
+
+    switch ($mode) {
+    case self::VERSION_CURRENT:
+      return $version;
+
+    case self::VERSION_RELEASE:
+      return substr($version, 0, - strlen(strrchr($version, '.')));
+
+    case self::VERSION_AVAILABLE:
+      $release = self::version(self::VERSION_RELEASE);
+      $content = mcms_fetch_file('http://code.google.com/p/molinos-cms/downloads/list?q=label:R'. $release);
+
+      if (preg_match($re = "@http://molinos-cms\.googlecode\.com/files/molinos-cms-({$release}\.[0-9]+)\.zip@", $content, $m))
+        return $m[1];
+      else
+        return $version;
+
+    case self::VERSION_AVAILABLE_URL:
+      return 'http://molinos-cms.googlecode.com/files/molinos-cms-'. self::version(self::VERSION_AVAILABLE) .'.zip';
     }
 
     return $version;
