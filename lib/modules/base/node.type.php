@@ -261,6 +261,15 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     return $result;
   }
 
+  public function recreateIdxTable($tblname)
+  {
+    mcms::db()->exec("DROP TABLE IF EXISTS node__idx_{$tblname}");
+    $result = $this->getSchema($tblname);
+    $this->fields = $result['fields'];
+    $this->name = $tblname;
+    $this->updateTable();
+  }
+
   public function fieldMove($name, $delta = 0)
   {
     if (empty($this->data['fields'][$name]))

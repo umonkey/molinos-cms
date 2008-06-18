@@ -33,11 +33,33 @@ class mcms_sqlite_driver extends PDO_Singleton
       $info = $this->errorInfo();
 
       switch ($info[1]) {
-      case 1: // General error: 1 no such table: xyz.
+      case 1: // General error: 1 no such table: xyz. (или no such column)
+        if (false !== strstr($info[2], 'no such column')) {
+          //В SQlite в $info имя таблицы не содержится, надо проанализировать sql-запрос
+          //Если в sql-запросе имеется строка node__idx_*** -
+          //считаем, что это индексная таблица, и пытаемся её создать заново
+          if (preg_match("/node__idx_(\S+)/i", $sql, $matches)) {
+             $node = Node::load(array('class' => 'type', 'name' => $matches[1]));
+             if (!empty($node)) {
+               $node->recreateIdxTable($matches[1]);
+               return self::exec($sql, $params);
+             }
+          }
+        }
         if (false !== strstr($info[2], 'no such table')) {
           if (preg_match("/no such table:\s*(\S+)/i", $info[2], $matches)) {
-            mcms::invoke('iSchemaManager', 'create', array(array('tblname' => $matches[1])));
-            return self::exec($sql, $params);
+            if (preg_match("/node__idx_(\S+)/i", $sql, $tblmatches)) {
+              //для индексных таблиц свой механизм пересоздания
+               $node = Node::load(array('class' => 'type', 'name' => $tblmatches[1]));
+               if (!empty($node)) {
+                 $node->recreateIdxTable($tblmatches[1]);
+                 return self::exec($sql, $params);
+               }
+            }
+            else {
+              mcms::invoke('iSchemaManager', 'create', array(array('tblname' => $matches[1])));
+              return self::exec($sql, $params);
+            }
           }
           throw new TableNotFoundException(trim(strrchr($info[2], ' ')), $sql, $params);
         }
@@ -262,7 +284,7 @@ class mcms_sqlite_driver extends PDO_Singleton
       $sql .= ' NULL';
 
     if (null !== $spec['default'])
-      $sql .= ' DEFAULT '. $spec['default'];
+      $sql .= ' DEFAULT \''. sqlite_escape_string($spec['default']).'\'';
 
     if ('pri' == $spec['key']) {
       if (!$modify)

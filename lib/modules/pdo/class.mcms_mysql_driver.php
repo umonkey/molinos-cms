@@ -73,11 +73,27 @@ class mcms_mysql_driver extends PDO_Singleton
           // Это MySQL. Проверка существования таблицы идёт через DESCRIBE в getTableInfo()
           // Если её нет, надо выкинуть TableNotFoundException, чтобы TableInfo::exists() вернул false
           throw new TableNotFoundException($tname);
+        } else {
+          if (preg_match("/node__idx_(\S+)/i", $sql, $tblmatches)) {
+            //для индексных таблиц свой механизм пересоздания
+            $node = Node::load(array('class' => 'type', 'name' => $tblmatches[1]));
+            if (!empty($node)) {
+              $node->recreateIdxTable($tblmatches[1]);
+              return self::exec($sql, $params);
+            }
+          } else {
+            mcms::invoke('iSchemaManager', 'create', array(array('tblname' => $tname)));
+            return self::exec($sql, $params);
+          }
         }
-
-        else {
-         mcms::invoke('iSchemaManager', 'create', array(array('tblname' => $tname)));
-         return self::exec($sql, $params);
+      } else if ('42S22' == $e->getCode()) {
+        if (preg_match("/node__idx_(\S+)/i", $sql, $tblmatches)) {
+          //для индексных таблиц свой механизм пересоздания
+          $node = Node::load(array('class' => 'type', 'name' => $tblmatches[1]));
+          if (!empty($node)) {
+            $node->recreateIdxTable($tblmatches[1]);
+            return self::exec($sql, $params);
+          }
         }
       }
 
@@ -126,7 +142,7 @@ class mcms_mysql_driver extends PDO_Singleton
       $sql .= ' NULL';
 
     if (null !== $spec['default'])
-      $sql .= ' DEFAULT '. $spec['default'];
+      $sql .= ' DEFAULT \''. mysql_escape_string($spec['default']).'\'';
 
     if ('pri' == $spec['key']) {
       if (!$modify)
