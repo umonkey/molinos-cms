@@ -323,7 +323,6 @@ function mcms_fetch_file($url, $content = true, $cache = true)
     curl_setopt($ch, CURLOPT_HEADER, 0);
     curl_setopt($ch, CURLOPT_TIMEOUT, 5);
     curl_setopt($ch, CURLOPT_USERAGENT, 'Molinos.CMS/' . mcms::version() . '; ' . l('/'));
-    curl_setopt($ch, CURLOPT_VERBOSE, 1);
 
     if (!ini_get('safe_mode'))
       curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);

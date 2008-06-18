@@ -91,10 +91,12 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
 
         if (false !== strstr($tmp, " language='javascript'")) {
           if (preg_match("@src='([^']+)'@i", $tmp, $m)) {
-            if (false !== ($tmp = realpath(MCMS_ROOT .'/'. $m[1])) and '.js' == substr($tmp, -3)) {
+            if (false !== ($tmp = MCMS_ROOT .'/'. $m[1]) and '.js' == substr($tmp, -3) and '/' == substr($tmp, 0, 1)) {
               $names[] = '// '. $m[1] ."\n";
               $scripts[] = self::compressJS($tmp);
               $output = str_replace($script, '', $output);
+            } else {
+              mcms::log('compressor', 'skipped '. $m[1]);
             }
           }
         }
@@ -152,12 +154,14 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
 
         if (false !== strstr($tmp, "rel='stylesheet'")) {
           if (preg_match("@href='([^']+)'@i", $tmp, $m)) {
-            if (false !== ($tmp = $m[1]) and '.css' == substr($tmp, -4)) {
-              if (null !== ($ntmp = self::compressCSS($tmp))) {
+            if ('.css' == substr($m[1], -4)) {
+              if (null !== ($ntmp = self::compressCSS($m[1]))) {
                 $styles[] = $ntmp;
-                $names[] = ' * '. $tmp ."\n";
+                $names[] = ' * '. $m[1] ."\n";
               }
               $output = str_replace($link, '', $output);
+            } else {
+              mcms::log('compressor', 'skipped '. $m[1]);
             }
           }
         }
