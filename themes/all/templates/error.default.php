@@ -2,7 +2,8 @@
 <html>
   <head>
     <title><?=$error['message']?></title>
-    <link rel='stylesheet' type='text/css' href='<?=$prefix?>/errors.css' />
+    <?php empty($base) or print mcms::html('base', array('href' => $base)); ?>
+    <link rel='stylesheet' type='text/css' href='themes/all/errors.css' />
   </head>
   <body>
     <h1><a href="http://code.google.com/p/molinos-cms/"><span><?=$error['message']?></span></a></h1>

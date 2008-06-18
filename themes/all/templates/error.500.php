@@ -2,7 +2,8 @@
 <html>
   <head>
     <title><?=$error['message']?></title>
-    <link rel='stylesheet' type='text/css' href='<?=$prefix?>/errors.css' />
+    <?php empty($base) or print mcms::html('base', array('href' => $base)); ?>
+    <link rel='stylesheet' type='text/css' href='themes/all/errors.css' />
   </head>
   <body>
     <div id='wrapper'>
