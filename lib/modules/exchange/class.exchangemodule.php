@@ -187,7 +187,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     $str .= "</links>\n";
     $str .= "<accessrights>\n";
 
-    $arr = mcms::db()->getResults("SELECT `nid`, `uid`, `c`, `r`, `u`, `d` FROM `node__access` ORDER BY `nid`");
+    $arr = mcms::db()->getResults("SELECT `nid`, `uid`, `c`, `r`, `u`, `d`, `p` FROM `node__access` ORDER BY `nid`");
 
     foreach ($arr as $el)
       $str .= mcms::html('access', $el) ."\n";
@@ -300,14 +300,16 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
         $r = empty($at['r']) ? 0 : 1;
         $u = empty($at['u']) ? 0 : 1;
         $d = empty($at['d']) ? 0 : 1;
+        $p = empty($at['p']) ? 0 : 1;
 
-        mcms::db()->exec("INSERT INTO `node__access`(`nid`, `uid`, `c`, `r`, `u`, `d`) VALUES (:nid, :uid, :c, :r, :u, :d)", array(
+        mcms::db()->exec("INSERT INTO `node__access`(`nid`, `uid`, `c`, `r`, `u`, `d`, `p`) VALUES (:nid, :uid, :c, :r, :u, :d, :p)", array(
           ':nid' => $nid,
           ':uid' => $uid,
           ':c' => $c,
           ':r' => $r,
           ':u' => $u,
-          ':d' => $d
+          ':d' => $d,
+          ':p' => $p,
           ));
       }
     }

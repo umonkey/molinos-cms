@@ -111,13 +111,15 @@ class mcms_mysql_driver extends PDO_Singleton
 
   public function addColumn($tblname, $columnName, $column)
   {
-    list($sql, $ix) = $this->addSql($tblname, $column, false, false);
+    list($sql, $ix) = $this->addSql($columnName, $column, false, false);
     $alter[] = $sql;
+
     if (null !== ($sql = $this->getSql($tblname, $alter, false))) {
       $this->exec($sql);
     }
+
     if (!empty($ix)) {
-      $sql = "CREATE INDEX `IDX_{$tblname}_{$el}` on `{$tblname}` (`{$el}`)";
+      $sql = "CREATE INDEX `IDX_{$tblname}_{$columnName}` on `{$tblname}` (`{$columnName}`)";
     }
   }
 

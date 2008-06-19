@@ -8,7 +8,7 @@
 //             ключи используются для формирования имён чекбоксов.
 //
 // Формат входного массива данных:
-//   Ключ => (c => ?, r => ?, u => ?, d => ?),
+//   Ключ => (c => ?, r => ?, u => ?, d => ?, p => ?),
 // Ключи соответствуют ключам параметра options.
 
 class AccessControl extends Control
@@ -28,13 +28,13 @@ class AccessControl extends Control
 
   public function getHTML(array $data)
   {
-    $output = "<tr><th>&nbsp;</th><th>C</th><th>R</th><th>U</th><th>D</th></tr>";
+    $output = "<tr><th>&nbsp;</th><th>C</th><th>R</th><th>U</th><th>D</th><th>P</th></tr>";
 
     foreach ($this->options as $k => $v) {
       $output .= '<tr>';
       $output .= '<td>'. mcms_plain($v) .'</td>';
 
-      foreach (array('c', 'r', 'u', 'd') as $key) {
+      foreach (array('c', 'r', 'u', 'd', 'p') as $key) {
         $output .= '<td>';
 
         $output .= mcms::html('input', array(

@@ -36,6 +36,12 @@ class DBSchema_node__access
         'required' => 1,
         'default' => 0,
         ));
+      $t->columnSet('p', array(
+        'type' => 'tinyint(1)',
+        'required' => 1,
+        'default' => 0,
+        ));
+
        $t->commit();
     }
   }

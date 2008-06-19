@@ -23,7 +23,7 @@ class ModeratorModule implements iModuleConfig, iNodeHook
 
     $types = array();
 
-    foreach (Node::find(array('class' => 'type', 'internal' => 0, '#sort' => array('type.title' => 'asc'))) as $t)
+    foreach (Node::find(array('class' => 'type')) as $t)
       $types[$t->name] = $t->title;
 
     $form->addControl(new SetControl(array(
@@ -79,28 +79,20 @@ class ModeratorModule implements iModuleConfig, iNodeHook
       return;
 
     // Пользователь сам себе публикатор.
-    if (mcms::user()->hasGroup('Publishers'))
+    if (mcms::user()->hasAccess('p',$node->class))
       return;
 
     switch ($op) {
     case 'update':
-      if (!$node->published)
-        return;
       $prepend = 'Пользователь %user <strong>изменил</strong> документ типа «%type»:';
       break;
     case 'create':
-      if (!$node->published)
-        return;
       $prepend = 'Пользователь %user <strong>создал</strong> документ типа «%type»:';
       break;
     case 'delete':
-      if (!$node->published)
-        return;
       $prepend = 'Пользователь %user <strong>удалил</strong> (в корзину) документ типа «%type»:';
       break;
     case 'restore':
-      if (!$node->published)
-        return;
       $prepend = 'Пользователь %user <strong>восстановил из корзины</strong> документ типа «%type»:';
       break;
     case 'publish':

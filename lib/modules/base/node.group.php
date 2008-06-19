@@ -81,7 +81,7 @@ class GroupNode extends Node implements iContentType
     $tab = new FieldSetControl(array(
       'name' => 'tab_perm',
       'label' => t('Права'),
-      'intro' => t('Ниже приведены типы документов, которые эта группа может создавать (C), читать (R), изменять (U) и удалять (D).  Для быстрого изменения прав можно кликать в заголовок строки или столбца.'),
+      'intro' => t('Ниже приведены типы документов, которые эта группа может создавать (C), читать (R), изменять (U), удалять (D) и публиковать (P).  Для быстрого изменения прав можно кликать в заголовок строки или столбца.'),
       ));
     $tab->addControl(new HiddenControl(array(
       'value' => 'reset_group_perm',
@@ -123,7 +123,7 @@ class GroupNode extends Node implements iContentType
 
     if (isset($this->id)) {
       $tmp = mcms::db()->getResultsK("name", "SELECT `v`.`name` as `name`, "
-        ."`a`.`c` as `c`, `a`.`r` as `r`, `a`.`u` as `u`, `a`.`d` as `d` FROM "
+        ."`a`.`c` as `c`, `a`.`r` as `r`, `a`.`u` as `u`, `a`.`d` as `d`, `a`.`p` as `p` FROM "
         ."`node` `n` INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
         ."INNER JOIN `node__access` `a` ON `a`.`nid` = `n`.`id` "
         ."WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0 AND `a`.`uid` = :id", array(
@@ -158,13 +158,14 @@ class GroupNode extends Node implements iContentType
 
     if (!empty($data['perm'])) {
       foreach ($data['perm'] as $k => $v) {
-        mcms::db()->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`) VALUES (:nid, :uid, :c, :r, :u, :d)", array(
+        mcms::db()->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`) VALUES (:nid, :uid, :c, :r, :u, :d, :p)", array(
           ':nid' => $schema[$k]['id'],
           ':uid' => $this->id,
           ':c' => in_array('c', $v) ? 1 : 0,
           ':r' => in_array('r', $v) ? 1 : 0,
           ':u' => in_array('u', $v) ? 1 : 0,
           ':d' => in_array('d', $v) ? 1 : 0,
+          ':p' => in_array('p', $v) ? 1 : 0,
           ));
       }
     }

@@ -222,6 +222,9 @@ class NodeBase
   // Возвращает true, если нода успешно опубликована, false если нет.
   public function publish($rev = null)
   {
+    if (!$this->checkPermission('p'))
+      throw new ForbiddenException(t('У вас нет прав на публикацию этого объекта.'));
+
     // Документ уже опубликован.
     if ($this->prev_published and $this->rid == $rev)
       return;
@@ -278,8 +281,8 @@ class NodeBase
       $params = array(':new' => $this->id, ':old' => $id);
 
       // Копируем права.
-      $pdo->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`)"
-        ."SELECT :new, `uid`, `c`, `r`, `u`, `d` FROM `node__access` WHERE `nid` = :old", $params);
+      $pdo->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`)"
+        ."SELECT :new, `uid`, `c`, `r`, `u`, `d`, `p` FROM `node__access` WHERE `nid` = :old", $params);
 
       // Копируем связи с другими объектами.
       $pdo->exec("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
@@ -813,12 +816,10 @@ class NodeBase
     $data = $default;
 
     $sql = "SELECT `r`.`name` as `name`, `a`.`c` as `c`, "
-      ."`a`.`r` as `r`, `a`.`u` as `u`, `a`.`d` as `d` FROM `node__access` `a` "
+      ."`a`.`r` as `r`, `a`.`u` as `u`, `a`.`d` as `d`, `a`.`p` as `p` FROM `node__access` `a` "
       ."INNER JOIN `node` `n` ON `n`.`id` = `a`.`uid` "
       ."INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` "
       ."WHERE `a`.`nid` = :nid AND `n`.`class` = 'group' AND `n`.`deleted` = 0";
-
-    // die($sql);
 
     // Формируем таблицу с правами.
     foreach ($pdo->getResultsK("name", $sql, array(':nid' => $this->id)) as $group => $perms) {
@@ -826,6 +827,7 @@ class NodeBase
       $data[$group]['r'] = $perms['r'];
       $data[$group]['u'] = $perms['u'];
       $data[$group]['d'] = $perms['d'];
+      $data[$group]['p'] = $perms['p'];
     }
 
     return $data;
@@ -845,15 +847,17 @@ class NodeBase
         ':r' => in_array('r', $values) ? 1 : 0,
         ':u' => in_array('u', $values) ? 1 : 0,
         ':d' => in_array('d', $values) ? 1 : 0,
+        ':p' => in_array('p', $values) ? 1 : 0,
         );
 
       if (is_numeric($uid)) {
         $args[':uid'] = $uid;
-        $pdo->exec($sql = "REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`) VALUES (:nid, :uid, :c, :r, :u, :d)", $args);
+        $pdo->exec($sql = "REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`)
+                    VALUES (:nid, :uid, :c, :r, :u, :d, :p)", $args);
       } else {
         $args[':name'] = $uid;
-        $pdo->exec($sql = "REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`) "
-          ."SELECT :nid, `n`.`id` as `id`, :c, :r, :u, :d "
+        $pdo->exec($sql = "REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`) "
+          ."SELECT :nid, `n`.`id` as `id`, :c, :r, :u, :d, :p "
           ."FROM `node` `n` "
           ."INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
           ."WHERE `n`.`class` = 'group'  AND `n`.`deleted` = 0 AND `v`.`name` = :name", $args);
@@ -1374,9 +1378,9 @@ class NodeBase
 
   // Проверка, может ли пользователь публиковать документ.
   // FIXME: завязать на права.
-  private function canPublish()
+  public function canPublish()
   {
-    return !in_array($this->class, array('group', 'user', 'type'));
+    return (mcms::user()->hasAccess('p',$this->class) and !in_array($this->class, array('group', 'user', 'type')));
   }
 
   // Сохранение объекта в БД.
