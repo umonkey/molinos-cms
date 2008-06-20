@@ -763,13 +763,20 @@ class RequestController
         $errors[] = $key;
     }
 
-    if (!mb_internal_encoding('UTF-8'))
-      $messages[] = t('Не удалось установить UTF-8 в качестве базовой кодировки для модуля mbstr.');
+    if (!extension_loaded('mbstring'))
+      $messages[] = t('Отсутствует поддержка юникода.  21й век на дворе, '
+        .'пожалуйста, установите расширение '
+        .'<a href=\'http://php.net/mbstring\'>mbstring</a>.');
+    elseif (!mb_internal_encoding('UTF-8'))
+      $messages[] = t('Не удалось установить UTF-8 в качестве '
+        .'базовой кодировки для модуля mbstr.');
 
     if (ini_get($k = 'session.gc_maxlifetime') < 7 * 24 * 60 * 60)
       ini_set($k, 30 * 24 * 60 * 60);
 
-    mcms::mkdir(mcms::config('filestorage'), 'Каталог для загружаемых пользователями файлов (<tt>%path</tt>) закрыт для записи. Очень важно, чтобы в него можно было писать.');
+    mcms::mkdir(mcms::config('filestorage'), 'Каталог для загружаемых '
+      .'пользователями файлов (<tt>%path</tt>) закрыт для записи. '
+      .'Очень важно, чтобы в него можно было писать.');
 
     if (!empty($errors) or !empty($messages)) {
       $output = "<html><head><title>Setup Error</title></head><body>";
