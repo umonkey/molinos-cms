@@ -12,5 +12,5 @@ AddDefaultCharset utf-8
   RewriteRule ^.*$ att.php?folder=%1&q=%2 [L,QSA]
 
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^(.*)$ index.php?__cleanurls=1&q=$1 [L,QSA]
+  RewriteRule ^(.*)$ ?__cleanurls=1&q=$1 [L,QSA]
 </IfModule>
