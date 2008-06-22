@@ -275,8 +275,39 @@ class FileNode extends Node implements iContentType
         return;
 
       case 'local':
-        if (!empty($data['__file_node_update']['error']) or empty($data['__file_node_update']['tmp_name']))
-          throw new InvalidArgumentException(t('При загрузке файла возникла ошибка.'));
+        if (!empty($data['__file_node_update']['error']) or empty($data['__file_node_update']['tmp_name'])) {
+          $noException = false;
+          $errorMessage = 'При загрузке файла возникла ошибка.';
+
+          switch ($data['__file_node_update']['error']) {
+            case UPLOAD_ERR_INI_SIZE:
+              $errorMessage = 'Загружаемый файл больше установленного лимита в установках сервера';
+              break;
+            case UPLOAD_ERR_FORM_SIZE:
+              $errorMessage = 'Загружаемый файл больше установленного лимита в форме';
+              break;
+            case UPLOAD_ERR_PARTIAL:
+              $errorMessage = 'Файл не был загружен полностью';
+              break;
+            case UPLOAD_ERR_NO_TMP_DIR:
+              $errorMessage = 'Отсутствует временный каталог для загрузки файлов';
+              break;
+            case UPLOAD_ERR_CANT_WRITE:
+              $errorMessage = 'Невозможно записать файл на диск';
+              break;
+            case UPLOAD_ERR_EXTENSION:
+              $errorMessage = 'Некое расширение php остановило загрузку файла';
+              break;
+            // Все в порядке, надо просто обработать ситуацию для исключения исключения. ;)
+            case UPLOAD_ERR_OK:
+            case UPLOAD_ERR_NO_FILE:
+              $noException = true;
+              break;
+          }
+
+          if (false === $noException)
+            throw new InvalidArgumentException(t($errorMessage));
+        }
 
         $this->import($data['__file_node_update']);
         $this->name = $this->filename;
