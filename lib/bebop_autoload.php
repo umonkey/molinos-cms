@@ -1,6 +1,8 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
+require_once(dirname(__FILE__) .'/modules/base/class.mcms.php');
+
 function bebop_autoload($class_name)
 {
   static $map = null;

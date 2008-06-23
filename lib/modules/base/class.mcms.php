@@ -556,7 +556,7 @@ class mcms
 
     $lock = true;
 
-    $root = dirname(__FILE__) .'/modules/';
+    $root = dirname(__FILE__) .'/../';
 
     $enabled = explode(',', mcms::config('runtime_modules'));
 
