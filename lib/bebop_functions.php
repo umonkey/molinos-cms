@@ -195,6 +195,16 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
     "themes/all/templates/{$type}.default.php",
     );
 
+  if (!mcms::ismodule('smarty')) {
+    foreach ($__options as $k => $v) {
+      if (substr($v, -4) == '.tpl' and file_exists($v)) {
+        throw new RuntimeException(t('Вы попытались использовать шаблон на '
+          .'Smarty, однако соответствующий модуль отключен.  Попросите '
+          .'администратора сайта его включить.'));
+      }
+    }
+  }
+
   // Если класс существует — добавляем его дефолтный шаблон в конец.
   if (array_key_exists($key = strtolower($classname), $classmap = mcms::getClassMap())) {
     $__options[] = ltrim(str_replace(MCMS_ROOT, '', str_replace('.php', '.phtml', $classmap[$key])), '/');
