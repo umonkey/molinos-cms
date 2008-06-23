@@ -480,6 +480,27 @@ class RequestController
     }
   }
 
+  private function showUploadError($code)
+  {
+    switch ($code) {
+    case UPLOAD_ERR_INI_SIZE:
+      $message = 'Загруженный файл слишком велик, '
+        .'настройки сервера не позволяют его принять.';
+      break;
+    case UPLOAD_ERR_FORM_SIZE:
+      $message = 'Загруженный файл слишком велик, '
+        .'настройки формы не позволяют его принять.';
+      break;
+    case UPLOAD_ERR_PARTIAL:
+      $message = 'Загруженный файл был получен только частично.';
+      break;
+    default:
+      return;
+    }
+    
+    throw new RuntimeException($message);
+  }
+  
   private function parseFiles()
   {
     $this->file_vars = array();
@@ -500,6 +521,7 @@ class RequestController
           foreach ($v['error'] as $index => $error) {
             if ($error > UPLOAD_ERR_OK) {
               // место для первичной обработки ошибок
+              $this->showUploadError($error);
             }
 
             if (!is_uploaded_file($v['tmp_name'][$index])) {
@@ -520,6 +542,7 @@ class RequestController
         } else {
           if ($v['error'] > UPLOAD_ERR_OK) {
             // место для первичной обработки ошибок
+            $this->showUploadError($v['error']);
           }
 
           if (!is_uploaded_file($v['tmp_name'])) {
