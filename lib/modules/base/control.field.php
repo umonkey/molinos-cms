@@ -115,17 +115,10 @@ class FieldControl extends Control
     static $lock = false;
 
     if (!$lock) {
-      $output .= mcms::html('script', array(
-        'language' => 'javascript',
-        'type' => 'text/javascript',
-        'src' => 'lib/modules/base/control.field.js',
-        ));
-
-      $output .= mcms::html('link', array(
-        'rel' => 'stylesheet',
-        'type' => 'text/css',
-        'href' => 'lib/modules/base/control.field.css',
-        ));
+      $output .= '<script language=\'javascript\' type=\'text/javascript\' '
+        .'src=\'lib/modules/base/control.field.js\'></script>';
+      $output .= '<link rel=\'stylesheet\' type=\'text/css\' '
+        .'href=\'lib/modules/base/control.field.css\' />';
 
       $lock = true;
     }

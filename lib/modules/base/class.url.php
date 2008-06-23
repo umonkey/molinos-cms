@@ -62,7 +62,8 @@ class url
       elseif ('.rpc' != substr($path, -4))
         $path .= '/';
 
-      $result = sprintf('%s://%s/%s%s%s', $this->scheme, $this->host, self::$root, $path, $this->getArgsAsString($isfile));
+      $result = sprintf('%s://%s/%s', $this->scheme, $this->host,
+        ltrim(self::$root . $path . $this->getArgsAsString($isfile), '/'));
     } else {
       $result = sprintf('%s://%s/%s%s', $this->scheme, $this->host, $this->path, $this->getArgsAsString());
     }
