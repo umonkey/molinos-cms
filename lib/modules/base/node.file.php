@@ -281,7 +281,10 @@ class FileNode extends Node implements iContentType
 
           switch ($data['__file_node_update']['error']) {
             case UPLOAD_ERR_INI_SIZE:
-              $errorMessage = 'Загружаемый файл больше установленного лимита в установках сервера';
+              $errorMessage = t('Загружаемый файл слишком велик: настройки '
+                .'позволяют принимать файлы до %limit.', array(
+                  '%limit' => ini_get('upload_max_filesize'),
+                  ));
               break;
             case UPLOAD_ERR_FORM_SIZE:
               $errorMessage = 'Загружаемый файл больше установленного лимита в форме';
