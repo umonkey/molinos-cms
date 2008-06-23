@@ -11,9 +11,10 @@ class NodeIndexer
 
     foreach (TypeNode::getSchema() as $type => $meta) {
       $indexed = false;
+      $reserved = TypeNode::getReservedNames();
 
-      foreach ($meta['fields'] as $v) {
-        if (!empty($v['indexed'])) {
+      foreach ($meta['fields'] as $k => $v) {
+        if (!empty($v['indexed']) and !in_array($k, $reserved)) {
           $indexed = true;
           break;
         }
