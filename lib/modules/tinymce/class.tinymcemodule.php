@@ -94,7 +94,7 @@ class TinyMceModule implements iModuleConfig, iPageHook
 
     $tmp = bebop_split_url();
 
-    if (substr($tmp['path'], 0, 7) != '/admin/')
+    if (substr($tmp['path'], 0, 7) != 'admin')
       if (empty($config['pages']) or !in_array($page->id, $config['pages']))
         return;
 
