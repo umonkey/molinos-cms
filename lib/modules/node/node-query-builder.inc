@@ -182,12 +182,23 @@ class NodeQueryBuilder
           if (!in_array(mcms_ctlname($meta['type']), array('TextLineControl', 'EmailControl')))
             continue;
 
-          $this->addTable('node_'. $class);
+          switch ($field) {
+          case 'name':
+            $param = $this->getNextParam();
+            $matches[] = "`node__rev`.`name` LIKE {$param}";
+            $this->params[$param] = $needle;
+            break;
 
-          $param = $this->getNextParam();
+          default:
+            if (!Tagger::isReservedName($field)) {
+              $this->addTable('node_'. $class);
 
-          $matches[] = "`node_{$class}`.`{$field}` LIKE {$param}";
-          $this->params[$param] = $needle;
+              $param = $this->getNextParam();
+
+              $matches[] = "`node_{$class}`.`{$field}` LIKE {$param}";
+              $this->params[$param] = $needle;
+            }
+          }
         }
       }
     }
