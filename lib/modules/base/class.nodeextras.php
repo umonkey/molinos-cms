@@ -22,13 +22,8 @@ class NodeExtras
 
   private function move($id, $direction)
   {
-    // Получаем объект для перемещения ...
-    $node = $this->getObject($id, true);
-
-    if (false === $node) {
-      // Нэт билэт...
-      throw new Exception("No such node {$id}");
-    }
+    $node = Node::load($id);
+    $node = $node->getRaw();
 
     $parent_id = $node['parent_id'];
     $left = $node['left'];
@@ -56,41 +51,58 @@ class NodeExtras
     if (0 == sizeof($neighbourNode))
         return null;
 
-    // Нужно получить смещение, на которое будут временно перемещены движимые ноды, чтобы не получить ошибку дублирующихся ключей
+    // Нужно получить смещение, на которое будут временно перемещены
+    // движимые ноды, чтобы не получить ошибку дублирующихся ключей
     $offset = $this->getOffset();
 
-    $neighbourRight = $neighbourNode['right'];
-    $neighbourLeft = $neighbourNode['left'];
+    $neighbourRight = $neighbourNode->right;
+    $neighbourLeft = $neighbourNode->left;
     $neighbourSize = ($neighbourRight - $neighbourLeft) + 1;
 
     // Получаем все вложения
-    $nestedNodesNeighbour = $this->getNestedNodes($neighbourLeft, $neighbourRight);
+    $nestedNodesNeighbour = $this->getNestedNodes
+      ($neighbourLeft, $neighbourRight);
 
     // Получаем идентификаторы вложений
     foreach($nestedNodes as $k => $v)
-      $nestedID[] = $nestedNodes[$k]['id'];
+      $nestedID[] = $nestedNodes[$k]->id;
 
     // Переносим первую партию нод с учетом смещения
-    $sql = "UPDATE `node` SET `left` = `left` + {$offset}, `right` = `right` + {$offset} WHERE id IN (" . join(',', $nestedID) . ") ORDER BY `left` DESC";
-    mcms::db()->exec($sql); 
+    $this->orderedUpdate("UPDATE `node` SET `left` = `left` + {$offset}, "
+      ."`right` = `right` + {$offset} "
+      ."WHERE id IN (" . join(',', $nestedID) . ")", "`left` DESC");
 
     // Получаем идентификаторы вложений соседа
     foreach ($nestedNodesNeighbour as $k => $v)
-      $nestedNeighbourID[] = $nestedNodesNeighbour[$k]['id'];
+      $nestedNeighbourID[] = $nestedNodesNeighbour[$k]->id;
 
     // Переносим партию нод соседа с учетом смещения
-    $sql = "UPDATE `node` SET `left` = `left` + {$offset}, `right` = `right` + {$offset} WHERE id IN (" . join(',', $nestedNeighbourID) . ") ORDER BY `left` DESC";
-    mcms::db()->exec($sql); 
+    $this->orderedUpdate("UPDATE `node` SET `left` = `left` + {$offset}, "
+      ."`right` = `right` + {$offset} "
+      ."WHERE id IN (" . join(',', $nestedNeighbourID) . ")",
+      "`left` DESC");
 
     // Вертаем взад первую партию нод с учетом смещения и размера соседа
-    $sql = "UPDATE `node` SET `left` = `left` - {$offset} {$operand1} {$neighbourSize}, `right` = `right` - {$offset} {$operand1} {$neighbourSize} WHERE id IN (" . join(',', $nestedID) . ") ORDER BY `left` ASC";
-    mcms::db()->exec($sql); 
+    $this->orderedUpdate("UPDATE `node` SET `left` = `left` - {$offset} {$operand1} "
+      ."{$neighbourSize}, `right` = `right` - {$offset} {$operand1} "
+      ."{$neighbourSize} WHERE id IN (" . join(',', $nestedID) . ")",
+      "`left` ASC");
 
-    // Вертаем взад партию нод соседа с учетом смещения и размера первой партии нод
-    $sql = "UPDATE `node` SET `left` = `left` - {$offset} {$operand2} {$nodeSize}, `right` = `right` - {$offset} {$operand2} {$nodeSize} WHERE id IN (" . join(',', $nestedNeighbourID) . ") ORDER BY `left` ASC";
-    mcms::db()->exec($sql); 
+    // Вертаем взад партию нод соседа с учетом смещения
+    // и размера первой партии нод
+    $this->orderedUpdate("UPDATE `node` SET `left` = `left` - {$offset} {$operand2} "
+      ."{$nodeSize}, `right` = `right` - {$offset} {$operand2} "
+      ."{$nodeSize} WHERE id IN (" . join(',', $nestedNeighbourID) . ")",
+      "`left` ASC");
 
     return true;
+  }
+
+  private function orderedUpdate($sql, $order)
+  {
+    if (mcms::db()->hasOrderedUpdates())
+      $sql .= ' ORDER BY '. $order;
+    return mcms::db()->exec($sql);
   }
 
   private function getNeighbourLeft($parent_id, $index)
@@ -113,9 +125,16 @@ class NodeExtras
         $side = 'left';
     }
 
-    $sql = "SELECT * FROM node WHERE class = 'tag' AND parent_id = " . intval($parent_id) . " AND `{$side}` {$direction}= " . intval($index) . " AND `deleted` = 0 ORDER BY `{$side}` {$sort} LIMIT 1";
+    $sql = "SELECT * FROM node WHERE class = 'tag' AND parent_id = :parent_id "
+      ."AND `{$side}` {$direction}= :index AND `deleted` = 0 "
+      ."ORDER BY `{$side}` {$sort} LIMIT 1";
 
-    $data = $this->getChildrenData($sql, true);
+    $params = array(
+      'parent_id' => $parent_id,
+      'index' => $index,
+      );
+
+    $data = NodeBase::dbRead($sql, $params);
 
     foreach ($data as $k => $v)
       return $v;
@@ -123,8 +142,13 @@ class NodeExtras
 
   private function getNestedNodes($left, $right)
   {
-    $sql = "SELECT * FROM node WHERE class = 'tag' AND `left` >= " . intval($left) . " AND `right` <= " . intval($right) . " ORDER BY `left` ASC";
-    $data = $this->getChildrenData($sql, true);
+    $sql = "SELECT * FROM node WHERE class = 'tag' "
+      ."AND `left` >= :left "
+      ."AND `right` <= :right "
+      ."ORDER BY `left` ASC";
+    $params = array('left' => $left, 'right' => $right);
+
+    $data = NodeBase::dbRead($sql, $params);
 
     return $data;
   }
