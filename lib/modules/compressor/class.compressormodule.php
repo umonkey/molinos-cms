@@ -121,12 +121,12 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
 
       // Если файл с нужным именем не существует — создаём его.
       if (!file_exists($filename)) {
-        $tmp = join('', $names) ."\n";
+        $bulk = join('', $names) ."\n";
 
         foreach ($scripts as $f)
-          $tmp .= file_get_contents($f);
+          $bulk .= file_get_contents($f);
 
-        file_put_contents($filename, $tmp);
+        file_put_contents($filename, $bulk);
       }
 
       $newscript = mcms::html('script', array(
@@ -140,11 +140,14 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
 
   private static function mkname(array $files, $suffix, &$md5name)
   {
-    $files = array_unique($files);
+    $items = array();
 
-    sort($files);
+    foreach (array_unique($files) as $file)
+      $items[] = $file .','. filemtime($file);
 
-    $md5name = md5(join(',', $files));
+    sort($items);
+
+    $md5name = md5(join(',', $items));
 
     return self::path() .'/mcms-'. $md5name . $suffix;
   }
@@ -166,18 +169,25 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
 
     if (preg_match_all('@<link\s+[^>]*>@i', $output, $m)) {
       foreach ($m[0] as $link) {
-        $tmp = str_replace('"', "'", $link);
+        $attrs = mcms::parse_html($link);
 
-        if (false !== strstr($tmp, "rel='stylesheet'")) {
-          if (preg_match("@href='([^']+)'@i", $tmp, $m)) {
-            if ('.css' == substr($m[1], -4)) {
-              if (null !== ($ntmp = self::compressCSS($m[1]))) {
-                $styles[] = $ntmp;
-                $names[] = ' * '. $m[1] ."\n";
+        if (!empty($attrs['rel']) and !empty($attrs['href'])) {
+          if (!strcasecmp('stylesheet', $attrs['rel'])) {
+            $url = new url($attrs['href']);
+
+            if (empty($url->host)) {
+              if ('.css' == substr($url->path, -4)) {
+                $file = MCMS_ROOT .'/'. $url->path;
+
+                if (file_exists($file)) {
+                  $names[] = " * {$url->path}\n";
+                  $styles[] = self::compressCSS($url->path);
+                } else {
+                  mcms::log('compressor', $url->path .': dead, skipped');
+                }
+
+                $output = str_replace($link, '', $output);
               }
-              $output = str_replace($link, '', $output);
-            } else {
-              mcms::log('compressor', 'skipped '. $m[1]);
             }
           }
         }
@@ -185,21 +195,16 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
     }
 
     if (!empty($styles)) {
-      $bulk = "/*\n". join('', $names) ." */\n\n";
+      $filename = self::mkname($styles, '.css', $md5name);
 
-      foreach (array_unique($styles) as $file) {
-        if (file_exists($file)) {
-          $tmp = file_get_contents($file);
-          $bulk .= $tmp;
-        } else {
-          mcms::log('compressor', t('%file skipped — not found', array('%file' => $file)));
-        }
+      if (!file_exists($filename)) {
+        $bulk = "/*\n". join('', $names) ." */\n\n";
+
+        foreach ($styles as $file)
+          $bulk .= file_get_contents($file);
+
+        file_put_contents($filename, $bulk);
       }
-
-      $md5name = md5($bulk);
-      $path = self::path() .'/mcms-'.$md5name .'.css';
-
-      file_put_contents($path, $bulk);
 
       $newlink = mcms::html('link', array(
         'rel' => 'stylesheet',
