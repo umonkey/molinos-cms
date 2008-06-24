@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemoteCall
+class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, iRemoteCall
 {
   private static function path()
   {
@@ -37,15 +37,6 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
     $conf = mcms::modconf('compressor');
     $conf['options'][] = 'js';
     $conf['options'][] = 'css';
-
-    if (in_array('js', $conf['options']))
-      self::fixJS($output);
-
-    if (in_array('css', $conf['options']))
-      self::fixCSS($output);
-
-    if (in_array('html', $conf['options']))
-      self::fixHTML($output);
   }
 
   public static function formGetModuleConfig()
@@ -78,30 +69,20 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
 
   // Склеивает все локальные внешние скрипты в один файл, вырезает старые подключения,
   // вставляет новый скрипт в начало <head>.
-  private static function fixJS(&$output)
+  private static function formatJS(array $files)
   {
     $scripts = $names = array();
 
-    if (preg_match_all('@(<script\s+[^>]+>)\s*</script>@i', $output, $m)) {
-      foreach ($m[0] as $idx => $orig) {
-        $attrs = mcms::parse_html($m[1][$idx]);
+    foreach ($files as $file) {
+      if ('.js' == substr($file, -3)) {
+        $url = new url($file);
 
-        if (!empty($attrs['src'])) {
-          if (!strcasecmp('text/javascript', $attrs['type'])) {
-            if ('.js' == substr($attrs['src'], -3)) {
-              $url = new url($attrs['src']);
-
-              if (empty($url->host)) {
-                if (file_exists($file = MCMS_ROOT .'/'. $url->path)) {
-                  $names[] = '// '. $url->path ."\n";
-                  $scripts[] = self::compressJS($file);
-                } else {
-                  mcms::log('compressor', $url->path .': dead, skipped');
-                }
-
-                $output = str_replace($orig, '', $output);
-              }
-            }
+        if (empty($url->host)) {
+          if (file_exists($fullname = MCMS_ROOT .'/'. $url->path)) {
+            $names[] = "// {$file}\n";
+            $scripts[] = self::compressJS($fullname);
+          } else {
+            mcms::log('compressor', $file .': dead, skipped');
           }
         }
       }
@@ -131,7 +112,7 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
         'src' => 'compressor.rpc?type=js&hash='. $md5name,
         ));
 
-      $output = str_replace('</head>', '</head>'. $newscript, $output);
+      return $newscript;
     }
   }
 
@@ -160,32 +141,22 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
     return $result;
   }
 
-  private static function fixCSS(&$output)
+  private static function formatCSS(array $files)
   {
     $styles = $names = array();
 
-    if (preg_match_all('@<link\s+[^>]*>@i', $output, $m)) {
-      foreach ($m[0] as $link) {
-        $attrs = mcms::parse_html($link);
+    foreach ($files as $file) {
+      $url = new url($file);
 
-        if (!empty($attrs['rel']) and !empty($attrs['href'])) {
-          if (!strcasecmp('stylesheet', $attrs['rel'])) {
-            $url = new url($attrs['href']);
+      if (empty($url->host)) {
+        if ('.css' == substr($url->path, -4)) {
+          $fullname = MCMS_ROOT .'/'. $url->path;
 
-            if (empty($url->host)) {
-              if ('.css' == substr($url->path, -4)) {
-                $file = MCMS_ROOT .'/'. $url->path;
-
-                if (file_exists($file)) {
-                  $names[] = " * {$url->path}\n";
-                  $styles[] = self::compressCSS($url->path);
-                } else {
-                  mcms::log('compressor', $url->path .': dead, skipped');
-                }
-
-                $output = str_replace($link, '', $output);
-              }
-            }
+          if (file_exists($fullname)) {
+            $names[] = " * {$file}\n";
+            $styles[] = self::compressCSS($file);
+          } else {
+            mcms::log('compressor', $file .': dead, skipped');
           }
         }
       }
@@ -209,7 +180,7 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
         'href' => 'compressor.rpc?type=css&hash='. $md5name,
         ));
 
-      $output = str_replace('</head>', $newlink .'</head>', $output);
+      return $newlink;
     }
   }
 
@@ -251,11 +222,6 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
     }
 
     return $result;
-  }
-
-  private static function fixHTML(&$output)
-  {
-    $output = preg_replace('@>\s+<@i', '><', $output);
   }
 
   private static function fixPath($path, $ext)
@@ -323,5 +289,12 @@ class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemot
 
       die($data);
     }
+  }
+
+  public static function format(array $files)
+  {
+    $output = self::formatJS($files);
+    $output .= self::formatCSS($files);
+    return $output;
   }
 }

@@ -14,6 +14,8 @@ class mcms
   const VERSION_AVAILABLE = 3;
   const VERSION_AVAILABLE_URL = 4;
 
+  private static $extras = array();
+
   public static function html()
   {
     if (func_num_args() == 0 or func_num_args() > 3)
@@ -1010,6 +1012,63 @@ class mcms
   public static function now()
   {
     return date('Y-m-d H:i:s', time() - date('Z', time()));
+  }
+
+  // Изспользуется в шаблонах для добавления стилей и скриптов.
+  public static function extras($filename = null)
+  {
+    if (null !== $filename and !in_array($filename, self::$extras))
+      self::$extras[] = $filename;
+
+    $result = self::$extras;
+
+    if (null === $filename) {
+      self::$extras = array();
+      return self::format_extras($result);
+    }
+
+    return $result;
+  }
+
+  private static function pop(array &$a, $e)
+  {
+    if (in_array($e, $a)) {
+      $a = array_flip($a);
+      unset($a[$e]);
+      $a = array_flip($a);
+      array_unshift($a, $e);
+    }
+  }
+
+  private static function format_extras(array $extras)
+  {
+    $output = mcms::html('script', array(
+      'type' => 'text/javascript',
+      ), 'var mcms_path = \''. 'sites/umonkey/' .'\';');
+
+    // Проталкиваем jQuery на первое место.
+    // FIXME: нужно более вменяемое решение.
+    self::pop($extras, 'themes/all/jquery/jquery.js');
+
+    if (mcms::ismodule('compressor')) {
+      $output .= $xyz = CompressorModule::format($extras);
+    } else {
+      foreach ($extras as $file) {
+        if ('.js' == substr($file, -3))
+          $output .= mcms::html('script', array(
+            'type' => 'text/javascript',
+            'src' => $file,
+            )) ."\n";
+        elseif ('.css' == substr($file, -4))
+          $output .= mcms::html('link', array(
+            'rel' => 'stylesheet',
+            'type' => 'text/css',
+            'href' => $file,
+            )) ."\n";
+      }
+    }
+
+    return $output;
   }
 };
 

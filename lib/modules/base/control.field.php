@@ -112,17 +112,8 @@ class FieldControl extends Control
 
   protected function wrapHTML($output)
   {
-    static $lock = false;
-
-    if (!$lock) {
-      $output .= '<script language=\'javascript\' type=\'text/javascript\' '
-        .'src=\'lib/modules/base/control.field.js\'></script>';
-      $output .= '<link rel=\'stylesheet\' type=\'text/css\' '
-        .'href=\'lib/modules/base/control.field.css\' />';
-
-      $lock = true;
-    }
-
+    mcms::extras('lib/modules/base/control.field.js');
+    mcms::extras('lib/modules/base/control.field.css');
     return $output;
   }
 

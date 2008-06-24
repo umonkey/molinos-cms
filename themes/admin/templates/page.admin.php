@@ -63,35 +63,32 @@ function get_dba_link()
     <title>Molinos.CMS</title>
     <?php empty($base) or print mcms::html('base', array('href' => $base)); ?>
 
-    <link rel="stylesheet" type="text/css" href="<?php print $prefix; ?>/css/bebop.css" />
-    <link rel="stylesheet" type="text/css" href="<?php print $prefix; ?>/css/style.css" />
-    <link rel="stylesheet" type="text/css" href="<?php print $prefix; ?>/css/notification.css" />
-    <link rel="stylesheet" type="text/css" href="<?php print $prefix; ?>/css/topmenu.css" />
-    <link rel="stylesheet" type="text/css" href="<?php print $prefix; ?>/css/colors-green.css" />
+    <?php
+      mcms::extras('themes/admin/css/bebop.css');
+      mcms::extras('themes/admin/css/style.css');
+      mcms::extras('themes/admin/css/notification.css');
+      mcms::extras('themes/admin/css/topmenu.css');
+      mcms::extras('themes/admin/css/colors-green.css');
 
-    <?php if (empty($_GET['picker'])): ?>
-    <link rel="stylesheet" type="text/css" href="themes/all/jquery/plugins/jquery.suggest.css" />
-    <?php endif; ?>
-
-    <?php if (empty($_GET['picker'])): ?>
-    <script type="text/javascript" language="javascript" src="themes/all/jquery/jquery.js"></script>
-    <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.ifixpng.js" ></script>
-    <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.mcms.tabber.js"></script>
-    <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.dimensions.js" ></script>
-    <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.bgiframe.js" ></script>
-    <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.suggest.js" ></script>
-    <script type="text/javascript" language="javascript" src="themes/all/jquery/plugins/jquery.MultiFile.js" ></script>
-    <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/js/bebop.js" ></script>
-    <?php elseif ('find' == $_GET['window']): ?>
-    <script type="text/javascript" language="javascript" src="<?php print MCMS_PATH; ?>/lib/modules/tinymce/editor/tiny_mce_popup.js" ></script>
-    <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/js/picker-redux.js" ></script>
-    <?php else: ?>
-    <script type="text/javascript" language="javascript" src="<?php print MCMS_PATH; ?>/lib/modules/tinymce/editor/tiny_mce_popup.js" ></script>
-    <script type="text/javascript" language="javascript" src="<?php print $prefix; ?>/js/picker.js" ></script>
-    <?php endif; ?>
-
-    <script type="text/javascript" language="javascript">var mcms_path = '<?php print url::path(); ?>';</script>
-
+      if (empty($_GET['picker'])) {
+        mcms::extras('themes/all/jquery/jquery.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.suggest.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.suggest.css');
+        mcms::extras('themes/all/jquery/plugins/jquery.ifixpng.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.mcms.tabber.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.dimensions.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.bgiframe.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.MultiFile.js');
+        mcms::extras('themes/admin/js/bebop.js');
+      } elseif ('find' == $_GET['window']) {
+        mcms::extras('lib/modules/tinymce/editor/tiny_mce_popup.js');
+        mcms::extras('themes/admin/js/picker-redux.js');
+      } else {
+        mcms::extras('lib/modules/tinymce/editor/tiny_mce_popup.js');
+        mcms::extras('themes/admin/js/picker.js');
+      }
+    ?>
+    <?php print mcms::extras(); ?>
     <link rel="shortcut icon" href="themes/admin/icon.png" type="image/png" />
   </head>
   <body>

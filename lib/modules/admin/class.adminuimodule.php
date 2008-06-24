@@ -26,18 +26,23 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       $result['content'] = call_user_func_array(array($classes[0], 'onGet'), array($ctx));
     }
 
-    $tmp = new AdminMenu();
-    $result['dashboard'] = $tmp->getHTML();
-    $result['base'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/';
+    $result['dashboard'] = strval(new AdminMenu());
 
-    $output = bebop_render_object('page', 'admin', 'admin', $result);
-    $output .= sprintf('<!-- request time: %s sec. -->', microtime(true) - MCMS_START_TIME);
+    $output = self::getPage($result);
 
-    self::addTiny($output);
-    self::addCompressor($output);
 
     header('Content-Type: text/html; charset=utf-8');
     die($output);
+  }
+
+  private static function getPage(array $data)
+  {
+    $data['base'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/';
+
+    $output = bebop_render_object('page', 'admin', 'admin', $data);
+    $output .= sprintf('<!-- request time: %s sec. -->', microtime(true) - MCMS_START_TIME);
+
+    return $output;
   }
 
   private function addTiny(&$output)

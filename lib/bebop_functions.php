@@ -250,18 +250,10 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
       $output = ob_get_clean();
 
       if (file_exists($tmp = str_replace($ext, '.css', $__filename)))
-        $output .= mcms::html('link', array(
-          'rel' => 'stylesheet',
-          'type' => 'text/css',
-          'href' => '/'. $tmp,
-          ));
+        mcms::extras($tmp);
 
       if (file_exists($tmp = str_replace($ext, '.js', $__filename)))
-        $output .= mcms::html('script', array(
-          'type' => 'text/javascript',
-          'language' => 'javascript',
-          'src' => '/'. $tmp,
-          ));
+        mcms::extras($tmp);
 
       return trim($output);
     }

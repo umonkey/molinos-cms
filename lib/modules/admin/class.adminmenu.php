@@ -191,4 +191,9 @@ class AdminMenu implements iAdminMenu
 
     return $icons;
   }
+
+  public function __toString()
+  {
+    return $this->getHTML();
+  }
 };
