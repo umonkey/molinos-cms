@@ -136,7 +136,7 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
         'themes/admin/img/icon-add.png',
         "admin?cgroup={$_GET['cgroup']}&mode=create&type={$node['class']}"
           ."&destination=CURRENT&parent={$node['id']}",
-        'title');
+        'Добавить вложенный объект');
   }
 
   private function getIcon($img, $href, $title)
