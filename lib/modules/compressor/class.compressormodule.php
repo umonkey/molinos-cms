@@ -34,7 +34,10 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
     if ('text/html' != $page->content_type)
       return;
 
-    $conf = array('options' => array('js', 'css', 'html'));
+    $conf = array('options' => array('css', 'html'));
+
+    if (!class_exists('BebopSmarty') or !BebopSmarty::debug())
+      $conf['options'] = 'js';
 
     /*
     $conf = mcms::modconf('compressor');
