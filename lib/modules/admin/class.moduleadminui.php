@@ -40,8 +40,16 @@ class ModuleAdminUI
         else
           $output .= mcms::html('td');
 
-        $output .= mcms::html('td', mcms::html('a', array('href' => "admin?mode=modules&action=info&name={$modname}&cgroup={$_GET['cgroup']}&destination=CURRENT"), $modname));
-        $output .= mcms::html('td', $module['name']['ru']);
+        $output .= mcms::html('td', mcms::html('a', array(
+          'href' => "admin?mode=modules&action=info&name={$modname}"
+            ."&cgroup={$_GET['cgroup']}&destination=CURRENT"), $modname));
+
+        if (!empty($module['name']['ru']))
+          $output .= mcms::html('td', $module['name']['ru']);
+        elseif (!empty($module['name']['en']))
+          $output .= mcms::html('td', $module['name']['en']);
+        else
+          $output .= mcms::html('td');
 
         $output .= '</tr>';
       }
@@ -77,8 +85,11 @@ class ModuleAdminUI
 
     $groups = array();
 
-    foreach ($map['modules'] as $modname => $module)
+    foreach ($map['modules'] as $modname => $module) {
+      if (empty($module['group']))
+        continue;
       $groups[$module['group']][$modname] = $module;
+    }
 
     ksort($groups);
 
