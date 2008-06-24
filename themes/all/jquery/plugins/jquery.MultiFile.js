@@ -1,10 +1,12 @@
 /*
- ### jQuery Multiple File Upload Plugin v 1.29 - 2008-05-20 ###
- By Diego A., http://www.fyneworks.com, diego@fyneworks.com
- 
+ ### jQuery Multiple File Upload Plugin v 1.29 - 2008-06-10 ###
+ * http://www.fyneworks.com/ - diego@fyneworks.com
+ * Dual licensed under the MIT and GPL licenses:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *   http://www.gnu.org/licenses/gpl.html
+ ###
  Project: http://jquery.com/plugins/project/MultiFile/
  Website: http://www.fyneworks.com/jquery/multiple-file-upload/
- Forums:  http://www.nabble.com/jQuery-Multiple-File-Upload-f20931.html
 */
 /*
  CHANGE LOG:
@@ -20,7 +22,7 @@
  functions don't need to be changed on new installations.
  
  24-June-2007: v1.22
- Now works perfectly in Opera, thanks to Adrian Wr�bel <adrian [dot] wrobel [at] gmail.com>
+ Now works perfectly in Opera, thanks to Adrian Wrуbel <adrian [dot] wrobel [at] gmail.com>
  
  10-Jan-2008: v1.24
  Fixed bug in event trigger - sending incorrect parameters to event handlers
@@ -61,8 +63,8 @@
  
  17-Mar-2008: v 1.28
  MAJOR FIX - OPERA BUG
- MASTER.labels was a readyonly property and cause the script to fail.
- Renamed to MASTER.eLBL. Problem solved!
+ MF.labels was a readyonly property and cause the script to fail.
+ Renamed to MF.labels. Problem solved!
  
  29-Apr-2008: v 1.28
  Added validation to stop duplicate selections
@@ -128,14 +130,45 @@
  
  // extend $.MultiFile - global methods
  $.extend($.MultiFile, {
-  disableEmpty: function(){
-   $('input:file'/*.multi'*/).each(function(){
-    var $this = $(this);
-    if($this.val()=='') $this.addClass('mfD').each(function(){ this.disabled = true });
-   });
+  
+  
+  /**
+   * This utility makes it easy to disable all 'empty' file elements in the document before submitting a form.
+   * It marks the affected elements so they can be easily re-enabled after the form submission or validation.
+   *
+   * Returns a jQuery collection of all affected elements.
+   *
+   * @name disableEmpty
+   * @type jQuery
+   * @cat Plugins/Multifile
+   * @author Diego A. (http://www.fyneworks.com/)
+   *
+   * @example $.MultiFile.disableEmpty();
+   * @param String class (optional) A string specifying a class to be applied to all affected elements - Default: 'mfD'.
+   */
+  disableEmpty: function(class){
+   var o = [];
+   $('input:file').each(function(){ if($(this).val()=='') o[o.length] = this; });
+   return $(o).each(function(){ this.disabled = true }).addClass(class || 'mfD');
   },
-  reEnableEmpty: function(){
-   $('input:file.mfD').removeClass('mfD').each(function(){ this.disabled = false });
+  
+  
+/**
+ * This method re-enables 'empty' file elements that were disabled (and marked) with the $.MultiFile.disableEmpty method.
+ *
+ * Returns a jQuery collection of all affected elements.
+ *
+ * @name reEnableEmpty
+ * @type jQuery
+ * @cat Plugins/Multifile
+ * @author Diego A. (http://www.fyneworks.com/)
+ *
+ * @example $.MultiFile.reEnableEmpty();
+ * @param String class (optional) A string specifying the class that was used to mark affected elements - Default: 'mfD'.
+ */
+  reEnableEmpty: function(class){
+   class = class || 'mfD';
+   return $('input:file.'+class).removeClass(class).each(function(){ this.disabled = false });
   },
   autoIntercept: [ 'submit', 'ajaxSubmit', 'validate' /* array of methods to intercept */ ],
   intercepted: {},
@@ -155,7 +188,6 @@
      $.MultiFile.intercepted[method] = $.fn[method] || function(){};
      $.fn[method] = function(){
       $.MultiFile.disableEmpty();
-      //if(console) console.log(['$.MultiFile.intercepted', method, this, arguments]);
       value = $.MultiFile.intercepted[method].apply(this, arguments);
       $.MultiFile.reEnableEmpty();
       return value;
@@ -171,7 +203,7 @@
  $.extend($.fn, {
    
    // Use this function to clear values of file inputs
-   // This doesn't always work: $(element).val('').attr('value', '')[0].value = '';
+   // But this doesn't always work: $(element).val('').attr('value', '')[0].value = '';
    reset: function(){ return this.each(function(){ try{ this.reset(); }catch(e){} }); },
     
    // MultiFile function
@@ -199,7 +231,7 @@
        
        // Copy parent attributes - Thanks to Jonas Wagner
        // we will use this one to create new input elements
-       var MASTER = this, xCLONE = $(MASTER).clone();
+       var MF = {e:this, E:$(this), clone:$(this).clone()};
        
        //===
        
@@ -208,47 +240,47 @@
        if(typeof o=='string') o = {accept:o};
        o = $.extend({},
         $.MultiFile.options,
-        ($.metadata ? $(MASTER).metadata()/*NEW metadata plugin*/ :
-        ($.meta ? $(MASTER).data()/*OLD metadata plugin*/ : 
-        null/*metadata plugin not available*/)) || {},
-        o || {}
+        o || {},
+        ($.meta ? MF.E.data()/*NEW metadata plugin*/ :
+        ($.metadata ? MF.E.metadata()/*OLD metadata plugin*/ : 
+        null/*metadata plugin not available*/)) || {}
        );
        // limit number of files that can be selected?
-       if(!(o.max>0) /*IsNull(MASTER.max)*/){
-        o.max = $(MASTER).attr('maxlength');
-        if(!(o.max>0) /*IsNull(MASTER.max)*/){
-         o.max = (String(MASTER.className.match(/\b(max|limit)\-([0-9]+)\b/gi) || ['']).match(/[0-9]+/gi) || [''])[0];
+       if(!(o.max>0) /*IsNull(MF.max)*/){
+        o.max = MF.E.attr('maxlength');
+        if(!(o.max>0) /*IsNull(MF.max)*/){
+         o.max = (String(MF.e.className.match(/\b(max|limit)\-([0-9]+)\b/gi) || ['']).match(/[0-9]+/gi) || [''])[0];
          if(!(o.max>0)) o.max = -1;
          else           o.max = String(o.max).match(/[0-9]+/gi)[0];
         }
        };
        o.max = new Number(o.max);
        // limit extensions?
-       o.accept = o.accept || $(MASTER).attr('accept') || '';
+       o.accept = o.accept || MF.E.attr('accept') || '';
        if(!o.accept){
-        o.accept = (MASTER.className.match(/\b(accept\-[\w\|]+)\b/gi)) || '';
+        o.accept = (MF.e.className.match(/\b(accept\-[\w\|]+)\b/gi)) || '';
         o.accept = new String(o.accept).replace(/^(accept|ext)\-/i,'');
        };
        
        //===
        
        // APPLY CONFIGURATION
-       $.extend(MASTER, o || {});
-       MASTER.STRING = $.extend({},$.MultiFile.options.STRING,MASTER.STRING);
+       $.extend(MF, o || {});
+       MF.STRING = $.extend({},$.MultiFile.options.STRING,MF.STRING);
        
        //===
        
        //#########################################
        // PRIVATE PROPERTIES/METHODS
-       $.extend(MASTER, {
+       $.extend(MF, {
         n: 0, // How many elements are currently selected?
         slaves: [], files: [],
-        instanceKey: MASTER.id || 'MultiFile'+String(group_count), // Instance Key?
-        generateID: function(z){ return MASTER.instanceKey + (z>0 ?'_F'+String(z):''); },
+        instanceKey: MF.e.id || 'MultiFile'+String(group_count), // Instance Key?
+        generateID: function(z){ return MF.instanceKey + (z>0 ?'_F'+String(z):''); },
         trigger: function(event, element){
-         var handler = MASTER[event], value = $(element).attr('value');
+         var handler = MF[event], value = $(element).attr('value');
          if(handler){
-          var returnValue = handler(element, value, MASTER);
+          var returnValue = handler(element, value, MF);
           if( returnValue!=null ) return returnValue;
          }
          return true;
@@ -259,38 +291,38 @@
        
        // Setup dynamic regular expression for extension validation
        // - thanks to John-Paul Bader: http://smyck.de/2006/08/11/javascript-dynamic-regular-expresions/
-       if(String(MASTER.accept).length>1){
-        MASTER.rxAccept = new RegExp('\\.('+(MASTER.accept?MASTER.accept:'')+')$','gi');
+       if(String(MF.accept).length>1){
+        MF.rxAccept = new RegExp('\\.('+(MF.accept?MF.accept:'')+')$','gi');
        };
        
        //===
        
        // Create wrapper to hold our file list
-       MASTER.wrapID = MASTER.instanceKey+'_wrap'; // Wrapper ID?
-       $(MASTER).wrap('<div id="'+MASTER.wrapID+'"></div>');
-       MASTER.eWRP = $('#'+MASTER.wrapID+'');
+       MF.wrapID = MF.instanceKey+'_wrap'; // Wrapper ID?
+       MF.E.wrap('<div id="'+MF.wrapID+'"></div>');
+       MF.wrapper = $('#'+MF.wrapID+'');
        
        //===
        
-       // MASTER MUST have a name
-       MASTER.name = MASTER.name + '[]' || 'file[]';
+       // MF MUST have a name - default: file1[], file2[], file3[]
+       MF.e.name = MF.e.name || 'file'+ group_count +'[]';
        
        //===
        
        // Create a wrapper for the labels
        // * OPERA BUG: NO_MODIFICATION_ALLOWED_ERR ('labels' is a read-only property)
        // this changes allows us to keep the files in the order they were selected
-       MASTER.eWRP.append( '<span id="'+MASTER.wrapID+'_labels"></span>' );
-       MASTER.eLBL = $('#'+MASTER.wrapID+'_labels');
+       MF.wrapper.append( '<span id="'+MF.wrapID+'_labels"></span>' );
+       MF.labels = $('#'+MF.wrapID+'_labels');
        
        //===
        
        // Bind a new element
-       MASTER.addSlave = function( slave, slave_count ){
+       MF.addSlave = function( slave, slave_count ){
         // Keep track of how many elements have been displayed
-        MASTER.n++;
+        MF.n++;
         // Add reference to master element
-        slave.MASTER = MASTER;
+        slave.MF = MF;
         // Count slaves
         slave.i = slave_count;
         
@@ -299,14 +331,14 @@
         if(slave.i>0) slave.id = slave.name = null;
         
         // Define element's ID and name (upload components need this!)
-        slave.id = slave.id || MASTER.generateID(slave.i);
+        slave.id = slave.id || MF.generateID(slave.i);
         
-        //slave.name = (slave.name || $(MASTER).attr('name') || 'file');// + (slave.i>0?slave.i:''); // same name as master element
+        //slave.name = (slave.name || MF.E.attr('name') || 'file');// + (slave.i>0?slave.i:''); // same name as master element
         // 2008-Apr-29: New customizable naming convention (see url below)
         // http://groups.google.com/group/jquery-dev/browse_frm/thread/765c73e41b34f924#
-        slave.name = String(MASTER.namePattern
-         /*master name*/.replace(/\$name/gi,$(MASTER).attr('name'))
-         /*master id  */.replace(/\$id/gi,  $(MASTER).attr('id'))
+        slave.name = String(MF.namePattern
+         /*master name*/.replace(/\$name/gi,MF.E.attr('name'))
+         /*master id  */.replace(/\$id/gi,  MF.E.attr('id'))
          /*group count*/.replace(/\$g/gi,   (group_count>0?group_count:''))
          /*slave count*/.replace(/\$i/gi,   (slave_count>0?slave_count:''))
         );
@@ -315,12 +347,12 @@
         $(slave).val('').attr('value','')[0].value = '';
         
         // If we've reached maximum number, disable input slave
-        if( (MASTER.max > 0) && ((MASTER.n-1) > (MASTER.max)) )//{ // MASTER.n Starts at 1, so subtract 1 to find true count
+        if( (MF.max > 0) && ((MF.n-1) > (MF.max)) )//{ // MF.n Starts at 1, so subtract 1 to find true count
          slave.disabled = true;
         //};
         
         // Remember most recent slave
-        MASTER.eCur = MASTER.slaves[slave.i] = slave;
+        MF.current = MF.slaves[slave.i] = slave;
         
         // now let's use jQuery
         slave = $(slave);
@@ -332,33 +364,33 @@
           $(this).blur();
           
           //# Trigger Event! onFileSelect
-          if(!MASTER.trigger('onFileSelect', this, MASTER)) return false;
+          if(!MF.trigger('onFileSelect', this, MF)) return false;
           //# End Event!
           
           //# Retrive value of selected file from element
           var ERROR = '', v = String(this.value || ''/*.attr('value)*/);
           
           // check extension
-          if(MASTER.accept){
+          if(MF.accept){
            if(v!=''){
-            if(!v.match(MASTER.rxAccept)){
-             ERROR = MASTER.STRING.denied.replace('$ext', String(v.match(/\.\w{1,4}$/gi)));
+            if(!v.match(MF.rxAccept)){
+             ERROR = MF.STRING.denied.replace('$ext', String(v.match(/\.\w{1,4}$/gi)));
             }
            }
           };
           
           // Disallow duplicates
-          for(var f=0;f<MASTER.slaves.length;f++){
-           if(MASTER.slaves[f]!=this){
-            if(MASTER.slaves[f].value==v){
-             ERROR = MASTER.STRING.duplicate.replace('$file', v.match(/[^\/\\]+$/gi));
+          for(var f=0;f<MF.slaves.length;f++){
+           if(MF.slaves[f]!=this){
+            if(MF.slaves[f].value==v){
+             ERROR = MF.STRING.duplicate.replace('$file', v.match(/[^\/\\]+$/gi));
             }
            }
           };
           
           // Create a new file input element
-          //var newEle = $('<input name="'+($(MASTER).attr('name') || '')+'" type="file"/>');
-          var newEle = xCLONE.clone();// Copy parent attributes - Thanks to Jonas Wagner
+          //var newEle = $('<input name="'+(MF.E.attr('name') || '')+'" type="file"/>');
+          var newEle = $(MF.clone).clone();// Copy parent attributes - Thanks to Jonas Wagner
           //# Let's remember which input we've generated so
           // we can disable the empty ones before submission
           // See: http://plugins.jquery.com/node/1495
@@ -367,15 +399,15 @@
           // Handle error
           if(ERROR!=''){
             // Handle error
-            MASTER.error(ERROR);
+            MF.error(ERROR);
             
             // Clear element value (DOES NOT WORK in some browsers)
             //slave.reset().val('').attr('value', '')[0].value = '';
             
-            // 2007-06-24: BUG FIX - Thanks to Adrian Wr�bel <adrian [dot] wrobel [at] gmail.com>
+            // 2007-06-24: BUG FIX - Thanks to Adrian Wrуbel <adrian [dot] wrobel [at] gmail.com>
             // Ditch the trouble maker and add a fresh new element
-            MASTER.n--;
-            MASTER.addSlave(newEle[0], this.i);
+            MF.n--;
+            MF.addSlave(newEle[0], this.i);
             slave.parent().prepend(newEle);
             slave.remove();
             return false;
@@ -385,57 +417,57 @@
           $(this).css({ position:'absolute', top: '-3000px' });
           
           // Add new element to the form
-          MASTER.eLBL.before(newEle);//.append(newEle);
+          MF.labels.before(newEle);//.append(newEle);
           
           // Update list
-          MASTER.addToList( this );
+          MF.addToList( this );
           
           // Bind functionality
-          MASTER.addSlave( newEle[0], this.i+1 );
+          MF.addSlave( newEle[0], this.i+1 );
           
           //# Trigger Event! afterFileSelect
-          if(!MASTER.trigger('afterFileSelect', this, MASTER)) return false;
+          if(!MF.trigger('afterFileSelect', this, MF)) return false;
           //# End Event!
           
         }); // slave.change()
         
-       };// MASTER.addSlave
+       };// MF.addSlave
        // Bind a new element
        
        
        
        // Add a new file to the list
-       MASTER.addToList = function( slave ){
+       MF.addToList = function( slave ){
         
         //# Trigger Event! onFileAppend
-        if(!MASTER.trigger('onFileAppend', slave, MASTER)) return false;
+        if(!MF.trigger('onFileAppend', slave, MF)) return false;
         //# End Event!
         
         // Create label elements
         var
          r = $('<div></div>'),
          v = String(slave.value || ''/*.attr('value)*/),
-         a = $('<span class="file" title="'+MASTER.STRING.selected.replace('$file', v)+'">'+v.match(/[^\/\\]+$/gi)[0]+'</span>'),
-         b = $('<a href="#'+MASTER.wrapID+'">'+MASTER.STRING.remove+'</a>');
+         a = $('<span class="file" title="'+MF.STRING.selected.replace('$file', v)+'">'+v.match(/[^\/\\]+$/gi)[0]+'</span>'),
+         b = $('<a href="#'+MF.wrapID+'">'+MF.STRING.remove+'</a>');
         
         // Insert label
-        MASTER.eLBL.append(
+        MF.labels.append(
          r.append('[', b, ']&nbsp;', a)//.prepend(slave.i+': ')
         );
         
         b.click(function(){
          
           //# Trigger Event! onFileRemove
-          if(!MASTER.trigger('onFileRemove', slave, MASTER)) return false;
+          if(!MF.trigger('onFileRemove', slave, MF)) return false;
           //# End Event!
           
-          MASTER.n--;
-          MASTER.eCur.disabled = false;
+          MF.n--;
+          MF.current.disabled = false;
           
           // Remove element, remove label, point to current
           if(slave.i==0){
-           $(MASTER.eCur).remove();
-           MASTER.eCur = slave;
+           $(MF.current).remove();
+           MF.current = slave;
           }
           else{
            $(slave).remove();
@@ -443,10 +475,10 @@
           $(this).parent().remove();
           
           // Show most current element again (move into view) and clear selection
-          $(MASTER.eCur).css({ position:'', top: '' }).reset().val('').attr('value', '')[0].value = '';
+          $(MF.current).css({ position:'', top: '' }).reset().val('').attr('value', '')[0].value = '';
           
           //# Trigger Event! afterFileRemove
-          if(!MASTER.trigger('afterFileRemove', slave, MASTER)) return false;
+          if(!MF.trigger('afterFileRemove', slave, MF)) return false;
           //# End Event!
 
           
@@ -454,20 +486,20 @@
         });
         
         //# Trigger Event! afterFileAppend
-        if(!MASTER.trigger('afterFileAppend', slave, MASTER)) return false;
+        if(!MF.trigger('afterFileAppend', slave, MF)) return false;
         //# End Event!
         
-       }; // MASTER.addToList
+       }; // MF.addToList
        // Add element to selected files list
        
        
        
        // Bind functionality to the first element
-       if(!MASTER.MASTER) MASTER.addSlave(MASTER, 0);
+       if(!MF.MF) MF.addSlave(MF.e, 0);
        
        // Increment control count
-       //MASTER.I++; // using window.MultiFile
-       MASTER.n++;
+       //MF.I++; // using window.MultiFile
+       MF.n++;
        
     });
     // each element
@@ -477,31 +509,18 @@
  
  });
  // extend jQuery function library
-
-
-
-/*
- ### Default implementation ###
- The plugin will attach itself to file inputs
- with the class 'multi' when the page loads
- 
- Use the jQuery start plugin to 
-*/
-/*
-if($.start){ $.start('MultiFile', $.MultiFile) }
-else $(function(){ $.MultiFile() });
-*/
-if($.start)
- $.start('MultiFile', function(context){ context = context || this; // attach to start-up
-  $("INPUT[@type='file'].multi", context).MultiFile();
- });
-// $.start
-else
- $(function(){ $.MultiFile() });
-// $()
-
-
-
+	
+	
+	
+	/*
+		### Default implementation ###
+		The plugin will attach itself to file inputs
+		with the class 'multi' when the page loads
+	*/
+	$(function(){ $.MultiFile() });
+	
+	
+	
 /*# AVOID COLLISIONS #*/
 })(jQuery);
 /*# AVOID COLLISIONS #*/

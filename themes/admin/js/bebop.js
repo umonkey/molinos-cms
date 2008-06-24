@@ -28,9 +28,7 @@ if ($.browser.msie && $.browser.version < 7 ){
  */
 $(document).ready(function () {
 	
-	 $('input[name="node_content_files[__bebop]"]').MultiFile({
-
-	 });
+	$('input[name="node_content_files[__bebop]"]').MultiFile();
 	
 	// Превращение филдсетов в табы
 	if ($('form.tabbed').length != 0) {
@@ -335,16 +333,6 @@ function bebop_content_action(name, title)
   $('#contentForm').submit();
 }
 
-/**
- * Функция предназначена для отладки. Shortcut console.log'a.
- * Записывает в консоль Firebug'a передаваемые в нее данные. 
- * 
- * @param {String} str - строка/массив для отображения в консоли
- */
-function log(str) {
-	window.console && window.console.log(str);
-};
-
 function bebop_selected_action(action)
 {
   if (!$('.nodelist :checked').size()) {
@@ -385,3 +373,14 @@ function mcms_file_pick_real(field_name, url, type, win, path)
     return false;
   }
 }
+
+
+/**
+ * Функция предназначена для отладки. Shortcut console.log'a.
+ * Записывает в консоль Firebug'a передаваемые в нее данные. 
+ * 
+ * @param {String} str - строка/массив для отображения в консоли
+ */
+function log(str) {
+	window.console && window.console.log(str);
+};
