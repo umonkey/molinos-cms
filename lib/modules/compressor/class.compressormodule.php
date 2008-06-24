@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, iRemoteCall
+class CompressorModule implements iModuleConfig, iPageHook, iRequestHook, iRemoteCall
 {
   private static function path()
   {
@@ -34,14 +34,9 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
     if ('text/html' != $page->content_type)
       return;
 
-    $conf = array('options' => array('js', 'css', 'html'));
-
-    /*
     $conf = mcms::modconf('compressor');
-
-    if ((null === $conf) or empty($conf['options']) or !is_array($conf['options']))
-      return;
-    */
+    $conf['options'][] = 'js';
+    $conf['options'][] = 'css';
 
     if (in_array('js', $conf['options']))
       self::fixJS($output);
@@ -61,8 +56,10 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
       'value' => 'config_options',
       'label' => t('Компрессируемые объекты'),
       'options' => array(
+        /*
         'js' => t('JavaScript'),
         'css' => t('Стили'),
+        */
         'html' => t('HTML'),
         ),
       )));
