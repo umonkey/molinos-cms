@@ -916,11 +916,11 @@ class RequestController
       }
     }
 
-    $message = "Запрошенное доменное имя не обслуживается этим сервером.";
-    $message .= $this->getValidDomains($tree);
+   if (!empty($tree))
+      return  array_shift($tree);
 
-    throw new UserErrorException("Домен не найден", 404, "Домен &laquo;{$domain}&raquo; не обслуживается", $message);
-  }
+   throw new UserErrorException("Домен не найден", 404, "Домен &laquo;{$domain}&raquo; не обслуживается");
+ }
 
   private function getValidDomains(array $tree)
   {
