@@ -30,7 +30,7 @@ class SysLogModule implements iAdminUI, iAdminMenu
 
     $icons[] = array(
       'group' => 'statistics',
-      'href' => '/admin/?module=syslog&mode=list',
+      'href' => 'admin?module=syslog&mode=list',
       'title' => t('Журнал событий'),
       'description' => t('Кто, что, когда и с чем делал.'),
     );

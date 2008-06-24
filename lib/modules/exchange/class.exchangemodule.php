@@ -104,7 +104,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
         $xmlstr = $zip->getFromName("siteprofile.xml");
       }
       else { // неизвестный тип файла
-         mcms::redirect("/admin/?mode=exchange&preset=export&result=badfiletype");
+         mcms::redirect("admin?mode=exchange&preset=export&result=badfiletype");
       }
 
       mcms::db()->clearDB();
@@ -119,7 +119,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       self::import($xmlstr);
       unlink($newfn);
 
-      mcms::redirect("/admin/?mode=exchange&preset=export&result=importok");
+      mcms::redirect("admin?mode=exchange&preset=export&result=importok");
     }
 
     else if ($exchmode == 'upgradetoMySQL') {
@@ -142,7 +142,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       // Логинимся в качестве рута.
       User::authorize(mcms::user()->name, null, true);
 
-      mcms::redirect("/admin/?module=exchange&preset=export&result=upgradeok");
+      mcms::redirect("admin?module=exchange&preset=export&result=upgradeok");
     }
   }
 
@@ -364,7 +364,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
       $icons[] = array(
         'group' => 'structure',
-        'href' => '/admin/?module=exchange',
+        'href' => 'admin?module=exchange',
         'title' => t('Бэкапы'),
         'description' => t('Бэкап и восстановление данных в формате XML.'),
         );
@@ -380,7 +380,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     $form = new Form(array(
       'title' => t('Экспорт/импорт сайта в формате XML'),
       'description' => t("Необходимо выбрать совершаемое вами действие"),
-      'action' => '/exchange.rpc',
+      'action' => 'exchange.rpc',
       'class' => '',
       'id' => 'mod_exchange'
       ));
@@ -474,7 +474,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       );
 
     $messages = array(
-      'upgradeok' => t('База данных успешно перенесена в MySQL.  Вы можете <a href=\'@continue\'>продолжить пользоваться системой</a> в обычном режиме.  Чтобы переключиться обратно на SQLite, отредактируйте конфигурационный файл Molinos.CMS (обычно это conf/default.ini).', array('@continue' => '/admin/')),
+      'upgradeok' => t('База данных успешно перенесена в MySQL.  Вы можете <a href=\'@continue\'>продолжить пользоваться системой</a> в обычном режиме.  Чтобы переключиться обратно на SQLite, отредактируйте конфигурационный файл Molinos.CMS (обычно это conf/default.ini).', array('@continue' => 'admin')),
       'importok' => t('Восстановление бэкапа прошло успешно.'),
       'exportok' => null,
       );

@@ -51,7 +51,7 @@ class NodeLinkControl extends Control
       ));
 
     if (!$this->readonly) {
-      $output .= '<script language=\'javascript\' type=\'text/javascript\'>$(function(){$(\'#'. $this->id .'\').suggest(\'/autocomplete.rpc?source='. $this->values .'\');});</script>';
+      $output .= '<script language=\'javascript\' type=\'text/javascript\'>$(function(){$(\'#'. $this->id .'\').suggest(\'autocomplete.rpc?source='. $this->values .'\');});</script>';
       $output .= mcms::html('input', array(
         'type' => 'hidden',
         'name' => "nodelink_remap[{$this->value}]",

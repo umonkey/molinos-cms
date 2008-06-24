@@ -13,10 +13,12 @@ class url
   private static $root = null;
 
   private $scheme = null;
+  private $user = null;
+  private $pass = null;
   private $host = null;
   private $path = null;
   private $args = null;
-  private $anchor = null;
+  private $fragment = null;
   private $islocal = null;
 
   // Парсинг ссылки, вход: массив или строка.
@@ -39,35 +41,31 @@ class url
 
   public function __toString()
   {
-    $isfile = false;
-
     if ('mailto' == $this->scheme)
       return 'mailto:'. urlencode($this->path);
 
-    if ($this->islocal) {
-      // Удаляем index.php — незачем его указывать.
-      if ('index.php' == ($path = trim($this->path, '/')))
-        $path = '';
+    $result = '';
 
-      // Ссылки на существующие файлы оставляем неизменными.
-      elseif (file_exists(MCMS_ROOT .'/'. $path))
-        $isfile = true;
+    if (!empty($this->scheme))
+      $result .= $this->scheme .'://';
 
-      // Остаются внутренние ссылки к несуществующим файлам, они зависят
-      // от поддержки «чистых урлов».  Если поддержки нет — просто удаляем
-      // путь, в ?q= его преобразует метод getArgsAsString().
-      elseif (!self::$clean)
-        $path = '';
-
-      elseif ('.rpc' != substr($path, -4) and 'attachment/' != substr($path, 0, 11))
-        $path .= '/';
-
-      $result = sprintf('%s://%s/%s', $this->scheme, $this->host,
-        ltrim(self::$root . $path . $this->getArgsAsString($isfile), '/'));
-    } else {
-      $result = sprintf('%s://%s/%s%s', $this->scheme,
-        $this->host, $this->path, $this->getArgsAsString());
+    if (!empty($this->user)) {
+      $result .= urlencode($this->user);
+      if (!empty($this->pass))
+        $result .= ':'. urlencode($this->pass);
+      $result .= '@';
     }
+
+    if (!empty($this->host))
+      $result .= $this->host;
+
+    if (!empty($this->path))
+      $result .= $this->path;
+
+    $result .= $this->getArgsAsString();
+
+    if (!empty($this->fragment))
+      $result .= '#'. $this->fragment;
 
     return $result;
   }
@@ -79,18 +77,24 @@ class url
       'host' => $this->host,
       'path' => $this->path,
       'args' => $this->args,
-      'anchor' => $this->anchor,
+      'fragment' => $this->fragment,
       );
   }
 
   public function __get($key)
   {
     switch ($key) {
+    case 'path':
+      if (empty($this->host)) {
+        if (!empty($this->args['__cleanurls']))
+          return empty($this->args['q']) ? null : $this->args['q'];
+      }
+
     case 'scheme':
     case 'host':
     case 'path':
     case 'args':
-    case 'anchor':
+    case 'fragment':
     case 'islocal':
       return $this->$key;
     default:
@@ -192,18 +196,19 @@ class url
         $url['path'] = substr($url['path'], strlen(self::path()));
     }
 
-    foreach (array('scheme', 'host', 'path', 'args', 'anchor') as $key)
-      $this->$key = $url[$key];
+    foreach (array('scheme', 'user', 'pass', 'host', 'path', 'args', 'fragment') as $key)
+      if (array_key_exists($key, $url))
+        $this->$key = $url[$key];
   }
 
   private function complement(array $url)
   {
     return array_merge(array(
-      'scheme' => empty($_SERVER['HTTPS']) ? 'http' : 'https',
-      'host' => self::$localhost,
-      'path' => '',
+      'scheme' => null,
+      'host' => null,
+      'path' => null,
       'args' => array(),
-      'anchor' => '',
+      'fragment' => null,
       ), $url);
   }
 
@@ -220,8 +225,6 @@ class url
         $args['q'] = trim($this->path, '/');
     }
 
-    ksort($args);
-
     if (!empty($args)) {
       $forbidden = array('nocache', 'widget', '__cleanurls');
 
@@ -232,8 +235,6 @@ class url
           continue;
 
         elseif (is_array($v)) {
-          ksort($v);
-
           foreach ($v as $argname => $argval) {
             $prefix = $k .'.'. $argname;
 

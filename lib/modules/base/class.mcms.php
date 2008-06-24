@@ -109,7 +109,7 @@ class mcms
 
     // Параметризация проигрывателя.
     $options = array_merge(array(
-      'file' => 'http://'. $_SERVER['HTTP_HOST'] .'/playlist.rpc?nodes='. join(',', $nodes),
+      'file' => 'playlist.rpc?nodes='. join(',', $nodes),
       'showdigits' => 'true',
       'autostart' => 'false',
       'repeat' => 'true',
@@ -304,14 +304,6 @@ class mcms
 
   public static function redirect($path, $status = 301)
   {
-    if (is_array($path))
-      $path = bebop_combine_url($path, false);
-    else
-      $path = l($path);
-
-    if ($_SERVER['REQUEST_METHOD'] == 'POST')
-      $status = 303;
-
     if (!in_array($status, array('301', '302', '303', '307')))
       throw new Exception("Статус перенаправления {$status} не определён в стандарте HTTP/1.1");
 
@@ -321,26 +313,34 @@ class mcms
     } catch (NotInstalledException $e) {
     }
 
-    if (substr($next = $path, 0, 1) == '/') {
-      $proto = 'http'.((array_key_exists('HTTPS', $_SERVER) and $_SERVER['HTTPS'] == 'on') ? 's' : '');
-      $domain = $_SERVER['HTTP_HOST'];
-      $next = $proto.'://'. $domain . $path;
+    if ($_SERVER['REQUEST_METHOD'] == 'POST')
+      $status = 303;
+
+    $url = new url($path);
+
+    // Относительные ссылки на CMS.
+    if (empty($url->host) and '/' != substr($url->path, 0, 1)) {
+      $target = dirname($_SERVER['SCRIPT_NAME']) .'/'. strval($url);
+    } else {
+      $target = strval($url);
     }
 
-    // Если нас вызвали через AJAX, просто возвращаем адрес редиректа.
-    if (!empty($_POST['ajax']))
-      exit($next);
+    // При редиректе на текущую страницу добавляем случайное число,
+    // без этого Опера не редиректит.
+    if ($target == $_SERVER['REQUEST_URI']) {
+      mcms::debug('Circular redirect', $target);
+      $target .= ((false == strstr($target, '?')) ? '?' : '&') .'rnd='. mt_rand();
+    }
 
-    if ($path == $_SERVER['REQUEST_URI'])
-      $next .= ((false == strstr($next, '?')) ? '?' : '&') .'rnd='. mt_rand();
+    mcms::log('redirect', $target);
 
-    if (false !== (strstr($next, '&amp;')))
-      mcms::fatal('Redirect destination must not contain &amp;, please debug.');
+    // При работе с JSON возвращаем адрес.
+    bebop_on_json(array(
+      'status' => 'redirect',
+      'redirect' => $target,
+      ));
 
-    mcms::log('redirect', $next);
-
-    $next = str_replace('%2F','/',$next);
-    header('Location: '. $next);
+    header('Location: '. $target);
     exit();
   }
 

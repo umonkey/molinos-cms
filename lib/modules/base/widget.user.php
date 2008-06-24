@@ -325,7 +325,7 @@ class UserWidget extends Widget
     switch ($id) {
     case 'user-logout-form':
       $form = new Form(array(
-        'action' => '/base.rpc?action=logout',
+        'action' => 'base.rpc?action=logout',
         ));
 
       if (null !== $this->header) {
@@ -355,7 +355,7 @@ class UserWidget extends Widget
 
       $form = new Form(array(
         'title' => t('Вход'),
-        'action' => '/base.rpc?action=login&destination='. urlencode(bebop_combine_url($tmp, false)),
+        'action' => 'base.rpc?action=login&destination='. urlencode(bebop_combine_url($tmp, false)),
         ));
 
       if (null !== $this->header) {

@@ -354,10 +354,7 @@ class NodeBase
       throw new InvalidArgumentException(t("Попытка удаления несохранённой ноды."));
 
     if (!$this->checkPermission('d'))
-      throw new ForbiddenException(t("У вас нет прав на удаление объекта &laquo;<a href='@link'>%name</a>&raquo;.", array(
-        '@link' => "/admin/node/{$this->id}/edit/?destination=". urlencode(empty($_GET['destination']) ? '/admin/content/' : $_GET['destination']),
-        '%name' => $this->name,
-        )));
+      throw new ForbiddenException(t("У вас нет прав на удаление объекта."));
 
     $this->data['deleted'] = true;
     $pdo = mcms::db()->exec("UPDATE `node` SET `deleted` = 1 WHERE id = :nid", array('nid' => $this->id));
@@ -809,24 +806,20 @@ class NodeBase
 
     // Формируем список групп.
     if ($default === null)
-      $default = $pdo->getResultsK("name", "SELECT `r`.`name` as `name` "
-        ."FROM `node` `n` "
+      $default = $pdo->getResultsK("name", "SELECT `r`.`name` as `name` FROM `node` `n` "
         ."INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` "
-        ."WHERE `n`.`class` = 'group' AND `n`.`deleted` = 0 "
-        ."ORDER BY `r`.`name`");
+        ."WHERE `n`.`class` = 'group' AND `n`.`deleted` = 0 ORDER BY `r`.`name`");
 
     $data = $default;
 
     $sql = "SELECT `r`.`name` as `name`, `a`.`c` as `c`, "
-      ."`a`.`r` as `r`, `a`.`u` as `u`, `a`.`d` as `d`, `a`.`p` as `p` "
-      ."FROM `node__access` `a` "
+      ."`a`.`r` as `r`, `a`.`u` as `u`, `a`.`d` as `d`, `a`.`p` as `p` FROM `node__access` `a` "
       ."INNER JOIN `node` `n` ON `n`.`id` = `a`.`uid` "
       ."INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` "
       ."WHERE `a`.`nid` = :nid AND `n`.`class` = 'group' AND `n`.`deleted` = 0";
 
-    $rows = $pdo->getResultsK("name", $sql, array(':nid' => $this->id));
-
-    foreach ($rows as $group => $perms) {
+    // Формируем таблицу с правами.
+    foreach ($pdo->getResultsK("name", $sql, array(':nid' => $this->id)) as $group => $perms) {
       $data[$group]['c'] = $perms['c'];
       $data[$group]['r'] = $perms['r'];
       $data[$group]['u'] = $perms['u'];
@@ -1105,9 +1098,9 @@ class NodeBase
       : $_GET['destination'];
 
     if ($this->id)
-      $form->action = "/nodeapi.rpc?action=edit&node={$this->id}&destination=". urlencode($next);
+      $form->action = "nodeapi.rpc?action=edit&node={$this->id}&destination=". urlencode($next);
     else
-      $form->action = "/nodeapi.rpc?action=create&type={$this->class}&destination=". urlencode($next);
+      $form->action = "nodeapi.rpc?action=create&type={$this->class}&destination=". urlencode($next);
 
     return $form;
   }
@@ -1120,14 +1113,14 @@ class NodeBase
 
     $intro = array();
 
-    if (mcms::user()->hasAccess('u', 'type') and $this->class != 'type' and substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/') {
+    if (mcms::user()->hasAccess('u', 'type') and $this->class != 'type' and substr($_SERVER['REQUEST_URI'], 0, 7) == 'admin') {
       if (empty($schema['isdictionary']))
         $intro[] = t("Вы можете <a href='@typelink'>настроить этот тип</a>, добавив новые поля.", array(
-          '@typelink' => "/admin/?mode=edit&id={$schema['id']}&destination=CURRENT",
+          '@typelink' => "admin?mode=edit&id={$schema['id']}&destination=CURRENT",
           ));
       else
         $intro[] = t("Вы можете <a href='@typelink'>настроить этот справочник</a>, добавив новые поля.", array(
-          '@typelink' => "/admin/?mode=edit&id={$schema['id']}&destination=CURRENT",
+          '@typelink' => "admin?mode=edit&id={$schema['id']}&destination=CURRENT",
           ));
     }
 

@@ -58,7 +58,7 @@ class StatusAdminWidget extends Widget
   protected function onGetFixrights(array $options)
   {
     if (empty($_GET['destination']))
-      $_GET['destination'] = '/admin/';
+      $_GET['destination'] = 'admin';
 
     mcms::redirect($_GET['destination']);
   }

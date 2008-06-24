@@ -209,7 +209,7 @@ class WidgetNode extends Node implements iContentType
     $this->linkSetParents($data['widget_pages'], 'domain', array_keys(DomainNode::getFlatSiteMap('select')));
 
     if ($isnew)
-      $next = "/admin/node/{$this->id}/edit/?destination=". urlencode($_GET['destination']) ."#config";
+      $next = "admin/node/{$this->id}/edit/?destination=". urlencode($_GET['destination']) ."#config";
 
     return $next;
   }

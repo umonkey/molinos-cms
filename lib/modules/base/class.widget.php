@@ -132,7 +132,9 @@ abstract class Widget implements iWidget
 
     $options = $this->getRequestOptions($ctx);
 
-    if (substr($_SERVER['REQUEST_URI'], 0, 7) == '/admin/' and empty($options['groups']))
+    $url = new url();
+
+    if ('admin' == trim($url->path, '/') and empty($options['groups']))
       $options['groups'] = $this->user->getGroups();
 
     if (!empty($options['#nocache']))
@@ -216,7 +218,7 @@ abstract class Widget implements iWidget
   }
 
   // Форматирование.
-  public final function render($page, $args, $class = null)
+  public final function render($page, $args, $class)
   {
     $args['instance'] = $this->getInstanceName();
     $args['lang'] = $page->language;

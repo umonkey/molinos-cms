@@ -67,7 +67,7 @@ class BaseModule implements iRemoteCall
         self::login($sid, $uid);
       }
       else {
-        mcms::redirect("/admin/");
+        mcms::redirect("admin");
       }
       break;
     }
@@ -86,6 +86,6 @@ class BaseModule implements iRemoteCall
     // Сохраняем сессию в БД.
     SessionData::db($sid, array('uid' => $node->id));
     setcookie('mcmsid', $sid, time() + 60*60*24*30);
-    mcms::redirect("/admin/");
+    mcms::redirect("admin");
   }
 };

@@ -102,7 +102,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     $form = new Form(array(
       'title' => t('Экспорт/импорт сайта в формате XML'),
       'description' => t("Необходимо выбрать совершаемое вами действие"),
-      'action' => '/exchange.rpc',
+      'action' => 'exchange.rpc',
       'class' => '',
       ));
 
@@ -178,13 +178,13 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       $form = $node->formGet(false);
       $form->addClass('tabbed');
       $form->addClass("node-{$type}-create-form");
-      $form->action = "/nodeapi.rpc?action=create&type={$type}&destination=". urlencode($_GET['destination']);
+      $form->action = "nodeapi.rpc?action=create&type={$type}&destination=". urlencode($_GET['destination']);
 
       if ($ctx->get('dictionary')) {
         $form->title = t('Добавление справочника');
 
         if (null !== ($tmp = $form->findControl('tab_general')))
-          $tmp->intro = t('Вы создаёте первый справочник.  Вы сможете использовать его значения в качестве выпадающих списков (для этого надо будет добавить соответствующее поле в нужный <a href=\'@types\'>тип документа</a>).', array('@types' => '/admin/?cgroup=structure&mode=list&preset=schema'));
+          $tmp->intro = t('Вы создаёте первый справочник.  Вы сможете использовать его значения в качестве выпадающих списков (для этого надо будет добавить соответствующее поле в нужный <a href=\'@types\'>тип документа</a>).', array('@types' => 'admin/?cgroup=structure&mode=list&preset=schema'));
 
         $form->replaceControl('node_content_hasfiles', null);
         $form->replaceControl('node_content_notags', null);
@@ -215,7 +215,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     foreach ($types as $type) {
       $output .= '<dt>';
       $output .= mcms::html('a', array(
-        'href' => "/admin/?mode=create&type={$type->name}&destination=". urlencode($_GET['destination']),
+        'href' => "admin?mode=create&type={$type->name}&destination=". urlencode($_GET['destination']),
         ), $type->title);
       $output .= '</dt>';
 
@@ -239,7 +239,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     if ('setpass' == $ctx->get('msg')) {
       return t('<h2>Добро пожаловать в Molinos.CMS!</h2>'
         .'<p>Вы успешно установили систему.  Сейчас она работает в открытом режиме — любой пользователь будет автоматически идентифицирован как разработчик и получит полный набор прав, поэтому вы, скорее всего, первым делом захотите <a href=\'@url\'>установить пароль</a> на эту учётную запись.</p>', array(
-        '@url' => '/admin/?cgroup=access&mode=edit&id='. mcms::user()->id,
+        '@url' => 'admin?cgroup=access&mode=edit&id='. mcms::user()->id,
         ));
     }
 
@@ -251,7 +251,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
   private static function getUnindexed()
   {
     if (null !== ($stat = NodeIndexer::stats()))
-      return t('<p>%count объектов нуждаются в индексации.  Они будут проиндексирвоаны при выполнении планировщика, или вы можете <a href=\'@url\'>проиндексировать их вручную</a>.  Пока индексация не будет завершена, сортировка и выборка будут работать некорректно.', array('%count' => $stat['_total'], '@url' => '/admin.rpc?action=reindex'));
+      return t('<p>%count объектов нуждаются в индексации.  Они будут проиндексирвоаны при выполнении планировщика, или вы можете <a href=\'@url\'>проиндексировать их вручную</a>.  Пока индексация не будет завершена, сортировка и выборка будут работать некорректно.', array('%count' => $stat['_total'], '@url' => 'admin.rpc?action=reindex'));
   }
 
   private static function onGetModules(RequestContext $ctx)
@@ -276,7 +276,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
         $form->title = t('Настройка модуля %name', array('%name' => $ctx->get('name')));
 
       $form->action = bebop_combine_url($tmp = array(
-        'path' => '/admin.rpc',
+        'path' => 'admin.rpc',
         'args' => array(
           'module' => $ctx->get('name'),
           'action' => 'modconf',
@@ -336,7 +336,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
   {
     $form = new Form(array(
       'title' => 'Поиск документов',
-      'action' => '/admin.rpc?action=search',
+      'action' => 'admin.rpc?action=search',
       'class' => 'advSearchForm',
       ));
     $form->addControl(new HiddenControl(array(
@@ -401,9 +401,9 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     case 'reindex':
       if (NodeIndexer::run())
-        $next = '/admin.rpc?action=reindex&rnd='. rand();
+        $next = 'admin.rpc?action=reindex';
       else
-        $next = '/admin/';
+        $next = 'admin';
       break;
 
     case 'modlist':
@@ -412,7 +412,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     case 'modconf':
       self::hookModConf($ctx);
-      die(mcms::redirect('/admin/?cgroup=structure&mode=modules'));
+      die(mcms::redirect('admin?cgroup=structure&mode=modules'));
 
     case 'search':
       $terms = array();

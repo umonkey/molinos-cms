@@ -285,7 +285,7 @@ class SubscriptionAdminWidget extends Widget implements iScheduler, iAdminMenu
     if ($user->hasAccess('u', 'user'))
       $icons[] = array(
         'group' => 'content',
-        'href' => '/admin/subscription/',
+        'href' => 'adminsubscription/',
         'title' => t('Рассылка'),
         'description' => t('Управление подпиской на новости.'),
         );

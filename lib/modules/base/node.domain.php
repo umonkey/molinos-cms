@@ -343,7 +343,7 @@ class DomainNode extends Node implements iContentType
     foreach (Node::find(array('class' => 'widget', '#sort' => array('name' => 'ASC'))) as $w) {
       $name = t('%title (<a href=\'@edit\'>изменить</a>)', array(
         '%title' => $w->title,
-        '@edit' => "/admin/?mode=edit&cgroup=structure&id={$w->id}&destination=CURRENT",
+        '@edit' => "admin?mode=edit&cgroup=structure&id={$w->id}&destination=CURRENT",
         ));
 
       $options[$w->id] = $name;
@@ -359,7 +359,7 @@ class DomainNode extends Node implements iContentType
       'value' => 'node_domain_widgets',
       'label' => 'Задействованные виджеты',
       'description' => t("Вы можете также <a href='@link'>создать новый виджет</a>.",
-        array('@link' => '/admin/node/create/?BebopNode.class=widget&destination=CURRENT#widgets')),
+        array('@link' => 'admin/node/create/?BebopNode.class=widget&destination=CURRENT#widgets')),
       'options' => $options,
       )));
 
@@ -397,7 +397,7 @@ class DomainNode extends Node implements iContentType
 
     // Если объект новый -- редиректим на его редактирование.
     if ($isnew) {
-      return "/admin/node/{$this->id}/edit/?destination=". urlencode($_GET['destination']);
+      return "admin/node/{$this->id}/edit/?destination=". urlencode($_GET['destination']);
     }
 
     // Объект уже существовал, сохраняем дополнительные свойства.

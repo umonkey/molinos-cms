@@ -59,8 +59,8 @@ class AdminListHandler
     if (empty($data) and count($this->types) == 1 and null === $this->ctx->get('search')) {
       // Добавление справочника.
       if ('dictlist' == $this->ctx->get('preset'))
-        mcms::redirect("/admin/?mode=create&cgroup={$_GET['cgroup']}&dictionary=1&welcome=1&type={$this->types[0]}&destination=CURRENT");
-      // mcms::redirect("/admin/?mode=create&cgroup={$_GET['cgroup']}&type={$this->types[0]}&destination=CURRENT");
+        mcms::redirect("admin?mode=create&cgroup={$_GET['cgroup']}&dictionary=1&welcome=1&type={$this->types[0]}&destination=CURRENT");
+      // mcms::redirect("admin?mode=create&cgroup={$_GET['cgroup']}&type={$this->types[0]}&destination=CURRENT");
     }
 
     $output = '<h2>'. $this->title .'</h2>';
@@ -69,7 +69,7 @@ class AdminListHandler
     if (!empty($data)) {
       $form = new Form(array(
         'id' => 'nodelist-form',
-        'action' => '/nodeapi.rpc?action=mass&destination=CURRENT',
+        'action' => 'nodeapi.rpc?action=mass&destination=CURRENT',
         ));
       if (empty($_GET['picker']))
         $form->addControl(new AdminUINodeActionsControl(array(
@@ -111,7 +111,7 @@ class AdminListHandler
 
     elseif (0 == $this->getCount()) {
       if (count($this->types) == 1)
-        $output .= mcms::html('p', t('Нет документов для отображения в этом списке, <a href=\'@addurl\'>приступить к добавлению</a>?', array('@addurl' => "/admin/?cgroup={$_GET['cgroup']}&mode=create&type={$this->types[0]}&destination=CURRENT")));
+        $output .= mcms::html('p', t('Нет документов для отображения в этом списке, <a href=\'@addurl\'>приступить к добавлению</a>?', array('@addurl' => "admin?cgroup={$_GET['cgroup']}&mode=create&type={$this->types[0]}&destination=CURRENT")));
       else
         $output .= mcms::html('p', t('Нет документов для отображения в этом списке.'));
     }
@@ -175,7 +175,7 @@ class AdminListHandler
           'created' => 'Зарегистрирован',
           );
         $this->sort = array('name');
-        $this->zoomlink = "/admin/?cgroup=content&columns=name,class,uid,created&mode=list&search=uid%3ANODEID";
+        $this->zoomlink = "admin?cgroup=content&columns=name,class,uid,created&mode=list&search=uid%3ANODEID";
         break;
       case 'files':
         $this->types = array('file');
@@ -190,7 +190,7 @@ class AdminListHandler
         $this->limit = null;
         $this->page = 1;
         $this->sort = array('name');
-        $this->zoomlink = "/admin/?cgroup=content&columns=name,class,uid,created&mode=list&search=class%3ANODENAME";
+        $this->zoomlink = "admin?cgroup=content&columns=name,class,uid,created&mode=list&search=class%3ANODENAME";
         break;
       case 'widgets':
         $this->types = array('widget');
@@ -375,7 +375,7 @@ class AdminListHandler
         if (empty($v['isdictionary'])) {
           unset($result[$k]);
         } else {
-          $result[$k]['#link'] = l("/admin/?cgroup=content&preset=dict&mode=list&type=". $v['name']);
+          $result[$k]['#link'] = l("admin?cgroup=content&preset=dict&mode=list&type=". $v['name']);
         }
       }
       break;

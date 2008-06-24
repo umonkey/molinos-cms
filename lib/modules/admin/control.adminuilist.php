@@ -72,7 +72,7 @@ class AdminUIListControl extends Control
           } else {
             $href = isset($this->picker)
               ? "att.php?q={$node['id']}"
-              : '/admin/?mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination=CURRENT';
+              : 'admin?mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination=CURRENT';
           }
 
           $row .= mcms::html('a', array(
@@ -206,7 +206,7 @@ class AdminUIListControl extends Control
           $class = null;
 
         return mcms::html('a', array(
-          'href' => '/admin/?mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination=CURRENT',
+          'href' => 'admin?mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination=CURRENT',
           'class' => $class,
           ), $value);
       }
@@ -231,7 +231,7 @@ class AdminUIListControl extends Control
 
     if (mcms::user()->hasAccess('u', 'user'))
       return mcms::html('a', array(
-        'href' => "/admin/?mode=edit&id={$uid}&destination=CURRENT",
+        'href' => "admin?mode=edit&id={$uid}&destination=CURRENT",
         ), $users[$uid]->name);
 
     return $users[$uid]->name;
@@ -300,7 +300,7 @@ class AdminUIListControl extends Control
     if (empty($node['class']) or empty($node['id']) or !empty($node['deleted']) or empty($node['published']))
       return;
 
-    return $this->getIcon('themes/admin/img/icon-www.png', '/nodeapi.rpc?action=locate&node='. $node['id'], t('Найти на сайте'));
+    return $this->getIcon('themes/admin/img/icon-www.png', 'nodeapi.rpc?action=locate&node='. $node['id'], t('Найти на сайте'));
   }
 
   private function getZoomLink(array $node)

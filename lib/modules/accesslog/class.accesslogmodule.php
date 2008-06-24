@@ -57,7 +57,7 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
       if (null !== $this->options['ip'] or null !== $this->options['operation'] or null !== $this->options['user'])
         $form->addControl(new InfoControl(array(
           'text' => t("Вы просматриваете отфильтрованный список событий; чтобы вернуться к полному списку, нужно <a href='@resetlink'>очистить параметры фильтрации</a>.",
-            array('@resetlink' => '/admin/logs/')),
+            array('@resetlink' => 'admin/logs/')),
           )));
       else {
         $links = array();
@@ -122,7 +122,7 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
         if (empty($v['nid']))
           $data['syslog_list'][$k]['title'] = mcms_plain($v['query']);
         elseif (!empty($v['nid']) and !empty($v['title']))
-          $data['syslog_list'][$k]['title'] = l(mcms_plain($v['title']), "/admin/node/{$v['nid']}/edit/?destination=CURRENT");
+          $data['syslog_list'][$k]['title'] = l(mcms_plain($v['title']), "admin/node/{$v['nid']}/edit/?destination=CURRENT");
 
         $data['syslog_list'][$k]['ip'] = l($v['ip'], array($this->getInstanceName() => array('ip' => $v['ip'])));
         $data['syslog_list'][$k]['operation'] = l($v['operation'], array($this->getInstanceName() => array('op' => $v['operation'])));
@@ -179,7 +179,7 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
     if ($user->hasAccess('u', 'user')) {
       $icons[] = array(
         'group' => 'statistics',
-        'href' => '/admin/?module=accesslog',
+        'href' => 'admin?module=accesslog',
         'title' => t('Доступ к контенту'),
         'description' => t('Просмотр статистики доступа.'),
         );

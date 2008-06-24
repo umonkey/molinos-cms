@@ -10,7 +10,7 @@ function smarty_function_bebop_check_updates($params, &$smarty)
 
   if ($ver['current_build'] < $ver['latest_build']) {
     $output = t("<a href='@link' title='%version.%current &rarr; %version.%latest' id='lnk_update'>Обновление</a>", array(
-      '@link' => '/admin/update/',
+      '@link' => 'adminupdate/',
       '%version' => $ver['release'],
       '%current' => $ver['current_build'],
       '%latest' => $ver['latest_build'],

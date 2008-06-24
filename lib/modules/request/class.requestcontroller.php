@@ -248,7 +248,7 @@ class RequestController
   {
     $url = new url();
 
-    switch ($url->path) {
+    switch (trim($url->path, '/')) {
     case 'info.php':
       if (bebop_is_debugger())
         phpinfo();
@@ -810,6 +810,6 @@ class RequestController
   private function getDomainConfigLink()
   {
     if (!mcms::user()->id or mcms::user()->hasAccess('c', 'domain'))
-      return '/admin/?cgroup=structure&mode=tree&preset=pages&msg=welcome&rnd='. mt_rand();
+      return 'admin/?cgroup=structure&mode=tree&preset=pages&msg=welcome';
   }
 }

@@ -6,17 +6,17 @@ class RPCHandler implements iRequestHook
   public static function hookRequest(RequestContext $ctx = null)
   {
     if (null === $ctx) {
-      $url = bebop_split_url();
+      $url = new url(); // bebop_split_url();
 
-      if ('.rpc' === substr($url['path'], -4)) {
+      if ('.rpc' === substr($url->path, -4)) {
         $map = mcms::getModuleMap();
-        $module = substr($url['path'], 0, -4);
+        $module = substr($url->path, 0, -4);
 
         if (array_key_exists($module, $map['modules'])) {
           mcms::db()->beginTransaction();
 
           if (!empty($map['modules'][$module]['implementors']['iRemoteCall'])) {
-            $ctx = RequestContext::getWidget(isset($url['args']) ? $url['args'] : array(), $_POST);
+            $ctx = RequestContext::getWidget($url->args, $_POST);
 
             foreach ($map['modules'][$module]['implementors']['iRemoteCall'] as $class) {
               if (mcms::class_exists($class))

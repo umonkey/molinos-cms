@@ -52,7 +52,7 @@ class AdminUISearchControl extends Control
     }
 
     $tmp = array(
-      'path' => '/admin/',
+      'path' => 'admin',
       'args' => array(
         'mode' => 'create',
         'type' => $type,
@@ -90,7 +90,7 @@ class AdminUISearchControl extends Control
 
     $output .= '&nbsp;|&nbsp;';
     $output .= mcms::html('a', array(
-      'href' => '/admin/?mode=search&from='. urlencode($_SERVER['REQUEST_URI']),
+      'href' => 'admin?mode=search&from='. urlencode($_SERVER['REQUEST_URI']),
       ), 'Расширенный поиск');
 
     return $output;

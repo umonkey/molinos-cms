@@ -19,7 +19,7 @@ class FileListControl extends Control
   public function getHTML(array $data)
   {
     $output = "<tr><th>&nbsp;</th><th>Название файла</th><th>". mcms::html('img', array(
-      'src' => '/themes/admin/img/bin.gif',
+      'src' => 'themes/admin/img/bin.gif',
       'alt' => 'Убрать',
       )) ."</th></tr>";
 

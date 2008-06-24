@@ -101,7 +101,7 @@ class AdminMenu implements iAdminMenu
     if ($user->hasAccess('u', 'tag'))
       $icons[] = array(
         'group' => 'content',
-        'href' => '/admin/?mode=tree&preset=taxonomy',
+        'href' => 'admin?mode=tree&preset=taxonomy',
         'title' => t('Разделы'),
         'description' => t('Управление разделами сайта.'),
         'weight' => -1,
@@ -110,26 +110,26 @@ class AdminMenu implements iAdminMenu
     if ($user->hasAccess('u', 'type'))
       $icons[] = array(
         'group' => 'structure',
-        'href' => '/admin/?mode=list&preset=schema',
+        'href' => 'admin?mode=list&preset=schema',
         'title' => t('Типы документов'),
         );
 
     if (count($user->getAccess('u'))) {
       $icons[] = array(
         'group' => 'content',
-        'href' => '/admin/?mode=list&columns=name,class,uid,created',
+        'href' => 'admin?mode=list&columns=name,class,uid,created',
         'title' => t('Документы'),
         'description' => t('Поиск, редактирование, добавление документов.'),
         );
       $icons[] = array(
         'group' => 'content',
-        'href' => '/admin/?mode=list&preset=dictlist',
+        'href' => 'admin?mode=list&preset=dictlist',
         'title' => t('Справочники'),
         );
       if (Node::count(array('published' => 0, '-class' => TypeNode::getInternal())))
         $icons[] = array(
           'group' => 'content',
-          'href' => '/admin/?mode=list&preset=drafts',
+          'href' => 'admin?mode=list&preset=drafts',
           'title' => t('В модерации'),
           'description' => t('Поиск, редактирование, добавление документов.'),
           );
@@ -138,13 +138,13 @@ class AdminMenu implements iAdminMenu
     if ($user->hasAccess('u', 'domain')) {
       $icons[] = array(
         'group' => 'structure',
-        'href' => '/admin/?mode=tree&preset=pages',
+        'href' => 'admin?mode=tree&preset=pages',
         'title' => t('Страницы'),
         'description' => t('Управление доменами, страницами и виджетами.'),
         );
       $icons[] = array(
         'group' => 'structure',
-        'href' => '/admin/?mode=list&preset=widgets',
+        'href' => 'admin?mode=list&preset=widgets',
         'title' => t('Виджеты'),
         );
     }
@@ -152,7 +152,7 @@ class AdminMenu implements iAdminMenu
     if ($user->hasAccess('u', 'moduleinfo')) {
       $icons[] = array(
         'group' => 'structure',
-        'href' => '/admin/?mode=modules',
+        'href' => 'admin?mode=modules',
         'title' => t('Модули'),
         );
     }
@@ -160,14 +160,14 @@ class AdminMenu implements iAdminMenu
     if ($user->hasAccess('u', 'user'))
       $icons[] = array(
         'group' => 'access',
-        'href' => '/admin/?mode=list&preset=users',
+        'href' => 'admin?mode=list&preset=users',
         'title' => t('Пользователи'),
         'description' => t('Управление профилями пользователей.'),
         );
     if ($user->hasAccess('u', 'group'))
       $icons[] = array(
         'group' => 'access',
-        'href' => '/admin/?mode=list&preset=groups',
+        'href' => 'admin?mode=list&preset=groups',
         'title' => t('Группы'),
         'description' => t('Управление группами пользователей.'),
         );
@@ -175,7 +175,7 @@ class AdminMenu implements iAdminMenu
     if ($user->hasAccess('u', 'file'))
       $icons[] = array(
         'group' => 'content',
-        'href' => '/admin/?mode=list&preset=files',
+        'href' => 'admin?mode=list&preset=files',
         'title' => t('Файлы'),
         'description' => t('Просмотр, редактирование и добавление файлов.'),
         );
@@ -183,7 +183,7 @@ class AdminMenu implements iAdminMenu
     if (count($user->getAccess('u')) and Node::count(array('deleted' => 1, '-class' => TypeNode::getInternal())))
       $icons[] = array(
         'group' => 'content',
-        'href' => '/admin/?mode=list&preset=trash',
+        'href' => 'admin?mode=list&preset=trash',
         'title' => t('Корзина'),
         'description' => t('Просмотр и восстановление удалённых файлов.'),
         'weight' => 10,

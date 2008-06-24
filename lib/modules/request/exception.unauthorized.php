@@ -20,7 +20,7 @@ class UnauthorizedException extends UserErrorException
         $tmp = array_shift($tmp);
         if (empty($tmp->password)) {
           mcms::user()->authorize('cms-bugs@molinos.ru', null, true);
-          mcms::redirect('/admin/?msg=setpass');
+          mcms::redirect('admin?msg=setpass');
         }
       }
     } catch (Exception $e) { }

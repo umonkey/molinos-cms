@@ -36,7 +36,7 @@ class InstallModule implements iRemoteCall
     header('Content-Type: text/html; charset=utf-8');
     header('Content-Length: '. strlen($output));
     die($output);
-    //mcms::redirect("/admin/?module=exchange&preset=export&result=upgradeok");
+    //mcms::redirect("admin?module=exchange&preset=export&result=upgradeok");
   }
 
   public static function checkInstalled()
@@ -212,8 +212,8 @@ class InstallModule implements iRemoteCall
 
     $data['form'] .= '<p>'. t("Вы были автоматически идентифицированы как пользователь &laquo;%username&raquo;.&nbsp; Пароль для этого пользователя был сгенерирован случайным образом, поэтому сейчас лучше всего <a href='@editlink'>изменить пароль</a> на какой-нибудь, который Вы знаете, а потом уже продолжить <a href='@adminlink'>пользоваться системой</a>.", $args = array(
       '%username' => 'root',
-      '@editlink' => '/admin/?mode=edit&cgroup=access&id='. mcms::user()->id .'&destination=/admin/',
-      '@adminlink' => '/admin/'
+      '@editlink' => 'admin?mode=edit&cgroup=access&id='. mcms::user()->id .'&destination=admin',
+      '@adminlink' => 'admin'
       )) .'</p>';
 
     return $data;
@@ -228,7 +228,7 @@ class InstallModule implements iRemoteCall
       );
 
     $messages = array(
-      'upgradeok' => t('База данных успешно перенесена в MySQL.  Вы можете <a href=\'@continue\'>продолжить пользоваться системой</a> в обычном режиме.  Чтобы переключиться обратно на SQLite, отредактируйте конфигурационный файл Molinos.CMS (обычно это conf/default.ini).', array('@continue' => '/admin/')),
+      'upgradeok' => t('База данных успешно перенесена в MySQL.  Вы можете <a href=\'@continue\'>продолжить пользоваться системой</a> в обычном режиме.  Чтобы переключиться обратно на SQLite, отредактируйте конфигурационный файл Molinos.CMS (обычно это conf/default.ini).', array('@continue' => 'admin')),
       'importok' => t('Восстановление бэкапа прошло успешно.'),
       'exportok' => null,
       );

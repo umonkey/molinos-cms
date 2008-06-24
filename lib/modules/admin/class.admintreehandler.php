@@ -27,7 +27,7 @@ class AdminTreeHandler
 
     $form = new Form(array(
       'id' => 'nodelist-form',
-      'action' => '/nodeapi.rpc?action=mass&destination=CURRENT',
+      'action' => 'nodeapi.rpc?action=mass&destination=CURRENT',
       ));
     $form->addControl(new AdminUINodeActionsControl(array(
       'actions' => $this->actions,
@@ -57,7 +57,7 @@ class AdminTreeHandler
       $data = self::getNodeTree();
 
       if (empty($data))
-        mcms::redirect("/admin/?mode=create&type={$this->type}&destination=CURRENT");
+        mcms::redirect("admin?mode=create&type={$this->type}&destination=CURRENT");
 
       return $data;
     default:
@@ -74,7 +74,7 @@ class AdminTreeHandler
       $this->columns = array('name', 'description', 'link', 'code', 'created');
       $this->actions = array('publish', 'unpublish', 'delete', 'clone');
       $this->title = t('Карта разделов сайта');
-      $this->zoomlink = "/admin/?cgroup=content&columns=name,class,uid,created&mode=list&search=tags%3ANODEID";
+      $this->zoomlink = "admin?cgroup=content&columns=name,class,uid,created&mode=list&search=tags%3ANODEID";
       break;
     case 'pages':
       $this->type = 'domain';
@@ -145,7 +145,7 @@ class AdminTreeHandler
           if ($link) {
             $args = array(
               'class' => array(),
-              'href' => "/admin/?mode=edit&cgroup={$_GET['cgroup']}&id={$node['id']}&destination=CURRENT",
+              'href' => "admin?mode=edit&cgroup={$_GET['cgroup']}&id={$node['id']}&destination=CURRENT",
               'style' => empty($node['depth']) ? null : 'margin-left:'. ($node['depth'] * 10) .'px',
               );
 
@@ -168,11 +168,11 @@ class AdminTreeHandler
         if (array_key_exists('actions', $this->columns)) {
           $actions = array();
 
-          $actions[] = mcms::html('a', array('href' => "/admin/node/{$node['id']}/raise/?destination=CURRENT"), 'поднять');
-          $actions[] = mcms::html('a', array('href' => "/admin/node/{$node['id']}/sink/?destination=CURRENT"), 'опустить');
+          $actions[] = mcms::html('a', array('href' => "adminnode/{$node['id']}/raise/?destination=CURRENT"), 'поднять');
+          $actions[] = mcms::html('a', array('href' => "adminnode/{$node['id']}/sink/?destination=CURRENT"), 'опустить');
 
           if ($this->tree == 'tag')
-            $actions[] = mcms::html('a', array('href' => "/admin/node/create/?BebopNode.class=tag&BebopNode.parent={$node['id']}&destination=CURRENT"), 'добавить');
+            $actions[] = mcms::html('a', array('href' => "adminnode/create/?BebopNode.class=tag&BebopNode.parent={$node['id']}&destination=CURRENT"), 'добавить');
 
           $item['actions'] = join('&nbsp;', $actions);
         }

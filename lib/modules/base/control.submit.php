@@ -24,7 +24,7 @@ class SubmitControl extends Control
       $key = mcms_encrypt($cval);
 
       $output .= mcms::html('img', array(
-        'src' => '/captcha.rpc?seed='. $key,
+        'src' => 'captcha.rpc?seed='. $key,
         'alt' => 'captcha',
         ));
       $output .= '<div class="captchablock">';

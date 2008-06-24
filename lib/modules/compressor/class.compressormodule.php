@@ -34,10 +34,7 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
     if ('text/html' != $page->content_type)
       return;
 
-    $conf = array('options' => array('css', 'html'));
-
-    if (self::can_touch_js())
-      $conf['options'][] = 'js';
+    $conf = array('options' => array('js', 'css', 'Xhtml'));
 
     /*
     $conf = mcms::modconf('compressor');
@@ -54,15 +51,6 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
 
     if (in_array('html', $conf['options']))
       self::fixHTML($output);
-  }
-
-  private static function can_touch_js()
-  {
-    if (!mcms::ismodule('smarty'))
-      return false;
-    if (!class_exists('BebopSmarty'))
-      return false;
-    return !BebopSmarty::debug();
   }
 
   public static function formGetModuleConfig()
@@ -138,10 +126,10 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
       $newscript = mcms::html('script', array(
         'type' => 'text/javascript',
         'language' => 'javascript',
-        'src' => '/compressor.rpc?type=js&hash='. $md5name,
+        'src' => 'compressor.rpc?type=js&hash='. $md5name,
         ));
 
-      $output = str_replace('<head>', '<head>'. $newscript, $output);
+      $output = str_replace('</head>', '</head>'. $newscript, $output);
     }
   }
 
@@ -200,7 +188,7 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
       $newlink = mcms::html('link', array(
         'rel' => 'stylesheet',
         'type' => 'text/css',
-        'href' => '/compressor.rpc?type=css&hash='. $md5name,
+        'href' => 'compressor.rpc?type=css&hash='. $md5name,
         ));
 
       $output = str_replace('</head>', $newlink .'</head>', $output);

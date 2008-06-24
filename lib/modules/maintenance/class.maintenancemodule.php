@@ -33,7 +33,7 @@ class MaintenanceModule implements iModuleConfig, iRequestHook
       if (!empty($conf['state']) and 'closed' === $conf['state']) {
         $url = bebop_split_url();
 
-        if ('/admin/' != substr($url['path'], 0, 7)) {
+        if ('admin' != substr($url['path'], 0, 7)) {
           header('HTTP/1.1 503 Service Unavailable');
           header('Content-Type: text/plain; charset=utf-8');
           die(t('На сервере ведутся технические работы, обратитесь чуть позже.'));
@@ -51,7 +51,7 @@ class MaintenanceModule implements iModuleConfig, iRequestHook
       $icons[] = array(
         'group' => 'Разработка',
         'img' => 'img/cms-maintenance.png',
-        'href' => '/admin/?mode=modules&action=config&name=maintenance&destination=CURRENT',
+        'href' => 'admin?mode=modules&action=config&name=maintenance&destination=CURRENT',
         'title' => t('Технические работы'),
         'description' => t('Позволяет временно закрыть сайт для проведения технических работ.'),
         );
