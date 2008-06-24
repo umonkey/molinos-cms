@@ -168,11 +168,11 @@ class AdminTreeHandler
         if (array_key_exists('actions', $this->columns)) {
           $actions = array();
 
-          $actions[] = mcms::html('a', array('href' => "adminnode/{$node['id']}/raise/?destination=CURRENT"), 'поднять');
-          $actions[] = mcms::html('a', array('href' => "adminnode/{$node['id']}/sink/?destination=CURRENT"), 'опустить');
+          $actions[] = mcms::html('a', array('href' => "admin/node/{$node['id']}/raise/?destination=CURRENT"), 'поднять');
+          $actions[] = mcms::html('a', array('href' => "admin/node/{$node['id']}/sink/?destination=CURRENT"), 'опустить');
 
           if ($this->tree == 'tag')
-            $actions[] = mcms::html('a', array('href' => "adminnode/create/?BebopNode.class=tag&BebopNode.parent={$node['id']}&destination=CURRENT"), 'добавить');
+            $actions[] = mcms::html('a', array('href' => "admin/node/create/?BebopNode.class=tag&BebopNode.parent={$node['id']}&destination=CURRENT"), 'добавить');
 
           $item['actions'] = join('&nbsp;', $actions);
         }

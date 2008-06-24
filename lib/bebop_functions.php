@@ -56,7 +56,7 @@ function l($url, $title = null, array $options = null, $absolute = false)
 
   $parts = bebop_split_url($url);
 
-  if ($parts['host'] == $_SERVER['HTTP_HOST']) {
+  if (empty($parts['host'])) {
     foreach (array('smarty.debug') as $k)
       if (array_key_exists($k, $parts['args']))
         unset($parts['args'][$k]);

@@ -132,7 +132,11 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
   private function getAddLink(array $node)
   {
     if (mcms::user()->hasAccess('c', $node['class']))
-      return $this->getIcon('themes/admin/img/icon-add.png', "admin?cgroup={$_GET['cgroup']}&mode=create&type={$node['class']}&destination=CURRENT", 'title');
+      return $this->getIcon(
+        'themes/admin/img/icon-add.png',
+        "admin?cgroup={$_GET['cgroup']}&mode=create&type={$node['class']}"
+          ."&destination=CURRENT&parent={$node['id']}",
+        'title');
   }
 
   private function getIcon($img, $href, $title)
