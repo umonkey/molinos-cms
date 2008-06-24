@@ -5,6 +5,20 @@ require_once(dirname(__FILE__) .'/../bootstrap.php');
 
 class HtmlTest extends PHPUnit_Framework_TestCase
 {
+  public function testParseHTML()
+  {
+    $html = '<script type="text/javascript" language="javascript" '
+      .'src="themes/test.js">hello</script>';
+
+    $good = array (
+      'type' => 'text/javascript',
+      'language' => 'javascript',
+      'src' => 'themes/test.js',
+      );
+
+    $this->assertEquals($good, mcms::parse_html($html));
+  }
+
   /**
    * @expectedException InvalidArgumentException
    */

@@ -85,52 +85,68 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
   {
     $scripts = $names = array();
 
-    if (preg_match_all('@<script\s+[^>]+></script>@i', $output, $m)) {
-      foreach ($m[0] as $script) {
-        $tmp = str_replace('"', "'", $script);
+    if (preg_match_all('@(<script\s+[^>]+>)\s*</script>@i', $output, $m)) {
+      foreach ($m[0] as $idx => $orig) {
+        $attrs = mcms::parse_html($m[1][$idx]);
 
-        if (false !== strstr($tmp, " language='javascript'")) {
-          if (preg_match("@src='([^']+)'@i", $tmp, $m)) {
-            if (false !== ($tmp = MCMS_ROOT .'/'. $m[1]) and '.js' == substr($tmp, -3) and '/' == substr($tmp, 0, 1)) {
-              $names[] = '// '. $m[1] ."\n";
-              $scripts[] = self::compressJS($tmp);
-              $output = str_replace($script, '', $output);
-            } else {
-              mcms::log('compressor', 'skipped '. $m[1]);
+        if (!empty($attrs['src'])) {
+          if (!strcasecmp('text/javascript', $attrs['type'])) {
+            if ('.js' == substr($attrs['src'], -3)) {
+              $url = new url($attrs['src']);
+
+              if (empty($url->host)) {
+                if (file_exists($file = MCMS_ROOT .'/'. $url->path)) {
+                  $names[] = '// '. $url->path ."\n";
+                  $scripts[] = self::compressJS($file);
+                } else {
+                  mcms::log('compressor', $url->path .': dead, skipped');
+                }
+
+                $output = str_replace($orig, '', $output);
+              }
             }
           }
         }
       }
     }
 
-    // На этот момент в массиве $script содержатся имена уже упакованных скриптов,
-    // которые нужно склеить и выдать клиенту.  Т.к. имена этих файлов формируются
-    // с учётом времени изменения, для получения имени результирующего файла можно
-    // просто склеить их и взять сумму.  Это поможет избежать лишних склеиваний.
+    // На этот момент в массиве $script содержатся имена уже упакованных
+    // скриптов, которые нужно склеить и выдать клиенту.  Т.к. имена этих
+    // файлов формируются с учётом времени изменения, для получения имени
+    // результирующего файла можно просто склеить их и взять сумму.
+    // Это поможет избежать лишних склеиваний.
 
     if (!empty($scripts)) {
-      $scripts = array_unique($scripts);
-      $md5name =  md5(join(',', $scripts));
-      $filename = self::path() .'/mcms-'. $md5name.'.js';
+      $filename = self::mkname($scripts, '.js', $md5name);
 
       // Если файл с нужным именем не существует — создаём его.
       if (!file_exists($filename)) {
         $tmp = join('', $names) ."\n";
 
         foreach ($scripts as $f)
-          $tmp .= file_get_contents($f); // .';';
+          $tmp .= file_get_contents($f);
 
         file_put_contents($filename, $tmp);
       }
 
       $newscript = mcms::html('script', array(
         'type' => 'text/javascript',
-        'language' => 'javascript',
         'src' => 'compressor.rpc?type=js&hash='. $md5name,
         ));
 
       $output = str_replace('</head>', '</head>'. $newscript, $output);
     }
+  }
+
+  private static function mkname(array $files, $suffix, &$md5name)
+  {
+    $files = array_unique($files);
+
+    sort($files);
+
+    $md5name = md5(join(',', $files));
+
+    return self::path() .'/mcms-'. $md5name . $suffix;
   }
 
   // Упаковывает указанный файл, возвращает его имя.

@@ -77,6 +77,19 @@ class mcms
     return $output;
   }
 
+  public static function parse_html($text)
+  {
+    $attrs = array();
+
+    if (preg_match_all('@\s+([a-z]+)=("([^"]*)"|\'([^\']*)\')@', $text, $m)) {
+      foreach ($m[1] as $idx => $key) {
+        $attrs[$key] = $m[3][$idx];
+      }
+    }
+
+    return $attrs;
+  }
+
   public static function mediaGetPlayer(array $files, $types = null, array $custom_options = array())
   {
     $nodes = array();
