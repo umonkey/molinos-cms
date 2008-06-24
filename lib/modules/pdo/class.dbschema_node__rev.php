@@ -1,42 +1,43 @@
 <?php
 
-class DBSchema_node__rev
+class DBSchema_node__rev extends TableManager
 {
-  public static function create()
+  public function __construct()
   {
-    $t = new TableInfo('node__rev');
-    if (!$t->exists()) {
-      $t->columnSet('rid', array(
+    $this->columns['rid'] = array(
         'type' => 'integer',
         'required' => 1,
         'key' => 'pri',
         'autoincrement' => 1,
-        ));
-      $t->columnSet('nid', array(
+        );
+
+    $this->columns['nid'] = array(
         'type' => 'int',
         'required' => 0,
         'key' => 'mul'
-        ));
-      $t->columnSet('uid', array(
+        );
+
+    $this->columns['uid'] = array(
         'type' => 'int',
         'required' => 0,
         'key' =>'mul'
-        ));
-      $t->columnSet('name', array(
+        );
+
+    $this->columns['name'] = array(
         'type' => 'varchar(255)',
         'required' => 0,
         'key' =>'mul'
-        ));
-      $t->columnSet('data', array(
+        );
+
+    $this->columns['data'] = array(
         'type' => 'mediumblob',
         'required' => 0,
-       ));
-      $t->columnSet('created', array(
+        );
+
+    $this->columns['created'] = array(
         'type' => 'datetime',
         'required' => 1,
         'key' =>'mul'
-        ));
-      $t->commit();
-    }
+        );
   }
 }

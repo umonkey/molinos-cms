@@ -34,18 +34,44 @@ class mcms_sqlite_driver extends PDO_Singleton
 
       switch ($info[1]) {
       case 1: // General error: 1 no such table: xyz. (или no such column)
-        if (false !== strstr($info[2], 'no such column')) {
+        if (preg_match("/(no such column:|has no column named)\s*(\S+)/i", $info[2], $matches)) {
+          $cname = trim($matches[2]);
+
           //В SQlite в $info имя таблицы не содержится, надо проанализировать sql-запрос
           //Если в sql-запросе имеется строка node__idx_*** -
           //считаем, что это индексная таблица, и пытаемся её создать заново
           if (preg_match("/node__idx_(\S+)/i", $sql, $matches)) {
-             $node = Node::load(array('class' => 'type', 'name' => $matches[1]));
-             if (!empty($node)) {
-               $node->recreateIdxTable($matches[1]);
-               return self::exec($sql, $params);
-             }
+            $node = Node::load(array('class' => 'type', 'name' => $matches[1]));
+            if (!empty($node)) {
+              $node->recreateIdxTable($matches[1]);
+              return self::exec($sql, $params);
+            }
+          }
+          else { //Это не индексная таблица, а одна из основных
+            $tables = null;
+
+            if (preg_match("/from\s*(.+)(?=where|order|\s*)/i", $sql, $matches))
+              $tables = str_replace("`","",$matches[1]);
+
+            if (preg_match("/(into|update)\s*[`]?([\w_]+)[`]?/i", $sql, $matches))
+              $tables = $matches[2];
+
+            if ($tables != null) {
+              $tlist = preg_split("/\,\s*/", $tables, -1, PREG_SPLIT_NO_EMPTY);
+
+              foreach ($tlist as $tbl) {
+                $spec = TableManager::checkColumn($tbl, $cname);
+
+                if (!empty($spec)) {
+                  $sth = $this->prepare($sql);
+                  $sth->execute($params);
+                  return $sth;
+                }
+              }
+            }
           }
         }
+
         if (false !== strstr($info[2], 'no such table')) {
           if (preg_match("/no such table:\s*(\S+)/i", $info[2], $matches)) {
             if (preg_match("/node__idx_(\S+)/i", $sql, $tblmatches)) {
@@ -57,7 +83,7 @@ class mcms_sqlite_driver extends PDO_Singleton
                }
             }
             else {
-              mcms::invoke('iSchemaManager', 'create', array(array('tblname' => $matches[1])));
+              TableManager::create($matches[1]);
               return self::exec($sql, $params);
             }
           }

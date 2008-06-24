@@ -1,23 +1,21 @@
 <?php
 
-class DBSchema_node__cache
+class DBSchema_node__cache extends TableManager
 {
-  public static function create()
+  public function __construct()
   {
-    $t = new TableInfo('node__cache');
-    if (!$t->exists()) {
-      $t->columnSet('cid', array(
+    $this->columns['cid'] =  array(
         'type' => 'char(32)',
         'required' => true,
-        ));
-      $t->columnSet('lang', array(
+        );
+
+    $this->columns['lang'] =  array(
         'type' => 'char(2)',
         'required' => true,
-        ));
-      $t->columnSet('data', array(
+        );
+
+    $this->columns['data'] =  array(
         'type' => 'mediumblob',
-        ));
-      $t->commit();
-    }
+        );
   }
 }

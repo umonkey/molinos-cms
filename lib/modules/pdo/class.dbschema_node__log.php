@@ -1,42 +1,44 @@
 <?php
 
-class DBSchema_node__log
+class DBSchema_node__log extends TableManager
 {
-  public static function create()
+  public function __construct()
   {
-    $t = new TableInfo('node__log');
-
-    if (!$t->exists()) {
-      $t->columnSet('lid', array(
+    $this->columns['lid'] = array(
         'type' => 'integer',
         'key' => 'pri',
         'autoincrement' => 1,
-        ));
-      $t->columnSet('nid', array(
+        );
+
+    $this->columns['nid'] = array(
         'type' => 'int',
         'required' => false,
-        ));
-      $t->columnSet('uid', array(
+        );
+
+    $this->columns['uid'] = array(
         'type' => 'int',
         'required' => false,
         'key' => 'mul',
-        ));
-      $t->columnSet('username', array(
+        );
+
+    $this->columns['username'] = array(
         'type' => 'varchar(255)',
-        ));
-      $t->columnSet('ip', array(
+        );
+
+    $this->columns['ip'] = array(
         'type' => 'varchar(64)',
-        ));
-      $t->columnSet('operation', array(
+        );
+
+    $this->columns['operation'] = array(
         'type' => 'varchar(255)',
-        ));
-      $t->columnSet('timestamp', array(
+        );
+
+    $this->columns['timestamp'] =  array(
         'type' => 'datetime',
-        ));
-      $t->columnSet('message', array(
-        'type' => 'text',
-        ));
-      $t->commit();
-    }
+        );
+
+    $this->columns['message'] = array(
+       'type' => 'text',
+        );
   }
 }

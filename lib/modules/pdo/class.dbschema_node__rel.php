@@ -1,32 +1,31 @@
 <?php
 
-class DBSchema_node__rel
+class DBSchema_node__rel extends TableManager
 {
-  public static function create()
+  public function __construct()
   {
-    $t = new TableInfo('node__rel');
-    if (!$t->exists()) {
-      $t->columnSet('nid', array(
+    $this->columns['nid'] = array(
         'type' => 'int',
         'required' => 1,
         'key' => 'mul'
-        ));
-      $t->columnSet('tid', array(
+        );
+
+    $this->columns['tid'] = array(
         'type' => 'int',
         'required' => 1,
         'key' => 'mul'
-        ));
-      $t->columnSet('key', array(
+        );
+
+    $this->columns['key'] = array(
         'type' => 'varchar(255)',
         'required' => 0,
         'key' =>'mul'
-        ));
-      $t->columnSet('order', array(
+        );
+
+    $this->columns['order'] = array(
         'type' => 'int',
         'required' => 0,
         'key' =>'mul'
-        ));
-       $t->commit();
-    }
+        );
   }
 }

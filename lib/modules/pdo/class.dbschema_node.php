@@ -1,80 +1,86 @@
 <?php
 
-class DBSchema_node
+class DBSchema_node extends TableManager
 {
-  public static function create()
+  public function __construct()
   {
-    $t = new TableInfo('node');
-
-    if (!$t->exists()) {
-      $t->columnSet('id', array(
+    $this->columns['id'] = array(
         'type' => 'int',
         'required' => true,
         'key' => 'mul',
-        ));
-      $t->columnSet('lang', array(
+        );
+
+    $this->columns['lang'] = array(
         'type' => 'char(4)',
         'required' => true,
         'key' => 'mul',
-        ));
-      $t->columnSet('rid', array(
+        );
+
+    $this->columns['rid'] = array(
         'type' => 'int',
         'required' => 0,
         'key' => 'mul',
-        ));
-      $t->columnSet('parent_id', array(
+        );
+
+    $this->columns['parent_id'] = array(
         'type' => 'int',
         'required' => 0,
-        ));
-      $t->columnSet('class', array(
+        );
+
+    $this->columns['class'] = array(
         'type' => 'varchar(16)',
         'required' => 1,
         'key' => 'mul'
-        ));
-      $t->columnSet('code', array(
+        );
+
+    $this->columns['code'] =  array(
         'type' => 'varchar(16)',
         'required' => 0,
         'key' => 'uni'
-        ));
+        );
 
-      $t->columnSet('left', array(
+    $this->columns['left'] = array(
         'type' => 'int',
         'required' => 0,
         'key' => 'mul'
-        ));
-      $t->columnSet('right', array(
+        );
+
+    $this->columns['right'] = array(
         'type' => 'int',
         'required' => 0,
         'key' => 'mul'
-       ));
-      $t->columnSet('uid', array(
+        );
+
+    $this->columns['uid'] = array(
         'type' => 'int',
         'required' => 0,
         'key' => 'mul'
-        ));
-     $t->columnSet('created', array(
+        );
+
+    $this->columns['created'] = array(
         'type' => 'datetime',
         'required' => 0,
         'key' => 'mul'
-        ));
-     $t->columnSet('updated', array(
+        );
+
+    $this->columns['updated'] = array(
         'type' => 'datetime',
         'required' => 0,
         'key' => 'mul'
-        ));
-     $t->columnSet('published', array(
+        );
+
+    $this->columns['published'] = array(
         'type' => 'tinyint(1)',
         'required' => 1,
         'default' => 0,
         'key' => 'mul'
-        ));
-     $t->columnSet('deleted', array(
+        );
+
+    $this->columns['deleted'] = array(
         'type' => 'tinyint(1)',
         'required' => 1,
         'default' => 0,
         'key' => 'mul'
-        ));
-      $t->commit();
-    }
+        );
   }
 }

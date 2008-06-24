@@ -1,27 +1,24 @@
 <?php
 
-class DBSchema_node__session
+class DBSchema_node__session extends TableManager
 {
-  public static function create()
+  public function __construct()
   {
-    $t = new TableInfo('node__session');
-
-    if (!$t->exists()) {
-      $t->columnSet('sid', array(
+    $this->columns['sid'] = array(
         'type' => 'char(32)',
         'required' => true,
         'key' => 'pri',
-        ));
-      $t->columnSet('created', array(
+        );
+
+    $this->columns['created'] = array(
         'type' => 'datetime',
         'required' => true,
         'key' => 'mul',
-        ));
-      $t->columnSet('data', array(
+        );
+
+    $this->columns['data'] =  array(
         'type' => 'blob',
         'required' => true,
-        ));
-       $t->commit();
-    }
+       );
   }
 }

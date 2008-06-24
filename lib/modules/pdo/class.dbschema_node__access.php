@@ -1,48 +1,49 @@
 <?php
 
-class DBSchema_node__access
+class DBSchema_node__access extends TableManager
 {
-  public static function create()
+  public function __construct()
   {
-    $t = new TableInfo('node__access');
-    if (!$t->exists()) {
-      $t->columnSet('nid', array(
-        'type' => 'int',
-        'required' => 1,
-        'key' => 'mul',
-        ));
-      $t->columnSet('uid', array(
-        'type' => 'int',
-        'required' => 1,
-        'key' => 'mul'
-        ));
-      $t->columnSet('c', array(
-        'type' => 'tinyint(1)',
-        'required' => 1,
-        'default' => 0,
-        ));
-      $t->columnSet('r', array(
-        'type' => 'tinyint(1)',
-        'required' => 1,
-        'default' => 0,
-        ));
-      $t->columnSet('u', array(
-        'type' => 'tinyint(1)',
-        'required' => 1,
-        'default' => 0,
-        ));
-      $t->columnSet('d', array(
-        'type' => 'tinyint(1)',
-        'required' => 1,
-        'default' => 0,
-        ));
-      $t->columnSet('p', array(
-        'type' => 'tinyint(1)',
-        'required' => 1,
-        'default' => 0,
-        ));
+    $this->columns['nid'] = array(
+      'type' => 'int',
+      'required' => 1,
+      'key' => 'mul',
+      );
 
-       $t->commit();
-    }
+    $this->columns['uid'] = array(
+      'type' => 'int',
+      'required' => 1,
+      'key' => 'mul'
+      );
+
+    $this->columns['c'] = array(
+      'type' => 'tinyint(1)',
+      'required' => 1,
+      'default' => 0,
+      );
+
+    $this->columns['r'] = array(
+      'type' => 'tinyint(1)',
+      'required' => 1,
+      'default' => 0,
+      );
+
+    $this->columns['u'] = array(
+      'type' => 'tinyint(1)',
+      'required' => 1,
+      'default' => 0,
+      );
+
+    $this->columns['d'] = array(
+      'type' => 'tinyint(1)',
+      'required' => 1,
+      'default' => 0,
+      );
+
+    $this->columns['p'] = array(
+      'type' => 'tinyint(1)',
+      'required' => 1,
+      'default' => 0,
+      );
   }
 }
