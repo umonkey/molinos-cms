@@ -36,8 +36,8 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
 
     $conf = array('options' => array('css', 'html'));
 
-    if (!class_exists('BebopSmarty') or !BebopSmarty::debug())
-      $conf['options'] = 'js';
+    if (self::can_touch_js())
+      $conf['options'][] = 'js';
 
     /*
     $conf = mcms::modconf('compressor');
@@ -54,6 +54,15 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
 
     if (in_array('html', $conf['options']))
       self::fixHTML($output);
+  }
+
+  private static function can_touch_js()
+  {
+    if (!mcms::ismodule('smarty'))
+      return false;
+    if (!class_exists('BebopSmarty'))
+      return false;
+    return !BebopSmarty::debug();
   }
 
   public static function formGetModuleConfig()
