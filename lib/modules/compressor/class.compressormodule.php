@@ -34,7 +34,7 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
     if ('text/html' != $page->content_type)
       return;
 
-    $conf = array('options' => array('js', 'css', 'Xhtml'));
+    $conf = array('options' => array('js', 'css', 'html'));
 
     /*
     $conf = mcms::modconf('compressor');
