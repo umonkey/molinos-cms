@@ -809,20 +809,24 @@ class NodeBase
 
     // Формируем список групп.
     if ($default === null)
-      $default = $pdo->getResultsK("name", "SELECT `r`.`name` as `name` FROM `node` `n` "
+      $default = $pdo->getResultsK("name", "SELECT `r`.`name` as `name` "
+        ."FROM `node` `n` "
         ."INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` "
-        ."WHERE `n`.`class` = 'group' AND `n`.`deleted` = 0 ORDER BY `r`.`name`");
+        ."WHERE `n`.`class` = 'group' AND `n`.`deleted` = 0 "
+        ."ORDER BY `r`.`name`");
 
     $data = $default;
 
     $sql = "SELECT `r`.`name` as `name`, `a`.`c` as `c`, "
-      ."`a`.`r` as `r`, `a`.`u` as `u`, `a`.`d` as `d`, `a`.`p` as `p` FROM `node__access` `a` "
+      ."`a`.`r` as `r`, `a`.`u` as `u`, `a`.`d` as `d`, `a`.`p` as `p` "
+      ."FROM `node__access` `a` "
       ."INNER JOIN `node` `n` ON `n`.`id` = `a`.`uid` "
       ."INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` "
       ."WHERE `a`.`nid` = :nid AND `n`.`class` = 'group' AND `n`.`deleted` = 0";
 
-    // Формируем таблицу с правами.
-    foreach ($pdo->getResultsK("name", $sql, array(':nid' => $this->id)) as $group => $perms) {
+    $rows = $pdo->getResultsK("name", $sql, array(':nid' => $this->id));
+
+    foreach ($rows as $group => $perms) {
       $data[$group]['c'] = $perms['c'];
       $data[$group]['r'] = $perms['r'];
       $data[$group]['u'] = $perms['u'];

@@ -16,7 +16,7 @@ function smarty_function_bebop_render_file($params, &$smarty)
     case 'image/png':
     case 'image/gif':
       $file = $params['file'];
-      $src = '/attachment/'. $file['id'];
+      $src = 'attachment/'. $file['id'];
 
       $output = '<img';
 
@@ -65,7 +65,7 @@ function smarty_function_bebop_render_file($params, &$smarty)
     case 'application/x-shockwave-flash':
       // получаем параметры файла
       $file = $params['file'];
-      $src = '/attachment/'. $file['id'];
+      $src = 'attachment/'. $file['id'];
 
       // определяем высоту и ширину - либо по данным, выданным виджетом, либо по данным, указанным в вызове функции. последнее приоритетней
       (empty($params['height'])) ? $height = $file['height'] : $height = $params['height'];

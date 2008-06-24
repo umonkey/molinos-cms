@@ -91,7 +91,14 @@ class User
       $result = array();
 
       if (count($groups = array_keys($this->getGroups()))) {
-        $data = mcms::db()->getResults($sql = "SELECT `v`.`name` AS `name`, MAX(`a`.`c`) AS `c`, MAX(`a`.`r`) AS `r`, MAX(`a`.`u`) AS `u`, MAX(`a`.`d`) AS `d`, MAX(`a`.`p`) AS `p` FROM `node` `n` INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` INNER JOIN `node__access` `a` ON `a`.`nid` = `n`.`id` WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0 AND `a`.`uid` IN (". join(', ', $groups) .") GROUP BY `v`.`name`");
+        $data = mcms::db()->getResults($sql = "SELECT `v`.`name` AS `name`, "
+          ."MAX(`a`.`c`) AS `c`, MAX(`a`.`r`) AS `r`, MAX(`a`.`u`) AS `u`, "
+          ."MAX(`a`.`d`) AS `d`, MAX(`a`.`p`) AS `p` "
+          ."FROM `node` `n` "
+          ."INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
+          ."INNER JOIN `node__access` `a` ON `a`.`nid` = `n`.`id` "
+          ."WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0 "
+          ."AND `a`.`uid` IN (". join(', ', $groups) .") GROUP BY `v`.`name`");
         $mask = array('c', 'r', 'u', 'd', 'p');
 
         foreach ($data as $row) {

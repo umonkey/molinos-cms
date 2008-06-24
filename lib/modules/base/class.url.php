@@ -59,13 +59,14 @@ class url
       elseif (!self::$clean)
         $path = '';
 
-      elseif ('.rpc' != substr($path, -4))
+      elseif ('.rpc' != substr($path, -4) and 'attachment/' != substr($path, 0, 11))
         $path .= '/';
 
       $result = sprintf('%s://%s/%s', $this->scheme, $this->host,
         ltrim(self::$root . $path . $this->getArgsAsString($isfile), '/'));
     } else {
-      $result = sprintf('%s://%s/%s%s', $this->scheme, $this->host, $this->path, $this->getArgsAsString());
+      $result = sprintf('%s://%s/%s%s', $this->scheme,
+        $this->host, $this->path, $this->getArgsAsString());
     }
 
     return $result;

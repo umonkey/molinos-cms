@@ -16,7 +16,7 @@ function smarty_function_gravatar($params, &$smarty)
 
   foreach ((array)$user->files as $f) {
     if (substr($f['filetype'], 0, 6) == 'image/') {
-      $default = 'http://'. $_SERVER['HTTP_HOST'] ."/attachment/{$f['id']},{$size},{$size},c";
+      $default = 'http://'. $_SERVER['HTTP_HOST'] ."attachment/{$f['id']},{$size},{$size},c";
       break;
     }
   }

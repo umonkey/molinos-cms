@@ -71,14 +71,14 @@ class AdminUIListControl extends Control
             $href = $node['#link'];
           } else {
             $href = isset($this->picker)
-              ? "/attachment/{$node['id']}"
+              ? "att.php?q={$node['id']}"
               : '/admin/?mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination=CURRENT';
           }
 
           $row .= mcms::html('a', array(
             'href' => $href,
             'class' => isset($this->picker) ? 'returnHref' : null,
-            'onclick' => isset($this->picker) ? "return mcms_picker.mySubmit(\"". l('/attachment/'. $node['id']) ."\",{$node['id']})" : null,
+            'onclick' => isset($this->picker) ? "return mcms_picker.mySubmit(\"". l('att.php?q='. $node['id']) ."\",{$node['id']})" : null,
             ), empty($value) ? '(без названия)' : mcms_plain($value, false));
         } elseif (empty($value))
           $row .= '&nbsp;';
@@ -149,11 +149,13 @@ class AdminUIListControl extends Control
         if (file_exists($path = mcms::config('filestorage') .'/'. $node['filepath'])) {
           if (substr($node['filetype'], 0, 6) == 'image/')
             $tmp = mcms::html('img', array(
-              'src' => "/attachment/{$node['id']},48,48,c",
+              'src' => "att.php?q={$node['id']},48,48,c",
               'width' => 48,
               'height' => 48,
               'alt' => $node['filepath'],
-              'onclick' => isset($this->picker) ? "return mcms_picker.mySubmit(\"". l('/attachment/'. $node['id']) ."\",{$node['id']})" : null,
+              'onclick' => isset($this->picker)
+                ? "return mcms_picker.mySubmit(\"". l('att.php?q='. $node['id']) ."\",{$node['id']})"
+                : null,
               ));
           else
             $tmp = mcms::html('img', array(
@@ -165,7 +167,7 @@ class AdminUIListControl extends Control
 
           $tmp = mcms::html('a', array(
             'title' => 'Скачать',
-            'href' => "/attachment/{$node['id']}",
+            'href' => "att.php?q={$node['id']}",
             'class' => isset($this->picker) ? 'returnHref' : null,
             ), $tmp);
 
