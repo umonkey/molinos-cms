@@ -12,7 +12,7 @@ tmpdir = tmp
 file_cache_ttl = 3600
 
 [db]
-default = sqlite:conf/example.db
+default = sqlite:conf/default.db
 
 [runtime]
 modules = compressor, tinymce

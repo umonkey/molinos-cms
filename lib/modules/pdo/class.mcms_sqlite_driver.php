@@ -10,6 +10,15 @@ class mcms_sqlite_driver extends PDO_Singleton
     $this->dbfile = trim($conf['path'], '/');
     $dsn = 'sqlite:'. $this->dbfile;
 
+    if (!file_exists($this->dbfile)) {
+      if ('conf/default.db' == $this->dbfile) {
+        if (file_exists($dist = $this->dbfile .'.dist')) {
+          if (is_writable(dirname(realpath($dist))))
+            copy($dist, $this->dbfile);
+        }
+      }
+    }
+
     try {
       parent::__construct($dsn, '', '');
     } catch (PDOException $e) {

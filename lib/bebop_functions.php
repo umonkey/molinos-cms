@@ -165,7 +165,7 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
 {
   $__root = MCMS_ROOT;
 
-  $data['base'] = dirname($_SERVER['SCRIPT_NAME']) .'/';
+  $data['base'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/';
 
   if (null === $theme) {
     $ctx = RequestContext::getGlobal();

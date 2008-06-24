@@ -333,7 +333,7 @@ class mcms
 
     // Относительные ссылки на CMS.
     if (empty($url->host) and '/' != substr($url->path, 0, 1)) {
-      $target = dirname($_SERVER['SCRIPT_NAME']) .'/'. strval($url);
+      $target = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/'. strval($url);
     } else {
       $target = strval($url);
     }
