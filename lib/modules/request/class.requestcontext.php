@@ -239,31 +239,27 @@ class RequestContext
 
   public static function getFiles(array &$data)
   {
-    foreach ($_FILES as $field => $fileinfo) {
-      if (is_array($fileinfo['name'])) {
-        foreach (array_keys($fileinfo) as $key) {
-          // FIXME: быстрый хак для работы плагина на jQuery.  Судя по документации,
-          // обращение к файлам действительно должно быть таким идиотским:
-          //   http://docs.php.net/manual/en/features.file-upload.multiple.php
-          //   $_FILES['userfile']['name'][0]
-          // При загрузке в двойной массив (file[name][]) — ещё глубже.
-          // Как бы это по-красивее пропарсить?
-          if (array_key_exists('__bebop', $tmp = $fileinfo[$key])) {
-            $tmp = $tmp['__bebop'];
-            $prefix = '__bebop';
-          } else {
-            $prefix = '';
-          }
+    foreach ($_FILES as $field => $crap) {
+      if (!array_key_exists($field, $data))
+        $data[$field] = array();
 
-          foreach ($tmp as $k => $v) {
-            $data[$field][$prefix . $k][$key] = $v;
-          }
+      foreach (array_keys($crap) as $key)
+        self::getOneFile($data[$field], $crap[$key], $key);
+    }
+  }
+
+  private static function getOneFile(array &$data, array $files, $key)
+  {
+    foreach ($files as $k => $v) {
+      if (!is_array($v))
+        $data[$k][$key] = $v;
+
+      elseif (is_array($v)) {
+        foreach ($v as $idx => $val) {
+          if (!array_key_exists($k, $data))
+            $data[$k] = array();
+          self::getOneFile($data[$k], $v, $key);
         }
-      }
-
-      else {
-        foreach ($fileinfo as $k => $v)
-          $data[$field][$k] = $v;
       }
     }
   }

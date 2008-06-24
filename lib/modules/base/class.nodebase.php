@@ -5,6 +5,10 @@ class NodeBase
 {
   protected $data = array();
 
+  // Массив файлов вынесен в отдельную переменную,
+  // чтобы не попадать в $data и не сохраняться в БД.
+  public $files = array();
+
   // Сюда складываем загруженные ноды.
   static private $cache = array();
 
@@ -79,7 +83,8 @@ class NodeBase
       throw new ObjectNotFoundException();
 
     elseif (count($data) > 1 and !$first)
-      throw new InvalidArgumentException("Выборка объекта по условию вернула более одного объекта. Условие: ". var_export($id, true));
+      throw new InvalidArgumentException("Выборка объекта по условию вернула "
+        ."более одного объекта. Условие: ". var_export($id, true));
 
     $node = array_shift($data);
 
@@ -94,13 +99,15 @@ class NodeBase
     $sql = null;
     $params = array();
     $fetch_extra = true;
-    $fetch_att = !array_key_exists('#files', $query) or !empty($query['#files']);
+    $fetch_att = !array_key_exists('#files', $query)
+      or !empty($query['#files']);
 
     // Список запрашиваемых полей.
     $fields = array('`node`.`id`', '`node`.`rid`', '`node`.`code`',
-      '`node`.`class`', '`node`.`parent_id`', '`node`.`uid`', '`node`.`created`',
-      '`node`.`updated`', '`node`.`lang`', '`node`.`published`', '`node`.`deleted`',
-      '`node`.`left`', '`node`.`right`', '`node__rev`.`name`', '`node__rev`.`data`');
+      '`node`.`class`', '`node`.`parent_id`', '`node`.`uid`',
+      '`node`.`created`', '`node`.`updated`', '`node`.`lang`',
+      '`node`.`published`', '`node`.`deleted`', '`node`.`left`',
+      '`node`.`right`', '`node__rev`.`name`', '`node__rev`.`data`');
 
     $qb = new NodeQueryBuilder($query);
     $qb->getSelectQuery($sql, $params, $fields);
@@ -120,7 +127,8 @@ class NodeBase
 
     mcms::db()->log("--- Finding nodes ---");
 
-    return self::dbRead($sql, $params, empty($query['#recurse']) ? 0 : intval($query['#recurse']));
+    return self::dbRead($sql, $params, empty($query['#recurse'])
+      ? 0 : intval($query['#recurse']));
   }
 
   // Возвращает количество документов, удовлетворяющих условию.
@@ -1151,7 +1159,7 @@ class NodeBase
 
     $tab->addControl(new AttachmentControl(array(
       'extended' => true,
-      'value' => 'node_content_files[__bebop]',
+      'value' => 'node_content_files[__bebop][]',
       'uploadtxt' => t('Загрузить'),
       'unzip' => true,
       )));
@@ -1298,56 +1306,21 @@ class NodeBase
 
     if (!empty($data['node_content_files'])) {
       foreach ($data['node_content_files'] as $field => $fileinfo) {
-        switch ($fileinfo['error']) {
-        case UPLOAD_ERR_INI_SIZE:
-          throw new ValidationException(t('Файл %name слишком большой; максимальный размер файла: %size.', array('%name' => $fileinfo['name'], '%size' => ini_get('upload_max_filesize'))));
-        }
-
         if (!is_array($fileinfo))
           continue;
 
-        $fkey = (!is_numeric($field) and substr($field, 0, 7) != '__bebop') ? $field : null;
+        if (UPLOAD_ERR_NO_FILE == $fileinfo['error']
+          and empty($fileinfo['deleted']))
+            continue;
 
-        // Удаление (отвязка) прикреплённого файла.
-        if (!empty($fileinfo['delete'])) {
-          $this->linkRemoveChild(empty($fileinfo['id']) ? null : $fileinfo['id'], $field);
-        }
+        elseif (UPLOAD_ERR_INI_SIZE == $fileinfo['error'])
+          throw new ValidationException(t('Файл %name слишком большой; '
+            .'максимальный размер файла: %size.', array(
+              '%name' => $fileinfo['name'],
+              '%size' => ini_get('upload_max_filesize'),
+              )));
 
-        // Загрузка нового файла.
-        elseif (!empty($fileinfo['tmp_name'])) {
-          $fileinfo['parent_id'] = $this->id;
-
-          $node = Node::create('file');
-          $node->import($fileinfo);
-
-          $this->linkAddChild($node->id, $fkey);
-        }
-
-        // Подключение файла.
-        elseif (!empty($fileinfo['id'])) {
-          $this->linkAddChild($fileinfo['id'], $fkey);
-        }
-
-        // Обновление других свойств — поддерживается только для файлов в дополнительной вкладке,
-        // у которых числовые индексы; для полей типа «файл» эта возможность отсутствует.
-        elseif (is_numeric($field)) {
-          $file = Node::load(array('class' => 'file', 'id' => $field));
-
-          if (!empty($fileinfo['unlink']))
-            $file->linkRemoveParent($this->id);
-
-          else {
-            if (!empty($fileinfo['name']))
-              $file->data['name'] = $fileinfo['name'];
-            if (!empty($fileinfo['description']))
-              $file->data['description'] = $fileinfo['description'];
-
-            if (!empty($fileinfo['tmp_name']))
-              $file->import($fileinfo);
-
-            $file->save();
-          }
-        }
+        $this->attachOneFile($field, $fileinfo);
       }
     }
 
@@ -1371,6 +1344,65 @@ class NodeBase
 
     if ($this->canPublish())
       $this->data['published'] = !empty($data['node_content_published']);
+  }
+
+  private function attachOneFile($field, array $fileinfo)
+  {
+    // Обработка вложенных массивов, обычно случается
+    // при загрузке нескольких файлов через MultiFile.js.
+    if (empty($fileinfo['name']) and !empty($fileinfo[0])) {
+      foreach ($fileinfo as $v)
+        $this->attachOneFile($field, $v);
+    }
+
+    // Обработка отдельного файла.
+    else {
+      $fkey = (!is_numeric($field) and '__bebop' != $field)
+        ? $field : null;
+
+      // Удаление (отвязка) прикреплённого файла.
+      if (!empty($fileinfo['delete'])) {
+        $this->linkRemoveChild(empty($fileinfo['id'])
+          ? null : $fileinfo['id'], $field);
+      }
+
+      // Загрузка нового файла.
+      elseif (!empty($fileinfo['tmp_name'])) {
+        $fileinfo['parent_id'] = $this->id;
+
+        $node = Node::create('file');
+        $node->import($fileinfo);
+
+        $this->linkAddChild($node->id, $fkey);
+      }
+
+      // Подключение файла.
+      elseif (!empty($fileinfo['id'])) {
+        $this->linkAddChild($fileinfo['id'], $fkey);
+      }
+
+      // Обновление других свойств — поддерживается только для файлов
+      // в дополнительной вкладке, у которых числовые индексы; для полей
+      // типа «файл» эта возможность отсутствует.
+      elseif (is_numeric($field)) {
+        $file = Node::load(array('class' => 'file', 'id' => $field));
+
+        if (!empty($fileinfo['unlink']))
+          $file->linkRemoveParent($this->id);
+
+        else {
+          if (!empty($fileinfo['name']))
+            $file->data['name'] = $fileinfo['name'];
+          if (!empty($fileinfo['description']))
+            $file->data['description'] = $fileinfo['description'];
+
+          if (!empty($fileinfo['tmp_name']))
+            $file->import($fileinfo);
+
+          $file->save();
+        }
+      }
+    }
   }
 
   // Проверка, может ли пользователь публиковать документ.
@@ -1560,8 +1592,16 @@ class NodeBase
     if ($recurse and !empty($nodes)) {
       $map = array();
 
-      foreach (mcms::db()->getResults($sql = "SELECT `tid`, `nid`, `key` FROM `node__rel` WHERE `tid` IN (". join(', ', array_keys($nodes)) .")") as $l)
-        $map[$l['nid']][] = $l;
+      // FIXME: distinct надо убрать, но в Node::link* надо добавить
+      // форсирование уникальности, т.к. в SQLite REPLACE INTO по
+      // составным ключам, похоже, не работает.
+      $sql = "SELECT DISTINCT `tid`, `nid`, `key` "
+        ."FROM `node__rel` WHERE `nid` IN (SELECT `id` FROM `node` WHERE "
+        ."`deleted` = 0) AND `tid` "
+        ."IN (". join(', ', array_keys($nodes)) .")";
+
+      foreach (mcms::db()->getResults($sql) as $l)
+          $map[$l['nid']][] = $l;
 
       if (!empty($map)) {
         $extras = Node::find(array('id' => array_keys($map), '#recurse' => $recurse - 1));
@@ -1573,8 +1613,9 @@ class NodeBase
 
               if (null !== $link['key'])
                 $nodes[$link['tid']]->$link['key'] = $extra;
-              elseif ('file' == $extra->class)
+              elseif ('file' == $extra->class) {
                 $nodes[$link['tid']]->files[] = $extra;
+              }
             }
           }
         }

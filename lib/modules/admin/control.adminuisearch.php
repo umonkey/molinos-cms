@@ -47,8 +47,9 @@ class AdminUISearchControl extends Control
       // Если остался один — используем его, если их нет — отключаем добавление.
       if (empty($available))
         return;
-      elseif (count($available) == 1)
-        $type = $available[0];
+      elseif (count($available) == 1) {
+        $type = array_shift($available);
+      }
     }
 
     $tmp = array(
