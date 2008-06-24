@@ -216,7 +216,7 @@ abstract class Widget implements iWidget
   }
 
   // Форматирование.
-  public final function render($page, $args, $class)
+  public final function render($page, $args, $class = null)
   {
     $args['instance'] = $this->getInstanceName();
     $args['lang'] = $page->language;
