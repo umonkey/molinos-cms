@@ -146,6 +146,9 @@ class WidgetNode extends Node implements iContentType
         'options' => DomainNode::getFlatSiteMap('select'),
         )));
       $form->addControl($tab);
+
+      $form->replaceControl('node_content_classname', null);
+      $form->replaceControl('node_content_config', null);
     }
 
     return $form;
