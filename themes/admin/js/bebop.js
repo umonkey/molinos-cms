@@ -101,8 +101,6 @@ $(document).ready(function () {
   $('form.node-file-create-form input[name="__file_mode"]').change(function () { bebop_fix_file_mode_selection($(this).val()); });
   bebop_fix_file_mode_selection('local');
 
-  bebop_fix_files();
-
   $('.control-FieldControl-wrapper .selector').click(function () {
     var field = $(this).attr('href').replace(/.*#/, '');
 
@@ -262,27 +260,6 @@ function bebop_fix_file_mode_selection(sel)
   }
 }
 
-function bebop_fix_files()
-{
-  $('#center .form-file.archive').each(function (i) {
-    var f = $('#center .form-file.archive').eq(i);
-    var id = f.attr('id').replace('-input', '');
-
-    var html = ""
-      +"<label style='display:inline'><input type='checkbox' value='1' id='"+id+"-delete' name='"+$('#'+id+'-input').attr('name')+"[delete]' /> удалить</label>"
-      +" или <a href='javascript:mcms_file_pick(\""+ id +"\");'>подобрать</a>"
-      ;
-
-    f.after("<p class='attctl'>"+ html +'</p>');
-
-    var current = $('#center :hidden#'+ id +'-hidden').attr('value');
-    if (current)
-      f.before("<img id='"+ id +"-preview' src='/attachment/"+ current +",100,100,d' alt='preview' style='margin: 0 4px 4px 0; float: left;' />");
-
-    $('#center #'+ id +'-input').parent().after("<div style='clear: both;'></div>");
-  });
-}
-
 function bebop_fix_domain_defaultsection()
 {
   switch ($('form.node-domain-edit-form #control-node-params-wrapper select').attr('value')) {
@@ -342,38 +319,6 @@ function bebop_selected_action(action)
     $('form#nodelist-form').submit();
   }
 }
-
-function mcms_file_pick_real(field_name, url, type, win, path)
-{
-  var picker = path +'/index.php?cgroup=content&mode=list&preset=files&q=%2Fadmin%2F&picker='+ field_name +'&window='+ (win === undefined ? 'find' : win.name);
-
-  if (type == 'image')
-    picker += '&search=image%2F';
-
-  // Параметр не определён только при нажатии в ссылку «подобрать»
-  if (win === undefined) {
-    window.open(picker);
-    return;
-  }
-
-  else {
-    tinyMCE.activeEditor.windowManager.open({
-      file : picker,
-      title : 'My File Browser',
-      width : 420,  // Your dimensions may differ - toy around with them!
-      height : 400,
-      resizable : "yes",
-      inline : "yes",  // This parameter only has an effect if you use the inlinepopups plugin!
-      close_previous : "no"
-    }, {
-      window : win,
-      input : field_name
-    });
-
-    return false;
-  }
-}
-
 
 /**
  * Функция предназначена для отладки. Shortcut console.log'a.

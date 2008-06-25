@@ -80,12 +80,12 @@ function get_dba_link()
         mcms::extras('themes/all/jquery/plugins/jquery.bgiframe.js');
         mcms::extras('themes/all/jquery/plugins/jquery.MultiFile.js');
         mcms::extras('themes/admin/js/bebop.js');
-      } elseif ('find' == $_GET['window']) {
+      } elseif (!empty($_GET['window']) and 'find' == $_GET['window']) {
         mcms::extras('lib/modules/tinymce/editor/tiny_mce_popup.js');
         mcms::extras('themes/admin/js/picker-redux.js');
       } else {
-        mcms::extras('lib/modules/tinymce/editor/tiny_mce_popup.js');
-        mcms::extras('themes/admin/js/picker.js');
+        // mcms::extras('lib/modules/tinymce/editor/tiny_mce_popup.js');
+        mcms::extras('lib/modules/base/control.attachment.js');
       }
     ?>
     <?php print mcms::extras(); ?>

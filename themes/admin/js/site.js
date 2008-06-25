@@ -47,8 +47,6 @@ $(document).ready(function () {
 
   $('form.node-file-create-form input[name="__file_mode"]').change(function () { bebop_fix_file_mode_selection($(this).val()); });
   bebop_fix_file_mode_selection('local');
-
-  bebop_fix_files();
 });
 
 function bebop_fix_file_mode_selection(sel)
@@ -64,25 +62,6 @@ function bebop_fix_file_mode_selection(sel)
   }
 }
 
-function bebop_fix_files()
-{
-  $('#center :file').each(function (i) {
-    var f = $('#center :file').eq(i);
-    var id = f.attr('id').replace('-input', '');
-
-    var html = "<a id='"+ id +"-del-link' href='javascript:mcms_file_delete(\""+ id +"\");'>удалить</a> "
-      +"<a href='javascript:mcms_file_pick(\""+ id +"\");'>подобрать</a>";
-
-    f.after('<p>'+ html +'</p>');
-
-    var current = $('#center :hidden#'+ id +'-hidden').attr('value');
-    if (current)
-      f.before("<a href='/attachment/"+ current +"' target='_blank'><img id='"+ id +"-preview' src='/attachment/"+ current +",100,100,d' alt='preview' style='margin: 0 4px 4px 0; float: left;' /></a>");
-
-    $('#center #'+ id +'-input').parent().after("<div style='clear: both;'></div>");
-  });
-}
-
 function bebop_fix_domain_defaultsection()
 {
   switch ($('form.node-domain-edit-form #control-node-params-wrapper select').attr('value')) {
@@ -95,16 +74,6 @@ function bebop_fix_domain_defaultsection()
   }
 }
 
-function mcms_file_delete(id)
-{
-  var hval = '';
-
-  if ($('#center #'+ id +'-del-link').toggleClass('bold').hasClass('bold'))
-    hval = 'deleted';
-
-  $('#center #'+ id +'-hidden').attr('value', hval);
-}
-
 function mcms_gup(name)
 {
   name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
@@ -115,11 +84,6 @@ function mcms_gup(name)
     return "";
   else
     return results[1];
-}
-
-function mcms_file_pick(field_name, url, type, win)
-{
-  window.open('/admin/files/picker/?BebopFiles.picker='+ field_name +'&window='+ win.name, '_blank');
 }
 
 function mcms_picker_return(href)

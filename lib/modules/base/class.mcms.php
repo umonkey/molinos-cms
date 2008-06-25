@@ -1049,9 +1049,11 @@ class mcms
 
   private static function format_extras(array $extras)
   {
+    $root = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+
     $output = mcms::html('script', array(
       'type' => 'text/javascript',
-      ), 'var mcms_path = \''. 'sites/umonkey/' .'\';') ."\n";
+      ), 'var mcms_path = \''. $root .'\';') ."\n";
 
     // Проталкиваем jQuery на первое место.
     // FIXME: нужно более вменяемое решение.
@@ -1060,7 +1062,7 @@ class mcms
     self::pop($extras, 'lib/modules/tinymce/editor/tiny_mce.js');
     self::pop($extras, 'themes/all/jquery/jquery.js');
 
-    $compress = mcms::ismodule('compressor');
+    $compress = (mcms::ismodule('compressor') and empty($_GET['nocompress']));
 
     // Заход первый: выводим некомпрессируемые объекты
     // или все объекты, если нет компрессора.

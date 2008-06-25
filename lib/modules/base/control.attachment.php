@@ -50,6 +50,8 @@ class AttachmentControl extends Control
       ));
     */
 
+    mcms::extras('lib/modules/base/control.attachment.js');
+
     return $this->wrapHTML($output);
   }
 };
