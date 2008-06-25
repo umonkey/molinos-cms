@@ -625,66 +625,62 @@ class NodeBase
       return $pdo->getResults($sql, $params);
   }
 
+  private function linkAdd($tid, $nid, $key)
+  {
+    mcms::db()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
+      ."AND `nid` = ?", array($tid, $nid));
+
+    if (null !== $key)
+      mcms::db()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
+        ."AND `nid` = ?", array($tid, $nid));
+
+    mcms::db()->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) "
+      ."VALUES (?, ?, ?, ?)", array($tid, $nid, $key,
+        self::getNextOrder($tid)));
+
+    mcms::flush();
+  }
+
+  private function linkBreak($tid, $nid, $key)
+  {
+    if (null !== $nid)
+      mcms::db()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
+        ."AND `nid` = ?", array($tid, $nid));
+
+    elseif (null !== $key)
+      mcms::db()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
+        ."AND `key` = ?", array($tid, $key));
+
+    else
+      throw new InvalidArgumentException(t('Для удаления связи '
+        .'между объектами надо указать либо id объекта, '
+        .'либо имя поля, к которому он привязан.'));
+
+    mcms::flush();
+  }
+
   public function linkAddParent($parent_id, $key = null)
   {
     if (null === $this->id)
       $this->save();
-
-    $pdo = mcms::db();
-
-    $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `nid` = :nid", array(':tid' => $parent_id, ':nid' => $this->id));
-
-    if (null !== $key)
-      $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `key` = :key", array(':tid' => $parent_id, ':key' => $key));
-
-    $pdo->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order)", array(
-      ':tid' => $parent_id,
-      ':nid' => $this->id,
-      ':key' => $key,
-      ':order' => self::getNextOrder($parent_id),
-      ));
-
-    mcms::flush();
+    $this->linkAdd($parent_id, $this->id, $key);
   }
 
   public function linkAddChild($child_id, $key = null)
   {
-    $pdo = mcms::db();
-
-    if (null !== $key)
-      $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `key` = :key", array(':tid' => $this->id, ':key' => $key));
-    elseif (false) // FIXME: wtf?  где это нужно?
-      $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `key` IS NULL", array(':tid' => $this->id));
-
-    $pdo->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order)", array(
-      ':tid' => $this->id,
-      ':nid' => $child_id,
-      ':key' => $key,
-      ':order' => self::getNextOrder($this->id),
-      ));
-
-    mcms::flush();
+    if (null === $this->id)
+      $this->save();
+    $this->linkAdd($this->id, $child_id, $key);
   }
 
   public function linkRemoveParent($parent_id)
   {
-    $pdo = mcms::db();
-
-    $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `nid` = :nid", array(':tid' => $parent_id, ':nid' => $this->id));
-
-    mcms::flush();
+    $this->linkBreak($parent_id, $this->id);
   }
 
   public function linkRemoveChild($child_id = null, $key = null)
   {
-    $pdo = mcms::db();
-
-    if (null !== $child_id)
-      $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `nid` = :nid", array(':tid' => $this->id, ':nid' => $child_id));
-    elseif (null !== $key)
-      $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `key` = :key", array(':tid' => $this->id, ':key' => $key));
-
-    mcms::flush();
+    $this->linkBreak($this->id, $child_id, $key);
   }
 
   public function linkSetParents(array $list, $class = null, array $available = null)
