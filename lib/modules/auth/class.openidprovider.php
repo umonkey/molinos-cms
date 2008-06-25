@@ -106,12 +106,12 @@ class OpenIdProvider
     } else {
       // Generate form markup and render it.
       $form_id = 'openid_message';
-      $form_html = $auth_request->formMarkup(self::getTrustRoot(), self::getReturnTo(), false, array('id' => $form_id));
+      $form_html = $auth_request->formMarkup(self::getTrustRoot(), self::getReturnTo($openid), false, array('id' => $form_id));
 
       // Display an error if the form markup couldn't be generated;
       // otherwise, render the HTML.
       if (Auth_OpenID::isFailure($form_html)) {
-        displayError("Could not redirect to server: " . $form_html->message);
+        mcms::debug("Could not redirect to server: " . $form_html->message);
       } else {
         $page_contents = array(
           "<html><head><title>",
@@ -150,15 +150,29 @@ class OpenIdProvider
 
   private static function getReturnTo($id = null)
   {
-    //$url = l('/index.php?q=%2Fbase.rpc?action=login&id='. urlencode($id), null, null, true);
-    $url = l('/index.php?q=%2Fadmin%2F&id='. urlencode($id), null, null, true);
-    // mcms::debug($url, $id);
+    $url = sprintf('http://%s%s/base.rpc?action=login&id=%s',
+      $_SERVER['HTTP_HOST'],
+      rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'),
+      urlencode($id)
+      );
+
     return $url;
+  }
+
+  function getScheme()
+  {
+    $scheme = 'http';
+    if (isset($_SERVER['HTTPS']) and $_SERVER['HTTPS'] == 'on')
+      $scheme .= 's';
+    return $scheme;
   }
 
   private static function getTrustRoot()
   {
-    return l('/', null, null, true);
+   // return l('/', null, null, true);
+   return sprintf("%s://%s:%s/",
+                   self::getScheme(), $_SERVER['SERVER_NAME'],
+                   $_SERVER['SERVER_PORT']);
   }
 
   private static function includeOpenID()

@@ -5,7 +5,9 @@ class BaseModule implements iRemoteCall
 {
   public static function hookRemoteCall(RequestContext $ctx)
   {
-    $next = $ctx->get('destination', '/');
+    $next = $ctx->get('destination', './');
+
+    // mcms::debug($ctx);
 
     switch ($ctx->get('action')) {
     case 'login':
