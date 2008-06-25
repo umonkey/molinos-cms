@@ -147,7 +147,13 @@ class WidgetNode extends Node implements iContentType
         )));
       $form->addControl($tab);
 
-      $form->replaceControl('node_content_classname', null);
+      if (null !== ($tmp = $form->findControl('node_content_classname'))) {
+        $tmp->label = 'Тип';
+        $tmp->readonly = true;
+        $tmp->required = false;
+      }
+
+      // $form->replaceControl('node_content_classname', null);
       $form->replaceControl('node_content_config', null);
     }
 

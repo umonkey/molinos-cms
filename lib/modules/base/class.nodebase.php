@@ -1409,7 +1409,10 @@ class NodeBase
   // FIXME: завязать на права.
   public function canPublish()
   {
-    return (mcms::user()->hasAccess('p',$this->class) and !in_array($this->class, array('group', 'user', 'type')));
+    if (!mcms::user()->hasAccess('p',$this->class))
+      return false;
+
+    return !in_array($this->class, array('group', 'user', 'type', 'widget'));
   }
 
   // Сохранение объекта в БД.
