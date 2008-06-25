@@ -20,7 +20,9 @@ class ArchiveWidget extends Widget
   {
     $widgets = array();
 
-    foreach (Node::find(array('class' => 'widget', 'widget.classname' => 'ListWidget')) as $w) {
+    foreach (Node::find(array('class' => 'widget')) as $w) {
+      if ('ListWidget' != $w->classname)
+        continue;
       if (substr($w->name, 0, 5) == 'Bebop')
         continue;
       $widgets[$w->name] = $w->title;
