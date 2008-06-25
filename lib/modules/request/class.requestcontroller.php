@@ -202,7 +202,10 @@ class RequestController
       $widgets = false; // mcms::cache($key);
 
       if ($widgets === false) {
-        $widgets = Node::find(array('class' => 'widget', 'id' => $this->page->linkListChildren('widget', true)));
+        $widgets = Node::find(array(
+          'class' => 'widget',
+          'id' => $this->page->linkListChildren('widget', true),
+          ));
         mcms::cache($key, $widgets);
       }
     }
@@ -210,10 +213,8 @@ class RequestController
     if (is_array($widgets)) {
       // Обрабатываем виджеты, превращая их в контроллеры.
       foreach ($widgets as $widget) {
-        if (!mcms::class_exists($class = $widget->classname)) {
-          // mcms::debug($class);
+        if (!mcms::class_exists($class = $widget->classname))
           continue;
-        }
 
         $obj = new $class($widget);
 
@@ -330,9 +331,12 @@ class RequestController
   {
     $pdo = mcms::db();
 
-    if (empty($this->widgets) and empty($this->page->parent_id))
+    if (empty($this->widgets) and empty($this->page->parent_id)) {
+      mcms::debug($this);
+
       if (null !== ($tmp = self::getDomainConfigLink()))
         mcms::redirect($tmp);
+    }
 
     // Сюда складываем время выполнения виджетов.
     $profile = array('__total' => microtime(true));

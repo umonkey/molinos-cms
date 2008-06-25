@@ -4,7 +4,7 @@ $tmp = bebop_split_url();
 $tmp['args']['login'] = 'error';
 
 $laction = bebop_combine_url(array(
-  'path' => '/base.rpc',
+  'path' => 'base.rpc',
   'args' => array(
     'action' => 'login',
     'onerror' => bebop_combine_url($tmp, false),
@@ -54,7 +54,7 @@ $lreturn = bebop_combine_url($tmp);
           </div>
         </fieldset>
       </form>
-      <form method='post' action='/base.rpc?action=restore' id='profile-remind-form' <?php if (!empty($_GET['login'])) print "class='active' " ?>enctype='multipart/form-data'>
+      <form method='post' action='base.rpc?action=restore' id='profile-remind-form' <?php if (!empty($_GET['login'])) print "class='active' " ?>enctype='multipart/form-data'>
         <fieldset>
           <legend>Напоминание пароля</legend>
           <div class='intro'>Введите почтовый адрес, который вы использовали при регистрации.  Инструкция по восстановлению пароля будет отправлена на этот адрес.</div>

@@ -566,7 +566,7 @@ class NodeBase
     if (!$current and array_key_exists($this->id, $nodes))
       unset($nodes[$this->id]);
 
-    return $data;
+    return $nodes;
   }
 
   // Применяет к объекту шаблон.  Формат имени шаблона: префикс.имя.tpl, префикс можно
