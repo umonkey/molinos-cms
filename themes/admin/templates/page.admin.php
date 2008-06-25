@@ -71,21 +71,21 @@ function get_dba_link()
       mcms::extras('themes/admin/css/colors-green.css');
 
       if (empty($_GET['picker'])) {
-        mcms::extras('themes/all/jquery/jquery.js');
-        mcms::extras('themes/all/jquery/plugins/jquery.suggest.js');
+        mcms::extras('themes/all/jquery/jquery.min.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.suggest.min.js');
         mcms::extras('themes/all/jquery/plugins/jquery.suggest.css');
-        mcms::extras('themes/all/jquery/plugins/jquery.ifixpng.js');
-        mcms::extras('themes/all/jquery/plugins/jquery.mcms.tabber.js');
-        mcms::extras('themes/all/jquery/plugins/jquery.dimensions.js');
-        mcms::extras('themes/all/jquery/plugins/jquery.bgiframe.js');
-        mcms::extras('themes/all/jquery/plugins/jquery.MultiFile.js');
-        mcms::extras('themes/admin/js/bebop.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.ifixpng.min.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.mcms.tabber.min.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.dimensions.min.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.bgiframe.min.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.MultiFile.min.js');
+        mcms::extras('themes/admin/js/bebop.min.js');
       } elseif (!empty($_GET['window']) and 'find' == $_GET['window']) {
         mcms::extras('lib/modules/tinymce/editor/tiny_mce_popup.js');
-        mcms::extras('themes/admin/js/picker-redux.js');
+        mcms::extras('themes/admin/js/picker-redux.min.js');
       } else {
         // mcms::extras('lib/modules/tinymce/editor/tiny_mce_popup.js');
-        mcms::extras('lib/modules/base/control.attachment.js');
+        mcms::extras('lib/modules/base/control.attachment.min.js');
       }
     ?>
     <?php print mcms::extras(); ?>
