@@ -1015,10 +1015,11 @@ class mcms
   }
 
   // Изспользуется в шаблонах для добавления стилей и скриптов.
-  public static function extras($filename = null)
+  public static function extras($filename = null, $compress = true)
   {
-    if (null !== $filename and !in_array($filename, self::$extras))
-      self::$extras[] = $filename;
+    if (null !== $filename)
+      if (!array_key_exists($filename, self::$extras))
+        self::$extras[$filename] = $compress;
 
     $result = self::$extras;
 
@@ -1030,30 +1031,41 @@ class mcms
     return $result;
   }
 
+  // FIXME: оптимизировать!
   private static function pop(array &$a, $e)
   {
-    if (in_array($e, $a)) {
-      $a = array_flip($a);
-      unset($a[$e]);
-      $a = array_flip($a);
-      array_unshift($a, $e);
-    }
+    $repack = array();
+
+    foreach ($a as $k => $v)
+      if ($k == $e)
+        $repack[$k] = $v;
+
+    foreach ($a as $k => $v)
+      if ($k != $e)
+        $repack[$k] = $v;
+
+    $a = $repack;
   }
 
   private static function format_extras(array $extras)
   {
     $output = mcms::html('script', array(
       'type' => 'text/javascript',
-      ), 'var mcms_path = \''. 'sites/umonkey/' .'\';');
+      ), 'var mcms_path = \''. 'sites/umonkey/' .'\';') ."\n";
 
     // Проталкиваем jQuery на первое место.
     // FIXME: нужно более вменяемое решение.
+    self::pop($extras, 'lib/modules/tinymce/editor/tiny_mce_gzip.js');
+    self::pop($extras, 'lib/modules/tinymce/editor/tiny_mce_src.js');
+    self::pop($extras, 'lib/modules/tinymce/editor/tiny_mce.js');
     self::pop($extras, 'themes/all/jquery/jquery.js');
 
-    if (mcms::ismodule('compressor')) {
-      $output .= $xyz = CompressorModule::format($extras);
-    } else {
-      foreach ($extras as $file) {
+    $compress = mcms::ismodule('compressor');
+
+    // Заход первый: выводим некомпрессируемые объекты
+    // или все объекты, если нет компрессора.
+    foreach ($extras as $file => $ok) {
+      if (!$ok or !$compress) {
         if ('.js' == substr($file, -3))
           $output .= mcms::html('script', array(
             'type' => 'text/javascript',
@@ -1067,6 +1079,10 @@ class mcms
             )) ."\n";
       }
     }
+
+    // Заход второй: компрессируем всё, что можно.
+    if ($compress)
+      $output .= $xyz = CompressorModule::format($extras);
 
     return $output;
   }

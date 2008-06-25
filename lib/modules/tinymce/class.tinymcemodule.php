@@ -66,21 +66,6 @@ class TinyMceModule implements iModuleConfig, iPageHook
     return $form;
   }
 
-  private static function listDirs($path)
-  {
-    $list = array();
-
-    foreach (glob(dirname(__FILE__) .'/editor/'. $path .'/'.'*', GLOB_ONLYDIR) as $d)
-      if (is_dir($d)) {
-        $k = basename($d);
-        $list[$k] = $k;
-      }
-
-    asort($list);
-
-    return $list;
-  }
-
   public static function hookPostInstall()
   {
   }
@@ -149,5 +134,33 @@ class TinyMceModule implements iModuleConfig, iPageHook
     }
 
     return $output;
+  }
+
+  public static function add_extras()
+  {
+    $config = mcms::modconf('tinymce');
+
+    if (empty($config['gzip']))
+      mcms::extras('lib/modules/tinymce/editor/tiny_mce.js', false);
+    else
+      mcms::extras('lib/modules/tinymce/editor/tiny_mce_gzip.js', false);
+
+    if (empty($config['theme']))
+      $config['theme'] = 'simple';
+
+    switch ($config['theme']) {
+    case 'simple':
+    case 'medium':
+    case 'advanced':
+    case 'overkill':
+      if (!empty($config['gzip']))
+        mcms::extras('lib/modules/tinymce/editor/template_'.
+          $config['theme'] .'_gzip.js');
+      mcms::extras('lib/modules/tinymce/editor/template_'.
+        $config['theme'] .'.js');
+      break;
+    default:
+      mcms::log('tinymce', $config['theme'] .': unknown theme');
+    }
   }
 }

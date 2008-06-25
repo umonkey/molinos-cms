@@ -19,6 +19,9 @@ class TextHTMLControl extends Control
   {
     $content = (isset($this->value) and !empty($data[$this->value])) ? htmlspecialchars($data[$this->value]) : null;
 
+    if (mcms::ismodule('tinymce'))
+      TinyMceModule::add_extras();
+
     $output = mcms::html('textarea', array(
       'id' => $this->id,
       'class' => 'form-text visualEditor',

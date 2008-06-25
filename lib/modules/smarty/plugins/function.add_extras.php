@@ -6,5 +6,5 @@ function smarty_function_add_extras($params, &$smarty)
   if (empty($params['file']))
     throw new SmartyException(t('Не указан параметр file.'));
 
-  mcms::extras($params['file']);
+  mcms::extras($params['file'], empty($params['standalone']));
 }

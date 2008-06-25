@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, iRemoteCall
+class CompressorModule implements iRemoteCall
 {
   private static function path()
   {
@@ -16,64 +16,40 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
     if (!file_exists($filepath = self::path() ."/mcms-{$fn}.{$type}"))
       throw new PageNotFoundException();
 
-    if ($type == 'js')
-      $type = "javascript";
-
-    $maxAge = 3600 * 24;
-
-    header('Expires: '. gmdate("D, d M Y H:i:s", time() + $maxAge) .' GMT');
-    header('Pragma: cache');
-    header('Cache-Control: public; max-age='. $maxAge);
-    header("Content-type: text/{$type};charset: UTF-8");
-    readfile($filepath);
-    exit();
+    self::serveFile($filepath);
   }
 
-  public static function hookPage(&$output, Node $page)
+  private static function serveFile($filename)
   {
-    if ('text/html' != $page->content_type)
+    $data = file_get_contents($filename);
+
+    // header('HTTP/1.1 200 OK');
+
+    if ('.css' == substr($filename, -4))
+      header('Content-Type: text/css; charset=utf-8');
+    elseif ('.js' == substr($filename, -3))
+      header('Content-Type: text/javascript; charset=utf-8');
+    else
       return;
 
-    $conf = mcms::modconf('compressor');
-    $conf['options'][] = 'js';
-    $conf['options'][] = 'css';
+    // Немного агрессивного кэширования, источник:
+    // http://www.thinkvitamin.com/features/webapps/serving-javascript-fast
+
+    header("Expires: ".gmdate("D, d M Y H:i:s", time()+315360000)." GMT");
+    header("Cache-Control: max-age=315360000");
+    header('Content-Length: '. strlen($data));
+
+    die($data);
   }
 
-  public static function formGetModuleConfig()
-  {
-    $form = new Form(array());
-
-    $form->addControl(new SetControl(array(
-      'value' => 'config_options',
-      'label' => t('Компрессируемые объекты'),
-      'options' => array(
-        /*
-        'js' => t('JavaScript'),
-        'css' => t('Стили'),
-        */
-        'html' => t('HTML'),
-        ),
-      )));
-
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_gzip',
-      'label' => t('Сжимать скрипты и стили с помощью gzip'),
-      )));
-
-    return $form;
-  }
-
-  public static function hookPostInstall()
-  {
-  }
-
-  // Склеивает все локальные внешние скрипты в один файл, вырезает старые подключения,
-  // вставляет новый скрипт в начало <head>.
   private static function formatJS(array $files)
   {
     $scripts = $names = array();
 
-    foreach ($files as $file) {
+    foreach ($files as $file => $ok) {
+      if (!$ok)
+        continue;
+
       if ('.js' == substr($file, -3)) {
         $url = new url($file);
 
@@ -110,24 +86,10 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
       $newscript = mcms::html('script', array(
         'type' => 'text/javascript',
         'src' => 'compressor.rpc?type=js&hash='. $md5name,
-        ));
+        )) ."\n";
 
       return $newscript;
     }
-  }
-
-  private static function mkname(array $files, $suffix, &$md5name)
-  {
-    $items = array();
-
-    foreach (array_unique($files) as $file)
-      $items[] = $file .','. filemtime($file);
-
-    sort($items);
-
-    $md5name = md5(join(',', $items));
-
-    return self::path() .'/mcms-'. $md5name . $suffix;
   }
 
   // Упаковывает указанный файл, возвращает его имя.
@@ -135,8 +97,10 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
   {
     $result = self::path() .'/mcms-'. md5($filename) .'.js';
 
-    if (!file_exists($result) or (filemtime($filename) > filemtime($result)))
-      file_put_contents($result, file_get_contents($filename));
+    if (!file_exists($result) or (filemtime($filename) > filemtime($result))) {
+      $header = "\n// {$filename}\n";
+      file_put_contents($result, $header . file_get_contents($filename));
+    }
 
     return $result;
   }
@@ -145,7 +109,10 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
   {
     $styles = $names = array();
 
-    foreach ($files as $file) {
+    foreach ($files as $file => $ok) {
+      if (!$ok)
+        continue;
+
       $url = new url($file);
 
       if (empty($url->host)) {
@@ -178,7 +145,7 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
         'rel' => 'stylesheet',
         'type' => 'text/css',
         'href' => 'compressor.rpc?type=css&hash='. $md5name,
-        ));
+        )) ."\n";
 
       return $newlink;
     }
@@ -224,71 +191,18 @@ class CompressorModule implements /* iModuleConfig, */ iPageHook, iRequestHook, 
     return $result;
   }
 
-  private static function fixPath($path, $ext)
+  private static function mkname(array $files, $suffix, &$md5name)
   {
-    if ('/' != substr($path, 0, 1))
-      return false;
+    $items = array();
 
-    if ($ext != substr($path, - strlen($ext)))
-      return false;
+    foreach (array_unique($files) as $file)
+      $items[] = $file .','. filemtime($file);
 
-    if (false === strstr($path, '..'))
-      return $path;
+    sort($items);
 
-    $args = explode('/', ltrim($path, '/'));
+    $md5name = md5(join(',', $items));
 
-    while (in_array('..', $args)) {
-      foreach ($args as $k => $v) {
-        if ('..' == $v) {
-          if ($k == 0)
-            return null;
-          else {
-            unset($args[$k]);
-            unset($args[$k - 1]);
-          }
-        }
-      }
-    }
-
-    return '/'. join('/', $args);
-  }
-
-  public static function hookRequest(RequestContext $ctx = null)
-  {
-    if (null === $ctx and preg_match('@^/extras/(mcms-[0-9a-z]+\.(js|css))$@', $_SERVER['REQUEST_URI'], $m))
-      self::serveFile($m[1]);
-  }
-
-  private static function serveFile($filename)
-  {
-    if (file_exists($path = self::path() .'/'. $filename)) {
-      $data = file_get_contents($path);
-
-      header('HTTP/1.1 200 OK');
-
-      if ('.css' == substr($filename, -4))
-        header('Content-Type: text/css; charset=utf-8');
-      elseif ('.js' == substr($filename, -3))
-        header('Content-Type: text/javascript; charset=utf-8');
-      else
-        return;
-
-      // Немного агрессивного кэширования, источник:
-      // http://www.thinkvitamin.com/features/webapps/serving-javascript-fast
-
-      header("Expires: ".gmdate("D, d M Y H:i:s", time()+315360000)." GMT");
-      header("Cache-Control: max-age=315360000");
-
-      if (ini_get('zlib.output_compression') or !function_exists('ob_gzhandler'))
-        die($data);
-
-      if (false === ($zipped = ob_gzhandler($data, PHP_OUTPUT_HANDLER_START)))
-        die($data);
-
-      header('Content-Length: '. strlen($zipped));
-
-      die($data);
-    }
+    return self::path() .'/mcms-'. $md5name . $suffix;
   }
 
   public static function format(array $files)
