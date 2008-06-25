@@ -124,16 +124,27 @@ class url
 
   private function fromString($source)
   {
+    // Функция не любит неэкранированные слэши в параметрах,
+    // зато их любят некоторые OpenID провайдеры.
+    $parts = explode('?', $source, 2);
+    if (count($parts) > 1)
+      $parts[1] = str_replace('/', '%2F', $parts[1]);
+    $source = join('?', $parts);
+
     $url = parse_url($source);
 
-    // Парсим дополнительные параметры.
-    if (array_key_exists('query', $url)) {
-      $url['args'] = $this->parse_request_args($url['query']);
-      unset($url['query']);
-    }
+    if (!is_array($url)) {
+      mcms::debug('Could not parse this URL.', $source);
+    } else {
+      // Парсим дополнительные параметры.
+      if (array_key_exists('query', $url)) {
+        $url['args'] = $this->parse_request_args($url['query']);
+        unset($url['query']);
+      }
 
-    // Дальше работаем как с массивом.
-    $this->fromArray($url);
+      // Дальше работаем как с массивом.
+      $this->fromArray($url);
+    }
   }
 
   private function parse_request_args($string)
