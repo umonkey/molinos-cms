@@ -39,7 +39,7 @@ function get_version_info()
 
   if (mcms::version() != ($available = mcms::version(mcms::VERSION_AVAILABLE))) {
     $version .= t(' — <a href=\'@url\'>обновить</a>', array(
-      '@url' => '/admin/?cgroup=none&module=update',
+      '@url' => 'admin?cgroup=none&module=update',
       ));
   }
 

@@ -70,7 +70,7 @@ class Updater implements iAdminUI, iRemoteCall
 
     self::unpack($tmpname);
 
-    mcms::redirect('/');
+    mcms::redirect('admin');
   }
 
   private static function download_raw($url)
