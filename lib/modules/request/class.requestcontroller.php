@@ -131,21 +131,13 @@ class RequestController
     }
 
     // Убедимся, что на конце урла есть слэш.
-    $req = bebop_split_url();
-
-    /*
-    if (substr($req['path'], -1) != '/') {
-      $req['path'] .= '/';
-
-      exit(mcms::redirect(bebop_combine_url($req, false)));
-    }
-    */
+    $url = new url();
 
     // Начинаем поиск отсюда.
     $this->root = $root = $map;
 
     // Текущий путь, будем вырезать из него фрагменты по мере обработки.
-    $apath = (empty($req['path']) or $req['path'] == '/') ? array() : explode('/', trim($req['path'], '/'));
+    $apath = explode('/', trim($url->path, '/'));
 
     // Разобранные элементы пути.
     $ppath = array();

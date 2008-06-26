@@ -44,28 +44,23 @@ class RequestContext
       $this->document = empty($this->apath[1]) ? null : $this->apath[1];
 
     case 'sec':
-      if (!empty($page->defaultsection) and is_numeric($page->defaultsection))
+      if (is_numeric($page->defaultsection))
         $this->root = $page->defaultsection;
 
       if (null === ($this->section = empty($this->apath[0]) ? null : $this->apath[0]))
         $this->section = $this->root;
-
-      if (count($this->apath) > 1)
-        throw new PageNotFoundException();
 
       break;
 
     case 'doc':
       $this->document = empty($this->apath[0]) ? null : $this->apath[0];
 
-      if (count($this->apath) > 1)
-        throw new PageNotFoundException();
-
       break;
+    }
 
-    default:
-      if (!empty($this->apath))
-       throw new PageNotFoundException();
+    if (count($this->apath) > count(explode('+', $page->params))) {
+      mcms::debug($this->apath, $page->params);
+      throw new PageNotFoundException();
     }
 
     if (null === $this->root and is_numeric($page->defaultsection)) {
@@ -77,13 +72,26 @@ class RequestContext
 
     // Нормализуем идентификаторы.
 
-    if (null !== $this->document and !is_numeric($this->document))
-      if (null === ($this->document = mcms::db()->getResult("SELECT `id` FROM `node` WHERE `code` = :code", array(':code' => $this->document))))
-          throw new PageNotFoundException();
+    if (null !== $this->document and !is_numeric($this->document)) {
+      $this->document = mcms::db()->getResult("SELECT `id` FROM `node` "
+        ."WHERE `code` = ?", array($oldid = $this->document));
 
-    if (null !== $this->section and !is_numeric($this->section))
-      if (null === ($this->section = mcms::db()->getResult("SELECT `id` FROM `node` WHERE `code` = :code", array(':code' => $this->section))))
+      if (null === $this->document) {
+        mcms::log('context', $oldid .': could not resolve document id');
         throw new PageNotFoundException();
+      }
+    }
+
+    if (null !== $this->section and !is_numeric($this->section)) {
+      $this->section = mcms::db()->getResult("SELECT `id` FROM `node` "
+        ."WHERE `code` = ?", array($oldid = $this->section));
+
+      if (null === $this->section) {
+        mcms::log('context', $oldid .': could not resolve section id');
+        throw new PageNotFoundException(null, t('Запрошенный вами раздел "%name" '
+          .'найти не удалось.', array('%name' => $oldid)));
+      }
+    }
   }
 
   // Запрещаем изменять свойства извне.
