@@ -1100,7 +1100,7 @@ class mcms
     mcms::log('debug', $msg = 'deprecated function '
       .$func .' called from '. $line);
 
-    if ($fatal)
+    if ($break)
       mcms::debug($msg);
   }
 };

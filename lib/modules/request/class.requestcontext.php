@@ -248,8 +248,12 @@ class RequestContext
       if (!array_key_exists($field, $data))
         $data[$field] = array();
 
-      foreach (array_keys($crap) as $key)
-        self::getOneFile($data[$field], $crap[$key], $key);
+      foreach (array_keys($crap) as $key) {
+        if (!is_array($crap[$key]))
+          $data[$field][$key] = $crap[$key];
+        else
+          self::getOneFile($data[$field], $crap[$key], $key);
+      }
     }
   }
 

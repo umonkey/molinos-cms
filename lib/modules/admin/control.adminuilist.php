@@ -149,7 +149,7 @@ class AdminUIListControl extends Control
         if (file_exists($path = mcms::config('filestorage') .'/'. $node['filepath'])) {
           if (substr($node['filetype'], 0, 6) == 'image/')
             $tmp = mcms::html('img', array(
-              'src' => "att.php?q={$node['id']},48,48,c",
+              'src' => "att.php?q={$node['id']},48,48,c&rev={$node['rid']}",
               'width' => 48,
               'height' => 48,
               'alt' => $node['filepath'],

@@ -129,6 +129,7 @@ class FileNode extends Node implements iContentType
   public static function unzip($zipfile)
   {
     $node = null;
+    $tmpdir = mcms::mkdir(mcms::config('tmpdir') .'/upload');
 
     if (function_exists('zip_open')) {
       if (file_exists($zipfile)) {
@@ -144,16 +145,19 @@ class FileNode extends Node implements iContentType
             mcms::mkdir($zdir);
           } else {
             $name = zip_entry_name($zip_entry);
-            if (file_exists($name))
-              unlink($name);
-            $fopen = fopen($name, "w");
-            fwrite($fopen, zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)), zip_entry_filesize($zip_entry));
+            $tmpname = tempnam($tmpdir, 'unzip');
+
+            file_put_contents($tmpname, zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
 
             $node = Node::create('file');
             $node->import(array(
-              'tmp_name' => $name,
+              'tmp_name' => $tmpname,
+              'name' => $name,
+              'filename' => $name,
               ), false);
             $node->save();
+
+            unlink($tmpname);
           }
           zip_entry_close($zip_entry);
         }
