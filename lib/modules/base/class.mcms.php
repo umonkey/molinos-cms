@@ -1060,6 +1060,7 @@ class mcms
     self::pop($extras, 'lib/modules/tinymce/editor/tiny_mce_gzip.js');
     self::pop($extras, 'lib/modules/tinymce/editor/tiny_mce_src.js');
     self::pop($extras, 'lib/modules/tinymce/editor/tiny_mce.js');
+    self::pop($extras, 'themes/all/jquery/jquery.min.js');
     self::pop($extras, 'themes/all/jquery/jquery.js');
 
     $compress = (mcms::ismodule('compressor') and empty($_GET['nocompress']));
