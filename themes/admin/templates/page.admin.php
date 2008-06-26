@@ -54,10 +54,12 @@ function get_dba_link()
     return;
   
   if (is_readable(MCMS_ROOT .'/phpminiadmin.php'))
-    return "<a target='_blank' href='". MCMS_PATH ."phpminiadmin.php?showcfg=1'>БД</a>";
+    return mcms::html('a', array('title' => 'БД',
+      'href' => 'phpminiadmin.php?showcfg=1'), 'БД');
 }
 
-?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>Molinos.CMS</title>

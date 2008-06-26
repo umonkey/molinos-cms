@@ -123,8 +123,8 @@ class mcms_sqlite_driver extends PDO_Singleton
 
   public function clearDB()
   {
-    if ((null !== $this->dbfile) and file_exists($this->dbfile) and filesize($this->dbfile) > 0)
-      copy($this->dbfile, $this->dbfile .'.'. strftime('%Y%m%d%H%M%S'));
+  	// Прежде чем все похерить, стоит сделать резервную копию.
+  	$this->makeBackup();
 
     $sql = "SELECT `tbl_name` FROM `sqlite_master` WHERE `type` = 'table'";
     $rows = $this->getResults($sql);
@@ -145,6 +145,12 @@ class mcms_sqlite_driver extends PDO_Singleton
     }
   }
 
+  public function makeBackup()
+  {
+    if ((null !== $this->dbfile) and file_exists($this->dbfile) and filesize($this->dbfile) > 0)
+      copy($this->dbfile, $this->dbfile .'.'. strftime('%Y%m%d%H%M%S'));
+  }
+  
   public function getTableInfo($name)
   {
     $indexes = array();

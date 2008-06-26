@@ -128,15 +128,38 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $data['config']['debuggers'] = $_SERVER['REMOTE_ADDR'] .', 127.0.0.1';
       $data['db']['type'] = 'mysql';
 
+      // Сперва нужно проверить, запущена ли база данных, а то можно
+      // грохнуть инсталяцию и при этом не выгрузить никаких данных.
+      // Восстановить потом можно, но все-таки лучше семь раз отмерить,
+      // а потом один раз отлить.  Если имя базы не задано, то PDO
+      // ругаться не будет, так что надо проверить вручную.
+      if (empty($data['db']['name']))
+      	throw new RuntimeException('Не задано имя базы данных MySQL.');
+
+      // Поскольку в PDO_Singleton нет возможности задать DSN из вне,
+      // то проверку нужно осуществить вручную.  Перехватывать исключение
+      // нет смысла, так как развернутое описание будет и так присутствовать.
+      $newdsn = "mysql:host={$data['db']['host']};dbname={$data['db']['name']}";
+      new PDO($newdsn, $data['db']['user'], $data['db']['pass'][0]);
+
+      // Конфигурацию нужно сначала записать в файл, иначе при получении
+      // инстанса PDO будет возвращаться старый коннектор.
       $olddsn = mcms::db()->getConfig('default');
 
       $xmlstr = self::export('Mysql-upgrade', 'Профиль для апгрейда до MySQL');
-      mcms::db()->clearDB(); // функция очистки базы делает также её бэкап
 
-      InstallModule::WriteConfig($data,$olddsn); //запишем конфиг новым dsn
+      // функция очистки базы делает также её бэкап
+      mcms::db()->clearDB();
 
-      PDO_Singleton::getInstance('default', true); // принудительный перевод PDO_Singleton в Mysql
+      // запишем конфиг новым dsn
+      InstallModule::writeConfig($data, $olddsn);
 
+      // принудительный перевод PDO_Singleton в Mysql
+      PDO_Singleton::getInstance('default', true);
+
+      // Перед импортом нужно очистить целевую базу данных,
+      // чтобы не получить исключение о дубликатах.
+      mcms::db()->clearDB();
       self::import($xmlstr);
 
       // Логинимся в качестве рута.
