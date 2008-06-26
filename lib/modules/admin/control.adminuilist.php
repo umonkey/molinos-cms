@@ -271,6 +271,8 @@ class AdminUIListControl extends Control
 
     if (null !== ($tmp = $this->getDebugLink($node)))
       $output[] = $tmp;
+    if (null !== ($tmp = $this->getSuLink($node)))
+      $output[] = $tmp;
     if (null !== ($tmp = $this->getZoomLink($node)))
       $output[] = $tmp;
     if (null !== ($tmp = $this->getViewLink($node)))
@@ -314,7 +316,34 @@ class AdminUIListControl extends Control
     if (!empty($node['deleted']))
       return;
 
-    return $this->getIcon('themes/admin/img/zoom.png', str_replace(array('NODEID', 'NODENAME'), array($node['id'], $node['name']), $this->zoomlink), t('Найти'));
+    return $this->getIcon(
+      'themes/admin/img/zoom.png',
+      str_replace(
+        array('NODEID', 'NODENAME'),
+        array($node['id'], $node['name']),
+        $this->zoomlink),
+      t('Найти'));
+  }
+
+  private function getSuLink(array $node)
+  {
+    if ('user' != $node['class'])
+      return;
+
+    if (!empty($node['deleted']))
+      return;
+
+    if (!bebop_is_debugger())
+      return;
+
+    if (mcms::user()->id == $node['id'])
+      return;
+
+    return $this->getIcon(
+      'themes/admin/img/icon-su.png',
+      'base.rpc?action=su&uid='. $node['id'],
+      t('Переключиться в контекст пользователя')
+      );
   }
 
   private function getIcon($img, $href, $title)

@@ -107,7 +107,8 @@ function get_dba_link()
             <?php print l('admin?cgroup=access&mode=edit&id='. mcms::user()->id .'&destination=CURRENT', 'Настройки', array('title' => 'Редактирование профиля')); ?>
             <?php print get_dba_link(); ?>
             <a href="<?php print l('admin.rpc?action=reload&destination=CURRENT'); ?>&amp;reload=1&flush=1" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
-            <?php print l('base.rpc?action=logout&destination=/', 'Выйти', array('id' => 'lnk_exit')); ?>
+            <?php print l('base.rpc?action=logout',
+              'Выйти', array('id' => 'lnk_exit')); ?>
           </div>
         </div><!-- id=top_toolbar -->
 
