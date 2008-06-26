@@ -69,12 +69,11 @@ class FieldControl extends Control
       'class' => 'nextid',
       'name' => "{$this->value}[{$id}][default]",
       )));
-    $body .= $this->addProperty($data, 'values', 'Значения', mcms::html('input', array(
-      'type' => 'text',
-      'value' => $this->isnull($data, 'values'),
+    $body .= $this->addProperty($data, 'values', 'Значения', mcms::html('textarea', array(
       'class' => 'nextid',
       'name' => "{$this->value}[{$id}][values]",
-      )));
+      'rows' => 5,
+      ), mcms_plain($this->isnull($data, 'values'))));
     $body .= $this->addProperty($data, 'required', 'Обязательное', mcms::html('input', array(
       'type' => 'checkbox',
       'checked' => $this->isnull($data, 'required') ? 'checked' : null,
