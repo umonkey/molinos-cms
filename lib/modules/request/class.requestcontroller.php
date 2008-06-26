@@ -54,6 +54,9 @@ class RequestController
 
       $this->begin = microtime(true);
 
+      if (bebop_is_debugger() and !empty($_GET['flush']))
+        mcms::flush(mcms::FLUSH_NOW);
+
       $this->parseGet();
 
       if ($_SERVER['REQUEST_METHOD'] == 'POST')
