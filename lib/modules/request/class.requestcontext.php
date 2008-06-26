@@ -59,7 +59,6 @@ class RequestContext
     }
 
     if (count($this->apath) > count(explode('+', $page->params))) {
-      mcms::debug($this->apath, $page->params);
       throw new PageNotFoundException();
     }
 
@@ -67,8 +66,6 @@ class RequestContext
       if (null === $this->section)
         $this->root = $this->section = $page->defaultsection;
     }
-
-    // mcms::debug($this, $page);
 
     // Нормализуем идентификаторы.
 
