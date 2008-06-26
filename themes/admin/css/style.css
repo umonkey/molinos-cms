@@ -534,3 +534,14 @@ table.nodelist a.email {
   padding-left: 20px;
   background: transparent url(../img/email.png) no-repeat center left;
 }
+
+table.form-revision-history {
+  border-collapse: collapse;
+}
+table.form-revision-history td {
+  border: solid gray 1px;
+  padding: 2px 4px;
+}
+table.form-revision-history tr.rev-active {
+  font-weight: bold;
+}

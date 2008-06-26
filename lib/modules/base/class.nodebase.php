@@ -1045,11 +1045,16 @@ class NodeBase
         'options' => FileNode::listFilesOnFTP(),
         )));
 
-    if (!$simple and empty($schema['notags']) and null !== ($tab = $this->formGetSections($schema)))
-      $tabs['sections'] = $tab;
+    if (!$simple) {
+      if (empty($schema['notags']) and null !== ($tab = $this->formGetSections($schema)))
+        $tabs['sections'] = $tab;
 
-    if (!$simple and (null !== ($tab = $this->formGetFilesTab())))
-      $tabs['files'] = $tab;
+      if (null !== ($tab = $this->formGetFilesTab()))
+        $tabs['files'] = $tab;
+
+      if (null !== ($tab = $this->formGetRevTab()))
+        $tabs['history'] = $tab;
+    }
 
     if ($simple) {
       if (null === $this->id)
@@ -1072,8 +1077,10 @@ class NodeBase
     $form->addControl(new HiddenControl(array('value' => 'node_content_id')));
 
     if (null === $this->id) {
-      $form->addControl(new HiddenControl(array('value' => 'node_content_class')));
-      $form->addControl(new HiddenControl(array('value' => 'node_content_parent_id')));
+      $form->addControl(new HiddenControl(
+        array('value' => 'node_content_class')));
+      $form->addControl(new HiddenControl(
+        array('value' => 'node_content_parent_id')));
     }
 
     if (!isset($this->id) and !empty($schema['isdictionary']))
@@ -1158,6 +1165,23 @@ class NodeBase
       'value' => 'node_content_files[__bebop][]',
       'uploadtxt' => t('Загрузить'),
       'unzip' => true,
+      )));
+
+    return $tab;
+  }
+
+  private function formGetRevTab()
+  {
+    $tab = new FieldSetControl(array(
+      'label' => 'История',
+      'name' => 'tab_history',
+      ));
+    $tab->addControl(new HistoryControl(array(
+      'value' => 'node_history',
+      'label' => 'История изменений',
+      'description' => 'Откат на более старую ревизию '
+        .'выполняется добавлением новой ревизии; текущие данные '
+        .'потеряны не будут.',
       )));
 
     return $tab;
@@ -1252,9 +1276,10 @@ class NodeBase
       }
     }
 
-    if (empty($schema['notags'])) {
+    if (empty($schema['notags']))
       $data['node_tags'] = $this->linkListParents('tag', true);
-    }
+
+    $data['node_history'] = $this->getRevisions();
 
     return $data;
   }
@@ -1643,5 +1668,29 @@ class NodeBase
       $sql = "REPLACE INTO `node__idx_{$this->class}` (`". join('`, `', $fields) ."`) VALUES (". join(', ', array_keys($params)) .")";
       mcms::db()->exec($sql, $params);
     }
+  }
+
+  // Возвращает информацию о ревизиях.
+  public function getRevisions()
+  {
+    $sql = 'SELECT `v`.`rid` AS `rid`, `v`.`created` AS `created`, '
+      .'`v`.`uid` AS `uid`, `u`.`name` AS `username` '
+      .'FROM `node__rev` `v` LEFT JOIN `node` `n` '
+      .'ON `n`.`id` = `v`.`uid` LEFT JOIN `node__rev` `u` '
+      .'ON `u`.`rid` = `n`.`rid` WHERE v.nid = ? '
+      .'ORDER BY `v`.`created` DESC';
+
+    $data = array();
+
+    foreach (mcms::db()->getResults($sql, array($this->id)) as $row) {
+      $data[$row['rid']] = array(
+        'created' => $row['created'],
+        'uid' => $row['uid'],
+        'username' => $row['username'],
+        'active' => $row['rid'] == $this->rid,
+        );
+    }
+
+    return $data;
   }
 };

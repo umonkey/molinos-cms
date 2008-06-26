@@ -40,6 +40,21 @@ class NodeApiModule implements iRemoteCall
       $nid = $ctx->get('node');
 
     switch ($action) {
+    case 'revert':
+      $info = mcms::db()->getResults("SELECT `v`.`nid` AS `id`, "
+        ."`n`.`class` AS `class` FROM `node__rev` `v` "
+        ."INNER JOIN `node` `n` ON `n`.`id` = `v`.`nid` "
+        ."WHERE `v`.`rid` = ?", array($rid = $ctx->get('rid')));
+
+      if (!empty($info)) {
+        mcms::user()->checkAccess('u', $info[0]['class']);
+        mcms::db()->exec("UPDATE `node` SET `rid` = ? WHERE `id` = ?",
+          array($rid, $info[0]['id']));
+        mcms::flush();
+      }
+
+      break;
+
     case 'dump':
       if (!bebop_is_debugger())
         throw new ForbiddenException();
