@@ -206,7 +206,8 @@ class WidgetNode extends Node implements iContentType
         'Developers' => array('r', 'u', 'd'),
         );
     } else {
-      $list = (empty($data['config_types']) or !is_array($data['config_types'])) ? array() : $data['config_types'];
+      $list = (empty($data['config_types']) or !is_array($data['config_types']))
+        ? array() : $data['config_types'];
       $this->linkSetParents($list, 'type');
     }
 
@@ -215,11 +216,17 @@ class WidgetNode extends Node implements iContentType
     if (empty($data['widget_pages']))
       $data['widget_pages'] = array();
 
-    $this->linkSetParents($data['widget_pages'], 'domain', array_keys(DomainNode::getFlatSiteMap('select')));
+    $this->linkSetParents($data['widget_pages'], 'domain',
+      array_keys(DomainNode::getFlatSiteMap('select')));
 
-    if ($isnew)
-      $next = "admin/node/{$this->id}/edit/?destination=". urlencode($_GET['destination']) ."#config";
-
-    return $next;
+    if ($isnew) {
+      $next = "admin?mode=edit&cgroup=structure&id={$this->id}"
+        ."&destination=". urlencode($_GET['destination']);
+      mcms::redirect($next);
+    } else if (!empty($_GET['destination'])) {
+      mcms::redirect($_GET['destination']);
+    } else {
+      mcms::redirect("admin");
+    }
   }
 };
