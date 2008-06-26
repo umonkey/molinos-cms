@@ -52,31 +52,22 @@ class mcms_sqlite_driver extends PDO_Singleton
           if (preg_match("/node__idx_(\S+)/i", $sql, $matches)) {
             $node = Node::load(array('class' => 'type', 'name' => $matches[1]));
             if (!empty($node)) {
+              mcms::log('SQLite', $matches[1] .': updating index structure');
               $node->recreateIdxTable($matches[1]);
               return self::exec($sql, $params);
             }
-          }
-          else { //Это не индексная таблица, а одна из основных
-            $tables = null;
+          } else { // Это не индексная таблица, а одна из основных
+            $re = '@(FROM|UPDATE|JOIN|INTO)\s+`([^`]+)`@i';
 
-            if (preg_match("/from\s*(.+)(?=where|order|\s*)/i", $sql, $matches))
-              $tables = str_replace("`","",$matches[1]);
+            if (!preg_match_all($re, $sql, $m)) {
+              mcms::log('SQLite', 'could not find table names in SQL');
+            } else {
+              TableManager::upgradeTables($m[2]);
 
-            if (preg_match("/(into|update)\s*[`]?([\w_]+)[`]?/i", $sql, $matches))
-              $tables = $matches[2];
+              mcms::log('SQLite', 're-running query: '. $sql);
 
-            if ($tables != null) {
-              $tlist = preg_split("/\,\s*/", $tables, -1, PREG_SPLIT_NO_EMPTY);
-
-              foreach ($tlist as $tbl) {
-                $spec = TableManager::checkColumn($tbl, $cname);
-
-                if (!empty($spec)) {
-                  $sth = $this->prepare($sql);
-                  $sth->execute($params);
-                  return $sth;
-                }
-              }
+              $sth = $this->prepare($sql);
+              $sth->execute($params);
             }
           }
         }
