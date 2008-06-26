@@ -36,6 +36,7 @@ function bebop_skip_checks()
 // Разбивает текущий запрос на составляющие.
 function bebop_split_url($url = null)
 {
+  mcms::deprecated();
   $tmp = new url($url);
   return $tmp->as_array();
 }

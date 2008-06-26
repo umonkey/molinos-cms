@@ -1088,6 +1088,21 @@ class mcms
 
     return $output;
   }
+
+  public static function deprecated($break = false)
+  {
+    $frame = array_pop(array_slice(debug_backtrace(), 1, 1));
+
+    $func = $frame['function'] .'()';
+    $line = ltrim(str_replace(MCMS_ROOT, '', $frame['file']), '/')
+      .'('. $frame['line'] .')';
+
+    mcms::log('debug', $msg = 'deprecated function '
+      .$func .' called from '. $line);
+
+    if ($fatal)
+      mcms::debug($msg);
+  }
 };
 
 set_exception_handler('mcms::eh');
