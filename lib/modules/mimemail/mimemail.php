@@ -24,7 +24,7 @@ class BebopMimeMail
 
     $mail->setFrom($from);
     $mail->setSubject($subject);
-    $mail->setHtml($body);
+    $mail->setHtml(self::fixhtml($body));
 
     $mail->setTextCharset('UTF-8');
     $mail->setTextEncoding('base64');
@@ -39,5 +39,29 @@ class BebopMimeMail
     }
 
     return $mail->send($to);
+  }
+
+  // Превращает все относительные ссылки в абсолютные.
+  private static function fixhtml($html)
+  {
+    $re = '@<a(\s+([a-z]+)=([\'"]([^\'"]+)[\'"]))+\s*>@i';
+
+    if (preg_match_all($re, $html, $m)) {
+      foreach ($m[4] as $idx => $href) {
+        if (false !== strpos($href, '://'))
+          continue;
+        if (false !== strpos($href, 'mailto:'))
+          continue;
+
+        $new = 'http://'. $_SERVER['HTTP_HOST']
+          .'/'. trim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/'
+          .ltrim($href, '/');
+
+        $new = str_replace($href, $new, $m[0][$idx]);
+        $html = str_replace($m[0][$idx], $new, $html);
+      }
+    }
+
+    return $html;
   }
 };
