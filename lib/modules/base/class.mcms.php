@@ -342,10 +342,8 @@ class mcms
 
     // При редиректе на текущую страницу добавляем случайное число,
     // без этого Опера не редиректит.
-    if ($target == $_SERVER['REQUEST_URI']) {
-      mcms::debug('Circular redirect', $target);
+    if ($target == $_SERVER['REQUEST_URI'])
       $target .= ((false == strstr($target, '?')) ? '?' : '&') .'rnd='. mt_rand();
-    }
 
     mcms::log('redirect', $target);
 

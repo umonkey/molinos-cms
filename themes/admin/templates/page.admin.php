@@ -82,11 +82,10 @@ function get_dba_link()
         mcms::extras('themes/all/jquery/plugins/jquery.bgiframe.min.js');
         mcms::extras('themes/all/jquery/plugins/jquery.MultiFile.min.js');
         mcms::extras('themes/admin/js/bebop.min.js');
-      } elseif (!empty($_GET['window']) and 'find' == $_GET['window']) {
-        mcms::extras('lib/modules/tinymce/editor/tiny_mce_popup.js');
+      } elseif (!empty($_GET['mcmsarchive'])) {
         mcms::extras('themes/admin/js/picker-redux.min.js');
       } else {
-        // mcms::extras('lib/modules/tinymce/editor/tiny_mce_popup.js');
+        mcms::extras('lib/modules/tinymce/editor/tiny_mce_popup.js', false);
         mcms::extras('lib/modules/base/control.attachment.min.js');
       }
     ?>
