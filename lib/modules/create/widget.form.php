@@ -116,51 +116,58 @@ class FormWidget extends Widget
 
   protected function onGetDefault(array $options)
   {
-    $output = '';
+    $result = array();
     $types = $this->getTypeList($options['root']);
 
-    if (empty($options['type']) and count($types) == 1)
-      $options['type'] = key($types);
+    // Если тип документа не указан, но доступен всего
+    // один тип — используем его.
+    if (!empty($options['type']) or 1 == count($types)) {
+      if (!empty($options['type']))
+        $type = $options['type'];
+      else
+        $type = array_shift($types);
 
-    if (!empty($options['type'])) {
-      if (!array_key_exists($options['type'], $types))
-        return null;
-
-      $output = "<div class='form-widget-wrapper type-{$options['type']}-form'>". self::formRender('form-create-'. $options['type']) ."</div>";
-    } elseif (!empty($types) and '*' === $tis->type) {
-      $output = '<div class=\'type-selection-form\'>';
-      $output .= '<h2>'. t('Документ какого типа вы хотите создать?') .'</h2>';
-      $output .= '<dl>';
-
-      foreach ($types as $k => $v) {
-        $output .= '<dt>'. t('<a href=\'@link\'>%title</a>', array(
-          '@link' => mcms_url(array('args' => array($this->getInstanceName() => array(
-            'type' => $k,
-            )))),
-          '%title' => $v,
-          )) .'</dt>';
-
-        $schema = TypeNode::getSchema($k);
-        $description = empty($schema['description']) ? t('Описание отсутствует.') : $schema['description'];
-
-        $output .= '<dd>'. $description .'</dd>';
-      }
-
-      $output .= '</dl>';
-      $output .= '</div>';
+      $result['mode'] = 'form';
+      $result['type'] = $type;
+      $result['form'] = self::formRender('form-create-'. $type);
     }
 
-    return array('html' => $output);
+    // Если типов несколько, и конкретный не указан — возвращаем
+    // список, пусть пользователь выбирает.
+    else {
+      $result = array(
+        'mode' => 'list',
+        'list' => array(),
+        );
+
+      $url = new url();
+      $key = $this->getInstanceName() .'.type';
+
+      foreach ($types as $type => $v) {
+        $url->setarg($key, $type);
+
+        $schema = TypeNode::getSchema($type);
+
+        $result['types'][$type] = array(
+          'title' => $v,
+          'description' => empty($schema['description'])
+            ? '' : $schema['description'],
+          'link' => strval($url),
+          );
+      }
+    }
+
+    return $result;
   }
 
   protected function onGetPending(array $options)
   {
-    $output = '<h2>'. t('Документ создан') .'</h2>';
-    $output .= '<p>'. t('Всё в порядке, документ сохранён, но на сайте он будет виден только после одобрения модератором. Нужно немного подождать.') .'</p>';
-    $output .= '<p>'. t('Хотите <a href=\'@url\'>создать ещё один документ</a>?', array(
-      '@url' => mcms_url(array('args' => array($this->getInstanceName() => array('status' => null)))),
-      )) .'</p>';
-    return array('html' => $output);
+    return array(
+      'mode' => 'status',
+      'status' => 'pending',
+      'message' => t('Всё в порядке, документ сохранён, но на сайте он будет '
+        .'виден только после одобрения модератором. Нужно немного подождать.'),
+      );
   }
 
   // Возвращает список типов, доступных пользователю.

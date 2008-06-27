@@ -1,0 +1,15 @@
+<?php if ('list' == $mode): ?>
+<p>Документ какого типа вы хотите создать?</p>
+<ul class='create-type-list'>
+<?php foreach ($types as $k => $v) { ?>
+<li>
+<?php print l($v['link'], $v['title']); ?>
+<?php if (!empty($v['description'])) print '<p>'. mcms_plain($v['description']) .'</p>'; ?>
+</li>
+<?php } ?>
+</ul>
+<?php elseif ('form' == $mode): ?>
+<?php print $form; ?>
+<?php elseif ('status' == $mode): ?>
+<p class='status-<?php print $status; ?>'><?php print $message; ?></p>
+<?php endif; ?>
