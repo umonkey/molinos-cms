@@ -15,4 +15,4 @@ file_cache_ttl = 3600
 default = sqlite:conf/default.db
 
 [runtime]
-modules = compressor, tinymce
+modules = compressor,tinymce
