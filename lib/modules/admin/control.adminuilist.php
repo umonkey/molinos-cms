@@ -147,27 +147,19 @@ class AdminUIListControl extends Control
     case 'thumbnail':
       if (null !== $node and !empty($node['class']) and $node['class'] == 'file') {
         if (file_exists($path = mcms::config('filestorage') .'/'. $node['filepath'])) {
-          if (substr($node['filetype'], 0, 6) == 'image/')
-            $tmp = mcms::html('img', array(
-              'src' => "att.php?q={$node['id']},48,48,c&rev={$node['rid']}",
-              'width' => 48,
-              'height' => 48,
-              'alt' => $node['filepath'],
-              'onclick' => isset($this->picker)
-                ? "return mcms_picker.mySubmit(\"". l('att.php?q='. $node['id']) ."\",{$node['id']})"
-                : null,
-              ));
-          else
-            $tmp = mcms::html('img', array(
-              'src' => 'themes/admin/img/media-floppy.png',
-              'width' => 16,
-              'height' => 16,
-              'alt' => t('Скачать'),
-              ));
+          $tmp = mcms::html('img', array(
+            'src' => "attachment.rpc?fid={$node['id']},48,48,c&rev={$node['rid']}",
+            'width' => 48,
+            'height' => 48,
+            'alt' => $node['filepath'],
+            'onclick' => isset($this->picker)
+              ? "return mcms_picker.mySubmit(\"". l('att.php?q='. $node['id']) ."\",{$node['id']})"
+               : null,
+            ));
 
           $tmp = mcms::html('a', array(
             'title' => 'Скачать',
-            'href' => "att.php?q={$node['id']}",
+            'href' => "attachment.rpc?fid={$node['id']}",
             'class' => isset($this->picker) ? 'returnHref' : null,
             ), $tmp);
 
