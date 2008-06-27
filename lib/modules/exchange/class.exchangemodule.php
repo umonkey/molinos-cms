@@ -310,15 +310,15 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
         $at[$a] = strval($v);
 
       $nd = $at['nid'];
-      $ud = $at['uid'];
+      $ud = empty($at['uid']) ? 0 : $at['uid'];
 
-      if (array_key_exists($nd,$newid))
+      if (array_key_exists($nd, $newid))
         $nid = $newid[$nd];
 
-      if (array_key_exists($ud,$newid))
+      if (array_key_exists($ud, $newid))
         $uid = $newid[$ud];
 
-      if (!empty($nid) and !empty($uid)) {
+      if (!empty($nid)) {
         $c = empty($at['c']) ? 0 : 1;
         $r = empty($at['r']) ? 0 : 1;
         $u = empty($at['u']) ? 0 : 1;

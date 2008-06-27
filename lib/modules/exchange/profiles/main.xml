@@ -1,90 +1,98 @@
 <?xml version="1.0" standalone="yes"?>
 <root>
-<info name='Только базовые объекты CMS'>
-<description><![CDATA[Clean CMS.]]></description>
+<info name='bebop.pdg.ru_2008-06-27'>
+<description><![CDATA[default]]></description>
 </info>
 <nodes>
-<node id='1' class='type' created='2008-04-07 12:15:40' updated='2008-05-06 16:13:51' lang='ru' published='1' name='type' description='Скелет структуры типа документа.' title='Тип документа'>
+<node id='2' class='type' created='2008-04-07 12:15:40' updated='2008-06-03 15:17:16' lang='ru' published='1' name='type' description='Скелет структуры типа документа.' title='Тип документа'>
 <fields><![CDATA[a:5:{s:4:"name";a:6:{s:5:"label";s:27:"Внутреннее имя";s:4:"type";s:15:"TextLineControl";s:11:"description";s:172:"Может содержать только буквы латинского алфавита, арабские цифры и символ подчёркивания («_»).";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";}s:5:"title";a:6:{s:5:"label";s:25:"Название типа";s:4:"type";s:15:"TextLineControl";s:11:"description";s:410:"Короткое, максимально информативное описание название документа.&nbsp; Хорошо: &laquo;Статья&raquo;, &laquo;Баннер 85x31&raquo;, плохо: &laquo;Текстовый документ для отображения на сайте&raquo;, &laquo;Баннер справа сверху под тем другим баннером&raquo;.";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";}s:11:"description";a:5:{s:5:"label";s:16:"Описание";s:4:"type";s:15:"TextAreaControl";s:11:"description";s:0:"";s:7:"default";s:0:"";s:6:"values";s:0:"";}s:6:"notags";a:6:{s:5:"label";s:43:"Не работает с разделами";s:4:"type";s:11:"BoolControl";s:11:"description";s:0:"";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";}s:8:"hasfiles";a:6:{s:5:"label";s:34:"Работает с файлами";s:4:"type";s:11:"BoolControl";s:11:"description";s:106:"Показывать вкладку для прикрепления произвольных файлов.";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";}}]]></fields>
 </node>
-<node id='2' class='type' created='2008-04-07 12:15:41' updated='2008-05-06 16:13:51' lang='ru' published='1' name='widget' description='Базовый блок для формирования страницы.' title='Виджет' notags='1'>
+<node id='3' class='type' created='2008-04-07 12:15:41' updated='2008-06-03 15:17:16' lang='ru' published='1' name='widget' description='Базовый блок для формирования страницы.' title='Виджет' notags='1'>
 <fields><![CDATA[a:5:{s:4:"name";a:6:{s:5:"label";s:27:"Внутреннее имя";s:4:"type";s:15:"TextLineControl";s:11:"description";s:178:"Используется для идентификации виджета внутри шаблонов, а также для поиска шаблонов для виджета.";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";}s:5:"title";a:6:{s:5:"label";s:16:"Название";s:4:"type";s:15:"TextLineControl";s:11:"description";s:57:"Человеческое название виджета.";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";}s:11:"description";a:5:{s:5:"label";s:16:"Описание";s:4:"type";s:15:"TextAreaControl";s:11:"description";s:135:"Краткое описание выполняемых виджетом функций и особенностей его работы.";s:7:"default";s:0:"";s:6:"values";s:0:"";}s:9:"classname";a:6:{s:5:"label";s:35:"Используемый класс";s:4:"type";s:15:"TextLineControl";s:11:"description";s:0:"";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";}s:6:"config";a:5:{s:5:"label";s:0:"";s:4:"type";s:12:"EmailControl";s:11:"description";s:0:"";s:7:"default";s:0:"";s:6:"values";s:0:"";}}]]></fields>
 </node>
-<node id='3' class='type' created='2008-04-07 12:15:41' updated='2008-05-06 16:13:51' lang='ru' published='1' name='file' description='Используется для наполнения файлового архива.' title='Файл' notags='1'>
+<node id='4' class='type' created='2008-04-07 12:15:41' updated='2008-06-03 15:17:16' lang='ru' published='1' name='file' description='Используется для наполнения файлового архива.' title='Файл' notags='1'>
 <fields><![CDATA[a:7:{s:4:"name";a:6:{s:5:"label";s:27:"Название файла";s:4:"type";s:15:"TextLineControl";s:11:"description";s:137:"Человеческое название файла, например: &laquo;Финансовый отчёт за 2007-й год&raquo;";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";}s:8:"filename";a:7:{s:5:"label";s:31:"Оригинальное имя";s:4:"type";s:15:"TextLineControl";s:11:"description";s:543:"Имя, которое было у файла, когда пользователь добавлял его на сайт.&nbsp; Под этим же именем файл будет сохранён, если пользователь попытается его сохранить.&nbsp; Рекомендуется использовать только латинский алфавит: Internet Explorer некорректно обрабатывает кириллицу в именах файлов при скачивании файлов.";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";s:7:"indexed";s:1:"1";}s:8:"filetype";a:7:{s:5:"label";s:11:"Тип MIME";s:4:"type";s:15:"TextLineControl";s:11:"description";s:185:"Используется для определения способов обработки файла.&nbsp; Проставляется автоматически при закачке.";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";s:7:"indexed";s:1:"1";}s:8:"filesize";a:7:{s:5:"label";s:28:"Размер в байтах";s:4:"type";s:13:"NumberControl";s:11:"description";s:0:"";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";s:7:"indexed";s:1:"1";}s:8:"filepath";a:7:{s:5:"label";s:41:"Локальный путь к файлу";s:4:"type";s:15:"TextLineControl";s:11:"description";s:0:"";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";s:7:"indexed";s:1:"1";}s:5:"width";a:5:{s:5:"label";s:12:"Ширина";s:4:"type";s:13:"NumberControl";s:11:"description";s:88:"Проставляется только для картинок и SWF объектов.";s:7:"default";s:0:"";s:6:"values";s:0:"";}s:6:"height";a:5:{s:5:"label";s:12:"Высота";s:4:"type";s:13:"NumberControl";s:11:"description";s:88:"Проставляется только для картинок и SWF объектов.";s:7:"default";s:0:"";s:6:"values";s:0:"";}}]]></fields>
 </node>
-<node id='4' class='type' created='2008-04-07 12:15:41' updated='2008-05-06 16:13:51' lang='ru' published='1' name='tag' description='Разделы определяют структуру информации.' title='Раздел сайта' notags='1'>
-<fields><![CDATA[a:2:{s:4:"name";a:6:{s:5:"label";s:21:"Имя раздела";s:4:"type";s:15:"TextLineControl";s:11:"description";s:166:"Отображается в списках документов как в административном интерфейсе, так и на самом сайте.";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";}s:11:"description";a:5:{s:5:"label";s:16:"Описание";s:4:"type";s:15:"TextAreaControl";s:11:"description";s:0:"";s:7:"default";s:0:"";s:6:"values";s:0:"";}}]]></fields>
+<node id='5' class='type' created='2008-04-07 12:15:41' updated='2008-06-23 13:08:18' lang='ru' published='1' name='tag' description='Разделы определяют структуру информации.' title='Раздел сайта' notags='1' prev_published='1'>
+<fields><![CDATA[a:3:{s:4:"name";a:4:{s:5:"label";s:21:"Имя раздела";s:4:"type";s:15:"TextLineControl";s:10:"dictionary";s:6:"widget";s:8:"required";s:1:"1";}s:11:"description";a:3:{s:5:"label";s:16:"Описание";s:4:"type";s:15:"TextAreaControl";s:10:"dictionary";s:6:"widget";}s:4:"code";a:4:{s:5:"label";s:26:"Алиас для пути";s:4:"type";s:15:"TextLineControl";s:10:"dictionary";s:6:"widget";s:7:"indexed";s:1:"1";}}]]></fields>
 </node>
-<node id='5' class='type' created='2008-04-07 12:15:41' updated='2008-05-06 16:13:51' lang='ru' published='1' name='group' description='Используется для управления правами.' title='Группа пользователей' notags='1'>
+<node id='6' class='type' created='2008-04-07 12:15:41' updated='2008-06-03 15:17:16' lang='ru' published='1' name='group' description='Используется для управления правами.' title='Группа пользователей' notags='1'>
 <fields><![CDATA[a:2:{s:4:"name";a:6:{s:5:"label";s:16:"Название";s:4:"type";s:15:"TextLineControl";s:11:"description";s:0:"";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";}s:11:"description";a:5:{s:5:"label";s:16:"Описание";s:4:"type";s:15:"TextAreaControl";s:11:"description";s:0:"";s:7:"default";s:0:"";s:6:"values";s:0:"";}}]]></fields>
 </node>
-<node id='6' class='group' created='2008-04-07 12:15:43' updated='2008-05-06 16:13:51' lang='ru' published='1' name='Посетители' description='Простые пользователи, могут только читать.'>
+<node id='8' class='user' created='2008-04-07 12:15:43' updated='2008-06-03 15:17:17' lang='ru' published='1' name='cms-bugs@molinos.ru' fullname='Разработчик'>
 </node>
-<node id='7' class='user' created='2008-04-07 12:15:43' updated='2008-05-06 16:13:51' lang='ru' published='1' name='cms-bugs@molinos.ru' fullname='Разработчик'>
-</node>
-<node id='8' class='domain' created='2008-04-07 12:15:46' updated='2008-05-06 16:13:51' lang='ru' published='1' name='localhost' title='Главная страница' language='ru' theme='example' content_type='text/html' defaultsection='10'>
+<node id='9' class='domain' created='2008-04-07 12:15:46' updated='2008-06-25 12:17:33' lang='ru' published='1' name='localhost' title='Molinos.CMS' language='ru' content_type='text/html' defaultsection='10' params='sec'>
 <aliases><![CDATA[a:1:{i:0;s:0:"";}]]></aliases>
 </node>
-<node id='9' class='tag' uid='18' created='2008-04-07 12:58:18' updated='2008-05-06 16:13:51' lang='ru' published='1' name='Основной раздел' description='Это — начало структуры вашего сайта.  Все подразделы добавляются сюда.'>
+<node id='10' class='tag' uid='18' created='2008-04-07 12:58:18' updated='2008-06-03 15:17:17' lang='ru' published='1' name='Основной раздел' description='Это — начало структуры вашего сайта.  Все подразделы добавляются сюда.'>
 </node>
-<node id='10' class='type' uid='61' created='2008-04-07 13:20:16' updated='2008-05-06 16:13:51' lang='ru' published='1' name='moduleinfo' description='Используется системой для хранения информации о модулях.' title='Конфигурация модуля' notags='1'>
+<node id='11' class='type' uid='61' created='2008-04-07 13:20:16' updated='2008-06-03 15:17:17' lang='ru' published='1' name='moduleinfo' description='Используется системой для хранения информации о модулях.' title='Конфигурация модуля' notags='1'>
 <fields><![CDATA[a:3:{s:4:"name";a:6:{s:5:"label";s:18:"Заголовок";s:4:"type";s:15:"TextLineControl";s:11:"description";s:0:"";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";}s:7:"created";a:5:{s:5:"label";s:25:"Дата создания";s:4:"type";s:15:"DateTimeControl";s:11:"description";s:0:"";s:7:"default";s:0:"";s:6:"values";s:0:"";}s:3:"uid";a:5:{s:5:"label";s:10:"Автор";s:4:"type";s:15:"NodeLinkControl";s:11:"description";s:0:"";s:7:"default";s:0:"";s:6:"values";s:9:"user.name";}}]]></fields>
 </node>
-<node id='11' class='moduleinfo' uid='18' created='2008-04-08 10:06:52' updated='2008-05-06 16:13:51' lang='ru' name='exchange'>
+<node id='12' class='moduleinfo' uid='18' created='2008-04-08 10:06:52' updated='2008-06-03 15:17:17' lang='ru' name='exchange'>
 </node>
-<node id='12' class='group' uid='43' created='2008-04-10 13:03:46' updated='2008-05-06 16:13:51' lang='ru' published='1' name='Разработчики' description='Пользователи из этой группы могут всё.'>
+<node id='13' class='group' uid='43' created='2008-04-10 13:03:46' updated='2008-06-23 13:06:50' lang='ru' published='1' name='Разработчики' description='Пользователи из этой группы могут всё.' login='Разработчики'>
 </node>
-<node id='13' class='type' created='2008-04-30 18:52:04' updated='2008-05-06 16:13:51' lang='ru' published='1' name='user' title='Профиль пользователя' adminmodule='admin' notags='1'>
+<node id='14' class='type' created='2008-04-30 18:52:04' updated='2008-06-03 15:17:17' lang='ru' published='1' name='user' title='Профиль пользователя' adminmodule='admin' notags='1'>
 <fields><![CDATA[a:4:{s:4:"name";a:6:{s:5:"label";s:19:"Email или OpenID";s:4:"type";s:12:"EmailControl";s:11:"description";s:0:"";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";}s:8:"fullname";a:5:{s:5:"label";s:19:"Полное имя";s:4:"type";s:15:"TextLineControl";s:11:"description";s:143:"Используется в подписях к комментариям, при отправке почтовых сообщений и т.д.";s:7:"default";s:0:"";s:6:"values";s:0:"";}s:8:"password";a:6:{s:5:"label";s:12:"Пароль";s:4:"type";s:15:"PasswordControl";s:11:"description";s:0:"";s:7:"default";s:0:"";s:6:"values";s:0:"";s:8:"required";s:1:"1";}s:5:"email";a:5:{s:5:"label";s:5:"Email";s:4:"type";s:12:"EmailControl";s:11:"description";s:47:"Для доставки уведомлений.";s:7:"default";s:0:"";s:6:"values";s:0:"";}}]]></fields>
 </node>
-<node id='14' class='group' created='2008-04-30 19:23:58' updated='2008-05-06 16:13:51' lang='ru' published='1' name='Администраторы' description='Могут работать с контентом.'>
+<node id='15' class='group' created='2008-04-30 19:23:58' updated='2008-06-23 13:06:45' lang='ru' published='1' name='Администраторы' description='Могут работать с контентом.' login='Администраторы'>
 </node>
-<node id='15' class='type' created='2008-05-06 15:35:06' updated='2008-05-06 16:13:51' lang='ru' published='1' name='domain' title='Типовая страница' notags='1'>
+<node id='16' class='type' created='2008-05-06 15:35:06' updated='2008-06-03 15:17:17' lang='ru' published='1' name='domain' title='Типовая страница' notags='1'>
 <fields><![CDATA[a:9:{s:4:"name";a:3:{s:5:"label";s:6:"Имя";s:4:"type";s:15:"TextLineControl";s:8:"required";b:1;}s:5:"title";a:3:{s:5:"label";s:18:"Заголовок";s:4:"type";s:15:"TextLineControl";s:8:"required";b:1;}s:9:"parent_id";a:2:{s:5:"label";s:37:"Родительский объект";s:4:"type";s:11:"EnumControl";}s:7:"aliases";a:3:{s:5:"label";s:12:"Алиасы";s:4:"type";s:15:"TextAreaControl";s:11:"description";s:115:"Список дополнительных адресов, по которым доступен этот домен.";}s:8:"language";a:5:{s:5:"label";s:8:"Язык";s:4:"type";s:11:"EnumControl";s:11:"description";s:100:"Язык для этой страницы, используется только шаблонами.";s:7:"options";a:3:{s:2:"ru";s:14:"русский";s:2:"en";s:20:"английский";s:2:"de";s:16:"немецкий";}s:8:"required";b:1;}s:5:"theme";a:3:{s:5:"label";s:10:"Шкура";s:4:"type";s:11:"EnumControl";s:11:"description";s:73:"Имя папки с шаблонами для этой страницы.";}s:12:"content_type";a:4:{s:5:"label";s:23:"Тип контента";s:4:"type";s:11:"EnumControl";s:8:"required";b:1;s:7:"options";a:2:{s:9:"text/html";s:4:"HTML";s:8:"text/xml";s:3:"XML";}}s:6:"params";a:4:{s:5:"label";s:37:"Разметка параметров";s:4:"type";s:11:"EnumControl";s:8:"required";b:1;s:7:"options";a:4:{s:0:"";s:27:"без параметров";s:7:"sec+doc";s:31:"/раздел/документ/";s:3:"sec";s:14:"/раздел/";s:3:"doc";s:18:"/документ/";}}s:14:"defaultsection";a:2:{s:5:"label";s:29:"Основной раздел";s:4:"type";s:11:"EnumControl";}}]]></fields>
 </node>
-<node id='16' class='moduleinfo' created='2008-05-06 17:06:15' updated='2008-05-06 17:08:28' lang='ru' published='1' name='auth'>
+<node id='17' class='moduleinfo' created='2008-05-06 17:06:15' updated='2008-06-03 15:17:17' lang='ru' published='1' name='auth'>
 <config><![CDATA[a:4:{s:4:"mode";s:4:"open";s:14:"profile_fields";a:3:{i:0;s:5:"email";i:1;s:8:"fullname";i:2;s:8:"language";}s:11:"groups_anon";a:1:{i:0;s:1:"6";}s:6:"groups";a:1:{i:0;s:1:"6";}}]]></config>
+</node>
+<node id='18' class='type' updated='2008-06-27 11:24:37' lang='ru' published='1' name='article' title='Статья' prev_published='1' description='Используется для формирования статичных страниц: информация о сайте, карта проезда итд.'>
+<fields><![CDATA[a:3:{s:4:"name";a:5:{s:5:"label";s:18:"Заголовок";s:4:"type";s:15:"TextLineControl";s:10:"dictionary";s:6:"widget";s:8:"required";s:1:"1";s:7:"indexed";s:1:"1";}s:4:"text";a:4:{s:5:"label";s:10:"Текст";s:4:"type";s:15:"TextHTMLControl";s:10:"dictionary";s:6:"widget";s:8:"required";s:1:"1";}s:6:"teaser";a:4:{s:5:"label";s:12:"Превью";s:4:"type";s:15:"TextHTMLControl";s:10:"dictionary";s:6:"widget";s:8:"required";s:1:"1";}}]]></fields>
+</node>
+<node id='19' class='article' created='2008-06-25 12:09:57' updated='2008-06-25 12:23:12' lang='ru' published='1' name='Добро пожаловать!' text='&lt;p&gt;Теперь вы можете воспользоваться административным интерфейсом.&lt;/p&gt;' teaser='&lt;p&gt;Поздравляем, вы успешно установили &lt;a href=&quot;http://cms.molinos.ru/&quot;&gt;Molinos.CMS&lt;/a&gt;! Теперь вы можете воспользоваться &lt;a href=&quot;admin&quot;&gt;административным интерфейсом&lt;/a&gt;.&lt;/p&gt;'>
+</node>
+<node id='20' class='widget' created='2008-06-25 12:10:23' updated='2008-06-25 12:11:29' lang='ru' published='1' name='doc' title='Просмотр объекта' classname='DocWidget'>
+<config><![CDATA[a:2:{s:4:"mode";s:4:"view";s:5:"fixed";s:0:"";}]]></config>
+</node>
+<node id='21' class='domain' parent_id='9' created='2008-06-25 12:11:39' updated='2008-06-25 12:12:04' lang='ru' published='1' name='node' language='ru' content_type='text/html' params='doc' title='Просмотр объекта'>
+<aliases><![CDATA[a:1:{i:0;s:0:"";}]]></aliases>
+</node>
+<node id='22' class='widget' created='2008-06-25 12:12:20' updated='2008-06-25 12:12:44' lang='ru' published='1' name='list' title='Список документов' classname='ListWidget'>
+<config><![CDATA[a:4:{s:5:"fixed";s:0:"";s:12:"fallbackmode";s:0:"";s:5:"limit";s:2:"10";s:4:"sort";s:0:"";}]]></config>
 </node>
 </nodes>
 <links>
-<link tid='6' nid='7' />
-<link tid='8' nid='7' />
-<link tid='8' nid='7' />
-<link tid='8' nid='7' />
-<link tid='8' nid='7' />
-<link tid='8' nid='7' />
-<link tid='8' nid='7' />
-<link tid='8' nid='7' />
-<link tid='12' nid='7' />
+<link tid='7' nid='8' />
+<link tid='9' nid='8' />
+<link tid='9' nid='8' />
+<link tid='9' nid='8' />
+<link tid='9' nid='8' />
+<link tid='9' nid='8' />
+<link tid='9' nid='8' />
+<link tid='9' nid='8' />
+<link tid='9' nid='22' order='1' />
+<link tid='10' nid='19' order='1' />
+<link tid='13' nid='8' order='1' />
+<link tid='18' nid='22' order='1' />
+<link tid='21' nid='20' order='1' />
 </links>
 <accessrights>
-<access nid='1' uid='12' c='1' r='1' u='1' d='1' />
-<access nid='1' uid='14' c='1' r='1' u='1' d='1' />
-<access nid='1' uid='6' r='1' />
-<access nid='2' uid='12' c='1' r='1' u='1' d='1' />
-<access nid='2' uid='14' r='1' />
-<access nid='2' uid='6' r='1' />
-<access nid='3' uid='12' c='1' r='1' u='1' d='1' />
-<access nid='3' uid='14' c='1' r='1' u='1' d='1' />
-<access nid='3' uid='6' c='1' r='1' />
-<access nid='4' uid='12' c='1' r='1' u='1' d='1' />
-<access nid='4' uid='14' c='1' r='1' u='1' d='1' />
-<access nid='4' uid='6' r='1' />
-<access nid='5' uid='12' c='1' r='1' u='1' d='1' />
-<access nid='5' uid='14' r='1' />
-<access nid='5' uid='6' r='1' />
-<access nid='5' uid='12' c='1' r='1' u='1' d='1' />
-<access nid='5' uid='14' r='1' />
-<access nid='5' uid='6' r='1' />
-<access nid='10' uid='12' c='1' r='1' u='1' d='1' />
-<access nid='10' uid='14' r='1' />
-<access nid='10' uid='6' r='1' />
-<access nid='13' uid='14' r='1' />
-<access nid='13' uid='6' c='1' r='1' />
-<access nid='13' uid='12' c='1' r='1' u='1' d='1' />
-<access nid='15' uid='14' r='1' />
-<access nid='15' uid='6' r='1' />
-<access nid='15' uid='12' c='1' r='1' u='1' d='1' />
+<access nid='2' uid='15' c='1' r='1' u='1' d='1' p='1' />
+<access nid='2' uid='13' c='1' r='1' u='1' d='1' p='1' />
+<access nid='3' uid='15' r='1' />
+<access nid='3' uid='13' c='1' r='1' u='1' d='1' p='1' />
+<access nid='4' uid='15' c='1' r='1' u='1' d='1' p='1' />
+<access nid='4' uid='13' c='1' r='1' u='1' d='1' p='1' />
+<access nid='5' uid='15' c='1' r='1' u='1' d='1' p='1' />
+<access nid='5' uid='13' c='1' r='1' u='1' d='1' p='1' />
+<access nid='6' uid='15' r='1' />
+<access nid='6' uid='13' c='1' r='1' u='1' d='1' p='1' />
+<access nid='11' uid='15' r='1' />
+<access nid='11' uid='13' c='1' r='1' u='1' d='1' p='1' />
+<access nid='14' uid='15' r='1' />
+<access nid='14' uid='13' c='1' r='1' u='1' d='1' p='1' />
+<access nid='16' uid='15' r='1' />
+<access nid='16' uid='13' c='1' r='1' u='1' d='1' p='1' />
+<access nid='18' r='1' />
+<access nid='18' uid='15' c='1' r='1' u='1' d='1' p='1' />
+<access nid='18' uid='13' c='1' r='1' u='1' d='1' p='1' />
 </accessrights>
 </root>

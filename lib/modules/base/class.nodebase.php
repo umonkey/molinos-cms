@@ -809,26 +809,38 @@ class NodeBase
     $pdo = mcms::db();
 
     // Формируем список групп.
-    if ($default === null)
-      $default = $pdo->getResultsK("name", "SELECT `r`.`name` as `name` FROM `node` `n` "
-        ."INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` "
-        ."WHERE `n`.`class` = 'group' AND `n`.`deleted` = 0 ORDER BY `r`.`name`");
+    if ($default === null) {
+      $default[0] = array('name' => 'Анонимные пользователи');
+
+      $data = $pdo->getResultsKV('id', 'name', "SELECT `v`.`nid` AS `id`, "
+        ."`v`.`name` as `name` FROM `node` `n` INNER JOIN `node__rev` `v` "
+        ."ON `v`.`rid` = `n`.`rid` WHERE `n`.`class` = 'group' "
+        ."AND `n`.`deleted` = 0 ORDER BY `v`.`name`");
+
+      foreach ($data as $k => $v)
+        $default[$k]['name'] = $v;
+    }
 
     $data = $default;
+    $gids = join(', ', array_keys($default));
 
-    $sql = "SELECT `r`.`name` as `name`, `a`.`c` as `c`, "
-      ."`a`.`r` as `r`, `a`.`u` as `u`, `a`.`d` as `d`, `a`.`p` as `p` FROM `node__access` `a` "
-      ."INNER JOIN `node` `n` ON `n`.`id` = `a`.`uid` "
-      ."INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` "
-      ."WHERE `a`.`nid` = :nid AND `n`.`class` = 'group' AND `n`.`deleted` = 0";
+    $acl = mcms::db()->getResultsK('id', "SELECT `a`.`uid` as `id`, "
+      ."`a`.`c` as `c`, "
+      ."`a`.`r` as `r`, "
+      ."`a`.`u` as `u`, "
+      ."`a`.`d` as `d`, "
+      ."`a`.`p` as `p` "
+      ."FROM `node__access` `a` "
+      ."WHERE `a`.`nid` = ? AND `a`.`uid` IN ({$gids})",
+      array($this->id));
 
     // Формируем таблицу с правами.
-    foreach ($pdo->getResultsK("name", $sql, array(':nid' => $this->id)) as $group => $perms) {
-      $data[$group]['c'] = $perms['c'];
-      $data[$group]['r'] = $perms['r'];
-      $data[$group]['u'] = $perms['u'];
-      $data[$group]['d'] = $perms['d'];
-      $data[$group]['p'] = $perms['p'];
+    foreach ($acl as $id => $perms) {
+      $data[$id]['c'] = $perms['c'];
+      $data[$id]['r'] = $perms['r'];
+      $data[$id]['u'] = $perms['u'];
+      $data[$id]['d'] = $perms['d'];
+      $data[$id]['p'] = $perms['p'];
     }
 
     return $data;
@@ -853,15 +865,16 @@ class NodeBase
 
       if (is_numeric($uid)) {
         $args[':uid'] = $uid;
-        $pdo->exec($sql = "REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`)
-                    VALUES (:nid, :uid, :c, :r, :u, :d, :p)", $args);
+        $pdo->exec($sql = "REPLACE INTO `node__access` (`nid`, `uid`, "
+          ."`c`, `r`, `u`, `d`, `p`) VALUES (:nid, :uid, :c, :r, :u, :d, :p)",
+          $args);
       } else {
         $args[':name'] = $uid;
-        $pdo->exec($sql = "REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`) "
-          ."SELECT :nid, `n`.`id` as `id`, :c, :r, :u, :d, :p "
-          ."FROM `node` `n` "
-          ."INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
-          ."WHERE `n`.`class` = 'group'  AND `n`.`deleted` = 0 AND `v`.`name` = :name", $args);
+        $pdo->exec($sql = "REPLACE INTO `node__access` (`nid`, `uid`, "
+          ."`c`, `r`, `u`, `d`, `p`) SELECT :nid, `n`.`id` as `id`, "
+          .":c, :r, :u, :d, :p FROM `node` `n` INNER JOIN `node__rev` `v` "
+          ."ON `v`.`rid` = `n`.`rid` WHERE `n`.`class` = 'group' "
+          ."AND `n`.`deleted` = 0 AND `v`.`name` = :name", $args);
       }
     }
 

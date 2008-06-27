@@ -82,42 +82,77 @@ class User
   private function loadAccess()
   {
     if (null === $this->access) {
-      $keys = array_keys($this->getGroups());
-      sort($keys);
+      if (empty($this->id) or !count($this->getGroups()))
+        $result = $this->loadAnonAccess();
+      else
+        $result = $this->loadGroupAccess();
 
-      if (is_array($result = mcms::cache($ckey = 'access:'. join(',', $keys))))
-        return $this->access = $result;
-
-      $result = array();
-
-      if (count($groups = array_keys($this->getGroups()))) {
-        $data = mcms::db()->getResults($sql = "SELECT `v`.`name` AS `name`, "
-          ."MAX(`a`.`c`) AS `c`, MAX(`a`.`r`) AS `r`, MAX(`a`.`u`) AS `u`, "
-          ."MAX(`a`.`d`) AS `d`, MAX(`a`.`p`) AS `p` "
-          ."FROM `node` `n` "
-          ."INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
-          ."INNER JOIN `node__access` `a` ON `a`.`nid` = `n`.`id` "
-          ."WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0 "
-          ."AND `a`.`uid` IN (". join(', ', $groups) .") GROUP BY `v`.`name`");
-        $mask = array('c', 'r', 'u', 'd', 'p');
-
-        foreach ($data as $row) {
-          foreach ($mask as $mode)
-            if (!empty($row[$mode]))
-              $result[$mode][] = $row['name'];
-        }
-      }
-
-      mcms::cache($ckey, $this->access = $result);
+      $this->access = $result;
     }
 
     return $this->access;
   }
 
+  private function loadAnonAccess()
+  {
+    $sql = "SELECT `v`.`name` AS `name`, "
+      ."MAX(`a`.`c`) AS `c`, MAX(`a`.`r`) AS `r`, MAX(`a`.`u`) AS `u`, "
+      ."MAX(`a`.`d`) AS `d`, MAX(`a`.`p`) AS `p` "
+      ."FROM `node` `n` "
+      ."INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
+      ."INNER JOIN `node__access` `a` ON `a`.`nid` = `n`.`id` "
+      ."WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0 "
+      ."AND `a`.`uid` = 0 GROUP BY `v`.`name`";
+
+    return $this->loadRawAccess($sql);
+  }
+
+  private function loadGroupAccess()
+  {
+    $keys = array_keys($this->getGroups());
+    sort($keys);
+
+    $sql = "SELECT `v`.`name` AS `name`, "
+      ."MAX(`a`.`c`) AS `c`, MAX(`a`.`r`) AS `r`, MAX(`a`.`u`) AS `u`, "
+      ."MAX(`a`.`d`) AS `d`, MAX(`a`.`p`) AS `p` "
+      ."FROM `node` `n` "
+      ."INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
+      ."INNER JOIN `node__access` `a` ON `a`.`nid` = `n`.`id` "
+      ."WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0 "
+      ."AND `a`.`uid` IN (". join(', ', $keys) .") GROUP BY `v`.`name`";
+
+    return $this->loadRawAccess($sql);
+  }
+
+  // Выполняет запрос, парсит результат в пригодный вид.
+  // Использует быстрый кэш для хранения результата.
+  private function loadRawAccess($sql)
+  {
+    $key = 'access:'. md5($sql);
+
+    if (false and is_array($result = mcms::cache($key)))
+      return $result;
+
+    $result = array();
+    $data = mcms::db()->getResults($sql);
+    $mask = array('c', 'r', 'u', 'd', 'p');
+
+    foreach ($data as $row) {
+      foreach ($mask as $mode)
+        if (!empty($row[$mode]))
+          $result[$mode][] = $row['name'];
+    }
+
+    mcms::cache($key, $result);
+
+    return $result;
+  }
+
   // ОСНОВНОЙ ИНТЕРФЕЙС
 
-  // Восстановление пользователя из сессии.  Если пользователь не идентифицирован,
-  // будет загружен обычный анонимный профиль, без поддержки сессий.
+  // Восстановление пользователя из сессии.  Если пользователь не
+  // идентифицирован, будет загружен обычный анонимный профиль, без
+  // поддержки сессий.
   public static function identify()
   {
     if (array_key_exists('openid_mode', $_GET)) {
