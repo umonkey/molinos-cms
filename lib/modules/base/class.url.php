@@ -102,6 +102,16 @@ class url
     }
   }
 
+  public function setarg($key, $value)
+  {
+    if (false !== strpos($key, '.'))
+      $this->args[$key] = $value;
+    else {
+      list($a, $b) = explode('.', $key, 2);
+      $this->args[$a][$b] = $value;
+    }
+  }
+
   public static function path()
   {
     if (null === self::$root)
