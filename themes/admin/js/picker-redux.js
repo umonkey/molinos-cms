@@ -20,7 +20,7 @@ function mcms_picker_return(href, fileid)
   } else {
     // Заменяем старый предпросмотр новым.
     window.opener.jQuery('#'+ mcms_picker_id +'-preview').remove();
-    window.opener.jQuery('#'+ mcms_picker_id +'-input').before("<img id='"+ mcms_picker_id +"-preview' src='"+ mcms_path +"att.php?q="+ fileid +",100,100,d' alt='preview' style='margin: 0 4px 4px 0; float: left;' />");
+    window.opener.jQuery('#'+ mcms_picker_id +'-input').before("<img id='"+ mcms_picker_id +"-preview' src='"+ mcms_path +"?q=attachment.rpc&fid="+ fileid +",100,100,d' alt='preview' style='margin: 0 4px 4px 0; float: left;' />");
 
     // Заменяем скрытое значение.
     window.opener.jQuery('#'+ mcms_picker_id +'-hidden').attr('value', fileid);
