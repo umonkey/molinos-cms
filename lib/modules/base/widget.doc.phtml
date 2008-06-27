@@ -1,0 +1,11 @@
+<!-- default doc widget template -->
+<div class='node-full'>
+<?php if (!empty($document['name'])): ?>
+<h2><?php print $document['name']; ?></h2>
+<?php endif; ?>
+<?php if (!empty($document['body'])): ?>
+<div class='body'><?php print $document['body']; ?></div>
+<?php elseif (!empty($document['teaser'])): ?>
+<div class='body'><?php print $document['teaser']; ?></div>
+<?php endif; ?>
+</div>
