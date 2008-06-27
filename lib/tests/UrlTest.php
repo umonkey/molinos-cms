@@ -11,7 +11,7 @@ class UrlTest extends PHPUnit_Framework_TestCase
       'http://www.google.com/',
       'https://user:password@gmail.com/inbox/#label',
       'attachment/123',
-      'att.php?q=123',
+      '?q=attachment.rpc&fid=123',
       '?q=nodeapi.rpc&action=stop',
       );
 

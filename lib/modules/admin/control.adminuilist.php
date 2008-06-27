@@ -71,14 +71,14 @@ class AdminUIListControl extends Control
             $href = $node['#link'];
           } else {
             $href = isset($this->picker)
-              ? "att.php?q={$node['id']}"
+              ? "?q=attachment.rpc&fid={$node['id']}"
               : 'admin?mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination=CURRENT';
           }
 
           $row .= mcms::html('a', array(
             'href' => $href,
             'class' => isset($this->picker) ? 'returnHref' : null,
-            'onclick' => isset($this->picker) ? "return mcms_picker.mySubmit(\"". l('att.php?q='. $node['id']) ."\",{$node['id']})" : null,
+            'onclick' => isset($this->picker) ? "return mcms_picker.mySubmit(\"". l('?q=attachment.rpc&fid='. $node['id']) ."\",{$node['id']})" : null,
             ), empty($value) ? '(без названия)' : mcms_plain($value, false));
         } elseif (empty($value))
           $row .= '&nbsp;';
@@ -153,7 +153,7 @@ class AdminUIListControl extends Control
             'height' => 48,
             'alt' => $node['filepath'],
             'onclick' => isset($this->picker)
-              ? "return mcms_picker.mySubmit(\"". l('att.php?q='. $node['id']) ."\",{$node['id']})"
+              ? "return mcms_picker.mySubmit(\"". l('?q=attachment.rpc&fid='. $node['id']) ."\",{$node['id']})"
                : null,
             ));
 
