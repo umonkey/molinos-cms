@@ -162,7 +162,7 @@ class User
 
       // Сохраняем сессию в БД.
       SessionData::db($sid, array('uid' => $node->id));
-      setcookie('mcmsid', $sid, time() + 60*60*24*30);
+      self::setcookie($sid);
       self::$instance = new User($node);
     }
 
@@ -180,7 +180,7 @@ class User
     if (empty($args)) {
       if (array_key_exists('mcmsid', $_COOKIE)) {
         SessionData::db($_COOKIE['mcmsid'], array());
-        setcookie('mcmsid', '');
+        self::setcookie('');
       }
     }
 
@@ -199,7 +199,7 @@ class User
 
         // Сохраняем сессию в БД.
         SessionData::db($sid, array('uid' => $node->id));
-        setcookie('mcmsid', $sid, time() + 60*60*24*30);
+        self::setcookie($sid);
         self::$instance = new User($node);
       }
 
@@ -263,5 +263,14 @@ class User
 
     if (!$this->hasGroup($name) and !bebop_skip_checks())
       throw new ForbiddenException();
+  }
+
+  public static function setcookie($value)
+  {
+    $path = dirname($_SERVER['SCRIPT_NAME']);
+    $time = time() + 60*60*24*30;
+    $name = 'mcmsid';
+
+    setcookie($name, $value, $time, $path);
   }
 }
