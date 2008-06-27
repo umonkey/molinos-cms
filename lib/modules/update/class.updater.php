@@ -12,17 +12,24 @@ class Updater implements iAdminUI, iRemoteCall
 
     switch ($res = version_compare($available, $version)) {
       case -1:
-        $message = t('Вы используете версию, которая ещё не была выпущена в свет. Для вас нет обновлений, зато есть возможность <a href=\'@url\'>поучаствовать в развитии системы</a>.', array('@url' => 'http://code.google.com/p/molinos-cms/issues/list?q=label:Milestone-R'. mcms::version(mcms::VERSION_RELEASE)));
+        $message = t('Вы используете версию, которая ещё не была '
+          .'выпущена в свет. Для вас нет обновлений, зато есть '
+          .'возможность <a href=\'@url\'>поучаствовать в развитии системы</a>.',
+          array('@url' => 'http://code.google.com/p/molinos-cms/issues/list'
+            .'?q=label:Milestone-R'. mcms::version(mcms::VERSION_RELEASE)));
         break;
       case 0:
         $message = t('Вы используете самую свежую версию Molinos.CMS.');
         break;
       case 1:
-        $message = t('Вы используете устаревшую версию Molinos.CMS (%current, в то время как уже вышла <a href=\'@url\'>%available</a>); пожалуйста, обновитесь.', array(
-          '%current' => $version,
-          '%available' => $available,
-          '@url' => 'http://code.google.com/p/molinos-cms/wiki/ChangeLog_'. str_replace('.', '', mcms::version(mcms::VERSION_RELEASE)),
-          ));
+        $message = t('Вы используете устаревшую версию Molinos.CMS '
+          .'(%current, в то время как уже вышла '
+          .'<a href=\'@url\'>%available</a>); пожалуйста, обновитесь.', array(
+            '%current' => $version,
+            '%available' => $available,
+            '@url' => 'http://code.google.com/p/molinos-cms/wiki/ChangeLog_'.
+              str_replace('.', '', mcms::version(mcms::VERSION_RELEASE)),
+            ));
 
         $input = mcms::html('input', array(
           'type' => 'submit',
@@ -69,6 +76,11 @@ class Updater implements iAdminUI, iRemoteCall
       throw new RuntimeException(t('Не удалось скачать свежий инсталляционный пакет Molinos.CMS.'));
 
     self::unpack($tmpname);
+
+    // FIXME: вынести в одно место со всем остальным сканированием.
+    $filename = mcms::config('tmpdir') .'/.modmap.php';
+    if (file_exists($filename))
+      unlink($filename);
 
     mcms::redirect('admin');
   }
