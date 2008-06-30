@@ -416,12 +416,25 @@ class CommentFormWidget extends Widget
 
       $comment['published'] = !$this->moderated;
 
-      if ($user->getUid()) {
+      if ($user->getUid())
         $comment['uid'] = $user->getUid();
-        $comment['name'] = $user->getName();
+
+      try {
+        $doc = Node::load($this->options['doc']);
+
+        if (!empty($doc))
+          $docname = '«'. $doc->name .'»';
+        else
+          $docname = 'документ без названия';
+      } catch (ObjectNotFoundException $e) {
+        $docname = 'неизвестный документ';
       }
 
       $node = Node::create('comment', $comment);
+      $node->name = t('%user комментирует %doc', array(
+        '%user' => mcms::user()->name,
+        '%doc' => $docname,
+        ));
       $node->save();
 
       $node->linkAddParent($this->options['doc']);
