@@ -901,8 +901,10 @@ class NodeBase
 
   public function orderUp($parent = null)
   {
+    mcms::user()->checkAccess('u', $this->class);
+
     if (null === $parent) {
-      $tmp = new NodeExtras();
+      $tmp = new NodeMover(mcms::db());
       $tmp->moveUp($this->id);
     } elseif (null !== $this->id) {
       $pdo = mcms::db();
@@ -934,8 +936,10 @@ class NodeBase
 
   public function orderDown($parent = null)
   {
+    mcms::user()->checkAccess('u', $this->class);
+
     if (null === $parent) {
-      $tmp = new NodeExtras();
+      $tmp = new NodeMover(mcms::db());
       $tmp->moveDown($this->id);
     } elseif (null !== $this->id) {
       $pdo = mcms::db();
