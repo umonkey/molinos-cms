@@ -73,7 +73,7 @@ class ListWidget extends Widget
     $form->addControl(new TextLineControl(array(
       'value' => 'config_sort',
       'label' => t('Сортировка'),
-      'description' => t('Укажите, по которым нужно сортировать список.  Обратная сортировка задаётся минусом, например: -product.size id.'),
+      'description' => t('Укажите поля, по которым нужно сортировать список.  Обратная сортировка задаётся минусом, например: -product.size id.'),
       )));
 
     return $form;
