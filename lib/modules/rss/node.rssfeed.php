@@ -10,6 +10,12 @@ class RssfeedNode extends Node
     return parent::save();
   }
 
+  public function duplicate()
+  {
+    $this->name = preg_replace('/_[0-9]+$/', '', $this->name) .'_'. rand();
+    parent::duplicate();
+  }
+
   public function formGet($simple = false)
   {
     $form = parent::formGet($simple);
@@ -23,6 +29,7 @@ class RssfeedNode extends Node
       'name' => 'rssfeed',
       'title' => t('Исходящая RSS лента'),
       'description' => t('Описание RSS ленты, формируемой сайтом.'),
+      'adminmodule' => 'rss',
       'lang' => 'ru',
       'fields' => array(
         'name' => array(
@@ -93,7 +100,7 @@ class RssfeedNode extends Node
     $output .= '<description>'. mcms_plain($this->description) .'</description>';
 
     if (isset($this->link)) {
-      $output .= '<link>'. str_replace('HOSTNAME', mcms::config('basedomain'), $this->link) .'</link>';
+      $output .= '<link>'. str_replace('HOSTNAME', $_SERVER['HTTP_HOST'], $this->link) .'</link>';
       $output .= '<atom:link href=\'http://'. $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] .'\' rel=\'self\' type=\'application/rss+xml\' />';
     }
 
@@ -111,12 +118,14 @@ class RssfeedNode extends Node
 
   protected function formatItems()
   {
-    $nodes = array_values($this->loadItems());
+    $output = '';
 
-    $output = mcms::html('pubDate', date('r', strtotime($nodes[0]->created)));
+    if (count($nodes = array_values($this->loadItems()))) {
+      $output .= mcms::html('pubDate', date('r', strtotime($nodes[0]->created)));
 
-    foreach ($nodes as $node)
-      $output .= $this->formatItem($node);
+      foreach ($nodes as $node)
+        $output .= $this->formatItem($node);
+    }
 
     return $output;
   }

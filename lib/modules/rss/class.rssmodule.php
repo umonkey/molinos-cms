@@ -11,7 +11,7 @@ class RSSModule implements iRemoteCall, iAdminMenu, iAdminUI
     $feed = Node::load(array('class' => 'rssfeed', 'name' => $name));
 
     if (!$feed->published)
-      throw new PageNotFoundException();
+      throw new ForbiddenException(t('Доступ к запрошенной ленте закрыт.'));
 
     $xml = $feed->getRSS();
 
