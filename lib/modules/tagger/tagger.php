@@ -830,149 +830,18 @@ class Tagger
           ));
     }
 
-    private function getNeighbour($parent_id, $index, $direction)
-    {
-        if ('<' == $direction) {
-            $sort = 'DESC';
-            $side = 'right';
-        } else {
-            $sort = 'ASC';
-            $side = 'left';
-        }
-
-        $sql = "SELECT * FROM node WHERE class = 'tag' AND parent_id = " . intval($parent_id) . " AND `{$side}` {$direction}= " . intval($index) . " AND `deleted` = 0 ORDER BY `{$side}` {$sort} LIMIT 1";
-
-        //var_dump($sql);
-        $sth = $this->pdo->prepare($sql);
-        $sth->execute();
-
-        $data = $this->getChildrenData($sth, true);
-        foreach ($data as $k => $v) {
-            return $v;
-        }
-    }
-
-    private function getNestedNodes($left, $right)
-    {
-        $sql = "SELECT * FROM node WHERE class = 'tag' AND `left` >= " . intval($left) . " AND `right` <= " . intval($right) . " ORDER BY `left` ASC";
-        //var_dump($sql);
-        $sth = $this->pdo->prepare($sql);
-        $sth->execute();
-
-        $data = $this->getChildrenData($sth, true);
-
-        return $data;
-    }
-
-    private function getNeighbourLeft($parent_id, $index)
-    {
-        return $this->getNeighbour($parent_id, $index, '<');
-    }
-
-    private function getNeighbourRight($parent_id, $index)
-    {
-        return $this->getNeighbour($parent_id, $index, '>');
-    }
-
-    private function getOffset()
-    {
-        $sql = "SELECT MAX(`right`) * 2 + 10 AS `offset` FROM `node`";
-        $sth = $this->pdo->prepare($sql);
-        $sth->execute();
-
-        $offset = $sth->fetchColumn(0);
-
-        return intval($offset);
-        //return intval($data['']['offset']);
-    }
-
-    private function nodeMove($id, $direction)
-    {
-        // Получаем объект для перемещения ...
-        $node = $this->getObject($id, true);
-
-        if (false === $node) {
-            // Нэт билэт...
-            throw new Exception("No such node {$id}");
-        }
-
-        $parent_id = $node['parent_id'];
-        $left = $node['left'];
-        $right = $node['right'];
-        $nodeSize = ($right - $left) + 1;
-        // Получаем все вложения ноды, которую перемещаем
-        $nestedNodes = $this->getNestedNodes($left, $right);
-
-        // Если двигаем наверх - получаем массив соседей слева
-        if (self::MOVE_UP == $direction) {
-            $neighbourNode = $this->getNeighbourLeft($parent_id, ($left - 1));
-            $operand1 = '-';
-            $operand2 = '+';
-        }
-
-        // Если двигаем вниз - получаем массив соседей справа
-        elseif (self::MOVE_DOWN == $direction) {
-            $neighbourNode = $this->getNeighbourRight($parent_id, ($right + 1));
-            $operand1 = '+';
-            $operand2 = '-';
-        }
-
-        // Нет соседей - нет перемещения
-        if (0 == sizeof($neighbourNode)) {
-            return null;
-        }
-
-        // Нужно получить смещение, на которое будут временно перемещены движимые ноды, чтобы не получить ошибку дублирующихся ключей
-        $offset = $this->getOffset();
-
-        $neighbourRight = $neighbourNode['right'];
-        $neighbourLeft = $neighbourNode['left'];
-        $neighbourSize = ($neighbourRight - $neighbourLeft) + 1;
-
-        // Получаем все вложения
-        $nestedNodesNeighbour = $this->getNestedNodes($neighbourLeft, $neighbourRight);
-
-        // Получаем идентификаторы вложений
-        foreach($nestedNodes as $k => $v) {
-            $nestedID[] = $nestedNodes[$k]['id'];
-        }
-
-        // Переносим первую партию нод с учетом смещения
-        $sql = "UPDATE `node` SET `left` = `left` + {$offset}, `right` = `right` + {$offset} WHERE id IN (" . join(',', $nestedID) . ") ORDER BY `left` DESC";
-        $sth = $this->pdo->prepare($sql);
-        $sth->execute();
-
-        // Получаем идентификаторы вложений соседа
-        foreach($nestedNodesNeighbour as $k => $v) {
-            $nestedNeighbourID[] = $nestedNodesNeighbour[$k]['id'];
-        }
-
-        // Переносим партию нод соседа с учетом смещения
-        $sql = "UPDATE `node` SET `left` = `left` + {$offset}, `right` = `right` + {$offset} WHERE id IN (" . join(',', $nestedNeighbourID) . ") ORDER BY `left` DESC";
-        $sth = $this->pdo->prepare($sql);
-        $sth->execute();
-
-        // Вертаем взад первую партию нод с учетом смещения и размера соседа
-        $sql = "UPDATE `node` SET `left` = `left` - {$offset} {$operand1} {$neighbourSize}, `right` = `right` - {$offset} {$operand1} {$neighbourSize} WHERE id IN (" . join(',', $nestedID) . ") ORDER BY `left` ASC";
-        $sth = $this->pdo->prepare($sql);
-        $sth->execute();
-
-        // Вертаем взад партию нод соседа с учетом смещения и размера первой партии нод
-        $sql = "UPDATE `node` SET `left` = `left` - {$offset} {$operand2} {$nodeSize}, `right` = `right` - {$offset} {$operand2} {$nodeSize} WHERE id IN (" . join(',', $nestedNeighbourID) . ") ORDER BY `left` ASC";
-        $sth = $this->pdo->prepare($sql);
-        $sth->execute();
-
-        return true;
-    }
-
     public function nodeMoveUp($id)
     {
-        $this->nodeMove($id, self::MOVE_UP);
+      require_once(dirname(__FILE__) .'/class.nodemover.php');
+      $mover = new NodeMover(mcms::db());
+      $mover->moveUp($id);
     }
 
     public function nodeMoveDown($id)
     {
-        $this->nodeMove($id, self::MOVE_DOWN);
+      require_once(dirname(__FILE__) .'/class.nodemover.php');
+      $mover = new NodeMover(mcms::db());
+      $mover->moveDown($id);
     }
 
     // Удаление данных по несуществующим полям.

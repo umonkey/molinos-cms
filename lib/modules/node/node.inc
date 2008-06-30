@@ -826,6 +826,8 @@ class NodeBase implements iFormObject
 
   public function orderUp($parent = null)
   {
+    $this->checkPermission('u');
+
     if (null === $parent) {
       Tagger::getInstance()->nodeMoveUp($this->id);
     } elseif (null !== $this->id) {
@@ -859,6 +861,8 @@ class NodeBase implements iFormObject
 
   public function orderDown($parent = null)
   {
+    $this->checkPermission('u');
+
     if (null === $parent) {
       Tagger::getInstance()->nodeMoveDown($this->id);
     } elseif (null !== $this->id) {
