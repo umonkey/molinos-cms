@@ -1,17 +1,19 @@
 <!-- default list widget template -->
 <?php
 
-foreach ($documents as $doc) {
-  if (!empty($doc['teaser'])) {
-    $html = '';
+if (!empty($documents)) {
+  foreach ($documents as $doc) {
+    if (!empty($doc['teaser'])) {
+      $html = '';
 
-    if (!empty($doc['name']))
-      $html .= mcms::html('h2', $doc['name']);
+      if (!empty($doc['name']))
+        $html .= mcms::html('h2', $doc['name']);
 
-    $html .= $doc['teaser'];
+      $html .= $doc['teaser'];
 
-    print mcms::html('div', array(
-      'class' => 'doc-teaser',
-      ), $html);
+      print mcms::html('div', array(
+        'class' => 'doc-teaser',
+        ), $html);
+    }
   }
 }
