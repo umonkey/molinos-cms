@@ -59,7 +59,7 @@ class url
     if (!empty($this->host))
       $result .= $this->host;
 
-    if (!empty($this->path))
+    if (!empty($this->path) and (!$this->islocal or self::$clean))
       $result .= $this->path;
 
     $result .= $this->getArgsAsString();
@@ -85,10 +85,8 @@ class url
   {
     switch ($key) {
     case 'path':
-      if (empty($this->host)) {
-        if (!empty($this->args['__cleanurls']))
-          return empty($this->args['q']) ? null : $this->args['q'];
-      }
+      if (empty($this->host) and self::$clean)
+        return empty($this->args['q']) ? null : $this->args['q'];
 
     case 'scheme':
     case 'host':
@@ -123,7 +121,9 @@ class url
   {
     if (null === self::$clean) {
       self::$clean = mcms::config('cleanurls');
-      self::$localhost = empty($_SERVER['HTTP_HOST']) ? 'example.com' : $_SERVER['HTTP_HOST'];
+      self::$localhost = empty($_SERVER['HTTP_HOST'])
+        ? 'example.com'
+        : $_SERVER['HTTP_HOST'];
 
       if (empty($_SERVER['REMOTE_ADDR']))
         self::$root = '';
@@ -192,8 +192,11 @@ class url
     // Применяем некоторые дефолты.
     $url = $this->complement($url);
 
+    if (empty($url['host']) or self::$localhost == $url['host'])
+      $this->islocal = true;
+
     // Для локальных ссылок предпочитаем q реальному пути.
-    if ($this->islocal = (self::$localhost == $url['host'])) {
+    if ($this->islocal) {
       if (array_key_exists('q', $url['args'])) {
         $url['path'] = trim($url['args']['q'], '/');
         unset($url['args']['q']);
