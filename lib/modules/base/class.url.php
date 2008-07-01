@@ -85,7 +85,7 @@ class url
   {
     switch ($key) {
     case 'path':
-      if (empty($this->host) and self::$clean)
+      if (empty($this->host) and !self::$clean)
         return empty($this->args['q']) ? null : $this->args['q'];
 
     case 'scheme':
