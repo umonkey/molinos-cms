@@ -19,12 +19,12 @@ class RequestController
   {
     ob_start();
 
-    $url = bebop_split_url();
+    $url = new url();
 
     try {
       // FIXME: переписать нафиг этот класс!
       // Issue 318.
-      if ('install.rpc' == $url['path']) {
+      if ('install.rpc' == $url->path) {
         RequestContext::setGlobal();
         InstallModule::hookRemoteCall(RequestContext::getGlobal());
       } else {
@@ -35,7 +35,8 @@ class RequestController
         $this->run();
       }
     } catch (NotInstalledException $e) {
-      mcms::redirect('install.rpc?msg=notable');
+      mcms::debug();
+      mcms::redirect('?q=install.rpc&msg=notable');
     }
   }
 
@@ -50,7 +51,10 @@ class RequestController
 
     try {
       if (!BebopConfig::getInstance()->isok())
-        throw new NotInstalledException(t("Не удалось найти конфигурационный файл.&nbsp; Скорее всего, CMS ещё не была проинсталлирована. Вы можете <a href='@install'>запустить процесс инсталляции</a> прямо сейчас.", array('@install' => 'install.rpc')));
+        throw new NotInstalledException(t("Не удалось найти конфигурационный "
+          ."файл.&nbsp; Скорее всего, CMS ещё не была проинсталлирована. "
+          ."Вы можете <a href='@install'>запустить процесс инсталляции</a> "
+          ."прямо сейчас.", array('@install' => '?q=install.rpc')));
 
       $this->begin = microtime(true);
 
@@ -333,6 +337,13 @@ class RequestController
         mcms::redirect($tmp);
     }
 
+    if (empty($this->widgets) and empty($this->page->parent_id)) {
+      mcms::debug($this);
+
+      if (null !== ($tmp = self::getDomainConfigLink()))
+        mcms::redirect($tmp);
+    }
+
     // Сюда складываем время выполнения виджетов.
     $profile = array('__total' => microtime(true));
 
@@ -583,7 +594,7 @@ class RequestController
   private function getUrlsForDomain($domain)
   {
     if (!InstallModule::checkInstalled())
-       mcms::redirect("install.rpc");
+       mcms::redirect('?q=install.rpc');
 
     $tree = DomainNode::getSiteMap();
 

@@ -1,18 +1,21 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?php
+
+mcms::extras('themes/admin/css/bebop.css', false);
+mcms::extras('themes/admin/css/style.css', false);
+mcms::extras('themes/admin/css/colors-green.css', false);
+mcms::extras('themes/all/jquery/jquery.min.js', false);
+mcms::extras('themes/all/jquery/plugins/jquery.mcms.tabber.min.js', false);
+mcms::extras('themes/admin/js/bebop.min.js', false);
+mcms::extras('themes/admin/js/installer.min.js', false);
+
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <title><?=$title?></title>
+    <base href='<?php print $base; ?>' />
+    <?php if (!empty($title)) print mcms::html('title', $title); ?>
+    <?php print mcms::extras(); ?>
 
-    <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/bebop.css" />
-    <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/style.css" />
-    <link rel="stylesheet" type="text/css" href="<?=$prefix?>/css/colors-green.css" />
-
-    <script src="<?=$prefix?>/../all/jquery/jquery.js" type="text/javascript" language="javascript"></script>
-    <script src="<?=$prefix?>/../all/jquery/plugins/jquery.formtabber.js" type="text/javascript" language="javascript"></script>
-    <script src="<?=$prefix?>/js/bebop.js" type="text/javascript" language="javascript"></script>
-    <script src="<?=$prefix?>/js/installer.js" type="text/javascript" language="javascript"></script>
-
-    <link rel='shortcut icon' href='/themes/all/img/lock.png' type='image/png' />
+    <link rel='shortcut icon' href='themes/all/img/lock.png' type='image/png' />
   </head>
   <body>
     <div id="preloaded_images"></div>
@@ -27,8 +30,8 @@
 
       <div id="content_wrapper">
         <div id='center'>
-          <h2><?=$title?></h2>
-          <?=$form?>
+          <h2><?php if (!empty($title)) print $title; ?></h2>
+          <?php if (!empty($form)) print $form; ?>
         </div>
 
         <div id="left_sidebar">
