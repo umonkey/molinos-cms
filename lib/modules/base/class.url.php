@@ -59,7 +59,7 @@ class url
     if (!empty($this->host))
       $result .= $this->host;
 
-    if (!empty($this->path) and (!$this->islocal or self::$clean))
+    if (!empty($this->path) and (!$this->islocal or is_readable($this->path) or self::$clean))
       $result .= $this->path;
 
     $result .= $this->getArgsAsString();
@@ -236,13 +236,13 @@ class url
       ), $url);
   }
 
-  private function getArgsAsString($isfile = false)
+  private function getArgsAsString()
   {
     $result = '';
 
     $args = $this->args;
 
-    if ($this->islocal and !$isfile) {
+    if ($this->islocal and !is_readable($this->path)) {
       if (self::$clean or 'index.php' == $this->path)
         $args['q'] = null;
       else
