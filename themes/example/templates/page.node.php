@@ -27,9 +27,9 @@
 		
 		<div id="content">
 			<h1 id="logo"><a href=""><span>Molinos.CMS</span></a></h1>
-		
-			<?= $widgets['doclist'] ?>
-		
+			
+			<?= $widgets['doc'] ?>
+			
 		</div>
 		
 	</body>

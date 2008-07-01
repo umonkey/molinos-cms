@@ -1,15 +1,22 @@
-body {
-  background-color: white;
-  color: #333;
-  margin: 0;
-  padding: 0;
-}
+/**
+ * Ordinary pages styling
+*/
+	/**
+	 * Core
+	*/
+		body { background:#fff; }
+		
+		div#navigation { width:15%; min-width:150px; float:left; display:inline; margin:256px 5% 0 5%; }
+		
+			div#navigation ul { list-style:none outside; }
+				div#navigation ul li { margin-bottom:1.335em; }
+					div#navigation ul li.current a { color:#ff7a00; text-decoration:none; }
+					
+		div#content { width:50%; max-width:700px; float:left; display:inline; }
+		
+			div#content ul.articles { list-style:none outside; }
+      div#content ol { margin-left: 2em; list-style-position: outside; }
 
-#wrapper {
-  padding: 0 10px;
-}
-
-#widget-menu {
-  float: right;
-  border: solid gray 1px;
-}
+	/**
+	 * Supplementary rules
+	*/
