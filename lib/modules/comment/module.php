@@ -432,7 +432,7 @@ class CommentFormWidget extends Widget
 
       $node = Node::create('comment', $comment);
       $node->name = t('%user комментирует %doc', array(
-        '%user' => mcms::user()->name,
+        '%user' => mcms::user()->getName(),
         '%doc' => $docname,
         ));
       $node->save();
