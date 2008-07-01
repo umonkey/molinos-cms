@@ -90,7 +90,8 @@ function get_dba_link()
       }
     ?>
     <?php print mcms::extras(); ?>
-    <link rel="shortcut icon" href="themes/admin/icon.png" type="image/png" />
+    <link rel="shortcut icon" href="themes/all/img/favicon.ico"
+      type="image/x-icon" />
   </head>
   <body>
     <div id="preloaded_images"></div>
