@@ -135,8 +135,7 @@ class DomainNode extends Node implements iContentType
     $name = $this->parent_id === null ? 'index' : $this->name;
 
     $data['title'] = $this->title;
-    $data['base'] = 'http://'. $_SERVER['HTTP_HOST']
-      . rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/';
+    $data['base'] = 'http://'. $_SERVER['HTTP_HOST'] . mcms::path() .'/';
 
     $data['lang'] = $this->language;
     $data['version'] = $this->getVersionId();

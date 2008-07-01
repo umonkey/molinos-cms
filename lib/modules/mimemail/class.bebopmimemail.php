@@ -76,9 +76,7 @@ class BebopMimeMail implements iModuleConfig
         if (false !== strpos($href, 'mailto:'))
           continue;
 
-        $new = 'http://'. $_SERVER['HTTP_HOST']
-          .'/'. trim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/'
-          .ltrim($href, '/');
+        $new = 'http://'. $_SERVER['HTTP_HOST'] . mcms::path() .'/'. $href;
 
         $new = str_replace($href, $new, $m[0][$idx]);
         $html = str_replace($m[0][$idx], $new, $html);

@@ -335,7 +335,7 @@ class mcms
 
     // Относительные ссылки на CMS.
     if (empty($url->host) and '/' != substr($url->path, 0, 1)) {
-      $target = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/'. strval($url);
+      $target = mcms::path() . strval($url);
     } else {
       $target = strval($url);
     }
@@ -1047,7 +1047,7 @@ class mcms
 
   private static function format_extras(array $extras)
   {
-    $root = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+    $root = mcms::path();
 
     $output = mcms::html('script', array(
       'type' => 'text/javascript',
@@ -1101,6 +1101,22 @@ class mcms
 
     if ($break)
       mcms::debug($msg);
+  }
+
+  public static function path()
+  {
+    static $path = null;
+
+    if (null === $path) {
+      $path = empty($_GET['__rootpath'])
+        ? dirname($_SERVER['SCRIPT_NAME'])
+        : $_GET['__rootpath'];
+
+      if ('/' == ($path = '/'. trim($path, '/')))
+        $path = '';
+    }
+
+    return $path;
   }
 };
 

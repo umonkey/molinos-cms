@@ -37,7 +37,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
   private static function getPage(array $data)
   {
-    $data['base'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/';
+    $data['base'] = mcms::path();
 
     $output = bebop_render_object('page', 'admin', 'admin', $data);
     $output .= sprintf('<!-- request time: %s sec. -->', microtime(true) - MCMS_START_TIME);

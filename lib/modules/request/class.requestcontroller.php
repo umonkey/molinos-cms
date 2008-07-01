@@ -174,8 +174,7 @@ class RequestController
     }
 
     // Запомним базовый адрес страницы.
-    // FIXME: не учитывается MCMS_PATH.
-    $root['base'] = rtrim("http://{$_SERVER['HTTP_HOST']}/". ltrim(join('/', $ppath), '/'), '/') .'/';
+    $root['base'] = 'http://'. $_SERVER['HTTP_HOST'] . mcms::path() .'/';
 
     // Сохраним информацию о текущей странице.  Список детей не очищаем, если
     // вдруг шаблону взбредёт в голову его использовать -- на здоровье.
@@ -329,6 +328,13 @@ class RequestController
   private function runGet()
   {
     $pdo = mcms::db();
+
+    if (empty($this->widgets) and empty($this->page->parent_id)) {
+      mcms::debug($this);
+
+      if (null !== ($tmp = self::getDomainConfigLink()))
+        mcms::redirect($tmp);
+    }
 
     if (empty($this->widgets) and empty($this->page->parent_id)) {
       mcms::debug($this);

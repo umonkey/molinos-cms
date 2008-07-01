@@ -150,11 +150,8 @@ class OpenIdProvider
 
   private static function getReturnTo($id = null)
   {
-    $url = sprintf('http://%s%s/base.rpc?action=login&id=%s',
-      $_SERVER['HTTP_HOST'],
-      rtrim(dirname($_SERVER['SCRIPT_NAME']), '/'),
-      urlencode($id)
-      );
+    $url = sprintf('http://%s%s/?q=base.rpc&action=login&id=%s',
+      $_SERVER['HTTP_HOST'], mcms::path(), urlencode($id));
 
     return $url;
   }

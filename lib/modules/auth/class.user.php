@@ -258,16 +258,13 @@ class User
 
   public function checkGroup($name)
   {
-    if (basename($_SERVER['SCRIPT_NAME']) == 'update.php')
-      return;
-
     if (!$this->hasGroup($name) and !bebop_skip_checks())
       throw new ForbiddenException();
   }
 
   public static function setcookie($value)
   {
-    $path = dirname($_SERVER['SCRIPT_NAME']);
+    $path = mcms::path() .'/';
     $time = time() + 60*60*24*30;
     $name = 'mcmsid';
 

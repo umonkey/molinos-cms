@@ -166,7 +166,7 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
 {
   $__root = MCMS_ROOT;
 
-  $data['base'] = "http://{$_SERVER['HTTP_HOST']}". rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/';
+  $data['base'] = 'http://'. $_SERVER['HTTP_HOST'] . mcms::path() .'/';
 
   if (null === $theme) {
     $ctx = RequestContext::getGlobal();
@@ -213,7 +213,6 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
 
   foreach ($__options as $__filename) {
     if (file_exists($__fullpath = $__root .'/'. $__filename)) {
-      // $data['prefix'] = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/'. dirname(dirname($__filename));
       $data['prefix'] = rtrim(dirname(dirname($__filename)), '/');
 
       ob_start();

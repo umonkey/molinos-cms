@@ -128,7 +128,7 @@ class url
       if (empty($_SERVER['REMOTE_ADDR']))
         self::$root = '';
       else
-        self::$root = trim(str_replace(DIRECTORY_SEPARATOR, '/', dirname($_SERVER['SCRIPT_NAME'])), '/') .'/';
+        self::$root = mcms::path();
     }
   }
 
