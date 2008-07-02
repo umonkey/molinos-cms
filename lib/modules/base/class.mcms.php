@@ -44,6 +44,9 @@ class mcms
     if (('td' == $name or 'th' == $name) and empty($content))
       $content = '&nbsp;';
 
+    if (empty($parts))
+      $parts = array();
+
     // Прозрачная поддержка чистых урлов.
     foreach (array('img' => 'src', 'a' => 'href', 'form' => 'action', 'script' => 'src', 'link' => 'href') as $k => $v) {
       if ($k == $name and array_key_exists($v, $parts) and (false === strstr($parts[$v], '://'))) {
@@ -95,17 +98,23 @@ class mcms
   public static function mediaGetPlayer(array $files, $types = null, array $custom_options = array())
   {
     $nodes = array();
+    $firstfile = null;
     $havetypes = 0;
 
     if (null === $types)
       $types = self::MEDIA_AUDIO | self::MEDIA_VIDEO;
 
     foreach ($files as $k => $v) {
+      if ($v instanceof Node)
+        $v = $v->getRaw();
+
       switch ($v['filetype']) {
       case 'audio/mpeg':
         if ($types & self::MEDIA_AUDIO) {
           $nodes[] = $v['id'];
           $havetypes |= self::MEDIA_AUDIO;
+          if (null === $firstfile)
+            $firstfile = "attachment/{$v['id']}/{$v['filename']}";
         }
         break;
       case 'video/flv':
@@ -113,6 +122,8 @@ class mcms
         if ($types & self::MEDIA_VIDEO) {
           $nodes[] = $v['id'];
           $havetypes |= self::MEDIA_VIDEO;
+          if (null === $firstfile)
+            $firstfile = "attachment/{$v['id']}/{$v['filename']}";
         }
         break;
       }
@@ -122,12 +133,20 @@ class mcms
     if (empty($nodes))
       return null;
 
+    // Всего один файл — используем напрямую.
+    if (count($nodes) == 1 or !mcms::ismodule('playlist'))
+      $playlist = $firstfile;
+    else
+      $playlist = l('playlist.rpc?nodes='. join(',', $nodes));
+
+    // Нет генератора плэйлистов, выходим.
+
     // Параметризация проигрывателя.
     $options = array_merge(array(
-      'file' => 'playlist.rpc?nodes='. join(',', $nodes),
+      'file' => $playlist,
       'showdigits' => 'true',
       'autostart' => 'false',
-      'repeat' => 'true',
+      'repeat' => 'false',
       'shuffle' => 'false',
       'width' => 350,
       'height' => 100,
@@ -143,6 +162,8 @@ class mcms
         $options['height'] = 0;
 
       $options['height'] += $dheight;
+    } elseif (count($nodes) == 1) {
+      $options['height'] = 20;
     }
 
     $args = array();
@@ -150,7 +171,7 @@ class mcms
     foreach ($options as $k => $v)
       $args[] = $k .'='. urlencode($v);
 
-    $url = 'http://'. $_SERVER['HTTP_HOST'] .'/themes/all/flash/player.swf?'. join('&', $args);
+    $url = 'themes/all/flash/player.swf?'. join('&', $args);
 
     $params = mcms::html('param', array(
       'name' => 'movie',
