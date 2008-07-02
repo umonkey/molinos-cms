@@ -87,9 +87,6 @@ class url
   {
     switch ($key) {
     case 'path':
-      if (empty($this->host) and !self::$clean)
-        return empty($this->args['q']) ? null : $this->args['q'];
-
     case 'scheme':
     case 'host':
     case 'path':
@@ -98,7 +95,8 @@ class url
     case 'islocal':
       return $this->$key;
     default:
-      throw new InvalidArgumentException(t('Свойство '. $key .' у ссылки отсутствует.'));
+      throw new InvalidArgumentException(t('Свойство '. $key
+        .' у ссылки отсутствует.'));
     }
   }
 
@@ -113,7 +111,8 @@ class url
       $this->$key = $val;
       break;
     default:
-      throw new InvalidArgumentException(t('Свойство '. $key .' у ссылки отсутствует.'));
+      throw new InvalidArgumentException(t('Свойство '. $key
+        .' у ссылки отсутствует.'));
     }
   }
 
