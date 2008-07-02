@@ -46,8 +46,10 @@ class url
 
     $result = '';
 
-    if (!empty($this->scheme))
-      $result .= $this->scheme .'://';
+    if (!empty($this->scheme) or !empty($this->host)) {
+      $scheme = empty($this->scheme) ? 'http' : $this->scheme;
+      $result .= $scheme .'://';
+    }
 
     if (!empty($this->user)) {
       $result .= urlencode($this->user);
@@ -95,6 +97,21 @@ class url
     case 'fragment':
     case 'islocal':
       return $this->$key;
+    default:
+      throw new InvalidArgumentException(t('Свойство '. $key .' у ссылки отсутствует.'));
+    }
+  }
+
+  public function __set($key, $val)
+  {
+    switch ($key) {
+    case 'path':
+    case 'scheme':
+    case 'host':
+    case 'path':
+    case 'fragment':
+      $this->$key = $val;
+      break;
     default:
       throw new InvalidArgumentException(t('Свойство '. $key .' у ссылки отсутствует.'));
     }
