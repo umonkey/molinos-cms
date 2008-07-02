@@ -85,7 +85,7 @@ class DocWidget extends Widget
       );
 
     if ($root = $options['root']) {
-      $node = Node::load(array('id' => $options['root']));
+      $node = Node::load(array('id' => $options['root'], '#recurse' => true));
 
       if (in_array($node->class, array('tag', 'config')))
         throw new PageNotFoundException();
