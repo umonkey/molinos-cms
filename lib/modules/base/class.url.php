@@ -250,7 +250,7 @@ class url
     }
 
     if (!empty($args)) {
-      $forbidden = array('nocache', 'widget', '__cleanurls');
+      $forbidden = array('nocache', 'widget', '__cleanurls', '__rootpath');
 
       $pairs = array();
 
