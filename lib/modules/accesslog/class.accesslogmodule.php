@@ -241,7 +241,7 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
 
     if (!$t->exists()) {
       $t->columnSet('id', array(
-        'type' => 'int(10) unsigned',
+        'type' => 'int',
         'required' => true,
         'key' => 'pri',
         'autoincrement' => true,
@@ -250,7 +250,7 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
         'type' => 'datetime',
         ));
       $t->columnSet('nid', array(
-        'type' => 'int(10) unsigned',
+        'type' => 'int',
         'required' => false,
         'key' => 'mul',
         ));

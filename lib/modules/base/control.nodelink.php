@@ -22,7 +22,7 @@ class NodeLinkControl extends Control
 
   public static function getSQL()
   {
-    return 'int(10) unsigned';
+    return 'int';
   }
 
   public function getHTML(array $data)

@@ -370,7 +370,7 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
 
     if (!$t->exists()) {
       $t->columnSet('nid', array(
-        'type' => 'int(10) unsigned',
+        'type' => 'int',
         'required' => true,
         'key' => 'mul',
         'autoincrement' => true,

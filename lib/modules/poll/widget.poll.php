@@ -194,12 +194,12 @@ class PollWidget extends Widget implements iNodeHook, iModuleConfig
 
     if (!$t->exists()) {
       $t->columnSet('nid', array(
-        'type' => 'int(10) unsigned',
+        'type' => 'int',
         'required' => true,
         'key' => 'mul',
         ));
       $t->columnSet('uid', array(
-        'type' => 'int(10) unsigned',
+        'type' => 'int',
         'required' => false,
         'key' => 'mul',
         ));
@@ -209,7 +209,7 @@ class PollWidget extends Widget implements iNodeHook, iModuleConfig
         'key' => 'mul',
         ));
       $t->columnSet('option', array(
-        'type' => 'int(10) unsigned',
+        'type' => 'int',
         'required' => true,
         'key' => 'mul',
         ));

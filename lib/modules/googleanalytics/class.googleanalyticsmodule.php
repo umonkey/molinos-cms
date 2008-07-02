@@ -30,7 +30,7 @@ class GoogleAnalyticsModule implements iModuleConfig, iPageHook
     $t = new TableInfo('node__log');
 
     $t->columnSet('lid', array(
-      'type' => 'int(10) unsigned',
+      'type' => 'int',
       'required' => true,
       'key' => 'pri',
       'autoincrement' => true,
@@ -41,12 +41,12 @@ class GoogleAnalyticsModule implements iModuleConfig, iPageHook
       'required' => true,
       ));
     $t->columnSet('nid', array(
-      'type' => 'int(10) unsigned',
+      'type' => 'int',
       'required' => false,
       'key' => 'mul',
       ));
     $t->columnSet('uid', array(
-      'type' => 'int(10) unsigned',
+      'type' => 'int',
       'required' => false,
       'key' => 'mul',
       ));
