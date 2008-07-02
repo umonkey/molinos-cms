@@ -146,7 +146,8 @@ class DomainNode extends Node implements iContentType
       );
     $data['page'] = $this->getRaw();
 
-    $data['page']['lang'] = $data['page']['language'];
+    if (!empty($data['page']['language']))
+      $data['page']['lang'] = $data['page']['language'];
 
     $output = bebop_render_object('page', $name, $this->theme, $data);
 
