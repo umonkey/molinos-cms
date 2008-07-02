@@ -221,12 +221,16 @@ class AdminUIListControl extends Control
       }
     }
 
+    $name = empty($users[$uid]->fullname)
+      ? $users[$uid]->name
+      : $users[$uid]->fullname;
+
     if (mcms::user()->hasAccess('u', 'user'))
       return mcms::html('a', array(
         'href' => "admin?mode=edit&id={$uid}&destination=CURRENT",
-        ), $users[$uid]->name);
+        ), $name);
 
-    return $users[$uid]->name;
+    return $name;
   }
 
   private function getColumnTitles()
