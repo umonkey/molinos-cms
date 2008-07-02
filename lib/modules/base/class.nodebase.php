@@ -36,7 +36,12 @@ class NodeBase
 
   public function getRaw()
   {
-    return $this->data;
+    $tmp = $this->data;
+
+    foreach ($this->files as $k => $v)
+      $tmp['files'][$k] = $v->getRaw();
+
+    return $tmp;
   }
 
   // Достаёт объект из кэша.
