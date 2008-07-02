@@ -150,7 +150,7 @@ class FieldControl extends Control
       $current = substr($current, 0, strpos($current, '.'));
 
     foreach (TypeNode::getSchema() as $k => $v)
-      $options[$k] = $v['title'];
+      $options[$k] = empty($v['title']) ? $k : $v['title'];
 
     asort($options);
 
