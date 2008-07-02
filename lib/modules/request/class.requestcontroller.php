@@ -336,20 +336,6 @@ class RequestController
         mcms::redirect($tmp);
     }
 
-    if (empty($this->widgets) and empty($this->page->parent_id)) {
-      mcms::debug($this);
-
-      if (null !== ($tmp = self::getDomainConfigLink()))
-        mcms::redirect($tmp);
-    }
-
-    if (empty($this->widgets) and empty($this->page->parent_id)) {
-      mcms::debug($this);
-
-      if (null !== ($tmp = self::getDomainConfigLink()))
-        mcms::redirect($tmp);
-    }
-
     // Сюда складываем время выполнения виджетов.
     $profile = array('__total' => microtime(true));
 
@@ -599,8 +585,10 @@ class RequestController
   // Возвращает дерево урлов для текущего домена.
   private function getUrlsForDomain($domain)
   {
+    /*
     if (!InstallModule::checkInstalled())
        mcms::redirect('?q=install.rpc');
+    */
 
     $tree = DomainNode::getSiteMap();
 
@@ -612,9 +600,11 @@ class RequestController
 
         // Найден алиас -- редиректим.
         if (in_array($domain, $branch['aliases'])) {
-          $url = bebop_split_url();
-          $url['host'] = $branch['name'];
-          exit(mcms::redirect(bebop_combine_url($url)));
+          $url = new url();
+          $url->host = $branch['name'];
+          $url->path = mcms::path() .'/';
+
+          exit(mcms::redirect(strval($url)));
         }
       }
     }
@@ -673,8 +663,13 @@ class RequestController
             $keys[] = $v['cache_key'];
         }
 
+        $lang = empty($this->page->language) ? 'en' : $this->page->language;
+        $rows = mcms::db()->getResultsKV("cid", "data", "SELECT `cid`, `data` FROM `node__cache` "
+          ."WHERE `lang` = ? AND `cid` IN ('". join("', '", $keys) ."') "
+          ."-- RequestController::getCachedWidgets()", array($lang));
+
         // Разгребаем данные, найденные в кэше.
-        foreach (mcms::db()->getResultsKV("cid", "data", "SELECT `cid`, `data` FROM `node__cache` WHERE `lang` = :lang AND `cid` IN ('". join("', '", $keys) ."') -- RequestController::getCachedWidgets()", array(':lang' => $this->page->language)) as $cid => $data) {
+        foreach ($rows as $cid => $data) {
           $data = unserialize($data);
 
           foreach ($this->widgets as $name => $info) {
