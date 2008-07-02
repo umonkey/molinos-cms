@@ -167,6 +167,14 @@ class RssfeedNode extends Node
     $output .= '<guid isPermaLink="false">'. $_SERVER['HTTP_HOST'] .'/'. $node->id .'/</guid>';
     $output .= '<pubDate>'. date('r', strtotime($node->created)) .'</pubDate>';
 
+    if (mcms::config('cleanurls'))
+      $link = '/node/'. $node->id;
+    else
+      $link = '/?q=node%2F'. $node->id;
+
+    $output .= mcms::html('link', 'http://'. $_SERVER['HTTP_HOST']
+      .mcms::path() . $link);
+
     foreach (preg_split('/, */', $this->contentfields) as $field) {
       if (isset($node->$field)) {
         $output .= '<description><![CDATA['. preg_replace("/[\r\n]/", '', $node->$field) .']]></description>';
