@@ -6,10 +6,8 @@
 		<meta name="description" content="" />
 		<meta name="keywords" content="" />
 		<meta name="robots" content="index,follow" />
-		 <base href='<?php print $base; ?>' />
-		<!--
-		<link rel="shortcut icon" href="themes/example/images/favicon.ico" type="image/x-icon" />
-		-->
+	  <base href='<?php print $base; ?>' />
+		<link rel="shortcut icon" href="themes/all/img/favicon.ico" type="image/x-icon" />
 		<link rel="stylesheet" href="themes/example/styles/lib/refpoint.reset.css" type="text/css" />
 		<link rel="stylesheet" href="themes/example/styles/lib/refpoint.typography-16.css" type="text/css" />
 		<link rel="stylesheet" href="themes/example/styles/lib/refpoint.logo.css" type="text/css" />

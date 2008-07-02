@@ -47,13 +47,34 @@ class mcms
     if (empty($parts))
       $parts = array();
 
+    $fixmap = array(
+      'img' => 'src',
+      'a' => 'href',
+      'form' => 'action',
+      'script' => 'src',
+      'link' => 'href',
+      );
+
     // Прозрачная поддержка чистых урлов.
-    foreach (array('img' => 'src', 'a' => 'href', 'form' => 'action', 'script' => 'src', 'link' => 'href') as $k => $v) {
-      if ($k == $name and array_key_exists($v, $parts) and (false === strstr($parts[$v], '://'))) {
-        if ('/' != substr($parts[$v], 0, 1) or !is_readable($_SERVER['DOCUMENT_ROOT'] .'/'. substr($parts[$v], 1))) {
-          $parts[$v] = l($parts[$v]);
-        }
-      }
+    foreach ($fixmap as $k => $v) {
+      if ($k != $name or !array_key_exists($v, $parts))
+        continue;
+
+      if (false !== strstr($parts[$v], '://'))
+        continue;
+
+      if ('/' == substr($parts[$v], 0, 1))
+        continue;
+
+      if (is_readable(MCMS_ROOT .'/'. $parts[$v]))
+        continue;
+
+      if ('form' == $k)
+        $url = mcms::path() .'/'. strval(new url($parts[$v]));
+      else
+        $url = strval(new url($parts[$v]));
+
+      $parts[$v] = $url;
     }
 
     if (null !== $parts) {
@@ -353,6 +374,13 @@ class mcms
       $status = 303;
 
     $url = new url($path);
+    if ($url->islocal and substr($path, 0, 1) != '/')
+      $path = mcms::path() .'/'. $path;
+
+    $target = $path;
+
+    /*
+    mcms::debug($path, $url, $url->path, mcms::path());
 
     // Относительные ссылки на CMS.
     if (empty($url->host) and '/' != substr($url->path, 0, 1)) {
@@ -360,6 +388,7 @@ class mcms
     } else {
       $target = strval($url);
     }
+    */
 
     // При редиректе на текущую страницу добавляем случайное число,
     // без этого Опера не редиректит.
