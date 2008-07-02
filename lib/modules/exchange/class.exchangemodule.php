@@ -172,10 +172,17 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
   //экспорт профиля
   public static function export($profilename, $profiledescr, $arg = array())
   {
+    // Сортировка по левой границе обеспечивает нам
+    // восстановление родителей перед восстановлением детей.
+    $arg['#sort'] = array('left' => 'asc');
+
     $list = Node::find($arg);
 
     $str = "<?xml version=\"1.0\" standalone=\"yes\"?>\n";
-    $str .= "<root>\n<info name='{$profilename}'>\n<description><![CDATA[{$profiledescr}]]></description>\n</info>\n";
+    $str .= "<root>\n"
+      ."<info name='{$profilename}'>\n"
+      ."<description><![CDATA[{$profiledescr}]]></description>\n"
+      ."</info>\n";
     $str .= "<nodes>\n";
 
     foreach ($list as $tmp) {
@@ -183,15 +190,22 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $arrarr = array();
       $srlz = "\n";
 
+      $stop = array('left', 'right', 'rid');
+
       foreach ($arr as $key => $val) {
-        if ('left' == $key or 'right' == $key or 'rid' == $key or empty($val) or ('code' == $key and is_numeric($val))) {
+        if ('code' == $key and is_numeric($val)) {
+          unset($arr[$key]);
+          continue;
+        }
+
+        if (empty($val) or in_array($key, $stop)) {
           unset($arr[$key]);
           continue;
         }
 
         if (is_array($val)) {
           $arrarr[$key] = $val;
-          $srlz .= mcms::html($key, "<![CDATA[". serialize($val) ."]]>") ."\n";
+          $srlz .= mcms::html($key, "<![CDATA[". urlencode(serialize($val)) ."]]>") ."\n";
           unset($arr[$key]);
         }
       }
@@ -225,12 +239,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
   public static function import($source, $isfile = false)
   {
     if ($isfile) {
-      $arr = file($source);
-
-      if (!$arr)
-        return 0;
-
-      $xmlstr = implode('', $arr);
+      $xmlstr = file_get_contents($source);
     } else {
       $xmlstr = $source;
     }
@@ -244,14 +253,17 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     $larr = array();
     $newid = array();
 
+    mcms::log('exchange', 'importing nodes');
+
     foreach ($xml->nodes->node as $node) {
       $curnode = array();
 
       foreach ($node->attributes() as $a => $v)
         $curnode[$a] = strval($v);
 
-      foreach($node as $attr => $val) {
-        $obj = unserialize($val);
+      foreach ($node as $attr => $val) {
+        if (false === ($obj = unserialize(urldecode($val))))
+          throw new RuntimeException('Unable to unserialize: '. $val);
         $curnode[$attr] = $obj;
       }
 
@@ -261,15 +273,28 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
         if (array_key_exists($k, $curnode))
           unset($curnode[$k]);
 
+      // Восстанавливаем родителей.
+      if (!empty($curnode['parent_id'])) {
+        if (array_key_exists($curnode['parent_id'], $newid))
+          $curnode['parent_id'] = $newid[$curnode['parent_id']];
+        else {
+          mcms::log('import', sprintf('node %d(%s) lost its parent_id',
+            $curnode['class'], $oldid));
+          $curnode['parent_id'] = null;
+        }
+      }
+
       $SiteNode = Node::create(strval($node['class']), $curnode);
       $SiteNode->save();
 
       $curid = $SiteNode->id;
-      $newid[$oldid] = $curid; //ставим соответствие между старым id и новым
+      $newid[$oldid] = $curid; // ставим соответствие между старым id и новым
     }
 
+    mcms::log('exchange', 'importing relations');
+
     $at = array();
-    //внесём записи в `node__rel`
+    // внесём записи в `node__rel`
     foreach ($xml->links->link as $link) {
       foreach ($link->attributes() as $a => $v)
         $at[$a] = strval($v);
@@ -277,9 +302,9 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $n = $at['nid'];
       $t = $at['tid'];
 
-      if (array_key_exists($n,$newid))
+      if (array_key_exists($n, $newid))
         $nid = $newid[$n];
-      if (array_key_exists($t,$newid))
+      if (array_key_exists($t, $newid))
         $tid = $newid[$t];
 
       if (!empty($nid) and !empty($tid)) {
@@ -302,6 +327,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     }
 
     // Внесём записи в `node__access`
+    mcms::log('exchange', 'importing access');
 
     foreach ($xml->accessrights->access as $acc) {
       $at = array();
@@ -315,7 +341,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       if (array_key_exists($nd, $newid))
         $nid = $newid[$nd];
 
-      if (array_key_exists($ud, $newid))
+      if (!empty($ud) and array_key_exists($ud, $newid))
         $uid = $newid[$ud];
 
       if (!empty($nid)) {
@@ -327,7 +353,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
         mcms::db()->exec("INSERT INTO `node__access`(`nid`, `uid`, `c`, `r`, `u`, `d`, `p`) VALUES (:nid, :uid, :c, :r, :u, :d, :p)", array(
           ':nid' => $nid,
-          ':uid' => $uid,
+          ':uid' => empty($uid) ? 0 : $uid,
           ':c' => $c,
           ':r' => $r,
           ':u' => $u,
@@ -335,14 +361,6 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
           ':p' => $p,
           ));
       }
-    }
-
-    //обновим parent_id в таблице node в соответствиями со значениями из массива $newid
-    foreach ($newid as $oldid=>$curid) {
-      mcms::db()->exec("UPDATE `node` SET parent_id=:newid where parent_id=:oldid ", array(
-        ':newid' => $curid,
-        ':oldid' => $oldid
-        ));
     }
 
     return 1;
