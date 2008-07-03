@@ -649,31 +649,41 @@ class RequestController
 
         // Формируем список идентификаторов.
         foreach ($this->widgets as $k => $v) {
-          if (!empty($v['cache_key']))
-            $keys[] = $v['cache_key'];
+          if (!empty($v['cache_key'])) {
+            if (false !== ($tmp = mcms::cache('widget:'. $v['cache_key']))) {
+              $blocks[$k] = $tmp;
+              unset($this->widgets[$k]);
+            } else {
+              $keys[] = $v['cache_key'];
+            }
+          }
         }
 
-        $lang = empty($this->page->language) ? 'en' : $this->page->language;
-        $rows = mcms::db()->getResultsKV("cid", "data", "SELECT `cid`, `data` FROM `node__cache` "
-          ."WHERE `lang` = ? AND `cid` IN ('". join("', '", $keys) ."') "
-          ."-- RequestController::getCachedWidgets()", array($lang));
+        if (!empty($keys)) {
+          $lang = empty($this->page->language) ? 'en' : $this->page->language;
+          $rows = mcms::db()->getResultsKV("cid", "data", "SELECT `cid`, `data` FROM `node__cache` "
+            ."WHERE `lang` = ? AND `cid` IN ('". join("', '", $keys) ."') "
+            ."-- RequestController::getCachedWidgets()", array($lang));
 
-        // Разгребаем данные, найденные в кэше.
-        foreach ($rows as $cid => $data) {
-          $data = unserialize($data);
+          // Разгребаем данные, найденные в кэше.
+          foreach ($rows as $cid => $data) {
+            $data = unserialize($data);
 
-          foreach ($this->widgets as $name => $info) {
-            // Виджет найден в кэше.  Добавляем его в отрендеренные и удаляем из списка виджетов.
-            if ($info['cache_key'] == $cid) {
-              // Готовый HTML код.
-              if (is_string($data)) {
-                $blocks['widgets'][$name] = $data;
-                unset($this->widgets[$name]);
-              }
+            mcms::cache('widget:'. $cid, $data);
 
-              // Массив данных.
-              else {
-                $blocks[$name] = $data;
+            foreach ($this->widgets as $name => $info) {
+              // Виджет найден в кэше.  Добавляем его в отрендеренные и удаляем из списка виджетов.
+              if ($info['cache_key'] == $cid) {
+                // Готовый HTML код.
+                if (is_string($data)) {
+                  $blocks['widgets'][$name] = $data;
+                  unset($this->widgets[$name]);
+                }
+
+                // Массив данных.
+                else {
+                  $blocks[$name] = $data;
+                }
               }
             }
           }
