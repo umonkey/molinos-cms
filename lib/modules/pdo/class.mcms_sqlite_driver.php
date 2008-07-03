@@ -106,10 +106,24 @@ class mcms_sqlite_driver extends PDO_Singleton
 
   public function prepare($sql)
   {
-    if (false !== strstr($sql, 'UTC_TIMESTAMP()'))
-      $sql = str_replace('UTC_TIMESTAMP()', '\''. date('Y-m-d H:i:s', time() - date('Z', time())) .'\'', $sql);
+    $newsql = $sql;
 
-    return parent::prepare($sql);
+    $newsql = str_replace(array(
+      'UTC_TIMESTAMP()',
+      'YEAR(',
+      'MONTH(',
+      'DAY(',
+      ), array(
+      '\''. date('Y-m-d H:i:s', time() - date('Z', time())) .'\'',
+      'strftime(\'%Y\', ',
+      'strftime(\'%m\, ',
+      'strftime(\'%d\', ',
+      ), $newsql);
+
+    if ($sql != $newsql)
+      mcms::log('sqlite', $sql .' rewritten to: '. $newsql);
+
+    return parent::prepare($newsql);
   }
 
   public function clearDB()
