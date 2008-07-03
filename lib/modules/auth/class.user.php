@@ -264,11 +264,13 @@ class User
 
   public static function setcookie($value)
   {
+    /*
     $path = mcms::path() .'/';
     $time = time() + 60*60*24*30;
     $name = 'mcmsid';
 
     setcookie($name, $value, $time, $path);
+    */
   }
 
   public static function checkAutoLogin()

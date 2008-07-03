@@ -87,6 +87,12 @@ class SessionData
     $cache = BebopCache::getInstance();
     ini_set("session.use_only_cookies", 1);
 
+    session_name('mcmsid'); // Это вроде как не нужно, но на всякий случай... — hex
+    session_save_path(mcms::mkdir(mcms::config('tmpdir') .'/sessions'));
+    session_set_cookie_params(time() + 60*60*24*30, mcms::path() .'/');
+    session_id($sid);
+    session_start();
+
     // Чтение сессии.
     if (null === $data) {
       if (is_array($tmp = $cache->{'session:'. $sid}))
