@@ -329,13 +329,6 @@ class RequestController
   {
     $pdo = mcms::db();
 
-    if (empty($this->widgets) and empty($this->page->parent_id)) {
-      mcms::debug($this);
-
-      if (null !== ($tmp = self::getDomainConfigLink()))
-        mcms::redirect($tmp);
-    }
-
     // Сюда складываем время выполнения виджетов.
     $profile = array('__total' => microtime(true));
 
