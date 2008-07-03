@@ -101,8 +101,10 @@ class ArchiveWidget extends Widget
         return null;
       }
 
+      /*
       if (!$section->archive)
         return null;
+      */
 
       // Здесь нам делать нечего.
       if (!empty($conf['onlyiflast']) and $conf['onlyiflast'] == 1 and !empty($options['next']))
