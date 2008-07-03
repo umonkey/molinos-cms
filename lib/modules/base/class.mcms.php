@@ -336,6 +336,11 @@ class mcms
 
   public static function user()
   {
+    if (func_num_args())
+      throw new InvalidArgumentException(t('mcms::user() не принимает '
+        .'параметров и возвращает объект, описывающий текущего '
+        .'пользователя, анонимного или идентифицированного.  Для '
+        .'идентификации используйте User::authorize().'));
     return User::identify();
   }
 

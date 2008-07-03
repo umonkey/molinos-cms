@@ -235,7 +235,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
   private static function onGetLogout(RequestContext $ctx)
   {
-    mcms::user()->authorize();
+    User::authorize();
     mcms::redirect($_GET['destination']);
   }
 

@@ -12,7 +12,7 @@ class BaseModule implements iRemoteCall
     switch ($ctx->get('action')) {
     case 'login':
       try {
-        mcms::user()->authorize($_POST['login'], $_POST['password']);
+        User::authorize($_POST['login'], $_POST['password']);
       } catch (ObjectNotFoundException $e) {
         bebop_on_json(array(
           'status' => 'wrong',
@@ -36,7 +36,7 @@ class BaseModule implements iRemoteCall
       session_commit();
 
       if (empty($uid))
-        mcms::user()->authorize();
+        User::authorize();
       else
         self::login($_COOKIE['mcmsid'], $uid);
 
