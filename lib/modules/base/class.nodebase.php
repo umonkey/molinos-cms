@@ -38,6 +38,9 @@ class NodeBase
   {
     $tmp = $this->data;
 
+    if (empty($tmp['code']) and !empty($tmp['id']))
+      $tmp['code'] = $tmp['id'];
+
     foreach ($this->files as $k => $v)
       $tmp['files'][$k] = $v->getRaw();
 
