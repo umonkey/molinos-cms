@@ -118,7 +118,7 @@ class url
 
   public function setarg($key, $value)
   {
-    if (false !== strpos($key, '.'))
+    if (false === strpos($key, '.'))
       $this->args[$key] = $value;
     else {
       list($a, $b) = explode('.', $key, 2);
