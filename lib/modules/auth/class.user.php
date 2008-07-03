@@ -12,43 +12,42 @@ class User
 
   protected function __construct(UserNode $node = null)
   {
+    // Указан конкретный пользователь, работаем с ним.
     if (null !== $node) {
       $this->node = $node;
     }
 
-    elseif (null === ($this->session = SessionData::load()) or null === ($uid = $this->session->uid)) {
-      $this->node = Node::create('user', array(
-        'name' => 'anonymous',
-        ));
-      foreach (Node::find(array('class' => 'group')) as $tmp)
-        if ($tmp->login == 'nobody')
-          $this->groups[] = $tmp;
-    } else {
-      try {
-        if (is_string($tmp = mcms::cache($key = 'userprofile:'. $uid)))
-          $this->node = unserialize($tmp);
-        else
-          mcms::cache($key, serialize($this->node = Node::load(array('class' => 'user', 'id' => $uid))));
-
-        if (is_string($tmp = mcms::cache($key = 'usergroups:'. $uid)) and is_array($tmp = unserialize($tmp) and !empty($tmp)))
-          $this->groups = $tmp;
-        else {
-          mcms::cache($key, serialize($this->groups = Node::find(array('class' => 'group', 'published' => 1, 'tagged' => array($uid)))));
+    // Пользователь не указан, загружаем из сессии.
+    elseif (null !== ($this->session = SessionData::load())) {
+      if (!empty($this->session->uid)) {
+        try {
+          $this->node = Node::load(array(
+            'class' => 'user',
+            'id' => $this->session->uid,
+            '#cache' => true,
+            ));
+        } catch (ObjectNotFoundException $e) {
+          // Пользователя удалили — ничего страшного.
+          $this->session = null;
         }
-      } catch (ObjectNotFoundException $e) {
-        $this->node = Node::create('user', array(
-          'name' => 'anonymous',
-          ));
       }
     }
 
-    if (null !== $this->node and 'anonymous' != $this->node->name) {
-      /*
-      mcms::log('auth', t('user=%user, groups=%groups', array(
-        '%user' => $this->node->name,
-        '%groups' => join(',', array_keys($this->getGroups())),
-        )));
-      */
+    // Если пользоватль не найден — делаем анонимным.
+    if (null === $this->node) {
+      $this->node = Node::create('user', array(
+        'name' => 'anonymous',
+        ));
+    }
+
+    // Если найден — загрузим группы.
+    else {
+      $this->groups = Node::find(array(
+        'class' => 'group',
+        'published' => 1,
+        'tagged' => array($this->node->id),
+        '#cache' => true,
+        ));
     }
   }
 

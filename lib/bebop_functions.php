@@ -55,18 +55,10 @@ function l($url, $title = null, array $options = null, $absolute = false)
   elseif (!is_string($url))
     throw new RuntimeException(t('Ссылка для l() должна быть строкой.'));
 
-  $parts = bebop_split_url($url);
+  $parts = new url($url);
 
-  if (empty($parts['host'])) {
-    foreach (array('smarty.debug') as $k)
-      if (array_key_exists($k, $parts['args']))
-        unset($parts['args'][$k]);
-
-    if ($absolute)
-      $parts['#absolute'] = true;
-
-    $url = bebop_combine_url($parts, false);
-  }
+  if ($parts->islocal)
+    $url = strval($parts);
 
   $options['href'] = $url;
 

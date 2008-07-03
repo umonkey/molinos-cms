@@ -79,9 +79,9 @@ class AdminMenu implements iAdminMenu
 
       if (is_array($icons) and !empty($icons)) {
         foreach ($icons as $icon) {
-          $tmp = bebop_split_url($icon['href']);
-          $tmp['args']['cgroup'] = $icon['group'];
-          $icon['href'] = bebop_combine_url($tmp, false);
+          $url = new url($icon['href']);
+          $url->setarg('cgroup', $icon['group']);
+          $icon['href'] = strval($url);
 
           $result[$icon['group']][] = $icon;
         }

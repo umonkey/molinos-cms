@@ -442,7 +442,8 @@ class mcms
       print join(";\n\n", $output) .";\n\n";
 
       if (true /* !empty($_SERVER['REMOTE_ADDR']) */) {
-        printf("--- backtrace (time: %s) ---\n", microtime());
+        printf("--- backtrace (time: %s, duratoin: %s) ---\n", microtime(),
+          microtime(true) - MCMS_START_TIME);
         print mcms::backtrace();
 
         if (null !== ($log = mcms::db()->getLog())) {
@@ -946,7 +947,8 @@ class mcms
 
     // print $message;
 
-    printf("\n--- backtrace (time: %s) ---\n", microtime());
+    printf("\n--- backtrace (time: %s, duratoin: %s) ---\n", microtime(),
+        microtime(true) - MCMS_START_TIME);
     print mcms::backtrace($e);
 
     exit();

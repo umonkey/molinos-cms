@@ -193,12 +193,13 @@ class RequestController
       $key = "page:{$this->page->id}:widgets";
 
       // FIXME: почему-то в кэш мусор попадает
-      $widgets = false; // mcms::cache($key);
+      $widgets = mcms::cache($key);
 
       if ($widgets === false) {
         $widgets = Node::find(array(
           'class' => 'widget',
           'id' => $this->page->linkListChildren('widget', true),
+          '#cache' => true,
           ));
         mcms::cache($key, $widgets);
       }
@@ -268,9 +269,9 @@ class RequestController
   {
     $this->get_vars = array();
 
-    $urlinfo = bebop_split_url();
+    $urlinfo = new url();
 
-    foreach ($urlinfo['args'] as $k => $v) {
+    foreach ($urlinfo->args as $k => $v) {
       if (is_array($v))
         $this->get_vars[$k] = $v;
     }

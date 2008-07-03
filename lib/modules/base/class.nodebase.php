@@ -104,6 +104,11 @@ class NodeBase
   // Поиск документов по критерию.
   public static function find(array $query, $limit = null, $offset = null)
   {
+    $cacheid = 'node:find:'. md5(serialize($query));
+
+    if (is_array($data = mcms::cache($cacheid)))
+      return $data;
+
     $sql = null;
     $params = array();
     $fetch_extra = true;
@@ -135,8 +140,13 @@ class NodeBase
 
     mcms::db()->log("--- Finding nodes ---");
 
-    return self::dbRead($sql, $params, empty($query['#recurse'])
+    $data = self::dbRead($sql, $params, empty($query['#recurse'])
       ? 0 : intval($query['#recurse']));
+
+    if (!empty($query['#cache']))
+      mcms::cache($cacheid, $data);
+
+    return $data;
   }
 
   // Возвращает количество документов, удовлетворяющих условию.

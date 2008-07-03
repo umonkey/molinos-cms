@@ -35,4 +35,5 @@ mcms::extras('themes/example/styles/page.index.css');
 		</div>
 		
 	</body>
+  <!-- request time: $execution_time ms. -->
 </html>
