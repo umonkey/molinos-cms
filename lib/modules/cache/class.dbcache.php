@@ -42,7 +42,7 @@ class DBCache implements iBebopCacheEngine
         } catch (PDOException $e) {
             // Base table or view not found.
             if ($e->getCode() == '42S02')
-                throw new NotInstalledException();
+                throw new NotInstalledException('table');
             else
                 throw $e;
         }
@@ -62,7 +62,7 @@ class DBCache implements iBebopCacheEngine
                 array(':cid' => $key, ':lang' => empty($this->lang) ? 'en' : $this->lang, ':data' => serialize($value)));
         } catch (PDOException $e) {
             if ($e->getCode() == '42S02')
-                throw new NotInstalledException();
+                throw new NotInstalledException('table');
             else
                 throw $e;
         }

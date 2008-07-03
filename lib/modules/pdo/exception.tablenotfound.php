@@ -17,7 +17,7 @@ class TableNotFoundException extends Exception
     case 'node':
     case 'node__rev':
     case 'node__rel':
-      throw new NotInstalledException();
+      throw new NotInstalledException('table');
     }
 
     parent::__construct("Таблица {$table} не найдена.");

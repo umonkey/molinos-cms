@@ -41,10 +41,19 @@ class PDO_Singleton extends PDO
   {
     if (!array_key_exists($name, self::$instances) or $reload) {
       if (false === ($conf = parse_url(self::getConfig($name))) or empty($conf['scheme']))
-        throw new RuntimeException(t('Соединение %name настроено неверно.', array('%name' => $name)));
+        throw new RuntimeException(t('Соединение %name настроено неверно.',
+          array('%name' => $name)));
+
+      if (!in_array($conf['scheme'], PDO::getAvailableDrivers())) {
+        throw new RuntimeException(t('Указанный в настройках драйвер PDO '
+          .'(%name) недоступен. Вероятно конфигурация сервера изменилась '
+          .'после установки CMS, или кто-то руками копался в '
+          .'конфигурационном файле.', array('%name' => $conf['scheme'])));
+      }
 
       if (!class_exists($driver = 'mcms_'. $conf['scheme'] .'_driver'))
-        throw new RuntimeException(t('Драйвер для доступа к БД типа "%name" отсутствует.', array('%name' =>                                               $conf['scheme'])));
+        throw new RuntimeException(t('Драйвер для доступа к БД типа "%name" '
+          .'отсутствует.', array('%name' => $conf['scheme'])));
 
       self::$instances[$name] = new $driver($conf);
     }
@@ -52,6 +61,7 @@ class PDO_Singleton extends PDO
     return self::$instances[$name];
   }
 
+  // Возвращает параметры подключения к нужной БД.
   private static function getConfig($name)
   {
     if (is_array($conf = mcms::config('db')) and array_key_exists($name, $conf))
@@ -61,7 +71,7 @@ class PDO_Singleton extends PDO
       return $conf;
 
     if ('default' == $name)
-      throw new NotInstalledException(t('Соединение с базой данных не настроено.'));
+      throw new NotInstalledException('dsn');
 
     throw new RuntimeException(t('Соединение %name не настроено.', array('%name' => $name)));
   }

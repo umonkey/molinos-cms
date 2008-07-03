@@ -17,6 +17,8 @@ class RequestController
 
   public function __construct()
   {
+    self::checkServerSettings();
+
     ob_start();
 
     $url = new url();
@@ -28,15 +30,10 @@ class RequestController
         RequestContext::setGlobal();
         InstallModule::hookRemoteCall(RequestContext::getGlobal());
       } else {
-        User::identify();
-
-        self::checkServerSettings();
-
         $this->run();
       }
     } catch (NotInstalledException $e) {
-      mcms::debug();
-      mcms::redirect('?q=install.rpc&msg=notable');
+      mcms::redirect('index.php?q=install.rpc&msg='. $e->get_type());
     }
   }
 
@@ -50,11 +47,10 @@ class RequestController
     $pdo = null;
 
     try {
+      User::identify();
+
       if (!BebopConfig::getInstance()->isok())
-        throw new NotInstalledException(t("Не удалось найти конфигурационный "
-          ."файл.&nbsp; Скорее всего, CMS ещё не была проинсталлирована. "
-          ."Вы можете <a href='@install'>запустить процесс инсталляции</a> "
-          ."прямо сейчас.", array('@install' => '?q=install.rpc')));
+        throw new NotInstalledException('config');
 
       $this->begin = microtime(true);
 
@@ -132,7 +128,7 @@ class RequestController
       $map = self::getUrlsForDomain($_SERVER['HTTP_HOST']);
     } catch (PDOException $e) {
       if ($e->getCode() == '42S02')
-        throw new NotInstalledException();
+        throw new NotInstalledException('table');
       else
         throw $e;
     }
@@ -683,8 +679,9 @@ class RequestController
         }
       }
     } catch (PDOException $e) {
+      // FIXME: после введения автосоздаваемых таблиц это ещё нужно?
       if ($e->getCode() == '42S02')
-        throw new NotInstalledException();
+        throw new NotInstalledException('table');
       else
         throw $e;
     }
@@ -767,6 +764,12 @@ class RequestController
         $errors[] = $key;
     }
 
+    if (!extension_loaded('pdo'))
+      $messages[] = t('Отсутствует поддержка <a href=\'@url\'>PDO</a>.  Она очень нужна, '
+        .'без неё не получится работать с базами данных.', array(
+          '@url' => 'http://docs.php.net/pdo',
+          ));
+
     if (!extension_loaded('mbstring'))
       $messages[] = t('Отсутствует поддержка юникода.  21й век на дворе, '
         .'пожалуйста, установите расширение '
@@ -783,12 +786,12 @@ class RequestController
       .'Очень важно, чтобы в него можно было писать.');
 
     if (!empty($errors) or !empty($messages)) {
-      $output = "<html><head><title>Setup Error</title></head><body>";
+      $output = "<html><head><title>Ошибка конфигурации</title></head><body>";
 
       if (!empty($errors)) {
         $output .= '<h1>'. t('Нарушение безопасности') .'</h1>';
-        $output .= "<p>The following <a href='http://php.net/'>PHP</a> settings are incorrect and could not be <a href='http://php.net/ini_set'>changed</a>:</p>";
-        $output .= "<table border='1'><tr><th>Setting</th><th>Value</th><th>Required</th></tr>";
+        $output .= "<p>Следующие настройки <a href='http://php.net/'>PHP</a> неверны и не могут быть <a href='http://php.net/ini_set'>изменены на лету</a>:</p>";
+        $output .= "<table border='1'><tr><th>Параметр</th><th>Значение</th><th>Требуется</th></tr>";
 
         foreach ($errors as $key)
           $output .= "<tr><td>{$key}</td><td>". ini_get($key) ."</td><td>{$htreq[$key]}</td></tr>";

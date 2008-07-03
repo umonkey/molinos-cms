@@ -46,20 +46,20 @@ class BebopConfig
       if (is_readable($this->path = $prefix .'default.php'))
         return $this->path;
 
-      // Совсем ничего не осталось — используем пример.
-      if (is_readable($this->path = $prefix .'default.ini.dist')) {
-        // Копируем пример в нормальный конфиг.
-        if (is_writable(dirname($this->path))) {
-          copy($this->path, $tmp = $prefix .'default.ini');
-          $this->path = $tmp;
-        } else {
-          $this->path = null;
+      // Дефолтный не найден, пытаемся использовать демо.
+      if (in_array('sqlite', PDO::getAvailableDrivers())) {
+        if (is_readable($this->path = $prefix .'default.ini.dist')) {
+          // Копируем пример в нормальный конфиг.
+          if (is_writable(dirname($this->path))) {
+            copy($this->path, $tmp = $prefix .'default.ini');
+            $this->path = $tmp;
+          } else {
+            $this->path = null;
+          }
+
+          return $this->path;
         }
-
-        return $this->path;
       }
-
-      return $prefix .'default.ini';
     }
 
     private function readData()

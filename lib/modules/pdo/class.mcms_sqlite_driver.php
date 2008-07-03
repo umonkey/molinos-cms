@@ -23,11 +23,11 @@ class mcms_sqlite_driver extends PDO_Singleton
       parent::__construct($dsn, '', '');
     } catch (PDOException $e) {
       if (!in_array('sqlite', PDO::getAvailableDrivers()))
-        throw new NotInstalledException();
+        throw new NotInstalledException('driver');
       elseif (file_exists($conf['path']))
         throw new RuntimeException(t('Не удалось открыть базу данных.'));
       else
-        throw new NotInstalledException();
+        throw new NotInstalledException('connection');
     }
 
     $this->dbtype = 'SQLite';

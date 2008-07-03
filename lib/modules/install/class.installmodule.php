@@ -91,8 +91,6 @@ class InstallModule implements iRemoteCall
       'required' => true,
       'options' => self::listDrivers(),
       'id' => 'dbtype',
-      'description' => t('Для разработки рекоммендуется использовать SQLite; перенести сайт на MySQL можно будет в несколько кликов.'),
-      'default' => 'sqlite',
       )));
     $tab->addControl(new TextLineControl(array(
       'value' => 'db[name]',
@@ -242,29 +240,27 @@ class InstallModule implements iRemoteCall
 
     if (class_exists('PDO', false)) {
       foreach (PDO::getAvailableDrivers() as $el) {
-        switch ($title = $el) {
+        $title = null;
+
+        switch ($el) {
         case 'sqlite':
           $title = 'SQLite';
-          break;
-        case 'sqlite2':
-          $title = 'SQLite 2 (не рекоммендуется)';
           break;
         case 'mysql':
           $title = 'MySQL';
           break;
-        case 'dblib':
-          $title = 'DBLib (MSSQL, Sybase)';
-          break;
-        case 'odbc':
-          $title = 'ODBC';
-          break;
         }
 
-        $options[$el] = $title;
+        if (null !== $title)
+          $options[$el] = $title;
       }
 
-      if (empty($options))
-        throw new Exception(t('Нет доступных драйверов PDO; рекоммендуем установить <a href=\'@url\'>PDO_SQLite</a>.', array('@url' => 'http://docs.php.net/manual/en/ref.pdo-sqlite.php')));
+      if (empty($options)) {
+        throw new Exception(t('Нет доступных драйверов PDO; рекоммендуем установить <a href=\'@url\'>PDO_SQLite</a> (или <a href=\'@url2\'>PDO_MySQL</a>, но SQLite проще и быстрее).', array(
+          '@url' => 'http://docs.php.net/manual/en/ref.pdo-sqlite.php',
+          '@url2' => 'http://docs.php.net/manual/en/ref.pdo-mysql.php',
+          )));
+      }
     } else {
       throw new Exception(t('Для использования Molinos.CMS нужно установить расширение <a href=\'@url\'>PDO</a>.', array('@url' => 'http://docs.php.net/manual/en/book.pdo.php')));
     }
