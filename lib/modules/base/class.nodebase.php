@@ -104,6 +104,9 @@ class NodeBase
   // Поиск документов по критерию.
   public static function find(array $query, $limit = null, $offset = null)
   {
+    $query['#limit'] = $limit;
+    $query['#offset'] = $offset;
+
     $cacheid = 'node:find:'. md5(serialize($query));
 
     if (is_array($data = mcms::cache($cacheid)))
