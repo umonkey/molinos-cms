@@ -89,7 +89,7 @@ class FormWidget extends Widget
     if (null === ($options['root'] = $ctx->section_id))
       $options['root'] = $this->section_default;
 
-    if ('edit' == ($options['status'] = $ctx->get('status', 'default')))
+    if ('default' != ($options['status'] = $ctx->get('status', 'default')))
       $options['node'] = $ctx->get('node');
 
     $options['stripped'] = empty($this->stripped) ? 0 : 1;
@@ -162,11 +162,18 @@ class FormWidget extends Widget
 
   protected function onGetPending(array $options)
   {
+    try {
+      $node = Node::load($options['node']);
+    } catch (ObjectNotFoundException $e) {
+      $node = null;
+    }
+
     return array(
       'mode' => 'status',
       'status' => 'pending',
       'message' => t('Всё в порядке, документ сохранён, но на сайте он будет '
         .'виден только после одобрения модератором. Нужно немного подождать.'),
+      'node' => empty($node) ? null : $node->getRaw(),
       );
   }
 
@@ -239,6 +246,7 @@ class FormWidget extends Widget
 
       $next = new url();
       $next->setarg($this->getInstanceName() .'.status', 'pending');
+      $next->setarg($this->getInstanceName() .'.node', '__NID__');
 
       $url = new url($form->action);
       $url->setarg('destination', mcms::path() .'/'. $next);

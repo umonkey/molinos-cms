@@ -124,6 +124,12 @@ class NodeApiModule implements iRemoteCall
         ));
 
       $node->formProcess($ctx->post);
+
+      if (false !== strpos($next = $ctx->get('destination'), '__NID__')) {
+        $next = str_replace('__NID__', $node->id, $next);
+        mcms::redirect($next);
+      }
+
       break;
 
     case 'edit':
