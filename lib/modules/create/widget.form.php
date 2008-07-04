@@ -237,6 +237,14 @@ class FormWidget extends Widget
       $form = $node->formGet($this->stripped);
       $form->wrapper_class = 'form-create-wrapper';
 
+      $next = new url();
+      $next->setarg($this->getInstanceName() .'.status', 'pending');
+
+      $url = new url($form->action);
+      $url->setarg('destination', mcms::path() .'/'. $next);
+
+      $form->action = strval($url);
+
       $form->addControl(new HiddenControl(array(
         'value' => 'referer',
         )));
@@ -301,34 +309,6 @@ class FormWidget extends Widget
       $node->formProcess($data);
       $node->save();
       return $_GET['destination'];
-
-    default:
-      if (false !== strstr($id, 'form-create-')) {
-        $type = substr($id, 12);
-
-        $node = Node::create($type, array(
-          'parent_id' => $this->options['parent_id'],
-          'uid' => mcms::user()->id,
-          'published' => $this->publish,
-          ));
-
-        $node->formProcess($data);
-        $node->save();
-
-        if (!empty($_GET['destination']))
-          $next = $_GET['destination'];
-        elseif (null !== $this->next)
-          $next = $this->next;
-        else {
-          $next = mcms_url(array(
-            'args' => array(
-              $this->getInstanceName() => array(
-                'status' => 'pending',
-                ),
-              ),
-            ));
-        }
-      }
     }
 
     return $next;
