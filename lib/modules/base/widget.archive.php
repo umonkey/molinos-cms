@@ -72,7 +72,10 @@ class ArchiveWidget extends Widget
     $result = array();
 
     // Находим родительский виджет.
-    $host = Node::load(array('class' => 'widget', 'name' => $this->host));
+    $host = Node::load(array(
+      'class' => 'widget',
+      'name' => $this->host,
+      ));
     $conf = $host->config;
 
     // Вытаскиваем параметризацию родительского объекта.
@@ -85,7 +88,8 @@ class ArchiveWidget extends Widget
 
     // Достаём код раздела.
     if (!empty($tmpoptions['filter']['tags']))
-      $root = $tmpoptions['filter']['tags'];
+      if (is_array($root = $tmpoptions['filter']['tags']))
+        $root = array_shift($root);
 
     if (empty($root) and !empty($conf['fixed']))
       $root = $conf['fixed'];
@@ -101,11 +105,6 @@ class ArchiveWidget extends Widget
         return null;
       }
 
-      /*
-      if (!$section->archive)
-        return null;
-      */
-
       // Здесь нам делать нечего.
       if (!empty($conf['onlyiflast']) and $conf['onlyiflast'] == 1 and !empty($options['next']))
         return array();
@@ -117,6 +116,8 @@ class ArchiveWidget extends Widget
         if (!empty($options['month']))
           $result['days'] = $this->getDayList($options);
       }
+
+      // mcms::debug($options, $result);
 
       // Возвращаем параметризацию.
       foreach (array('year', 'month', 'day') as $key)

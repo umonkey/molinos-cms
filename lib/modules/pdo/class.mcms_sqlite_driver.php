@@ -116,7 +116,7 @@ class mcms_sqlite_driver extends PDO_Singleton
       ), array(
       '\''. date('Y-m-d H:i:s', time() - date('Z', time())) .'\'',
       'strftime(\'%Y\', ',
-      'strftime(\'%m\, ',
+      'strftime(\'%m\', ',
       'strftime(\'%d\', ',
       ), $newsql);
 
