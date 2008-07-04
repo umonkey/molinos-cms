@@ -25,18 +25,20 @@ class FileListControl extends Control
 
     foreach ($data as $k => $v) {
       if ($this->value == substr($k, 0, strlen($this->value)) and is_numeric(substr($k, strlen($this->value) + 1, -1))) {
+          $dt = $v->getData();
+
         $row = '<td>'. mcms::html('a', array(
-          'href' => 'attachment/'. $v['id'],
+          'href' => 'attachment/'. $dt['id'],
           ), mcms::html('img', array(
-          'alt' => $v['filename'],
-          'src' => 'attachment/'. $v['id'] .',48,48,cw',
+          'alt' => $dt['filename'],
+          'src' => 'attachment/'. $dt['id'] .',48,48,cw',
           'width' => 48,
           'height' => 48,
           ))) .'</td>';
         $row .= mcms::html('td', null, mcms::html('input', array(
           'type' => 'text',
           'class' => 'form-text',
-          'value' => $v['name'],
+          'value' => $dt['name'],
           'name' => $k .'[name]',
           )));
         $row .= mcms::html('td', null, mcms::html('input', array(

@@ -1307,7 +1307,8 @@ class NodeBase
 
     if (!empty($this->files)) {
       foreach ($this->files as $key => $file) {
-        $data['node_content_files['. $key .']'] = $file;
+        $dt = $file->getData();
+        $data['node_content_files['. $dt['id'] .']'] = $file;
       }
     }
 

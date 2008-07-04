@@ -346,6 +346,11 @@ class FileNode extends Node implements iContentType
     return $path;
   }
 
+  public function getData()
+  {
+    return $this->data;
+  }
+
   public static function listFilesOnFTP()
   {
     if (!is_dir($path = self::getFTPRoot()))
