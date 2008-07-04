@@ -11,7 +11,6 @@ class DBCache implements iBebopCacheEngine
     public function __construct($lang = null)
     {
         $this->lang = $lang;
-        $this->pdo = mcms::db();
 
         if (self::$instance === null)
             self::$instance = $this;
@@ -34,6 +33,9 @@ class DBCache implements iBebopCacheEngine
     private function __get($key)
     {
         try {
+            if (null === $this->pdo)
+                $this->pdo = mcms::db();
+
             $value = $this->pdo->getResult("SELECT `data` FROM `node__cache` WHERE `cid` = :cid AND `lang` = :lang",
                 array(':cid' => $key, ':lang' => $this->lang));
 
@@ -58,6 +60,8 @@ class DBCache implements iBebopCacheEngine
     private function __set($key, $value)
     {
         try {
+            if (null === $this->pdo)
+                $this->pdo = mcms::db();
             $this->pdo->exec("REPLACE INTO `node__cache` (`cid`, `lang`, `data`) VALUES (:cid, :lang, :data)",
                 array(':cid' => $key, ':lang' => empty($this->lang) ? 'en' : $this->lang, ':data' => serialize($value)));
         } catch (PDOException $e) {
@@ -75,6 +79,8 @@ class DBCache implements iBebopCacheEngine
 
     public function count()
     {
+        if (null === $this->pdo)
+            $this->pdo = mcms::db();
         return $this->pdo->getResult("SELECT COUNT(*) FROM `node__cache`");
     }
 
@@ -82,6 +88,8 @@ class DBCache implements iBebopCacheEngine
     {
         if ($now) {
             try {
+                if (null === $this->pdo)
+                    $this->pdo = mcms::db();
                 $this->pdo->exec("DELETE FROM `node__cache`");
             } catch (PDOException $e) {
             }
