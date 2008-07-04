@@ -324,7 +324,7 @@ class RequestController
 
   private function runGet()
   {
-    $pdo = mcms::db();
+    static $pdo = null;
 
     // Сюда складываем время выполнения виджетов.
     $profile = array('__total' => microtime(true));
@@ -341,6 +341,9 @@ class RequestController
 
     // Обрабатываем оставшиеся виджеты.
     foreach ($this->widgets as $name => $info) {
+      if (null === $pdo)
+        $pdo = mcms::db();
+
       $time = microtime(true);
 
       if (bebop_is_debugger() and !empty($_GET['profile']))
