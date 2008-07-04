@@ -143,7 +143,7 @@ class NodeBase
     $data = self::dbRead($sql, $params, empty($query['#recurse'])
       ? 0 : intval($query['#recurse']));
 
-    if (!empty($query['#cache']))
+    if (!array_key_exists('#cache', $query) or !empty($query['#cache']))
       mcms::cache($cacheid, $data);
 
     return $data;
