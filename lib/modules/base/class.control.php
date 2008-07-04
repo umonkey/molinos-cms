@@ -27,8 +27,10 @@ abstract class Control implements iFormControl
     $this->form = $form;
     $this->children = array();
 
+    /*
     if (null === $this->id and null !== $this->value)
       $this->id = 'unnamed-ctl-'. ++$lastid;
+    */
 
     if (empty($this->class))
       $this->class = array();
@@ -144,18 +146,29 @@ abstract class Control implements iFormControl
 
   protected function getChildrenHTML(array $data)
   {
-    $output = '';
+    $fields = '';
+    $hidden = '';
+    $other = '';
 
     foreach ($this->children as $child) {
       $child->captcha = $this->captcha;
 
       if ($child instanceof FieldSetControl)
-        $output .= $child->getHTML($data);
+        $fields .= $child->getHTML($data);
+      elseif ($child instanceof HiddenControl)
+        $hidden .= $child->getHTML($data);
+      else
+        $other .= $child->getHTML($data);
     }
 
-    foreach ($this->children as $child)
-      if (!($child instanceof FieldSetControl))
-        $output .= $child->getHTML($data);
+    $output = $fields;
+
+    if (!empty($hidden))
+      $output .= mcms::html('fieldset', array(
+        'style' => 'display:none',
+        ), $hidden);
+
+    $output .= $other;
 
     return $output;
   }
@@ -168,12 +181,12 @@ abstract class Control implements iFormControl
         : '';
 
       if (substr($label = $this->label, -3) != '...')
-        $label .= ':';
+        if (substr($label, -1) != ':')
+          $label .= ':';
 
-      $output = '<div class=\'label\'>'. mcms::html('label', array(
-        'for' => $this->id,
+      $output  = mcms::html('label', array(
         'class' => $this->required ? 'required' : null,
-        ), $label . $star) .'</div>'. $output;
+        ), mcms::html('span', $label . $star) . $output);
     }
 
     if (isset($this->description)) {
@@ -184,7 +197,7 @@ abstract class Control implements iFormControl
 
     $classes = array(
       'control',
-      'control-'. get_class($this) .'-wrapper',
+      mb_strtolower(str_replace('Control', '', get_class($this))) .'-wrapper',
       );
 
     if (in_array('hidden', (array)$this->class))

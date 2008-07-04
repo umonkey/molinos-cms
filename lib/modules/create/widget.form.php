@@ -129,7 +129,7 @@ class FormWidget extends Widget
 
       $result['mode'] = 'form';
       $result['type'] = $type;
-      $result['form'] = self::formRender('form-create-'. $type);
+      $result['form'] = self::formRender('form-create-'. $type, null, 'form-create');
     }
 
     // Если типов несколько, и конкретный не указан — возвращаем
@@ -235,6 +235,7 @@ class FormWidget extends Widget
 
       $node = $this->getNode($type);
       $form = $node->formGet($this->stripped);
+      $form->wrapper_class = 'form-create-wrapper';
 
       $form->addControl(new HiddenControl(array(
         'value' => 'referer',

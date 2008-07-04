@@ -52,7 +52,8 @@ class EnumRadioControl extends Control
       return '';
 
     if (isset($this->label))
-      $caption = mcms::html('legend', array('class' => 'radio'), $this->label);
+      $caption = mcms::html('legend', array('class' => 'radio'),
+        mcms::html('span', $this->label));
     else
       $caption = null;
 

@@ -36,7 +36,7 @@ class BoolControl extends Control
     if (isset($this->label))
       $output = mcms::html('label', array(
         'id' => $this->id,
-        ), $output . $this->label);
+        ), $output . mcms::html('span', $this->label));
 
     return $this->wrapHTML($output, false);
   }

@@ -23,7 +23,7 @@ class Form extends Control
     if (isset($this->title)) {
       if (!in_array($header = $this->header, array('h2', 'h3', 'h4', 'h5')))
         $header = 'h2';
-      $output = "<{$header} class='form-header'><span>". mcms_plain($this->title) ."</span></{$header}>";
+      $output = "<{$header}><span>". mcms_plain($this->title) ."</span></{$header}>";
     }
 
     if (null != $this->intro)

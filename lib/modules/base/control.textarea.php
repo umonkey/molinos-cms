@@ -14,6 +14,8 @@ class TextAreaControl extends Control
   {
     if (empty($form['rows']))
       $form['rows'] = 5;
+    if (empty($form['cols']))
+      $form['cols'] = 50;
 
     parent::__construct($form, array('value'));
   }
@@ -35,6 +37,7 @@ class TextAreaControl extends Control
       'class' => array_merge($this->class, array('form-text', 'resizable')),
       'name' => $this->value,
       'rows' => $this->rows,
+      'cols' => $this->cols,
       ), $content);
 
     return $this->wrapHTML($output);

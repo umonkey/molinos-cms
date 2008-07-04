@@ -1061,7 +1061,7 @@ class NodeBase
           elseif ($k == 'name' and !array_key_exists('title', $schema['fields']))
             $v['class'] = 'form-title';
 
-          $v['wrapper_id'] = "control-node-{$k}-wrapper";
+          $v['wrapper_id'] = "{$k}-ctl-wrapper";
 
           $tmp = Control::make($v);
 
