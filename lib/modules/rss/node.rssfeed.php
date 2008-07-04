@@ -135,6 +135,7 @@ class RssfeedNode extends Node
     $filter = array(
       'published' => 1,
       'class' => preg_split('/, */', $this->types),
+      '#recurse' => 1,
       );
 
     foreach (explode(' ', $this->sort) as $field) {
@@ -182,6 +183,28 @@ class RssfeedNode extends Node
       }
     }
 
+    if (!empty($node->file))
+      $output .= $this->getEnclosure($node->file);
+    elseif (!empty($node->files))
+      foreach ($node->files as $file)
+        $output .= $this->getEnclosure($file);
+
     return mcms::html('item', $output);
+  }
+
+  private function getEnclosure($file)
+  {
+    if (!empty($_GET['__cleanurls']))
+      $url = 'http://'. $_SERVER['HTTP_HOST'] . mcms::path()
+        .'/attachment/'. $file->id .'/'. $file->filename;
+    else
+      $url = 'http://'. $_SERVER['HTTP_HOST'] . mcms::path()
+        .'/?q=attachment.rpc&fid='. $file->id;
+
+    return mcms::html('enclosure', array(
+      'url' => $url,
+      'length' => $file->filesize,
+      'type' => $file->filetype,
+      ));
   }
 };
