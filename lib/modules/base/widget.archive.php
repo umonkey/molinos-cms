@@ -133,11 +133,11 @@ class ArchiveWidget extends Widget
   {
     $result = array();
 
-    $url = bebop_split_url();
+    $url = new url();
 
-    $url['args'][$this->host]['month'] = null;
-    $url['args'][$this->host]['day'] = null;
-    $url['path'] = $this->getUrlPath();
+    $url->setarg($this->host .'.month', null);
+    $url->setarg($this->host .'.day', null);
+    $url->path = $this->getUrlPath();
 
     $sql = "SELECT YEAR(`created`) AS `year`, COUNT(*) AS `count` "
       ."FROM `node` WHERE `id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) "
@@ -145,8 +145,8 @@ class ArchiveWidget extends Widget
 
     // FIXME: publishing
     foreach (mcms::db()->getResultsKV("year", "count", $sql, array(':tid' => $options['root'])) as $k => $v) {
-      $url['args'][$this->host]['year'] = $k;
-      $result[$k] = bebop_combine_url($url);
+      $url->setarg($this->host .'.year', $k);
+      $result[$k] = strval($url);
     }
 
     return $result;
@@ -245,10 +245,9 @@ class ArchiveWidget extends Widget
   {
     $path = $this->ctx->ppath;
 
-    if (null !== $this->ctx->section_id)
-      $path[] = $this->ctx->section_id;
+    if (null !== ($s = $this->ctx->section))
+      $path[] = $s->code;
 
-    $rc = '/'. join('/', $path) .'/';
-    return $rc;
+    return join('/', $path);
   }
 };
