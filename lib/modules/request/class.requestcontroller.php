@@ -334,11 +334,13 @@ class RequestController
 
     // Эта штука будет нас кэшировать.
     $cache = new DBCache($this->page->language);
+    $allextras = $widgetextr = $dt = array();
 
     // Загружаем закэшированные виджеты.
     if (empty($_GET['widget']))
       $this->getCachedWidgets($cache, $blocks, $profile);
 
+    $allextras = mcms::get_extras();
     // Обрабатываем оставшиеся виджеты.
     foreach ($this->widgets as $name => $info) {
       if (null === $pdo)
@@ -373,11 +375,15 @@ class RequestController
       elseif (($html = $info['object']->render($this->page, $data)) !== null) {
         $blocks['widgets'][$name] = $html;
         $data = $html;
+        $widgetextr = mcms::get_extras();
+        $allextras = array_merge($allextras, $widgetextr);
       }
 
       // Кэшируем, если можно.
       if (!empty($info['cache_key']) and (empty($_GET['nocache']) or !bebop_is_debugger())) {
-        $cache->$info['cache_key'] = $data;
+        $dt['html']   = $data;
+        $dt['extras'] = $widgetextr;
+        $cache->$info['cache_key'] = $dt;
       }
 
       $profile[$name] = microtime(true) - $time;
@@ -397,6 +403,9 @@ class RequestController
       header('Content-Length: '. strlen($data));
       die($data);
     }
+
+    foreach ($allextras as $ex => $v)
+      mcms::extras($ex);
 
     // Рендерим страницу.
     $time = microtime(true);
@@ -654,7 +663,11 @@ class RequestController
         foreach ($this->widgets as $k => $v) {
           if (!empty($v['cache_key'])) {
             if (false !== ($tmp = mcms::cache('widget:'. $v['cache_key']))) {
-              $blocks['widgets'][$k] = $tmp;
+              if (array_key_exists('html', $tmp))
+                $blocks['widgets'][$k] = $tmp['html'];
+              if (array_key_exists('extras', $tmp))
+                foreach ($tmp['extras'] as $k => $v)
+                  mcms::extras($k, $v);
               unset($this->widgets[$k]);
             } else {
               $keys[] = $v['cache_key'];
@@ -678,7 +691,15 @@ class RequestController
               // Виджет найден в кэше.  Добавляем его в отрендеренные и удаляем из списка виджетов.
               if ($info['cache_key'] == $cid) {
                 // Готовый HTML код.
-                if (is_string($data)) {
+                if (is_array($data) && array_key_exists('html',$data)) {
+                  $blocks['widgets'][$name] = $data['html'];
+                  if (!empty($data['extras'])) {
+                     foreach ($data['extras'] as $ex=>$v)
+                       mcms::extras($ex);
+                  }
+                  unset($this->widgets[$name]);
+                }
+                else if (is_string($data)) {
                   $blocks['widgets'][$name] = $data;
                   unset($this->widgets[$name]);
                 }

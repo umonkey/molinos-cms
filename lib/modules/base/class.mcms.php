@@ -1086,6 +1086,13 @@ class mcms
     return $result;
   }
 
+  public function get_extras()
+  {
+    $t = self::$extras;
+    self::$extras = array();
+    return $t;
+  }
+
   // FIXME: оптимизировать!
   private static function pop(array &$a, $e)
   {
