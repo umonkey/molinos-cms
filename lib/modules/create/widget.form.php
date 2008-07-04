@@ -125,7 +125,7 @@ class FormWidget extends Widget
       if (!empty($options['type']))
         $type = $options['type'];
       else
-        $type = array_shift($types);
+        $type = array_shift(array_keys($types));
 
       $result['mode'] = 'form';
       $result['type'] = $type;
@@ -175,10 +175,16 @@ class FormWidget extends Widget
   {
     $types = array();
 
-    foreach (TypeNode::getSchema() as $k => $v) {
-      if (mcms::user()->hasAccess('c', $k))
-        $types[$k] = $v['title'];
-    }
+    // Список типов, разрешённых в этом разделе.
+    $allowed = Node::find(array(
+      'class' => 'type',
+      'tags' => array($root),
+      ));
+
+    // Выбираем то, что может создать пользователь.
+    foreach ($allowed as $t)
+      if (mcms::user()->hasAccess('c', $t->name))
+        $types[$t->name] = $t->title;
 
     return $types;
   }
