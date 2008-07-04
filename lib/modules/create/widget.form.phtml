@@ -1,4 +1,4 @@
-<?php if ('list' == $mode): ?>
+<?php if ('list' == $mode and !empty($types)): ?>
 <p>Документ какого типа вы хотите создать?</p>
 <ul class='create-type-list'>
 <?php foreach ($types as $k => $v) { ?>

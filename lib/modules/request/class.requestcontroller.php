@@ -654,7 +654,7 @@ class RequestController
         foreach ($this->widgets as $k => $v) {
           if (!empty($v['cache_key'])) {
             if (false !== ($tmp = mcms::cache('widget:'. $v['cache_key']))) {
-              $blocks[$k] = $tmp;
+              $blocks['widgets'][$k] = $tmp;
               unset($this->widgets[$k]);
             } else {
               $keys[] = $v['cache_key'];
