@@ -47,7 +47,7 @@ class AdminListHandler
     $this->limit = $ctx->get('limit', 10);
     $this->page = $ctx->get('page', 1);
     $this->noedit = false;
-    $this->pgcount = 0;
+    $this->pgcount = null;
   }
 
   public function getHTML($preset = null)
