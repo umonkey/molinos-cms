@@ -1297,6 +1297,9 @@ class NodeBase
 
         switch ($v['type']) {
         case 'AttachmentControl':
+          if (array_key_exists($k,$this->data))
+            $data['node_content_files['. $k .']'] = $this->data[$k];
+
           if (isset($this->files[$k]))
             $value = $this->files[$k];
           break;

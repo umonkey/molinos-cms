@@ -16,9 +16,7 @@ class AttachmentModule implements iRemoteCall
 
   public static function hookRemoteCall(RequestContext $ctx)
   {
-    $folder = $ctx->get('folder');
-    if (empty($folder))
-      $folder = "attachment";
+    $folder = $ctx->get('folder', 'attachment');
 
     if (count($path = explode('/', $ctx->get('fid'))) > 1)
       self::$realname = $path[1];
@@ -50,7 +48,7 @@ class AttachmentModule implements iRemoteCall
     if ((self::$nw !== null and !is_numeric(self::$nw)) or (self::$nh !== null and !is_numeric(self::$nh)))
         self::sendError(500, 'usage: '.$folder.'/filename[,width[,height]]');
 
-    self::$folder = realpath(dirname(__FILE__) .'/'. $ctx->get('folder'));
+    self::$folder = MCMS_ROOT .'/'. $folder;
     self::$output = self::$folder.'/'.$ctx->get('fid');
 
     if (!empty($args[3])) {
@@ -121,6 +119,9 @@ class AttachmentModule implements iRemoteCall
     } else {
       //mcms::cache(self::$ckey, $data);
     }
+
+    if (ob_get_length())
+      ob_end_clean();
 
     header('Content-Type: '. $data['type']);
     header('Content-Length: '. strlen($data['data']));

@@ -25,7 +25,7 @@ class AttachmentControl extends Control
 
   public function getHTML(array $data)
   {
-    $data = empty($data[$this->value]) ? array() : $data[$this->value];
+    $fileinfo = empty($data[$this->value]) ? null : $data[$this->value];
 
     $output = mcms::html('input', array(
       'type' => 'file',
@@ -33,6 +33,29 @@ class AttachmentControl extends Control
       'id' => $this->id .'-input',
       'class' => 'form-file'. ($this->archive ? ' archive' : ''),
       ));
+
+     if (!empty($fileinfo)) {
+       $data = $fileinfo->getData();
+       $fid  = $data['id'];
+       $rid  = $data['rid'];
+       $tmp = mcms::html('img', array(
+         'src' => "attachment.rpc?fid={$fid},48,48,c&rev={$rid}",
+         'width' => 48,
+         'height' => 48,
+         'alt' => $data['filepath'],
+         'onclick' => isset($this->picker)
+         ? "return mcms_picker.mySubmit(\"". l('?q=attachment.rpc&fid='. $fid) ."\",{$fid})"
+          : null,
+         ));
+
+       $tmp = mcms::html('a', array(
+         'title' => 'Скачать',
+         'href' => "attachment.rpc?fid={$fid}",
+         'class' => isset($this->picker) ? 'returnHref' : null,
+         ), $tmp);
+
+      $output .= $tmp;
+     }
 
     if ($this->unzip)
       $output .= '<br/>'. mcms::html('input', array(

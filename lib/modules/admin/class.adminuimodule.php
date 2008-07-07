@@ -165,7 +165,11 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     if (null === ($nid = $ctx->get('id')))
       throw new PageNotFoundException();
 
-    $node = Node::load(array('id' => $nid));
+    $node = Node::load(array(
+      'id' => $nid,
+      'deleted' => array(0, 1),
+      '#recurse' => true
+      ));
 
     $form = $node->formGet(false);
     $form->addClass('tabbed');
