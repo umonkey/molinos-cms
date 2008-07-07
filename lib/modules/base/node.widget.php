@@ -67,10 +67,10 @@ class WidgetNode extends Node implements iContentType
       );
   }
 
-  public function duplicate()
+  public function duplicate($parent = null)
   {
     $this->name = preg_replace('/_[0-9]+$/', '', $this->name) .'_'. rand();
-    parent::duplicate();
+    parent::duplicate($parent);
   }
 
   public function formGet($simple = true)

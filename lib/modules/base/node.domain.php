@@ -52,14 +52,14 @@ class DomainNode extends Node implements iContentType
     parent::save();
   }
 
-  public function duplicate()
+  public function duplicate($parent = null)
   {
     if (null === $this->parent_id)
       $this->name = rand() .'.'. preg_replace('/^[0-9]+\./', '', $this->name);
     else
       $this->name = preg_replace('/_[0-9]+$/', '', $this->name) .'_'. rand();
 
-    parent::duplicate();
+    parent::duplicate($parent);
   }
 
   // Конвертирует алиасы в массив.

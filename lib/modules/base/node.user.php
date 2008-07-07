@@ -40,12 +40,12 @@ class UserNode extends Node implements iContentType
     }
   }
 
-  public function duplicate()
+  public function duplicate($parent = null)
   {
     $this->login = preg_replace('/_[0-9]+$/', '', $this->login) .'_'. rand();
     $this->email = null;
 
-    parent::duplicate();
+    parent::duplicate($parent);
   }
 
   // РАБОТА С ФОРМАМИ.

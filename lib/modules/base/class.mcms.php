@@ -1086,7 +1086,7 @@ class mcms
     return $result;
   }
 
-  public function get_extras()
+  public static function get_extras()
   {
     $t = self::$extras;
     self::$extras = array();
@@ -1154,7 +1154,8 @@ class mcms
 
   public static function deprecated($break = false)
   {
-    $frame = array_pop(array_slice(debug_backtrace(), 1, 1));
+    $frame = array_slice(debug_backtrace(), 1, 1);
+    $frame = array_pop($frame);
 
     $func = $frame['function'] .'()';
     $line = ltrim(str_replace(MCMS_ROOT, '', $frame['file']), '/')

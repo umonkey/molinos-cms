@@ -10,7 +10,7 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
   }
 
   // Форматирует документ в соответствии с шаблоном.
-  public function render()
+  public function render($prefix = null, $theme = null, array $data = null)
   {
     return bebop_render_object("class", $this->class, "all", $this->data);
   }
