@@ -37,7 +37,7 @@ class AttachmentModule implements iRemoteCall
 
     $node = Node::load(array('class' => 'file', 'id' => $args[0]))->getRaw();
     if (empty($node))
-      self::sendError(404, 'attachment not found.');
+      self::sendError(404, 'file not found.');
 
     self::$node = $node;
 
@@ -132,7 +132,8 @@ class AttachmentModule implements iRemoteCall
     self::sendCache();
 
     if (!is_file(self::$source))
-      self::sendError(404, 'could not find this attachment.');
+      self::sendError(404, "file archive damaged: this file does not exist "
+        ."(but it should).\nPath: ". self::$source);
 
     if (!is_readable(self::$source))
       self::sendError(403, 'the file is not readable.');
@@ -187,22 +188,20 @@ class AttachmentModule implements iRemoteCall
   {
     $headers = array();
 
-    if (false === strstr(self::$node['filetype'], 'shockwave'))
+    if (false !== strstr(self::$node['filetype'], 'shockwave'))
       $download = false;
-    elseif (false and substr(self::$node['filetype'], 0, 6) == 'image/')
+    elseif (substr(self::$node['filetype'], 0, 6) == 'image/')
       $download = false;
     else
       $download = true;
 
-    if ($download and (null === self::$realname or self::$realname != self::$node['filename']))
-      mcms::redirect("/attachment/".self::$node['id']."/". urlencode(self::$node['filename']));
-
-    // Ещё раз загрузим файл для проверки прав.
-    /*
-    $node = Node::load(array('class' => 'file', 'id' => self::$node['id']));
-    if (!$node->checkPermission('r'))
-      self::sendError(403, 'access denied');
-    */
+    if ($download) {
+      if (self::$realname != self::$node['filename']) {
+        $path = 'attachment/'. self::$node['id'] .'/'.
+          urlencode(self::$node['filename']);
+        mcms::redirect($path);
+      }
+    }
 
     // Описание фрагмента при докачке.
     $range_from = 0;
@@ -283,5 +282,4 @@ class AttachmentModule implements iRemoteCall
       fclose($f);
     }
   }
-
 };
