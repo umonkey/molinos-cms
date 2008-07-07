@@ -40,6 +40,12 @@ class CommentFormWidget extends Widget
       )));
 
     $form->addControl(new SetControl(array(
+      'value' => 'config_allowed_types',
+      'label' => t('Комментируемые документы'),
+      'options' => self::getTypes(),
+      )));
+
+    $form->addControl(new SetControl(array(
       'value' => 'config_hide_anon',
       'label' => t('Скрыть от анонимных'),
       'options' => $fields,
@@ -54,6 +60,19 @@ class CommentFormWidget extends Widget
     return $form;
   }
 
+  private static function getTypes()
+  {
+    $list = array();
+
+    foreach (TypeNode::getSchema() as $k => $v)
+      if ('comment' != $k)
+        $list[$k] = $v['title'];
+
+    asort($list);
+
+    return $list;
+  }
+
   public function getRequestOptions(RequestContext $ctx)
   {
     $options = parent::getRequestOptions($ctx);
@@ -63,6 +82,10 @@ class CommentFormWidget extends Widget
 
     if (null === ($options['doc'] = $ctx->document_id))
       throw new WidgetHaltedException();
+
+    if (empty($this->allowed_types) or !in_array($ctx->document->class,
+      $this->allowed_types))
+        throw new WidgetHaltedException();
 
     return $this->options = $options;
   }
