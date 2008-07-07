@@ -406,7 +406,10 @@ class NodeQueryBuilder
     if (!empty($this->query['#permcheck']) and !mcms::config('bypass_permcheck')) {
       $filter = mcms::user()->getAccess('r');
 
-      $tmp = (array)$this->query['class'];
+      if (array_key_exists('class', $this->query))
+        $tmp = (array)$this->query['class'];
+      else
+        $tmp = array();
 
       if (!empty($this->query['class']))
         $this->query['class'] = array_intersect($tmp, $filter);

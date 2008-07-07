@@ -182,9 +182,6 @@ class CommentFormWidget extends Widget
       $user = mcms::user();
       $schema = TypeNode::getSchema('comment');
 
-      // Добавляем IP адрес в исходные данные, если он описан в типе -- будет обработан.
-      $data['comment_ip'] = $_SERVER['REMOTE_ADDR'];
-
       $comment = array();
 
       foreach ($schema['fields'] as $k => $v) {
@@ -202,8 +199,8 @@ class CommentFormWidget extends Widget
 
       $comment['published'] = !$this->moderated;
 
-      if ($user->getUid())
-        $comment['uid'] = $user->getUid();
+      if ($user->id)
+        $comment['uid'] = $user->id;
 
       try {
         $doc = Node::load($this->options['doc']);
