@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class PollWidget extends Widget implements iNodeHook, iModuleConfig
+class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
 {
   public function __construct(Node $node)
   {
