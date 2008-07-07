@@ -118,7 +118,8 @@ class SubscriptionAdminWidget extends Widget implements iAdminWidget, iScheduler
     $pdo = PDO_Singleton::getInstance();
 
     // Отправка почты занимает много времени.
-    set_time_limit(0);
+    if (!ini_get('safe_mode'))
+      set_time_limit(0);
 
     $types = array();
 

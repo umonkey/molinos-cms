@@ -833,14 +833,14 @@ class Tagger
     public function nodeMoveUp($id)
     {
       require_once(dirname(__FILE__) .'/class.nodemover.php');
-      $mover = new NodeMover(mcms::db());
+      $mover = new NodeMover(PDO_Singleton::getInstance());
       $mover->moveUp($id);
     }
 
     public function nodeMoveDown($id)
     {
       require_once(dirname(__FILE__) .'/class.nodemover.php');
-      $mover = new NodeMover(mcms::db());
+      $mover = new NodeMover(PDO_Singleton::getInstance());
       $mover->moveDown($id);
     }
 
