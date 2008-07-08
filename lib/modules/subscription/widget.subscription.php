@@ -6,10 +6,6 @@ class SubscriptionWidget extends Widget
   public function __construct(Node $node)
   {
     parent::__construct($node);
-
-    $this->groups = array(
-      'Visitors',
-      );
   }
 
   public static function getWidgetInfo()
@@ -20,17 +16,31 @@ class SubscriptionWidget extends Widget
       );
   }
 
+  public static function formGetConfig()
+  {
+    $form = parent::formGetConfig();
+
+    $form->addControl(new SetControl(array(
+      'value' => 'config_sections',
+      'label' => t('Поместить документ в разделы'),
+      'options' => TagNode::getTags('select'),
+      )));
+
+    return $form;
+  }
+
   // Препроцессор параметров.
   public function getRequestOptions(RequestContext $ctx)
   {
     $options = parent::getRequestOptions($ctx);
-    
-    // $options['#nocache'] = true;
 
     if ('confirm' == ($options['status'] = $ctx->get('status', 'default')))
       $options['code'] = $ctx->get('code');
 
-    return $options;
+    $options['sections'] = empty($this->sections)
+      ? array() : $this->sections;
+
+    return $this->options = $options;
   }
 
   public function onGet(array $options)
@@ -90,14 +100,8 @@ class SubscriptionWidget extends Widget
   {
     switch ($id) {
     case 'subscription-form':
-      $tags = array();
-
-      foreach (Node::find(array('class' => 'tag', 'bebop_subscribe' => 1, '#files' => false)) as $t)
-        $tags[$t->id] = $t->name;
-
-      $list = TagNode::getTags('select', array('enabled' => array_keys($tags)));
-
-      // mcms::debug($tags, $list);
+      $list = TagNode::getTags('select',
+        array('enabled' => $this->options['sections']));
 
       $form = new Form(array(
         'title' => t($this->me->title),

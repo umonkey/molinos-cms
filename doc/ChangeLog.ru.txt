@@ -1,2 +1,3 @@
  * Issue 400: не все объекты отображаются в корзине.
  * Issue 401: MenuWidget убирает <a> вместо @href.
+ * Issue 402: не работает SubscriptionWidget.

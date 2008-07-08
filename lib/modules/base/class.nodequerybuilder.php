@@ -562,6 +562,8 @@ class NodeQueryBuilder
     if (null !== $mask)
       return ($negate ? '-' : '') . $mask;
 
+    mcms::debug('No index: '. $field .', query follows.', $this->query);
+
     throw new NoIndexException($field);
   }
 
