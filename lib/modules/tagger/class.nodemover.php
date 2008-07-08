@@ -55,9 +55,6 @@ class NodeMover
     $al = min($n1['left'], $n2['left']);
     $ar = max($n1['right'], $n2['right']);
 
-    if (!bebop_is_debugger())
-      die('Попробуйте позже.');
-
     // Переместим всё в конец.
     $delta = $end - $al;
     $this->db->exec("UPDATE `node` SET `left` = `left` + ?, "
