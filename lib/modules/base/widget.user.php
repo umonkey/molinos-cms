@@ -221,8 +221,14 @@ class UserWidget extends Widget
 
   private function getLoginForm(array $options)
   {
+    $url = new url();
+    $url->setarg($this->me->name .'.action', 'register');
+
     $output = parent::formRender('user-login-form');
-    $output .= "<p class='profileRegisterLink'>". l("Зарегистрироваться", array($this->me->name => array('action' => 'register'))) ."</p>";
+    $output .= t("<p class='profileRegisterLink'><a href='@url'>"
+      ."Зарегистрироваться</a></p>", array(
+        '@url' => strval($url),
+        ));
 
     return $output;
   }
