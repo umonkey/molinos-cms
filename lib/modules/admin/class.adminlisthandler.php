@@ -286,7 +286,9 @@ class AdminListHandler
     if (null !== $this->published)
       $filter['published'] = $this->published;
 
-    if (null !== $this->types)
+    if ($this->deleted)
+      ;
+    elseif (null !== $this->types)
       $filter['class'] = $this->types;
     else {
       $filter['class'] = array();
