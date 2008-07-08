@@ -192,10 +192,14 @@ class MenuWidget extends Widget
 
         $a['href'] = str_replace('$tid', $child->code, $link);
 
-        if (empty($this->hidecurrent) or !in_array('current', $li['class']) or !empty($this->options['document']))
-          $submenu .= mcms::html('li', $li, mcms::html('a', $a, mcms_plain($child->name)));
-        else
-          $submenu .= mcms::html('li', $li, mcms_plain($child->name));
+        if ($this->hidecurrent and in_array('current', $li['class'])) {
+          if (empty($this->options['document'])) {
+            $a['href'] = null;
+            $a['class'][] = 'nolink';
+          }
+        }
+
+        $submenu .= mcms::html('li', $li, mcms::html('a', $a, mcms_plain($child->name)));
 
         // Отрезаем финальный </li>.
         $submenu = substr($submenu, 0, -5);
