@@ -159,14 +159,14 @@ class NodeApiModule implements iRemoteCall
 
     case 'raise':
       if (null === $ctx->get('section')) {
-        $tmp = new NodeExtras();
+        $tmp = new NodeMover(mcms::db());
         $tmp->moveUp($nid);
       }
       break;
 
     case 'sink':
       if (null === $ctx->get('section')) {
-        $tmp = new NodeExtras();
+        $tmp = new NodeMover(mcms::db());
         $tmp->moveDown($nid);
       }
       break;
