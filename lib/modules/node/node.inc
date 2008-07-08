@@ -543,7 +543,9 @@ class NodeBase implements iFormObject
   {
     $sql = "SELECT `parent`.`id`, `parent`.`parent_id`, `parent`.`code`, `parent`.`class`, `rev`.`name`, `rev`.`data` "
       ."FROM `node` AS `self`, `node` AS `parent`, `node__rev` AS `rev` "
-      ."WHERE `self`.`left` BETWEEN `parent`.`left` AND `parent`.`right` AND `self`.`id` = {$this->id} AND `rev`.`rid` = `parent`.`rid` "
+      ."WHERE `self`.`left` BETWEEN `parent`.`left` AND `parent`.`right` "
+      ."AND `self`.`id` = {$this->id} AND `rev`.`rid` = `parent`.`rid` "
+      ."AND `self`.`deleted` = 0 AND `parent`.`deleted` = 0 "
       ."ORDER BY `parent`.`left` -- NodeBase::getParents({$this->id})";
 
     $data = Tagger::getInstance()->getChildrenData($sql);
