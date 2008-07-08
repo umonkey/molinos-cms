@@ -200,18 +200,30 @@ class ListWidget extends Widget
 
     $result = array(
       'path' => array(),
-      'sections' => array(),
+      'section' => array(),
       'documents' => array(),
       'schema' => array(),
       );
 
     // Возращаем путь к текущему корню.
     // FIXME: это неверно, т.к. виджет может возвращать произвольный раздел!
-    if (null !== $this->ctx->section_id)
-      $result['path'] = array_values($this->ctx->section->getParents());
+    if (null !== $this->ctx->section_id) {
+      foreach ($this->ctx->section->getParents() as $node)
+        $result['path'][] = $node->getRaw();
+    }
+
+    if (empty($this->options['filter']['tags']))
+      $result['section'] = null;
+    else {
+      $node = Node::load(array(
+        'class' => 'tag',
+        'id' => $this->options['filter']['tags'][0],
+        ));
+      $result['section'] = $node->getRaw();
+    }
 
     // Возвращаем список разделов.
-    $result['sections'] = empty($filter['tags']) ? array() : $filter['tags'];
+    // $result['sections'] = empty($filter['tags']) ? array() : $filter['tags'];
 
     // Добавляем пэйджер.
     if (!empty($options['limit'])) {

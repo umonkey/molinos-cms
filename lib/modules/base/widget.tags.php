@@ -44,8 +44,11 @@ class TagsWidget extends Widget
       $root = Node::load($options['root']);
 
       $result['sections'] = $root->getChildren('nested');
-      $result['path'] = array_values($root->getParents());
+      $result['path'] = array();
       $result['dynamic'] = $options['dynamic'];
+
+      foreach ($root->getParents() as $node)
+        $result['path'][] = $node->getRaw();
     }
 
     return $result;
