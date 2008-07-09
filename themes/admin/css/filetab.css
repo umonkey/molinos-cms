@@ -1,14 +1,6 @@
-/* Сбросим всякую хрень */
+/* РЎР±СЂРѕСЃРёРј РІСЃСЏРєСѓСЋ С…СЂРµРЅСЊ */
 div.tab p {
   margin: 0;
-}
-
-body {
-  font-family: sans-serif;
-}
-
-* {
-  font-size: 8pt;
 }
 
 table.files {
@@ -45,7 +37,7 @@ td.properties input {
   text-align: left;
 }
 
-/* Декорируем вкладки */
+/* Р”РµРєРѕСЂРёСЂСѓРµРј РІРєР»Р°РґРєРё */
 .filetabs u {
   text-decoration: none;
 }
@@ -79,7 +71,7 @@ tr.file td { margin-bottom: 10px }
 
 div.tab {
   background-color: #eee;
-  height: 64px; /* +2 потому, что у превью есть рамка */
+  min-height: 64px; /* +2 РїРѕС‚РѕРјСѓ, С‡С‚Рѕ Сѓ РїСЂРµРІСЊСЋ РµСЃС‚СЊ СЂР°РјРєР° */
   padding: 4px 4px;
   vertical-align: top;
 }

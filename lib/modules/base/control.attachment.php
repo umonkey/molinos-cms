@@ -84,7 +84,8 @@ class AttachmentControl extends Control
              mcms::html('div',array('class' => 'tab tab2'),
                mcms::html('label',array('class' => 'filename pad'),
                  mcms::html('input', array('type' => 'file', 'name' => $this->value))
-                           ). 'Максимальный размер загружаемого файла - 2M. Можно также '.
+                           ). 'Максимальный размер загружаемого файла: '
+                            .ini_get('upload_max_filesize').'. Можно также '.
                               mcms::html('a',array('href'=>
                                 '?mode=list&preset=files&cgroup=content&mcmsarchive=1&q=admin&picker='),
                                 'выбрать из архива')

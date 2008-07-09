@@ -27,10 +27,6 @@ if ($.browser.msie && $.browser.version < 7 ){
  * Действия при готовности DOM
  */
 $(document).ready(function () {
-  var files = $('input[name="node_content_files[__bebop][]"]');
-  if (files.length != 0)
-    files.MultiFile();
-
 	// Превращение филдсетов в табы
 	if ($('form.tabbed').length != 0) {
     $('.tabbed').tabber({
