@@ -114,8 +114,14 @@ class CartWidget extends Widget
       $output .= "<tr class='total'><td class='total'><strong>". t('Сумма') ."</strong></td><td class='sum'>". number_format($total, 2) ."</td></tr>";
 
       $output .= "</table>";
-      $output .= "<p class='purge'>". l('Очистить', array($this->getInstanceName() => array('mode' => 'purge'))) ."</p>";
-      $output .= "<p class='details'>". l('Заказать', array($this->getInstanceName() => array('mode' => 'details'))) ."</p>";
+
+      $url = new url();
+      $url->setarg($this->GetInstanceName() .'.mode', 'purge');
+      $output .= "<p class='purge'>". l(strval($url), 'Очистить' ) ."</p>";
+
+      $url->setarg($this->GetInstanceName() .'.mode', 'details');
+
+      $output .= "<p class='details'>". l(strval($url), 'Заказать') ."</p>";
       $output .= "</div>";
     }
 
@@ -128,17 +134,23 @@ class CartWidget extends Widget
 
     parent::checkDocType($node);
 
-    $session =& mcms::user()->session;
+    $session = &mcms::user()->session;
+    $cart = $session->cart;
+    if (!is_array($cart))
+      $cart = array();
 
-    if (empty($session['cart'][$node->id]))
+    if (empty($cart[$node->id]))
       $count = 0;
     else
-      $count = $session['cart'][$node->id];
+      $count = $cart[$node->id];
 
-    $session['cart'][$node->id] = ++$count;
+    $cart[$node->id] = ++$count;
+    $session->cart = $cart;
 
+    $session->save();
     $url = bebop_split_url();
     $url['args'][$this->getInstanceName()]['add'] = null;
+
     mcms::redirect($url);
   }
 
@@ -146,8 +158,10 @@ class CartWidget extends Widget
   {
     $session =& mcms::user()->session;
 
-    if (array_key_exists('cart', $session))
-      unset($session['cart']);
+    if (!empty($session->cart)) {
+      unset($session->cart);
+      $session->save();
+    }
 
     $url = bebop_split_url();
     $url['args'][$this->getInstanceName()] = null;
@@ -156,9 +170,9 @@ class CartWidget extends Widget
 
   protected function onGetDetails(array $options)
   {
-    $session =& mcms::user()->session;
+    $session = &mcms::user()->session;
 
-    if (empty($session['cart']))
+    if (empty($session->cart))
       return null;
 
     $output = parent::formRender('cart-details');
@@ -226,29 +240,43 @@ class CartWidget extends Widget
     switch ($id) {
     case 'cart-details':
       if ($data['action'] == 'refresh') {
-        $session =& mcms::user()->session;
+        $session = &mcms::user()->session;
+
+        $cart = $session->cart;
+        if (!is_array($cart))
+          $cart = array();
 
         foreach ($data['cart'] as $k => $v) {
-          if (empty($v['qty']) and array_key_exists($k, $session['cart']))
-            unset($session['cart'][$k]);
+
+          if (empty($v['qty'])  and array_key_exists($k, $cart))
+            unset($cart[$k]);
           else
-            $session['cart'][$k] = $v['qty'];
+            $cart[$k] = $v['qty'];
         }
 
         if (!empty($data['cart_checked']))
-          foreach ($session['cart'] as $k => $v)
+          foreach ($cart as $k => $v)
             if (in_array($k, $data['cart_checked']))
-              unset($session['cart'][$k]);
+              unset($cart[$k]);
+
+        $session->cart = $cart;
+
+        $session->save();
+        $url = new url();
+        $url->setarg($this->GetInstanceName() .'.mode', 'details');
+        $next = strval($url);
+
       } else {
         $url = bebop_split_url();
         $url['args'][$this->getInstanceName()] = array('mode' => 'confirm');
         $next = bebop_combine_url($url, false);
       }
-
       break;
 
     case 'cart-confirm':
-      if (empty($session['cart']))
+      $session = &mcms::user()->session;
+
+      if (empty($session->cart))
         throw new PageNotFoundException();
 
       $report = $this->getCartReport();
@@ -269,8 +297,6 @@ class CartWidget extends Widget
 
         bebop_mail(null, $this->email, t('Заказ на сайте %host', array('%host' => $_SERVER['HTTP_HOST'])), $body);
       }
-
-      unset($session['cart']);
 
       $url = bebop_split_url();
       $url['args'][$this->getInstanceName()] = array('mode' => 'ok');
@@ -390,12 +416,16 @@ class CartWidget extends Widget
   {
     $result = array();
 
-    if (!empty($session['cart']) and count($nodes = Node::find(array('id' => array_keys($session['cart']))))) {
-      foreach ($nodes as $node) {
+    $s = mcms::user()->session;
+
+    if (!empty($s->cart)) {
+      $ids = array_keys($s->cart);
+
+      foreach (Node::find(array('id' => $ids)) as $node) {
         $result[] = array(
           'id' => $node->id,
           'name' => $node->name,
-          'qty' => $qty = $session['cart'][$node->id],
+          'qty' => $qty = $s->cart[$node->id],
           'price' => $node->price,
           'sum' => $node->price * $qty,
           );

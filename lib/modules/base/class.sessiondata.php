@@ -46,6 +46,12 @@ class SessionData
       unset($this->data[$key]);
   }
 
+  public function save()
+  {
+    if (array_key_exists('mcmsid', $_COOKIE))
+      self::db($_COOKIE['mcmsid'], $this->data);
+  }
+
   public static function db($sid, array $data = null)
   {
     if (mcms::db()->getDbType() == 'SQLite')
