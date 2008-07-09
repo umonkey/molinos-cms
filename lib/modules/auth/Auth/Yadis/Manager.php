@@ -24,7 +24,6 @@ class Auth_Yadis_PHPSession {
     function set($name, $value)
     {
       mcms::session($name, $value);
-      mcms::session()->save();
     }
 
     /**

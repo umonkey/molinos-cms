@@ -52,13 +52,19 @@ class Session
         mcms::db()->exec("INSERT INTO node__sessions (`sid`, `data`) "
           ."VALUES (?, ?)", array($this->id, serialize($this->data)));
 
-      $path = mcms::path() .'/';
-      $time = time() + 60*60*24*30;
-      $name = self::cookie;
+      static $sent = false;
 
-      setcookie($name, empty($this->data) ? null : $this->id, $time, $path);
+      if (!$sent) {
+        $sent = true;
 
-      mcms::log('session', "cookie set: {$name}, {$this->id}, {$time}, {$path}");
+        $path = mcms::path() .'/';
+        $time = time() + 60*60*24*30;
+        $name = self::cookie;
+
+        setcookie($name, empty($this->data) ? null : $this->id, $time, $path);
+
+        mcms::log('session', "cookie set: {$name}, {$this->id}, {$time}, {$path}");
+      }
     }
   }
 
@@ -81,16 +87,12 @@ class Session
       $this->data[$key] = $value;
     elseif (array_key_exists($key, $this->data))
       unset($this->data[$key]);
+
+    $this->save();
   }
 
   public function raw()
   {
     return $this->data;
-  }
-
-  protected static function on_mcms_destroy()
-  {
-    if (null !== self::$session)
-      self::$session->save();
   }
 }

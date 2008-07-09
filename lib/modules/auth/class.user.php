@@ -171,10 +171,8 @@ class User
     $args = func_get_args();
 
     if (empty($args)) {
-      if (null !== mcms::session('uid')) {
+      if (null !== mcms::session('uid'))
         mcms::session('uid', null);
-        mcms::session()->save();
-      }
     }
 
     elseif (count($args) >= 2) {
@@ -188,7 +186,6 @@ class User
           throw new ForbiddenException(t('Ваш профиль заблокирован.'));
 
         mcms::session('uid', $node->id);
-        mcms::session()->save();
 
         self::$instance = new User($node);
       }

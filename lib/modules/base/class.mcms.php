@@ -417,8 +417,6 @@ class mcms
   public static function debug()
   {
     if (bebop_is_debugger()) {
-      mcms::session()->save();
-
       if (ob_get_length())
         ob_end_clean();
 
@@ -710,7 +708,7 @@ class mcms
                   $result['interfaces'][$i][] = $classname;
               }
             } else {
-              mcms::log('modscanner', "No suitable class in ". $classpath);
+              // mcms::log('modscanner', "No suitable class in ". $classpath);
             }
           }
         }

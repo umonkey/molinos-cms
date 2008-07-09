@@ -58,7 +58,8 @@ class OpenIdProvider
       return $node;
     } else {
       // Login canceled
-      mcms::redirect("/index.php?action=logout");
+      mcms::log('openid', 'login cancelled ?!');
+      mcms::redirect("base.rpc?action=logout");
     }
   }
 
@@ -71,7 +72,7 @@ class OpenIdProvider
     // No auth request means we can't begin OpenID.
 
     if (!($auth_request = $consumer->begin($openid)))
-      mcms::redirect("/index.php?action=logout");
+      mcms::redirect("base.rpc?action=logout");
 
     $sreg_request = Auth_OpenID_SRegRequest::build(
       array('nickname'), // Required
@@ -98,10 +99,10 @@ class OpenIdProvider
       $redirect_url = $auth_request->redirectURL(self::getTrustRoot(), self::getReturnTo($openid));
       if (Auth_OpenID::isFailure($redirect_url)) {
         // If the redirect URL can't be built, display an error message.
-        displayError("Could not redirect to server: " . $redirect_url->message);
+        mcms::log('openid', "Could not redirect to server: " . $redirect_url->message);
       } else {
         // Send redirect.
-        header("Location: ".$redirect_url);
+        mcms::redirect($redirect_url);
       }
     } else {
       // Generate form markup and render it.
@@ -111,7 +112,7 @@ class OpenIdProvider
       // Display an error if the form markup couldn't be generated;
       // otherwise, render the HTML.
       if (Auth_OpenID::isFailure($form_html)) {
-        mcms::debug("Could not redirect to server: " . $form_html->message);
+        mcms::log('openid', "Could not redirect to server: " . $form_html->message);
       } else {
         $page_contents = array(
           "<html><head><title>",
@@ -150,7 +151,7 @@ class OpenIdProvider
 
   private static function getReturnTo($id = null)
   {
-    $url = sprintf('http://%s%s/?q=base.rpc&action=login&id=%s',
+    $url = sprintf('http://%s%s/?q=base.rpc&action=openid&id=%s',
       $_SERVER['HTTP_HOST'], mcms::path(), urlencode($id));
 
     return $url;

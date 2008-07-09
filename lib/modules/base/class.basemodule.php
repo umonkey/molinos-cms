@@ -11,7 +11,10 @@ class BaseModule implements iRemoteCall
 
     switch ($ctx->get('action')) {
     case 'login':
-      mcms::log('base.rpc', $_SERVER['REQUEST_URI']);
+      if ('POST' != $_SERVER['REQUEST_METHOD'])
+        throw new ForbiddenException('Идентификация возможна только '
+          .'методом POST.');
+
       if (null !== ($otp = $ctx->get('otp'))) {
         try {
           $node = Node::load(array(
@@ -56,10 +59,8 @@ class BaseModule implements iRemoteCall
       if (is_array($stack = mcms::session('uidstack'))) {
         $uid = array_pop($stack);
         mcms::session('uidstack', $stack);
-        mcms::session()->save();
       } elseif (mcms::session('uid')) {
         mcms::session('uid', null);
-        mcms::session()->save();
       }
 
       if (empty($uid))
@@ -89,7 +90,6 @@ class BaseModule implements iRemoteCall
 
         $stack[] = $curuid;
         mcms::session('uidstack', $stack);
-        mcms::session()->save();
 
         self::login($sid, $uid);
       }
@@ -150,6 +150,13 @@ class BaseModule implements iRemoteCall
       }
 
       $next = strval($back);
+
+    case 'openid':
+      mcms::debug($_GET);
+      if (!empty($_GET['openid_mode'])) {
+        $node = OpenIdProvider::openIDAuthorize($_GET['openid_mode']);
+      }
+      mcms::debug($node, $_GET);
     }
 
     bebop_on_json(array(
@@ -167,7 +174,6 @@ class BaseModule implements iRemoteCall
       throw new ForbiddenException(t('Ваш профиль заблокирован.'));
 
     mcms::session('uid', $node->id);
-    mcms::session()->save();
 
     mcms::redirect("admin");
   }
