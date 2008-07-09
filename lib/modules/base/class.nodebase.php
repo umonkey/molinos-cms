@@ -1019,7 +1019,6 @@ class NodeBase
 
   // РАБОТА С ФОРМАМИ.
   // Документация: http://code.google.com/p/molinos-cms/wiki/Forms
-
   public function formGet($simple = false)
   {
     if (null !== $this->id and !$this->checkPermission('u')) {
@@ -1050,15 +1049,6 @@ class NodeBase
           continue;
 
         if ($v['type'] != 'ArrayControl') {
-          if ($v['type'] == 'AttachmentControl') {
-            $v['value'] = 'node_content_files['. $k .']';
-            $v['medium'] = true;
-            $v['unzip'] = false; // не разрешаем распаковывать зипы, загружаемые в поля.
-            $v['archive'] = true;
-          } else {
-            $v['value'] = 'node_content_'. $k;
-          }
-
           if ($k == 'title')
             $v['class'] = 'form-title';
           elseif ($k == 'name' and !array_key_exists('title', $schema['fields']))
@@ -1066,10 +1056,20 @@ class NodeBase
 
           $v['wrapper_id'] = "{$k}-ctl-wrapper";
 
-          $tmp = Control::make($v);
+          if ($v['type'] == 'AttachmentControl') {
+            $t = array(
+             'value'   => 'node_content_files['. $k .']',
+             'medium'  => true,
+             'unzip'   => false, // не разрешаем распаковывать зипы, загружаемые в поля.
+             'archive' => true
+            );
+            $filefields[] = array_merge($t, $v);
+            continue;
+          } else {
+            $v['value'] = 'node_content_'. $k;
+          }
 
-          if ('AttachmentControl' == $v['type'])
-            $tmp->addClass('archive');
+          $tmp = Control::make($v);
 
           $tabs['content']->addControl($tmp);
         }
@@ -1087,7 +1087,7 @@ class NodeBase
       if (empty($schema['notags']) and null !== ($tab = $this->formGetSections($schema)))
         $tabs['sections'] = $tab;
 
-      if (null !== ($tab = $this->formGetFilesTab()))
+      if (null !== ($tab = $this->formGetFilesTab($filefields)))
         $tabs['files'] = $tab;
 
       if (null !== ($tab = $this->formGetRevTab()))
@@ -1181,12 +1181,15 @@ class NodeBase
     return null;
   }
 
-  private function formGetFilesTab()
+  private function formGetFilesTab($filefields)
   {
     $schema = TypeNode::getSchema($this->class);
 
-    if (empty($schema['hasfiles']))
+    if (empty($schema['hasfiles']) and empty($filefields))
       return null;
+
+    mcms::extras('themes/admin/css/filetab.css');
+    mcms::extras('themes/admin/js/filetab.js');
 
     $tab = new FieldSetControl(array(
       'name' => 'files',
@@ -1194,19 +1197,29 @@ class NodeBase
       'value' => 'tab_files',
       ));
 
-    $tab->addControl(new FileListControl(array(
-      'value' => 'node_content_files',
-      )));
+    foreach ($filefields as $fname=>$f) {
+      $tmp = Control::make($f);
 
-    $tab->addControl(new AttachmentControl(array(
-      'extended' => true,
-      'value' => 'node_content_files[__bebop][]',
-      'uploadtxt' => t('Загрузить'),
-      'unzip' => true,
-      )));
+      $tmp->addClass('archive');
+      $tab->addControl($tmp);
+    }
+
+    if ($schema['hasfiles']) {
+      $tab->addControl(new FileListControl(array(
+       'value' => 'node_content_files',
+        )));
+
+      $tab->addControl(new AttachmentControl(array(
+        'extended' => true,
+        'value' => 'node_content_files[__bebop][]',
+        'uploadtxt' => t('Загрузить'),
+        'unzip' => true,
+        )));
+    }
 
     return $tab;
   }
+
 
   private function formGetRevTab()
   {
@@ -1409,28 +1422,38 @@ class NodeBase
       $this->data['published'] = !empty($data['node_content_published']);
   }
 
-  private function attachOneFile($field, array $fileinfo)
+  private function attachOneFile($field,  array $fileinfo)
   {
     // Обработка вложенных массивов, обычно случается
     // при загрузке нескольких файлов через MultiFile.js.
+
     if (empty($fileinfo['name']) and !empty($fileinfo[0])) {
       foreach ($fileinfo as $v)
         $this->attachOneFile($field, $v);
     }
-
     // Обработка отдельного файла.
     else {
+      if (is_array($fileinfo['replace']) && !empty($fileinfo['replace']['name'])) {
+        $fileinfo = $fileinfo['replace'];
+      }
+
       $fkey = (!is_numeric($field) and '__bebop' != $field)
         ? $field : null;
 
       // Удаление (отвязка) прикреплённого файла.
-      if (!empty($fileinfo['delete'])) {
+      if (!empty($fileinfo['deleted'])) {
         $this->linkRemoveChild(empty($fileinfo['id'])
           ? null : $fileinfo['id'], $field);
       }
 
       // Загрузка нового файла.
-      elseif (!empty($fileinfo['tmp_name'])) {
+      if (!empty($fileinfo['tmp_name'])) {
+
+        if (is_numeric($field)) { //замена существующего - сначала удалим старый файл
+          $file = Node::load(array('class' => 'file', 'id' => $field));
+          $file->linkRemoveParent($this->id);
+        }
+
         $fileinfo['parent_id'] = $this->id;
 
         $node = Node::create('file');
@@ -1438,21 +1461,19 @@ class NodeBase
 
         $this->linkAddChild($node->id, $fkey);
       }
-
       // Подключение файла.
       elseif (!empty($fileinfo['id'])) {
         $this->linkAddChild($fileinfo['id'], $fkey);
       }
-
       // Обновление других свойств — поддерживается только для файлов
       // в дополнительной вкладке, у которых числовые индексы; для полей
       // типа «файл» эта возможность отсутствует.
       elseif (is_numeric($field)) {
         $file = Node::load(array('class' => 'file', 'id' => $field));
 
-        if (!empty($fileinfo['unlink']))
+        if (!empty($fileinfo['unlink'])) {
           $file->linkRemoveParent($this->id);
-
+        }
         else {
           if (!empty($fileinfo['name']))
             $file->data['name'] = $fileinfo['name'];
@@ -1465,11 +1486,9 @@ class NodeBase
           $file->save();
         }
       }
-    }
+   }
   }
 
-  // Проверка, может ли пользователь публиковать документ.
-  // FIXME: завязать на права.
   public function canPublish()
   {
     if (!mcms::user()->hasAccess('p',$this->class))

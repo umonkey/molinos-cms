@@ -1,0 +1,95 @@
+/* —бросим вс€кую хрень */
+div.tab p {
+  margin: 0;
+}
+
+body {
+  font-family: sans-serif;
+}
+
+* {
+  font-size: 8pt;
+}
+
+table.files {
+  width: 464px;
+}
+
+td.preview {
+  padding: 0;
+  margin: 0;
+}
+td.preview img {
+  border: solid #ddd 1px;
+  padding: 2px;
+  margin: 2px 0 0 0;
+}
+
+td.properties {
+  width: 400px;
+  padding: 2px 0 0 10px;
+}
+td.properties label {
+  display: block;
+  margin-bottom: 2px;
+  clear: left;
+}
+td.properties label.pad span {
+  display: block;
+  width: 100px;
+  float: left;
+  text-align: right;
+  padding-right: 4px;
+}
+td.properties input {
+  text-align: left;
+}
+
+/* ƒекорируем вкладки */
+.filetabs u {
+  text-decoration: none;
+}
+.filetabs u span {
+  padding: 2px 4px;
+}
+.filetabs u .passive {
+  color: blue;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.filetabs u .active {
+  background-color: #eee;
+}
+
+td, th { vertical-align: top; padding: 2px 0 }
+th { background-color: #ddd }
+tr.file td { margin-bottom: 10px }
+.filetabs { clear: both; padding: 2px 0 0 0 }
+
+.tab.tab2,
+.tab.tab3,
+.tab.tab4,
+.tab.tab5 {
+  display: none;
+}
+
+.files p {
+  font-style: italic;
+}
+
+div.tab {
+  background-color: #eee;
+  height: 64px; /* +2 потому, что у превью есть рамка */
+  padding: 4px 4px;
+  vertical-align: top;
+}
+div.tab u {
+  color: blue;
+  cursor: pointer;
+}
+
+.fileurl input {
+  padding: 2px 2px 2px 18px;
+  background: white url(icon-www-16.png) no-repeat top left;
+  border: solid gray 1px;
+}

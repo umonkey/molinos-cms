@@ -11,10 +11,6 @@ class BaseModule implements iRemoteCall
 
     switch ($ctx->get('action')) {
     case 'login':
-      if ('POST' != $_SERVER['REQUEST_METHOD'])
-        throw new ForbiddenException('Идентификация возможна только '
-          .'методом POST.');
-
       if (null !== ($otp = $ctx->get('otp'))) {
         try {
           $node = Node::load(array(
@@ -39,6 +35,10 @@ class BaseModule implements iRemoteCall
 
         throw new ForbiddenException(t('Эта ссылка устарела.'));
       }
+
+      if ('POST' != $_SERVER['REQUEST_METHOD'])
+        throw new ForbiddenException('Идентификация возможна только '
+          .'методом POST.');
 
       try {
         if (null === $ctx->post('login'))
@@ -150,9 +150,9 @@ class BaseModule implements iRemoteCall
       }
 
       $next = strval($back);
+      break;
 
     case 'openid':
-      mcms::debug($_GET);
       if (!empty($_GET['openid_mode'])) {
         $node = OpenIdProvider::openIDAuthorize($_GET['openid_mode']);
       }

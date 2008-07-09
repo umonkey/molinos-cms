@@ -178,11 +178,6 @@ class CartWidget extends Widget
       );
   }
 
-  protected function onGetHistory(array $options)
-  {
-    return '<!-- not implemented -->';
-  }
-
   public function formGet($id)
   {
     $form = null;

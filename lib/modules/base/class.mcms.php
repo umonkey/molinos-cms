@@ -400,8 +400,7 @@ class mcms
     if ($target == $_SERVER['REQUEST_URI'])
       $target .= ((false == strstr($target, '?')) ? '?' : '&') .'rnd='. mt_rand();
 
-    mcms::log('redirect', $_SERVER['REQUEST_URI'] .' => '. $target);
-    mcms::debug($_SERVER['REQUEST_URI'], $target);
+    mcms::log('redirect', $target);
 
     // При работе с JSON возвращаем адрес.
     bebop_on_json(array(
