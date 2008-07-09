@@ -80,7 +80,6 @@ function get_dba_link()
         mcms::extras('themes/all/jquery/plugins/jquery.mcms.tabber.min.js');
         mcms::extras('themes/all/jquery/plugins/jquery.dimensions.min.js');
         mcms::extras('themes/all/jquery/plugins/jquery.bgiframe.min.js');
-        mcms::extras('themes/all/jquery/plugins/jquery.MultiFile.min.js');
         mcms::extras('themes/admin/js/bebop.min.js');
       } elseif (!empty($_GET['mcmsarchive'])) {
         mcms::extras('themes/admin/js/picker-redux.min.js');
