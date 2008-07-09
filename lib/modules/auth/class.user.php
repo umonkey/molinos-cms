@@ -18,18 +18,15 @@ class User
     }
 
     // Пользователь не указан, загружаем из сессии.
-    elseif (null !== ($this->session = SessionData::load())) {
-      if (!empty($this->session->uid)) {
-        try {
-          $this->node = Node::load(array(
-            'class' => 'user',
-            'id' => $this->session->uid,
-            '#cache' => true,
-            ));
-        } catch (ObjectNotFoundException $e) {
-          // Пользователя удалили — ничего страшного.
-          $this->session = null;
-        }
+    elseif ($uid = mcms::session('uid')) {
+      try {
+        $this->node = Node::load(array(
+          'class' => 'user',
+          'id' => $uid,
+          '#cache' => true,
+          ));
+      } catch (ObjectNotFoundException $e) {
+        // Пользователя удалили — ничего страшного.
       }
     }
 
@@ -159,9 +156,6 @@ class User
       $sid = md5($openid. microtime() . $_SERVER['HTTP_HOST']);
       unset($_GET['openid_mode']); // чтобы повторно не сваливаться в этот IF
 
-      // Сохраняем сессию в БД.
-      SessionData::db($sid, array('uid' => $node->id));
-      self::setcookie($sid);
       self::$instance = new User($node);
     }
 
@@ -177,9 +171,9 @@ class User
     $args = func_get_args();
 
     if (empty($args)) {
-      if (array_key_exists('mcmsid', $_COOKIE)) {
-        SessionData::db($_COOKIE['mcmsid'], array());
-        self::setcookie('');
+      if (null !== mcms::session('uid')) {
+        mcms::session('uid', null);
+        mcms::session()->save();
       }
     }
 
@@ -193,12 +187,9 @@ class User
         if (!$node->published)
           throw new ForbiddenException(t('Ваш профиль заблокирован.'));
 
-        // Создаём уникальный идентификатор сессии.
-        $sid = md5($node->login . $node->password . microtime() . $_SERVER['HTTP_HOST']);
+        mcms::session('uid', $node->id);
+        mcms::session()->save();
 
-        // Сохраняем сессию в БД.
-        SessionData::db($sid, array('uid' => $node->id));
-        self::setcookie($sid);
         self::$instance = new User($node);
       }
 
@@ -214,19 +205,11 @@ class User
 
   public function __get($key)
   {
-    if ('session' === $key) {
-      if (null === $this->session)
-        throw new ForbiddenException();
-      return $this->session;
-    }
-
     return $this->node->$key;
   }
 
   public function __isset($key)
   {
-    if ('session' === $key)
-      return null !== $this->session;
     return isset($this->node->$key);
   }
 
@@ -261,19 +244,10 @@ class User
       throw new ForbiddenException();
   }
 
-  public static function setcookie($value)
-  {
-    /*
-    $path = mcms::path() .'/';
-    $time = time() + 60*60*24*30;
-    $name = 'mcmsid';
-
-    setcookie($name, $value, $time, $path);
-    */
-  }
-
   public static function checkAutoLogin()
   {
+    return false;
+
     try {
       $filter = array(
         'class' => 'user',

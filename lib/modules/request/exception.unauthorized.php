@@ -8,9 +8,6 @@ class UnauthorizedException extends UserErrorException
     if (empty($message))
       $message = 'Нет доступа';
 
-    if (User::checkAutoLogin())
-      mcms::redirect('admin?msg=setpass');
-
     parent::__construct($message, 401, 'В доступе отказано', 'У вас недостаточно прав для обращения к этой странице.&nbsp; Попробуйте представиться системе.');
   }
 }

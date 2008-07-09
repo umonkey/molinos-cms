@@ -35,3 +35,40 @@ case 'status':
     print $message;
   break;
 }
+<?php
+
+switch ($mode) {
+case 'simple':
+  if (empty($content)) {
+    print "<p>Корзина пуста.</p>";
+  } else {
+    $total = 0;
+
+    print "<div class='cart cart-simple'><h2>Ваша корзина</h2>"
+      ."<table class='chopping-cart'>";
+
+    foreach ($content as $node) {
+      $row = mcms::html('td', array('class' => 'name'),
+        mcms_plain($node['name']));
+      $row .= mcms::html('td', array('class' => 'qty'),
+        $node['qty'] .'×'. $node['price']);
+      $total += $node['sum'];
+      print mcms::html('tr', $row);
+    }
+
+    print "<tr class='total'><td class='total'><strong>Сумма</strong></td>"
+     ."<td class='sum'>". number_format($total, 2) ."</td></tr></table>";
+  }
+  break;
+
+case 'details':
+case 'confirm':
+  if (!empty($form))
+    print $form;
+  break;
+
+case 'status':
+  if (!empty($message))
+    print $message;
+  break;
+}

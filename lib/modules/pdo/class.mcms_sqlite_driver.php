@@ -104,7 +104,7 @@ class mcms_sqlite_driver extends PDO_Singleton
     return $sth;
   }
 
-  public function prepare($sql)
+  public function prepare($sql, array $options = null)
   {
     $newsql = $sql;
 

@@ -119,7 +119,7 @@ class CompressorModule implements iRemoteCall
         if ('.css' == substr($url->path, -4)) {
           $fullname = MCMS_ROOT .'/'. $url->path;
 
-          if (file_exists($fullname)) {
+          if (is_readable($fullname)) {
             $names[] = " * {$file}\n";
             $styles[] = self::compressCSS($file);
           } else {

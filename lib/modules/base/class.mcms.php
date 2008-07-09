@@ -400,7 +400,8 @@ class mcms
     if ($target == $_SERVER['REQUEST_URI'])
       $target .= ((false == strstr($target, '?')) ? '?' : '&') .'rnd='. mt_rand();
 
-    mcms::log('redirect', $target);
+    mcms::log('redirect', $_SERVER['REQUEST_URI'] .' => '. $target);
+    mcms::debug($_SERVER['REQUEST_URI'], $target);
 
     // При работе с JSON возвращаем адрес.
     bebop_on_json(array(
@@ -416,7 +417,7 @@ class mcms
   public static function debug()
   {
     if (bebop_is_debugger()) {
-      // mcms::db()->rollback();
+      mcms::session()->save();
 
       if (ob_get_length())
         ob_end_clean();
@@ -466,24 +467,6 @@ class mcms
       SysLogModule::log($op, $message, $nid);
     else
       error_log("[{$op}] {$message}", 0);
-  }
-
-  public static function message($text = null)
-  {
-    $rc = null;
-
-    $session =& mcms::user()->session;
-
-    if (null === $text) {
-      $rc = !empty($session['messages']) ? array_unique((array)$session['messages']) : null;
-      $session['messages'] = array();
-    } else {
-      $msg = $session->messages;
-      $msg[] = $text;
-      $session->messages = $msg;
-    }
-
-    return $rc;
   }
 
   public static function url($text, $url)
@@ -1182,6 +1165,20 @@ class mcms
     }
 
     return $path;
+  }
+
+  public static function session()
+  {
+    $args = func_get_args();
+
+    $s = Session::instance();
+
+    if (empty($args))
+      return $s;
+    elseif (count($args) == 1)
+      return $s->$args[0];
+    elseif (count($args) >= 2)
+      $s->$args[0] = $args[1];
   }
 };
 

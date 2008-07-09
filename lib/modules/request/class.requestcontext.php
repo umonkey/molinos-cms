@@ -231,7 +231,7 @@ class RequestContext
   private static function getPostData()
   {
     if ('POST' != $_SERVER['REQUEST_METHOD'])
-      throw new InvalidArgumentException(t('POST data is only available during POST requests.'));
+      return array();
 
     if (null === self::$postdata) {
       self::$postdata = $_POST;

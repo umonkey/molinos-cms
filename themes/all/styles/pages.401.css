@@ -1,0 +1,54 @@
+/**
+ * Оформление страницы авторизации
+*/
+	/**
+	 * Core
+	*/
+		body { background:#fff; }
+
+	/**
+	 * Формы
+	*/
+		/* обертка */
+		#form-user-login-form-wrapper { 
+			min-height:15.41em; width:19.416em; padding:.16em 0 0 5.25em; margin:-7.708em 0 0 -12.33em; 
+			position:absolute; left:50%; top:50%;
+			background:url(../img/mcms.logo_90ccw.jpg) no-repeat left center; }
+		
+		/* формы */	
+		form {  }
+			form fieldset {  }
+				form fieldset legend { padding-bottom:1.5em;  }
+					form fieldset legend span { font-size:2.000em; line-height:1; margin-bottom:.5em; margin-top:-.166em; }
+			
+			/* обертка контрола */
+			form fieldset .control { margin-bottom:.667em; width:100%; overflow:hidden; }
+				
+				form fieldset .control label { }
+					form fieldset .control label span { display:block; margin-bottom:.335em; }
+				
+				form fieldset .control span.tip { font-size:.916em; line-height:1.455; color:#888; display:block; }
+					
+				/* обертка контрола отправки формы */
+				form .submit-wrapper { margin-top:1em; width:100%; overflow:hidden; }
+					form .submit-wrapper input { float:left; }
+					form .submit-wrapper .switchforms { font-size:.916em; line-height:1.455; margin-left:.9em; float:left; display:block; white-space:nowrap; margin-top:.27em;  }
+					
+					form .submit-wrapper .message  { width:11.16em; float:left; margin:.4em 0 0 10px; padding-left:25px; background:url(../img/ico_negative.png) no-repeat; }
+						form .submit-wrapper .message.wait { background:url(../img/ani_loading.gif) no-repeat; }
+						form .submit-wrapper .message .text { float:left; width:130px; }
+				
+				/* текстовые инпуты */	
+				input.text { 
+					font-size:1.5em; font-family:Helvetica, Arial, Verdana, sans-serif; 
+					border:1px solid #888; background:#fff; 
+					padding:.106em .053em .106em .053em; margin:.053em 0 .106em 0; width:12.72em; }
+				
+				/* фокусировка на текстовых инпутах */	
+				input.text:focus { border:2px solid #30368E; margin:0 0 .053em 0; width:12.611em; }
+		
+		/* "вступительное слово" к форме */		
+		.intro { font-size:.916em; line-height:1.455; color:#888; }
+		
+		#profile-remind-form { display:none; }
+		#profile-remind-form-nojs { display:block; }

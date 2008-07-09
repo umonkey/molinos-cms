@@ -5,6 +5,9 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 {
   public static function onGet(RequestContext $ctx)
   {
+    if (!mcms::user()->id)
+      throw new UnauthorizedException();
+
     if (!count(mcms::user()->getAccess('u')))
       throw new ForbiddenException();
 

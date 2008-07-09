@@ -1,0 +1,50 @@
+/**
+ * RefPoint
+ * CSS Framework
+ * Typography, line-height 16
+*/
+	body { line-height:1.335; font-size:75%; color:#000; font-family:Helvetica, Arial, Verdana, sans-serif; }
+	
+	/*  Headers (24-22-20-18-16-14)
+	------------------------------------------------------------------------------------------------------------------- */
+	h1, h2, h3, h4, h5, h6 { font-family:Helvetica, Arial, Verdana, sans-serif; font-weight:normal; }
+	h1 { font-size:2.000em; 	line-height:.667; 	margin-bottom:.667em; 	font-weight:bold; } 
+	h2 { font-size:2.000em; 	line-height:1; 		margin-bottom:.5em; 	margin-top:-.166em;	font-weight:normal; } 
+	h3 { font-size:1.667em; 	line-height:.8;		margin-bottom:.8em;		font-weight:bold; }
+	h4 { font-size:1.500em; 	line-height:.888;	margin-bottom:.888em;		font-weight:bold; }
+	h5 { font-size:1.335em; 	line-height:1; 		margin-bottom:1em;		font-weight:bold; }
+	h6 { font-size:1.167em; 	line-height:1.146; 	margin-bottom:1.146em; 	font-weight:bold; }
+	/* ---------------------------------------------------------------------------------------------------------------- */			
+
+	/*  Other elements
+	------------------------------------------------------------------------------------------------------------------- */
+	p, ul, ol, dl { margin:0 0 1.335em 0; }
+	
+	ul { list-style:disc inside; }
+	ol { list-style:decimal inside; }
+		
+		ul li,
+		ol li { margin-bottom:.667em; }
+
+		dl dt { margin-left:1.335em; font-weight:bold; margin-bottom:.335em; }
+		dl dd { margin-left:1.335em; margin-bottom:1.335em; }
+	
+	abbr, 
+	acronym { border-bottom:1px dashed #666; }
+	address { font-style:italic; }
+	del { color:#666; }
+	
+	a { color:#454C9A; text-decoration:underline; }
+	a:focus, 
+	a:hover { color:#ff7a00; text-decoration:none; }
+	
+	blockquote { margin:1.335em; color:#666; font-style:italic; }
+	strong { font-weight:bold; }
+	em, dfn { font-style:italic; }
+	dfn { font-weight:bold; }
+	pre, code { margin:1.335em 0; white-space:pre; }
+	pre, code, tt { font:1em 'andale mono', 'monotype.com', 'lucida console', monospace; line-height:1.335; } 
+	tt { display:block; margin:1.335em 0; line-height:1.335; }
+	
+	table { margin-bottom:1.335em; border-collapse:collapse; border-spacing:0; }
+	/* ---------------------------------------------------------------------------------------------------------------- */

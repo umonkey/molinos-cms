@@ -23,7 +23,8 @@ class Auth_Yadis_PHPSession {
      */
     function set($name, $value)
     {
-        $_SESSION[$name] = $value;
+      mcms::session($name, $value);
+      mcms::session()->save();
     }
 
     /**
@@ -37,11 +38,9 @@ class Auth_Yadis_PHPSession {
      */
     function get($name, $default=null)
     {
-        if (isset($_SESSION) and is_array($_SESSION) and array_key_exists($name, $_SESSION)) {
-            return $_SESSION[$name];
-        } else {
-            return $default;
-        }
+      if (null === ($tmp = mcms::session($name)))
+        $tmp = $default;
+      return $tmp;
     }
 
     /**
@@ -51,7 +50,7 @@ class Auth_Yadis_PHPSession {
      */
     function del($name)
     {
-        unset($_SESSION[$name]);
+      mcms::session($name, null);
     }
 
     /**
@@ -59,7 +58,7 @@ class Auth_Yadis_PHPSession {
      */
     function contents()
     {
-        return $_SESSION;
+      mcms::session()->raw();
     }
 }
 

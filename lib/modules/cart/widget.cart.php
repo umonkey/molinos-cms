@@ -113,9 +113,7 @@ class CartWidget extends Widget
 
     parent::checkDocType($node);
 
-    $session = &mcms::user()->session;
-    $cart = $session->cart;
-    if (!is_array($cart))
+    if (!is_array($cart = mcms::session('cart')))
       $cart = array();
 
     if (empty($cart[$node->id]))
@@ -124,9 +122,9 @@ class CartWidget extends Widget
       $count = $cart[$node->id];
 
     $cart[$node->id] = ++$count;
-    $session->cart = $cart;
 
-    $session->save();
+    mcms::session('cart', $cart);
+
     $url = bebop_split_url();
     $url['args'][$this->getInstanceName()]['add'] = null;
 
@@ -135,12 +133,8 @@ class CartWidget extends Widget
 
   protected function onGetPurge(array $options)
   {
-    $session =& mcms::user()->session;
-
-    if (!empty($session->cart)) {
-      unset($session->cart);
-      $session->save();
-    }
+    if (is_array($cart = mcms::session('cart')))
+      mcms::session('cart', null);
 
     $url = bebop_split_url();
     $url['args'][$this->getInstanceName()] = null;
@@ -149,9 +143,9 @@ class CartWidget extends Widget
 
   protected function onGetDetails(array $options)
   {
-    $session = &mcms::user()->session;
+    $cart = mcms::session('cart');
 
-    if (empty($session->cart))
+    if (empty($cart))
       return null;
 
     return array(
@@ -182,6 +176,11 @@ class CartWidget extends Widget
       'mode' => 'status',
       'message' => '<!-- not implemented -->',
       );
+  }
+
+  protected function onGetHistory(array $options)
+  {
+    return '<!-- not implemented -->';
   }
 
   public function formGet($id)
@@ -234,10 +233,7 @@ class CartWidget extends Widget
     switch ($id) {
     case 'cart-details':
       if ($data['action'] == 'refresh') {
-        $session = &mcms::user()->session;
-
-        $cart = $session->cart;
-        if (!is_array($cart))
+        if (!is_array($cart = mcms::session('cart')))
           $cart = array();
 
         foreach ($data['cart'] as $k => $v) {
@@ -253,13 +249,11 @@ class CartWidget extends Widget
             if (in_array($k, $data['cart_checked']))
               unset($cart[$k]);
 
-        $session->cart = $cart;
+        mcms::session('cart', $cart);
 
-        $session->save();
         $url = new url();
         $url->setarg($this->GetInstanceName() .'.mode', 'details');
         $next = strval($url);
-
       } else {
         $url = bebop_split_url();
         $url['args'][$this->getInstanceName()] = array('mode' => 'confirm');
@@ -268,9 +262,9 @@ class CartWidget extends Widget
       break;
 
     case 'cart-confirm':
-      $session = &mcms::user()->session;
+      $cart = mcms::session('cart');
 
-      if (empty($session->cart))
+      if (empty($cart))
         throw new PageNotFoundException();
 
       $report = $this->getCartReport();
@@ -410,10 +404,10 @@ class CartWidget extends Widget
   {
     $result = array();
 
-    $s = mcms::user()->session;
+    $cart = mcms::session('cart');
 
-    if (!empty($s->cart)) {
-      $ids = array_keys($s->cart);
+    if (!empty($cart)) {
+      $ids = array_keys($cart);
 
       foreach (Node::find(array('id' => $ids)) as $node) {
         $result[] = array(

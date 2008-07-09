@@ -10,9 +10,6 @@ function bebop_is_debugger()
     if (empty($_SERVER['REQUEST_METHOD']))
       $skip = false;
 
-    elseif (!empty($_SESSION['user']['groups']) and in_array('Developers', $_SESSION['user']['groups']))
-      $skip = false;
-
     else {
       $tmp = mcms::config('debuggers');
 

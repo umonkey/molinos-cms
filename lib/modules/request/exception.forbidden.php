@@ -8,9 +8,6 @@ class ForbiddenException extends UserErrorException
     if (null === $description)
       $description = t("Ваших полномочий недостаточно для выполнения запрошенной операции.");
 
-    if ('anonymous' == mcms::user()->name)
-      throw new UnauthorizedException($description);
-
     parent::__construct(t("Нет доступа"), 403, $description);
   }
 };

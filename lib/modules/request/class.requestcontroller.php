@@ -96,7 +96,7 @@ class RequestController
       if (bebop_is_debugger())
         $message = get_class($e) .': '. $message;
 
-      mcms::log('exception', get_class($e) .': '. $message);
+      mcms::log('request', 'showing '. get_class($e));
 
       bebop_on_json(array('message' => $message));
 
@@ -815,9 +815,6 @@ class RequestController
     elseif (!mb_internal_encoding('UTF-8'))
       $messages[] = t('Не удалось установить UTF-8 в качестве '
         .'базовой кодировки для модуля mbstr.');
-
-    if (ini_get($k = 'session.gc_maxlifetime') < 7 * 24 * 60 * 60)
-      ini_set($k, 30 * 24 * 60 * 60);
 
     mcms::mkdir(mcms::config('filestorage'), 'Каталог для загружаемых '
       .'пользователями файлов (<tt>%path</tt>) закрыт для записи. '
