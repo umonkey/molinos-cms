@@ -15,7 +15,6 @@ class AttachmentControl extends Control
     parent::__construct($form, array('value'));
 
     $parts = array();
-    $parts[] = t("Максимальный размер файла: %size.", array('%size' => ini_get('upload_max_filesize')));
 
     if (!empty($this->extensions))
       $parts[] = t('Допустимые типы файлов: %list.', array('%list' => $this->extensions));
@@ -69,6 +68,7 @@ class AttachmentControl extends Control
 
     $td1 = mcms::html('td',array('class' => 'preview'),$preview);
 
+    $isnew = empty($data[$this->value]);
     $td2 = mcms::html('td',array('class' => 'properties'),
              mcms::html('div',array('class' => 'tab tab1'),
                mcms::html('label',array('class' => 'filename pad'),
@@ -96,20 +96,22 @@ class AttachmentControl extends Control
                  mcms::html('span',array('class' => 'active'), t('Свойства'))
                                 ).
                  mcms::html('u',array('class' => 'tab2'),
-                   mcms::html('span',array('class' => 'passive'), t('Заменить'))
+                   mcms::html('span',array('class' => 'passive'), $isnew ?
+                     t('Загрузить') : t('Заменить'))
                              ). $dellink
                          )
                      );
 
     $str .= mcms::html('tr',array('class'=>'file'), $td1.$td2 );
 
-    $lbl = $this->label==null ? t('Добавить файл') : $this->label;
+    if (!empty($this->label))
+      $th = mcms::html('tr', mcms::html('th', array('class' => 'fieldname',
+        'colspan' => 2), $this->label));
+    else
+      $th = '';
 
-    $th = mcms::html('tr',null,
-            mcms::html('th', array('class' => 'fieldname', 'colspan' => 2), $lbl));
-
-    $output =  mcms::html('table', array('class'=>'files','border' => "0", 'cellspacing'=>"0",
-                         'cellpadding'=> "0" ), $th.$str);
+    $output = mcms::html('table', array('class' => 'files', 'border' => 0,
+      'cellspacing' => 0, 'cellpadding' => 0), $th . $str);
 
     mcms::extras('lib/modules/base/control.attachment.js');
 
