@@ -77,6 +77,9 @@ class CartWidget extends Widget
     if (null !== ($options['add'] = $ctx->get('add')))
       $options['mode'] = 'add';
 
+    if (empty($options['mode']))
+      throw new WidgetHaltedException();
+
     return $options;
   }
 
@@ -88,44 +91,20 @@ class CartWidget extends Widget
 
   protected function onGetSimple(array $options)
   {
-    $output = null;
+    $result = array(
+      'mode' => 'simple',
+      'content' => $this->getCartContent(),
+      );
 
-    if (!count($cart = $this->getCartContent())) {
-      if (!empty($this->welcome_url) and $_SERVER['REQUEST_URI'] != $this->welcome_url)
-        $output = t("Корзина пуста, хотите <a href='@link'>ознакомиться с каталогом</a>?", array('@link' => $this->welcome_url));
-    }
+    $url = new url();
 
-    else {
-      $total = 0;
+    $url->setarg($this->GetInstanceName() .'.mode', 'purge');
+    $result['links']['purge'] = strval($url);
 
-      $output .= "<div class='cart cart-simple'>";
-      $output .= '<h2>'. t('Ваша корзина') .'</h2>';
-      $output .= "<table class='chopping-cart'>";
+    $url->setarg($this->GetInstanceName() .'.mode', 'details');
+    $result['links']['details'] = strval($url);
 
-      foreach ($cart as $node) {
-        $output .= "<tr>";
-        $output .= "<td class='name'>". mcms_plain($node['name']) ."</td>";
-        $output .= "<td class='qty'>{$node['qty']}×{$node['price']}</td>";
-        $output .= "</tr>";
-
-        $total += $node['sum'];
-      }
-
-      $output .= "<tr class='total'><td class='total'><strong>". t('Сумма') ."</strong></td><td class='sum'>". number_format($total, 2) ."</td></tr>";
-
-      $output .= "</table>";
-
-      $url = new url();
-      $url->setarg($this->GetInstanceName() .'.mode', 'purge');
-      $output .= "<p class='purge'>". l(strval($url), 'Очистить' ) ."</p>";
-
-      $url->setarg($this->GetInstanceName() .'.mode', 'details');
-
-      $output .= "<p class='details'>". l(strval($url), 'Заказать') ."</p>";
-      $output .= "</div>";
-    }
-
-    return $output;
+    return $result;
   }
 
   protected function onGetAdd(array $options)
@@ -175,19 +154,34 @@ class CartWidget extends Widget
     if (empty($session->cart))
       return null;
 
-    $output = parent::formRender('cart-details');
-
-    return $output;
+    return array(
+      'mode' => 'details',
+      'form' => parent::formRender('cart-details'),
+      );
   }
 
   protected function onGetConfirm(array $options)
   {
-    return parent::formRender('cart-confirm');
+    return array(
+      'mode' => 'confirm',
+      'form' => parent::formRender('cart-confirm'),
+      );
   }
 
   protected function onGetOk(array $options)
   {
-    return t('Ваш заказ отправлен, спасибо.');
+    return array(
+      'mode' => 'status',
+      'message' => t('Ваш заказ отправлен, спасибо.'),
+      );
+  }
+
+  protected function onGetHistory(array $options)
+  {
+    return array(
+      'mode' => 'status',
+      'message' => '<!-- not implemented -->',
+      );
   }
 
   public function formGet($id)

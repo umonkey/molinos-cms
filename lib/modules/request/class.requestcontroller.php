@@ -208,8 +208,11 @@ class RequestController
     if (is_array($widgets)) {
       // Обрабатываем виджеты, превращая их в контроллеры.
       foreach ($widgets as $widget) {
-        if (!mcms::class_exists($class = $widget->classname))
+        if (!mcms::class_exists($class = $widget->classname)) {
+          mcms::log('request', $widget->name .': skipped, unknown class: '.
+              $class);
           continue;
+        }
 
         $obj = new $class($widget);
 

@@ -200,11 +200,18 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
 
   // Если класс существует — добавляем его дефолтный шаблон в конец.
   if (array_key_exists($key = strtolower($classname), $classmap = mcms::getClassMap())) {
-    $__options[] = ltrim(str_replace(MCMS_ROOT, '', str_replace('.php', '.phtml', $classmap[$key])), '/');
+    $rp = realpath(str_replace('.php', '.phtml', $classmap[$key]));
+    if (false !== $rp)
+      $__options[] = $rp;
   }
 
   foreach ($__options as $__filename) {
-    if (file_exists($__fullpath = $__root .'/'. $__filename)) {
+    if ('/' == substr($__filename, 0, 1))
+      $__fullpath = $__filename;
+    else
+      $__fullpath = $__root .'/'. $__filename;
+
+    if (file_exists($__fullpath)) {
       $data['prefix'] = rtrim(dirname(dirname($__filename)), '/');
 
       ob_start();
