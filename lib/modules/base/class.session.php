@@ -36,14 +36,14 @@ class Session
 
   private function hash()
   {
-    return sha1(serialize($this->data));
+    return md5(serialize($this->data));
   }
 
   public function save()
   {
     if ($this->hash() != $this->_hash) {
       if (null === $this->id)
-        $this->id = sha1($_SERVER['REMOTE_ADDR'] . microtime(false) . rand());
+        $this->id = md5($_SERVER['REMOTE_ADDR'] . microtime(false) . rand());
 
       mcms::db()->exec("DELETE FROM node__session WHERE `sid` = ?",
         array($this->id));
