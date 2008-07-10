@@ -31,9 +31,9 @@ class BaseModule implements iRemoteCall
           throw new ForbiddenException(t('Пользователя с таким адресом нет.'));
         }
 
-        mcms::debug();
-
-        throw new ForbiddenException(t('Эта ссылка устарела.'));
+        throw new ForbiddenException(t('Ссылкой для восстановления пароля '
+          .'можно воспользоваться всего один раз, и этой ссылкой кто-то '
+          .'уже воспользовался.'));
       }
 
       if ('POST' != $_SERVER['REQUEST_METHOD'])

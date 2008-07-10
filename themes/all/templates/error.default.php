@@ -12,7 +12,9 @@ mcms::extras('themes/all/styles/pages.error.css');
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="robots" content="none" />
     <?php empty($base) or print mcms::html('base', array('href' => $base)); ?>
-    <link rel="shortcut icon" href="themes/all/img/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon"
+      href="themes/all/img/favicon.ico"
+      type="image/x-icon" />
     <?php print mcms::extras(); ?>
   </head>
   <body>
@@ -20,8 +22,10 @@ mcms::extras('themes/all/styles/pages.error.css');
     <div id="content">
       <h1 id="logo"><a href="."><span>Molinos CMS</span></a></h1>
     
-	<h2><?=$error['message']?></h2>
-	<?php if (!empty($error['note'])): ?><p><?=$error['note']?></p><?php endif; ?>
+      <h2><?php print $error['message']; ?></h2>
+      <?php if (!empty($error['description'])): ?>
+        <p><?php print $error['description']; ?></p>
+      <?php endif; ?>
     
     </div>
     
