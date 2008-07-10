@@ -24,7 +24,7 @@ class Session
     if (!empty($_COOKIE[self::cookie])) {
       $this->id = $_COOKIE[self::cookie];
 
-      $tmp = mcms::db()->getResult("SELECT `data` FROM node__sessions "
+      $tmp = mcms::db()->getResult("SELECT `data` FROM node__session "
         ."WHERE `sid` = ?", array($this->id));
 
       if (!empty($tmp) and is_array($arr = unserialize($tmp)))
@@ -44,13 +44,13 @@ class Session
     if ($this->hash() != $this->_hash) {
       if (null === $this->id)
         $this->id = sha1($_SERVER['REMOTE_ADDR'] . microtime(false) . rand());
-      else
-        mcms::db()->exec("DELETE FROM node__sessions WHERE `sid` = ?",
-          array($this->id));
+
+      mcms::db()->exec("DELETE FROM node__session WHERE `sid` = ?",
+        array($this->id));
 
       if (!empty($this->data))
-        mcms::db()->exec("INSERT INTO node__sessions (`sid`, `data`) "
-          ."VALUES (?, ?)", array($this->id, serialize($this->data)));
+        mcms::db()->exec("INSERT INTO node__session (`created`, `sid`, `data`) "
+          ."VALUES (UTC_TIMESTAMP(), ?, ?)", array($this->id, serialize($this->data)));
 
       static $sent = false;
 

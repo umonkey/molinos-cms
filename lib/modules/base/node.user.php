@@ -48,6 +48,15 @@ class UserNode extends Node implements iContentType
     parent::duplicate($parent);
   }
 
+  public function checkpw($password)
+  {
+    if (empty($this->password) and empty($password))
+      return true;
+    if ($this->password == md5($password))
+      return true;
+    return false;
+  }
+
   // РАБОТА С ФОРМАМИ.
 
   public function formGet($simple = true)

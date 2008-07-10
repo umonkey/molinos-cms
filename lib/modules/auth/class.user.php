@@ -179,7 +179,7 @@ class User
       if (strpos($args[0], '@') or false === strpos($args[0], '.')) { //e-mail в качестве логина
         $node = Node::load(array('class' => 'user', 'name' => $args[0]));
 
-        if ($node->password != md5($args[1]) and empty($args[2]))
+        if (empty($args[2]) and !$node->checkpw($args[1]))
           throw new ForbiddenException(t('Введён неверный пароль.'));
 
         if (!$node->published)
