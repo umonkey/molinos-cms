@@ -18,12 +18,16 @@ class StaticAttachment
 
   public function __construct($get)
   {
-    $args = explode(',', $get['q']);
+    if (count($path = explode('/', $get['q'])) > 1)
+      $this->realname = $path[1];
+
+    $args = explode(',', $path[0]);
 
     if (null === ($storage = BebopConfig::getInstance()->filestorage))
       $storage = 'storage';
 
     $node = Tagger::getInstance()->getObject($args[0]);
+
     if (empty($node))
       $this->sendError(404, 'attachment not found.');
 
@@ -165,17 +169,34 @@ class StaticAttachment
   {
     $headers = array();
 
-    // Ещё раз загрузим файл для проверки прав.
-    $node = Node::load(array('class' => 'file', 'id' => $this->node['id']));
-    if (!$node->checkPermission('r'))
-      $this->sendError(40, 'access denied');
+    if (false !== strstr($this->node['filetype'], 'shockwave'))
+      $download = false;
+    elseif (substr($this->node['filetype'], 0, 6) == 'image/')
+      $download = false;
+    else
+      $download = true;
+
+    if ($download) {
+      if ($this->realname != $this->node['filename']) {
+        $path = '/attachment/'. $this->node['id'] .'/'. urlencode($this->node['filename']);
+        bebop_redirect($path);
+      }
+    }
 
     // Описание фрагмента при докачке.
     $range_from = 0;
     $range_to = $this->node['filesize'];
 
-    if (!empty($this->nw) or !empty($this->nh))
-      $this->sendError(404, $this->node['filetype'] ." can not be resized");
+    if (!empty($this->nw) or !empty($this->nh)) {
+      if ($f = fopen($fname = MCMS_ROOT .'/themes/admin/img/media-floppy.png', 'rb')) {
+        header('Content-Type: image/png');
+        header('Content-Length: '. filesize($fname));
+        fpassthru($f);
+        exit;
+      } else {
+        self::sendError(404, $this->node['filetype'] ." can not be resized");
+      }
+    }
 
     ini_set('zlib.output_compression', 0);
 
@@ -198,17 +219,17 @@ class StaticAttachment
     $headers[] = "Content-Type: ". $this->node['filetype'];
     $headers[] = "Content-Length: ". ($range_to - $range_from);
 
-    $download = (strstr($this->node['filetype'], 'shockwave') === false);
 
     if ($download)
-      $headers[] = "Content-Disposition: attachment; filename=\"{$this->node['filename']}\"";
-
+      $headers[] = "Content-Disposition: attachment; filename=\"".$this->node['filename']."\"";
+/*
     // Клиентское кэширование, хотя не уверен, что это используется со скачиваемыми файлами.
     if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
       if (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= strtotime($this->node['created'])) {
-        $this->sendError(304, 'not modified');
+        self::sendError(304, 'not modified');
       }
     }
+*/
 
     $headers[] = "Last-Modified: ". date('r', strtotime($this->node['created']));
     $headers[] = "Accept-Ranges: bytes";
@@ -217,11 +238,8 @@ class StaticAttachment
       header($item);
 
     if ('GET' == $_SERVER['REQUEST_METHOD']) {
-      if (!$range_from and class_exists('AccessLogModule'))
-        AccessLogModule::logNode($this->node['id']);
-
       $f = fopen($this->source, 'rb')
-        or $this->sendError(403, "could not read the file");
+        or self::sendError(403, "could not read the file");
 
       if ($range_from)
         fseek($f, $range_from, SEEK_SET);
