@@ -94,7 +94,11 @@ class CartWidget extends Widget
     $result = array(
       'mode' => 'simple',
       'content' => $this->getCartContent(),
+      'sum' => 0,
       );
+
+    foreach ($result['content'] as $c)
+      $result['sum'] += $c['sum'];
 
     $url = new url();
 
