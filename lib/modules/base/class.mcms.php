@@ -605,8 +605,6 @@ class mcms
 
     $lock = true;
 
-    $root = dirname(__FILE__) .'/../';
-
     $enabled = explode(',', mcms::config('runtime_modules'));
 
     $result = array(
@@ -615,7 +613,7 @@ class mcms
       'interfaces' => array(),
       );
 
-    foreach ($modules = glob($root .'*') as $path) {
+    foreach ($modules = glob('lib/modules/*') as $path) {
       $modname = basename($path);
 
       $result['modules'][$modname] = array(
@@ -875,7 +873,11 @@ class mcms
       array_shift($stack);
     }
 
+    $libdir = 'lib'. DIRECTORY_SEPARATOR .'modules'. DIRECTORY_SEPARATOR;
+
     foreach ($stack as $k => $v) {
+      $v['file'] = preg_replace('@.*'. $libdir .'@', $libdir, $v['file']);
+
       if (!empty($v['class']))
         $func = $v['class'] .$v['type']. $v['function'];
       else
