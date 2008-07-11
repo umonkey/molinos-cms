@@ -6,10 +6,8 @@ class InstallModule implements iRemoteCall
   public static function hookRemoteCall(RequestContext $ctx)
   {
     if (self::checkInstalled())
-      mcms::redirect("index.php"); //Защита от несанкционированного вызова инсталлятора
-    $res = self::checkInstalled();
+      throw new RuntimeException(t('Molinos CMS уже установлена.'));
 
-    //$mode = $ctx->post('exchmode');
     $result = '';
 
     try {
@@ -36,18 +34,15 @@ class InstallModule implements iRemoteCall
     header('Content-Type: text/html; charset=utf-8');
     header('Content-Length: '. strlen($output));
     die($output);
-    //mcms::redirect("admin?module=exchange&preset=export&result=upgradeok");
   }
 
-  public static function checkInstalled()
+  private static function checkInstalled()
   {
     try {
       if (Node::count(array())) {
         return true;
       }
-    } catch (Exception $e) {
-      //mcms::debug($e);
-    }
+    } catch (Exception $e) { }
 
     return false;
   }
@@ -55,6 +50,10 @@ class InstallModule implements iRemoteCall
   public static function onGet(RequestContext $ctx)
   {
     self::checkEnvironment();
+    $conf = array ('host'=>'localhost', 'user' => '', 'pass' => '', 'path' => '');
+
+    if (array_key_exists('default',mcms::config('db')))
+      $conf = parse_url($conf['default']);
 
     if (null !== ($tmp = $ctx->get('result')))
       return self::getResult($tmp);
@@ -94,21 +93,25 @@ class InstallModule implements iRemoteCall
       )));
     $tab->addControl(new TextLineControl(array(
       'value' => 'db[name]',
+      'default' => ltrim($conf['path'],'/'),
       'label' => t('Имя базы данных'),
       'description' => t("Перед инсталляцией база данных будет очищена от существующих данных, сделайте резервную копию!"),
       )));
     $tab->addControl(new TextLineControl(array(
       'value' => 'db[host]',
+      'default' => $conf['host'],
       'label' => t('Адрес сервер'),
       'wrapper_id' => 'db-server',
       )));
     $tab->addControl(new TextLineControl(array(
       'value' => 'db[user]',
+      'default' => $conf['user'],
       'label' => t('Имя пользователя'),
       'wrapper_id' => 'db-user',
       )));
     $tab->addControl(new PasswordControl(array(
       'value' => 'db[pass]',
+      'default' => $conf['pass'],
       'label' => t('Пароль этого пользователя'),
       'wrapper_id' => 'db-password',
       )));

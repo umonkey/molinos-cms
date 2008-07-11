@@ -590,12 +590,10 @@ class RequestController
   // Возвращает дерево урлов для текущего домена.
   private function getUrlsForDomain($domain)
   {
-    /*
-    if (!InstallModule::checkInstalled())
-       mcms::redirect('?q=install.rpc');
-    */
-
     $tree = DomainNode::getSiteMap();
+
+    if (empty($tree))
+      throw new NotInstalledException('domain');
 
     if (is_array($tree)) {
       foreach ($tree as $nid => $branch) {
