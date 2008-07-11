@@ -74,8 +74,10 @@ class CartWidget extends Widget
     $options['mode'] = $ctx->get('mode', $this->mode);
 
     // Добавление товара.
-    if (null !== ($options['add'] = $ctx->get('add')))
+    if (null !== ($options['add'] = $ctx->get('add'))) {
       $options['mode'] = 'add';
+      $options['qty'] = $ctx->get('qty', 1);
+    }
 
     if (empty($options['mode']))
       throw new WidgetHaltedException();
@@ -125,14 +127,15 @@ class CartWidget extends Widget
     else
       $count = $cart[$node->id];
 
-    $cart[$node->id] = ++$count;
+    $cart[$node->id] += $options['qty'];
 
     mcms::session('cart', $cart);
 
-    $url = bebop_split_url();
-    $url['args'][$this->getInstanceName()]['add'] = null;
+    $url = new url();
+    $url->setarg($this->getInstanceName() .'.add', null);
+    $url->setarg($this->getInstanceName() .'.qty', null);
 
-    mcms::redirect($url);
+    mcms::redirect(strval($url));
   }
 
   protected function onGetPurge(array $options)
@@ -412,7 +415,7 @@ class CartWidget extends Widget
         $result[] = array(
           'id' => $node->id,
           'name' => $node->name,
-          'qty' => $qty = $s->cart[$node->id],
+          'qty' => $qty = $cart[$node->id],
           'price' => $node->price,
           'sum' => $node->price * $qty,
           );
