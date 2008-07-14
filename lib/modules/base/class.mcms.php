@@ -623,7 +623,7 @@ class mcms
         'enabled' => $modok = in_array($modname, $enabled),
         );
 
-      if (file_exists($modinfo = $path .'/module.info')) {
+      if (file_exists($modinfo = MCMS_ROOT .DIRECTORY_SEPARATOR. $path .'/module.info')) {
         if (is_array($ini = parse_ini_file($modinfo, true))) {
           // Копируем базовые свойства.
           foreach (array('group', 'version', 'name', 'docurl') as $k) {
@@ -638,7 +638,7 @@ class mcms
       }
 
       // Составляем список доступных классов.
-      foreach (glob($path .'/'. '*.*.php') as $classpath) {
+      foreach (glob($path .DIRECTORY_SEPARATOR.'*.php') as $classpath) {
         $parts = explode('.', basename($classpath), 3);
 
         if (count($parts) != 3 or $parts[2] != 'php')

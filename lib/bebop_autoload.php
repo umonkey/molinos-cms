@@ -21,14 +21,17 @@ function bebop_autoload($class_name)
     if (!is_readable($map[$k]))
       mcms::fatal("{$class_name} is in a file which is read-protected: {$map[$k]}");
 
-    include($map[$k]);
+    include(MCMS_ROOT .DIRECTORY_SEPARATOR. $map[$k]);
 
     $isif = (substr($class_name, 0, 1) === 'i');
 
     if ($isif and !in_array($class_name, get_declared_interfaces()))
-      mcms::fatal("There is no {$class_name} interface in {$map[$k]}.\nAPC freaks out this way sometimes.", array('declared_interfaces' => get_declared_interfaces()));
+      mcms::fatal("There is no {$class_name} interface in {$map[$k]}.\n"
+        ."APC freaks out this way sometimes.",
+        array('declared_interfaces' => get_declared_interfaces()));
     elseif (!$isif and !in_array($class_name, get_declared_classes()))
-      mcms::fatal("There is no {$class_name} class in {$map[$k]}", array('declared_classes' => get_declared_classes()));
+      mcms::fatal("There is no {$class_name} class in {$map[$k]}",
+        array('declared_classes' => get_declared_classes()));
   }
 
   else {
