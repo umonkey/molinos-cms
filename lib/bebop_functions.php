@@ -197,8 +197,8 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
 
   // Если класс существует — добавляем его дефолтный шаблон в конец.
   if (array_key_exists($key = strtolower($classname), $classmap = mcms::getClassMap())) {
-    $rp = realpath(str_replace('.php', '.phtml', $classmap[$key]));
-    if (false !== $rp)
+    $rp = str_replace('.php', '.phtml', $classmap[$key]);
+    if (is_readable($rp))
       $__options[] = $rp;
   }
 
