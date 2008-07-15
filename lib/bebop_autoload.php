@@ -35,7 +35,8 @@ function bebop_autoload($class_name)
   }
 
   else {
-    mcms::fatal("There was an attempt to access an undefined class {$class_name}.");
+    mcms::fatal("There was an attempt to access an undefined class, name follows.",
+      $class_name);
   }
 }
 

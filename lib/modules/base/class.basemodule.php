@@ -44,7 +44,7 @@ class BaseModule implements iRemoteCall
         if (null === $ctx->post('login'))
           User::authorize($ctx->get('id'), null);
         else
-          User::authorize($ctx->post('login'), $ctx->post('password'));
+          User::authorize($ctx->post('login'), $ctx->post('password'), true);
       } catch (ObjectNotFoundException $e) {
         bebop_on_json(array(
           'status' => 'wrong',
@@ -69,6 +69,7 @@ class BaseModule implements iRemoteCall
         self::login($uid);
 
       break;
+
     case 'su':
       if (!bebop_is_debugger() and mcms::config('debuggers'))
         throw new ForbiddenException(t('У вас нет прав доступа к sudo'));
@@ -91,7 +92,7 @@ class BaseModule implements iRemoteCall
         $stack[] = $curuid;
         mcms::session('uidstack', $stack);
 
-        self::login($sid, $uid);
+        self::login($uid);
       }
       else {
         mcms::redirect("admin");

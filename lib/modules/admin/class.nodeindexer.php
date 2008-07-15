@@ -32,7 +32,13 @@ class NodeIndexer
     $table = 'node__idx_'. $type;
 
     try {
-      if ($count = mcms::db()->getResult("SELECT COUNT(*) FROM `node` `n` WHERE `n`.`class` = '{$type}' AND `n`.`deleted` = 0 AND NOT EXISTS (SELECT 1 FROM `{$table}` `n1` WHERE `n1`.`id` = `n`.`id`)")) {
+      $sql = "SELECT COUNT(*) FROM `node` `n` "
+        ."WHERE `n`.`class` = '{$type}' "
+        ."AND `n`.`deleted` = 0 "
+        ."AND NOT EXISTS (SELECT 1 FROM `{$table}` `n1` "
+        ."WHERE `n1`.`id` = `n`.`id`)";
+
+      if ($count = mcms::db()->getResult($sql)) {
         $stat[$type] = $count;
         $stat['_total'] += $count;
       }
@@ -56,9 +62,16 @@ class NodeIndexer
 
     if (null !== ($stat = self::stats())) {
       if ('_total' != ($class = array_pop(array_keys($stat)))) {
-        $ids = mcms::db()->getResultsV('id', "SELECT `n`.`id` FROM `node` `n` WHERE `n`.`deleted` = 0 AND `n`.`class` = :class AND NOT EXISTS (SELECT 1 FROM `node__idx_{$class}` `i` WHERE `i`.`id` = `n`.`id`) LIMIT 50", array(':class' => $class));
+        $ids = mcms::db()->getResultsV('id', "SELECT `n`.`id` FROM `node` `n` "
+          ."WHERE `n`.`deleted` = 0 AND `n`.`class` = ? AND NOT EXISTS "
+          ."(SELECT 1 FROM `node__idx_{$class}` `i` WHERE `i`.`id` = `n`.`id`) "
+          ."LIMIT 50", array($class));
 
-        foreach ($count = Node::find(array('class' => $class, 'id' => $ids)) as $n)
+        $nodes = Node::find(array(
+          'id' => $ids,
+          ));
+
+        foreach ($nodes as $n)
           $n->reindex();
 
         $repeat = true;

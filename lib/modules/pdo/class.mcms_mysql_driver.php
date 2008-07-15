@@ -63,7 +63,7 @@ class mcms_mysql_driver extends PDO_Singleton
       $sth = $this->prepare($sql);
       $sth->execute($params);
     } catch (PDOException $e) {
-      if ('42S02' == $e->getCode()) { //нет таблицы
+      if ('42S02' == $e->getCode()) { // нет таблицы
         if (preg_match("/Table '([^.]+)\.([^']+)' doesn/", $e->getMessage(), $m))
           $tname = $m[2];
         else
@@ -74,19 +74,22 @@ class mcms_mysql_driver extends PDO_Singleton
           // Если её нет, надо выкинуть TableNotFoundException, чтобы TableInfo::exists() вернул false
           throw new TableNotFoundException($tname);
         } else {
-          if (preg_match("/node__idx_(\S+)/i", $sql, $tblmatches)) {
+          if (preg_match("/`node__idx_([^`]+)/i", $sql, $tblmatches)) {
             //для индексных таблиц свой механизм пересоздания
-            $node = Node::load(array('class' => 'type', 'name' => $tblmatches[1]));
-            if (!empty($node)) {
+            try {
+              $node = Node::load(array('class' => 'type', 'name' => $tblmatches[1]));
               $node->recreateIdxTable($tblmatches[1]);
               return self::exec($sql, $params);
+            } catch (ObjectNotFoundException $x) {
+              mcms::debug($tblmatches);
+              throw $e;
             }
           } else {
             TableManager::create($tname);
             return self::exec($sql, $params);
           }
         }
-      } else if ('42S22' == $e->getCode()) {//нет поля
+      } else if ('42S22' == $e->getCode()) {// нет поля
         if (preg_match("/node__idx_(\S+)/i", $sql, $tblmatches)) {
           //для индексных таблиц тупо занимаемся пересозданием
           $node = Node::load(array('class' => 'type', 'name' => $tblmatches[1]));
@@ -98,31 +101,16 @@ class mcms_mysql_driver extends PDO_Singleton
           }
         }
         else { //Это не индексная таблица, а одна из основных
-          //Получим имя столбца
-          if (preg_match("/column\s*'(\S+)'/i",$e->getMessage(), $matches)) {
-            $cname = trim($matches[1]);
+          $re = '@(FROM|UPDATE|JOIN|INTO)\s+`([^`]+)`@i';
 
-            $tables = null;
-            if (preg_match("/from\s*(.+)(?=where|order|\s*)/i", $sql, $matches))
-              $tables = str_replace("`","",$matches[1]);
-
-            if  (preg_match("/(into|update)\s*[`]?([\w_]+)[`]?/i", $sql, $matches))
-              $tables = $matches[2];
-
-            if ($tables != null) {
-              $tlist = preg_split("/\,\s*/", $tables, -1, PREG_SPLIT_NO_EMPTY);
-
-              foreach ($tlist as $tbl) {
-                $spec = TableManager::checkColumn($tbl, $cname);
-
-                if (!empty($spec)) {
-                  $sth = $this->prepare($sql);
-                  $sth->execute($params);
-                  return $sth;
-                }
-              }
-            }
+          if (!preg_match_all($re, $sql, $m)) {
+            mcms::log('mysql', 'could not find table names in SQL');
+          } else {
+            TableManager::upgradeTables($m[2]);
           }
+
+          $sth = $this->prepare($sql);
+          $sth->execute($params);
         }
       }
 

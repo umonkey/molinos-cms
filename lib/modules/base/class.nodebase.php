@@ -1351,8 +1351,8 @@ class NodeBase
             break;
 
           case 'NodeLinkControl':
-            $value = array_key_exists($key = 'node_content_'. $k, $data) ? $data[$key] : null;
-            $this->linkAddChild($value, $k);
+            if (!empty($data[$key = 'node_content_'. $k]))
+              $this->linkAddChild($data[$key], $k);
             break;
 
           case 'PasswordControl':

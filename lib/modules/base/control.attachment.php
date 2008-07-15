@@ -66,7 +66,9 @@ class AttachmentControl extends Control
                    mcms::html('span',array('class' => 'passive'), t('Удалить')));
     }
 
-    $td1 = mcms::html('td',array('class' => 'preview'),$preview);
+    if (empty($preview))
+      $preview = null;
+    $td1 = mcms::html('td',array('class' => 'preview'), $preview);
 
     $isnew = empty($data[$this->value]);
     $td2 = mcms::html('td',array('class' => 'properties'),

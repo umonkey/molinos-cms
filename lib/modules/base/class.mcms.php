@@ -876,7 +876,8 @@ class mcms
     $libdir = 'lib'. DIRECTORY_SEPARATOR .'modules'. DIRECTORY_SEPARATOR;
 
     foreach ($stack as $k => $v) {
-      $v['file'] = preg_replace('@.*'. $libdir .'@', $libdir, $v['file']);
+      if (!empty($v['file']))
+        $v['file'] = preg_replace('@.*'. $libdir .'@', $libdir, $v['file']);
 
       if (!empty($v['class']))
         $func = $v['class'] .$v['type']. $v['function'];
