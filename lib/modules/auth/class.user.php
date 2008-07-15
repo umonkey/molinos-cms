@@ -151,14 +151,6 @@ class User
   // поддержки сессий.
   public static function identify()
   {
-    if (array_key_exists('openid_mode', $_GET)) {
-      $node = OpenIdProvider::openIDAuthorize($_GET['openid_mode']);
-      $sid = md5($openid. microtime() . $_SERVER['HTTP_HOST']);
-      unset($_GET['openid_mode']); // чтобы повторно не сваливаться в этот IF
-
-      self::$instance = new User($node);
-    }
-
     if (null === self::$instance)
       self::$instance = new User();
 
@@ -176,7 +168,7 @@ class User
     }
 
     elseif (count($args) >= 2) {
-      if (strpos($args[0], '@') or false === strpos($args[0], '.')) { //e-mail в качестве логина
+      if ( (strpos($args[0], '@') or false === strpos($args[0], '.')) or ($args[3] == true)) { //e-mail в качестве логина или же мы уже прошли процедуры openID-авторищации
         $node = Node::load(array('class' => 'user', 'name' => $args[0]));
 
         if (empty($args[2]) and !$node->checkpw($args[1]))
@@ -192,7 +184,7 @@ class User
 
       // Возможно, это не e-mail, а openID.
       else {
-        OpenIdProvider::OpenIDVerify($args[0]);
+        OpenIdModule::OpenIDVerify($args[0]);
         exit();
       }
     } else {

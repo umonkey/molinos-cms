@@ -1,7 +1,17 @@
 <?php
 
-class OpenIdProvider
+class OpenIdModule implements iRemoteCall
 {
+  public static function hookRemoteCall(RequestContext $ctx)
+  {
+    $openidinfo = $ctx->get('openid');
+    $node = self::openIDAuthorize($openidinfo['mode']);
+    if (!empty($node))
+        User::authorize($node->name, null, true, true);
+
+    mcms::redirect("?q=admin");
+  }
+
   public static function openIDAuthorize($openid_mode)
   {
     self::includeOpenID();
@@ -42,19 +52,11 @@ class OpenIdProvider
           if (!empty($_GET[$key = 'openid_'. $k]))
             $node->$v = $_GET[$key];
         }
-
         $node->save();
       } else {
         $node = Node::load(array('class' => 'user', 'name' => $openid));
       }
 
-      // Это хак. Нужен, чтобы тут bebop_split_url при вызове из RPCHandler
-      // всегда гарантированно вернул NULL и мы во второй раз не свалились в
-      // BaseModule. В случае с livejournal всё проходит нормально,
-      // ($_SERVER['REQUEST_URI'] в данной точке сам по себе пуст), однако с
-      // myopenid.com, видимо из-за того, что он использует автосабмит формы,
-      // он остаётся не пустым.
-      //unset($_SERVER['REQUEST_URI']);
       return $node;
     } else {
       // Login canceled
@@ -151,7 +153,7 @@ class OpenIdProvider
 
   private static function getReturnTo($id = null)
   {
-    $url = sprintf('http://%s%s/?q=base.rpc&action=openid&id=%s',
+    $url = sprintf('http://%s%s/?q=openid.rpc&action=openid&id=%s',
       $_SERVER['HTTP_HOST'], mcms::path(), urlencode($id));
 
     return $url;
