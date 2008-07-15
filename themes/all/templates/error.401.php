@@ -75,7 +75,7 @@ function __get($key)
           </form>
 
         <?php } elseif (1 == __get('remind') or 'notfound' == __get('remind')) { ?>
-        <form method='post' action='/base.rpc?action=restore' enctype='multipart/form-data' id='profile-remind-form-nojs'>
+        <form method='post' action='?q=base.rpc&amp;action=restore' enctype='multipart/form-data' id='profile-remind-form-nojs'>
           <fieldset>
             <legend><span>Напоминание пароля</span></legend>
             <div class='control'>
