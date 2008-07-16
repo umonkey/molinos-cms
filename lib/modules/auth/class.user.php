@@ -168,7 +168,7 @@ class User
     }
 
     elseif (count($args) >= 2) {
-      if ( (strpos($args[0], '@') or false === strpos($args[0], '.')) or ($args[3] == true)) { //e-mail в качестве логина или же мы уже прошли процедуры openID-авторищации
+      if ((strpos($args[0], '@') or false === strpos($args[0], '.')) or (!empty($args[3]))) { //e-mail в качестве логина или же мы уже прошли процедуры openID-авторищации
         $node = Node::load(array('class' => 'user', 'name' => $args[0]));
 
         if (empty($args[2]) and !$node->checkpw($args[1]))

@@ -182,11 +182,15 @@ class FormWidget extends Widget
   {
     $types = array();
 
-    // Список типов, разрешённых в этом разделе.
-    $allowed = Node::find(array(
-      'class' => 'type',
-      'tags' => array($root),
-      ));
+    if (empty($root))
+      $allowed = Node::find(array(
+        'class' => 'type',
+        ));
+    else
+      $allowed = Node::find(array(
+        'class' => 'type',
+        'tags' => array($root),
+        ));
 
     // Выбираем то, что может создать пользователь.
     foreach ($allowed as $t)
@@ -237,8 +241,20 @@ class FormWidget extends Widget
     }
 
     elseif (false !== strstr($id, 'form-create-')) {
-      if (!array_key_exists($type = substr($id, 12), $types))
-        throw new PageNotFoundException();
+      if (!array_key_exists($type = substr($id, 12), $types)) {
+        $schema = TypeNode::getSchema($type);
+
+        if (empty($schema['id']))
+          throw new PageNotFoundException(t('Тип документа «%name» '
+            .'мне не известен, создать его невозможно.', array(
+              '%name' => $type,
+              )));
+        else
+          throw new ForbiddenException(t('Вы не можете создать документ '
+            .'типа «%name», извините.', array(
+              '%name' => $type,
+              )));
+      }
 
       $node = $this->getNode($type);
       $form = $node->formGet($this->stripped);

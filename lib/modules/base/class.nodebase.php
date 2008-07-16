@@ -373,6 +373,9 @@ class NodeBase
     if (!array_key_exists('lang', $data))
       $data['lang'] = 'ru';
 
+    if (empty($data['uid']))
+      $data['uid'] = mcms::session('uid');
+
     return new $host($data);
   }
 
@@ -1197,11 +1200,13 @@ class NodeBase
       'value' => 'tab_files',
       ));
 
-    foreach ($filefields as $fname=>$f) {
-      $tmp = Control::make($f);
+    if (!empty($filefields) and is_array($filefields)) {
+      foreach ($filefields as $fname => $f) {
+        $tmp = Control::make($f);
 
-      $tmp->addClass('archive');
-      $tab->addControl($tmp);
+        $tmp->addClass('archive');
+        $tab->addControl($tmp);
+      }
     }
 
     if ($schema['hasfiles']) {
@@ -1220,9 +1225,11 @@ class NodeBase
     return $tab;
   }
 
-
   private function formGetRevTab()
   {
+    if (!mcms::user()->hasAccess('d', $this->type))
+      return;
+
     $tab = new FieldSetControl(array(
       'label' => 'История',
       'name' => 'tab_history',
