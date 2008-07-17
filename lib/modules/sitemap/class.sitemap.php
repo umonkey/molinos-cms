@@ -13,6 +13,16 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
       'default' => "www.google.com",
       'description' => t('Не все серверы поддерживают уведомления, не надо добавлять всё подряд!'),
       )));
+    $form->addControl(new BoolControl(array(
+      'value' => 'config_no_ping',
+      'label' => t('Не надо никого уведомлять'),
+      'description' => t('Отправка уведомлений производится при каждом '
+        .'добавлении или удалении документа, что может тормозить работу. '
+        .'Гораздо лучше явно <a href="@url">сказать поисковым серверам</a>, '
+        .'где следует брать карту сайта.', array(
+          '@url' => 'http://www.google.com/webmasters/sitemaps/',
+          )),
+      )));
     $form->addControl(new SetControl(array(
       'value' => 'config_skip_types',
       'label' => t('Игнорировать документы типов'),
@@ -28,6 +38,17 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
 
   public static function hookNodeUpdate(Node $node, $op)
   {
+    $stop = array(
+      'create',
+      'delete',
+      'restore',
+      'publish',
+      'unpublish',
+      );
+
+    if (!in_array($op, $stop))
+      return;
+
     if (!empty($node->class)) {
       $conf = mcms::modconf('sitemap');
 
@@ -35,12 +56,14 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
         if (file_exists($path = self::get_file_path()))
           unlink($path);
 
-        if (count($hosts = explode("\n", $conf['ping']))) {
-          $sm = 'http://'. $_SERVER['HTTP_HOST'] . mcms::path() .'/?q=sitemap.rpc';
+        if (empty($conf['no_ping'])) {
+          if (count($hosts = explode("\n", $conf['ping']))) {
+            $sm = 'http://'. $_SERVER['HTTP_HOST'] . mcms::path() .'/?q=sitemap.rpc';
 
-          foreach ($hosts as $host) {
-            mcms::log('sitemap', 'pinging '. $host .' with '. $sm);
-            mcms_fetch_file('http://'. $host .'/ping?sitemap='. urlencode($sm), true, false);
+            foreach ($hosts as $host) {
+              mcms::log('sitemap', 'pinging '. $host .' with '. $sm);
+              mcms_fetch_file('http://'. $host .'/ping?sitemap='. urlencode($sm), true, false);
+            }
           }
         }
       }
@@ -112,8 +135,10 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
       foreach ($nodes as $node) {
         $line = "<url>"
           ."<loc>http://{$_SERVER['HTTP_HOST']}/node/{$node->id}</loc>";
-        if (!empty($node->updated))
-          $line .= "<lastmod>{$node->updated}</lastmod>";
+        if (!empty($node->updated)) {
+          $date = strftime('%Y-%m-%d', strtotime($node->updated));
+          $line .= "<lastmod>{$date}</lastmod>";
+        }
         $line .= "</url>\n";
         fwrite($f, $line);
       }
