@@ -69,6 +69,8 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
     $f = fopen($filename, 'w');
 
     fwrite($f, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    fwrite($f, "<?xml-stylesheet href=\"http://{$_SERVER['HTTP_HOST']}". mcms::path()
+      ."/lib/modules/sitemap/sitemap.xsl\" type=\"text/xsl\" media=\"screen\"?>\n");
     fwrite($f, "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
 
     self::write_sections($f);
