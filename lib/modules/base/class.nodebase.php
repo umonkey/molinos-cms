@@ -47,6 +47,11 @@ class NodeBase
     return $tmp;
   }
 
+  public function __toString()
+  {
+    return $this->id;
+  }
+
   // Достаёт объект из кэша.
   private static function getCached($id)
   {

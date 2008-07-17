@@ -8,7 +8,7 @@ mcms::extras('themes/all/styles/pages.error.css');
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru" lang="ru">
   <head>
-    <title><?=$error['message']?></title>
+    <title><?php print $error['message']; ?></title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="robots" content="none" />
     <?php empty($base) or print mcms::html('base', array('href' => $base)); ?>
