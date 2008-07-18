@@ -11,8 +11,17 @@ class BebopCache
 
     public static function getInstance()
     {
-        if (self::$type === null)
+        if (self::$type === null) {
             self::chooseEngine();
+
+            if (null !== self::$type) {
+                if (bebop_is_debugger() and !empty($_GET['flush'])) {
+                    $f = array(self::$type, 'flush');
+                    call_user_func($f, false);
+                    call_user_func($f, true);
+                }
+            }
+        }
 
         if (self::$type !== null)
             return call_user_func(array(self::$type, 'getInstance'));
