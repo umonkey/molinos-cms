@@ -15,6 +15,7 @@ require 'HtmlTest.php';
 require 'FileTest.php';
 require 'SchemaTest.php';
 require 'UpdateTest.php';
+require 'PdoTest.php';
 
 class AllTests
 {
@@ -28,6 +29,7 @@ class AllTests
     $suite = new PHPUnit_Framework_TestSuite('PHPUnit Framework');
 
     $suite->addTestSuite('ConstTest');
+    $suite->addTestSuite('PdoTest');
     $suite->addTestSuite('UrlTest');
     $suite->addTestSuite('HtmlTest');
     $suite->addTestSuite('FileTest');

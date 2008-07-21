@@ -12,11 +12,11 @@ class TableManager
     $table_name = trim($table_name, '`');
     $classname = 'DBSchema_'. $table_name;
 
-    if (class_exists($classname)) {
+    if (mcms::class_exists($classname)) {
       $tbl = new $classname;
       $tbl->createTable($table_name);
     } else {
-      mcms::fatal("Отсутствует класс {$classname}");
+      throw new TableNotFoundException($table_name);
     }
   }
 
