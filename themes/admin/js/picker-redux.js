@@ -1,10 +1,35 @@
 var mcms_picker = {
   mySubmit: function (URL, id) {
-    if (window.mcms_picker_return === undefined) {
-      alert('Please load /themes/admin/js/bebop.js');
-      return false;
-    }
-    return mcms_picker_return(URL, id);
+    var j = window.opener.jQuery;
+
+    j.ajax({
+      type: 'GET',
+      url: mcms_path + '/?q=nodeapi.rpc&action=dump&node='+ id,
+      dataType: 'json',
+      success: function (data) {
+        var j = window.opener.jQuery;
+        j('#'+ picker +' input.id')
+          .attr('value', id);
+        j('#'+ picker +' .preview img')
+          .attr('src', 'attachment.rpc?fid='+ id + ',48,48,c');
+        j('#'+ picker +' .preview a')
+          .attr('href', 'attachment.rpc?fid='+ id);
+        j('#'+ picker +' .properties .name')
+          .attr('value', data.node.name);
+        j('#'+ picker +' .properties .name')
+          .attr('value', data.node.name);
+        j('#'+ picker +' .properties .type')
+          .attr('value', data.node.filetype);
+        j('#'+ picker +' .properties .dateadded')
+          .html(data.node.created);
+        j('#'+ picker +' .properties .dateupdated')
+          .html(data.node.updated);
+        j('#'+ picker +' .filetabs u.tab1').click();
+        window.close();
+      }
+    });
+
+    return false;
   }
 };
 

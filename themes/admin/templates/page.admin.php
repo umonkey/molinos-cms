@@ -82,7 +82,9 @@ function get_dba_link()
         mcms::extras('themes/all/jquery/plugins/jquery.bgiframe.min.js');
         mcms::extras('themes/admin/js/bebop.min.js');
       } elseif (!empty($_GET['mcmsarchive'])) {
-        mcms::extras('themes/admin/js/picker-redux.min.js');
+        mcms::extras('themes/admin/js/picker-redux.js');
+        print '<script type="text/javascript">var picker = "'.
+          $_GET['picker'] .'";</script>';
       } else {
         mcms::extras('lib/modules/tinymce/editor/tiny_mce_popup.js', false);
         mcms::extras('lib/modules/base/control.attachment.js');
@@ -91,6 +93,8 @@ function get_dba_link()
     <?php print mcms::extras(); ?>
     <link rel="shortcut icon" href="themes/all/img/favicon.ico"
       type="image/x-icon" />
+    <script type="text/javascript">var mcms_path = '<?php
+      print mcms::path(); ?>';</script>
   </head>
   <body>
     <div id="preloaded_images"></div>

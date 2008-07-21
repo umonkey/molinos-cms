@@ -1,0 +1,73 @@
+<?php
+
+static $fid = 1;
+
+?><table class='files'>
+  <tr>
+    <th class='fieldname' colspan='2'><?php print $c->label; ?></th>
+  </tr>
+  <tr class='file' id='fid<?php print $fid++; ?>'>
+    <td class='preview'>
+      <a title='Скачать'
+        href='attachment.rpc?fid=<?php print $d['id']; ?>'>
+        <img src='attachment.rpc?fid=<?php print $d['id']; ?>,48,48,c&amp;rev=<?php print $d['rid']; ?>'
+          width='48' height='48' />
+      </a>
+      <input type='hidden' class='id'
+        name='<?php print mcms_plain($c->value); ?>[id]'
+        value='<?php print $d['id']; ?>'
+        />
+    </td>
+    <td class='properties'>
+      <div class='tab tab1'>
+        <label class='filename pad'>
+          <span>Название</span>
+          <input class='name'
+            readonly='readonly' type='text'
+            name='<?php print mcms_plain($c->value); ?>[name]'
+            value='<?php print mcms_plain($d['filename']); ?>' />
+        </label>
+        <label class='filetype pad'>
+          <span>Тип</span>
+          <input class='type'
+            readonly='readonly' type='text'
+            name='<?php print mcms_plain($c->value); ?>[type]'
+            value='<?php print mcms_plain($d['filetype']); ?>'
+            class='filetype' />
+        </label>
+        Добавлен: <span class='dateadded'><?php print $d['created']; ?></span>,
+        обновлён: <span class='dateupdated'><?php print $d['updated']; ?></span>
+      </div>
+      <div class='tab tab2'>
+        <label class='filename pad'>
+          <input type='file'
+            name='<?php print mcms_plain($c->value); ?>' />
+        </label>
+        Максимальный размер загружаемого файла:
+        <?php print ini_get('upload_max_filesize'); ?>.
+        Можно также <a href='#pick' class='pickerlite'>выбрать из архива</a>
+      </div>
+      <div class='tab tab3'>
+        <p>
+          <label>
+            <input type='checkbox'
+              name='<?php print mcms_plain($c->value); ?>[deleted]'
+              value='1' />
+            Удалить
+          </label>
+        </p>
+      </div>
+      <div class='filetabs'>
+        <u class='tab1'>
+          <span class='active'>Свойства</span>
+        </u>
+        <u class='tab2'>
+          <span class='passive'>Заменить</span>
+        </u>
+        <u class='tab3'>
+          <span class='passive'>Удалить</span>
+        </u>
+      </div>
+    </td>
+  </tr>
+</table>
