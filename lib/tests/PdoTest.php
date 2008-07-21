@@ -138,4 +138,16 @@ class PdoTest extends PHPUnit_Framework_TestCase
   {
     $this->assertFalse(mcms::db()->hasOrderedUpdates());
   }
+
+  public function testCreateNodeTable()
+  {
+    $t = new TableInfo('node');
+    $this->assertFalse($t->exists());
+
+    $c = mcms::db()->fetch('SELECT COUNT(*) FROM node');
+    $this->assertEquals(0, $c);
+
+    $t = new TableInfo('node');
+    $this->assertTrue($t->exists());
+  }
 }
