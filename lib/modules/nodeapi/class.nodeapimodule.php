@@ -56,16 +56,25 @@ class NodeApiModule implements iRemoteCall
       break;
 
     case 'dump':
-      if (!bebop_is_debugger())
-        throw new ForbiddenException();
-
-      mcms::debug(Node::load(array(
+      $filter = array(
         'id' => $nid,
-        'deleted' => array(0, 1),
-        '#recurse' => true,
-        )));
+        'deleted' => array(0),
+        '#cache' => false,
+        '#recurse' => 1,
+        );
 
-      break;
+      if (bebop_is_debugger())
+        $filter['deleted'][] = 1;
+
+      $node = Node::load($filter);
+
+      bebop_on_json(array(
+        'node' => $node->getRaw(),
+        ));
+
+      mcms::debug($node);
+
+      throw new ForbiddenException();
 
     case 'locate':
       $node = Node::load($nid);
