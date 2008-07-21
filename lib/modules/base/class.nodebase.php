@@ -41,6 +41,10 @@ class NodeBase
     if (empty($tmp['code']) and !empty($tmp['id']))
       $tmp['code'] = $tmp['id'];
 
+    foreach ($tmp as $k => $v)
+      if ($v instanceof Node)
+        $tmp[$k] = $v->getRaw();
+
     foreach ($this->files as $k => $v)
       $tmp['files'][$k] = $v->getRaw();
 
@@ -1397,9 +1401,12 @@ class NodeBase
         if (!is_array($fileinfo))
           continue;
 
-        if (UPLOAD_ERR_NO_FILE == $fileinfo['error']
-          and empty($fileinfo['deleted']))
-            continue;
+        if (UPLOAD_ERR_NO_FILE == $fileinfo['error']) {
+          if (!empty($fileinfo['id']))
+            $this->linkAddChild($fileinfo['id'], $field);
+          elseif (!empty($fileinfo['deleted']))
+            $this->linkRemoveChild($fileinfo['id']);
+        }
 
         elseif (UPLOAD_ERR_INI_SIZE == $fileinfo['error'])
           throw new ValidationException(t('Файл %name слишком большой; '
