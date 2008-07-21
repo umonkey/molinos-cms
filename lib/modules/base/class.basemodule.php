@@ -44,7 +44,7 @@ class BaseModule implements iRemoteCall
         if (null === $ctx->post('login'))
           User::authorize($ctx->get('id'), null);
         else
-          User::authorize($ctx->post('login'), $ctx->post('password'), true);
+          User::authorize($ctx->post('login'), $ctx->post('password'));
 
         mcms::log('base.rpc', 'logged in');
       } catch (ObjectNotFoundException $e) {
