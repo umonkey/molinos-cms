@@ -33,11 +33,6 @@ class Installer
         'required' => 1,
         'key' => 'mul'
         ));
-      $t->columnSet('code', array(
-        'type' => 'varchar(16)',
-        'required' => 0,
-        'key' => 'uni'
-        ));
 
       $t->columnSet('left', array(
         'type' => 'int',

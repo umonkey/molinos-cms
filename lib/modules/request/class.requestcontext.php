@@ -66,29 +66,6 @@ class RequestContext
       if (null === $this->section)
         $this->root = $this->section = $page->defaultsection;
     }
-
-    // Нормализуем идентификаторы.
-
-    if (null !== $this->document and !is_numeric($this->document)) {
-      $this->document = mcms::db()->getResult("SELECT `id` FROM `node` "
-        ."WHERE `code` = ?", array($oldid = $this->document));
-
-      if (null === $this->document) {
-        mcms::log('context', $oldid .': could not resolve document id');
-        throw new PageNotFoundException();
-      }
-    }
-
-    if (null !== $this->section and !is_numeric($this->section)) {
-      $this->section = mcms::db()->getResult("SELECT `id` FROM `node` "
-        ."WHERE `code` = ?", array($oldid = $this->section));
-
-      if (null === $this->section) {
-        mcms::log('context', $oldid .': could not resolve section id');
-        throw new PageNotFoundException(null, t('Запрошенный вами раздел "%name" '
-          .'найти не удалось.', array('%name' => $oldid)));
-      }
-    }
   }
 
   // Запрещаем изменять свойства извне.

@@ -246,7 +246,7 @@ class ArchiveWidget extends Widget
     $path = $this->ctx->ppath;
 
     if (null !== ($s = $this->ctx->section))
-      $path[] = $s->code;
+      $path[] = $s->id;
 
     return join('/', $path);
   }

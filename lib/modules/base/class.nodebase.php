@@ -38,9 +38,6 @@ class NodeBase
   {
     $tmp = $this->data;
 
-    if (empty($tmp['code']) and !empty($tmp['id']))
-      $tmp['code'] = $tmp['id'];
-
     foreach ($tmp as $k => $v)
       if ($v instanceof Node)
         $tmp[$k] = $v->getRaw();
@@ -128,7 +125,7 @@ class NodeBase
       or !empty($query['#files']);
 
     // Список запрашиваемых полей.
-    $fields = array('`node`.`id`', '`node`.`rid`', '`node`.`code`',
+    $fields = array('`node`.`id`', '`node`.`rid`',
       '`node`.`class`', '`node`.`parent_id`', '`node`.`uid`',
       '`node`.`created`', '`node`.`updated`', '`node`.`lang`',
       '`node`.`published`', '`node`.`deleted`', '`node`.`left`',
@@ -222,7 +219,6 @@ class NodeBase
     if ($key == 'id') {
       $this->data['id'] = null;
       $this->data['rid'] = null;
-      $this->data['code'] = null;
       return;
     }
 
@@ -242,8 +238,6 @@ class NodeBase
   {
     if (!is_array($this->data))
       return null;
-    if ('code' === $key and empty($this->data['code']))
-      return $this->data['id'];
     return array_key_exists($key, $this->data) ? $this->data[$key] : null;
   }
 
@@ -307,7 +301,6 @@ class NodeBase
       $this->id = null;
       $this->data['published'] = false;
       $this->data['deleted'] = false;
-      $this->data['code'] = null;
 
       // Даём возможность прикрепить клон к новому родителю.
       if (null !== $parent)
@@ -588,10 +581,11 @@ class NodeBase
       return null;
 
     $sql = "SELECT `parent`.`id` as `id`, `parent`.`parent_id` as `parent_id`, "
-      ."`parent`.`code` as `code`, `parent`.`class` as `class`, `rev`.`name` as `name`, "
+      ."`parent`.`class` as `class`, `rev`.`name` as `name`, "
       ."`rev`.`data` as `data` "
       ."FROM `node` AS `self`, `node` AS `parent`, `node__rev` AS `rev` "
-      ."WHERE `self`.`left` BETWEEN `parent`.`left` AND `parent`.`right` AND `self`.`id` = {$tmp} AND `rev`.`rid` = `parent`.`rid` "
+      ."WHERE `self`.`left` BETWEEN `parent`.`left` "
+      ."AND `parent`.`right` AND `self`.`id` = {$tmp} AND `rev`.`rid` = `parent`.`rid` "
       ."ORDER BY `parent`.`left` -- NodeBase::getParents({$tmp})";
 
     $nodes = self::dbRead($sql);
@@ -1522,7 +1516,7 @@ class NodeBase
     $extra = $this->data;
 
     // Вытаскиваем данные, которые идут в поля таблиц.
-    $node = $this->dbWriteExtract($extra, array('id', 'lang', 'parent_id', 'class', 'code', 'left', 'right', 'uid', 'created', 'published', 'deleted'));
+    $node = $this->dbWriteExtract($extra, array('id', 'lang', 'parent_id', 'class', 'left', 'right', 'uid', 'created', 'published', 'deleted'));
     $node_rev = $this->dbWriteExtract($extra, array('name'));
 
     // Выделяем место в иерархии, если это необходимо.
@@ -1535,12 +1529,11 @@ class NodeBase
     if (empty($node['id'])) {
       $node_id = $this->dbGetNextId();
 
-      mcms::db()->exec($sql = "INSERT INTO `node` (`id`, `lang`, `parent_id`, `class`, `code`, `left`, `right`, `uid`, `created`, `updated`, `published`, `deleted`) VALUES (:id, :lang, :parent_id, :class, :code, :left, :right, :uid, :created, :updated, :published, :deleted)", $params = array(
+      mcms::db()->exec($sql = "INSERT INTO `node` (`id`, `lang`, `parent_id`, `class`, `left`, `right`, `uid`, `created`, `updated`, `published`, `deleted`) VALUES (:id, :lang, :parent_id, :class, :left, :right, :uid, :created, :updated, :published, :deleted)", $params = array(
         'id' => $node_id,
         'lang' => $node['lang'],
         'parent_id' => $node['parent_id'],
         'class' => $node['class'],
-        'code' => is_numeric($node['code']) ? null : $node['code'],
         'left' => $node['left'],
         'right' => $node['right'],
         'uid' => $node['uid'],
@@ -1555,8 +1548,7 @@ class NodeBase
 
     // Обновление существующей ноды.
     else {
-      mcms::db()->exec("UPDATE `node` SET `code` = :code, `uid` = :uid, `created` = :created, `updated` = :updated, `published` = :published, `deleted` = :deleted WHERE `id` = :id AND `lang` = :lang", array(
-        'code' => is_numeric($node['code']) ? null : $node['code'],
+      mcms::db()->exec("UPDATE `node` SET `uid` = :uid, `created` = :created, `updated` = :updated, `published` = :published, `deleted` = :deleted WHERE `id` = :id AND `lang` = :lang", array(
         'uid' => $node['uid'],
         'created' => $node['created'],
         'updated' => mcms::now(),

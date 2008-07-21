@@ -410,10 +410,8 @@ class ListWidget extends Widget
     if (!$this->recurse)
       return array($root);
 
-    $field = is_numeric($root) ? 'id' : 'code';
-
     $tags = mcms::db()->getResultsV("id", "SELECT `n`.`id` as `id` FROM `node` `n`, `node` `t` "
-      ."WHERE `t`.`{$field}` = :root AND `n`.`left` >= `t`.`left` AND `n`.`right` <= `t`.`right` "
+      ."WHERE `t`.`id` = :root AND `n`.`left` >= `t`.`left` AND `n`.`right` <= `t`.`right` "
       ."AND `n`.`deleted` = 0 AND `n`.`published` = 1 "
       ."ORDER BY `n`.`left` -- ListWidget::getTagList()", array(':root' => $root));
 

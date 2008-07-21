@@ -172,7 +172,7 @@ class MenuWidget extends Widget
         if (array_key_exists($child->id, $path))
           $li['class'][] = 'active';
 
-        if ((is_numeric($myid) and $myid == $child->id) or ($myid == $child->code))
+        if ($myid == $child->id)
           $li['class'][] = 'current';
 
         if ($idx == 0)
@@ -188,9 +188,9 @@ class MenuWidget extends Widget
         if (null !== $this->external and !empty($child->{$this->external}))
           $link = $child->{$this->external};
         else
-          $link = $this->prefix . $child->code .'/';
+          $link = $this->prefix . $child->id;
 
-        $a['href'] = str_replace('$tid', $child->code, $link);
+        $a['href'] = str_replace('$tid', $child->id, $link);
 
         if ($this->hidecurrent and in_array('current', $li['class'])) {
           if (empty($this->options['document'])) {

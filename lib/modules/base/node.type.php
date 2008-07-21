@@ -613,7 +613,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   public static function isReservedFieldName($field)
   {
-    return in_array($field, array('id', 'rid', 'nid', 'lang', 'parent_id', 'class', 'code', 'left', 'right', 'uid', 'created', 'updated', 'published', 'deleted', 'name', 'data'));
+    return in_array($field, self::getReservedNames());
   }
 
   public static function getInternal()
@@ -629,7 +629,6 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       'rid',
       'parent_id',
       'class',
-      'code',
       'left',
       'right',
       'created',

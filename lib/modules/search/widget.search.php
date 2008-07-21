@@ -429,7 +429,7 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
 
   private static function getNodeUrl(Node $node)
   {
-    return 'http://'. mcms::config('basedomain') .'/node/'. $node->code .'/';
+    return 'http://'. mcms::config('basedomain') .'/node/'. $node->id .'/';
 
     $tag = mcms::db()->getResults("SELECT `id`, `code` FROM `node` `n` "
       ."INNER JOIN `node__rel` `r` ON `r`.`tid` = `n`.`id` "
@@ -437,9 +437,9 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
         ':nid' => $node->id,
         ));
 
-    $tag = isset($tag[0]['code']) ? $tag[0]['code'] : $tag[0]['id'];
+    $tag = $tag[0]['id'];
 
-    $url = 'http://'. mcms::config('basedomain') .'/'. $tag .'/'. $node->code .'/';
+    $url = 'http://'. mcms::config('basedomain') .'/'. $tag .'/'. $node->id .'/';
 
     return $url;
   }

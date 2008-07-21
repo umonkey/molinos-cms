@@ -193,11 +193,6 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $stop = array('left', 'right', 'rid');
 
       foreach ($arr as $key => $val) {
-        if ('code' == $key and is_numeric($val)) {
-          unset($arr[$key]);
-          continue;
-        }
-
         if (empty($val) or in_array($key, $stop)) {
           unset($arr[$key]);
           continue;

@@ -140,9 +140,6 @@ class ModeratorModule implements iModuleConfig, iNodeHook
           $value = $node->$k;
         }
 
-        if (('code' == $k) and is_numeric($node->code))
-          continue;
-
         if (null !== $value) {
           $body .= '<dt>'. mcms_plain(isset($v['label']) ? $v['label'] : $k) .':</dt>';
           $body .= '<dd>'. mcms_plain($value) .'</dd>';

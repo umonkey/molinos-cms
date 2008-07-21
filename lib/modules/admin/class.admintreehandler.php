@@ -71,7 +71,7 @@ class AdminTreeHandler
     case 'taxonomy':
       $this->type = 'tag';
       $this->parent = null;
-      $this->columns = array('name', 'description', 'link', 'code', 'created');
+      $this->columns = array('name', 'description', 'link', 'created');
       $this->actions = array('publish', 'unpublish', 'delete', 'clone');
       $this->title = t('Карта разделов сайта');
       $this->zoomlink = "admin?cgroup=content&columns=name,class,uid,created&mode=list&search=tags%3ANODEID";
@@ -138,9 +138,6 @@ class AdminTreeHandler
             $text = null;
           else
             $text = mcms_plain($node[$field]);
-
-          if ($field == 'code' and is_numeric($text))
-            $text = null;
 
           if ($link) {
             $args = array(

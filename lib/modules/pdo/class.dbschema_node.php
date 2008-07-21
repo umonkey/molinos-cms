@@ -33,12 +33,6 @@ class DBSchema_node extends TableManager
         'key' => 'mul'
         );
 
-    $this->columns['code'] =  array(
-        'type' => 'varchar(16)',
-        'required' => 0,
-        'key' => 'uni'
-        );
-
     $this->columns['left'] = array(
         'type' => 'int',
         'required' => 0,

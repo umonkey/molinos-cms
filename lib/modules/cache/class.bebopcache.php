@@ -16,9 +16,9 @@ class BebopCache
 
             if (null !== self::$type) {
                 if (bebop_is_debugger() and !empty($_GET['flush'])) {
-                    $f = array(self::$type, 'flush');
-                    call_user_func($f, false);
-                    call_user_func($f, true);
+                    $i = call_user_func(array(self::$type, 'getInstance'));
+                    $i->flush(false);
+                    $i->flush(true);
                 }
             }
         }

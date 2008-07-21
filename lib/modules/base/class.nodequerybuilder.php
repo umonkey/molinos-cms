@@ -494,7 +494,6 @@ class NodeQueryBuilder
     if ($table == 'node') {
       switch ($field) {
       case 'id':
-      case 'code':
       case 'class':
       case 'parent_id':
       case 'published':
