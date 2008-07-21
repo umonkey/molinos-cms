@@ -85,7 +85,7 @@ function get_dba_link()
         mcms::extras('themes/admin/js/picker-redux.min.js');
       } else {
         mcms::extras('lib/modules/tinymce/editor/tiny_mce_popup.js', false);
-        mcms::extras('lib/modules/base/control.attachment.min.js');
+        mcms::extras('lib/modules/base/control.attachment.js');
       }
     ?>
     <?php print mcms::extras(); ?>
