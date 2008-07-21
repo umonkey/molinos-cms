@@ -16,6 +16,8 @@ require 'FileTest.php';
 require 'SchemaTest.php';
 require 'UpdateTest.php';
 require 'PdoTest.php';
+require 'TableManagerTest.php';
+require 'TableInfoTest.php';
 
 class AllTests
 {
@@ -35,6 +37,8 @@ class AllTests
     $suite->addTestSuite('FileTest');
     $suite->addTestSuite('SchemaTest');
     $suite->addTestSuite('UpdateTest');
+    $suite->addTestSuite('TableManagerTest');
+    $suite->addTestSuite('TableInfoTest');
 
     return $suite;
   }
