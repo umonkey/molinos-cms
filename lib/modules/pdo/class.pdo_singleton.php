@@ -121,6 +121,19 @@ class PDO_Singleton extends PDO
     return $sth;
   }
 
+  public function fetch($sql, array $params = null)
+  {
+    $res = $this->GetResults($sql, $params);
+
+    while (is_array($res) and count($res) == 1)
+      $res = array_shift($res);
+
+    if (array() === $res)
+      $res = null;
+
+    return $res;
+  }
+
   public function log($string)
   {
     if (null !== $this->query_log)
