@@ -1034,7 +1034,9 @@ class mcms
 
         if (!is_dir($next)) {
           if (!is_writable($path)) {
-            throw new RuntimeException(null === $msg ? t('Каталог %path отсутствует и не может быть создан.', array('%path' => $next)) : $msg);
+            if (null === $msg)
+              $msg = 'Каталог %path отсутствует и не может быть создан.';
+            throw new RuntimeException(t($msg, array('%path' => $next)));
           } else {
             mkdir($next, 0770);
           }
