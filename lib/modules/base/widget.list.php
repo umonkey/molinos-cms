@@ -397,6 +397,7 @@ class ListWidget extends Widget
     }
 
     $query['#permcheck'] = true;
+    $query['#recurse'] = 1;
 
     return $query;
   }
