@@ -78,6 +78,17 @@ abstract class Control implements iFormControl
     return null;
   }
 
+  protected function render(array $data)
+  {
+    $class = get_class($this);
+    $ctrln = mb_strtolower(substr($class, 0, -7));
+
+    return bebop_render_object('control', $ctrln, 'admin', array(
+      'd' => $data,
+      'c' => $this,
+      ), $class);
+  }
+
   protected function getHidden(array $data)
   {
     return mcms::html('input', array(
