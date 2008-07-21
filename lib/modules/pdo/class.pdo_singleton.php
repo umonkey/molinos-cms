@@ -4,9 +4,10 @@
 class PDO_Singleton extends PDO
 {
   static private $instances = array();
-  static private $dbname = null;
 
+  protected $dbname = null;
   protected $dbtype = null;
+
   private $prepared_queries = array();
   private $query_log = null;
 
@@ -32,9 +33,9 @@ class PDO_Singleton extends PDO
     throw new RuntimeException(t('Метод getDbType() не определён — используется неполноценный драйвер БД.'));
   }
 
-  public static function getDbName()
+  public function getDbName()
   {
-    return self::$dbname;
+    return $this->dbname;
   }
 
   public static function getInstance($name, $reload = false)

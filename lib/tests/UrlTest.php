@@ -10,13 +10,15 @@ class UrlTest extends PHPUnit_Framework_TestCase
     $urls = array(
       'http://www.google.com/',
       'https://user:password@gmail.com/inbox/#label',
-      'attachment/123',
-      '?q=attachment.rpc&fid=123',
-      '?q=nodeapi.rpc&action=stop',
+      '?fid=123&q=attachment.rpc',
+      '?action=stop&q=nodeapi.rpc',
       );
 
     foreach ($urls as $k => $v) {
-      $link = strval(new url($v));
+      if (is_numeric($k))
+        $link = strval(new url($v));
+      else
+        $link = strval(new url($k));
       $this->assertEquals($v, $link);
     }
   }
