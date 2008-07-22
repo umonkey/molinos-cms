@@ -53,9 +53,11 @@ class BebopMimeMail
         if (false !== strpos($href, 'mailto:'))
           continue;
 
-        $new = 'http://'. $_SERVER['HTTP_HOST']
-          .'/'. trim(dirname($_SERVER['SCRIPT_NAME']), '/') .'/'
-          .ltrim($href, '/');
+        $new = 'http://'. $_SERVER['HTTP_HOST'].'/';
+        $dn = dirname($_SERVER['SCRIPT_NAME']);
+        if (!empty($dn) and ($dn != '/'))
+          $new .= trim($dn, '/') .'/';
+        $new .= ltrim($href, '/');
 
         $new = str_replace($href, $new, $m[0][$idx]);
         $html = str_replace($m[0][$idx], $new, $html);
