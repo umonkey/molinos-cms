@@ -175,8 +175,11 @@ class NodeBase implements iFormObject
 
       foreach ($schema['fields'] as $k => $v) {
         if (!empty($this->data[$k])) {
+          $vs = $this->data[$k];
+          if (is_array($vs))
+            $vs = implode(',', $vs);
           $body .= '<dt>'. htmlspecialchars($v['label']) .':</dt>';
-          $body .= '<dd>'. htmlspecialchars($this->data[$k]) .'</dd>';
+          $body .= '<dd>'. htmlspecialchars($vs) .'</dd>';
         }
       }
 
