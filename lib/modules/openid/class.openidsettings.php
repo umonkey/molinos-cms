@@ -1,6 +1,6 @@
 <?php
 
-class AuthModule implements iModuleConfig
+class OpenIdSettings implements iModuleConfig
 {
   public static function formGetModuleConfig()
   {
@@ -24,6 +24,12 @@ class AuthModule implements iModuleConfig
       'required' => true,
       'default' => 'open',
       )));
+    $form->addControl($tab);
+
+    $tab = new FieldSetControl(array(
+      'name' => 'tab_profilefields',
+      'label' => t('Профиль'),
+      ));
     $tab->addControl(new SetControl(array(
       'value' => 'config_profile_fields',
       'label' => t('Запрашиваемые атрибуты'),

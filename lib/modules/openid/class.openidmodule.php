@@ -5,9 +5,15 @@ class OpenIdModule implements iRemoteCall
   public static function hookRemoteCall(RequestContext $ctx)
   {
     $openidinfo = $ctx->get('openid');
-    $node = self::openIDAuthorize($openidinfo['mode']);
-    if (!empty($node))
-        User::authorize($node->name, null, true, true);
+
+    try {
+      $node = self::openIDAuthorize($openidinfo['mode']);
+      User::authorize($node->name, null, true, true);
+    } catch (ObjectNotFoundException $e) {
+      throw new ForbiddenException(t('Вы успешно авторизировались, '
+        .'но пользоваться сайтом не можете, т.к. прозрачная регистрация '
+        .'пользователей OpenID отключена. Соболезнования.'));
+    }
 
     mcms::redirect("?q=admin");
   }
@@ -16,8 +22,12 @@ class OpenIdModule implements iRemoteCall
   {
     self::includeOpenID();
 
-    if ('none' == ($mode = mcms::modconf('auth', 'mode', 'open')))
+    if ('none' == ($mode = mcms::modconf('openid', 'mode', 'open')))
       throw new RuntimeException(t('Поддержка OpenID отключена администратором.'));
+
+    if (null === mcms::session()->id())
+      throw new RuntimeException(t('Ваш браузер не поддерживает '
+        .'(или криво поддерживает) cookie, работа с OpenID невозможна.'));
 
     if ('id_res' == $openid_mode) {
       $openid = null;
