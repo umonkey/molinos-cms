@@ -1,0 +1,8 @@
+ul.tagcloud {
+  line-height: 200%;
+}
+ul.tagcloud li {
+  display: inline;
+  margin-right: .5em;
+  white-space: nowrap;
+}
