@@ -6,14 +6,16 @@ class NodeApiModule implements iRemoteCall
   public static function hookRemoteCall(RequestContext $ctx)
   {
     if ($ctx->get('action') == 'mass')
-      self::doMassAction($ctx);
+      $next = self::doMassAction($ctx);
     else
-      self::doSingleAction($ctx);
+      $next = self::doSingleAction($ctx);
 
-    if ('POST' == $_SERVER['REQUEST_METHOD'] and $ctx->post('nodeapi_return'))
-      $next = $_SERVER['HTTP_REFERER'];
-    elseif (null === ($next = $ctx->get('destination')))
-      $next = '/';
+    if (null === $next) {
+      if ('POST' == $_SERVER['REQUEST_METHOD'] and $ctx->post('nodeapi_return'))
+        $next = $_SERVER['HTTP_REFERER'];
+      elseif (null === ($next = $ctx->get('destination')))
+        $next = '/';
+    }
 
     mcms::redirect($next);
   }
@@ -60,7 +62,7 @@ class NodeApiModule implements iRemoteCall
         'id' => $nid,
         'deleted' => array(0),
         '#cache' => false,
-        '#recurse' => 1,
+        '#recurse' => empty($_GET['bare']),
         );
 
       if (bebop_is_debugger())
@@ -87,8 +89,14 @@ class NodeApiModule implements iRemoteCall
       mcms::redirect(str_replace('ID', $node->id, $link));
 
     case 'reindex':
-      $node = Node::load(array('class' => 'type', 'id' => $nid));
-      $node->updateTable();
+      $node = Node::load(array('id' => $nid, '#recurse' => 1));
+      mcms::user()->checkAccess('u', $node->class);
+
+      if ($node->class == 'type')
+        $node->updateTable();
+      else
+        $node->reindex();
+
       break;
 
     case 'publish':
@@ -134,11 +142,7 @@ class NodeApiModule implements iRemoteCall
 
       $node->formProcess($ctx->post);
 
-      if (false !== strpos($next = $ctx->get('destination'), '__NID__')) {
-        $next = str_replace('__NID__', $node->id, $next);
-        mcms::redirect($next);
-      }
-
+      mcms::redirect(self::fixredir($ctx->get('destination', '/'), $node));
       break;
 
     case 'edit':
@@ -189,5 +193,13 @@ class NodeApiModule implements iRemoteCall
       'node' => $nid,
       'status' => 'ok',
       ));
+  }
+
+  public static function fixredir($path, Node $node)
+  {
+    $url = new url($path);
+    $url->setarg($node->published ? 'created' : 'pending', $node->id);
+    $url->setarg('type', $node->class);
+    return strval($url);
   }
 };

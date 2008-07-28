@@ -260,15 +260,6 @@ class FormWidget extends Widget
       $form = $node->formGet($this->stripped);
       $form->wrapper_class = 'form-create-wrapper';
 
-      $next = new url();
-      $next->setarg($this->getInstanceName() .'.status', 'pending');
-      $next->setarg($this->getInstanceName() .'.node', '__NID__');
-
-      $url = new url($form->action);
-      $url->setarg('destination', mcms::path() .'/'. $next);
-
-      $form->action = strval($url);
-
       $form->addControl(new HiddenControl(array(
         'value' => 'referer',
         )));
