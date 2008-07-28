@@ -113,10 +113,16 @@ class NodeBase
     $query['#limit'] = $limit;
     $query['#offset'] = $offset;
 
+    if (!array_key_exists('#recurse', $query))
+      $query['#recurse'] = 1;
+    if (!array_key_exists('#cache', $query))
+      $query['#cache'] = true;
+
     $cacheid = 'node:find:'. md5(serialize($query));
 
-    if (is_array($data = mcms::cache($cacheid)))
-      return $data;
+    if (empty($_GET['nocache']) or !bebop_is_debugger())
+      if (is_array($data = mcms::cache($cacheid)))
+        return $data;
 
     $sql = null;
     $params = array();
@@ -258,7 +264,7 @@ class NodeBase
       throw new ForbiddenException(t('У вас нет прав на публикацию этого объекта.'));
 
     // Документ уже опубликован.
-    if ($this->prev_published and $this->rid == $rev)
+    if ($this->published and $this->rid == $rev)
       return;
 
     $this->data['published'] = true;
@@ -277,7 +283,7 @@ class NodeBase
 
   public function unpublish()
   {
-    if (!$this->prev_published)
+    if (!$this->published)
       return;
 
     // Скрываем документ.
@@ -288,9 +294,6 @@ class NodeBase
 
     // Даём другим модулям возможность обработать событие (например, mod_moderator).
     mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'unpublish'));
-
-    if ($this->prev_published)
-      mcms::flush(); //сбрасываем кэш только для ранее опубликованного документа
 
     return true;
   }
@@ -378,6 +381,9 @@ class NodeBase
     if (empty($data['uid']))
       $data['uid'] = mcms::session('uid');
 
+    if (empty($data['id']))
+      $data['published'] = false;
+
     return new $host($data);
   }
 
@@ -445,6 +451,7 @@ class NodeBase
       '#sort' => array(
         'left' => 'asc',
         ),
+      '#recurse' => 1,
       ));
 
     // Превращаем плоский список в дерево.
@@ -1138,11 +1145,7 @@ class NodeBase
       $form->addControl($tab);
 
     if ($this->canPublish())
-      $form->addControl(new BoolControl(array(
-        'value' => 'node_content_published',
-        'label' => t('Опубликовать'),
-        'default' => $this->published,
-        )));
+      ;
 
     $form->addControl(new SubmitControl(array(
       'text' => 'Сохранить',
@@ -1361,8 +1364,10 @@ class NodeBase
             break;
 
           case 'NodeLinkControl':
-            if (!empty($data[$key = 'node_content_'. $k]))
+            if (!empty($data[$key = 'node_content_'. $k])) {
               $this->linkAddChild($data[$key], $k);
+              $this->data[$k] = Node::load($data[$key]);
+            }
             break;
 
           case 'PasswordControl':
@@ -1427,12 +1432,6 @@ class NodeBase
     if (!empty($schema['hasfiles']) and !empty($data['node_ftp_files'])) {
       FileNode::getFilesFromFTP($data['node_ftp_files'], $this->id);
     }
-
-    //сохраним первоначальное значение статуса опубликованности документа
-    $this->prev_published = $this->data['published'];
-
-    if ($this->canPublish())
-      $this->data['published'] = !empty($data['node_content_published']);
   }
 
   private function attachOneFile($field,  array $fileinfo)
@@ -1644,8 +1643,15 @@ class NodeBase
         $node['left'] = $parent['right'];
         $node['right'] = $node['left'] + 1;
 
-        mcms::db()->exec("UPDATE `node` SET `left` = `left` + 2 WHERE `left` >= :pos", array(':pos' => $node['left']));
-        mcms::db()->exec("UPDATE `node` SET `right` = `right` + 2 WHERE `right` >= :pos", array(':pos' => $node['left']));
+        $ou = mcms::db()->hasOrderedUpdates();
+
+        $order = $ou ? ' ORDER BY `left` DESC' : '';
+        mcms::db()->exec("UPDATE `node` SET `left` = `left` + 2 "
+          ."WHERE `left` >= :pos". $order, array(':pos' => $node['left']));
+
+        $order = $ou ? ' ORDER BY `right` DESC' : '';
+        mcms::db()->exec("UPDATE `node` SET `right` = `right` + 2 "
+          ."WHERE `right` >= :pos". $order, array(':pos' => $node['left']));
       }
     }
   }
@@ -1708,10 +1714,9 @@ class NodeBase
               $extra = $extras[$link['nid']];
 
               if (null !== $link['key'])
-                $nodes[$link['tid']]->$link['key'] = $extra;
-              elseif ('file' == $extra->class) {
+                $nodes[$link['tid']]->data[$link['key']] = $extra;
+              elseif ('file' == $extra->class)
                 $nodes[$link['tid']]->files[] = $extra;
-              }
             }
           }
         }
@@ -1730,10 +1735,17 @@ class NodeBase
     $schema = TypeNode::getSchema($this->class);
 
     foreach ($schema['fields'] as $k => $v) {
-      if (!empty($v['indexed']) and !TypeNode::isReservedFieldName($k)) {
-        $fields[] = $k;
+      if (empty($v['indexed']))
+        continue;
+      if (TypeNode::isReservedFieldName($k))
+        continue;
+
+      $fields[] = $k;
+
+      if ($this->$k instanceof Node)
+        $params[':'. $k] = $this->$k->id;
+      else
         $params[':'. $k] = $this->$k;
-      }
     }
 
     if (count($fields) > 1) {

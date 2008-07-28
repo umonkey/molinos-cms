@@ -153,13 +153,15 @@ function bebop_on_json(array $result)
 // Применяет шаблон к данным.
 function bebop_render_object($type, $name, $theme = null, $data, $classname = null)
 {
-  $__root = MCMS_ROOT;
-
   $data['base'] = 'http://'. $_SERVER['HTTP_HOST'] . mcms::path() .'/';
 
   if (null === $theme) {
-    $ctx = RequestContext::getGlobal();
-    $theme = $ctx->theme;
+    try {
+      $ctx = RequestContext::getGlobal();
+      $theme = $ctx->theme;
+    } catch (InvalidArgumentException $e) {
+      $theme = 'all';
+    }
   }
 
   if ($data instanceof Exception) {
@@ -174,16 +176,23 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
   }
 
   // Варианты шаблонов для этого объекта.
-  $__options = array(
-    "themes/{$theme}/templates/{$type}.{$name}.tpl",
-    "themes/{$theme}/templates/{$type}.{$name}.php",
-    "themes/{$theme}/templates/{$type}.default.tpl",
-    "themes/{$theme}/templates/{$type}.default.php",
-    "themes/all/templates/{$type}.{$name}.tpl",
-    "themes/all/templates/{$type}.{$name}.php",
-    "themes/all/templates/{$type}.default.tpl",
-    "themes/all/templates/{$type}.default.php",
-    );
+  if (null !== $type and null !== $name)
+    $__options = array(
+      "themes/{$theme}/templates/{$type}.{$name}.tpl",
+      "themes/{$theme}/templates/{$type}.{$name}.php",
+      "themes/{$theme}/templates/{$type}.{$name}.phtml",
+      "themes/{$theme}/templates/{$type}.default.tpl",
+      "themes/{$theme}/templates/{$type}.default.php",
+      "themes/{$theme}/templates/{$type}.default.phtml",
+      "themes/all/templates/{$type}.{$name}.tpl",
+      "themes/all/templates/{$type}.{$name}.php",
+      "themes/all/templates/{$type}.{$name}.phtml",
+      "themes/all/templates/{$type}.default.tpl",
+      "themes/all/templates/{$type}.default.php",
+      "themes/all/templates/{$type}.default.phtml",
+      );
+  else
+    $__options = array();
 
   if (!mcms::ismodule('smarty')) {
     foreach ($__options as $k => $v) {
@@ -196,70 +205,26 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
   }
 
   // Если класс существует — добавляем его дефолтный шаблон в конец.
-  if (array_key_exists($key = strtolower($classname), $classmap = mcms::getClassMap())) {
-    $rp = str_replace('.php', '.phtml', $classmap[$key]);
-    if (is_readable($rp))
-      $__options[] = $rp;
-  }
-
-  foreach ($__options as $__filename) {
-    if ('/' == substr($__filename, 0, 1))
-      $__fullpath = $__filename;
-    else
-      $__fullpath = $__root .'/'. $__filename;
-
-    if (file_exists($__fullpath)) {
-      $data['prefix'] = rtrim(dirname(dirname($__filename)), '/');
-
-      ob_start();
-
-      $ext = strrchr($__filename, '.');
-
-      if ($ext == '.tpl') {
-        if (class_exists('BebopSmarty')) {
-          $__smarty = new BebopSmarty($type == 'page');
-          $__smarty->template_dir = ($__dir = dirname($__fullpath));
-
-          if (is_dir($__dir .'/plugins')) {
-            $__plugins = $__smarty->plugins_dir;
-            $__plugins[] = $__dir .'/plugins';
-            $__smarty->plugins_dir = $__plugins;
-          }
-
-          foreach ($data as $k => $v)
-            $__smarty->assign($k, $v);
-
-          error_reporting(($old = error_reporting()) & ~E_NOTICE);
-
-          $compile_id = md5($__fullpath);
-          $__smarty->display($__fullpath, $compile_id, $compile_id);
-
-          error_reporting($old);
-        }
-      }
-
-      elseif ($ext == '.php' or $ext == '.phtml') {
-        extract($data, EXTR_SKIP);
-        include($__fullpath);
-      }
-
-      $output = ob_get_clean();
-
-      if (file_exists($tmp = str_replace($ext, '.css', $__filename)))
-        mcms::extras($tmp);
-
-      if (file_exists($tmp = str_replace($ext, '.js', $__filename)))
-        mcms::extras($tmp);
-
-      return trim($output);
+  if (null !== $classname) {
+    $key = strtolower($classname);
+    if (array_key_exists($key, $classmap = mcms::getClassMap())) {
+      $rp = str_replace('.php', '.phtml', $classmap[$key]);
+      if (is_readable($rp))
+        $__options[] = $rp;
     }
   }
+
+  foreach ($__options as $__filename)
+    if (false !== ($output = mcms::render($__filename, $data)))
+      return $output;
+
+  return false;
 }
 
 // Определяет тип файла.
 function bebop_get_file_type($filename, $realname = null)
 {
-  if (false !== strstr($filename, '.')) {
+  if (strrchr($filename, '.')) {
     switch (substr($filename, strrpos($filename, '.'))) {
     case '.pdf':
       return 'application/pdf';
@@ -274,6 +239,8 @@ function bebop_get_file_type($filename, $realname = null)
       return 'image/jpeg';
     case '.png':
       return 'image/png';
+    case '.mp3':
+      return 'audio/mpeg';
     }
   }
 
@@ -313,27 +280,52 @@ function mcms_fetch_file($url, $content = true, $cache = true)
       unlink($outfile);
 
   // Скачиваем файл только если его нет на диске во временной директории
-  if (!file_exists($outfile)) {
-    $ch = curl_init($url);
-    $fp = fopen($outfile, "w+");
+  if (file_exists($outfile)) {
+    mcms::log('fetch', 'found in cache: '. $url);
+  } else {
+    if (function_exists('curl_init')) {
+      $ch = curl_init($url);
+      $fp = fopen($outfile, "w+");
 
-    curl_setopt($ch, CURLOPT_FILE, $fp);
-    curl_setopt($ch, CURLOPT_HEADER, 0);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Molinos.CMS/' . mcms::version() . '; ' . l('/'));
+      curl_setopt($ch, CURLOPT_FILE, $fp);
+      curl_setopt($ch, CURLOPT_HEADER, 0);
+      curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+      curl_setopt($ch, CURLOPT_USERAGENT, 'Molinos.CMS/' . mcms::version() . '; ' . l('/'));
 
-    if (!ini_get('safe_mode'))
-      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+      if (!ini_get('safe_mode'))
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 
-    curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
+      curl_exec($ch);
+      $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+      curl_close($ch);
 
-    fclose($fp);
+      fclose($fp);
 
-    if (200 != $code) {
-      unlink($outfile);
-      return null;
+      if (200 != $code) {
+        unlink($outfile);
+        return null;
+      }
+
+      mcms::log('fetch', 'read with curl: '. $url);
+    }
+
+    elseif ($f = fopen($url, 'rb')) {
+      if (!($out = fopen($outfile, 'w')))
+        throw new RuntimeException(t('Не удалось сохранить временный файл %name', array('%name' => $outfile)));
+
+      while (!feof($f))
+        fwrite($out, fread($f, 1024));
+
+      fclose($f);
+      fclose($out);
+
+      mcms::log('fetch', 'read with fopen: '. $url);
+    }
+
+    else {
+      throw new RuntimeException(t('Не удалось загрузить файл: '
+        .'модуль CURL отсутствует, '
+        .'открыть поток HTTP тоже не удалось.'));
     }
 
     if (function_exists('get_headers')) {

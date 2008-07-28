@@ -177,7 +177,7 @@ class TableInfo
 
       $sql = mcms::db()->getSql($this->name, $this->alter, $this->isnew);
 
-      return $sql;
+      return trim($sql);
     }
 
     public function delete()

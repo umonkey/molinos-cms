@@ -74,7 +74,7 @@ class mcms_mysql_driver extends PDO_Singleton
           // Если её нет, надо выкинуть TableNotFoundException, чтобы TableInfo::exists() вернул false
           throw new TableNotFoundException($tname);
         } else {
-          if (preg_match("/`node__idx_([^`]+)/i", $sql, $tblmatches)) {
+          if (preg_match("/node__idx_(\w+)/i", $sql, $tblmatches)) {
             //для индексных таблиц свой механизм пересоздания
             try {
               $node = Node::load(array('class' => 'type', 'name' => $tblmatches[1]));
@@ -90,7 +90,7 @@ class mcms_mysql_driver extends PDO_Singleton
           }
         }
       } else if ('42S22' == $e->getCode()) {// нет поля
-        if (preg_match("/node__idx_(\S+)/i", $sql, $tblmatches)) {
+        if (preg_match("/node__idx_(\w+)/i", $sql, $tblmatches)) {
           //для индексных таблиц тупо занимаемся пересозданием
           $node = Node::load(array('class' => 'type', 'name' => $tblmatches[1]));
           if (!empty($node)) {

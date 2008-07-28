@@ -73,21 +73,19 @@ class BaseModule implements iRemoteCall
       break;
 
     case 'su':
-      if (!bebop_is_debugger() and mcms::config('debuggers'))
+      if (!bebop_is_debugger())
         throw new ForbiddenException(t('У вас нет прав доступа к sudo'));
 
-      $curuid = User::identify()->id;
-
-      $username = $ctx->get('username');
-
-      if (empty($username))
-        $uid = $ctx->get('uid');
-      else {
-        $node = Node::load(array('class' => 'user', 'name' => $username));
-        $uid = $node->id;
+      if (null === ($uid = $ctx->get('uid'))) {
+        if ($username = $ctx->get('username'))
+          $uid = Node::load(array('class' => 'user', 'name' => $username))->id;
+        else
+          throw new PageNotFoundException(t('Нет такого пользователя.'));
       }
 
-      if ($uid) {
+      $curuid = mcms::user()->id;
+
+      if ($uid and $uid != $curuid) {
         if (!is_array($stack = mcms::session('uidstack')))
           $stack = array();
 
@@ -96,9 +94,7 @@ class BaseModule implements iRemoteCall
 
         self::login($uid);
       }
-      else {
-        mcms::redirect("admin");
-      }
+
       break;
 
     case 'restore':
@@ -177,7 +173,5 @@ class BaseModule implements iRemoteCall
       throw new ForbiddenException(t('Ваш профиль заблокирован.'));
 
     mcms::session('uid', $node->id);
-
-    mcms::redirect("admin");
   }
 };

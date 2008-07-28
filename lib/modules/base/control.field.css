@@ -22,8 +22,7 @@ div.fprop.TextHTMLControl tr.fprop.indexed,
 div.fprop.TextAreaControl tr.fprop.indexed,
 div.fprop.AttachmentControl tr.fprop.indexed,
 div.fprop.PasswordControl tr.fprop.indexed,
-div.fprop.SetControl tr.fprop.indexed,
-div.fprop.NodeLinkControl tr.fprop.indexed {
+div.fprop.SetControl tr.fprop.indexed {
   display: none;
 }
 

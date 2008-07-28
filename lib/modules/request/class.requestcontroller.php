@@ -85,6 +85,15 @@ class RequestController
       if (ob_get_length())
         ob_end_clean();
 
+      if (404 == $e->getCode()) {
+        try {
+          $new = mcms::db()->getResult("SELECT new FROM node__fallback WHERE old = ?",
+            array($_SERVER['REQUEST_URI']));
+          if (!empty($new))
+            mcms::redirect($new, 302);
+        } catch (PDOException $e2) { }
+      }
+
       if ($e instanceof UserErrorException)
         $message = $e->getDescription();
       else
@@ -425,6 +434,9 @@ class RequestController
 
     $output = str_replace('$execution_time', $profile['__request'], $output);
 
+    if (mcms::ismodule('compressor') and mcms::modconf('compressor', 'strip_html'))
+      $output = preg_replace('@\>\s+\<@', '><', $output);
+
     $args = array(&$output, $this->page);
     mcms::invoke('iPageHook', 'hookPage', $args);
 
@@ -744,6 +756,9 @@ class RequestController
       'description' => method_exists($e, 'getDescription') ? $e->getDescription() : 'Внутренняя ошибка',
       'note' => method_exists($e, 'getNote') ? $e->getNote() : $e->getMessage(),
       )));
+
+    if (mcms::ismodule('compressor') and mcms::modconf('compressor', 'strip_html'))
+      $output = preg_replace('@\>\s+\<@', '><', $output);
 
     if (!is_numeric($code = $e->getCode()))
       $code = 500;

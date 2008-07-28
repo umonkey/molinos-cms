@@ -229,7 +229,12 @@ class DomainNode extends Node implements iContentType
     $result = mcms::cache('urlmap');
 
     if (!is_array($result)) {
-      $roots = Node::find(array('class' => 'domain', 'parent_id' => null));
+      $f = array(
+        'class' => 'domain',
+        'parent_id' => null,
+        '#recurse' => 1,
+        );
+      $roots = Node::find($f);
 
       // FIXME: переписать getObjectTree()!
 

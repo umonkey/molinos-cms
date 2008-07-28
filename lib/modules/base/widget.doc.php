@@ -85,7 +85,7 @@ class DocWidget extends Widget
       );
 
     if ($root = $options['root']) {
-      $node = Node::load(array('id' => $options['root'], '#recurse' => true));
+      $node = Node::load(array('id' => $options['root'], '#recurse' => 1));
 
       if (in_array($node->class, array('tag', 'config')))
         throw new PageNotFoundException();
@@ -108,36 +108,6 @@ class DocWidget extends Widget
       }
 
       $result['schema'] = TypeNode::getSchema($node->class);
-
-      if (!empty($result['schema']['fields']) and is_array($result['schema']['fields'])) {
-        foreach ($result['schema']['fields'] as $k => $v) {
-          switch ($v['type']) {
-          case 'NodeLinkControl':
-            if (empty($result['document'][$k]))
-              $result['document'][$k] = null;
-            else {
-              if (!empty($v['dictionary']))
-                $parts = array($v['dictionary'], 'name');
-              else
-                $parts = explode('.', $v['values'], 2);
-
-              if (is_object($id = $result['document'][$k]))
-                $id = $id->id;
-
-              $filter = array(
-                'class' => $parts[0],
-                'id' => $id,
-                );
-
-              if (count($tmp = array_values(Node::find($filter, 1))))
-                $result['document'][$k] = $tmp[0]->getRaw();
-              else
-                $result['document'][$k] = null;
-            }
-            break;
-          }
-        }
-      }
 
       if ($this->showneighbors and $this->ctx->section_id !== null and in_array($this->ctx->section->id, $sections)) {
         if (null !== ($n = $node->getNeighbors($this->ctx->section->id))) {

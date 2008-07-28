@@ -28,7 +28,7 @@ class AccessControl extends Control
 
   public function getHTML(array $data)
   {
-    $output = "<tr><th>&nbsp;</th><th>C</th><th>R</th><th>U</th><th>D</th><th>P</th></tr>";
+    $output = "<label>{$this->label}:</label><tr><th>&nbsp;</th><th>C</th><th>R</th><th>U</th><th>D</th><th>P</th></tr>";
 
     foreach ($this->options as $k => $v) {
       $output .= '<tr>';
@@ -50,6 +50,7 @@ class AccessControl extends Control
       $output .= '</tr>';
     }
 
-    return $this->wrapHTML('<table class=\'padded highlight\'>'. $output .'</table>');
+    return $this->wrapHTML('<table class=\'padded highlight\'>'
+      . $output .'</table>', false);
   }
 };

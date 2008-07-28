@@ -52,7 +52,7 @@ class mcms_sqlite_driver extends PDO_Singleton
           //В SQlite в $info имя таблицы не содержится, надо проанализировать sql-запрос
           //Если в sql-запросе имеется строка node__idx_*** -
           //считаем, что это индексная таблица, и пытаемся её создать заново
-          if (preg_match("/node__idx_(\S+)/i", $sql, $matches)) {
+          if (preg_match("/node__idx_(\w+)/i", $sql, $matches)) {
             $node = Node::load(array('class' => 'type', 'name' => $matches[1]));
             if (!empty($node)) {
               mcms::log('SQLite', $matches[1] .': updating index structure');
@@ -77,7 +77,7 @@ class mcms_sqlite_driver extends PDO_Singleton
 
         if (false !== strstr($info[2], 'no such table')) {
           if (preg_match("/no such table:\s*(\S+)/i", $info[2], $matches)) {
-            if (preg_match("/node__idx_(\S+)/i", $sql, $tblmatches)) {
+            if (preg_match("/node__idx_(\w+)/i", $sql, $tblmatches)) {
               //для индексных таблиц свой механизм пересоздания
                $node = Node::load(array('class' => 'type', 'name' => $tblmatches[1]));
                if (!empty($node)) {
@@ -164,7 +164,7 @@ class mcms_sqlite_driver extends PDO_Singleton
       copy($this->dbfile, $fname);
     }
   }
-  
+
   public function getTableInfo($name)
   {
     $indexes = array();

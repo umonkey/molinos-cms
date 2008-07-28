@@ -41,6 +41,12 @@ class Session
 
   public function save()
   {
+    static $sent = false;
+
+    if (null === $this->data)
+      throw new RuntimExeption(t('Session is being saved '
+        .'without having been loaded.'));
+
     if ($this->hash() != $this->_hash) {
       if (null === $this->id)
         $this->id = md5($_SERVER['REMOTE_ADDR'] . microtime(false) . rand());
@@ -50,9 +56,8 @@ class Session
 
       if (!empty($this->data))
         mcms::db()->exec("INSERT INTO node__session (`created`, `sid`, `data`) "
-          ."VALUES (UTC_TIMESTAMP(), ?, ?)", array($this->id, serialize($this->data)));
-
-      static $sent = false;
+          ."VALUES (UTC_TIMESTAMP(), ?, ?)",
+          array($this->id, serialize($this->data)));
 
       if (!$sent) {
         $sent = true;
@@ -63,9 +68,14 @@ class Session
 
         setcookie($name, empty($this->data) ? null : $this->id, $time, $path);
 
-        mcms::log('session', "cookie set: {$name}, {$this->id}, {$time}, {$path}");
+        mcms::log('session', "cookie set: {$name}={$this->id}");
       }
     }
+  }
+
+  public function id()
+  {
+    return $this->id;
   }
 
   public function __get($key)

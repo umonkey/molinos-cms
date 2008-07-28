@@ -126,7 +126,10 @@ class RequestContext
         elseif (is_object($node))
           return $this->$key;
         else {
-          $tmp = Node::load($node);
+          $tmp = Node::load(array(
+            'id' => $node,
+            '#recurse' => 1,
+            ));
 
           if ($tmp->class == 'tag' and $key != 'section')
             return null;

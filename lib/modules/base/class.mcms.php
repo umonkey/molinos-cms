@@ -126,8 +126,21 @@ class mcms
       $types = self::MEDIA_AUDIO | self::MEDIA_VIDEO;
 
     foreach ($files as $k => $v) {
-      if ($v instanceof Node)
+      $flink = null;
+
+      if ($v instanceof Node) {
         $v = $v->getRaw();
+      } elseif (is_string($v)) {
+        $flink = $v;
+        $v = array(
+          'id' => null,
+          'filepath' => $v,
+          'filetype' => bebop_get_file_type($v),
+          );
+      }
+
+      if (null === $flink)
+        $flink = "attachment/{$v['id']}/{$v['filename']}";
 
       switch ($v['filetype']) {
       case 'audio/mpeg':
@@ -135,7 +148,7 @@ class mcms
           $nodes[] = $v['id'];
           $havetypes |= self::MEDIA_AUDIO;
           if (null === $firstfile)
-            $firstfile = "attachment/{$v['id']}/{$v['filename']}";
+            $firstfile = $flink;
         }
         break;
       case 'video/flv':
@@ -144,7 +157,7 @@ class mcms
           $nodes[] = $v['id'];
           $havetypes |= self::MEDIA_VIDEO;
           if (null === $firstfile)
-            $firstfile = "attachment/{$v['id']}/{$v['filename']}";
+            $firstfile = $flink;
         }
         break;
       }
@@ -378,7 +391,11 @@ class mcms
     if ($_SERVER['REQUEST_METHOD'] == 'POST')
       $status = 303;
 
-    $url = new url($path);
+    if ($path instanceof url)
+      $url = $path;
+    else
+      $url = new url($path);
+
     if ($url->islocal and substr($path, 0, 1) != '/')
       $path = mcms::path() .'/'. strval($url);
 
@@ -423,7 +440,10 @@ class mcms
 
       if (func_num_args()) {
         foreach (func_get_args() as $arg) {
-          $output[] = preg_replace('/ =>\s+/', ' => ', var_export($arg, true));
+          if (is_resource($arg))
+            $output[] = 'resource';
+          else
+            $output[] = preg_replace('/ =>\s+/', ' => ', var_export($arg, true));
         }
       } else {
         $output[] = 'breakpoint';
@@ -532,6 +552,9 @@ class mcms
   public static function captchaCheck(array $data)
   {
     if (mcms::user()->id != 0)
+      return true;
+
+    if (!mcms::ismodule('captcha'))
       return true;
 
     if (!empty($data['captcha']) and is_array($data['captcha']) and count($data['captcha']) == 2) {
@@ -1181,6 +1204,71 @@ class mcms
       return $s->$args[0];
     elseif (count($args) >= 2)
       $s->$args[0] = $args[1];
+  }
+
+  public static function render($filename, array $data)
+  {
+    if (!file_exists($filename) and class_exists($filename, false)) {
+      $key = strtolower($filename);
+      $map = self::getClassMap();
+
+      if (array_key_exists($key, $map))
+        $filename = str_replace('.php', '.phtml', $map[$key]);
+    }
+
+    if (!is_readable($filename))
+      return false;
+
+    if ('/' == substr($filename, 0, 1))
+      $__fullpath = $filename;
+    else
+      $__fullpath = MCMS_ROOT .'/'. $filename;
+
+    if (file_exists($__fullpath)) {
+      $data['prefix'] = rtrim(dirname(dirname($filename)), '/');
+
+      ob_start();
+
+      $ext = strrchr($filename, '.');
+
+      if ($ext == '.tpl') {
+        if (class_exists('BebopSmarty')) {
+          $__smarty = new BebopSmarty($type == 'page');
+          $__smarty->template_dir = ($__dir = dirname($__fullpath));
+
+          if (is_dir($__dir .'/plugins')) {
+            $__plugins = $__smarty->plugins_dir;
+            $__plugins[] = $__dir .'/plugins';
+            $__smarty->plugins_dir = $__plugins;
+          }
+
+          foreach ($data as $k => $v)
+            $__smarty->assign($k, $v);
+
+          error_reporting(($old = error_reporting()) & ~E_NOTICE);
+
+          $compile_id = md5($__fullpath);
+          $__smarty->display($__fullpath, $compile_id, $compile_id);
+
+          error_reporting($old);
+        }
+      }
+
+      elseif ($ext == '.php' or $ext == '.phtml') {
+        extract($data, EXTR_SKIP);
+        include($__fullpath);
+      }
+
+      $output = ob_get_clean();
+
+      if (file_exists($tmp = str_replace($ext, '.css', $filename)))
+        mcms::extras($tmp);
+
+      if (file_exists($tmp = str_replace($ext, '.js', $filename)))
+        mcms::extras($tmp);
+
+      return trim($output);
+    }
   }
 };
 
