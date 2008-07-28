@@ -1233,7 +1233,7 @@ class mcms
 
       if ($ext == '.tpl') {
         if (class_exists('BebopSmarty')) {
-          $__smarty = new BebopSmarty($type == 'page');
+          $__smarty = new BebopSmarty(false !== strstr($filename, 'page.'));
           $__smarty->template_dir = ($__dir = dirname($__fullpath));
 
           if (is_dir($__dir .'/plugins')) {
