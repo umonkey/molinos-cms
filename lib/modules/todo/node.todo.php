@@ -26,12 +26,23 @@ class TodoNode extends Node
     if ($this->to and ($this->to == mcms::user()->id))
       return;
 
-    $url = "http://{$_SERVER['HTTP_HOST']}/todo/". ($this->rel ? "{$this->rel}/" : "");
+    $data = array(
+      'mode' => 'mail',
+      'node' => $this->getRaw(),
+      );
+    $data['node']['uid'] = Node::load(array('class' => 'user', 'id' =>
+      $this->uid))->getRaw();
 
-    $message = t('<p>Напоминание: %text.</p><p><a href=\'@url\'>Полный список</a></p>', array(
-      '%text' => rtrim($this->name, '.'),
-      '@url' => $url,
-      ));
+    $message = bebop_render_object('mail', 'todo', null, $data, __CLASS__);
+
+    if (empty($message)) {
+      $url = "http://{$_SERVER['HTTP_HOST']}/todo/". ($this->rel ? "{$this->rel}/" : "");
+
+      $message = t('<p>Напоминание: %text.</p><p><a href=\'@url\'>Полный список</a></p>', array(
+        '%text' => rtrim($this->name, '.'),
+        '@url' => $url,
+        ));
+    }
 
     if ($isnew) {
       if ($this->to)
@@ -44,41 +55,5 @@ class TodoNode extends Node
       elseif ($this->to)
         mcms::mail(null, $this->to, t('Напоминание реактивировано'), $message);
     }
-  }
-
-  public function render($prefix = null)
-  {
-    $name = l("/node/comments/{$this->id}/", mcms_plain($this->name, false));
-    $mine = ($this->to == mcms::user()->id);
-
-    if (!$mine and !empty($this->to)) {
-      try {
-        $to = Node::load(array('class' => 'user', 'id' => $this->to));
-        $name .= t(' (<a class=\'userlink\' href=\'@url\'>%name</a>)', array(
-          '@url' => "/node/{$to->id}/",
-          '%name' => empty($to->fullname) ? $to->name : $to->fullname,
-          ));
-      } catch (ObjectNotFoundException $e) {
-      }
-    }
-
-    $output = mcms::html('input', array(
-      'type' => 'checkbox',
-      'value' => $mine ? $this->id : null,
-      'class' => 'checkbox' . ($mine ? '' : ' disabled'),
-      'checked' => empty($this->closed) ? null : 'checked',
-      'disabled' => $mine ? '' : 'disabled',
-      ));
-    $output .= mcms::html('span', array(
-      'class' => 'delete',
-      ));
-    $output .= mcms::html('span', array(
-      'class' => 'description',
-      ), $name);
-
-    return mcms::html('div', array(
-      'class' => 'todo',
-      'id' => ltrim($prefix .'-item-'. $this->id, '-'),
-      ), $output);
   }
 }

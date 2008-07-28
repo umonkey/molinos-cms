@@ -2,6 +2,13 @@
   margin-top: -10px;
   margin-bottom: 50px;
 }
+.todolist td {
+  vertical-align: top;
+  padding: 2px 4px 8px 2px;
+}
+.todolist tr:hover {
+  background-color: #eee;
+}
 
 .todolist .description {
   display: block;
@@ -79,7 +86,8 @@ p.todolist.hide {
   visibility: hidden;
 }
 
-.todo .userlink {
+.todolist .userlink {
   padding-left: 18px;
   background: transparent url(img/user.png) no-repeat top left;
+  white-space: nowrap;
 }

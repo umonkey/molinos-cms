@@ -11,6 +11,20 @@ class TodoListWidget extends Widget
       );
   }
 
+  public static function formGetConfig()
+  {
+    $form = parent::formGetConfig();
+
+    $form->addControl(new TextLineControl(array(
+      'value' => 'config_linktpl',
+      'label' => t('Шаблон ссылки'),
+      'default' => 'node/$nid',
+      'required' => true,
+      )));
+
+    return $form;
+  }
+
   public function getRequestOptions(RequestContext $ctx)
   {
     $options = parent::getRequestOptions($ctx);
@@ -35,13 +49,13 @@ class TodoListWidget extends Widget
       'count' => 0,
       'rel' => $this->options['rel'],
       'relname' => $this->options['relname'],
+      'linktpl' => $this->linktpl,
       );
 
     $list = $this->getList();
 
     foreach ($list as $node) {
       $tmp = $node->getRaw();
-      $tmp['__html'] = $node->render($this->getInstanceName());
       $result['list'][empty($node->closed) ? 'open' : 'closed'][] = $tmp;
       $result['count']++;
     }
@@ -68,7 +82,7 @@ class TodoListWidget extends Widget
     $filter = array(
       'class' => 'todo',
       '#sort' => array(
-        'updated' => 'desc',
+        'created' => 'asc',
         ),
       );
 

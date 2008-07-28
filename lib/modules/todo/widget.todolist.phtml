@@ -8,7 +8,7 @@
 </form>
 <?php
 
-function show_todo(array $list, $type, $title)
+function show_todo(array $list, $type, $title, $linktpl)
 {
   print mcms::html('h3', array(
     'class' => "cold todolist {$type}". (empty($list[$type]) ? ' empty' : ''),
@@ -19,14 +19,39 @@ function show_todo(array $list, $type, $title)
       'class' => 'todolist emptymsg '. $type .' '. (empty($list[$type]) ? '' : 'hide'),
       ), 'Этот список пока пуст.  Вам нужно добавить или изменить задание, тогда здесь что-нибудь появится.');
 
-  print "<div class='todolist {$type}'>";
+  print "<table class='todolist {$type}'>";
 
   if (!empty($list[$type])) {
-    foreach ($list[$type] as $task)
-      print $task['__html'];
+    foreach ($list[$type] as $task) {
+      $link = str_replace('$nid', $task['id'], $linktpl);
+
+      $row = mcms::html('td', mcms::html('input', array(
+        'type' => 'checkbox',
+        'value' => $task['id'],
+        )));
+      $row .= mcms::html('td', mcms::html('span', array(
+        'class' => 'delete',
+        )));
+      $row .= mcms::html('td', l($link, mcms_plain($task['name'])));
+
+      if (mcms::user()->id == $task['uid'])
+        $row .= mcms::html('td');
+      else {
+        $u = Node::load(array('class' => 'user', 'id' => $task['uid']));
+        $name = empty($u->fullname)
+          ? $u->name
+          : $u->fullname;
+        $row .= mcms::html('td', l('node/'. $task['uid'],
+          $name, array('class' => 'userlink')));
+      }
+
+      print mcms::html('tr', array(
+        'id' => $task['id'],
+        ), $row);
+    }
   }
 
-  print '</div>';
+  print '</table>';
 }
 
 function show_users(array $list)
@@ -49,6 +74,7 @@ function show_users(array $list)
     ), $html);
 }
 
-show_todo($list, 'open', 'TODO'. ($relname ? ' &rarr; '. l("/node/{$rel}/", $relname) : ''));
+$text = 'TODO'. ($relname ? ' &rarr; '. l("/node/{$rel}/", $relname) : '');
+show_todo($list, 'open', $text, $linktpl);
 
-show_todo($list, 'closed', 'Выполненные задачки'); ?>
+show_todo($list, 'closed', 'Выполненные задачки', $linktpl);
