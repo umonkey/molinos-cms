@@ -192,9 +192,11 @@ class AdminUIListControl extends Control
       if (isset($node['class']) and 'user' == $node['class']) {
         if (strstr($value, '@'))
           $class = 'email';
-        elseif (strstr($value, '.'))
+        elseif (strstr($value, '.')) {
           $class = 'openid';
-        else
+          $url = new url($value);
+          $value = trim($url->host . $url->path, '/');
+        } else
           $class = null;
 
         return mcms::html('a', array(

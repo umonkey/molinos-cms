@@ -256,6 +256,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     }
 
     $output = self::getUnindexed();
+    $output .= self::getNoPassword();
 
     return $output ? '<h2>Обнаружены проблемы</h2>'. $output : 'Система в порядке.';
   }
@@ -264,6 +265,29 @@ class AdminUIModule implements iAdminUI, iRemoteCall
   {
     if (null !== ($stat = NodeIndexer::stats()))
       return t('<p>%count объектов нуждаются в индексации.  Они будут проиндексирвоаны при выполнении планировщика, или вы можете <a href=\'@url\'>проиндексировать их вручную</a>.  Пока индексация не будет завершена, сортировка и выборка будут работать некорректно.', array('%count' => $stat['_total'], '@url' => 'admin.rpc?action=reindex'));
+  }
+
+  private static function getNoPassword()
+  {
+    if (!empty($_GET['noautologin'])) {
+      try {
+        $node = Node::load(array(
+          'class' => 'user',
+          'name' => 'cms-bugs@molinos.ru',
+          ));
+        if (empty($node->password)) {
+          return t('<p>У административного аккаунта нет пароля, '
+            .'<a href=\'@url\'>установите</a> его.</p>', array(
+              '@url' => 'admin??cgroup=access&mode=edit&id='
+                .$node->id .'&destination=CURRENT',
+              ));
+        } else {
+          $url = new url();
+          $url->setarg('noautologin', null);
+          mcms::redirect(strval($url));
+        }
+      } catch (ObjectNotFoundException $e) { }
+    }
   }
 
   private static function onGetModules(RequestContext $ctx)
@@ -280,7 +304,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
       $data = array();
 
-      if (false !== ($tmp = mcms::modconf($ctx->get('name'))))
+      if (is_array($tmp = mcms::modconf($ctx->get('name'))))
         foreach ($tmp as $k => $v)
           $data['config_'. $k] = $v;
 

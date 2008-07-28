@@ -69,6 +69,7 @@ class NodeIndexer
 
         $nodes = Node::find(array(
           'id' => $ids,
+          '#recurse' => 1,
           ));
 
         foreach ($nodes as $n)
