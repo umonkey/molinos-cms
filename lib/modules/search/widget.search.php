@@ -111,21 +111,13 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
     elseif (empty($this->gas_root))
       return "<!-- GAS disabled: result container not defined -->";
 
-    if (is_readable($filename = dirname(__FILE__) .'/gas.txt')) {
-      $options = array(
-        '__APIKEY' => $config['gas_key'],
-        '__HOSTNAME' => $_SERVER['HTTP_HOST'],
-        '__ROOT' => $this->gas_root,
-        '__FORMCTL' => $this->gas_ctl,
-        );
-
-      $template = file_get_contents($filename);
-
-      foreach ($options as $k => $v)
-        $template = str_replace($k, $v, $template);
-
-      return $template;
-    }
+    return array(
+      'mode' => 'gas',
+      'apikey' => $config['gas_key'],
+      'hostname' => $_SERVER['HTTP_HOST'],
+      'root' => $this->gas_root,
+      'formctl' => $this->gas_ctl,
+      );
   }
 
   private function getResults(array $options)
