@@ -6,18 +6,9 @@
 if (!defined('PHPUnit_MAIN_METHOD'))
   define('PHPUnit_MAIN_METHOD', 'AllTests::main');
 
+require_once dirname(__FILE__) .'/../bootstrap.php';
 require_once 'PHPUnit/Framework.php';
 require_once 'PHPUnit/TextUI/TestRunner.php';
-
-require 'ConstTest.php';
-require 'UrlTest.php';
-require 'HtmlTest.php';
-require 'FileTest.php';
-require 'SchemaTest.php';
-require 'UpdateTest.php';
-require 'PdoTest.php';
-require 'TableManagerTest.php';
-require 'TableInfoTest.php';
 
 class AllTests
 {
@@ -29,16 +20,26 @@ class AllTests
   public static function suite()
   {
     $suite = new PHPUnit_Framework_TestSuite('PHPUnit Framework');
+    $root = dirname(__FILE__) .'/../modules/';
 
-    $suite->addTestSuite('ConstTest');
-    $suite->addTestSuite('PdoTest');
-    $suite->addTestSuite('UrlTest');
-    $suite->addTestSuite('HtmlTest');
-    $suite->addTestSuite('FileTest');
-    $suite->addTestSuite('SchemaTest');
-    $suite->addTestSuite('UpdateTest');
-    $suite->addTestSuite('TableManagerTest');
-    $suite->addTestSuite('TableInfoTest');
+    foreach (glob($root .'*'.'/tests.php') as $file) {
+      if (is_readable($file)) {
+        include $file;
+        $class = ucfirst(basename(dirname($file))) .'ModuleTests';
+        $suite->addTestSuite($class);
+      }
+    }
+
+    foreach (glob($root .'*/class.*.test.php') as $file) {
+      if (is_readable($file)) {
+        if (preg_match('@^class\.([^.]+)\.test\.php$@', basename($file), $m)) {
+          $class = ucfirst($m[1]) .'ClassTest';
+
+          include $file;
+          $suite->addTestSuite($class);
+        }
+      }
+    }
 
     return $suite;
   }

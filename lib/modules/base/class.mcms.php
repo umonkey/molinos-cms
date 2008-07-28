@@ -662,7 +662,10 @@ class mcms
 
       // Составляем список доступных классов.
       foreach (glob($path .DIRECTORY_SEPARATOR.'*.php') as $classpath) {
-        $parts = explode('.', basename($classpath), 3);
+        $parts = explode('.', basename($classpath));
+
+        if (3 != count($parts))
+          continue;
 
         if (count($parts) != 3 or $parts[2] != 'php')
           continue;

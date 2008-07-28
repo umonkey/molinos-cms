@@ -1,6 +1,6 @@
 <?php
 
-class UrlTest extends PHPUnit_Framework_TestCase
+class UrlClassTest extends PHPUnit_Framework_TestCase
 {
   public function testBulk()
   {
