@@ -1,3 +1,27 @@
+// namespace
+var mcms = {};
+
+/* Работа с формами
+------------------------------------------------------------------------------------------------------------------- */
+mcms.forms = {};
+// работа с формой доступа
+mcms.forms.crud = {};
+/**
+ * Управляет состоянием чекбоксов.
+ * Все чекбоксы в колонке включаются (если есть выключенные) или выключаются (если всё включено).
+ */
+mcms.forms.crud.recheck = function($inputs){
+	// если не все чекбоксы отмечены - отмечаем 
+	if ($inputs.filter(':checked').length != $inputs.length){
+		$inputs.attr('checked', 'checked');
+	}
+	// иначе - снимаем галку
+	else {
+		$inputs.removeAttr('checked');
+	}
+}
+/* ---------------------------------------------------------------------------------------------------------------- */	
+
 /**
  * Специфические действия для IE6
  */
@@ -43,29 +67,24 @@ $(document).ready(function () {
     });
 	}
 	
-	$('.control-AccessControl-wrapper th').click(function(){
-		recheck($(this).parents('table:eq(0)').find('input[value="'+$(this).text().toLowerCase()+'"]'));
+	/* Действия при клике на заголовки таблицы прав доступа
+	------------------------------------------------------------------------------------------------------------------- */
+	/* клик по CRUDP */
+	$('.control.access-wrapper th').click(function(){
+		mcms.forms.crud.recheck($(this).parents('table:eq(0)').find('input[value="'+$(this).text().toLowerCase()+'"]') );
 	});
 	
-	$('.control-AccessControl-wrapper th').mousedown(function(){
-		return false;
+	/* клик по названию группы */
+	$('.control.access-wrapper tr td:first-child').click(function(){
+		mcms.forms.crud.recheck($(this).parent().find('input'));
 	});
 	
-	$('.control-AccessControl-wrapper th').bind('selectstart', function() {
-		return false;
-	});
-	
-	$('.control-AccessControl-wrapper tr td:first-child').click(function(){
-		recheck($(this).parent().find('input'));
-	});
-	
-	$('.control-AccessControl-wrapper tr td:first-child').mousedown(function(){
-		return false;
-	});
-	
-	$('.control-AccessControl-wrapper tr td:first-child').bind('selectstart', function() {
-		return false;
-	});
+	/* запрет выделения текста заголовка */
+	$('.control.access-wrapper th').mousedown(function(){ return false; });
+	$('.control.access-wrapper th').bind('selectstart', function(){ return false; });
+	$('.control.access-wrapper tr td:first-child').mousedown(function(){ return false; });
+	$('.control.access-wrapper tr td:first-child').bind('selectstart', function() { return false; });
+	/* ---------------------------------------------------------------------------------------------------------------- */	
 	
 	var win = window.opener ? window.opener : window.dialogArguments, c;
   	if (win) { tinyMCE = win.tinyMCE; }
@@ -207,17 +226,7 @@ function fix_backup_mode()
  * Вспомогательные функции
  */
 
-/**
- * Управляет состоянием чекбоксов.
- * Все чекбоксы в колонке включаются (если есть выключенные) или выключаются (если всё включено).
- */
-function recheck($inputs){
-	if ($inputs.length > $inputs.filter(':checked').length && $inputs.filter(':checked').length != 0 || $inputs.filter(':checked').length == 0){
-		$inputs.attr('checked', 'checked');
-	} else {
-		$inputs.removeAttr('checked');
-	}
-}
+
 	
 /**
  * Карусель в осн. навигации: цепляем действия на контролы
