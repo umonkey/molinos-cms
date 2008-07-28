@@ -64,6 +64,8 @@ class DBCache implements iBebopCacheEngine
                 $this->pdo = mcms::db();
             $this->pdo->exec("REPLACE INTO `node__cache` (`cid`, `lang`, `data`) VALUES (:cid, :lang, :data)",
                 array(':cid' => $key, ':lang' => empty($this->lang) ? 'en' : $this->lang, ':data' => serialize($value)));
+        } catch (ReadOnlyDatabaseException $e) {
+          // Ничего не поделать...
         } catch (PDOException $e) {
             if ($e->getCode() == '42S02')
                 throw new NotInstalledException('table');
