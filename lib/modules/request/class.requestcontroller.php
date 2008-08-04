@@ -755,6 +755,7 @@ class RequestController
       'message' => $e->getMessage(),
       'description' => method_exists($e, 'getDescription') ? $e->getDescription() : 'Внутренняя ошибка',
       'note' => method_exists($e, 'getNote') ? $e->getNote() : $e->getMessage(),
+      'stack' => bebop_is_debugger() ? mcms::backtrace($e) : null,
       )));
 
     if (mcms::ismodule('compressor') and mcms::modconf('compressor', 'strip_html'))

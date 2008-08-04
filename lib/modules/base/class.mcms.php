@@ -1,6 +1,26 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * This is the main utility class for Molinos CMS.
+ *
+ * This class contains frequently used functions and shortcuts
+ * to functions provider by different modules.
+ *
+ * PHP version 5
+ *
+ * LICENSE: See the COPYING file included in this distribution.
+ *
+ * @package mod_base
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * The main utility class for Molinos CMS
+ *
+ * @package mod_base
+ * @access public
+ */
 class mcms
 {
   const MEDIA_AUDIO = 1;
@@ -16,6 +36,16 @@ class mcms
 
   private static $extras = array();
 
+  /**
+   * Renders an HTML element.
+   *
+   * Returns the HTML representation of an element described by
+   * input parameters which are: element name, an array of attributes,
+   * and the content.  Except for the first parameter, all is optional.
+   *
+   * @return string
+   * @author Justin Forest
+   */
   public static function html()
   {
     if (func_num_args() == 0 or func_num_args() > 3)
@@ -524,7 +554,7 @@ class mcms
 
     if (mcms::user()->id)
       $body .= t('<p>The user was identified as %user (#%uid).</p>', array(
-        '%user' => mcms::user()->name,
+        '%user' => l(mcms::user()->getRaw()),
         '%uid' => mcms::user()->id,
         ));
     else
@@ -662,10 +692,7 @@ class mcms
 
       // Составляем список доступных классов.
       foreach (glob($path .DIRECTORY_SEPARATOR.'*.php') as $classpath) {
-        $parts = explode('.', basename($classpath));
-
-        if (3 != count($parts))
-          continue;
+        $parts = explode('.', basename($classpath), 3);
 
         if (count($parts) != 3 or $parts[2] != 'php')
           continue;
@@ -1009,17 +1036,15 @@ class mcms
       if (null !== ($re = mcms::config('backtracerecipient'))) {
         $release = substr(mcms::version(), 0, -(strrpos(mcms::version(), '.') + 1));
 
-        $message = t('<p>На сайте <a href=\'@url\'>%host</a> возникла <em>фатальная</em> ошибка #%code в строке %line файла <code>%file</code>.  Текст ошибки: %text.</p><p>Стэк вызова, к сожалению, <a href=\'@function\'>недоступен</a>.</p><p>Molinos.CMS v%version — <a href=\'@changelog\'>ChangeLog</a> | <a href=\'@issues\'>Issues</a></p>', array(
-          '%host' => $_SERVER['HTTP_HOST'],
-          '@url' => "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}",
-          '%code' => $e['type'],
-          '%line' => $e['line'],
-          '%file' => ltrim(str_replace(MCMS_ROOT, '', $e['file']), '/'),
-          '%text' => $e['message'],
-          '%version' => mcms::version(),
-          '@changelog' => "http://code.google.com/p/molinos-cms/wiki/ChangeLog_". str_replace('.', '', $release),
-          '@issues' => "http://code.google.com/p/molinos-cms/issues/list?q=label:Milestone-R". $release,
-          '@function' => 'http://docs.php.net/manual/en/function.register-shutdown-function.php',
+        $message = mcms::render(__CLASS__, array(
+          'mode' => 'fatal',
+          'url' => "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}",
+          'host' => $_SERVER['HTTP_HOST'],
+          'code' => $e['type'],
+          'line' => $e['line'],
+          'file' => ltrim(str_replace(MCMS_ROOT, '', $e['file']), '/'),
+          'text' => $e['message'],
+          'version' => mcms::version(),
           ));
 
         $subject = t('Фатальная ошибка на %host', array('%host' => $_SERVER['HTTP_HOST']));
@@ -1236,7 +1261,8 @@ class mcms
 
       if ($ext == '.tpl') {
         if (class_exists('BebopSmarty')) {
-          $__smarty = new BebopSmarty(false !== strstr($filename, 'page.'));
+          $with_debug = (false !== strstr($filename, 'page.'));
+          $__smarty = new BebopSmarty($with_debug);
           $__smarty->template_dir = ($__dir = dirname($__fullpath));
 
           if (is_dir($__dir .'/plugins')) {

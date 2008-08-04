@@ -158,6 +158,10 @@ class NodeBase
     $data = self::dbRead($sql, $params, empty($query['#recurse'])
       ? 0 : intval($query['#recurse']));
 
+    if (!empty($query['#raw']))
+      foreach ($data as $k => $v)
+        $data[$k] = $v->getRaw();
+
     if (!array_key_exists('#cache', $query) or !empty($query['#cache']))
       mcms::cache($cacheid, $data);
 
@@ -185,12 +189,43 @@ class NodeBase
     $isnew = !isset($this->id);
 
     $this->dbWrite();
+    $this->saveLinks();
 
     mcms::flush();
 
     mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, $isnew ? 'create' : 'update'));
 
     $this->purgeRevisions();
+  }
+
+  // Сохраняет связки в node__rel.
+  private function saveLinks()
+  {
+    $schema = TypeNode::getSchema($this->class);
+
+    if (is_array($schema)) {
+      if (array_key_exists('fields', $schema)) {
+        foreach ($schema['fields'] as $field => $info) {
+          if ('NodeLinkControl' == $info['type']) {
+            if (empty($this->data[$field]))
+              $value = null;
+            elseif (is_array($v = $this->data[$field]))
+              $value = $v['id'];
+            elseif ($v instanceof Node)
+              $value = $v->id;
+            elseif (is_string($v) or is_numeric($v))
+              $value = $v;
+            else
+              $value = null;
+
+            if (null === $value)
+              $this->linkRemoveChild($field);
+            else
+              $this->linkAddChild($value, $field);
+          }
+        }
+      }
+    }
   }
 
   private function purgeRevisions()
@@ -261,7 +296,8 @@ class NodeBase
   public function publish($rev = null)
   {
     if (!$this->checkPermission('p'))
-      throw new ForbiddenException(t('У вас нет прав на публикацию этого объекта.'));
+      throw new ForbiddenException(t('У вас нет прав на публикацию '
+        .'этого объекта.'));
 
     // Документ уже опубликован.
     if ($this->published and $this->rid == $rev)
@@ -381,8 +417,9 @@ class NodeBase
     if (empty($data['uid']))
       $data['uid'] = mcms::session('uid');
 
-    if (empty($data['id']))
-      $data['published'] = false;
+    // Не проверяем пользователей, чтобы не войти в вечный цикл.
+    if (empty($data['id']) and 'user' !== $class)
+      $data['published'] = mcms::user()->hasAccess('p', $data['class']);
 
     return new $host($data);
   }
@@ -661,10 +698,10 @@ class NodeBase
 
   private function linkAdd($tid, $nid, $key)
   {
-    mcms::db()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
-      ."AND `nid` = ?", array($tid, $nid));
-
     if (null !== $key)
+      mcms::db()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
+        ."AND `key` = ?", array($tid, $key));
+    elseif (null !== $nid)
       mcms::db()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
         ."AND `nid` = ?", array($tid, $nid));
 
@@ -763,7 +800,10 @@ class NodeBase
       $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid -- Node::linkSetChildren({$this->id})",
         array(':tid' => $this->id));
     else
-      $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = :class) -- Node::linkSetChildren({$this->id}, {$class})",
+      $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid "
+        ."AND `key` IS NULL AND `nid` IN (SELECT `id` FROM `node` "
+        ."WHERE `class` = :class) "
+        ."-- Node::linkSetChildren({$this->id}, {$class})",
         array(':tid' => $this->id, ':class' => $class));
 
     $order = self::getNextOrder($this->id);
@@ -1358,17 +1398,19 @@ class NodeBase
 
     if (array_key_exists('fields', $schema)) {
       foreach ($schema['fields'] as $k => $v) {
-        if ($k != 'parent_id' and $k != 'fields' and $k != 'config' and $k != 'uid') {
+        if ($k != 'parent_id' and $k != 'fields' and $k != 'config') {
           switch ($v['type']) {
           case 'AttachmentControl':
             break;
 
+          /*
           case 'NodeLinkControl':
             if (!empty($data[$key = 'node_content_'. $k])) {
               $this->linkAddChild($data[$key], $k);
               $this->data[$k] = Node::load($data[$key]);
             }
             break;
+          */
 
           case 'PasswordControl':
             $values = array_key_exists($key = 'node_content_'. $k, $data) ? $data[$key] : null;
@@ -1515,7 +1557,9 @@ class NodeBase
     $extra = $this->data;
 
     // Вытаскиваем данные, которые идут в поля таблиц.
-    $node = $this->dbWriteExtract($extra, array('id', 'lang', 'parent_id', 'class', 'left', 'right', 'uid', 'created', 'published', 'deleted'));
+    $node = $this->dbWriteExtract($extra, array(
+      'id', 'lang', 'parent_id', 'class', 'left', 'right',
+      'uid', 'created', 'published', 'deleted'));
     $node_rev = $this->dbWriteExtract($extra, array('name'));
 
     // Выделяем место в иерархии, если это необходимо.
@@ -1535,7 +1579,7 @@ class NodeBase
         'class' => $node['class'],
         'left' => $node['left'],
         'right' => $node['right'],
-        'uid' => $node['uid'],
+        'uid' => self::dbId($node['uid']),
         'created' => empty($node['created']) ? mcms::now() : $node['created'],
         'updated' => mcms::now(),
         'published' => empty($node['published']) ? 0 : 1,
@@ -1548,7 +1592,7 @@ class NodeBase
     // Обновление существующей ноды.
     else {
       mcms::db()->exec("UPDATE `node` SET `uid` = :uid, `created` = :created, `updated` = :updated, `published` = :published, `deleted` = :deleted WHERE `id` = :id AND `lang` = :lang", array(
-        'uid' => $node['uid'],
+        'uid' => self::dbId($node['uid']),
         'created' => $node['created'],
         'updated' => mcms::now(),
         'published' => empty($node['published']) ? 0 : 1,
@@ -1561,10 +1605,10 @@ class NodeBase
     // Сохранение ревизии.
     mcms::db()->exec($sql = "INSERT INTO `node__rev` (`nid`, `uid`, `name`, `created`, `data`) VALUES (:nid, :uid, :name, :created, :data)", $params = array(
       'nid' => $node['id'],
-      'uid' => $node['uid'],
+      'uid' => self::dbId($node['uid']),
       'name' => $node_rev['name'],
       'created' => mcms::now(),
-      'data' => empty($extra) ? null : serialize($extra),
+      'data' => empty($extra) ? null : self::dbSerialize($extra),
       ));
     $this->data['rid'] = mcms::db()->lastInsertId();
 
@@ -1677,13 +1721,13 @@ class NodeBase
   {
     $nodes = array();
 
-    foreach (mcms::db()->getResults($sql, $params) as $row) {
+    foreach ($res = mcms::db()->getResults($sql, $params) as $row) {
       // Складывание массивов таким образом может привести к перетиранию
       // системных полей, но в нормальной ситуации такого быть не должно:
       // при сохранении мы удаляем всё системное перед сериализацией.
       // Зато такой подход быстрее ручного перебора.
-      if (!empty($row['data']))
-        $row = array_merge($row, unserialize($row['data']));
+      if (!empty($row['data']) and is_array($tmp = unserialize($row['data'])))
+        $row = array_merge($row, $tmp);
 
       unset($row['data']);
 
@@ -1706,7 +1750,10 @@ class NodeBase
           $map[$l['nid']][] = $l;
 
       if (!empty($map)) {
-        $extras = Node::find(array('id' => array_keys($map), '#recurse' => $recurse - 1));
+        $extras = Node::find(array(
+          'id' => array_keys($map),
+          '#recurse' => $recurse - 1,
+          ));
 
         foreach ($map as $k => $v) {
           if (array_key_exists($k, $extras)) {
@@ -1739,6 +1786,9 @@ class NodeBase
         continue;
       if (TypeNode::isReservedFieldName($k))
         continue;
+
+      if ('' === $this->$k)
+        $this->$k = null;
 
       $fields[] = $k;
 
@@ -1776,5 +1826,24 @@ class NodeBase
     }
 
     return $data;
+  }
+
+  private static function dbId($value)
+  {
+    if (is_array($value))
+      return $value['id'];
+    elseif ($value instanceof Node)
+      return $value->id;
+    else
+      return $value;
+  }
+
+  private static function dbSerialize(array $arr)
+  {
+    foreach ($arr as $k => $v)
+      if ($v instanceof Node)
+        $arr[$k] = $v->id;
+
+    return serialize($arr);
   }
 };

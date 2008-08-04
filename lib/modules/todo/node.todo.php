@@ -1,6 +1,25 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
+/**
+ * This file contains the RPC handler for the todo module.
+ *
+ * This class contains frequently used functions and shortcuts
+ * to functions provider by different modules.
+ *
+ * PHP version 5
+ *
+ * LICENSE: See the COPYING file included in this distribution.
+ *
+ * @package mod_todo
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * The "todo" doctype handler.
+ *
+ * @package mod_todo
+ */
 class TodoNode extends Node
 {
   public function save()
@@ -35,25 +54,18 @@ class TodoNode extends Node
 
     $message = bebop_render_object('mail', 'todo', null, $data, __CLASS__);
 
-    if (empty($message)) {
-      $url = "http://{$_SERVER['HTTP_HOST']}/todo/". ($this->rel ? "{$this->rel}/" : "");
+    if (!empty($message)) {
+      if ($isnew) {
+        if ($this->to)
+          mcms::mail(null, $this->to, t('Новое напоминание'), $message);
+      }
 
-      $message = t('<p>Напоминание: %text.</p><p><a href=\'@url\'>Полный список</a></p>', array(
-        '%text' => rtrim($this->name, '.'),
-        '@url' => $url,
-        ));
-    }
-
-    if ($isnew) {
-      if ($this->to)
-        mcms::mail(null, $this->to, t('Новое напоминание'), $message);
-    }
-
-    elseif (!$isnew) {
-      if ($this->closed)
-        mcms::mail(null, $this->uid, t('Напоминание удалено'), $message);
-      elseif ($this->to)
-        mcms::mail(null, $this->to, t('Напоминание реактивировано'), $message);
+      elseif (!$isnew) {
+        if ($this->closed)
+          mcms::mail(null, $this->uid, t('Напоминание удалено'), $message);
+        elseif ($this->to)
+          mcms::mail(null, $this->to, t('Напоминание реактивировано'), $message);
+      }
     }
   }
 }

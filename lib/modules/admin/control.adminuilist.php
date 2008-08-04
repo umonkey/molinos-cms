@@ -215,7 +215,13 @@ class AdminUIListControl extends Control
     if (empty($uid))
       return 'anonymous';
 
-    if (!array_key_exists($uid, $users)) {
+    if ($uid instanceof Node) {
+      $users[$uid->id] = $uid;
+      $uid = $uid->id;
+    } elseif (is_array($uid)) {
+      $users[$uid['id']] = Node::create('user', $uid);
+      $uid = $uid['id'];
+    } elseif (!array_key_exists($uid, $users)) {
       try {
         $users[$uid] = Node::load(array('class' => 'user', 'id' => $uid));
       } catch (ObjectNotFoundException $e) {

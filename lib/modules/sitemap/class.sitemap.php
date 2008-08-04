@@ -52,6 +52,9 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
     if (!empty($node->class)) {
       $conf = mcms::modconf('sitemap');
 
+      if (!array_key_exists('skip_types', $conf))
+        $conf['skip_types'] = array();
+
       if (!in_array($node->class, $conf['skip_types'])) {
         if (file_exists($path = self::get_file_path()))
           unlink($path);

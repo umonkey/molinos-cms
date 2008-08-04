@@ -144,6 +144,12 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
         $this->oldfields = $this->fields;
     }
 
+    elseif ('name' == $k) {
+      if (!empty($this->id) and $this->name != $v)
+        throw new InvalidArgumentException(t('Внутреннее имя '
+          .'типа документа изменить нельзя.'));
+    }
+
     parent::__set($k, $v);
   }
 

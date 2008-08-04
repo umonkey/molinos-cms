@@ -12,6 +12,34 @@ class CommentNodeHook implements iNodeHook
     case 'erase':
       mcms::db()->exec("DELETE FROM `node` WHERE `class` = 'comment' AND `id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid)", array(':tid' => $node->id));
       break;
+    case 'create':
+      if (!empty($node->doc) and is_numeric($nid = strval($node->doc))) {
+        // Собираем прикреплённых пользователей.
+        $l1 = mcms::db()->getResultsV("nid", "SELECT `nid` "
+          ."FROM `node__rel` WHERE `tid` = ? AND `nid` IN (SELECT `id` "
+          ."FROM `node` WHERE `class` = 'user')", array($nid));
+
+        // Собираем пользователей, комментировавших ранее
+        $l2 = mcms::db()->getResultsV("uid", "SELECT `n`.`uid` "
+          ."FROM `node` `n` "
+          ."INNER JOIN `node__rel` `r` ON `r`.`nid` = `n`.`id` "
+          ."WHERE `r`.`tid` = ? AND `n`.`class` = 'comment'",
+            array($nid));
+
+        $uids = array_diff(
+          array_unique(array_merge($l1, $l2)),
+          array(mcms::user()->id)
+          );
+
+        $body = mcms::render(__CLASS__, array(
+          'mode' => 'new',
+          'comment' => $node->getRaw(),
+          ));
+
+        if (!empty($body))
+          foreach ($uids as $uid)
+            mcms::mail(null, $uid, t('Новый комментарий'), $body);
+      }
     }
   }
 }

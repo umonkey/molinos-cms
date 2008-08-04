@@ -37,10 +37,19 @@ function show_todo(array $list, $type, $title, $linktpl)
       if (mcms::user()->id == $task['uid'])
         $row .= mcms::html('td');
       else {
-        $u = Node::load(array('class' => 'user', 'id' => $task['uid']));
-        $name = empty($u->fullname)
-          ? $u->name
-          : $u->fullname;
+        if ($task['uid'] instanceof Node)
+          $u = $task['uid']->getRaw();
+        elseif (is_array($task['uid']))
+          $u = $task['uid'];
+        else
+          $u = Node::load(array(
+            'class' => 'user',
+            'id' => $task['uid'],
+            ))->getRaw();
+
+        $name = empty($u['fullname'])
+          ? $u['name']
+          : $u['fullname'];
         $row .= mcms::html('td', l('node/'. $task['uid'],
           $name, array('class' => 'userlink')));
       }

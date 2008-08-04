@@ -1,6 +1,29 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
+/**
+ * This file contains the RPC handler for the todo module.
+ *
+ * This class contains frequently used functions and shortcuts
+ * to functions provider by different modules.
+ *
+ * PHP version 5
+ *
+ * LICENSE: See the COPYING file included in this distribution.
+ *
+ * @package mod_todo
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * A widget to list todo items.
+ *
+ * This class is much like the standard ListWidget, but specific
+ * to the "todo" nodes.  It returns open/closed object in separate
+ * lists, and uses a handwritten query, optimized for performance.
+ *
+ * @package mod_todo
+ */
 class TodoListWidget extends Widget
 {
   public static function getWidgetInfo()
@@ -84,10 +107,19 @@ class TodoListWidget extends Widget
       '#sort' => array(
         'created' => 'asc',
         ),
+      '#recurse' => 1,
       );
 
-    if (!empty($this->options['rel']))
-      $filter['tags'] = $this->options['rel'];
+    if (!empty($this->options['rel'])) {
+      $rel = $this->options['rel'];
+      $filter['id'] = mcms::db()->getResultsV("id", "SELECT n.id AS `id` "
+        ."FROM node n "
+        ."WHERE n.class = 'todo' AND n.id IN "
+        ."(SELECT tid FROM node__rel WHERE nid = ? "
+        ."UNION SELECT nid FROM node__rel WHERE tid = ? "
+        ."UNION SELECT rel FROM node__idx_todo WHERE rel = ?)",
+          array($rel, $rel, $rel));
+    }
 
     return Node::find($filter);
   }

@@ -10,7 +10,10 @@ if (empty($_SERVER['HTTP_HOST'])) {
 
 // Обычная ситуация — запуск через веб.
 else {
-  define('MCMS_ROOT', dirname($_SERVER['SCRIPT_FILENAME']));
+  if (!empty($_SERVER['SCRIPT_FILENAME']))
+    define('MCMS_ROOT', dirname(realpath($_SERVER['SCRIPT_FILENAME'])));
+  else
+    define('MCMS_ROOT', dirname(dirname(realpath(__FILE__))));
 }
 
 define('MCMS_START_TIME', microtime(true));

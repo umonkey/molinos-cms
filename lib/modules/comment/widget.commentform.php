@@ -176,8 +176,6 @@ class CommentFormWidget extends Widget
 
   public function formProcess($id, array $data)
   {
-    mcms::captchaCheck($data);
-
     $data = $this->ctx->post;
 
     switch ($id) {
@@ -213,6 +211,7 @@ class CommentFormWidget extends Widget
         else
           $docname = 'документ без названия';
       } catch (ObjectNotFoundException $e) {
+        $doc = null;
         $docname = 'неизвестный документ';
       }
 
@@ -221,6 +220,7 @@ class CommentFormWidget extends Widget
         '%user' => mcms::user()->name,
         '%doc' => $docname,
         ));
+      $node->doc = $doc;
       $node->save();
 
       $node->linkAddParent($this->options['doc']);

@@ -1,7 +1,17 @@
 <?php
 
-class PdoTest extends PHPUnit_Framework_TestCase
+class PdoModuleTests extends PHPUnit_Framework_TestCase
 {
+  const tbl = 'xyz_abc';
+
+  public function testInit()
+  {
+    copy(MCMS_ROOT.'/conf/default.ini', MCMS_ROOT.'/conf/default_backup.ini');
+    $config = BebopConfig::getInstance();
+    $config->set('default','sqlite::memory:','db');
+    PDO_Singleton::getInstance('default', true);
+  }
+
   public function testGetDbType()
   {
     $this->assertEquals('SQLite', mcms::db()->getDbType());
@@ -149,5 +159,116 @@ class PdoTest extends PHPUnit_Framework_TestCase
 
     $t = new TableInfo('node');
     $this->assertTrue($t->exists());
+  }
+
+
+  public function testSetDSN()
+  {
+    $config = BebopConfig::getInstance();
+    $config->set('default', $path = 'sqlite:conf/test.db', 'db');
+
+    $this->assertEquals($path, $config->db_default);
+  }
+
+  public function testConnect()
+  {
+    $tmp = mcms::db()->getResult("SELECT COUNT(*) FROM `node`");
+    $this->assertEquals(0, $tmp);
+  }
+
+  public function testTableInfoCreate()
+  {
+    $t = new TableInfo(self::tbl);
+    $t->columnSet('id', array(
+      'type' => 'integer',
+      'required' => 1,
+      'key' => 'pri',
+      'autoincrement' => 1,
+      ));
+
+    $sql = $t->getSql();
+    $this->assertEquals('CREATE TABLE `xyz_abc` '
+      .'(`id` integer NOT NULL PRIMARY KEY)',
+      $sql);
+
+    $t->commit();
+
+    $t = new TableInfo(self::tbl);
+    $this->assertTrue($t->exists());
+  }
+
+  public function testTableInfoAddColumn()
+  {
+    $t = new TableInfo(self::tbl);
+    $t->columnSet('value', array(
+      'type' => 'text',
+      ));
+    $t->commit();
+
+    $t = new TableInfo(self::tbl);
+    $this->assertEquals(2, $t->columnCount());
+  }
+
+  public function testTableInfoDropColumn()
+  {
+    $t = new TableInfo(self::tbl);
+    $t->columnDel('value');
+    $this->assertEquals(1, $t->columnCount());
+  }
+
+  public function testTableInfoDropTable()
+  {
+    $t = new TableInfo(self::tbl);
+    $t->delete();
+  }
+
+  /**
+   * @expectedException RuntimeException
+   */
+  public function testTableInfoDropTableFail()
+  {
+    $t = new TableInfo(self::tbl);
+    $t->delete();
+  }
+
+  public function testRemoveDB()
+  {
+    /*
+    unlink($to = 'conf/test.db');
+    $this->assertTrue(!file_exists($to));
+    */
+  }
+
+  private function getTableDef()
+  {
+    return mcms::db()->getResult("SELECT `sql` FROM `sqlite_master` WHERE `tbl_name` = 'test' AND `type` = 'table'");
+  }
+
+  public function testInternalTables()
+  {
+    $tables = array(
+      'node',
+      'node__access',
+      'node__cache',
+      'node__log',
+      'node__rel',
+      'node__rev',
+      'node__session',
+      );
+
+    foreach ($tables as $table) {
+      $c = mcms::db()->fetch("SELECT COUNT(*) FROM `{$table}`");
+      $t = new TableInfo($table);
+      $this->assertTrue($t->exists());
+    }
+  }
+
+  public function testRestore()
+  {
+    copy(MCMS_ROOT.'/conf/default_backup.ini', MCMS_ROOT.'/conf/default.ini');
+    unlink(MCMS_ROOT.'/conf/default_backup.ini');
+    $config = BebopConfig::getInstance();
+    $config->set('default','sqlite:conf/default.db','db');
+    PDO_Singleton::getInstance('default', true);
   }
 }

@@ -1,0 +1,5 @@
+<?php if ('new' == $mode and !empty($comment['text'])): ?>
+  <?php $link = 'http://'. $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']; ?>
+ <p><?php print l($comment['uid']); ?> комментирует <a href="<?php print $link; ?>"><?php print $comment['doc']['name']; ?></a>:</p>
+ <blockquote><p><?php print $comment['text']; ?></p></blockquote>
+<?php endif; ?>

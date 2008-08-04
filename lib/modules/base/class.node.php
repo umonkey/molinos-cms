@@ -6,6 +6,11 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
   // Создаём пустой объект указанного типа, проверяем тип на валидность.
   protected function __construct(array $data = null)
   {
+    if (null !== $data) {
+      if (empty($data['created']) and !empty($data['updated']))
+        $data['created'] = $data['updated'];
+    }
+
     $this->data = $data;
   }
 

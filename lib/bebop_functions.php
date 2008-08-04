@@ -47,6 +47,21 @@ function bebop_combine_url(array $url, $escape = true)
 // Возвращает отформатированную ссылку.
 function l($url, $title = null, array $options = null, $absolute = false)
 {
+  if ($url instanceof Node) {
+    if (null === $title) {
+      if ('user' == $url->class and !empty($url->fullname))
+        $title = mcms_plain($url->fullname);
+      else
+        $title = mcms_plain($url->name);
+    }
+    return l('node/'. $url->id, $title, $options, $absolute);
+  }
+
+  elseif (is_array($url) and array_key_exists('class', $url)) {
+    $node = Node::create($url['class'], $url);
+    return l($node, $title, $options, $absolute);
+  }
+
   if (empty($url))
     throw new RuntimeException(t('Не указана ссылка для l().'));
   elseif (!is_string($url))

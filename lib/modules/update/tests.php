@@ -1,9 +1,6 @@
 <?php
 
-require_once('PHPUnit/Framework.php');
-require_once(dirname(__FILE__) .'/../bootstrap.php');
-
-class UpdateTest extends PHPUnit_Framework_TestCase
+class UpdateModuleTests extends PHPUnit_Framework_TestCase
 {
   public function testUpdateError()
   {

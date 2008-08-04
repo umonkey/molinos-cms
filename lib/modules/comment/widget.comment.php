@@ -172,7 +172,12 @@ class CommentWidget extends Widget
 
     $cids = $this->listComments($options['doc'], empty($result['pager']['current']) ? 1 : $result['pager']['current']);
 
-    $result['comments'] = self::fixNames(Node::find(array('class' => 'comment', 'id' => $cids, '#sort' => array('id' => 'asc'))));
+    $result['comments'] = Node::find(array(
+      'class' => 'comment',
+      'id' => $cids,
+      '#sort' => array('id' => 'asc'),
+      '#raw' => true,
+      ));
 
     return $result;
   }

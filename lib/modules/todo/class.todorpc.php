@@ -1,6 +1,29 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
+/**
+ * This file contains the RPC handler for the todo module.
+ *
+ * This class contains frequently used functions and shortcuts
+ * to functions provider by different modules.
+ *
+ * PHP version 5
+ *
+ * LICENSE: See the COPYING file included in this distribution.
+ *
+ * @package mod_todo
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * The remote call handler for the Todo module.
+ *
+ * The RPC handler does two things: (1) creates a todo node,
+ * and (2) toggles its finished state.  This is controlled with
+ * the "action" argument of the RPC call, e.g.: todo.rpc?action=add
+ *
+ * @package mod_todo
+ */
 class TodoRPC implements iRemoteCall
 {
   public static function hookRemoteCall(RequestContext $ctx)

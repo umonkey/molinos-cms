@@ -62,7 +62,7 @@ class NodeApiModule implements iRemoteCall
         'id' => $nid,
         'deleted' => array(0),
         '#cache' => false,
-        '#recurse' => empty($_GET['bare']),
+        '#recurse' => empty($_GET['bare']) ? 1 : 0,
         );
 
       if (bebop_is_debugger())
@@ -74,6 +74,8 @@ class NodeApiModule implements iRemoteCall
         'node' => $node->getRaw(),
         ));
 
+      if (!empty($_GET['a']))
+        $node = $node->getRaw();
       mcms::debug($node);
 
       throw new ForbiddenException();

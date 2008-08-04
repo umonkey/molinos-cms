@@ -1,0 +1,26 @@
+<?php if ('fatal' == $mode): ?>
+<?php
+  $release = substr(mcms::version(), 0,
+    -(strrpos(mcms::version(), '.') + 2));
+?>
+<p>На сайте <a href='<?php print $url; ?>'><?php print $host; ?></a> возникла <em>фатальная</em> ошибка #<?php print $code; ?> в строке <?php print $line; ?> файла <code><?php print $file; ?></code>.  Текст ошибки: <?php print $text; ?>.</p>
+<p>Стэк вызова, к сожалению, <a href='http://docs.php.net/manual/en/function.register-shutdown-function.php'>недоступен</a>.</p>
+<p>Molinos.CMS v<?php print $version; ?> —
+<a href='http://code.google.com/p/molinos-cms/wiki/ChangeLog_<?php print str_replace('.', '', $release); ?>'>ChangeLog</a> | <a href='http://code.google.com/p/molinos-cms/issues/list?q=label:Milestone-R<?php print $release; ?>'>Issues</a>.</p>
+
+<table border="1" cellspacing="0" cellpadding="2">
+<thead>
+<tr>
+<th>Ключ</th>
+<th>Значение</th>
+</tr>
+<tbody>
+<?php $tmp = $_SERVER; ksort($tmp); foreach ($tmp as $k => $v) { ?>
+<tr>
+<td style="padding:4px"><?php print $k; ?></td>
+<td style="padding:4px"><?php print htmlspecialchars(is_array($v) ? var_export($v, true) : $v); ?></td>
+</tr>
+<?php } ?>
+</tbody>
+</table>
+<?php endif; ?>
