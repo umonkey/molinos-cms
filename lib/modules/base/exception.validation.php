@@ -1,6 +1,25 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
+/**
+ * Исключение: ошибка валидации.
+ *
+ * @package mod_base
+ * @subpackage Exceptions
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Исключение: ошибка валидации.
+ *
+ * На данный момент используется лишь в нескольких случаях: при неудачном
+ * изменении пароля (значения двух полей не совпадают) и при неверном угадывании
+ * капчи.  В перспективе основным источником исключения будет валидатор форм
+ * (выполняющий проверку введённых пользователем значений).
+ *
+ * @package mod_base
+ * @subpackage Exceptions
+ */
 class ValidationException extends UserErrorException
 {
   public function __construct($name, $message = null)

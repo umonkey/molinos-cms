@@ -1,13 +1,27 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Виджет «навигация по архиву».
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
-class ArchiveWidget extends Widget
+/**
+ * Виджет «навигация по архиву».
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ */
+class ArchiveWidget extends Widget implements iWidget
 {
-  public function __construct(Node $node)
-  {
-    parent::__construct($node);
-  }
-
+  /**
+   * Возвращает описание виджета для конструктора.
+   *
+   * @return array описание виджета, ключи: name, description.
+   */
   public static function getWidgetInfo()
   {
     return array(
@@ -16,17 +30,24 @@ class ArchiveWidget extends Widget
       );
   }
 
+  /**
+   * Возвращает форму для настройки виджета.
+   *
+   * Добавляет к полученной от родиетля форме возможность выбрать базовый
+   * виджет, с которым следует работать в паре.  Выбрать позволяют только один
+   * из списков (ListWidget).
+   *
+   * Выбранный виджет сохраняется в переменной host (см. mcms::modconf()).
+   *
+   * @return Form вкладка формы, используется для настройки виджета.
+   */
   public static function formGetConfig()
   {
     $widgets = array();
 
-    foreach (Node::find(array('class' => 'widget')) as $w) {
-      if ('ListWidget' != $w->classname)
-        continue;
-      if (substr($w->name, 0, 5) == 'Bebop')
-        continue;
-      $widgets[$w->name] = $w->title;
-    }
+    foreach (Node::find(array('class' => 'widget')) as $w)
+      if ('ListWidget' == $w->classname)
+        $widgets[$w->name] = $w->title;
 
     $form = parent::formGetConfig();
 
@@ -40,7 +61,16 @@ class ArchiveWidget extends Widget
     return $form;
   }
 
-  // Препроцессор параметров.
+  /**
+   * Препроцессор параметров.
+   *
+   * Вытаскивает из текущего урла параметризацию виджета, в паре с которым
+   * работает, в частности — параметры year, month, day.
+   *
+   * @return array параметры виджета.
+   *
+   * @param RequestContext $ctx контекст вызова.
+   */
   public function getRequestOptions(RequestContext $ctx)
   {
     $options = parent::getRequestOptions($ctx);
@@ -49,6 +79,7 @@ class ArchiveWidget extends Widget
     $options['apath'] = $ctx->apath;
 
     // Самостоятельно парсим урл, т.к. будем подглядывать за другими виджетами.
+    // FIXME: это надо получать из контекста.
     $url = bebop_split_url();
 
     if (!empty($url['args'][$this->host])) {
@@ -66,7 +97,14 @@ class ArchiveWidget extends Widget
     return $this->options = $options;
   }
 
-  // Обработка GET запросов.
+  /**
+   * Обработчик GET запросов.
+   *
+   * @return mixed массив с данными для шаблона или NULL.
+   *
+   * @param array $options параметры, которые ранее насобирал метод
+   * getRequestOptions().
+   */
   public function onGet(array $options)
   {
     $result = array();

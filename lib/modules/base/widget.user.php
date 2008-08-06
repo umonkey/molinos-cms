@@ -1,13 +1,31 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Виджет «профиль пользователя».
+ *
+ * Используется для вывода и редактирования профиля пользователя.
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
-class UserWidget extends Widget
+/**
+ * Виджет «профиль пользователя».
+ *
+ * Используется для вывода и редактирования профиля пользователя.
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ */
+class UserWidget extends Widget implements iWidget
 {
-  public function __construct(Node $node)
-  {
-    parent::__construct($node);
-  }
-
+  /**
+   * Возвращает описание виджета.
+   *
+   * @return array описание виджета, ключи: name, description.
+   */
   public static function getWidgetInfo()
   {
     return array(
@@ -16,6 +34,11 @@ class UserWidget extends Widget
       );
   }
 
+  /**
+   * Возвращает форму для настройки виджета.
+   *
+   * @return Form вкладка с настройками виджета.
+   */
   public static function formGetConfig()
   {
     $groups = array();
@@ -57,6 +80,13 @@ class UserWidget extends Widget
     return $form;
   }
 
+  /**
+   * Препроцессор параметров.
+   *
+   * @param RequestContext $ctx контекст запроса.
+   *
+   * @return array параметры виджета.
+   */
   public function getRequestOptions(RequestContext $ctx)
   {
     $options = parent::getRequestOptions($ctx);
@@ -74,6 +104,19 @@ class UserWidget extends Widget
     return $this->options = $options;
   }
 
+  /**
+   * Диспетчер GET-запросов.
+   *
+   * Вызывает один из методов onGet...(), в зависимости от GET-параметра action.
+   *
+   * @see Widget::dispatch()
+   *
+   * @param array $options параметры виджета.
+   *
+   * @return mixed результат работы конкретного обработчика.  При возврате
+   * массива с ключём "html" его содержимое обрамляется в div с
+   * id=user-widget-имя_виджета и class=user-widget.
+   */
   public function onGet(array $options)
   {
     $result = $this->dispatch(array($options['action']), $options);
@@ -84,6 +127,16 @@ class UserWidget extends Widget
     return $result;
   }
 
+  /**
+   * Возврат профиля пользователя.
+   *
+   * @param array $options параметры виджета.
+   *
+   * @return array информация о пользователе, ключи: uid, mode, name, groups,
+   * form, где form — форма для входа или выхода, в зависимости от текущего
+   * состояния пользователя (анонимен или идентифицирован), mode (login или
+   * logout).
+   */
   protected function onGetDefault(array $options)
   {
     $user = mcms::user();
@@ -110,14 +163,29 @@ class UserWidget extends Widget
     return $result;
   }
 
+  /**
+   * Возвращает форму регистрации нового пользователя.
+   *
+   * При вызове от имени авторизованного (не анонимного) пользователя кидает
+   * BadRequestException (ошибка 400).
+   *
+   * @param array $options параметры виджета.
+   *
+   * @return array данные для шаблона, ключи: mode (всегда «register»), form
+   * (HTML код формы или текстовое сообщение об успешной регистрации, с
+   * дальнейшими инструкциями).
+   */
   protected function onGetRegister(array $options)
   {
     if ($this->user->id)
-      throw new UserErrorException("Вы уже авторизованы", 400, "Вы уже авторизованы", "Регистрация возможна только для анонимных пользователей.");
+      throw new BadRequestException("Регистрация возможна только "
+        ."для анонимных пользователей.");
 
     switch ($options['status']) {
     case 'registered':
-      $output = "<p>Регистрация прошла успешно.&nbsp; В ближайшее время на указанный в анкете почтовый адрес придёт инструкция по активации вашей новой учётной записи.</p>";
+      $output = "<p>Регистрация прошла успешно.&nbsp; В ближайшее время "
+        ."на указанный в анкете почтовый адрес придёт инструкция "
+        ."по активации вашей новой учётной записи.</p>";
       break;
 
     default:
@@ -131,12 +199,31 @@ class UserWidget extends Widget
       );
   }
 
+  /**
+   * Обработчик подтверждения регистрации.
+   *
+   * Сюда пользователи попадают только по ссылке из письма, которое они получают
+   * при попытке зарегистрироваться.  После обработки запроса пользователь
+   * перебрасывается на этот же урл, но с параметром status=activated.
+   *
+   * При успешной активации нового пользователя администратор получает
+   * уведомление об этом по почте (список адресов указывается в конфигурационном
+   * файле, в параметре modules_user_notifications).
+   *
+   * TODO: вынести это из конфига в настройки модуля или виджета.
+   *
+   * @param array $options параметры виджета.
+   *
+   * @return void
+   */
   protected function onGetConfirm(array $options)
   {
     $pdo = mcms::db();
 
     // Найдём неутверждённого пользователя с совпадающим хэшем.
-    $uid = $pdo->getResult("SELECT `id` FROM `node_user` WHERE MD5(CONCAT(`id`, ':', `email`)) = :hash", array(':hash' => $options['hash']));
+    $uid = $pdo->getResult("SELECT `id` FROM `node_user` "
+      ."WHERE MD5(CONCAT(`id`, ':', `email`)) = :hash",
+      array(':hash' => $options['hash']));
 
     // Загрузим профиль.  Если его нет -- нарвёмся на исключение.
     $node = Node::load($uid);
@@ -146,7 +233,8 @@ class UserWidget extends Widget
 
     // Проверим, не активирован ли уже пользователь.
     if (in_array($visitors->id, $node->linkListParents('group', true)))
-      throw new UserErrorException("Пользователь уже активен", 400, "Пользователь уже активен", "Эта учётная запись уже была активирована.");
+      throw new BadRequestException("Эта учётная запись уже "
+        ."была активирована.");
 
     // Включаем.
     $node->linkAddParent($visitors->id);
@@ -170,6 +258,19 @@ class UserWidget extends Widget
     exit(mcms::redirect(bebop_combine_url($url, false)));
   }
 
+  /**
+   * Обработчик запросов на восстановление пароля.
+   *
+   * Вместо этого можно использовать base.rpc?action=restore, что не требует
+   * наличия виджета.
+   *
+   * TODO: переписать этот метод так, чтобы он использовал base.rpc.
+   *
+   * @param array $options параметры виджета.
+   *
+   * @return array данные для шаблона, ключи: mode (всегда «restore»), form —
+   * HTML код формы для восстановления пароля.
+   */
   protected function onGetRestore(array $options)
   {
     if ($options['status'] == 'sent') {
@@ -186,6 +287,13 @@ class UserWidget extends Widget
       );
   }
 
+  /**
+   * Возвращает форму для редактирования профиля.
+   *
+   * @param array $options параметры виджета.
+   *
+   * @return array данные для шаблона, ключи: form — HTML код формы.
+   */
   protected function onGetEdit(array $options)
   {
     switch ($options['status']) {
@@ -201,6 +309,20 @@ class UserWidget extends Widget
     return array('form' => $output);
   }
 
+  /**
+   * Обработчик выход.
+   *
+   * При успешном выходе происходит перенаправление на адрес, указанный в
+   * GET-параметре destination (если там пусто — на адрес текущей страницы, из
+   * которого удаляются все параметры текущего виджета).
+   *
+   * При запросах от XMLHttpRequest возвращается JSON объект с параметром
+   * status=ok.
+   *
+   * @param array $options параметры виджета.
+   *
+   * @return void
+   */
   protected function onGetLogout(array $options)
   {
     mcms::auth();
@@ -250,6 +372,19 @@ class UserWidget extends Widget
     return $output;
   }
 
+  /**
+   * Обработчик форм.
+   *
+   * TODO: устранить в пользу nodeapi.rpc и base.rpc.
+   *
+   * @param array $options параметры виджета.
+   *
+   * @param array $post данные формы.
+   *
+   * @param array $files загруженные файлы, если есть.
+   *
+   * return string адрес для перенаправления пользователя.
+   */
   public function onPost(array $options, array $post, array $files)
   {
     $status = null;
@@ -320,12 +455,30 @@ class UserWidget extends Widget
     return bebop_combine_url($dest, false);
   }
 
-  // С этим виджетом всегда разрешено работать.
+  /**
+   * Проверка доступа к виджету.
+   *
+   * @return bool по идее, возвращает true, если текущему пользователю
+   * разрешено работать с виджетом.  На практике, с этим виджетом всем всегда
+   * разрешено работать.
+   *
+   * TODO: устранить.
+   */
   public function checkRequiredGroups()
   {
     return true;
   }
 
+  /**
+   * Возвращает указанную форму.
+   *
+   * @param string $id идентификатор формы (user-logout-form, user-login-form,
+   * profile-edit-form, profile-remind-form).
+   *
+   * @see Widget::formRender()
+   *
+   * @return Form описание формы.
+   */
   public function formGet($id)
   {
     $user = mcms::user();
@@ -464,6 +617,15 @@ class UserWidget extends Widget
     }
   }
 
+  /**
+   * Возвращает данные для формы.
+   *
+   * @see Widget::formRender()
+   *
+   * @param string $id идентификатор формы.
+   *
+   * @return array данные для формы.
+   */
   public function formGetData($id)
   {
     switch ($id) {
@@ -494,6 +656,18 @@ class UserWidget extends Widget
     }
   }
 
+  /**
+   * Обработчик форм.
+   *
+   * TODO: устранить в пользу RPC.
+   *
+   * @param string $id идентификатор формы.
+   *
+   * @param array $data полученные от пользователя данные.
+   *
+   * @return void Метод никогда не возвращается; вместо этого выполняется
+   * перенаправление, в зависимости от ситуации.
+   */
   public function formProcess($id, array $data)
   {
     if (!empty($data['destination']))

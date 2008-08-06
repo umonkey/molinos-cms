@@ -1,13 +1,30 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Виджет «список разделов».
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
-class TagsWidget extends Widget
+/**
+ * Виджет «список разделов».
+ *
+ * Обычно используется для получения списка подразделов текущего раздела.
+ * Стандартного шаблона нет, нужен специальный.
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ */
+class TagsWidget extends Widget implements iWidget
 {
-  public function __construct(Node $node = null)
-  {
-    parent::__construct($node);
-  }
-
+  /**
+   * Возвращает описание виджета.
+   *
+   * @return array описание виджета, ключи: name, description.
+   */
   public static function getWidgetInfo()
   {
     return array(
@@ -16,6 +33,11 @@ class TagsWidget extends Widget
       );
   }
 
+  /**
+   * Возвращает форму для настройки виджета.
+   *
+   * @return Form вкладка для настройки виджета.
+   */
   public static function formGetConfig()
   {
     $form = parent::formGetConfig();
@@ -36,6 +58,14 @@ class TagsWidget extends Widget
     return $form;
   }
 
+  /**
+   * Обработчик GET-запросов.
+   *
+   * @param array $options параметры запроса.
+   *
+   * @return array данные для шаблона, ключи: sections (вложенный список
+   * подразделов), path (путь к текущему разделу).
+   */
   public function onGet(array $options)
   {
     $result = array();
@@ -66,6 +96,13 @@ class TagsWidget extends Widget
     }
   }
 
+  /**
+   * Препроцессор параметров.
+   *
+   * @param RequestContext $ctx параметры запроса.
+   *
+   * @return array массив с параметрами виджета.
+   */
   public function getRequestOptions(RequestContext $ctx)
   {
     $options = parent::getRequestOptions($ctx);

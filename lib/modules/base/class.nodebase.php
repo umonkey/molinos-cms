@@ -12,6 +12,26 @@ class NodeBase
   // Сюда складываем загруженные ноды.
   static private $cache = array();
 
+  /**
+   * Конструктор.
+   *
+   * Создаёт пустой объект, заполняя его указанными данными.  Копирует поле
+   * updated в created, если оно пусто.
+   *
+   * Доступ извне запрещён, т.к. ноды надо создавать через Node::create().
+   *
+   * @see Node::create()
+   */
+  protected function __construct(array $data = null)
+  {
+    if (null !== $data) {
+      if (empty($data['created']) and !empty($data['updated']))
+        $data['created'] = $data['updated'];
+    }
+
+    $this->data = $data;
+  }
+
   // Проверяет наличие других объектов с таким именем.
   protected function checkUnique($field, $message = null, array $filter = array())
   {
@@ -334,6 +354,18 @@ class NodeBase
     return true;
   }
 
+  /**
+   * Клонирование объекта.
+   *
+   * Создаёт в БД полную копию текущего объекта, включая все его связи.
+   * Работает только если объект уже сохранён; если у объекта ещё нет
+   * собственного идентификатора — ничего не происходит.
+   *
+   * @return Node новый объект (или текущий, если клонирование не проводилось).
+   *
+   * @param integer $parent идентификатор нового родителя.  Позволяет прикрепить
+   * клонированный объект к новому родителю.
+   */
   public function duplicate($parent = null)
   {
     if (null !== ($id = $this->id)) {
@@ -362,6 +394,8 @@ class NodeBase
 
       mcms::flush();
     }
+
+    return $this;
   }
 
   public function erase()
@@ -375,21 +409,27 @@ class NodeBase
     $pdo = mcms::db();
 
     $meta = $pdo->getResult("SELECT `left`, `right`, `right` - `left` + 1 AS `width` FROM `node` WHERE `id` = :id", array(':id' => $this->id));
-    $nids = $pdo->getResultsKV("id", "class", "SELECT `id`, `class` FROM `node` WHERE `left` >= :left AND `right` <= :right", array(':left' => $meta['left'], ':right' => $meta['right']));
 
-    // Вызываем дополнительную обработку.
-    try {
-      mcms::invoke('iNodeHook', 'hookNodeDelete', array($this, 'erase'));
-    } catch (Exception $e) {
+    if (!empty($meta['right']) and !empty($meta['left'])) {
+      $nids = $pdo->getResultsKV("id", "class", "SELECT `id`, `class` FROM `node` WHERE `left` >= :left AND `right` <= :right", array(':left' => $meta['left'], ':right' => $meta['right']));
+
+      // Вызываем дополнительную обработку.
+      try {
+        mcms::invoke('iNodeHook', 'hookNodeDelete', array($this, 'erase'));
+      } catch (Exception $e) {
+      }
+
+      $pdo->exec("DELETE FROM `node` WHERE `left` BETWEEN :left AND :right", array(':left' => $meta['left'], ':right' => $meta['right']));
+
+      $order = $pdo->hasOrderedUpdates() ? ' ORDER BY `right` ASC' : '';
+      $pdo->exec("UPDATE `node` SET `right` = `right` - :width WHERE `right` > :right". $order, $args = array(':width' => $meta['width'], ':right' => $meta['right']));
+
+      $order = $pdo->hasOrderedUpdates() ? ' ORDER BY `left` ASC' : '';
+      $pdo->exec("UPDATE `node` SET `left` = `left` - :width WHERE `left` > :right". $order, $args);
     }
-
-    $pdo->exec("DELETE FROM `node` WHERE `left` BETWEEN :left AND :right", array(':left' => $meta['left'], ':right' => $meta['right']));
-
-    $order = $pdo->hasOrderedUpdates() ? ' ORDER BY `right` ASC' : '';
-    $pdo->exec("UPDATE `node` SET `right` = `right` - :width WHERE `right` > :right". $order, $args = array(':width' => $meta['width'], ':right' => $meta['right']));
-
-    $order = $pdo->hasOrderedUpdates() ? ' ORDER BY `left` ASC' : '';
-    $pdo->exec("UPDATE `node` SET `left` = `left` - :width WHERE `left` > :right". $order, $args);
+    else {
+      $pdo->exec("DELETE FROM `node` WHERE id = :id", array(':id' => $this->id));
+    }
 
     mcms::flush();
   }
@@ -1379,7 +1419,7 @@ class NodeBase
 
     if (!empty($this->files)) {
       foreach ($this->files as $key => $file) {
-        $dt = $file->getData();
+        $dt = $file->getRaw();
         $data['node_content_files['. $dt['id'] .']'] = $file;
       }
     }

@@ -1,13 +1,31 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Виджет «меню».
+ *
+ * Формирует вложенные HTML-списки в соответствии с картой разделов.
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
-class MenuWidget extends Widget
+/**
+ * Виджет «меню».
+ *
+ * Формирует вложенные HTML-списки в соответствии с картой разделов.
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ */
+class MenuWidget extends Widget implements iWidget
 {
-  public function __construct(Node $node)
-  {
-    parent::__construct($node);
-  }
-
+  /**
+   * Возвращает описание виджета.
+   *
+   * @return array массив с ключами: name, description.
+   */
   public static function getWidgetInfo()
   {
     return array(
@@ -16,6 +34,11 @@ class MenuWidget extends Widget
       );
   }
 
+  /**
+   * Возвращает форму для настройки виджета.
+   *
+   * @return Form вкладка для настройки виджета.
+   */
   public static function formGetConfig()
   {
     $fields = array();
@@ -86,7 +109,13 @@ class MenuWidget extends Widget
     return $form;
   }
 
-  // Препроцессор параметров.
+  /**
+   * Препроцессор параметров.
+   *
+   * @param RequestContext $ctx контекст запроса.
+   *
+   * @return array выбранные из контекста параметры, относящиеся к виджету.
+   */
   public function getRequestOptions(RequestContext $ctx)
   {
     $options = parent::getRequestOptions($ctx);
@@ -106,7 +135,14 @@ class MenuWidget extends Widget
     return $this->options = $options;
   }
 
-  // Обработка GET запросов.
+  /**
+   * Обработка GET запросов.
+   *
+   * @param array $options параметры запроса.
+   *
+   * @return array результат работы, содрежит одно значение: "html", с готовым
+   * кодом меню.
+   */
   public function onGet(array $options)
   {
     $toplevel = null;

@@ -1,9 +1,49 @@
 <?php
-// vim: expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Безовый класс для элементов форм ("контролов").
+ *
+ * Реализует методы интерфейса iFormControl, повторяющиеся
+ * в большинстве элементов.  Использовать этот класс не обязательно,
+ * но он упрощает многие вещи, например — формирование подписи
+ * или использование вложенных элементов.
+ *
+ * @see Control::wrapHTML()
+ * @see Control::getChildrenHTML()
+ *
+ * @package mod_base
+ * @subpackage Controls
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Безовый класс для элементов форм ("контролов").
+ *
+ * Реализует методы интерфейса iFormControl, повторяющиеся
+ * в большинстве элементов.  Использовать этот класс не обязательно,
+ * но он упрощает многие вещи, например — формирование подписи
+ * или использование вложенных элементов.
+ *
+ * @see Control::wrapHTML()
+ * @see Control::getChildrenHTML()
+ *
+ * @package mod_base
+ * @subpackage Controls
+ */
 abstract class Control implements iFormControl
 {
+  /**
+   * Массив с описанием контрола.
+   */
   private $form;
+
+  /**
+   * Массив дочерних элементов.
+   *
+   * Используется групповыми элементами, например — FieldSetControl.
+   * @see FieldSetControl
+   */
   private $children;
 
   protected function __construct(array $form, array $required_fields = null)

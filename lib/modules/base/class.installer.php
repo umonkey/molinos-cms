@@ -1,8 +1,32 @@
 <?php
-// vim: expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Инсталлер Molinos CMS.
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ * @author dliv27 <dliv27@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Инсталлер Molinos CMS.
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ */
 class Installer
 {
+  /**
+   * Создание таблиц.
+   *
+   * Создаёт базовые таблицы.
+   *
+   * TODO: заменить на автосоздание, форсировать запуск с помощью «SELECT 1
+   * FROM...»
+   *
+   * @return void
+   */
   public static function CreateTables()
   {
     mcms::db()->clearDB();
@@ -198,7 +222,19 @@ class Installer
     }
   }
 
-  public static function writeConfig(array $data,$olddsn = null)
+  /**
+   * Создание конфигурационного файла.
+   *
+   * Создаёт новый конфигурационный файл, сохраняет в него настройки.
+   *
+   * @param array $data данные формы.
+   *
+   * @param string $olddsn имя ранее использовавшегося DSN (используется при
+   * апгрейде БД, на сколько я понимаю — hex).
+   *
+   * @return void
+   */
+  public static function writeConfig(array $data, $olddsn = null)
   {
     if (empty($data['confirm']))
       throw new InvalidArgumentException("Вы не подтвердили свои намерения.");

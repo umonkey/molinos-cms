@@ -1,6 +1,24 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
+/**
+ * Тип документа «domain» — домен, типовая страница.
+ *
+ * @package mod_base
+ * @subpackage Types
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Тип документа «domain» — домен, типовая страница.
+ *
+ * Ноды этого типа описывают домен или типовую страницу,
+ * в зависимости от наличия родителя.  Если поле "parent_id"
+ * пусто — это домен, не пусто — страница.
+ *
+ * @package mod_base
+ * @subpackage Types
+ */
 class DomainNode extends Node implements iContentType
 {
   public function __construct(array $data)
@@ -39,7 +57,14 @@ class DomainNode extends Node implements iContentType
     return str_replace(self::getBaseDomainName(), 'DOMAIN', $name);
   }
 
-  // Проверяем на уникальность, разворачиваем basedomain.
+  /**
+   * Сохранение объекта.
+   *
+   * Перед самим сохранением проверяет имя на уникальность в пределах
+   * родителя.  Также выполняет дополнительную обработку списка алиасов.
+   *
+   * @return Node сохранённый объект.
+   */
   public function save()
   {
     $this->fixAliases();
@@ -49,7 +74,7 @@ class DomainNode extends Node implements iContentType
 
     parent::checkUnique('name', t('Страница с таким именем уже существует.'), array('parent_id' => $this->parent_id));
 
-    parent::save();
+    return parent::save();
   }
 
   public function duplicate($parent = null)

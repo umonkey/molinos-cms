@@ -1,15 +1,33 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
-// Возвращает список документов в разделе.  Поддерживает постраничную
-// листалку и архив с привязкой к календарю.
+/**
+ * Виджет «список документов».
+ *
+ * Возвразает список объектов, соответствующих условию.  Поддерживает
+ * постраничную навигацию.
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Виджет «список документов».
+ *
+ * Возвразает список объектов, соответствующих условию.  Поддерживает
+ * постраничную навигацию.
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ */
 class ListWidget extends Widget
 {
-  public function __construct(Node $node)
-  {
-    parent::__construct($node);
-  }
-
+  /**
+   * Возвращает описание виджета.
+   *
+   * @return array массив с описанием виджета, ключи: name, description.
+   */
   public static function getWidgetInfo()
   {
     return array(
@@ -18,6 +36,11 @@ class ListWidget extends Widget
       );
   }
 
+  /**
+   * Возвращает форму для настройки виджета.
+   *
+   * @return Form вкладка с настройками виджета.
+   */
   public static function formGetConfig()
   {
     $types = array();
@@ -87,12 +110,27 @@ class ListWidget extends Widget
     return $form;
   }
 
+  /**
+   * Непонятно что.
+   *
+   * @todo выяснить.
+   *
+   * @return void
+   */
   public function formHookConfigData(array &$data)
   {
     $data['config_types'] = $this->me->linkListParents('type', true);
   }
 
-  // Препроцессор параметров.
+  /**
+   * Препроцессор параметров.
+   *
+   * Выбирает из информации о контексте параметры, относящиеся к этому виджету.
+   *
+   * @param RequestContext $ctx контекст запроса.
+   *
+   * @return array массив с параметрами.
+   */
   public function getRequestOptions(RequestContext $ctx)
   {
     $options = parent::getRequestOptions($ctx);
@@ -187,6 +225,34 @@ class ListWidget extends Widget
     return $this->options = $options;
   }
 
+  /**
+   * Формирование списка документов.
+   *
+   * Основной критерий отбора документов — привязка к определённому разделу.
+   *
+   * @param array $options параметры запроса.
+   *
+   * @return array результат работы, ключи:
+   *
+   * path — полный путь к текущему разделу, от корневого до текущего.  Содержит
+   * полные описания объектов.
+   *
+   * section — описание первого раздела, к которому привязан список.
+   * FIXME: оставить либо это, либо root.
+   *
+   * pager — данные для построения постраничной навигации, см.
+   * Widget::getPager().
+   *
+   * documents — массив описаний документов
+   *
+   * root — описание текущего раздела.
+   *
+   * schema — массив структур.  Содержит только те типы, которые использованы в
+   * documents.
+   *
+   * options — параметры, которые отобрал getRequestOptions().  Могут
+   * использоваться для вывода информации о документах.
+   */
   protected function onGetList(array $options)
   {
     if (($filter = $this->queryGet()) === null)
@@ -259,7 +325,17 @@ class ListWidget extends Widget
     return $result;
   }
 
-  // Обработка GET запросов.
+  /**
+   * Диспетчер запросов.
+   *
+   * В зависимости от GET-параметра mode вызывает один из методов: onGetList()
+   * или больше никакой.  Гасит ошибки NoIndexException, возвращая вместо них
+   * массив с ключём "error", значение которого содержит описание ошибки.
+   *
+   * @param array $options то, что насобирал getRequestOptions().
+   *
+   * @return mixed то, что вернул конкретный метод-обработчик.
+   */
   public function onGet(array $options)
   {
     try {
@@ -270,6 +346,25 @@ class ListWidget extends Widget
     }
   }
 
+  /**
+   * Обработка формы.
+   *
+   * Используется для организации параметрического поиска: при action=search
+   * вытаскивает из POST-параметра "search" значение, превращает его в
+   * GET-параметр и перенаправляет пользователя на полученный урл.  Нужно всё
+   * это потому, что запросы методом POST не могут возвращать данные, только
+   * обрабатывать входящие и перенаправлять.
+   *
+   * FIXME: устранить!
+   *
+   * @param array $options то, что насобирал getRequestOptions().
+   *
+   * @param array $post содержимое формы.
+   *
+   * @param array $files полученные файлы, если есть.
+   *
+   * @return string адрес для перенаправления пользователя.
+   */
   public function onPost(array $options, array $post, array $files)
   {
     if (!empty($post['action'])) {
@@ -344,6 +439,15 @@ class ListWidget extends Widget
   }
 
   // Возвращает объект NodeQueryBuilder для получения данных.
+  /**
+   * Возвращает запрос для получения данных.
+   *
+   * Формулирует запрос к БД на основании полученных параметров.
+   *
+   * @param array $options параметры, полученные от getRequestOptions().
+   *
+   * @return NodeQueryBuilder описание запроса.
+   */
   protected function queryGet(array $options = null)
   {
     $query = array();

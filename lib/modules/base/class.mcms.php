@@ -5,10 +5,6 @@
  * This class contains frequently used functions and shortcuts
  * to functions provider by different modules.
  *
- * PHP version 5
- *
- * LICENSE: See the COPYING file included in this distribution.
- *
  * @package mod_base
  * @author Justin Forest <justin.forest@gmail.com>
  * @copyright 2006-2008 Molinos.RU

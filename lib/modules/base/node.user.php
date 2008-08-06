@@ -1,24 +1,58 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
+/**
+ * Тип документа «user» — профиль пользователя.
+ *
+ * Используется для формирования структуры данных сайта (не путать со структурой
+ * страниц, которая описывается с помощью DomainNode).
+ *
+ * @package mod_base
+ * @subpackage Types
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Тип документа «user» — профиль пользователя.
+ *
+ * Используется для формирования структуры данных сайта (не путать со структурой
+ * страниц, которая описывается с помощью DomainNode).
+ *
+ * @package mod_base
+ * @subpackage Types
+ */
 class UserNode extends Node implements iContentType
 {
-  // Сохраняем старый пароль, на случай сброса.
+  /**
+   * При загрузке сюда сохраняется старый пароль, чтобы знать, когда его нужно
+   * сохранить (т.к. при редактировании, если пользователь не ввёл пароль, его
+   * не надо сбрасывать, а надо оставить неизменным).
+   */
   private $origpassword = null;
 
+  /**
+   * Расширенный конструктор.
+   *
+   * Сохранянет пароль в свойстве origpassword.
+   *
+   * @param array $data содержимое ноды, передаётся базовому конструктору.
+   */
   protected function __construct(array $data)
   {
     $this->origpassword = empty($data['password']) ? null : $data['password'];
-    parent::__construct($data);
+    return parent::__construct($data);
   }
 
-  // Шифруем пароль.
+  /**
+   * Сохранение профиля.
+   *
+   * Шифрует пароль при его изменении (MD5), проверяет имя на уникальность.
+   *
+   * @return Node ссылка на себя (для построения цепочек).
+   */
   public function save()
   {
     $isnew = empty($this->id);
-
-    if ((false == strstr($this->name, '@')) && (false == stristr($this->name, 'http://')))
-      $this->name = 'http://'.$this->name;
 
     // Возвращаем старый пароль, если не изменился.
     if (empty($this->password))
@@ -28,8 +62,8 @@ class UserNode extends Node implements iContentType
     elseif ($this->password != $this->origpassword)
       $this->password = md5($this->password);
 
-    parent::checkUnique('name', t('Пользователь с именем %name уже есть.', array('%name' => $this->name)));
-    // parent::checkUnique('email', t('Пользователь с электронным адресом %name уже есть.', array('%name' => $this->email)));
+    parent::checkUnique('name', t('Пользователь с именем %name уже есть.',
+      array('%name' => $this->name)));
 
     parent::save();
 
@@ -38,16 +72,34 @@ class UserNode extends Node implements iContentType
         $this->linkSetParents($authconf['groups'], 'group');
       }
     }
+
+    return $this;
   }
 
+  /**
+   * Клонирование профиля.
+   *
+   * @param integer $parent новый код родителя, не используется и не работает.
+   * Нужен только для подавления нотиса о несоответствии декларации
+   * родительской.
+   *
+   * @return Node ссылка на новый объект.
+   */
   public function duplicate($parent = null)
   {
     $this->login = preg_replace('/_[0-9]+$/', '', $this->login) .'_'. rand();
     $this->email = null;
 
-    parent::duplicate($parent);
+    return parent::duplicate($parent);
   }
 
+  /**
+   * Проверка пароля.
+   *
+   * @param string $password пробуемый пароль.
+   *
+   * @return bool true, если пароль верен, в противном случае false.
+   */
   public function checkpw($password)
   {
     if (empty($this->password) and empty($password))
@@ -59,6 +111,14 @@ class UserNode extends Node implements iContentType
 
   // РАБОТА С ФОРМАМИ.
 
+  /**
+   * Возвращает форму для редактирования профиля.
+   *
+   * @param bool $simple true, если форма не должна содержать расширенную
+   * информацию (историю изменений, список групп итд).
+   *
+   * @return Form описание формы.
+   */
   public function formGet($simple = true)
   {
     $form = parent::formGet($simple);
@@ -114,6 +174,12 @@ class UserNode extends Node implements iContentType
     return $tab;
   }
 
+  /**
+   * Возвращает данные для формы.
+   *
+   * @return array данные для формы.  К полученным от родителя данным
+   * добавляется список групп, к которым можно прикрепить пользователя.
+   */
   public function formGetData()
   {
     $data = parent::formGetData();
@@ -123,6 +189,16 @@ class UserNode extends Node implements iContentType
     return $data;
   }
 
+  /**
+   * Обработка форм.
+   *
+   * В дополнение к родительским действиям занимается привязкой пользователя к
+   * группам.
+   *
+   * @param array $data полученные от пользователя данные.
+   *
+   * @return void
+   */
   public function formProcess(array $data)
   {
     parent::formProcess($data);
@@ -131,11 +207,13 @@ class UserNode extends Node implements iContentType
       $this->linkSetParents(empty($data['node_user_groups']) ? array() : $data['node_user_groups'], 'group');
   }
 
-  public function delete()
-  {
-    return parent::delete();
-  }
-
+  /**
+   * Возвращает базовую структуру профиля.
+   *
+   * @see TypeNode::getSchema()
+   *
+   * return array структура типа документа.  Используется если в БД не найдена.
+   */
   public function getDefaultSchema()
   {
     return array(

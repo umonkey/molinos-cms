@@ -1,13 +1,35 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Виджет «названия разделов».
+ *
+ * Возвращает имена текущего раздела и документа.  Используется, как правило,
+ * для формирования заголовка страницы (встроенный шаблон формирует title, для
+ * включения в head).
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Виджет «названия разделов».
+ *
+ * Возвращает имена текущего раздела и документа.  Используется, как правило,
+ * для формирования заголовка страницы (встроенный шаблон формирует title, для
+ * включения в head).
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ */
 class TitleWidget extends Widget
 {
-  public function __construct(Node $node)
-  {
-    parent::__construct($node);
-  }
-
+  /**
+   * Возвращает описание виджета.
+   *
+   * @return array описание виджета, ключи: name, description.
+   */
   public static function getWidgetInfo()
   {
     return array(
@@ -16,7 +38,13 @@ class TitleWidget extends Widget
       );
   }
 
-  // Препроцессор параметров.
+  /**
+   * Препроцессор параметров.
+   *
+   * @param RequestContext $ctx контекст вызова.
+   *
+   * @return array параметры виджета.
+   */
   public function getRequestOptions(RequestContext $ctx)
   {
     $options = parent::getRequestOptions($ctx);
@@ -24,10 +52,19 @@ class TitleWidget extends Widget
     $options['document_id'] = $ctx->document_id;
     $options['section_id'] = $ctx->section_id;
 
-    return $options;
+    return $this->options = $options;
   }
 
-  // Обработка GET запросов.
+  /**
+   * Обработчик GET запросов.
+   *
+   * @param array $options параметры запроса.
+   *
+   * @return array данные для шаблона.  Подмассив list содержит описание двух
+   * или менее объектов: текущего раздела и текущего документа.  Если код
+   * раздела или документа неизвестен — соответствующий объект не возвращается.
+   * В худшем случае массив будет пустым.
+   */
   public function onGet(array $options)
   {
     $result = array('list' => array());

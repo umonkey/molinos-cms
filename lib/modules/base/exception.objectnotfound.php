@@ -1,6 +1,24 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
+/**
+ * Исключение: объект не найден.
+ *
+ * @package mod_base
+ * @subpackage Exceptions
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Исключение: объект не найден.
+ *
+ * Возникает при попытке загрузить несуществующую ноду.
+ *
+ * @package mod_base
+ * @subpackage Exceptions
+ *
+ * @see NodeBase::find()
+ */
 class ObjectNotFoundException extends UserErrorException
 {
   public function __construct()

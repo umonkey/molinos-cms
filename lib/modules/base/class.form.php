@@ -1,8 +1,32 @@
 <?php
-// vim: expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Корневой элемент формы, частный случай «контрола».
+ *
+ * @see Control
+ *
+ * @package mod_base
+ * @subpackage Controls
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Корневой элемент формы, частный случай «контрола».
+ *
+ * @see Control
+ *
+ * @package mod_base
+ * @subpackage Controls
+ */
 class Form extends Control
 {
+  /**
+   * Возвращает информацию о контроле.
+   *
+   * @return array описание контрола, ключи: name, hidden (не разрешаем
+   * создавать поля типа «форма»).
+   */
   public static function getInfo()
   {
     return array(
@@ -11,11 +35,14 @@ class Form extends Control
       );
   }
 
-  public function __construct(array $form)
-  {
-    parent::__construct($form);
-  }
-
+  /**
+   * Формирование HTML-кода формы.
+   *
+   * Опционально добавляет заголовок и вступление (свойство intro), завёрнутое в
+   * div class=intro.
+   *
+   * @return string HTML-код формы.
+   */
   public function getHTML(array $data)
   {
     $output = '';

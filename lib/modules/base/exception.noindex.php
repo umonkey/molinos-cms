@@ -1,6 +1,23 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Исключение: индекс не найден.
+ *
+ * @package mod_base
+ * @subpackage Exceptions
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Исключение: индекс не найден.
+ *
+ * Возникает при попытке отфильтровать или отсортировать объекты по полю, по
+ * которомы сортировать и фильтровать нелзя.
+ *
+ * @package mod_base
+ * @subpackage Exceptions
+ */
 class NoIndexException extends UserErrorException
 {
   public function __construct($name)

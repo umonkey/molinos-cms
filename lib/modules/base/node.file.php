@@ -1,17 +1,42 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
+/**
+ * Тип документа "file" — файл.
+ *
+ * @package mod_base
+ * @subpackage Types
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Тип документа "file" — файл.
+ *
+ * @package mod_base
+ * @subpackage Types
+ */
 class FileNode extends Node implements iContentType
 {
-  // Определяем размеры.
+  /**
+   * Сохранение объекта.
+   *
+   * При сохранении картинки определяет её размеры, копирует
+   * в свойства "width" и "height".  После успешного сохранения
+   * (если не возникло исключение) удаляет из файлового кэша
+   * отмасштабированные версии картинки (по маске attachment/id*).
+   *
+   * @return void
+   */
   public function save()
   {
     $path = mcms::config('filestorage');
     $path .= '/'. $this->filepath;
 
-    if (is_readable($path) and ($info = @getimagesize($path))) {
-      $this->width = $info[0];
-      $this->height = $info[1];
+    if ('image/' == substr($this->filetype, 0, 6)) {
+      if (is_readable($path) and ($info = @getimagesize($path))) {
+        $this->width = $info[0];
+        $this->height = $info[1];
+      }
     }
 
     parent::save();
@@ -19,7 +44,9 @@ class FileNode extends Node implements iContentType
     $this->purge();
   }
 
-  // Удаление версий файла из кэша.
+  /**
+   * Удаление версий файла из кэша.
+   */
   private function purge()
   {
     $path = MCMS_ROOT .'/attachment/'. $this->id .'*';
@@ -33,13 +60,29 @@ class FileNode extends Node implements iContentType
     }
   }
 
-  // При удалении очищаем кэш.
+  /**
+   * Перемещение файла в корзину.
+   *
+   * Перед удалением файла из удаляет его версии из файлового кэша,
+   * т.к. файл более не будет доступен извне — его отмасштабированные
+   * версии не нужны.
+   *
+   * @return void
+   */
   public function delete()
   {
     $this->purge();
     parent::delete();
   }
 
+  /**
+   * Полное удаление файла из корзины.
+   *
+   * Удаляет отмасштабированные версии из файлового кэша и из основного
+   * файлового хранилища.
+   *
+   * @return void
+   */
   public function erase()
   {
     parent::erase();
@@ -50,12 +93,43 @@ class FileNode extends Node implements iContentType
       unlink($filename);
   }
 
+  /**
+   * Залушка: кидает ForbiddenException с сообщением о невозможности
+   * клонирования файлов.
+   *
+   * @return void
+   */
   public function duplicate()
   {
     throw new ForbiddenException(t('Клонирование файлов невозможно.'));
   }
 
-  // Импорт файла из массива $post.
+  /**
+   * Импорт файла из внешнего источника.
+   *
+   * Используется как для обработки полученных от браузера файлов, так и для
+   * ручного добавления файлов в архив.  Путь к файловому архиву определяется
+   * конфигурационным файлом (параметр filestorage).
+   *
+   * Внутреннее имя файла при копировании в архив формируется с использованием
+   * md5-суммы его содержимого, поэтому в архив нельзя два раза добавить один
+   * файл.  При обнаружении попытки повторной загрузки файла (с таким же
+   * filepath) метод прозрачно подменяет содержимое текущей ноды содержимым
+   * уже существующей, новую не создаёт.
+   *
+   * При невозможности скопировать файл в архив возникает UserErrorException.
+   *
+   * @return void
+   * @param array $file описание файла
+   * @param bool $uploaded проверять, действительно ли файл пришёл от браузера.
+   *
+   * Обязательные ключи: tmp_name (полный путь к фалу, который нужно
+   * скопировать в архив), опциональные: type, name, size, parent_id.  При
+   * отсутствии type, тип файла определяется эвристически.
+   *
+   * При указании parent_id файл автоматически прикрепляется к указанной в этом
+   * параметре ноде, с помощью Node::linkAddParent().
+   */
   public function import(array $file, $uploaded = true)
   {
     $storage = mcms::config('filestorage');
@@ -90,7 +164,10 @@ class FileNode extends Node implements iContentType
 
     // Находим существующий файл.
     try {
-      $node = Node::load(array('class' => 'file', 'filepath' => $this->filepath));
+      $node = Node::load(array(
+        'class' => 'file',
+        'filepath' => $this->filepath,
+        ));
 
       // Исправление для Issue 300: файла физически нет, и заменить ноду нельзя.
       if (!file_exists($storage .'/'. $this->filepath))
@@ -124,8 +201,14 @@ class FileNode extends Node implements iContentType
       $this->linkAddParent($file['parent_id']);
   }
 
-  // Распаковывает архив, добавляет все файлы в админку,
-  // возвращает последний добавленный файл.
+  /**
+   * Импорт нескольких файлов из архива.
+   *
+   * Вытаскивает из архива все файлы, добавляет их в файловый архив.
+   *
+   * @return Node последний добавленный в архив файл
+   * @param string $zipfile путь к ZIP-архиву.
+   */
   public static function unzip($zipfile)
   {
     $node = null;
@@ -172,6 +255,24 @@ class FileNode extends Node implements iContentType
     return $node;
   }
 
+  /**
+   * Возвращает форму для редактирования файла.
+   *
+   * Форма для существующих файлов остаётся практически неизменной (полученной
+   * от родителя), в неё добавляется только поле для выбора локального файла,
+   * для возможности заменить существующий.
+   *
+   * Форма для добавления файла строится с нуля.  Пользователю предлагается
+   * выбор: загрузить локальный файл, скачать его с другого сайта, или
+   * использовать файл, загруженный по FTP (путь к таким файлам определяет
+   * метод getFTPRoot()).
+   *
+   * @return Form
+   *
+   * @param bool $simple true, если форма не должна содержать административные
+   * элементы: управление правами, привязкой к разделам итд.  Форма для
+   * добавления файла всегда возвращается в упрощённом виде.
+   */
   public function formGet($simple = true)
   {
     if (null === $this->id) {
@@ -247,9 +348,19 @@ class FileNode extends Node implements iContentType
     return $form;
   }
 
-  // Обработка замены содержимого файла.  Порядок действий именно такой потому,
-  // что parent::formProcess() обновляет все поля, а нам нужно изменить некоторые
-  // из них вручную.  После импорта файл снова сохраняется.
+  /**
+   * Обработка пришедшей формы.
+   *
+   * Вызывается из NodeApiModule, вручную вызывать не нужно.
+   *
+   * Обработка замены содержимого файла.  Порядок действий именно такой потому,
+   * что parent::formProcess() обновляет все поля, а нам нужно изменить некоторые
+   * из них вручную.  После импорта файл снова сохраняется.
+   *
+   * Для помещения файла в архив использует FileNode::import().
+   *
+   * @return void
+   */
   public function formProcess(array $data)
   {
     if (null === $this->id) {
@@ -343,6 +454,18 @@ class FileNode extends Node implements iContentType
 
   // РАБОТА С FTP.
 
+  /**
+   * Возвращает путь к FTP папке.
+   *
+   * Папка FTP используется для загрузки больших файлов, которые проблематично
+   * загрузить через браузер.  Путь указывается в конфигурационном файле,
+   * параметром filestorage_ftp; если такого параметра нет — используется
+   * подпапка "ftp" в обычном файловом хранилище.
+   *
+   * TODO: вынести из конфига в настройки модуля base.
+   *
+   * @return string
+   */
   public static function getFTPRoot()
   {
     if (null === ($path = mcms::config('filestorage_ftp')))
@@ -350,11 +473,13 @@ class FileNode extends Node implements iContentType
     return $path;
   }
 
-  public function getData()
-  {
-    return $this->data;
-  }
-
+  /**
+   * Возвращает список файлов в FTP папке.
+   *
+   * @return array массив с именами файлов, содержащихся в корневой папке FTP.
+   * Вложенные папки не обрабатываются.  Имена отсортированы в алфавитном
+   * порядке.  Пустой массив означает, что файлов нет.
+   */
   public static function listFilesOnFTP()
   {
     if (!is_dir($path = self::getFTPRoot()))
@@ -376,6 +501,20 @@ class FileNode extends Node implements iContentType
     return $result;
   }
 
+  /**
+   * Импортирует файлы из FTP.
+   *
+   * Импортирует указанные файлы, находящиеся в FTP папке, в файловый архив.
+   *
+   * @return void
+   *
+   * @param array $files имена файлов для добавления в архив.  Если указанных
+   * файлов в папке не окажется — ничего не произойдёт, они просто не добавятся
+   * в архив.
+   *
+   * @param integer $parent_id идентификатор объекта, к которому следует
+   * прикрепить добавленные файлы.
+   */
   public static function getFilesFromFTP(array $files, $parent_id = null)
   {
     $path = self::getFTPRoot();
@@ -400,6 +539,13 @@ class FileNode extends Node implements iContentType
     }
   }
 
+  /**
+   * Возвращает базовую структуру файла.
+   *
+   * @return array структура типа file, используемая если в базе данных
+   * структура не обнаружена (хранится в виде ноды с типом "type" и
+   * именем "file").
+   */
   public function getDefaultSchema()
   {
     return array(

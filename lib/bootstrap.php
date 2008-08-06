@@ -3,8 +3,6 @@
 
 // Нет адреса — запуск из консоли, нужно в основном для тестов.
 if (empty($_SERVER['HTTP_HOST'])) {
-  $_SERVER['HTTP_HOST'] = 'localhost';
-
   define('MCMS_ROOT', dirname(dirname(__FILE__)));
 }
 

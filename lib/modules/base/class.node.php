@@ -1,27 +1,56 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
+/**
+ * Базовый класс для всех объектов, хранимых в БД.
+ *
+ * Реализует функции, общие для всех объектов, но не имеющие отношения к
+ * взаимодействию с БД — этот код вынесен в класс NodeBase.
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
-class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
+/**
+ * Базовый класс для всех объектов, хранимых в БД.
+ *
+ * Реализует функции, общие для всех объектов, но не имеющие отношения к
+ * взаимодействию с БД — этот код вынесен в класс NodeBase.
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ */
+class Node extends NodeBase implements iContentType
 {
-  // Создаём пустой объект указанного типа, проверяем тип на валидность.
-  protected function __construct(array $data = null)
-  {
-    if (null !== $data) {
-      if (empty($data['created']) and !empty($data['updated']))
-        $data['created'] = $data['updated'];
-    }
-
-    $this->data = $data;
-  }
-
+  /**
+   * Рендеринг объекта в HTML.
+   *
+   * Применяет к документу наиболее подходящий шаблон (class.* из шкуры «all»).
+   *
+   * TODO: устранить.
+   *
+   * @param string $prefix не используется.
+   *
+   * @param string $theme не используется.
+   *
+   * @param array $data не используется.
+   *
+   * @return string полученный HTML-код, или NULL.
+   */
   // Форматирует документ в соответствии с шаблоном.
   public function render($prefix = null, $theme = null, array $data = null)
   {
     return bebop_render_object("class", $this->class, "all", $this->data);
   }
 
-  // РАБОТА С ФОРМАМИ.
-
+  /**
+   * Возвращает данные для формы редактирования объекта.
+   *
+   * @return array данные для формы, включая массивы: node_access — описание
+   * доступа к объекту, reset_access — флаг сброса доступа, node_published —
+   * состояние публикации (FIXME: зачем?)
+   */
   public function formGetData()
   {
     $user = mcms::user();
@@ -37,9 +66,17 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
     return $data;
   }
 
+  /**
+   * Обработка форм.
+   *
+   * Вызывается из nodeapi.rpc, в дополнение к родительским действиям
+   * обрабатывает изменения в правах доступа.
+   *
+   * @return mixed см. NodeBase::formProcess()
+   */
   public function formProcess(array $data)
   {
-    parent::formProcess($data);
+    $res = parent::formProcess($data);
 
     $user = mcms::user();
 
@@ -47,53 +84,16 @@ class Node extends NodeBase implements iContentType, iModuleConfig, iNodeHook
       if ($user->hasAccess('u', 'user'))
         $this->setAccess(empty($data['node_access']) ? array() : $data['node_access']);
     }
+
+    return $res;
   }
 
-  public static function formGetModuleConfig()
-  {
-    $form = new Form(array());
-
-    $form->addControl(new NumberControl(array(
-      'value' => 'config_archive_limit',
-      'label' => t('Количество архивных ревизий'),
-      'default' => 10,
-      'description' => t('При сохранении документов будет оставлено указанное количество архивных ревизий, все остальные будут удалены.'),
-      )));
-
-    return $form;
-  }
-
-  public static function hookNodeUpdate(Node $node, $op)
-  {
-    switch ($op) {
-    case 'erase':
-      // Удаляем расширенные данные.
-      $t = new TableInfo('node_'. $node->class);
-      if ($t->exists())
-        mcms::db()->exec("DELETE FROM `node_{$node->class}` WHERE `rid` IN (SELECT `rid` FROM `node__rev` WHERE `nid` = :nid)", array(':nid' => $node->id));
-
-      // Удаляем все ревизии.
-      mcms::db()->exec("DELETE FROM `node__rev` WHERE `nid` = :nid", array(':nid' => $node->id));
-
-      // Удаляем связи.
-      mcms::db()->exec("DELETE FROM `node__rel` WHERE `nid` = :nid OR `tid` = :tid", array(':nid' => $node->id, ':tid' => $node->id));
-
-      // Удаляем доступ.
-      mcms::db()->exec("DELETE FROM `node__access` WHERE `nid` = :nid OR `uid` = :uid", array(':nid' => $node->id, ':uid' => $node->id));
-
-      // Удаление статистики.
-      $t = new TableInfo('node__astat');
-      if ($t->exists())
-        mcms::db()->exec("DELETE FROM `node__astat` WHERE `nid` = :nid", array(':nid' => $node->id));
-
-      break;
-    }
-  }
-
-  public static function hookPostInstall()
-  {
-  }
-
+  /**
+   * Возвращает базовое описание объекта.
+   *
+   * @return array структура объекта.  Используется как основа для всех
+   * добавляемых пользователем типов.
+   */
   public function getDefaultSchema()
   {
     return array(

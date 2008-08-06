@@ -26,7 +26,7 @@ class FileListControl extends Control
 
     foreach ($data as $k => $v) {
       if ($this->value == substr($k, 0, strlen($this->value)) and is_numeric(substr($k, strlen($this->value) + 1, -1))) {
-         $dt = $v->getData();
+         $dt = $v->getRaw();
 
          $preview = mcms::html('img', array(
            'src' => "attachment.rpc?fid={$dt['id']},48,48,c&rev={$dt['rid']}",

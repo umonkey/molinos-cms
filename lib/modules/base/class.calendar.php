@@ -1,65 +1,77 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * PHP Calendar Class Version 1.4 (5th March 2001)
+ *
+ * Используется виджетом ArchiveWidget
+ *
+ * @see ArchiveWidget
+ *
+ * Copyright David Wilkinson 2000 - 2001. All Rights reserved.
+ *
+ * This software may be used, modified and distributed freely
+ * providing this copyright notice remains intact at the head
+ * of the file.
+ *
+ * This software is freeware. The author accepts no liability for
+ * any loss or damages whatsoever incurred directly or indirectly
+ * from the use of this script. The author of this software makes
+ * no claims as to its fitness for any purpose whatsoever. If you
+ * wish to use this software you should first satisfy yourself that
+ * it meets your requirements.
+ *
+ * URL:   http: *www.cascade.org.uk/software/php/calendar/
+ * Email: davidw@cascade.org.uk
+ * Modified by a.ivanov@molinos.ru
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ */
 
-// PHP Calendar Class Version 1.4 (5th March 2001)
-//
-// Copyright David Wilkinson 2000 - 2001. All Rights reserved.
-//
-// This software may be used, modified and distributed freely
-// providing this copyright notice remains intact at the head
-// of the file.
-//
-// This software is freeware. The author accepts no liability for
-// any loss or damages whatsoever incurred directly or indirectly
-// from the use of this script. The author of this software makes
-// no claims as to its fitness for any purpose whatsoever. If you
-// wish to use this software you should first satisfy yourself that
-// it meets your requirements.
-//
-// URL:   http://www.cascade.org.uk/software/php/calendar/
-// Email: davidw@cascade.org.uk
-// Modified by a.ivanov@molinos.ru
-
-class Calendar {
-  /*
-   The start day of the week. This is the day that appears in the first column
-   of the calendar. Sunday = 0.
+/**
+ * PHP Calendar Class.
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ */
+class Calendar
+{
+  /**
+   * The start day of the week. This is the day that appears in the first column
+   * of the calendar. Sunday = 0.
    */
   private $startDay = 1;
 
-  /*
-   The start month of the year. This is the month that appears in the first slot
-   of the calendar in the year view. January = 1.
+  /**
+   * The start month of the year. This is the month that appears in the first slot
+   * of the calendar in the year view. January = 1.
    */
   private $startMonth = 1;
 
-  /*
-   The labels to display for the days of the week. The first entry in this array
-   represents Sunday.
+  /**
+   * The labels to display for the days of the week. The first entry in this array
+   * represents Sunday.
    */
   private $dayNames = array("S", "M", "T", "W", "T", "F", "S");
 
-  /*
-   The labels to display for the months of the year. The first entry in this array
-   represents January.
+  /**
+   * The labels to display for the months of the year. The first entry in this array
+   * represents January.
    */
   private $monthNames = array("January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December");
 
 
-  /*
-   The number of days in each month. You're unlikely to want to change this...
-   The first entry in this array represents January.
+  /**
+   * The number of days in each month. You're unlikely to want to change this...
+   * The first entry in this array represents January.
    */
   private $daysInMonth = array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
 
-  function __construct() {
-  }
+  function __construct() { }
 
-
-  /*
-   Get the array of strings used to label the days of the week. This array contains seven
-   elements, one for each day of the week. The first entry in this array represents Sunday.
+  /**
+   * Get the array of strings used to label the days of the week. This array contains seven
+   * elements, one for each day of the week. The first entry in this array represents Sunday.
    */
   function getDayNames() {
     return $this->dayNames;

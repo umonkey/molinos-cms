@@ -1,13 +1,36 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Виджет «отдельный документ».
+ *
+ * Возвращает информацию об отдельном объекте, запрошенном пользователем или
+ * указанном администратором, в зависимости от настроек виджета.
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
-class DocWidget extends Widget
+/**
+ * Виджет «отдельный документ».
+ *
+ * Возвращает информацию об отдельном объекте, запрошенном пользователем или
+ * указанном администратором, в зависимости от настроек виджета.
+ *
+ * Результат кэшируется отдельно для каждого залогиненного пользователя и один
+ * раз для всех анонимных.
+ *
+ * @package mod_base
+ * @subpackage Widgets
+ */
+class DocWidget extends Widget implements iWidget
 {
-  public function __construct(Node $node)
-  {
-    parent::__construct($node);
-  }
-
+  /**
+   * Возвращает информацию о виджете.
+   *
+   * @return array описание виджета, ключи: name, description.
+   */
   public static function getWidgetInfo()
   {
     return array(
@@ -16,6 +39,15 @@ class DocWidget extends Widget
       );
   }
 
+  /**
+   * Возвращает форму для настройки виджета.
+   *
+   * Используемые параметры: mode = режим работы, fixed = код фиксированного
+   * документа, showneighbors = возвращать соседей.  Доступны через
+   * mcms::modconf().
+   *
+   * @return Form описание формы.
+   */
   public static function formGetConfig()
   {
     $form = parent::formGetConfig();
@@ -46,6 +78,15 @@ class DocWidget extends Widget
     return $form;
   }
 
+  /**
+   * Вытаскивает из контекста параметры виджета.
+   *
+   * @return array параметры, необходимые виджеты
+   *
+   * @param RequestContext $ctx контекст запроса.  Используемые GET-параметры:
+   * action, код раздела (если используется возврат информации о соседях), код
+   * документа (если не используется возврат фиксированного документа).
+   */
   public function getRequestOptions(RequestContext $ctx)
   {
     $options = parent::getRequestOptions($ctx);
@@ -71,11 +112,38 @@ class DocWidget extends Widget
     return $this->options = $options;
   }
 
+  /**
+   * Диспетчер запросов.
+   *
+   * Вызывает onGetView() или onGetEdit(), в зависимости от параметра action.
+   *
+   * @see Widget::dispatch()
+   *
+   * @return mixed данные для шаблона.
+   * @param array $options параметры, которые насобирал getRequestOptions().
+   */
   public function onGet(array $options)
   {
     return $this->dispatch(array($options['action']), $options);
   }
 
+  /**
+   * Возвращает информацию об объекте.
+   *
+   * Информация об объекте включает прикреплённые к нему файлы и привязанные
+   * документы.  Если у пользователя нет доступа к объекту — кидает
+   * ForbiddenException; если объект не опубликован — кидает ForbiddenException
+   * (независимо от прав пользователя); если объект является разделом — кидает
+   * PageNotFoundException (потому, что для разделов есть TagsWidget).
+   *
+   * @param array $options параметры, которые насобирал getRequestOptions()
+   *
+   * @return array Информация об объекте, содержит ключи: "document" (описание
+   * объекта, включая прикреплённые файлы и другие объекты), "tags" (полное
+   * описание разделов, к которым прикреплён объект), "schema" (описание
+   * структуры объекта) и "neighbors" со ссылками на соседей ("prev" и "next"),
+   * если настройки виджета велят возвращать эту информацию.
+   */
   protected function onGetView(array $options)
   {
     $result = array(
@@ -125,6 +193,17 @@ class DocWidget extends Widget
     return $result;
   }
 
+  /**
+   * Возвращает форму для редактирования объекта.
+   *
+   * Возвращает HTML код формы, достаточный для редактирования объекта.
+   * Используется стандартный обработчик форм (nodeapi.rpc), вносить изменения в
+   * код формы нельзя — только стилизовать.
+   *
+   * @param array $options параметры, которые насобирал getRequestOptions().
+   *
+   * @return string HTML код формы.
+   */
   protected function onGetEdit(array $options)
   {
     $node = Node::load($options['root']);

@@ -1,4 +1,10 @@
 <?php
 
-if (!empty($list))
-  print mcms::html('h1', $list[0]['name']);
+if (!empty($list)) {
+  $items = array();
+
+  foreach ($list as $i)
+    $items[] = $i['name'];
+
+  print mcms::html('tite', join(' — ', $items));
+}

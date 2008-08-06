@@ -1,9 +1,32 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
+/**
+ * Тип документа «widget» — описание виджета.
+ *
+ * @package mod_base
+ * @subpackage Types
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Тип документа «widget» — описание виджета.
+ *
+ * @package mod_base
+ * @subpackage Types
+ */
 class WidgetNode extends Node implements iContentType
 {
   // Проверяем на уникальность.
+  /**
+   * Сохранение виджета.
+   *
+   * Проверяет имя виджета на уникальность, пресекает попытки сделать виджет
+   * дочерним объектом.  Проверяет, не содержит ли имя виджета недопустимые
+   * символы.  Публикует все создаваемые виджеты.
+   *
+   * @return Node ссылка на себя (для организации цепочек).
+   */
   public function save()
   {
     if ($isnew = (null === $this->id))
@@ -15,14 +38,23 @@ class WidgetNode extends Node implements iContentType
     $this->name = trim($this->name);
 
     if (!empty($_SERVER['HTTP_HOST']) and (empty($this->name) or strspn(mb_strtolower($this->name), "abcdefghijklmnopqrstuvwxyz0123456789_") != strlen($this->name)))
-      throw new UserErrorException("Неверное имя", 400, "Неверное имя", "Имя виджета может содержать только буквы латинского алфавита и цифры.&nbsp; Пожалуйста, переименуйте виджет.");
+      throw new BadRequestException("Имя виджета может содержать только "
+        ."буквы латинского алфавита и арабские цифры.&nbsp; "
+        ."Пожалуйста, переименуйте виджет.");
 
-    if ($this->id === null and Node::count(array('class' => 'widget', 'name' => $this->name)))
-      throw new InvalidArgumentException("Виджет с таким именем уже существует.");
+    parent::checkUnique('name', t("Виджет с таким именем уже существует."));
 
     return parent::save();
   }
 
+  /**
+   * Возвращает базовое описание виджета.
+   *
+   * @see TypeNode::getSchema()
+   *
+   * @return array базовая структура типа документа. Используется если не
+   * найдена в БД.
+   */
   public function getDefaultSchema()
   {
     return array(
@@ -67,12 +99,34 @@ class WidgetNode extends Node implements iContentType
       );
   }
 
+  /**
+   * Клонирование виджета.
+   *
+   * Добавляет к имени клонируемого объекта немного мусора, для уникальности.
+   *
+   * @param integer $parent новый код родителя.
+   *
+   * @return Node новый объект.
+   */
   public function duplicate($parent = null)
   {
     $this->name = preg_replace('/_[0-9]+$/', '', $this->name) .'_'. rand();
-    parent::duplicate($parent);
+    return parent::duplicate($parent);
   }
 
+  /**
+   * Возвращает форму для редактирования виджета.
+   *
+   * При формировании списка доступных типов виджетов используются классы,
+   * реализующие интерфейс iWidget.
+   *
+   * @see iWidget
+   *
+   * @param bool $simple true, если форма не должна содержать дополнительные
+   * вкладки (историю изменений, файлы итд).
+   *
+   * @return Form описание формы.
+   */
   public function formGet($simple = true)
   {
     if (null === $this->id) {
@@ -160,6 +214,12 @@ class WidgetNode extends Node implements iContentType
     return $form;
   }
 
+  /**
+   * Возвращает данные для формы.
+   *
+   * @return array данные для формы, включают настройки виджета и привязку к
+   * страницам.
+   */
   public function formGetData()
   {
     $data = parent::formGetData();
@@ -183,6 +243,17 @@ class WidgetNode extends Node implements iContentType
     return $data;
   }
 
+  /**
+   * Обработчик форм.
+   *
+   * Обновляет конфигурацию виджета, привязку к страницам и типам документов.
+   * После обработки формы пользователь перебрасывается на новую страницу, в
+   * зависимости от ситуации.
+   *
+   * @param array $data полученные от пользователя данные.
+   *
+   * @return void
+   */
   public function formProcess(array $data)
   {
     $isnew = (null === $this->id);
