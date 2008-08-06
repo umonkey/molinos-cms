@@ -423,7 +423,7 @@ class mcms
       $url = new url($path);
 
     if ($url->islocal and substr($path, 0, 1) != '/')
-      $path = mcms::path() .'/'. strval($url);
+      $path = mcms::path() .'/'. strval($url->path);
 
     $target = $path;
 

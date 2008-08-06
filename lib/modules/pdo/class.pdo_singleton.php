@@ -30,7 +30,8 @@ class PDO_Singleton extends PDO
   {
     if (null !== $this->dbtype)
       return $this->dbtype;
-    throw new RuntimeException(t('Метод getDbType() не определён — используется неполноценный драйвер БД.'));
+    throw new RuntimeException(t('Метод getDbType() не определён '
+      .'— используется неполноценный драйвер БД.'));
   }
 
   public function getDbName()
@@ -74,7 +75,8 @@ class PDO_Singleton extends PDO
     if ('default' == $name)
       throw new NotInstalledException('dsn');
 
-    throw new RuntimeException(t('Соединение %name не настроено.', array('%name' => $name)));
+    throw new RuntimeException(t('Соединение %name не настроено.',
+      array('%name' => $name)));
   }
 
   public static function disconnect()
@@ -144,9 +146,27 @@ class PDO_Singleton extends PDO
   public function getResultsKV($key, $val, $sql, array $params = null)
   {
     $result = array();
+    $rows  = $this->getResults($sql, $params);
 
-    foreach ($this->getResults($sql, $params) as $row)
-      $result[$row[$key]] = $row[$val];
+    if ($rows) {
+      $frow = $rows[0];
+      if (!array_key_exists($key,$frow))
+         $key = '`'.$key.'`';
+
+      if (!array_key_exists($key,$frow))
+         throw new RuntimeException(t("Для запроса %sql в возвращаемом массиве"
+            ."нет поля %key", array('%sql' => $sql, '%key' => $key)));
+
+      if (!array_key_exists($val,$frow))
+         $val = '`'.$val.'`';
+
+      if (!array_key_exists($val,$frow))
+         throw new RuntimeException(t("Для запроса %sql в возвращаемом массиве"
+            ."нет поля %key", array('%sql' => $sql, '%key' => $val)));
+
+      foreach ($rows as $row)
+        $result[$row[$key]] = $row[$val];
+    }
 
     return $result;
   }
@@ -154,9 +174,18 @@ class PDO_Singleton extends PDO
   public function getResultsK($key, $sql, array $params = null)
   {
     $result = array();
+    $rows  = $this->getResults($sql, $params);
+    if ($rows) {
+      if (!array_key_exists($key,$rows[0]))
+         $key = '`'.$key.'`';
 
-    foreach ($this->getResults($sql, $params) as $row)
-      $result[$row[$key]] = $row;
+      if (!array_key_exists($key,$rows[0]))
+         throw new RuntimeException(t("Для запроса %sql в возвращаемом массиве"
+            ."нет поля %key", array('%sql' => $sql, '%key' => $key)));
+
+      foreach ($rows as $row)
+        $result[$row[$key]] = $row;
+    }
 
     return $result;
   }
@@ -164,9 +193,18 @@ class PDO_Singleton extends PDO
   public function getResultsV($key, $sql, array $params = null)
   {
     $result = array();
+    $rows  = $this->getResults($sql, $params);
+    if ($rows) {
+      if (!array_key_exists($key,$rows[0]))
+         $key = '`'.$key.'`';
 
-    foreach ($this->getResults($sql, $params) as $row)
-      $result[] = $row[$key];
+      if (!array_key_exists($key,$rows[0]))
+         throw new RuntimeException(t("Для запроса %sql в возвращаемом массиве"
+            ."нет поля %key", array('%sql' => $sql, '%key' => $key)));
+
+      foreach ($rows as $row)
+        $result[] = $row[$key];
+    }
 
     return empty($result) ? null : $result;
   }
