@@ -2,19 +2,13 @@
 
 function smarty_function_render_text_as_image($params, &$smarty)
 {
-  $url = array(
-    'path' => '/',
-    'args' => array(
-      'widget' => 'BebopDrawText',
-      'BebopDrawText' => array(
-        'text' => base64_encode($params['text']),
-        'font' => $params['font'],
-        'color' => empty($params['color']) ? '0' : $params['color'],
-        'size' => empty($params['size']) ? 20 : $params['size'],
-        ),
-      ),
-    );
+  $url = new url('drawtext.rpc');
 
-  $link = bebop_combine_url($url);
-  return $link;
+  $url->setarg('text', base64_encode($params['text']));
+  $url->setarg('font', $params['font']);
+  $url->setarg('color', empty($params['color']) ? '000000' : $params['color']);
+  $url->setarg('bgcolor', empty($params['bgcolor']) ? 'ffffff' : $params['bgcolor']);
+  $url->setarg('size', empty($params['size']) ? 20 : $params['size']);
+
+  return strval($url);
 }

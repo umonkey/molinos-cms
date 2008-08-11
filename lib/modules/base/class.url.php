@@ -208,8 +208,21 @@ class url
     // Применяем некоторые дефолты.
     $url = $this->complement($url);
 
-    if (empty($url['host']) or self::$localhost == $url['host'])
-      $this->islocal = true;
+    if (!empty($url['path']))
+      $prefixpos = strpos($url['path'], mcms::path());
+    else
+      $prefixpos = null;
+
+    if (empty($url['host'])  or (self::$localhost == $url['host'])) {
+      if (substr($url['path'], 0, 1) != '/')
+        $this->islocal = true;
+      elseif ($prefixpos === 0)
+        $this->islocal = true;
+    }
+
+    if (($this->islocal) && ($prefixpos === 0))
+      $url['path'] = ltrim(substr_replace($url['path'], "", 0, strlen(mcms::path())),'/');
+
 
     // Для локальных ссылок предпочитаем q реальному пути.
     if ($this->islocal) {

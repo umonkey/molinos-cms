@@ -423,21 +423,10 @@ class mcms
     else
       $url = new url($path);
 
-    if ($url->islocal and substr($path, 0, 1) != '/')
-      $path = mcms::path() .'/'. strval($url->path);
-
-    $target = $path;
-
-    /*
-    mcms::debug($path, $url, $url->path, mcms::path());
-
-    // Относительные ссылки на CMS.
-    if (empty($url->host) and '/' != substr($url->path, 0, 1)) {
-      $target = mcms::path() . strval($url);
-    } else {
+    if ($url->islocal and !empty($url->scheme))
+      $target = mcms::path() .'/'. strval($url->path);
+    else
       $target = strval($url);
-    }
-    */
 
     // При редиректе на текущую страницу добавляем случайное число,
     // без этого Опера не редиректит.
