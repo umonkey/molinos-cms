@@ -30,10 +30,15 @@ class NodeLinkControl extends Control
     if (isset($this->hidden))
       return $this->getHidden($data);
 
-    if (null !== ($output = $this->getSelect($this->getCurrentValue($data, true))))
+    if (null !== ($output = $this->getSelect(strval($this->getCurrentValue($data)))))
       return $this->wrapHTML($output);
 
-    $value = $this->getCurrentValue($data);
+    if (($value = $this->getCurrentValue($data)) instanceof Node)
+      $name = $value->name;
+    elseif (is_numeric($value))
+      $name = Node::load($value)->name;
+    else
+      $name = '(связь нарушена)';
 
     $this->addClass('form-text');
 
@@ -46,7 +51,7 @@ class NodeLinkControl extends Control
       'class' => $this->class,
       'autocomplete' => 'off',
       'name' => $this->value,
-      'value' => $value,
+      'value' => $name,
       'readonly' => $this->readonly ? 'readonly' : null,
       ));
 
@@ -97,13 +102,8 @@ class NodeLinkControl extends Control
   }
 
   // Возвращает текущее значение поля.
-  private function getCurrentValue(array $data, $id = false)
+  private function getCurrentValue(array $data)
   {
-    $value = array_key_exists($this->value, $data) ? $data[$this->value] : null;
-
-    if ($id)
-      return ($value instanceof Node) ? $value->id : $value;
-
-    mcms::debug($value);
+    return array_key_exists($this->value, $data) ? $data[$this->value] : null;
   }
 };
