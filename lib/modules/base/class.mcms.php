@@ -424,7 +424,7 @@ class mcms
       $url = new url($path);
 
     if ($url->islocal and !empty($url->scheme))
-      $target = mcms::path() .'/'. strval($url->path);
+      $target = mcms::path() .'/'. strval($url->path) . $url->getArgsAsString();
     else
       $target = strval($url);
 

@@ -266,7 +266,7 @@ class url
       ), $url);
   }
 
-  private function getArgsAsString()
+  public function getArgsAsString()
   {
     $result = '';
 
