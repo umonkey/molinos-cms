@@ -46,7 +46,7 @@ abstract class Control implements iFormControl
    */
   private $children;
 
-  protected function __construct(array $form, array $required_fields = null)
+  public function __construct(array $form, array $required_fields = null)
   {
     static $lastid = 0;
 

@@ -415,8 +415,10 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
     $lang = empty($node->lang) ? 'en' : $node->lang;
     $html = "HTTP/1.0 200 OK\nContent-Type: text/html; charset=utf-8\nContent-Language: {$lang}\n\n<html><head><title>{$node->name}</title></head><body><h1>{$node->name}</h1>{$html}</body></html>";
 
-    mcms::db()->exec('DELETE FROM `node__searchindex` WHERE `nid` = :nid', array(':nid' => $node->id));
-    mcms::db()->exec('INSERT INTO `node__searchindex` (`nid`, `url`, `html`) VALUES (:nid, :url, :html)', array(':nid' => $node->id, ':url' => self::getNodeUrl($node), ':html' => $html));
+    try {
+      mcms::db()->exec('DELETE FROM `node__searchindex` WHERE `nid` = :nid', array(':nid' => $node->id));
+      mcms::db()->exec('INSERT INTO `node__searchindex` (`nid`, `url`, `html`) VALUES (:nid, :url, :html)', array(':nid' => $node->id, ':url' => self::getNodeUrl($node), ':html' => $html));
+    } catch (TableNotFoundException $e) { }
   }
 
   private static function getNodeUrl(Node $node)

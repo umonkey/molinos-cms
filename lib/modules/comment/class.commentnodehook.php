@@ -36,9 +36,15 @@ class CommentNodeHook implements iNodeHook
           'comment' => $node->getRaw(),
           ));
 
-        if (!empty($body))
-          foreach ($uids as $uid)
-            mcms::mail(null, $uid, t('Новый комментарий'), $body);
+        if (!empty($body) and !empty($uids))
+          foreach ($uids as $uid) {
+            if (empty($node->doc))
+              $subject = t('Новый комментарий');
+            else
+              $subject = t('Новый комментарий [%id]',
+                array('%id' => strval($node->doc)));
+            mcms::mail(null, $uid, $subject, $body);
+          }
       }
     }
   }

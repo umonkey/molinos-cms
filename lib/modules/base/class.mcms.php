@@ -170,6 +170,7 @@ class mcms
 
       switch ($v['filetype']) {
       case 'audio/mpeg':
+      case 'audio/x-mpegurl':
         if ($types & self::MEDIA_AUDIO) {
           $nodes[] = $v['id'];
           $havetypes |= self::MEDIA_AUDIO;

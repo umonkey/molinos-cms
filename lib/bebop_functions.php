@@ -62,6 +62,11 @@ function l($url, $title = null, array $options = null, $absolute = false)
     return l($node, $title, $options, $absolute);
   }
 
+  elseif (is_numeric($url)) {
+    $node = Node::load($url);
+    return l($node, $title, $options, $absolute);
+  }
+
   if (empty($url))
     throw new RuntimeException(t('Не указана ссылка для l().'));
   elseif (!is_string($url))
@@ -258,6 +263,9 @@ function bebop_get_file_type($filename, $realname = null)
       return 'audio/mpeg';
     }
   }
+
+  if (false !== strpos($filename, 'archive.org/stream/'))
+    return 'audio/x-mpegurl';
 
   $result = 'application/octet-stream';
 

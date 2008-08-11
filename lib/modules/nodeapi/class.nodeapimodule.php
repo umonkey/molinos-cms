@@ -197,10 +197,17 @@ class NodeApiModule implements iRemoteCall
       ));
   }
 
-  public static function fixredir($path, Node $node)
+  public static function fixredir($path, Node $node, $updated = false)
   {
+    if ($updated)
+      $mode = 'updated';
+    elseif ($node->published)
+      $mode = 'created';
+    else
+      $mode = 'pending';
+
     $url = new url($path);
-    $url->setarg($node->published ? 'created' : 'pending', $node->id);
+    $url->setarg($mode, $node->id);
     $url->setarg('type', $node->class);
     return strval($url);
   }

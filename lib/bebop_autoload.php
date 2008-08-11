@@ -18,7 +18,9 @@ function bebop_autoload($class_name)
   $k = strtolower($class_name);
 
   if (array_key_exists($k, $map)) {
-    if (!is_readable($map[$k]))
+    if (!file_exists($map[$k]))
+      mcms::fatal("{$class_name} is in a file which does not exist: {$map[$k]}");
+    elseif (!is_readable($map[$k]))
       mcms::fatal("{$class_name} is in a file which is read-protected: {$map[$k]}");
 
     include(MCMS_ROOT .DIRECTORY_SEPARATOR. $map[$k]);

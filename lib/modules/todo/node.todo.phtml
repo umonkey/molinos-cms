@@ -1,10 +1,8 @@
 <?php if ('mail' == $mode): ?>
-<h2><?php print $node['name']; ?></h2>
-<ul class="related">
-<li>Автор: <?php print l('node/'. $node['uid']['id'],
+<blockquote><p><?php print l($node); ?></p></blockquote>
+<p>Автор: <?php print l('node/'. $node['uid']['id'],
     empty($node['uid']['fullname'])
       ? $node['uid']['name']
-      : $node['uid']['fullname']); ?></li>
-<li><a href='todo/<?php print $node['to']; ?>'>Полный список задач</a></li>
-</ul>
+      : $node['uid']['fullname']); ?>,
+<a href='todo/<?php print $node['to']; ?>'>полный список задач</a></p>
 <?php endif; ?>

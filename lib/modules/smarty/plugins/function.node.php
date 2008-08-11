@@ -13,10 +13,17 @@ function smarty_function_node($params, &$smarty)
     else
       $node = $params['link'];
 
+    if (is_numeric($node))
+      $node = Node::load($node)->getRaw();
+
+    $path = array_key_exists('path', $params)
+      ? $params['path']
+      : 'node/';
+
     $a = array();
 
     if (is_array($node)) {
-      $a['href'] = 'node/'. $node['id'];
+      $a['href'] = $path . $node['id'];
       if (array_key_exists('text', $params))
         $a['#text'] = $params['text'];
     }
@@ -25,7 +32,7 @@ function smarty_function_node($params, &$smarty)
       print $default;
     elseif (is_numeric($node)) {
       $a['#text'] = '#'. $node;
-      $a['href'] = 'node/'. $node;
+      $a['href'] = $path . $node;
     } elseif (!is_array($node)) {
         mcms::debug('link is not an array', $node);
         throw new SmartyException(t('Параметр link для {node} должен '

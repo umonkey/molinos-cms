@@ -1438,35 +1438,32 @@ class NodeBase
 
     if (array_key_exists('fields', $schema)) {
       foreach ($schema['fields'] as $k => $v) {
+        $value = array_key_exists($key = 'node_content_'. $k, $data)
+          ? $data[$key]
+          : null;
+
         if ($k != 'parent_id' and $k != 'fields' and $k != 'config') {
           switch ($v['type']) {
           case 'AttachmentControl':
             break;
 
-          /*
-          case 'NodeLinkControl':
-            if (!empty($data[$key = 'node_content_'. $k])) {
-              $this->linkAddChild($data[$key], $k);
-              $this->data[$k] = Node::load($data[$key]);
-            }
+          case 'NumberControl':
+            $value = str_replace(',', '.', $value);
+            $this->$k = $value;
             break;
-          */
 
           case 'PasswordControl':
-            $values = array_key_exists($key = 'node_content_'. $k, $data) ? $data[$key] : null;
-
-            if (!empty($values)) {
-              if ($values[0] != $values[1])
+            if (!empty($value)) {
+              if ($value[0] != $value[1])
                 throw new ValidationException($k);
 
-              $this->$k = $values[0];
+              $this->$k = $value[0];
             }
 
             break;
 
           default:
-            $key = 'node_content_'. $k;
-            $this->$k = array_key_exists($key, $data) ? $data[$key] : null;
+            $this->$k = $value;
           }
         }
       }

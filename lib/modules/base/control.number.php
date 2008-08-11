@@ -26,7 +26,7 @@ class NumberControl extends Control
       return $this->getHidden($data);
 
     $output = mcms::html('input', array(
-      'type' => 'number',
+      'type' => 'text',
       'id' => $this->id,
       'class' => 'form-text form-number',
       'name' => $this->value,
