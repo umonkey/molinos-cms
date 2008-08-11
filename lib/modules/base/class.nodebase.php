@@ -307,6 +307,12 @@ class NodeBase
     return !empty($this->data[$key]);
   }
 
+  public function __unset($key)
+  {
+    if (is_array($this->data) and array_key_exists($key, $this->data))
+      unset($this->data[$key]);
+  }
+
   // Публикация ноды.  Логика:
   // 1. Если у пользователя нет прав на публикацию -- отправляет запрос модератору.
   // 2. Если указана конкретная ревизия -- она публикуется, в противном случае
@@ -1479,7 +1485,17 @@ class NodeBase
         if (!is_array($fileinfo))
           continue;
 
-        if (UPLOAD_ERR_NO_FILE == $fileinfo['error']) {
+        // Удаление ссылки на файл.
+        if (!empty($fileinfo['deleted'])) {
+          if (empty($fileinfo['id']))
+            $this->linkRemoveChild(null, $field);
+          else
+            $this->linkRemoveChild($fileinfo['id']);
+          unset($this->$field);
+          continue;
+        }
+
+        elseif (UPLOAD_ERR_NO_FILE == $fileinfo['error']) {
           if (!empty($fileinfo['id']))
             $this->linkAddChild($fileinfo['id'], $field);
           elseif (!empty($fileinfo['deleted']))
@@ -1511,6 +1527,8 @@ class NodeBase
     if (!empty($schema['hasfiles']) and !empty($data['node_ftp_files'])) {
       FileNode::getFilesFromFTP($data['node_ftp_files'], $this->id);
     }
+
+    $this->save();
   }
 
   private function attachOneFile($field,  array $fileinfo)
