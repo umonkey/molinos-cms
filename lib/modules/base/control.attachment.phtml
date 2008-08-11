@@ -25,7 +25,8 @@ static $fid = 1;
           <input class='name'
             readonly='readonly' type='text'
             name='<?php print mcms_plain($c->value); ?>[name]'
-            value='<?php print mcms_plain($d['filename']); ?>' />
+            value='<?php  if (!empty($d['filename']))
+             	      print mcms_plain($d['filename']); ?>' />
         </label>
         <label class='filetype pad'>
           <span>Тип</span>

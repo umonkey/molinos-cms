@@ -1132,7 +1132,7 @@ class NodeBase
       ));
 
     $schema = TypeNode::getSchema($this->class);
-
+    $filefields = array();
     if (!$simple and (null !== ($intro = $this->formGetIntro())))
       $tabs['content']->addControl($intro);
 

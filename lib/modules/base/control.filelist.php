@@ -23,7 +23,7 @@ class FileListControl extends Control
       'alt' => 'Убрать',
       )) ."</th></tr>";
 
-
+    $str = '';
     foreach ($data as $k => $v) {
       if ($this->value == substr($k, 0, strlen($this->value)) and is_numeric(substr($k, strlen($this->value) + 1, -1))) {
          $dt = $v->getRaw();
@@ -32,7 +32,7 @@ class FileListControl extends Control
            'src' => "attachment.rpc?fid={$dt['id']},48,48,c&rev={$dt['rid']}",
            'width' => 48,
            'height' => 48,
-           'alt' => $data['filepath'],
+           'alt' => empty($data['filepath'])?'':$data['filepath'],
            'onclick' => isset($this->picker)
            ? "return mcms_picker.mySubmit(\"". l('?q=attachment.rpc&fid='. $fid) ."\",{$fid})"
           : null,
