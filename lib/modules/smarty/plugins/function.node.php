@@ -34,7 +34,6 @@ function smarty_function_node($params, &$smarty)
       $a['#text'] = '#'. $node;
       $a['href'] = $path . $node;
     } elseif (!is_array($node)) {
-        mcms::debug('link is not an array', $node);
         throw new SmartyException(t('Параметр link для {node} должен '
           .'содержать описание объекта.'));
     } elseif (!array_key_exists('#text', $a)) {
