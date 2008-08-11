@@ -208,10 +208,11 @@ class url
     // Применяем некоторые дефолты.
     $url = $this->complement($url);
 
-    if (!empty($url['path']))
+    if (!empty($url['path']) and mcms::path()) {
       $prefixpos = strpos($url['path'], mcms::path());
-    else
+    } else {
       $prefixpos = null;
+    }
 
     if (empty($url['host'])  or (self::$localhost == $url['host'])) {
       if (substr($url['path'], 0, 1) != '/')
