@@ -27,6 +27,8 @@ class AttachmentControl extends Control
     if (!empty($data[$this->value])) {
       if (($dt = $data[$this->value]) instanceof Node)
         $dt = $dt->getRaw();
+      elseif (is_numeric($dt))
+        $dt = Node::load($dt)->getRaw();
     } else {
       $dt = array(
         'name' => null,
