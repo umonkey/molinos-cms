@@ -18,6 +18,7 @@ class BebopMimeMail
     if (!is_array($to))
       $to = preg_split('/, */', $to);
 
+    $transport = (null == BebopConfig::getInstance()->mail_server) ? 'mail' : 'smtp';
     $mail = new htmlMimeMail();
 
     $mail->setSMTPParams(BebopConfig::getInstance()->mail_server);
@@ -38,7 +39,7 @@ class BebopMimeMail
       }
     }
 
-    return $mail->send($to);
+    return $mail->send($to, $transport);
   }
 
   // Превращает все относительные ссылки в абсолютные.
