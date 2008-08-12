@@ -17,7 +17,7 @@ class BebopMimeMail implements iModuleConfig
     if (!is_array($to))
       $to = preg_split('/, */', $to);
 
-    $transport = (null == BebopConfig::getInstance()->mail_server) ? 'mail' : 'smtp';
+    $transport = (null == mcms::config('mail_server', null)) ? 'mail' : 'smtp';
     $mail = new htmlMimeMail();
 
     $mail->setSMTPParams(mcms::config('mail_server'));
