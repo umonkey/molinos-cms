@@ -11,6 +11,9 @@
 /**
  * Работа с сессиями.
  *
+ * Сессионные данные хранятся в таблице node__session, в полях: sid, created,
+ * data.
+ *
  * @package mod_base
  */
 class Session
