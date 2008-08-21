@@ -1,6 +1,22 @@
 <?php
-// vim: expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Контрол для выбора нескольких значений из списка.
+ *
+ * @package mod_base
+ * @subpackage Controls
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Контрол для выбора нескольких значений из списка.
+ *
+ * Значения представляются в виде набора чекбоксов, объединённых в FieldSet.
+ *
+ * @package mod_base
+ * @subpackage Controls
+ */
 class SetControl extends Control
 {
   public static function getInfo()

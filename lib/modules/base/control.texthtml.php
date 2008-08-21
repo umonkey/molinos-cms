@@ -1,6 +1,23 @@
 <?php
-// vim: expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Контрол для ввода текста с форматированием.
+ *
+ * @package mod_base
+ * @subpackage Controls
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Контрол для ввода текста с форматированием.
+ *
+ * На данный момент в качестве средства форматирования поддерживается только
+ * TinyMCE.
+ *
+ * @package mod_base
+ * @subpackage Controls
+ */
 class TextHTMLControl extends Control
 {
   public static function getInfo()

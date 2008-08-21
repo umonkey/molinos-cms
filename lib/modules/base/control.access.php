@@ -1,16 +1,27 @@
 <?php
-// vim: expandtab tabstop=2 shiftwidth=2 softtabstop=2:
-//
-// Входные параметры:
-//   value   = имя массива с данными.
-//   options = соответствие внутренних ключей отображаемым,
-//             например: "Content Managers" => "Менеджеры контента",
-//             ключи используются для формирования имён чекбоксов.
-//
-// Формат входного массива данных:
-//   Ключ => (c => ?, r => ?, u => ?, d => ?, p => ?),
-// Ключи соответствуют ключам параметра options.
+/**
+ * Контрол для управления правами.
+ *
+ * @package mod_base
+ * @subpackage Controls
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Контрол для управления правами.
+ *
+ * Входные параметры: value = имя массива с данными, options = соответствие
+ * внутренних ключей отображаемым, например: "Content Managers" => "Менеджеры
+ * контента", ключи используются для формирования имён чекбоксов.
+ *
+ * Формат входного массива данных: ключ => (c => ?, r => ?, u => ?, d => ?,
+ * p => ?).  Ключи соответствуют ключам параметра options.
+ *
+ * @package mod_base
+ * @subpackage Controls
+ */
 class AccessControl extends Control
 {
   public static function getInfo()

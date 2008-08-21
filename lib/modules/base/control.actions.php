@@ -1,6 +1,23 @@
 <?php
-// vim: expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Контрол для выбора действия из группы.
+ *
+ * @package mod_base
+ * @subpackage Controls
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Контрол для выбора действия из группы.
+ *
+ * Используется только в административном интерфейсе (для публикации, удаления
+ * итд).
+ *
+ * @package mod_base
+ * @subpackage Controls
+ */
 class ActionsControl extends Control
 {
   public static function getInfo()

@@ -1,6 +1,24 @@
 <?php
-// vim: expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Контрол для управления историей правок.
+ *
+ * @package mod_base
+ * @subpackage Controls
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Контрол для управления историей правок.
+ *
+ * Работает в пассивном режиме (в обработке формы не участвует).  Выводит
+ * таблицу с ревизиями документа и ссылками (ведущими на RPC) для восстановления
+ * архивных ревизий.
+ *
+ * @package mod_base
+ * @subpackage Controls
+ */
 class HistoryControl extends Control
 {
   public static function getInfo()

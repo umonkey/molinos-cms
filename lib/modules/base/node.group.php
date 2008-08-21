@@ -51,7 +51,7 @@ class GroupNode extends Node implements iContentType
 
   /**
    * Сохранение прав на типы документов.
-   * TODO: где и когда используется?  Описать!
+   * @todo где и когда используется?  Описать!
    */
   private function setTypePermissions(array $perms = null)
   {

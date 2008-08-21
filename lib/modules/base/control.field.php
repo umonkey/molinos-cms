@@ -1,6 +1,22 @@
 <?php
-// vim: expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Контрол для редактирования поля типа документа.
+ *
+ * @package mod_base
+ * @subpackage Controls
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Контрол для редактирования поля типа документа.
+ *
+ * Скрытый контрол для внутреннего использования.
+ *
+ * @package mod_base
+ * @subpackage Controls
+ */
 class FieldControl extends Control
 {
   public static function getInfo()

@@ -7,6 +7,7 @@
  * забытого пароля (restore), промежуточную обработку OpenID (openid).
  *
  * @package mod_base
+ * @subpackage Core
  * @author Justin Forest <justin.forest@gmail.com>
  * @copyright 2006-2008 Molinos.RU
  * @license http://www.gnu.org/copyleft/gpl.html GPL
@@ -20,6 +21,7 @@
  * класс от BaseModule).
  *
  * @package mod_base
+ * @subpackage Core
  */
 class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
 {
@@ -277,7 +279,7 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
   /**
    * Возвращает форму для настройки модуля.
    *
-   * TODO: вынести в BaseModuleSettings.
+   * @todo вынести в BaseModuleSettings.
    *
    * @return Form форма для настройки модуля.
    */
@@ -302,7 +304,7 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
    * удаляемому объекту.  Это позволяет отказаться от требования InnoDB и других
    * типов БД, занимающихся каскадным удалением автоматически.
    *
-   * TODO: вынести в BaseGarbageCollector, может?
+   * @todo вынести в BaseGarbageCollector, может?
    *
    * @return void
    */
@@ -338,7 +340,7 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
    *
    * Ничего не делает, просто заглушка — iModuleConfig требует реализации.
    *
-   * TODO: вынести в BaseModuleSettings.
+   * @todo вынести в BaseModuleSettings.
    *
    * @return void
    */

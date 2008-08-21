@@ -1,6 +1,20 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Искуственный интеллект типа документа.
+ *
+ * @package mod_base
+ * @subpackage Types
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Искуственный интеллект типа документа.
+ *
+ * @package mod_base
+ * @subpackage Types
+ */
 class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 {
   private $oldfields = null;
@@ -470,7 +484,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       $this->data['published'] = true;
     }
 
-    // TODO: этот блок раньше был ПОД formProcess(), почему?  Были какие-то
+    // @todo этот блок раньше был ПОД formProcess(), почему?  Были какие-то
     // с ним проблемы, я не помню какие.  Надо проверить ещё раз, везде ли
     // сейчас работает, и поправить, если надо.  И задокументировать! — hex, 12.05.08
     $this->updateFields($data);

@@ -3,6 +3,7 @@
  * Работа с урлами.
  *
  * @package mod_base
+ * @subpackage Core
  * @author Justin Forest <justin.forest@gmail.com>
  * @copyright 2006-2008 Molinos.RU
  * @license http://www.gnu.org/copyleft/gpl.html GPL
@@ -12,6 +13,7 @@
  * Работа с урлами.
  *
  * @package mod_base
+ * @subpackage Core
  */
 class url
 {
@@ -305,7 +307,7 @@ class url
       // адресу, указанному в $_GET['destination'] — %2Fcms%2Findex.php.  Если
       // путь к CMS не вырезать, он продублируется (получится /cms/cms/index.php).
       //
-      // TODO: поправить парсер так, чтобы он корректно обрабатывал относительные
+      // @todo поправить парсер так, чтобы он корректно обрабатывал относительные
       // и абсолютные урлы (не пытался придавлять self::path() к тому, что начинается
       // со слэша), но тогда возникнет другая проблема: в коде надо будет очень
       // внимательно формировать ссылки: l(/compress.rpc) будет работать на большинстве

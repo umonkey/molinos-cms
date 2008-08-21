@@ -3,6 +3,7 @@
  * Работа с сессиями.
  *
  * @package mod_base
+ * @subpackage Core
  * @author Justin Forest <justin.forest@gmail.com>
  * @copyright 2006-2008 Molinos.RU
  * @license http://www.gnu.org/copyleft/gpl.html GPL
@@ -15,6 +16,7 @@
  * data.
  *
  * @package mod_base
+ * @subpackage Core
  */
 class Session
 {
@@ -74,7 +76,7 @@ class Session
    * Сохранение сессионных данных.
    *
    * Перед сохранением из БД удаляются ранее существовавшие данные этой сессии.
-   * TODO: менять sid надо при _каждом_ сохранении, см. Session Fixation
+   * @todo менять sid надо при _каждом_ сохранении, см. Session Fixation
    * Vulnerability.
    *
    * Если сессия не была загружена — возникает RuntimeException().

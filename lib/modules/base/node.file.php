@@ -462,7 +462,7 @@ class FileNode extends Node implements iContentType
    * параметром filestorage_ftp; если такого параметра нет — используется
    * подпапка "ftp" в обычном файловом хранилище.
    *
-   * TODO: вынести из конфига в настройки модуля base.
+   * @todo вынести из конфига в настройки модуля base.
    *
    * @return string
    */

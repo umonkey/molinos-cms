@@ -3,6 +3,7 @@
  * This file contains functions to move nodes across the hierarchy.
  *
  * @package mod_base
+ * @subpackage Core
  * @author Justin Forest <justin.forest@gmail.com>
  * @copyright 2006-2008 Molinos.RU
  * @license http://www.gnu.org/copyleft/gpl.html GPL
@@ -12,6 +13,7 @@
  * Utility class for moving nodes across the hierarchy.
  *
  * @package mod_base
+ * @subpackage Core
  */
 class NodeMover
 {

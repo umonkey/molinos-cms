@@ -28,7 +28,7 @@ class Node extends NodeBase implements iContentType
    *
    * Применяет к документу наиболее подходящий шаблон (class.* из шкуры «all»).
    *
-   * TODO: устранить.
+   * @todo устранить.
    *
    * @param string $prefix не используется.
    *

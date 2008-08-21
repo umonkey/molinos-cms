@@ -3,6 +3,7 @@
  * SQL Query Builder for Nodes.
  *
  * @package mod_base
+ * @subpackage Core
  * @author Justin Forest <justin.forest@gmail.com>
  * @copyright 2006-2008 Molinos.RU
  * @license http://www.gnu.org/copyleft/gpl.html GPL
@@ -16,6 +17,7 @@
  * and Node::load(), manual use is discouraged.
  *
  * @package mod_base
+ * @subpackage Core
  */
 class NodeQueryBuilder
 {

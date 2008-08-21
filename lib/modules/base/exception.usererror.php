@@ -24,7 +24,7 @@ class UserErrorException extends Exception
 
   /**
    * Дополнительный текст, подробно описывающий проблему.
-   * TODO: устранить.
+   * @todo устранить.
    */
   var $note = null;
 
@@ -36,10 +36,10 @@ class UserErrorException extends Exception
    * @param integer $code HTTP код ошибки.
    *
    * @param string $description текст сообщения об ошибке.
-   * TODO: устранить.
+   * @todo устранить.
    *
    * @param string $note дополнительный текст ошибки.
-   * TODO: устранить.
+   * @todo устранить.
    */
   public function __construct($message, $code, $description = null, $note = null)
   {
@@ -50,7 +50,7 @@ class UserErrorException extends Exception
 
   /**
    * Возвращает расширенное описание ошибки.
-   * TODO: устранить.
+   * @todo устранить.
    *
    * @return string описание ошибки.
    */
@@ -61,7 +61,7 @@ class UserErrorException extends Exception
 
   /**
    * Возвращает расширенное описание ошибки.
-   * TODO: устранить.
+   * @todo устранить.
    *
    * @return string описание ошибки.
    */

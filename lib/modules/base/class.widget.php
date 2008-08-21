@@ -3,7 +3,7 @@
  * Каркас виджета.
  *
  * @package mod_base
- * @subpackage Core
+ * @subpackage Widgets
  * @author Justin Forest <justin.forest@gmail.com>
  * @copyright 2006-2008 Molinos.RU
  * @license http://www.gnu.org/copyleft/gpl.html GPL
@@ -15,7 +15,7 @@
  * Содержит реализацию наиболее общих функций интерфейса iWidget.
  *
  * @package mod_base
- * @subpackage Core
+ * @subpackage Widgets
  */
 abstract class Widget implements iWidget
 {
@@ -313,7 +313,6 @@ abstract class Widget implements iWidget
       throw new WidgetHaltedException();
   }
 
-  // Вызывает метод в соответствии с запросом.
   /**
    * Диспетчер команд.
    *
@@ -344,7 +343,6 @@ abstract class Widget implements iWidget
     throw new PageNotFoundException();
   }
 
-  // Форматирование.
   /**
    * Шаблонизация виджета.
    *
@@ -426,9 +424,6 @@ abstract class Widget implements iWidget
     throw new PageNotFoundException(null, $description);
   }
 
-  // РАБОТА С ФОРМАМИ
-  // Документация: http://code.google.com/p/molinos-cms/wiki/Widget
-
   /**
    * Формирование HTML кода формы.
    *
@@ -506,7 +501,7 @@ abstract class Widget implements iWidget
    * Проверка применимости документа к виджету.
    *
    * Если виджет не привязан к документам такого типа — возвращает false.
-   * TODO: проверить на использование, устранить.
+   * @todo проверить на использование, устранить.
    *
    * @param Node $node обрабатываемый документ.
    *

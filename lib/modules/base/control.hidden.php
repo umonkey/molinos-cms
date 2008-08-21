@@ -1,6 +1,22 @@
 <?php
-// vim: expandtab tabstop=2 shiftwidth=2 softtabstop=2:
+/**
+ * Скрытый контрол.
+ *
+ * @package mod_base
+ * @subpackage Controls
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Скрытый контрол.
+ *
+ * Используется для скрытой передачи параметров обработчику формы.
+ *
+ * @package mod_base
+ * @subpackage Controls
+ */
 class HiddenControl extends Control
 {
   public static function getInfo()

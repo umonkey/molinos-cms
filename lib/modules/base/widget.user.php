@@ -210,7 +210,7 @@ class UserWidget extends Widget implements iWidget
    * уведомление об этом по почте (список адресов указывается в конфигурационном
    * файле, в параметре modules_user_notifications).
    *
-   * TODO: вынести это из конфига в настройки модуля или виджета.
+   * @todo вынести это из конфига в настройки модуля или виджета.
    *
    * @param array $options параметры виджета.
    *
@@ -264,7 +264,7 @@ class UserWidget extends Widget implements iWidget
    * Вместо этого можно использовать base.rpc?action=restore, что не требует
    * наличия виджета.
    *
-   * TODO: переписать этот метод так, чтобы он использовал base.rpc.
+   * @todo переписать этот метод так, чтобы он использовал base.rpc.
    *
    * @param array $options параметры виджета.
    *
@@ -375,7 +375,7 @@ class UserWidget extends Widget implements iWidget
   /**
    * Обработчик форм.
    *
-   * TODO: устранить в пользу nodeapi.rpc и base.rpc.
+   * @todo устранить в пользу nodeapi.rpc и base.rpc.
    *
    * @param array $options параметры виджета.
    *
@@ -462,7 +462,7 @@ class UserWidget extends Widget implements iWidget
    * разрешено работать с виджетом.  На практике, с этим виджетом всем всегда
    * разрешено работать.
    *
-   * TODO: устранить.
+   * @todo устранить.
    */
   public function checkRequiredGroups()
   {
@@ -659,7 +659,7 @@ class UserWidget extends Widget implements iWidget
   /**
    * Обработчик форм.
    *
-   * TODO: устранить в пользу RPC.
+   * @todo устранить в пользу RPC.
    *
    * @param string $id идентификатор формы.
    *
