@@ -415,4 +415,42 @@ class url
   {
     self::$clean = empty($value) ? false : true;
   }
+
+  /**
+   * Формирование абсолютной ссылки.
+   *
+   * Функция используется для получения полного URL, пригодного для
+   * использования в перенаправлениях (mcms::redirect()), где с локальными
+   * ссылками возникают трудности.
+   *
+   * @todo Заполнять недостающие части нужно при парсинге урлов, тогда для
+   * получения абсолютной версии достаточно будет strval($url).  Кроме того, это
+   * будет логически правильнее.
+   *
+   * @param RequestContext $ctx контекст, в котором существуют локальные ссылки.
+   * Используется, в основном, при написании тестов.
+   *
+   * @return string абсолютная ссылка.
+   */
+  public function getAbsolute(RequestContext $ctx = null)
+  {
+    $result = $this->scheme
+      ? $this->scheme : 'http';
+
+    $result .= '://'. ($this->host
+      ? $this->host : $_SERVER['HTTP_HOST']);
+
+    $result .= mcms::path() .'/';
+
+    if (self::$clean)
+      $result .= $this->path;
+    elseif (!empty($_SERVER['SCRIPT_FILENAME']))
+      $result .= basename($_SERVER['SCRIPT_FILENAME']);
+    else
+      $result .= 'index.php';
+
+    $result .= $this->getArgsAsString();
+
+    return $result;
+  }
 }

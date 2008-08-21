@@ -419,21 +419,8 @@ class mcms
     if ($_SERVER['REQUEST_METHOD'] == 'POST')
       $status = 303;
 
-    if ($path instanceof url)
-      $url = $path;
-    else
-      $url = new url($path);
-
-    if ($url->islocal and !empty($url->scheme))
-      $target = mcms::path() .'/'. strval($url->path) . $url->getArgsAsString();
-    else
-      $target = strval($url);
-
-    // При редиректе на текущую страницу добавляем случайное число,
-    // без этого Опера не редиректит.
-    if ($target == $_SERVER['REQUEST_URI'])
-      $target .= ((false == strstr($target, '?')) ? '?' : '&') .'rnd='. mt_rand();
-
+    $url = new url($path);
+    $target = $url->getAbsolute();
     mcms::log('redirect', $target);
 
     // При работе с JSON возвращаем адрес.
@@ -442,6 +429,7 @@ class mcms
       'redirect' => $target,
       ));
 
+    header('HTTP/1.1 '. $status .' Redirect');
     header('Location: '. $target);
     exit();
   }
@@ -917,7 +905,7 @@ class mcms
 
     foreach ($stack as $k => $v) {
       if (!empty($v['file']))
-        $v['file'] = preg_replace('@.*'. $libdir .'@', $libdir, $v['file']);
+        $v['file'] = preg_replace('@.*'. preg_quote($libdir) .'@', $libdir, $v['file']);
 
       if (!empty($v['class']))
         $func = $v['class'] .$v['type']. $v['function'];
@@ -1196,12 +1184,29 @@ class mcms
     static $path = null;
 
     if (null === $path) {
-      $path = empty($_GET['__rootpath'])
-        ? dirname($_SERVER['SCRIPT_NAME'])
-        : $_GET['__rootpath'];
+      if (!empty($_SERVER['HTTP_HOST'])) { //скрипт запускается из под web-сервера
+        $path = empty($_GET['__rootpath'])
+          ? dirname($_SERVER['SCRIPT_NAME'])
+          : $_GET['__rootpath'];
 
-      if ('/' == ($path = '/'. trim($path, '/')))
-        $path = '';
+        if ('/' == ($path = '/'. trim($path, '/')))
+          $path = '';
+      }
+      else { //скрипт запускается из командной строки
+        $curpath = $_SERVER['PWD'];
+        $p = strpos($curpath,'/lib/');
+
+        if ($p > 0) {
+          $curpath = substr($curpath, 0, $p);
+          $path    = '/'.basename($curpath);
+
+          //хак - найдём родительский каталог для $path. Если это sites - то склеим его
+          $prefixdir = dirname($curpath);
+          $pdir2 =  basename($prefixdir);
+          if ($pdir2 == 'sites')
+            $path =  '/'.$pdir2.$path;
+        }
+      }
     }
 
     return $path;
