@@ -140,6 +140,11 @@ class url
     }
   }
 
+  private function __isset($key)
+  {
+    return null !== $this->$key;
+  }
+
   /**
    * Изменение свойства урла.
    *
