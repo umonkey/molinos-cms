@@ -51,6 +51,7 @@ class TextLineControl extends Control
       'name' => $this->value,
       'value' => empty($data[$this->value]) ? $this->default : $data[$this->value],
       'readonly' => $this->readonly ? 'readonly' : null,
+      'maxlength' => 255,
       ));
 
     return $this->wrapHTML($output);
