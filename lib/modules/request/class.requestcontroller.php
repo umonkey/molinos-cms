@@ -94,10 +94,7 @@ class RequestController
         } catch (PDOException $e2) { }
       }
 
-      if ($e instanceof UserErrorException)
-        $message = $e->getDescription();
-      else
-        $message = $e->getMessage();
+      $message = $e->getMessage();
 
       if (bebop_is_debugger())
         $message = get_class($e) .': '. $message;

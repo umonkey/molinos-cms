@@ -631,7 +631,7 @@ class mcms
     static $lock = false;
 
     if ($lock)
-      mcms::fatal(t('Повторный вход в getModuleMapScan().'));
+      throw new RuntimeException(t('Повторный вход в getModuleMapScan().'));
 
     $lock = true;
 
@@ -963,44 +963,6 @@ class mcms
     return $output;
   }
 
-  // Обработчики ошибок.
-  public static function eh(Exception $e)
-  {
-    if (ob_get_length())
-      ob_end_clean();
-
-    $str1 = $str2 = $str3 = $str4 = '';
-    header('Content-Type: text/plain; charset=utf-8');
-    $str1 = sprintf("%s: %s\n", get_class($e), $e->getMessage());
-    print($str1);
-
-    if ($e instanceof UserErrorException) {
-      $str2 = sprintf("Description: %s\n", $e->getNote());
-      print($str2);
-    }
-
-    if ($e instanceof TableNotFoundException) {
-      if (null !== ($tmp = $e->getQuery())) {
-        $str3 = sprintf("\nSQL:    %s\n", $tmp);
-        print($str3);
-      }
-      if (null !== ($tmp = $e->getParams())) {
-        $str4 = sprintf("Params: %s\n", preg_replace('/\s*[\n\r]+\s*/', ' ', var_export($tmp, true)));
-        print($str4);
-      }
-    }
-    mcms::log(get_class($e), "{$str1}{$str2}{$str3}{$str4}");
-    printf("\nLocation: %s(%d)\n", ltrim(str_replace(MCMS_ROOT, '', $e->getFile()), '/'), $e->getLine());
-
-    // print $message;
-
-    printf("\n--- backtrace (time: %s, duratoin: %s) ---\n", microtime(),
-        microtime(true) - MCMS_START_TIME);
-    print mcms::backtrace($e);
-
-    exit();
-  }
-
   public static function error_handler($errno, $errstr, $errfile, $errline, array $context)
   {
     if ($errno == 2048)
@@ -1327,8 +1289,61 @@ class mcms
       return trim($output);
     }
   }
+
+  /**
+   * Базовый вывод сообщения об ошибке.
+   *
+   * Формирует простой HTML код с описанием ошибки.  Отладчики при этом видят
+   * стэк вызова.
+   *
+   * @return void
+   */
+  public static function renderException(Exception $e)
+  {
+    $message = $e->getMessage();
+    $backtrace = mcms::backtrace($e);
+
+    if (!bebop_is_debugger())
+      $backtrace = null;
+
+    bebop_on_json(array(
+      'status' => 'error',
+      'message' => $message,
+      ));
+
+    if (ob_get_length())
+      ob_end_clean();
+
+    if (!empty($_SERVER['REQUEST_METHOD'])) {
+      header('HTTP/1.1 500 Internal Server Error');
+      header("Content-Type: text/html; charset=utf-8");
+
+      $html = '<html><head><title>Internal Server Error</title></head><body>'
+        .'<h1>Internal Server Error</h1><p>'. $message .'</p>';
+
+      if (null !== $backtrace)
+        $html .= '<h2>Стэк вызова</h2><pre>'. $backtrace .'</pre>';
+
+      $html .= '<hr/><em>Molinos CMS v'. mcms::version() .' at '.
+        $_SERVER['HTTP_HOST'] .'</em>';
+
+      $html .= '</body></html>';
+
+      header('Content-Length: '. strlen($html));
+      die($html);
+    }
+
+    print $message ."\n\n";
+
+    if (!empty($_SERVER['REMOTE_ADDR'])) {
+      printf("--- backtrace (time: %s) ---\n", microtime());
+      print $backtrace;
+    }
+
+    die();
+  }
 };
 
-set_exception_handler('mcms::eh');
+set_exception_handler('mcms::renderException');
 set_error_handler('mcms::error_handler', E_ERROR /*|E_WARNING|E_PARSE*/);
 register_shutdown_function('mcms::shutdown_handler');

@@ -7,7 +7,8 @@ class TableManager
   public static function create($table_name)
   {
     if (empty($table_name))
-      mcms::fatal(t('В TableManager::create не передано имя таблицы.'));
+      throw new InvalidArgumentException(t('В TableManager::create '
+        .'не передано имя таблицы.'));
 
     $table_name = trim($table_name, '`');
     $classname = 'DBSchema_'. $table_name;

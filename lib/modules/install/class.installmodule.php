@@ -163,7 +163,7 @@ class InstallModule implements iRemoteCall
     $pdo = null;
 
     if (empty($_POST['config']['backtracerecipient']))
-      mcms::fatal('Не указан почтовый адрес администратора.');
+      throw new RuntimeException('Не указан почтовый адрес администратора.');
 
     $data = array(
       'title' => 'Инсталляция Molinos CMS',
@@ -195,7 +195,7 @@ class InstallModule implements iRemoteCall
 
     // Правим профиль пользователя.
     if (!count($nodes = Node::find(array('class' => 'user', 'name' => 'cms-bugs@molinos.ru')))) {
-      mcms::fatal('Не удалось найти профиль пользователя.');
+      throw new RuntimeException('Не удалось найти профиль пользователя.');
     } else {
       $node = array_shift($nodes);
       $node->name = $_POST['config']['backtracerecipient'];

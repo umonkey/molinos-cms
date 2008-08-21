@@ -2174,8 +2174,10 @@ class NodeBase
       'lang' => $node['lang'],
       ));
 
+    // При ошибке сохранения кидаем исключение, чтобы откатить транзакцию.
     if (empty($this->data['id']) or empty($this->data['rid']))
-      mcms::fatal('Either id or rid not defined.', $this->data);
+      throw new RuntimeException('При сохранении объекта не был получен '
+        .'код ревизии.');
 
     $this->reindex();
   }

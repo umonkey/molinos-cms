@@ -8,32 +8,29 @@ function bebop_autoload($class_name)
   static $map = null;
 
   if (null === $map) {
-    try {
-      $map = mcms::getClassMap();
-    } catch (Exception $e) {
-      mcms::fatal($e);
-    }
+    $map = mcms::getClassMap();
   }
 
   $k = strtolower($class_name);
 
   if (array_key_exists($k, $map)) {
     if (!file_exists($map[$k]))
-      mcms::fatal("{$class_name} is in a file which does not exist: {$map[$k]}");
+      throw new RuntimeException("{$class_name} is in a file which "
+        ."does not exist: {$map[$k]}");
     elseif (!is_readable($map[$k]))
-      mcms::fatal("{$class_name} is in a file which is read-protected: {$map[$k]}");
+      throw new RuntimeException("{$class_name} is in a file which "
+        ."is read-protected: {$map[$k]}");
 
     include(MCMS_ROOT .DIRECTORY_SEPARATOR. $map[$k]);
 
     $isif = (substr($class_name, 0, 1) === 'i');
 
     if ($isif and !in_array($class_name, get_declared_interfaces()))
-      mcms::fatal("There is no {$class_name} interface in {$map[$k]}.\n"
-        ."APC freaks out this way sometimes.",
-        array('declared_interfaces' => get_declared_interfaces()));
+      throw new RuntimeException("There is no {$class_name} interface "
+        ."in {$map[$k]}.\nAPC freaks out this way sometimes.");
     elseif (!$isif and !in_array($class_name, get_declared_classes()))
-      mcms::fatal("There is no {$class_name} class in {$map[$k]}",
-        array('declared_classes' => get_declared_classes()));
+      throw new RuntimeException("There is no {$class_name} class "
+        ."in {$map[$k]}");
   }
 
   else {

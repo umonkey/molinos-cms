@@ -242,7 +242,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     static $lock = false;
 
     if (false !== $lock)
-      mcms::fatal('Рекурсия при вызове TypeNode::getSchema()!');
+      throw new RuntimeException('Рекурсия при вызове TypeNode::getSchema()!');
 
     $lock = true;
 
