@@ -207,8 +207,14 @@ class NodeApiModule implements iRemoteCall
       $mode = 'pending';
 
     $url = new url($path);
-    $url->setarg($mode, $node->id);
-    $url->setarg('type', $node->class);
+
+    if ('%ID' == $url->arg('id')) {
+      $url->setarg('id', $node->id);
+    } else {
+      $url->setarg($mode, $node->id);
+      $url->setarg('type', $node->class);
+    }
+
     return strval($url);
   }
 };
