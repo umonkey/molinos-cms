@@ -1,4 +1,6 @@
 conf/*.db
 conf/*.ini
+conf/*.ini.lkg
 storage/
 tmp/
+.htaccess
