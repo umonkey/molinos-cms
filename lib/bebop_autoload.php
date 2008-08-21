@@ -11,7 +11,7 @@ function bebop_autoload($class_name)
     try {
       $map = mcms::getClassMap();
     } catch (Exception $e) {
-      mcms::fatal('Exception during bebop_autoload(): '. $e->getMessage());
+      mcms::fatal($e);
     }
   }
 

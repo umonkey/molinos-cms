@@ -603,7 +603,9 @@ class mcms
     $result = null;
     $filename = mcms::config('tmpdir') .'/.modmap.php';
 
-    mcms::mkdir(dirname($filename));
+    mcms::mkdir(dirname($filename), t('Каталог для временных файлов (%path) '
+      .'отсутствует и не может быть создан.',
+      array('%path' => mcms::config('tmpdir'))));
 
     if (file_exists($filename) and (filemtime($filename) < filemtime('lib/modules')))
       unlink($filename);
@@ -819,27 +821,61 @@ class mcms
 
   public static function fatal()
   {
-    $output = array();
+    $message = 'Unknown fatal error.';
+    $extras = array();
+    $backtrace = mcms::backtrace();
 
-    foreach (func_get_args() as $arg) {
-      $output[] = var_export($arg, true);
+    $args = func_get_args();
+
+    if (count($args)) {
+      if ($args[0] instanceof Exception) {
+        $message = $args[0]->getMessage();
+        $backtrace = mcms::backtrace($args[0]);
+        array_shift($args);
+      } elseif (is_string($args[0])) {
+        $message = $args[0];
+        array_shift($args);
+      }
     }
 
-    bebop_on_json(array('args' => $output));
+    if (!bebop_is_debugger())
+      $backtrace = null;
+
+    bebop_on_json(array(
+      'status' => 'error',
+      'message' => $message,
+      ));
+
+    foreach ($args as $arg)
+      $extras[] = var_export($arg, true) .';';
 
     if (ob_get_length())
       ob_end_clean();
 
-    if (!empty($_SERVER['REQUEST_METHOD']))
-      header("Content-Type: text/plain; charset=utf-8");
+    if (!empty($_SERVER['REQUEST_METHOD'])) {
+      header('HTTP/1.1 500 Internal Server Error');
+      header("Content-Type: text/html; charset=utf-8");
 
-    $o = join(";\n\n", $output) .";\n\n";
-    print $o;
-    // mcms::log("error.fatal", $o);
+      $html = '<html><head><title>Internal Server Error</title></head><body>'
+        .'<h1>Internal Server Error</h1><p>'. $message .'</p>';
+
+      if (null !== $backtrace)
+        $html .= '<h2>Стэк вызова</h2><pre>'. $backtrace .'</pre>';
+
+      $html .= '<hr/><em>Molinos CMS v'. mcms::version() .' at '.
+        $_SERVER['HTTP_HOST'] .'</em>';
+
+      $html .= '</body></html>';
+
+      header('Content-Length: '. strlen($html));
+      die($html);
+    }
+
+    print join("\n\n", $output) ."\n\n";
 
     if (!empty($_SERVER['REMOTE_ADDR'])) {
       printf("--- backtrace (time: %s) ---\n", microtime());
-      print mcms::backtrace();
+      print $backtrace;
     }
 
     die();
