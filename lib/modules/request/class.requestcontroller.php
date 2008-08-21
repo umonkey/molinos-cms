@@ -81,6 +81,8 @@ class RequestController
         throw new UserErrorException("Метод не поддерживается", 405, "Метод {$_SERVER['REQUEST_METHOD']} не поддерживается", "Вы послали запрос, который сервер обработать не может.");
         break;
       }
+    } catch (NotInstalledException $e) {
+      throw $e;
     } catch (Exception $e) {
       if (ob_get_length())
         ob_end_clean();
