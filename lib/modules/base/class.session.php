@@ -79,6 +79,8 @@ class Session
    *
    * Если сессия не была загружена — возникает RuntimeException().
    *
+   * @see http://en.wikipedia.org/wiki/Session_fixation
+   *
    * @return Session $this
    */
   public function save()
