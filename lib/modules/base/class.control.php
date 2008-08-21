@@ -46,14 +46,14 @@ abstract class Control implements iFormControl
    */
   private $children;
 
-  public function __construct(array $form, array $required_fields = null)
+  public function __construct(array $form = array(), array $required_fields = null)
   {
     static $lastid = 0;
 
     if (null !== $required_fields)
       foreach ($required_fields as $f)
         if (!array_key_exists($f, $form)) {
-          mcms::debug("Missing {$f} field in control description.", $form, $required_fields);
+          mcms::debug("Missing \"{$f}\" field in control description.", $form, $required_fields);
 
           throw new InvalidArgumentException(t("В описании контрола типа %class обязательно должно присутствовать поле %field!", array(
             '%class' => get_class($this),
