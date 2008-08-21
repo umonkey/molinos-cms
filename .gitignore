@@ -1,2 +1,4 @@
+conf/*.db
+conf/*.ini
 storage/
 tmp/
