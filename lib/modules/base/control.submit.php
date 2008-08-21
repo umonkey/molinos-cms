@@ -19,11 +19,6 @@
  */
 class SubmitControl extends Control
 {
-  public function __construct(array $form)
-  {
-    parent::__construct($form, array('text'));
-  }
-
   public static function getInfo()
   {
     return array(
