@@ -80,7 +80,7 @@ class MemCacheD_Cache implements iBebopCacheEngine
     {
         if ($now and $this->flush) {
             $this->setPrefix(1);
-            DBCache::getInstance()->flush();
+            DBCache::getInstance()->flush($now);
         } else {
             $this->flush = true;
         }

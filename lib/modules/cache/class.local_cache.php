@@ -57,7 +57,7 @@ class Local_Cache implements iBebopCacheEngine
     public function flush($now = false)
     {
         if ($now and $this->flush) {
-            DBCache::getInstance()->flush();
+            DBCache::getInstance()->flush($now);
             $storage = array();
         } else {
             $this->flush = true;

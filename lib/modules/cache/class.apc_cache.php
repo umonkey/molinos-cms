@@ -94,7 +94,7 @@ class APC_Cache implements iBebopCacheEngine
     public function flush($now = false)
     {
         if ($now and $this->flush) {
-            DBCache::getInstance()->flush();
+            DBCache::getInstance()->flush($now);
             apc_clear_cache('user');
         } else {
             $this->flush = true;
