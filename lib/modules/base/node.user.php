@@ -121,29 +121,42 @@ class UserNode extends Node implements iContentType
    */
   public function formGet($simple = true)
   {
-    $form = parent::formGet($simple);
+    if (empty($this->id)) {
+      $form = new Form(array(
+        'title' => t('Добавление пользователя'),
+        'edit' => true,
+        ));
+      $form->addControl(new TextLineControl(array(
+        'value' => 'node_content_name',
+        'label' => t('Идентификатор'),
+        'description' => t('E-mail или OpenID (включая http://).'),
+        )));
+      $form->addControl(new SubmitControl());
+    }
 
-    if (!$simple and (null !== ($tab = $this->formGetGroups())))
-      $form->addControl($tab);
+    else {
+      $form = parent::formGet($simple);
 
-    $form->title = (null === $this->id)
-      ? t('Новый пользователь')
-      : t('Пользователь %name', array('%name' => $this->name));
+      if (!$simple and (null !== ($tab = $this->formGetGroups())))
+        $form->addControl($tab);
 
-    if ($this->id) {
-      $tmp = $form->findControl('node_content_name');
+      $form->title = t('Пользователь %name', array('%name' => $this->name));
 
-      if ('cms-bugs@molinos.ru' == $this->name) {
-        $tmp->description = t('Замените это на свой почтовый адрес или OpenID, если он у вас есть.');
-        $form->title = t('Встроенный администратор');
-      } elseif (false === strstr($this->name, '@') and false !== strstr($this->name, '.')) {
-        if ($tmp)
-          $tmp->label = 'OpenID';
-        $form->replaceControl('node_content_password', null);
-      } else {
-        if ($tmp)
-          $tmp->label = 'Email';
-        $form->replaceControl('node_content_email', null);
+      if ($this->id) {
+        $tmp = $form->findControl('node_content_name');
+
+        if ('cms-bugs@molinos.ru' == $this->name) {
+          $tmp->description = t('Замените это на свой почтовый адрес или OpenID, если он у вас есть.');
+          $form->title = t('Встроенный администратор');
+        } elseif (false === strstr($this->name, '@') and false !== strstr($this->name, '.')) {
+          if ($tmp)
+            $tmp->label = 'OpenID';
+          $form->replaceControl('node_content_password', null);
+        } else {
+          if ($tmp)
+            $tmp->label = 'Email';
+          $form->replaceControl('node_content_email', null);
+        }
       }
     }
 

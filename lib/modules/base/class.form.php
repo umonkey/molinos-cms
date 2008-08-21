@@ -58,12 +58,39 @@ class Form extends Control
 
     $output .= mcms::html('form', array(
       'method' => isset($this->method) ? $this->method : 'post',
-      'action' => isset($this->action) ? $this->action : $_SERVER['REQUEST_URI'],
+      'action' => $this->getAction(),
       'id' => $this->id,
       'class' => $this->class,
       'enctype' => 'multipart/form-data',
       ), parent::getChildrenHTML($data));
 
     return $output;
+  }
+
+  private function getAction()
+  {
+    $action = isset($this->action) ? $this->action : $_SERVER['REQUEST_URI'];
+
+    if ($this->edit) {
+      $url = new url($action);
+
+      if (null !== ($next = $url->arg('destination'))) {
+        $next = new url($next);
+        $next->setarg('pending', null);
+        $next->setarg('created', null);
+        $destination = strval($next);
+
+        $next->setarg('mode', 'edit');
+        $next->setarg('type', null);
+        $next->setarg('id', '%ID');
+        $next->setarg('destination', $destination);
+
+        $url->setarg('destination', strval($next));
+
+        $action = strval($url);
+      }
+    }
+
+    return $action;
   }
 };
