@@ -1,12 +1,34 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
+/**
+ * Database related functions for Nodes.
+ *
+ * @package mod_base
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Database related functions for Nodes.
+ *
+ * @package mod_base
+ */
 class NodeBase
 {
+  /**
+   * Содержимое объекта.
+   *
+   * Содержимое этого массива грузится из БД и сохраняется.
+   */
   protected $data = array();
 
-  // Массив файлов вынесен в отдельную переменную,
-  // чтобы не попадать в $data и не сохраняться в БД.
+  /**
+   * Прикреплённые файлы.
+   *
+   * Вынесены в отдельный массив чтобы не попадать в $data и не сохраняться в
+   * БД.  TODO: можно от него избавиться, т.к. теперь при сохранении $data
+   * проверяется на наличие нод.
+   */
   public $files = array();
 
   // Сюда складываем загруженные ноды.
@@ -21,6 +43,8 @@ class NodeBase
    * Доступ извне запрещён, т.к. ноды надо создавать через Node::create().
    *
    * @see Node::create()
+   *
+   * @param array $data свойства объекта.
    */
   protected function __construct(array $data = null)
   {
@@ -33,6 +57,22 @@ class NodeBase
   }
 
   // Проверяет наличие других объектов с таким именем.
+  /**
+   * Проверка уникальности.
+   *
+   * @param string $field имя поля, по которому проверяется уникальность.  Поле
+   * должно быть базовым или должно быть проиндексировано.  Обычно используется
+   * "name".
+   *
+   * @param string $message сообщение об ошибке при нарушении уникальности. По
+   * умолчанию: "Такой объект уже существует".
+   *
+   * @param array $filter Дополнительные условия, накладываемые на проверяемые
+   * объекты.  Например, можно указать "parent_id" для обеспечния уникальности в
+   * рамках одной ветки — так работает проверка имени страницы, например.
+   *
+   * @return void
+   */
   protected function checkUnique($field, $message = null, array $filter = array())
   {
     $filter['class'] = $this->class;
@@ -44,16 +84,16 @@ class NodeBase
     try {
       if (Node::count($filter))
         throw new DuplicateException($message ? $message : t('Такой объект уже существует.'));
-    } catch (PDOException $e) {
-/*
-      throw new ValidationException($field, t($fields.',Объект %class требует уникальности по полю %field, однако индекс для этого поля отсутствует.  Необходимо настроить тип документа, включив индексирование этого поля.', array(
-        '%class' => $this->class,
-        '%field' => $field,
-        )));
-*/
-    }
+    } catch (PDOException $e) { }
   }
 
+  /**
+   * Возвращает содержимое объекта в виде массива.
+   *
+   * Прикреплённые файлы возвращаются в виде массива с именем "files".
+   *
+   * @return array поля объекта + массив "files".
+   */
   public function getRaw()
   {
     $tmp = $this->data;
@@ -68,7 +108,17 @@ class NodeBase
     return $tmp;
   }
 
-  public function __toString()
+  /**
+   * Получение идентификатора объекта.
+   *
+   * Позволяет упростить использование объектов в строках.  В частности это
+   * удобно, когда не известно, является ли переменная объектом Node, или
+   * числовым идентификатором.  Синтаксис strval($node) позволяет избежать
+   * лишних проверок.
+   *
+   * @return string числовой идентификатор или пустая строка для новых объектов.
+   */
+  public final function __toString()
   {
     return $this->id;
   }
@@ -106,6 +156,20 @@ class NodeBase
   }
 
   // Читаем объект.
+  /**
+   * Загрузка объекта из БД.
+   *
+   * Если объектов, удовлетворяющих условию, несколько — кидает исключение
+   * InvalidArgumentException (может быть подавлено параметром $first, см.
+   * дальше).
+   *
+   * Действие метода аналогично выполнению Node::find() и возврату первого
+   * элемента полученного списка.
+   *
+   * @param mixed $id числовой идентификатор или условие (см. NodeQueryBuilder).
+   *
+   * @param bool $first true — вернуть первый объект из множества.
+   */
   public static function load($id, $first = false)
   {
     if (!is_array($id))
@@ -127,7 +191,20 @@ class NodeBase
     return $node;
   }
 
-  // Поиск документов по критерию.
+  /**
+   * Поиск документов по условию.
+   *
+   * @param $query Условие в формате NodeQueryBuilder.  Может содержать
+   * дополнительные ключи: #raw — возвращать массивы вместо объектов класса
+   * Node; #cache — кэшировать запросы (по умолчанию включено); #recurse —
+   * уровень рекурсии при подгрузке объектов по ссылкам (по умолчанию: 1).
+   *
+   * @param integer $limit Ограничение на количество объектов.
+   *
+   * @param integer $offset Количество пропускаемых объектов.
+   *
+   * @return array Массив объектов класса Node или массивов, см. $query.
+   */
   public static function find(array $query, $limit = null, $offset = null)
   {
     $query['#limit'] = $limit;
@@ -188,7 +265,13 @@ class NodeBase
     return $data;
   }
 
-  // Возвращает количество документов, удовлетворяющих условию.
+  /**
+   * Возвращает количество объектов, удовлетворяющих условию.
+   *
+   * @param array $query описание запроса, см. NodeQueryBuilder.
+   *
+   * @return integer количество объектов.
+   */
   public static function count(array $query)
   {
     $sql = null;
@@ -203,7 +286,18 @@ class NodeBase
     return mcms::db()->getResult($sql . " -- Node::count()", $params);
   }
 
-  // Сохранение объекта.
+  /**
+   * Сохранение текущего объекта в БД.
+   *
+   * После сохранения объекта вызывается метод hookNodeUpdate() интерфейса
+   * iNodeHook всех классов, которые этот интерфейс реализуют.  Метод получает
+   * два параметра: сохраняемый объект и тип операции — "create" или "update".
+   *
+   * После вызова iNodeHook происходит очистка устаревших ревизий (см.
+   * purgeRevisions()).
+   *
+   * @return Node ссылка на себя, для построения цепочек.
+   */
   public function save()
   {
     $isnew = !isset($this->id);
@@ -216,9 +310,18 @@ class NodeBase
     mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, $isnew ? 'create' : 'update'));
 
     $this->purgeRevisions();
+
+    return $this;
   }
 
-  // Сохраняет связки в node__rel.
+  /**
+   * Сохранение связанных объектов.
+   *
+   * Проверяет все поля объекта и созаёт ссылки (через таблицу "node__rel") для
+   * всех полей, значения которых являются нодами.
+   *
+   * @return void
+   */
   private function saveLinks()
   {
     $schema = TypeNode::getSchema($this->class);
@@ -248,6 +351,14 @@ class NodeBase
     }
   }
 
+  /**
+   * Удаление устаревших ревизий.
+   *
+   * Количество хранимых ревизий содержится в параметре archive_limit настроек
+   * модуля.
+   *
+   * @return void
+   */
   private function purgeRevisions()
   {
     if (0 !== ($limit = intval(mcms::modconf('node', 'archive_limit')))) {
@@ -261,18 +372,24 @@ class NodeBase
     }
   }
 
+  /**
+   * Модификация свойств объекта.
+   *
+   * При попытке изменения свойств class, left, right или published кидает
+   * исключение InvalidArgumentException.  То же самое происходит при попытке
+   * изменить parent_id для объектов, у которых уже есть идентификатор (id !=
+   * null).
+   * 
+   * @param string $key имя свойства.
+   *
+   * @param string $val новое значение свойства.
+   *
+   * @return mixed установленное значение.
+   */
   public function __set($key, $val)
   {
     if (in_array($key, array('class', 'left', 'right', 'published')))
       throw new InvalidArgumentException("node.{$key} is private");
-
-    /*
-    if ('uid' == $key and intval($val) != intval($this->uid)) {
-      if (!empty($this->data['uid']) and $this->data['uid'] != mcms::user()->id) {
-        throw new InvalidArgumentException(t('Нельзя изменить автора чужого документа.'));
-      }
-    }
-    */
 
     if ($key == 'parent_id' and !empty($this->data['id']))
       throw new InvalidArgumentException("node.{$key} is private");
@@ -283,18 +400,16 @@ class NodeBase
       return;
     }
 
-    /*
-    if ($key != 'parent_id' and $key != 'deleted' and $key != 'uid') {
-      $schema = TypeNode::getSchema($this->class);
-
-      if (empty($schema['fields'][$key]) and !bebop_skip_checks())
-        throw new InvalidArgumentException("there is no {$key} property in {$this->data['class']}");
-    }
-    */
-
-    $this->data[$key] = $val;
+    return $this->data[$key] = $val;
   }
 
+  /**
+   * Чтение свойств объекта.
+   *
+   * @param string $key имя свойства.
+   *
+   * @return mixed значение свойства или NULL, если свойство не установлено.
+   */
   public function __get($key)
   {
     if (!is_array($this->data))
@@ -302,23 +417,46 @@ class NodeBase
     return array_key_exists($key, $this->data) ? $this->data[$key] : null;
   }
 
+  /**
+   * Проверка наличия свойства.
+   *
+   * @param string $key имя свойства.
+   *
+   * @return bool true, если свойство установлено, иначе false.
+   */
   public function __isset($key)
   {
-    return !empty($this->data[$key]);
+    return array_key_exists($key, $this->data);
   }
 
+  /**
+   * Удаление свойства объекта.
+   *
+   * @param string $key имя удаляемого свойства.
+   *
+   * @return void
+   */
   public function __unset($key)
   {
     if (is_array($this->data) and array_key_exists($key, $this->data))
       unset($this->data[$key]);
   }
 
-  // Публикация ноды.  Логика:
-  // 1. Если у пользователя нет прав на публикацию -- отправляет запрос модератору.
-  // 2. Если указана конкретная ревизия -- она публикуется, в противном случае
-  //    публикуется последняя существующая ревизия документа.
-  //
-  // Возвращает true, если нода успешно опубликована, false если нет.
+  /**
+   * Публикация объекта.
+   *
+   * Если объект не опубликован — устанавливает свойство published в true.
+   * Если объект уже существует (id != null) — свойство published изменяется
+   * также в БД, происходит очистка кэша и вызов метода hookNodeUpdate()
+   * интерфейса iNodeHook всех классов, которые этот интерфейс реализуют.
+   *
+   * Если у пользователя нет прав на публикацию объектов такого типа — кидает
+   * ForbiddenException.  Если объект уже опубликован — ничего не происходит.
+   *
+   * @see iNodeHook
+   *
+   * @return Node ссылка на себя.
+   */
   public function publish($rev = null)
   {
     if (!$this->checkPermission('p'))
@@ -326,27 +464,37 @@ class NodeBase
         .'этого объекта.'));
 
     // Документ уже опубликован.
-    if ($this->published and $this->rid == $rev)
-      return;
+    if (!$this->published or (null === $rev) or ($this->rid != $rev)) {
+      $this->data['published'] = true;
 
-    $this->data['published'] = true;
+      if (isset($this->id)) {
+        mcms::db()->exec("UPDATE `node` SET `published` = 1, `rid` = :rid WHERE `id` = :id", array(':rid' => $rev ? $rev : $this->rid, ':id' => $this->id));
 
-    if (isset($this->id)) {
-      mcms::db()->exec("UPDATE `node` SET `published` = 1, `rid` = :rid WHERE `id` = :id", array(':rid' => $rev ? $rev : $this->rid, ':id' => $this->id));
+        // Даём другим модулям возможность обработать событие (например, mod_moderator).
+        mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'publish'));
 
-      // Даём другим модулям возможность обработать событие (например, mod_moderator).
-      mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'publish'));
-
-      mcms::flush();
+        mcms::flush();
+      }
     }
 
-    return true;
+    return $this;
   }
 
+  /**
+   * Сокрытиче объекта.
+   *
+   * Сбрасывает флаг публикации объекта.  Модифицирует его свойство published в
+   * БД, вызывает метод hookNodeUpdate() интерфейса iNodeHook классов, которые
+   * этот интерфейс реализуют.
+   *
+   * @see iNodeHook
+   *
+   * @return Node ссылка на себя.
+   */
   public function unpublish()
   {
-    if (!$this->published)
-      return;
+    if (!$this->published or !$this->id)
+      return $this;
 
     // Скрываем документ.
     mcms::db()->exec("UPDATE `node` SET `published` = 0 WHERE `id` = :id", array(':id' => $this->id));
@@ -357,7 +505,7 @@ class NodeBase
     // Даём другим модулям возможность обработать событие (например, mod_moderator).
     mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'unpublish'));
 
-    return true;
+    return $this;
   }
 
   /**
@@ -404,10 +552,23 @@ class NodeBase
     return $this;
   }
 
+  /**
+   * Полное уничтожение объекта.
+   *
+   * Удаляет объект, ранее помещённый в "корзину" методом delete().  При
+   * отсутствии прав на удаление таких объектов возниает исключение
+   * ForbiddenException().
+   *
+   * Перед удалением объекта вызывается метод hookNodeDelete() интерфейса
+   * iNodeHook всех классов, которые этот интерфейс реализуют, затем объект
+   * навсегда удаляется из БД, со всеми дочерними объектами.
+   *
+   * @return void
+   */
   public function erase()
   {
     if (!$this->deleted)
-      throw new ForbiddenException(t('Невозможно окончательно удалить объект, который не был помещён в корзину.'));
+      throw new RuntimeException(t('Невозможно окончательно удалить объект, который не был помещён в корзину.'));
 
     if (!$this->checkPermission('d'))
       throw new ForbiddenException(t('У вас нет прав на удаление этого объекта.'));
@@ -440,7 +601,25 @@ class NodeBase
     mcms::flush();
   }
 
-  // Создаём новый объект.
+  /**
+   * Создание нового объекта.
+   *
+   * Создаёт (в памяти) объект указанного типа с требуемым наполнением.
+   *
+   * Если поле uid созданного объекта пусто, в него копируется идентификатор
+   * текущего пользователя.  Если объект новый (с пустым id) и не является
+   * профилем пользователя (class=user), поле published заполняется в
+   * соответствии с правом пользователя на публикацию создаваемого объекта.  То
+   * есть, если создаётся статья, и пользователь имеет право статьи публиковать,
+   * объект будет создан опубликованным.
+   *
+   * @param string $class Тип объекта.  Если существует класс с именем
+   * $class.Node — создаётся он, иначе используется базовый класс Node.
+   *
+   * @param array $data содержимое (свойства) объекта.
+   *
+   * @return Node объект.
+   */
   public static function create($class, array $data = null)
   {
     if (!is_string($class))
@@ -470,11 +649,30 @@ class NodeBase
     return new $host($data);
   }
 
-  // Удаление ноды.
+  /**
+   * Удаление объекта.
+   *
+   * Объект отмечается как удалённый и исчезает изо всех списков (кроме тех, что
+   * явным образом выводят удалённые объекты).  После удаления вызывается метод
+   * hookNodeUpdate() интерфейса iNodeHook всех классов, которые этот интерфейс
+   * реализуют.
+   *
+   * При отсутствии у пользователя прав на удаление объекта возникает исключение
+   * ForbiddenException.  Если объект ещё не был сохранён (id=null), возникает
+   * исключение RuntimeException() с соответствующим текстом.
+   *
+   * При успешном удалении выполняется очистка кэша.
+   *
+   * @see iNodeHook
+   *
+   * @see mcms::flush()
+   *
+   * @return Node ссылка на себя.
+   */
   public function delete()
   {
     if ($this->id === null)
-      throw new InvalidArgumentException(t("Попытка удаления несохранённой ноды."));
+      throw new RuntimeException(t("Попытка удаления несохранённой ноды."));
 
     if (!$this->checkPermission('d'))
       throw new ForbiddenException(t("У вас нет прав на удаление объекта."));
@@ -485,15 +683,34 @@ class NodeBase
     mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'delete'));
 
     mcms::flush();
+
+    return $this;
   }
 
+  /**
+   * Восстановление удалённого объекта.
+   *
+   * Объект отмечается как неудалённый, затем вызывается метод hookNodeUpdate()
+   * интерфейса iNodeHook всех классов, которые этот интерфейс реализуют.
+   *
+   * При отсутствии у пользователя прав на удаление объекта возникает исключение
+   * ForbiddenException.  Если объект ещё не был сохранён (id=null), возникает
+   * исключение RuntimeException() с соответствующим текстом.
+   *
+   * При успешном восстановлении выполняется очистка кэша.
+   *
+   * @see iNodeHook
+   * @see mcms::flush()
+   * 
+   * @return Node ссылка на себя.
+   */
   public function undelete()
   {
     if (empty($this->deleted))
-      throw new InvalidArgumentException(t("Попытка восстановления неудалённой ноды."));
+      throw new RuntimeException(t("Попытка восстановления неудалённой ноды."));
 
     if ($this->id === null)
-      throw new InvalidArgumentException(t("Попытка удаления несохранённой ноды."));
+      throw new RuntimeException(t("Попытка удаления несохранённой ноды."));
 
     if (!$this->checkPermission('d'))
       throw new ForbiddenException(t("У вас нет прав на удаление объекта &laquo;%name&raquo;.", array('%name' => $this->name)));
@@ -506,7 +723,17 @@ class NodeBase
     mcms::flush();
   }
 
-  // Загружает дерево дочерних объектов, формируя вложенные массивы children.
+  /**
+   * Загрузка дочерних объектов.
+   *
+   * Дочерние объекты загружаются в виде дерева (вложенных массивов) и
+   * помещаются в свойство children.  Если дочерних объектов не было — свойство
+   * будет пустым (null).
+   *
+   * @param string $class загрузить детей только этого типа.
+   *
+   * @return Node ссылка на себя.
+   */
   public function loadChildren($class = null)
   {
     if (null === $class)
@@ -523,22 +750,22 @@ class NodeBase
 
     if (empty($this->left) or empty($this->right)) {
       $this->data['children'] = null;
-      return;
-     // throw new RuntimeException(t('Невозможно получить дочерние объекты: свойства left/right для объекта %id не //заполнены.', array('%id' => $this->id)));
+    } else {
+      // Загружаем детей в плоский список.
+      $children = Node::find($filter = array(
+        'class' => $class,
+        'left' => array('>'. $this->left, '<'. $this->right),
+        '#sort' => array(
+          'left' => 'asc',
+          ),
+        '#recurse' => 1,
+        ));
+
+      // Превращаем плоский список в дерево.
+      $this->data['children'] = $this->make_tree($children);
     }
 
-    // Загружаем детей в плоский список.
-    $children = Node::find($filter = array(
-      'class' => $class,
-      'left' => array('>'. $this->left, '<'. $this->right),
-      '#sort' => array(
-        'left' => 'asc',
-        ),
-      '#recurse' => 1,
-      ));
-
-    // Превращаем плоский список в дерево.
-    $this->data['children'] = $this->make_tree($children);
+    return $this;
   }
 
   // Формирует из плоского списка элементов дерево.
@@ -562,6 +789,18 @@ class NodeBase
   }
 
   // Возвращает список дочерних объектов, опционально фильтруя его.
+  /**
+   * Возвращает список дочерних объектов.
+   *
+   * @param string $mode Режим работы.  Варианты: "nested" — вложенные массивы,
+   * "flat" — плоский список со свойством "depth" у каждого элемента, "select" —
+   * плоский список с отступами у названий (пригоден для использования в
+   * выпадающих списках).
+   *
+   * @param array $options дополнительные параметры.
+   *
+   * @return array массив объектов.
+   */
   public function getChildren($mode, array $options = array())
   {
     if ($mode != 'nested' and $mode != 'flat' and $mode != 'select')
@@ -662,6 +901,16 @@ class NodeBase
   }
 
   // Возвращает родителей текущего объекта, опционально исключая текущий объект.
+  /**
+   * Получение списка родителей объекта.
+   *
+   * Если объект ещё не сохранён — возвращает список родителей родительского
+   * объекта.  Если и родительский объект не известен — возвращает NULL.
+   *
+   * @param bool $current false, если текущий объект возвращать не нужно.
+   *
+   * @return mixed массив нод или NULL, если родители не известны.
+   */
   public function getParents($current = true)
   {
     if (null === ($tmp = $this->id))
@@ -689,6 +938,21 @@ class NodeBase
   // Применяет к объекту шаблон.  Формат имени шаблона: префикс.имя.tpl, префикс можно
   // передать извне (по умолчанию используется "doc").  Если массив с данными пуст,
   // будут использоваться данные текущего объекта.
+  /**
+   * Применение шаблона к объекту.
+   *
+   * Все параметры передаются в bebop_render_object().
+   *
+   * @see bebop_render_object()
+   *
+   * @param string $prefix если пусто — использлуется "doc".
+   *
+   * @param string $theme не изменяется.
+   *
+   * @param array $data если пусто — используется содержимое объекта.
+   *
+   * @return mixed полученные от шаблона результат (или NULL).
+   */
   public function render($prefix = null, $theme = null, array $data = null)
   {
     if (null === $data)
@@ -702,17 +966,33 @@ class NodeBase
   // РАБОТА СО СВЯЗЯМИ.
   // Документация: http://code.google.com/p/molinos-cms/wiki/Node_links
 
+  /**
+   * Получение родительских связей объекта.
+   *
+   * Возвращает список объектов, которые привязаны к текущему в качестве
+   * родителей (поле tid таблицы node__rel).
+   *
+   * @param string $class желаемый тип объектов.
+   *
+   * @param bool $idsonly true — возвращать только числовые идентификаторы,
+   * false — возвращать полное содержимое соответствующих записей в node__rel.
+   *
+   * @return array массив, описывающих связи.
+   */
   public function linkListParents($class = null, $idsonly = false)
   {
     $params = array(':nid' => $this->id);
-    $sql = "SELECT `r`.`tid` as `tid`, `r`.`key` as `key` FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`tid` WHERE `n`.`deleted` = 0 AND `r`.`nid` = :nid";
+    $sql = "SELECT `r`.`tid` as `tid`, `r`.`key` as `key` "
+      ."FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`tid` "
+      ."WHERE `n`.`deleted` = 0 AND `r`.`nid` = :nid";
 
     if (null !== $class) {
       $sql .= " AND `n`.`class` = :class";
       $params[':class'] = $class;
     }
 
-    $sql .= sprintf(" ORDER BY `r`.`order` ASC -- linkListParents(%u, %s, %d)", $this->id, $class ? $class : 'NULL', $idsonly);
+    $sql .= sprintf(" ORDER BY `r`.`order` ASC -- linkListParents(%u, %s, %d)",
+      $this->id, $class ? $class : 'NULL', $idsonly);
 
     $pdo = mcms::db();
 
@@ -722,17 +1002,33 @@ class NodeBase
       return $pdo->getResults($sql, $params);
   }
 
+  /**
+   * Получение дочерних связей объекта.
+   *
+   * Возвращает список объектов, которые привязаны к текущему в качестве
+   * детей (поле nid таблицы node__rel).
+   *
+   * @param string $class желаемый тип объектов.
+   *
+   * @param bool $idsonly true — возвращать только числовые идентификаторы,
+   * false — возвращать полное содержимое соответствующих записей в node__rel.
+   *
+   * @return array массив, описывающих связи.
+   */
   public function linkListChildren($class = null, $idsonly = false)
   {
     $params = array(':tid' => $this->id);
-    $sql = "SELECT `r`.`nid` as `nid`, `r`.`key` as `key` FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`nid` WHERE `n`.`deleted` = 0 AND `r`.`tid` = :tid";
+    $sql = "SELECT `r`.`nid` as `nid`, `r`.`key` as `key` "
+      ."FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`nid` "
+      ."WHERE `n`.`deleted` = 0 AND `r`.`tid` = :tid";
 
     if (null !== $class) {
       $sql .= " AND `n`.`class` = :class";
       $params[':class'] = $class;
     }
 
-    $sql .= sprintf(" ORDER BY `r`.`order` ASC -- linkListChildren(%u, %s, %d)", $this->id, $class ? $class : 'NULL', $idsonly);
+    $sql .= sprintf(" ORDER BY `r`.`order` ASC -- linkListChildren(%u, %s, %d)",
+      $this->id, $class ? $class : 'NULL', $idsonly);
 
     $pdo = mcms::db();
 
@@ -756,6 +1052,8 @@ class NodeBase
         self::getNextOrder($tid)));
 
     mcms::flush();
+
+    return $this;
   }
 
   private function linkBreak($tid, $nid, $key)
@@ -774,32 +1072,90 @@ class NodeBase
         .'либо имя поля, к которому он привязан.'));
 
     mcms::flush();
+
+    return $this;
   }
 
+  /**
+   * Привязка к объекту.
+   *
+   * При необходимости текущий объект сохраняется (для получения id).
+   *
+   * @param integer $parent_id идентификатор объекта, к которому следует
+   * привязаться.
+   *
+   * @param string $key Имя связи (имя поля в родительском объекте).
+   *
+   * @return Node $this
+   */
   public function linkAddParent($parent_id, $key = null)
   {
     if (null === $this->id)
       $this->save();
-    $this->linkAdd($parent_id, $this->id, $key);
+    return $this->linkAdd($parent_id, $this->id, $key);
   }
 
+  /**
+   * Привязка объекта к текущему.
+   *
+   * При необходимости текущий объект сохраняется (для получения id).
+   *
+   * @param integer $parent_id идентификатор объекта, к которому следует
+   * привязаться.
+   *
+   * @param string $key Имя связи (имя поля в родительском объекте).
+   *
+   * @return Node $this
+   */
   public function linkAddChild($child_id, $key = null)
   {
     if (null === $this->id)
       $this->save();
-    $this->linkAdd($this->id, $child_id, $key);
+    return $this->linkAdd($this->id, $child_id, $key);
   }
 
+  /**
+   * Отвязывание от объекта.
+   *
+   * @param integer $parent_id идентификатор объекта, от которого нужно
+   * отвязаться.
+   *
+   * @return Node $this
+   */
   public function linkRemoveParent($parent_id)
   {
-    $this->linkBreak($parent_id, $this->id);
+    return $this->linkBreak($parent_id, $this->id);
   }
 
+  /**
+   * Отвязывание объектов от текущего.
+   *
+   * @param integer $parent_id идентификатор объекта, от которого нужно
+   * отвязаться.
+   *
+   * @return Node $this
+   */
   public function linkRemoveChild($child_id = null, $key = null)
   {
-    $this->linkBreak($this->id, $child_id, $key);
+    return $this->linkBreak($this->id, $child_id, $key);
   }
 
+  /**
+   * Массовая привязка объектов.
+   *
+   * Устанавливает "логических родителей" для текущего объекта.  Используется, в
+   * основном, для привязки документов к разделам.
+   *
+   * TODO: разобраться, внятно задокумментировать, переработать.
+   *
+   * @param array $list идентификаторы разделов.
+   *
+   * @param string $class ограничение на тип родителя.
+   *
+   * @param array $available ???
+   *
+   * @return Node $this
+   */
   public function linkSetParents(array $list, $class = null, array $available = null)
   {
     $pdo = mcms::db();
@@ -836,8 +1192,26 @@ class NodeBase
     }
 
     mcms::flush();
+
+    return $this;
   }
 
+  /**
+   * Массовая привязка объектов.
+   *
+   * Устанавливает "логических детей" для текущего объекта.  Используется, в
+   * основном, для привязки разделов к типам документов.
+   *
+   * TODO: разобраться, внятно задокумментировать, переработать.
+   *
+   * @param array $list идентификаторы типов.
+   *
+   * @param string $class ограничение на тип объектов.
+   *
+   * @param array $available ???
+   *
+   * @return Node $this
+   */
   public function linkSetChildren(array $list, $class = null)
   {
     $pdo = mcms::db();
@@ -882,46 +1256,86 @@ class NodeBase
     return mcms::db()->getResult("SELECT MAX(`order`) FROM `node__rel` WHERE `tid` = :tid", array(':tid' => $tid)) + 1;
   }
 
-
+  /**
+   * Перемещение связи с объектом.
+   *
+   * Используется для "ручной сортировки" документов в разделе.
+   *
+   * @return Node $this
+   */
   public function moveBefore($tid)
   {
     // Прописываем дефолтные порядки.
     $this->orderFix();
 
     $pdo = mcms::db();
-    $he = $pdo->getResult("SELECT `nid`, `tid`, `order` FROM `node__rel` WHERE `nid` >= :nid", array(':nid' => $tid));
-    $me = $pdo->getResults("SELECT `nid`, `tid`, `order` FROM `node__rel` WHERE `tid` = :tid AND `order` >= :order ORDER BY `order` DESC", array(':tid' => $he['tid'], ':order' => $he['order']));
+
+    $he = $pdo->getResult("SELECT `nid`, `tid`, `order` "
+      ."FROM `node__rel` WHERE `nid` >= :nid",
+        array(':nid' => $tid));
+    $me = $pdo->getResults("SELECT `nid`, `tid`, `order` "
+      ."FROM `node__rel` WHERE `tid` = :tid AND `order` >= :order "
+      ."ORDER BY `order` DESC",
+        array(':tid' => $he['tid'], ':order' => $he['order']));
 
     $orderTo = $he['order'];
-    foreach ($me as $k => $node) {
-      $pdo->exec('UPDATE `node__rel` SET `order` = :order WHERE `nid` = :nid', array(':nid' => $node['nid'], ':order' => $node['order'] + 1));
-    }
-    $pdo->exec('UPDATE `node__rel` SET `order` = :order WHERE `nid` = :nid', array(':nid' => $me[0]['nid'], ':order' => $orderTo));
+
+    foreach ($me as $k => $node)
+      $pdo->exec('UPDATE `node__rel` SET `order` = ? WHERE `nid` = ?',
+        array($node['order'] + 1, $node['nid']));
+
+    $pdo->exec('UPDATE `node__rel` SET `order` = ? WHERE `nid` = ?',
+      array($orderTo, $me[0]['nid']));
 
     mcms::flush();
+
+    return $this;
   }
 
+  /**
+   * Перемещение связи с объектом.
+   *
+   * Используется для "ручной сортировки" документов в разделе.
+   *
+   * @return Node $this
+   */
   public function moveAfter($tid)
   {
     // Прописываем дефолтные порядки.
     $this->orderFix();
 
     $pdo = mcms::db();
-    $he = $pdo->getResult("SELECT `nid`, `tid`, `order` FROM `node__rel` WHERE `nid` >= :nid", array(':nid' => $tid));
-    $me = $pdo->getResults("SELECT `nid`, `tid`, `order` FROM `node__rel` WHERE `tid` = :tid AND `order` <= :order ORDER BY `order` ASC", array(':tid' => $he['tid'], ':order' => $he['order']));
+    $he = $pdo->getResult("SELECT `nid`, `tid`, `order` FROM `node__rel` "
+      ."WHERE `nid` >= :nid", array(':nid' => $tid));
+    $me = $pdo->getResults("SELECT `nid`, `tid`, `order` FROM `node__rel` "
+      ."WHERE `tid` = :tid AND `order` <= :order ORDER BY `order` ASC",
+      array(':tid' => $he['tid'], ':order' => $he['order']));
 
     $orderTo = $he['order'];
-    foreach ($me as $k => $node) {
-      $pdo->exec('UPDATE `node__rel` SET `order` = :order WHERE `nid` = :nid', array(':nid' => $node['nid'], ':order' => $node['order'] - 1));
-    }
-    $pdo->exec('UPDATE `node__rel` SET `order` = :order WHERE `nid` = :nid', array(':nid' => $me[0]['nid'], ':order' => $orderTo));
+
+    foreach ($me as $k => $node)
+      $pdo->exec('UPDATE `node__rel` SET `order` = :order WHERE `nid` = :nid',
+        array(':nid' => $node['nid'], ':order' => $node['order'] - 1));
+
+    $pdo->exec('UPDATE `node__rel` SET `order` = :order WHERE `nid` = :nid',
+      array(':nid' => $me[0]['nid'], ':order' => $orderTo));
 
     mcms::flush();
+
+    return $this;
   }
 
   // РАБОТА С ПРАВАМИ.
   // Документация: http://code.google.com/p/molinos-cms/wiki/Permissions
 
+  /**
+   * Получение прав на объект.
+   *
+   * Возвращает таблицу с правами на текущий объект.
+   * TODO: описать формат таблицы.
+   *
+   * @return array описание прав.
+   */
   public function getAccess()
   {
     static $default = null;
@@ -966,6 +1380,17 @@ class NodeBase
     return $data;
   }
 
+  /**
+   * Устанавливает права на объект.
+   *
+   * После изменения прав сбрасывается кэш.
+   *
+   * @param array $perms нужные права.
+   *
+   * @param bool $reset true — сбросить старые, false — дополнить.
+   *
+   * @return Node $this
+   */
   public function setAccess(array $perms, $reset = true)
   {
     $pdo = mcms::db();
@@ -999,6 +1424,8 @@ class NodeBase
     }
 
     mcms::flush();
+
+    return $this;
   }
 
   public function checkPermission($perm)
@@ -1019,6 +1446,18 @@ class NodeBase
 
   // ИЗМЕНЕНИЕ ПОРЯДКА ДОКУМЕНТОВ.
 
+  /**
+   * Перемещение объекта.
+   *
+   * Перемещается либо объект в дереве (если родитель не указан), либо связь с
+   * объектом (если родитель указан).  При отсутствии прав на изменение объекта
+   * кидает ForbiddenException.
+   *
+   * @param integer $parent идентификатор объекта, связь с которым нужно
+   * переместить.
+   *
+   * @return bool успешность перемещения.
+   */
   public function orderUp($parent = null)
   {
     mcms::user()->checkAccess('u', $this->class);
@@ -1054,6 +1493,18 @@ class NodeBase
     return true;
   }
 
+  /**
+   * Перемещение объекта.
+   *
+   * Перемещается либо объект в дереве (если родитель не указан), либо связь с
+   * объектом (если родитель указан).  При отсутствии прав на изменение объекта
+   * кидает ForbiddenException.
+   *
+   * @param integer $parent идентификатор объекта, связь с которым нужно
+   * переместить.
+   *
+   * @return bool успешность перемещения.
+   */
   public function orderDown($parent = null)
   {
     mcms::user()->checkAccess('u', $this->class);
@@ -1084,8 +1535,16 @@ class NodeBase
     return true;
   }
 
-  // ОПРЕДЕЛЕНИЕ СОСЕДЕЙ.
-
+  /**
+   * Возвращает информацию о соседях.
+   *
+   * @param integer $parent идентификатор родителя (раздела), в рамках которого
+   * определяются соседи.
+   *
+   * @param array $classes допустимые типы соседей.
+   *
+   * @return mixed массив с ключами "left" и "right" или NULL.
+   */
   public function getNeighbors($parent, array $classes = null)
   {
     $pdo = mcms::db();
@@ -1118,6 +1577,17 @@ class NodeBase
 
   // РАБОТА С ФОРМАМИ.
   // Документация: http://code.google.com/p/molinos-cms/wiki/Forms
+  /**
+   * Получение формы редактирования объекта.
+   *
+   * При отсутствии прав на создание/редактирование объекта кидает
+   * ForbiddenException.
+   *
+   * @param bool $simple Должна ли быть форма простой, или может содержать
+   * вкладки для редактирования привязки к разделам итд?
+   *
+   * @return Control форма.
+   */
   public function formGet($simple = false)
   {
     if (null !== $this->id and !$this->checkPermission('u')) {
@@ -1392,6 +1862,14 @@ class NodeBase
     return $tab;
   }
 
+  /**
+   * Получение данных для формы.
+   *
+   * Работает в тесном сотрудничестве с formGet().
+   * TODO: описать формат данных.
+   *
+   * @return array данные.
+   */
   public function formGetData()
   {
     $schema = TypeNode::getSchema($this->class);
@@ -1438,6 +1916,16 @@ class NodeBase
     return $data;
   }
 
+  /**
+   * Обработка данных формы.
+   *
+   * Вызывается при получении от пользователя формы, для применения полученных
+   * данных к текущему объекту.
+   *
+   * @param array $data полученные данные.
+   *
+   * @return Node $this
+   */
   public function formProcess(array $data)
   {
     $schema = TypeNode::getSchema($this->class);
@@ -1528,7 +2016,7 @@ class NodeBase
       FileNode::getFilesFromFTP($data['node_ftp_files'], $this->id);
     }
 
-    $this->save();
+    return $this->save();
   }
 
   private function attachOneFile($field,  array $fileinfo)
@@ -1598,6 +2086,11 @@ class NodeBase
    }
   }
 
+  /**
+   * Проверка возможности опубликовать объект.
+   *
+   * @return bool true, если прав на публикацию хватает.
+   */
   public function canPublish()
   {
     if (!mcms::user()->hasAccess('p',$this->class))
@@ -1770,8 +2263,17 @@ class NodeBase
     return mcms::db()->getResult("SELECT MAX(`{$field}`) FROM `{$table}`") + 1;
   }
 
-  // Чтение данных.  Входной параметр — массив условий, например:
-  //  "`node`.`id` IN (1, 2, 3)"
+  /**
+   * Загрузка объектов из БД.
+   *
+   * @param string $sql Запрос для получения даных.
+   *
+   * @param array $params Параметры SQL запроса.
+   *
+   * @param integer $recurse Уровень рекурсии.
+   *
+   * @return array массив нод.
+   */
   public static function dbRead($sql, array $params = null, $recurse = 0)
   {
     $nodes = array();
@@ -1828,7 +2330,13 @@ class NodeBase
     return $nodes;
   }
 
-  // Индексирование объекта.
+  /**
+   * Обновление информации об объекте в индексе.
+   *
+   * Если есть индексированные поля — обовляет запись в индексной таблице.
+   *
+   * @return Node $this
+   */
   public function reindex()
   {
     $fields = array('id');
@@ -1857,9 +2365,15 @@ class NodeBase
       $sql = "REPLACE INTO `node__idx_{$this->class}` (`". join('`, `', $fields) ."`) VALUES (". join(', ', array_keys($params)) .")";
       mcms::db()->exec($sql, $params);
     }
+
+    return $this;
   }
 
-  // Возвращает информацию о ревизиях.
+  /**
+   * Получение списка ревизий.
+   *
+   * @return array Массив с ключами: created, uid, username, active.
+   */
   public function getRevisions()
   {
     $sql = 'SELECT `v`.`rid` AS `rid`, `v`.`created` AS `created`, '
