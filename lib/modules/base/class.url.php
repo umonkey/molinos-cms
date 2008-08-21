@@ -1,11 +1,18 @@
 <?php
-// vim: expandtab tabstop=2 shiftwidth=2 softtabstop=2:
-//
-// TODO: надо научиться корректно рекомбинировать чистые урлы при установке CMS в папку,
-// например: http://bebop.pdg.ru/path/to/cms/admin/ — надо вырезать /path/to/cms/ из пути
-// при парсинге.  Извне урлы приходят в нормальном виде, т.к. срабатывает mod_rewrite и
-// в параметр q= он передаёт только admin/, а вот при ручном парсинге возникают проблемы.
+/**
+ * Работа с урлами.
+ *
+ * @package mod_base
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Работа с урлами.
+ *
+ * @package mod_base
+ */
 class url
 {
   private static $clean = null;
@@ -21,12 +28,18 @@ class url
   private $fragment = null;
   private $islocal = null;
 
-  // Парсинг ссылки, вход: массив или строка.
+  /**
+   * Разбор урла.
+   *
+   * @param mixed $source строка, url или массив (см. as_array()).
+   */
   public function __construct($source = null)
   {
     self::init();
 
-    if (is_array($source))
+    if ($source instanceof url)
+      $this->fromArray($source->as_array());
+    elseif (is_array($source))
       $this->fromArray($source);
     elseif (is_string($source))
       $this->fromString($source);
@@ -39,6 +52,14 @@ class url
       $this->path = trim($this->path, '/');
   }
 
+  /**
+   * Формирование строкового урла.
+   *
+   * Локальные ссылки оптимизируются, внешние ссылки возвращаются в полной форме
+   * (со схемой, хостом итд).
+   *
+   * @return string Урл в строковой форме.
+   */
   public function __toString()
   {
     if ('mailto' == $this->scheme)
@@ -72,6 +93,13 @@ class url
     return $result;
   }
 
+  /**
+   * Получение сведений об урле.
+   *
+   * Метод устарел.
+   *
+   * @return array Свойства урла: scheme, host, path, args, fragment.
+   */
   public function as_array()
   {
     return array(
@@ -83,6 +111,16 @@ class url
       );
   }
 
+  /**
+   * Чтение свойства урла.
+   *
+   * При обращении к несуществующему свойству возникает
+   * InvalidArgumentException().
+   *
+   * @param string $key имя свойства (path, scheme, ...).
+   *
+   * @return mixed значение.
+   */
   public function __get($key)
   {
     switch ($key) {
@@ -100,9 +138,24 @@ class url
     }
   }
 
+  /**
+   * Изменение свойства урла.
+   *
+   * При попытке изменить несуществующее свойство возникает исключение
+   * InvalidArgumentException.
+   *
+   * @param string $key имя свойства.
+   *
+   * @param mixed $val значение.
+   *
+   * @return void
+   */
   public function __set($key, $val)
   {
     switch ($key) {
+    case 'args':
+      throw new InvalidArgumentException(t('Для изменения аргументов '
+        .'ссылки используйте метод setarg().'));
     case 'path':
     case 'scheme':
     case 'host':
@@ -116,6 +169,13 @@ class url
     }
   }
 
+  /**
+   * Изменение GET-аргументов ссылки.
+   *
+   * @param string $key имя аргумента.
+   *
+   * @param string $value значение.
+   */
   public function setarg($key, $value)
   {
     if (false === strpos($key, '.'))
@@ -126,6 +186,12 @@ class url
     }
   }
 
+  /**
+   * Получение текущего пути.
+   *
+   * @return string Путь к инсталляции CMS относительно корня сайта.  При
+   * установке в корень сайта возвращается "" (пустая строка).
+   */
   public static function path()
   {
     if (null === self::$root)
@@ -266,6 +332,16 @@ class url
       ), $url);
   }
 
+  /**
+   * Получение параметров в виде строки.
+   *
+   * Переводит массив args в строку.  При отсутствии поддержки чистых урлов
+   * (mod_rewrite) использует форму "index.php?q=", иначе — чистую форму.  Ключи
+   * "nocache", "widget", "__cleanurls" и "__rootpath" не возвращаются.
+   *
+   * @return string Строка с параметрами, включая начальный "?".  В качестве
+   * разделителя используется "&" — может понадобиться экранирование.
+   */
   public function getArgsAsString()
   {
     $result = '';
@@ -325,8 +401,9 @@ class url
     return $result;
   }
 
-  // test hacks
-
+  /**
+   * Одурачивание системы распознавания mod_rewrite, для тестов.
+   */
   public function __setclean($value)
   {
     self::$clean = empty($value) ? false : true;
