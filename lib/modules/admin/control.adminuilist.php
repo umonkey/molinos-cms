@@ -26,7 +26,7 @@ class AdminUIListControl extends Control
       $this->selectors = null;
       $output .= "<script language='javascript'>var mcms_picker_id = '{$this->picker}';</script>";
     }
-
+    $preset  = empty($data['preset']) ? null : $data['preset'];
     $output .= '<table class=\'mcms nodelist\' border=\'0\'>';
     $output .= $this->getTableHeader();
 
@@ -58,7 +58,7 @@ class AdminUIListControl extends Control
       }
 
       // Редактирование.
-      $row .= $this->getActions($node);
+      $row .= $this->getActions($node, $preset);
 
       foreach ($this->columns as $field) {
         $row .= "<td class='field-{$field}'>";
@@ -269,7 +269,7 @@ class AdminUIListControl extends Control
       );
   }
 
-  private function getActions(array $node)
+  private function getActions(array $node, $preset = null)
   {
     $output = array();
 
@@ -281,6 +281,10 @@ class AdminUIListControl extends Control
       $output[] = $tmp;
     if (null !== ($tmp = $this->getViewLink($node)))
       $output[] = $tmp;
+
+    if ($preset == 'dictlist') {
+      $output[] = $this->getEditLink($node);
+    }
 
     if (!empty($output)) {
       return mcms::html('td', array(
@@ -299,6 +303,14 @@ class AdminUIListControl extends Control
       return;
 
     return $this->getIcon('lib/modules/admin/img/debug.gif', "nodeapi.rpc?action=dump&node=". $node['id'], t('Просмотреть внутренности'));
+  }
+
+  private function getEditLink(array $node)
+  {
+    if (empty($node['id']))
+      return;
+
+    return $this->getIcon('lib/modules/admin/img/edit.png', "admin?mode=edit&id={$node['id']}&destination=CURRENT", t('Редактировать внутренности'));
   }
 
   private function getViewLink(array $node)

@@ -479,7 +479,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   {
     $there_were_fields = !empty($this->fields);
 
-    if (!isset($this->id) and !empty($data['node_content_isdictionary'])) {
+    if (empty($this->id) and !empty($data['node_content_isdictionary'])) {
       $this->data['isdictionary'] = true;
       $this->data['published'] = true;
     }

@@ -96,6 +96,7 @@ class AdminListHandler
 
       $output .= $form->getHTML(array(
         'nodes' => $data,
+        'preset' => $preset,
         '__pager' => $this->getPager(),
         ));
     }
@@ -132,7 +133,6 @@ class AdminListHandler
       )));
     return $form->getHTML(array());
   }
-
 
   private function getPager()
   {
