@@ -1,14 +1,39 @@
 <?php
+/**
+ * This file contains functions to move nodes across the hierarchy.
+ *
+ * @package mod_base
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Utility class for moving nodes across the hierarchy.
+ *
+ * @package mod_base
+ */
 class NodeMover
 {
   private $db;
 
-  public function __construct($db)
+  /**
+   * @param PDO_Singleton $db соединение с базой данных.
+   */
+  public function __construct(PDO_Singleton $db)
   {
     $this->db = $db;
   }
 
+  /**
+   * Перемещение объекта вверх в иерархии.  Указанный объект
+   * меняется местами со своим верхним соседом (удалённые объекты
+   * игнорируются).
+   *
+   * @param integer $nid идентификатор перемещаемого объекта.
+   *
+   * @return void
+   */
   public function moveUp($nid)
   {
     // Загрузим себя.
@@ -23,6 +48,15 @@ class NodeMover
     $this->swap($g1, $g2);
   }
 
+  /**
+   * Перемещение объекта вниз в иерархии.  Указанный объект
+   * меняется местами со своим нижним соседом (удалённые объекты
+   * игнорируются).
+   *
+   * @param integer $nid идентификатор перемещаемого объекта.
+   *
+   * @return void
+   */
   public function moveDown($nid)
   {
     // Загрузим себя.

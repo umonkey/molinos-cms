@@ -1,6 +1,22 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 fenc=utf8 enc=utf8:
+/**
+ * SQL Query Builder for Nodes.
+ *
+ * @package mod_base
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * SQL Query Builder for Nodes.
+ *
+ * This class performs all the hard work of filtering and ordering of data that
+ * the nodes are built with.  It is primarily used from within Node::find()
+ * and Node::load(), manual use is discouraged.
+ *
+ * @package mod_base
+ */
 class NodeQueryBuilder
 {
   private $query;
@@ -13,6 +29,24 @@ class NodeQueryBuilder
   private $order;
   private $search;
 
+  /**
+   * Формирование объекта для выполнения запроса.
+   *
+   * Создаёт объект, для которого потом можно вызвать метод getCountQuery()
+   * или getSelectQuery().
+   *
+   * @param array $query Описание запроса.  Каждый ключ — имя свойства объекта,
+   * значение — желаемое значение.  Имя свойства может указываться с префиксом —
+   * именем типа (например, "product.size"), тогда возвращаемые объекты
+   * ограничиваются только этим типом (при указании таким образом нескольких
+   * разных типов ничего возвращено не будет).
+   *
+   * Специальные ключи: #sort — параметры сортировки ("product.size -created"
+   * отсортирует продукты по возрастанию размера, затем по убыванию времени
+   * добавления); #special — для выполнения некоторых специальных задач ("lost"
+   * — возвращает объекты, на которые ни у кого нет прав, "orphan" — не
+   * привязанные ни к одному разделу).
+   */
   public function __construct(array $query)
   {
     if (!array_key_exists('deleted', $query))
@@ -31,7 +65,15 @@ class NodeQueryBuilder
       $this->where[] = "`node`.`rid` = `node__rev`.`rid`";
   }
 
-  // Возвращает запрос для получения количества элементов.
+  /**
+   * Формирует запрос для получения количества объектов.
+   *
+   * @param string &$sql сюда попадёт SQL инструкция.
+   *
+   * @param array &$params сюда попадут параметры.
+   *
+   * @return void
+   */
   public function getCountQuery(&$sql, array &$params)
   {
     $this->scanBase($sql, $params);
@@ -40,6 +82,15 @@ class NodeQueryBuilder
     $params = $this->params;
   }
 
+  /**
+   * Формирует запрос для получения данных.
+   *
+   * @param string &$sql сюда попадёт SQL инструкция.
+   *
+   * @param array &$params сюда попадут параметры.
+   *
+   * @return void
+   */
   public function getSelectQuery(&$sql, array &$params, array $fields = null)
   {
     $this->scanBase($sql, $params);
@@ -575,7 +626,11 @@ class NodeQueryBuilder
     }
   }
 
-  // Возвращает имя класса, если он один, или нулл.
+  /**
+   * Возвращает имя класса, с которым работает запрос.
+   *
+   * @return string имя класса, если он один, если несколько — возвращает NULL.
+   */
   public function getClassName()
   {
     if (!empty($this->query['class']) and !is_array($this->query['class']))
