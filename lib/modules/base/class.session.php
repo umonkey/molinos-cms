@@ -1,7 +1,23 @@
 <?php
+/**
+ * Работа с сессиями.
+ *
+ * @package mod_base
+ * @author Justin Forest <justin.forest@gmail.com>
+ * @copyright 2006-2008 Molinos.RU
+ * @license http://www.gnu.org/copyleft/gpl.html GPL
+ */
 
+/**
+ * Работа с сессиями.
+ *
+ * @package mod_base
+ */
 class Session
 {
+  /**
+   * Имя cookie.
+   */
   const cookie = 'mcmsid1';
 
   private $id = null;
@@ -10,6 +26,9 @@ class Session
 
   private static $instance = null;
 
+  /**
+   * Возвращает объект для взаимодействия с сессией.
+   */
   public static function instance()
   {
     if (null === self::$instance)
@@ -17,6 +36,13 @@ class Session
     return self::$instance;
   }
 
+  /**
+   * Загружает сессионные данные из БД.
+   *
+   * Загрузка выполняется только если есть cookie с нужным именем.
+   *
+   * @return Session $this
+   */
   protected function load()
   {
     $this->data = array();
@@ -32,6 +58,8 @@ class Session
     }
 
     $this->_hash = $this->hash();
+
+    return $this;
   }
 
   private function hash()
@@ -39,6 +67,17 @@ class Session
     return md5(serialize($this->data));
   }
 
+  /**
+   * Сохранение сессионных данных.
+   *
+   * Перед сохранением из БД удаляются ранее существовавшие данные этой сессии.
+   * TODO: менять sid надо при _каждом_ сохранении, см. Session Fixation
+   * Vulnerability.
+   *
+   * Если сессия не была загружена — возникает RuntimeException().
+   *
+   * @return Session $this
+   */
   public function save()
   {
     static $sent = false;
@@ -71,13 +110,29 @@ class Session
         mcms::log('session', "cookie set: {$name}={$this->id}");
       }
     }
+
+    return $this;
   }
 
+  /**
+   * Получение идентификатора сессии.
+   *
+   * @return string Идентификатор текущей сессии.  Если сессия не запущена —
+   * NULL.
+   */
   public function id()
   {
     return $this->id;
   }
 
+  /**
+   * Обращение к сессионной переменной.
+   *
+   * @param string $key Имя переменной.
+   *
+   * @return mixed Значение переменной.  NULL, если такой переменной нет.  Если
+   * сессия ещё не загружена, происходит прозрачная загрузка.
+   */
   public function __get($key)
   {
     if (null === $this->data)
@@ -88,6 +143,15 @@ class Session
       : null;
   }
 
+  /**
+   * Изменение сессионной переменной.
+   *
+   * @param string $key имя переменной.
+   *
+   * @param mixed $value новое значение.
+   *
+   * @return void
+   */
   public function __set($key, $value)
   {
     if (null === $this->data)
@@ -101,6 +165,11 @@ class Session
     $this->save();
   }
 
+  /**
+   * Получение слепка сессии.
+   *
+   * @return array Все сессионные данные.
+   */
   public function raw()
   {
     return $this->data;
