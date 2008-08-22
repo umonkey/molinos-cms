@@ -3,15 +3,11 @@
 
 class PageNotFoundException extends UserErrorException
 {
-  public function __construct($page = null, $message = null, $text = null)
+  public function __construct($text = null)
   {
     if (null === $text)
       $text = t('Страница не найдена');
 
-    parent::__construct(
-      $text,
-      404,
-      $message,
-      $message);
+    parent::__construct($text, 404);
   }
 };

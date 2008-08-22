@@ -281,11 +281,14 @@ class ListWidget extends Widget
     if (empty($this->options['filter']['tags']))
       $result['section'] = null;
     else {
-      $node = Node::load(array(
+      $node = array_values(Node::find(array(
         'class' => 'tag',
         'id' => $this->options['filter']['tags'][0],
-        ));
-      $result['section'] = $node->getRaw();
+        )));
+      if (empty($node))
+        throw new PageNotFoundException(t('Запрошенный раздел не найден.'));
+      else
+        $result['section'] = $node[0]->getRaw();
     }
 
     // Возвращаем список разделов.
