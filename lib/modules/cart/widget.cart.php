@@ -1,8 +1,54 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class CartWidget extends Widget
+class CartWidget extends Widget implements iRemoteCall, iModuleConfig
 {
+  public static function hookRemoteCall(RequestContext $ctx)
+  {
+      $cart = mcms::session('cart');
+      $items = $ctx->post('item');
+      $result = self::getCartContent($items);
+
+      $tmp = mcms::modconf('cart');
+      if (array_key_exists('email', $tmp))
+        $email = $tmp['email'];
+
+      $widgetname = $ctx->post('widgetname');
+      $recalc = $ctx->post('recalc');
+
+      if (empty($result) or !empty($recalc)) //Возможно, все товары из корзины уже были удалены
+        mcms::redirect($widgetname);
+
+      RequestContext::setGlobal();
+      $report = bebop_render_object('widget', $widgetname, null, array('items' => $items, 'mode' => 'report'), 'CartWidget');
+
+      $data = array();
+
+      // Подставляем содержимое заказа в поле.
+      $data['details'] = $report;
+      $data['uid'] = mcms::user()->id;
+
+      if (empty($data['uid'])) // нужно зарегистрироваться перед оформлением заказа
+        mcms::redirect("{$widgetname}?{$widgetname}.mode=notregistered");
+
+      $login = $data['email'] = mcms::user()->email;
+      $node = Node::create('order',$data);
+      $node->save();
+
+      //Заказ уже отправлен, очистим содержимое корзины
+       mcms::session('cart', array());
+
+      if (!empty($email)) {
+        $body = t("<p>Пользователь %login только что оформил заказ следующего содержания: %report</p>",
+            array('%login' => $login, '%report' => str_replace('<table>', '<table border=\'1\' cellspacing=\'0\' cellpadding=\'2\'>', $report)));
+
+        BebopMimeMail::send(null, $email, 'Новый заказ на сайте', $body);
+      }
+
+      $next = "{$widgetname}?{$widgetname}.mode=ok";
+      mcms::redirect($next);
+  }
+
   public function __construct(Node $node)
   {
     parent::__construct($node);
@@ -16,7 +62,7 @@ class CartWidget extends Widget
       );
   }
 
-  public static function formGetConfig()
+  public static function formGetModuleConfig()
   {
     $types = array();
 
@@ -26,37 +72,23 @@ class CartWidget extends Widget
 
     asort($types);
 
-    $form = parent::formGetConfig();
+    $form = new Form(array(
+      'title' => t('Настройка корзины'),
+      'class' => 'tabbed',
+      ));
 
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_mode',
-      'label' => t('Режим работы'),
-      'description' => t('Здесь вы определяете, в каком виде пользователю будет показан именно этот виджет. На странице могут находиться другие виджеты, работающие в другом режиме, но содержимое корзины для них всегда одинаково.'),
-      'options' => array(
-        'simple' => t('Простой список'),
-        'details' => t('Управление заказом'),
-        'history' => t('История заказов'),
-        ),
-      )));
     $form->addControl(new EmailControl(array(
       'value' => 'config_email',
       'label' => t('Получатель уведомлений'),
       'description' => t('Почтовый адрес, на который будут приходить уведомления о новых заказах. Все заказы также будут сохранены в виде документов типа "Заказ" (если такого типа на данный момент нет, он будет создан при сохранении этого виджета).'),
       )));
-    $form->addControl(new SetControl(array(
-      'value' => 'config_types',
-      'label' => t('Используемые типы документов'),
-      'description' => t("С документами других типов корзина работать не будет. В этот список попадают все типы документов, у которых есть поле price."),
-      'options' => $types,
-      )));
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_welcome_url',
-      'label' => t('Ссылка на каталог'),
-      'description' => t("Если корзина пуста, пользователь увидит соответствущее сообщение с предложением пройти по указанной ссылке для выбора товара. Если ссылку не указывать, виджет вообще не будет отображаться, пока корзина пуста (о способах добавления товара в корзину можно прочитать в <a href='@link'>документации</a>).", array('@link' => 'http://code.google.com/p/molinos-cms/wiki/CartWidget')),
-      'default' => t('(не используется)'),
-      )));
+
 
     return $form;
+  }
+
+  public static function hookPostInstall()
+  {
   }
 
   public function formHookConfigSaved()
@@ -93,22 +125,34 @@ class CartWidget extends Widget
 
   protected function onGetSimple(array $options)
   {
+    $url = new url();
+    $widgetname = $url->path;
     $result = array(
       'mode' => 'simple',
       'content' => $this->getCartContent(),
       'sum' => 0,
+      'widgetname' => $widgetname
       );
 
     foreach ($result['content'] as $c)
       $result['sum'] += $c['sum'];
 
+    return $result;
+  }
+
+  protected function onGetDetails(array $options)
+  {
     $url = new url();
+    $widgetname = $url->path;
+    $result = array(
+      'mode' => 'details',
+      'content' => $this->getCartContent(),
+      'sum' => 0,
+      'widgetname' => $widgetname
+      );
 
-    $url->setarg($this->GetInstanceName() .'.mode', 'purge');
-    $result['links']['purge'] = strval($url);
-
-    $url->setarg($this->GetInstanceName() .'.mode', 'details');
-    $result['links']['details'] = strval($url);
+    foreach ($result['content'] as $c)
+      $result['sum'] += $c['sum'];
 
     return $result;
   }
@@ -148,19 +192,6 @@ class CartWidget extends Widget
     mcms::redirect($url);
   }
 
-  protected function onGetDetails(array $options)
-  {
-    $cart = mcms::session('cart');
-
-    if (empty($cart))
-      return null;
-
-    return array(
-      'mode' => 'details',
-      'form' => parent::formRender('cart-details'),
-      );
-  }
-
   protected function onGetConfirm(array $options)
   {
     return array(
@@ -173,7 +204,15 @@ class CartWidget extends Widget
   {
     return array(
       'mode' => 'status',
-      'message' => t('Ваш заказ отправлен, спасибо.'),
+      'html' => t('Ваш заказ отправлен, спасибо.'),
+      );
+  }
+
+  protected function onGetNotregistered(array $options)
+  {
+    return array(
+      'mode' => 'status',
+      'html' => t('Вам необходимо '. mcms::html('a', array('href' => 'profile?register=1'),'зарегистрироваться'). ' перед оформлением заказа.'),
       );
   }
 
@@ -228,76 +267,6 @@ class CartWidget extends Widget
     return $data;
   }
 
-  public function formProcess($id, array $data)
-  {
-    $next = null;
-
-    switch ($id) {
-    case 'cart-details':
-      if ($data['action'] == 'refresh') {
-        if (!is_array($cart = mcms::session('cart')))
-          $cart = array();
-
-        foreach ($data['cart'] as $k => $v) {
-
-          if (empty($v['qty'])  and array_key_exists($k, $cart))
-            unset($cart[$k]);
-          else
-            $cart[$k] = $v['qty'];
-        }
-
-        if (!empty($data['cart_checked']))
-          foreach ($cart as $k => $v)
-            if (in_array($k, $data['cart_checked']))
-              unset($cart[$k]);
-
-        mcms::session('cart', $cart);
-
-        $url = new url();
-        $url->setarg($this->GetInstanceName() .'.mode', 'details');
-        $next = strval($url);
-      } else {
-        $url = bebop_split_url();
-        $url['args'][$this->getInstanceName()] = array('mode' => 'confirm');
-        $next = bebop_combine_url($url, false);
-      }
-      break;
-
-    case 'cart-confirm':
-      $cart = mcms::session('cart');
-
-      if (empty($cart))
-        throw new PageNotFoundException();
-
-      $report = $this->getCartReport();
-
-      // Подставляем содержимое заказа в поле.
-      $data['node_content_details'] = $report;
-
-      $node = Node::create('order');
-      $node->formProcess($data);
-
-      if (!empty($this->email)) {
-        $body = t("<p>Пользователь %login только что оформил заказ следующего содержания:</p>",
-            array('%login' => mcms::user()->login))
-            . str_replace('<table>', '<table border=\'1\' cellspacing=\'0\' cellpadding=\'2\'>', $report);
-
-        $body .= t("<p>Пользователь предоставил следующую дополнительную информацию:</p>");
-        $body .= $this->getOrderDetails($node);
-
-        bebop_mail(null, $this->email, t('Заказ на сайте %host', array('%host' => $_SERVER['HTTP_HOST'])), $body);
-      }
-
-      $url = bebop_split_url();
-      $url['args'][$this->getInstanceName()] = array('mode' => 'ok');
-      $next = bebop_combine_url($url, false);
-
-      break;
-    }
-
-    return $next;
-  }
-
   // Проверяет типы документов, инсталлирует новые.
   private function installTypes()
   {
@@ -308,6 +277,13 @@ class CartWidget extends Widget
         'title' => t('Заказ'),
         'description' => t('Документы этого типа создаются автоматически при оформлении заказов на сайте.'),
         'fields' => array(
+          'uid' => array(
+            'type' => 'NumberControl',
+            'label' => t('ID пользователя (если зарегистрирован на сайте)'),
+            'description' => t('Эта информация нужна нам для обратной связи и доставки (если она осуществляется).'),
+            'required' => false,
+            ),
+
           'name' => array(
             'type' => 'TextLineControl',
             'label' => t('Ф.И.О.'),
@@ -402,7 +378,7 @@ class CartWidget extends Widget
     }
   }
 
-  private function getCartContent()
+  public function getCartContent($items = array())
   {
     $result = array();
 
@@ -412,59 +388,29 @@ class CartWidget extends Widget
       $ids = array_keys($cart);
 
       foreach (Node::find(array('id' => $ids)) as $node) {
+        if (empty($items))
+          $qty = $cart[$node->id];
+        else {
+          $del = $items[$node->id]['delete'];
+          if ($del) {
+            unset($cart[$node->id]);
+            continue;
+          }
+          $qty = $items[$node->id]['qty'];
+          $cart[$node->id] = $qty;
+        }
+
         $result[] = array(
           'id' => $node->id,
           'name' => $node->name,
-          'qty' => $qty = $cart[$node->id],
+          'qty' => $qty,
           'price' => $node->price,
           'sum' => $node->price * $qty,
           );
       }
     }
 
+    mcms::session('cart', $cart);
     return $result;
-  }
-
-  private function getCartReport()
-  {
-    $total = 0;
-
-    $report = "<table>";
-    $report .= "<tr><th>Код</th><th>Название</th><th>Количество</th><th>Цена</th><th>Сумма</th></tr>";
-
-    foreach ($this->getCartContent() as $row) {
-      $report .= "<tr>";
-      $report .= "<td>{$row['id']}</td>";
-      $report .= "<td>". mcms_plain($row['name']) ."</td>";
-      $report .= "<td>{$row['qty']}</td>";
-      $report .= "<td style='text-align: right'>{$row['price']}</td>";
-      $report .= "<td style='text-align: right'>{$row['sum']}</td>";
-      $report .= "</tr>";
-
-      $total += $row['sum'];
-    }
-
-    $report .= "<tr><td>&nbsp;</td><td colspan='3'><strong>Итого:</strong></td><td style='text-align: right'><strong>". number_format($total, 2) ."</strong></td></tr>";
-
-    $report .= "</table>";
-
-    return $report;
-  }
-
-  private function getOrderDetails(Node $node)
-  {
-    $schema = TypeNode::getSchema($node->class);
-
-    $output = '<table border=\'0\' cellspacing=\'2\' cellpadding=\'0\'>';
-
-    foreach ($schema['fields'] as $k => $v) {
-      if (!empty($node->$k) and $k != 'details') {
-        $output .= "<tr><th>". mcms_plain($v['label']) .":</th><td>". mcms_plain($node->$k) ."</td></tr>";
-      }
-    }
-
-    $output .= '</table>';
-
-    return $output;
   }
 };
