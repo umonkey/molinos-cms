@@ -892,7 +892,7 @@ class mcms
 
     if (null === $version) {
       if (is_readable($fname = 'lib/version.info'))
-        $version = file_get_contents($fname);
+        $version = trim(file_get_contents($fname));
       else
         $version = 'unknown.trunk';
     }
