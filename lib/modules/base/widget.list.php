@@ -49,13 +49,20 @@ class ListWidget extends Widget
       // if (!in_array($type->name, TypeNode::getInternal()))
         $types[$type->id] = $type->title;
 
+    $tags = array(
+      '' => t('Текущего (из пути или свойств страницы)'),
+      'root' => t('Основного для страницы (или домена)'),
+      );
+
+    foreach (TagNode::getTags('select') as $k => $v)
+      $tags[$k] = $v;
+
     $form = parent::formGetConfig();
 
     $form->addControl(new EnumControl(array(
       'value' => 'config_fixed',
       'label' => t('Показывать документы из раздела'),
-      'options' => TagNode::getTags('select'),
-      'default' => t('Текущего (из пути или свойств страницы)'),
+      'options' => $tags,
       'description' => t('В большинстве случаев нужен текущий раздел. Фиксированный используется только если список работает в отрыве от контекста запроса, например -- всегда показывает баннеры из фиксированного раздела.'),
       'required' => true,
       )));
@@ -152,7 +159,9 @@ class ListWidget extends Widget
       // используем текущий раздел в зависимости от запроса и
       // настроек текущей страницы.
 
-      if ('always' == $this->fallbackmode and !empty($this->fixed))
+      if ('root' == $this->fixed)
+        $options['filter']['tags'] = array($ctx->root);
+      elseif ('always' == $this->fallbackmode and !empty($this->fixed))
         $options['filter']['tags'] = array($this->fixed);
       elseif (null !== ($tmp = $ctx->section_id))
         $options['filter']['tags'] = array($ctx->section_id);
