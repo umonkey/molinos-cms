@@ -143,8 +143,12 @@ class AdminUIListControl extends Control
 
     case 'created':
     case 'updated':
+      $orig = $value;
+
+      // Прибавляем смещение, т.к. strtotime() оперирует локальными датами и
+      // автоматически отнимает это смещение, а наша дата уже в GMT.
       if (!is_numeric($value))
-        $value = strtotime($value);
+        $value = strtotime($value) + date('Z', time());
 
       $result = date('d.m', $value);
 
