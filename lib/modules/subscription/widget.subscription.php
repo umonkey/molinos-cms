@@ -74,15 +74,32 @@ class SubscriptionWidget extends Widget
 
       $last = $pdo->getResult("SELECT MAX(`id`) FROM `node`");
 
-      $pdo->exec("REPLACE INTO `node__subscription_emails` (`email`, `active`, `last`) VALUES (:email, 1, :last)",
-        array(':email' => $data['email'], ':last' => $last));
-      $sid = $pdo->lastInsertId();
+      try {
+        $node = Node::load(array(
+          'class' => 'subscription',
+          'name' => $data['email'],
+          ));
 
-      $pdo->exec("INSERT INTO `node__subscription_tags` (`sid`, `tid`) SELECT :sid, `id` FROM `node` WHERE `id` IN (". join(', ', $data['sections']) .")",
-        array(':sid' => $sid));
+        $status = t('Параметры подписки успешно изменены.');
+      } catch (ObjectNotFoundException $e) {
+        $node = Node::create('subscription', array(
+          'name' => $data['email'],
+          'last' => $last,
+          ));
+
+        $status = t('Подписка активирована.');
+      }
+
+      if (!empty($data['sections'])) {
+        $node->save();
+        $node->linkSetParents(array_keys($data['sections']));
+      } elseif (!empty($node->id)) {
+        $node->delete();
+        $status = t('Подписка удалена.');
+      }
 
       $output = '<h2>'. t($this->me->title) .'</h2>';
-      $output .= '<p>'. t('Параметры вашей подписки успешно изменены.') .'</p>';
+      $output .= '<p>'. $status .'</p>';
       return $output;
     }
 
@@ -111,11 +128,20 @@ class SubscriptionWidget extends Widget
         'required' => true,
         'value' => 'email',
         )));
-      $form->addControl(new SetControl(array(
-        'label' => t('Подписаться на'),
-        'options' => $list,
-        'value' => 'sections',
-        )));
+
+      if (count($list) > 2) {
+        $form->addControl(new SetControl(array(
+          'label' => t('Подписаться на'),
+          'options' => $list,
+          'value' => 'sections',
+          )));
+      } else {
+        $form->addControl($tmp = new HiddenControl(array(
+          'value' => 'sections['. array_shift(array_keys($list)) .']',
+          'default' => true,
+          )));
+      }
+
       $form->addControl(new SubmitControl(array(
         'text' => t('Подписаться'),
         )));
@@ -143,12 +169,13 @@ class SubscriptionWidget extends Widget
       foreach (Node::find(array('class' => 'tag', 'id' => $data['sections'], '#sort' => array('name' => 'asc'))) as $tmp)
         $catlist .= '<li>'. mcms_plain($tmp->name) .'</li>';
 
-      $link = l(null, array(
-        $this->getInstanceName() => array(
-          'status' => 'confirm',
-          'code' => base64_encode(serialize($bulk)),
+      $link = new url(array(
+        'args' => array(
+          $this->getInstanceName() => array(
+            'status' => 'confirm',
+            'code' => base64_encode(serialize($bulk)),
+            ),
           ),
-        'absolute',
         ));
 
       // Формируем текст почтового сообщения.
@@ -158,13 +185,13 @@ class SubscriptionWidget extends Widget
         ."Вы можете проигнорировать это сообщение, тогда подписка на новости изменена не будет.</p>", array(
         '%host' => $_SERVER['HTTP_HOST'],
         '%list' => $catlist,
-        '@link' => $link,
+        '@link' => strval($link),
         ));
 
-      bebop_mail(null, $data['email'], t('Подписка на новости сайта %host', array('%host' => $_SERVER['HTTP_HOST'])), $body);
+      BebopMimeMail::send(null, $data['email'], t('Подписка на новости сайта %host', array('%host' => $_SERVER['HTTP_HOST'])), $body);
 
-      $url = bebop_split_url();
-      $url['args'][$this->getInstanceName()] = array('status' => 'wait');
+      $url = new url();
+      $url->setarg('args.'. $this->getInstanceName(), array('status' => 'wait'));
       mcms::redirect($url);
     }
   }

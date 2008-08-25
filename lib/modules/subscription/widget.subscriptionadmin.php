@@ -46,42 +46,6 @@ class SubscriptionAdminWidget extends Widget implements iScheduler, iAdminMenu
       );
   }
 
-  protected function onGetDownload(array $options)
-  {
-    $output = '';
-    $pdo = mcms::db();
-
-    switch ($options['format']) {
-    case 'xml':
-      $emails = $pdo->getResultsV("email", "SELECT `email` FROM `node__subscription_emails` WHERE `active` = 1 ORDER BY `email`");
-      $sections = $pdo->getResults("SELECT `e`.`email` as `email`, `n`.`id` as `id`, `r`.`name` as `name` FROM `node__subscription_tags` `t` INNER JOIN `node__subscription_emails` `e` ON `e`.`id` = `t`.`sid` INNER JOIN `node` `n` ON `n`.`id` = `t`.`tid` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` ORDER BY `e`.`email`, `n`.`id`");
-
-      $output .= '<?xml version=\'1.0\'?>';
-      $output .= '<subscriptions>';
-
-      foreach ($emails as $email) {
-        $items = array();
-
-        foreach ($sections as $sec) {
-          if ($sec['email'] == $email) {
-            $items[] = "<section id='{$sec['id']}' name='". mcms_plain($sec['name']) ."' />";
-          }
-        }
-
-        if (!empty($items))
-          $output .= "<subscriber email='{$email}'>". join('', $items) ."</subscriber>";
-      }
-
-      $output .= '</subscriptions>';
-
-      header('Content-Type: text/xml; charset=utf-8');
-      break;
-    }
-
-    header('Content-Length: '. strlen($output));
-    die($output);
-  }
-
   public function onPost(array $options, array $post, array $files)
   {
     $pdo = mcms::db();
@@ -127,33 +91,37 @@ class SubscriptionAdminWidget extends Widget implements iScheduler, iAdminMenu
     }
 
     // Обрабатываем активных пользователей.
-    foreach ($pdo->getResults("SELECT `id`, `email`, `digest`, `last` FROM `node__subscription_emails` WHERE `active` = 1 ORDER BY `email`") as $row) {
+    foreach (Node::find(array('class' => 'subscription')) as $user) {
       $last = null;
 
-      // Получаем список разделов, на которые пользователь подписан.
-      $tags = $pdo->getResultsV("tid", "SELECT `tid` FROM `node__subscription_tags` WHERE `sid` = :sid", array(':sid' => $row['id']));
+      // Получаем список разделов, на которые распространяется подписка.
+      $tags = Node::find(array(
+        'class' => 'tag',
+        'published' => 1,
+        'tagged' => $user->id,
+        ));
 
       if (empty($tags))
         continue;
 
-      // Получаем список новых документов для пользователя.
-      $nids = $pdo->getResultsV("id", "SELECT `n`.`id` as `id` FROM `node` `n` "
-        ."WHERE `n`.`class` IN ('". join("', '", $types) ."') AND `n`.`id` IN "
-        ."(SELECT `nid` FROM `node__rel` WHERE `tid` IN (". join(", ", $tags) .")) "
-        ."AND `n`.`id` > :last "
-        ."ORDER BY `n`.`id`", array(':last' => $row['last']));
+      $nodes = Node::find(array(
+        'class' => $types,
+        'tags' => array_keys($tags),
+        'id' => ('>'. $user->last),
+        '#sort' => 'id',
+        ));
 
       // Отправляем документы.
-      foreach (Node::find(array('id' => $nids)) as $node) {
-        bebop_mail(null, trim($row['email']), $node->name, $node->text);
-        printf("    sent mail to %s: %s\n", trim($row['email']), $node->name);
+      foreach ($nodes as $node) {
+        BebopMimeMail::send(null, $user->name, $node->name, $node->text);
+        printf("    sent mail to %s: %s\n", $user->name, $node->name);
         $last = max($last, $node->id);
       }
 
       // Запоминаем последнее отправленное сообщение.
       if ($last !== null) {
-        $pdo->exec("UPDATE `node__subscription_emails` SET `last` = :last WHERE `id` = :sid",
-          array(':last' => $last, ':sid' => $row['id']));
+        $user->last = $last;
+        $user->save();
       }
     }
   }
