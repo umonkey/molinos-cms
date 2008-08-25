@@ -21,8 +21,10 @@
  */
 class BadRequestException extends UserErrorException
 {
-  public function __construct()
+  public function __construct($message = null)
   {
-    parent::__construct("Неверный запрос", 400, "Неверный запрос", "Запрос к серверу сформулирован неверно.");
+    if (null === $message)
+      $message = t('Неверный запрос.');
+    parent::__construct($message, 400);
   }
 };
