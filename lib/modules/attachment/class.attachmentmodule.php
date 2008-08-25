@@ -196,13 +196,10 @@ class AttachmentModule implements iRemoteCall
     else
       $download = true;
 
-    if ($download) {
+    if ($download and empty(self::$nw) and empty(self::$nh)) {
       if (self::$realname != self::$node['filename']) {
         $path = 'attachment/'. self::$node['id'] .'/'.
           urlencode(self::$node['filename']);
-        // FIXME: внятное исключение.
-        if (self::$nw)
-          die('oops.');
         mcms::redirect($path);
       }
     }
