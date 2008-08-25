@@ -25,7 +25,7 @@ class BebopConfig
       if ($this->path !== null and 'default.php' != basename($this->path))
         return $this->path;
 
-      $prefix = MCMS_ROOT .'/conf/';
+      $prefix = MCMS_ROOT . DIRECTORY_SEPARATOR .'conf'. DIRECTORY_SEPARATOR;
 
       $result = array();
 
@@ -36,15 +36,11 @@ class BebopConfig
       while (!empty($result)) {
         if (is_readable($this->path = $prefix . join('.', $result) .'.ini'))
           return $this->path;
-        if (is_readable($this->path = $prefix . join('.', $result) .'.php'))
-          return $this->path;
         array_pop($result);
       }
 
       // Дошли до самого конца: пытаемся открыть дефолтный файл.
       if (is_readable($this->path = $prefix .'default.ini'))
-        return $this->path;
-      if (is_readable($this->path = $prefix .'default.php'))
         return $this->path;
 
       // Дефолтный не найден, пытаемся использовать демо.
@@ -61,6 +57,8 @@ class BebopConfig
           return $this->path;
         }
       }
+
+      return $this->path;
     }
 
     private function readData()
