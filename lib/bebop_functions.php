@@ -380,13 +380,6 @@ function mcms_plain($text, $strip = true)
   return str_replace(array('&amp;quot;'), array('&quot;'), htmlspecialchars($text, ENT_QUOTES));
 }
 
-function mcms_cut($text, $length)
-{
-  if (mb_strlen($text) > $length)
-    $text = mb_substr(trim($text), 0, $length) .'...';
-  return $text;
-}
-
 function mcms_url(array $options = null)
 {
   $url = array_merge(bebop_split_url(), $options);
