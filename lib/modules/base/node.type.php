@@ -19,6 +19,10 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 {
   private $oldfields = null;
 
+  // Устанавливается при изменении внутреннего имени.  После сохранения все
+  // документы этого типа обновляются.
+  private $oldname = null;
+
   public function __construct(array $data)
   {
     parent::__construct($data);
@@ -50,6 +54,8 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
           ),
         );
     }
+
+    $this->oldname = $this->name;
   }
 
   // Инсталляция типов документов.
@@ -81,6 +87,13 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if (empty($this->title))
       $this->title = $this->name;
 
+    if (empty($this->name))
+      throw new ValidationException('name', t('Внутреннее имя типа '
+        .'не может быть пустым.'));
+    elseif (strspn(strtolower($this->name, 'abcdefghijklmnopqrstuvwxyz0123456789_') != strlen($this->name)))
+      throw new ValidationException('name', t('Внутреннее имя типа может '
+        .'содержать только латинские буквы, арабские цифры и прочерк.'));
+
     $this->data['published'] = 1;
 
     parent::checkUnique('name', t('Тип документа со внутренним именем %name уже есть.', array('%name' => $this->name)));
@@ -89,6 +102,12 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     parent::save();
 
     $this->updateTable();
+
+    // Обновляем тип документов, если он изменился.
+    if (null !== $this->oldname and $this->name != $this->oldname) {
+      mcms::db()->exec("UPDATE `node` SET `class` = ? WHERE `class` = ?",
+        array($this->name, $this->oldname));
+    }
 
     // Обновляем кэш.
     $this->flush();
@@ -156,12 +175,6 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if ('fields' === $k) {
       if (null === $this->oldfields)
         $this->oldfields = $this->fields;
-    }
-
-    elseif ('name' == $k) {
-      if (!empty($this->id) and $this->name != $v)
-        throw new InvalidArgumentException(t('Внутреннее имя '
-          .'типа документа изменить нельзя.'));
     }
 
     parent::__set($k, $v);
