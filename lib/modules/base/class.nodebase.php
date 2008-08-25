@@ -304,6 +304,10 @@ class NodeBase
   {
     $isnew = !isset($this->id);
 
+    if (empty($this->created))
+      throw new RuntimeException(t('Попытка сохранить объект '
+        .'без даты создания.'));
+
     $this->dbWrite();
     $this->saveLinks();
 
