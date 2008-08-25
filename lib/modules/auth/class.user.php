@@ -41,7 +41,7 @@ class User
     else {
       $this->groups = Node::find(array(
         'class' => 'group',
-        'published' => 1,
+        'published' => array(0, 1),
         'tagged' => array($this->node->id),
         '#cache' => true,
         ));
