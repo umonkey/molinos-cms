@@ -2,17 +2,36 @@
 
 static $fid = 1;
 
+function fthumbnail(array $a)
+{
+  if (empty($a['id']))
+    $src = 'themes/admin/img/blank.gif';
+  else
+    $src = strval(new url('attachment.rpc?fid='.
+      $a['id'] .',48,48,c&rev='.  $a['rid']));
+
+  $img = mcms::html('img', array(
+    'src' => $src,
+    'width' => 48,
+    'height' => 48,
+    'alt' => 'thumbnail',
+    ));
+
+  if (!empty($a['id']))
+    $img = l('attachment.rpc?fid='. $a['id'], $img);
+  else
+    $img = l('#', $img);
+
+  return $img;
+}
+
 ?><table class='files'>
   <tr>
     <th class='fieldname' colspan='2'><?php print $c->label; ?></th>
   </tr>
   <tr class='file' id='fid<?php print $fid++; ?>'>
     <td class='preview'>
-      <a title='Скачать'
-        href='attachment.rpc?fid=<?php print $d['id']; ?>'>
-        <img src='attachment.rpc?fid=<?php print $d['id']; ?>,48,48,c&amp;rev=<?php print $d['rid']; ?>'
-          width='48' height='48' />
-      </a>
+      <?php print fthumbnail($d); ?>
       <input type='hidden' class='id'
         name='<?php print mcms_plain($c->value); ?>[id]'
         value='<?php print $d['id']; ?>'

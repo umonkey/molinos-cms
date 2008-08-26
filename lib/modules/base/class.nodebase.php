@@ -304,6 +304,9 @@ class NodeBase
   {
     $isnew = !isset($this->id);
 
+    if (empty($this->created))
+      $this->created = gmdate('Y-m-d H:i:s');
+
     $this->dbWrite();
     $this->saveLinks();
 
@@ -1773,7 +1776,7 @@ class NodeBase
       }
     }
 
-    if ($schema['hasfiles']) {
+    if (!empty($schema['hasfiles'])) {
       $tab->addControl(new FileListControl(array(
        'value' => 'node_content_files',
         )));

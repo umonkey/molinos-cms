@@ -117,7 +117,7 @@ class mcms_sqlite_driver extends PDO_Singleton
       'MONTH(',
       'DAY(',
       ), array(
-      '\''. date('Y-m-d H:i:s', time() - date('Z', time())) .'\'',
+      '\''. gmdate('Y-m-d H:i:s') .'\'',
       'strftime(\'%Y\', ',
       'strftime(\'%m\', ',
       'strftime(\'%d\', ',
@@ -159,7 +159,7 @@ class mcms_sqlite_driver extends PDO_Singleton
   {
     if ((null !== $this->dbfile) and file_exists($this->dbfile) and
         filesize($this->dbfile) > 0) {
-      $fname = $this->dbfile .'.'. strftime('%Y%m%d%H%M%S');
+      $fname = $this->dbfile .'.'. gmdate('YmdHis');
       mcms::log('sqlite', 'backing up as '. $fname);
       copy($this->dbfile, $fname);
     }

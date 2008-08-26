@@ -335,6 +335,7 @@ class AdminListHandler
     }
 
     $filter['#permcheck'] = true;
+    $filter['#cache'] = false;
 
     return $filter;
   }

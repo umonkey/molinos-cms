@@ -50,10 +50,17 @@ class InstallModule implements iRemoteCall
   public static function onGet(RequestContext $ctx)
   {
     self::checkEnvironment();
-    $conf = array ('host'=>'localhost', 'user' => '', 'pass' => '', 'path' => '');
 
-    if (array_key_exists('default',mcms::config('db')))
-      $conf = parse_url($conf['default']);
+    // Параметры подключения к БД
+    $conf = array(
+      'host' => 'localhost',
+      'user' => '',
+      'pass' => '',
+      'path' => '',
+      );
+
+    if ($tmp = mcms::config('db') and !emtpy($tmp['default']))
+      $conf = parse_url($tmp['default']);
 
     if (null !== ($tmp = $ctx->get('result')))
       return self::getResult($tmp);

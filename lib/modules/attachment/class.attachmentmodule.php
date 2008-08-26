@@ -33,6 +33,9 @@ class AttachmentModule implements iRemoteCall
     if (null === ($storage = mcms::config('filestorage')))
       $storage = 'storage';
 
+    if (empty($args[0]))
+      throw new InvalidArgumentException(t('Не указан идентификатор файла.'));
+
     $node = Node::load(array('class' => 'file', 'id' => $args[0]))->getRaw();
     if (empty($node))
       self::sendError(404, 'file not found.');
@@ -196,13 +199,10 @@ class AttachmentModule implements iRemoteCall
     else
       $download = true;
 
-    if ($download) {
+    if ($download and empty(self::$nw) and empty(self::$nh)) {
       if (self::$realname != self::$node['filename']) {
         $path = 'attachment/'. self::$node['id'] .'/'.
           urlencode(self::$node['filename']);
-        // FIXME: внятное исключение.
-        if (self::$nw)
-          die('oops.');
         mcms::redirect($path);
       }
     }

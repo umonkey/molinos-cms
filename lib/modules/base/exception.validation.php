@@ -25,8 +25,10 @@ class ValidationException extends UserErrorException
   public function __construct($name, $message = null)
   {
     if ($message === null)
-      $message = "Вы не заполнили поле &laquo;{$name}&raquo;, которое нужно заполнить обязательно.&nbsp; Пожалуйста, вернитесь назад и проверьте введённые данные.";
+      $message = "Вы не заполнили поле &laquo;{$name}&raquo;, "
+        ."которое нужно заполнить обязательно.&nbsp; "
+        ."Пожалуйста, вернитесь назад и проверьте введённые данные.";
 
-    parent::__construct("Ошибка ввода данных", 400, "Ошибка в поле <span class='highlight'>&laquo;{$name}&raquo;</span>", $message);
+    parent::__construct($message, 400);
   }
 };

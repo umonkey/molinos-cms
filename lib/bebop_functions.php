@@ -173,6 +173,10 @@ function bebop_on_json(array $result)
 // Применяет шаблон к данным.
 function bebop_render_object($type, $name, $theme = null, $data, $classname = null)
 {
+  // Префикс всегда фиксированный и показывает на корень сайта.  Это нужно
+  // для корректной подгрузки стилей и скриптов, а также для работы
+  // относительных ссылок в любой ветке сайта.  Привязка к типовым страницам
+  // намеренно отключена, чтобы ссылка "node/123" _всегда_ вела в одно место.
   $data['base'] = 'http://'. $_SERVER['HTTP_HOST'] . mcms::path() .'/';
 
   if (null === $theme) {
@@ -374,13 +378,6 @@ function mcms_plain($text, $strip = true)
   if ($strip)
     $text = strip_tags($text);
   return str_replace(array('&amp;quot;'), array('&quot;'), htmlspecialchars($text, ENT_QUOTES));
-}
-
-function mcms_cut($text, $length)
-{
-  if (mb_strlen($text) > $length)
-    $text = mb_substr(trim($text), 0, $length) .'...';
-  return $text;
 }
 
 function mcms_url(array $options = null)

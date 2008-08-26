@@ -138,8 +138,7 @@ function get_dba_link()
 
     <?php if (empty($_GET['picker'])): ?>
     <div id="footer">
-      <img src="themes/admin/img/siteimage/logo_molinos_btm_ico.gif" alt="Molinos.Ru" align="middle" />
-      <img src="themes/admin/img/siteimage/logo_molinos_btm.gif" alt="Molinos.Ru" align="middle" />
+      <img src="themes/admin/img/siteimage/logo_molinos_btm.png" alt="Molinos.Ru" align="middle" />
       <span>Версия <?php print get_version_info(); ?></span>
     </div>
     <?php endif; ?>

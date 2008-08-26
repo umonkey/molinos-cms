@@ -465,7 +465,7 @@ class mcms
       print join(";\n\n", $output) .";\n\n";
 
       if (true /* !empty($_SERVER['REMOTE_ADDR']) */) {
-        printf("--- backtrace (time: %s, duratoin: %s) ---\n", microtime(),
+        printf("--- backtrace (time: %s, duration: %s) ---\n", microtime(),
           microtime(true) - MCMS_START_TIME);
         print mcms::backtrace();
 
@@ -892,7 +892,7 @@ class mcms
 
     if (null === $version) {
       if (is_readable($fname = 'lib/version.info'))
-        $version = file_get_contents($fname);
+        $version = trim(file_get_contents($fname));
       else
         $version = 'unknown.trunk';
     }

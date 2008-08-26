@@ -60,7 +60,7 @@ class UserNode extends Node implements iContentType
 
     // Шифруем новый пароль.
     elseif ($this->password != $this->origpassword)
-      $this->password = md5($this->password);
+      $this->origpassword = $this->password = md5($this->password);
 
     parent::checkUnique('name', t('Пользователь с именем %name уже есть.',
       array('%name' => $this->name)));

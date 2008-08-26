@@ -141,6 +141,24 @@ class AdminUIListControl extends Control
 
       return mb_strtolower($schema['title']);
 
+    case 'created':
+    case 'updated':
+      $orig = $value;
+
+      // Прибавляем смещение, т.к. strtotime() оперирует локальными датами и
+      // автоматически отнимает это смещение, а наша дата уже в GMT.
+      if (!is_numeric($value))
+        $value = strtotime($value) + date('Z', time());
+
+      $result = date('d.m', $value);
+
+      if (date('Y') != ($year = date('Y', $value)))
+        $result .= '.'. $year;
+
+      $result .= date(', H:i', $value);
+
+      return $result;
+
     case 'uid':
       return $this->getUserLink($value);
 

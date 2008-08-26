@@ -126,10 +126,17 @@ class RequestContext
         elseif (is_object($node))
           return $this->$key;
         else {
-          $tmp = Node::load(array(
-            'id' => $node,
-            '#recurse' => 1,
-            ));
+          try {
+            $tmp = Node::load(array(
+              'id' => $node,
+              '#recurse' => 1,
+              ));
+          } catch (ObjectNotFoundException $e) {
+            $msg = ('section' == $key)
+              ? 'Раздел не найден'
+              : 'Документ не найден';
+            throw new PageNotFoundException(t($msg));
+          }
 
           if ($tmp->class == 'tag' and $key != 'section')
             return null;

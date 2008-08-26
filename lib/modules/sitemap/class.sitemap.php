@@ -139,7 +139,7 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
         $line = "<url>"
           ."<loc>http://{$_SERVER['HTTP_HOST']}/node/{$node->id}</loc>";
         if (!empty($node->updated)) {
-          $date = strftime('%Y-%m-%d', strtotime($node->updated));
+          $date = gmdate('Y-m-d', strtotime($node->updated));
           $line .= "<lastmod>{$date}</lastmod>";
         }
         $line .= "</url>\n";
