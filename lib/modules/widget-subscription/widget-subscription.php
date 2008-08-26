@@ -45,7 +45,7 @@ class SubscriptionWidget extends Widget
 
   protected function onGetWait(array $options)
   {
-    return t("Инструкция по активации подписки отправлена на введённый почтовый адрес.");
+    return t("<p>Инструкция по активации подписки отправлена на введённый почтовый адрес.</p>");
   }
 
   protected function onGetConfirm(array $options)
@@ -69,7 +69,7 @@ class SubscriptionWidget extends Widget
       $pdo->exec("INSERT INTO `node__subscription_tags` (`sid`, `tid`) SELECT :sid, `id` FROM `node` WHERE `id` IN (". join(', ', $data['sections']) .")",
         array(':sid' => $sid));
 
-      return t("Параметры вашей подписки успешно изменены.");
+      return t("<p>Параметры вашей подписки успешно изменены.</p>");
     }
 
     throw new PageNotFoundException();
@@ -77,7 +77,7 @@ class SubscriptionWidget extends Widget
 
   protected function onGetUpdated(array $options)
   {
-    return t("Состояние подписки изменено, спасибо!");
+    return t("<p>Состояние подписки изменено, спасибо!</p>");
   }
 
   public function formGet($id)
