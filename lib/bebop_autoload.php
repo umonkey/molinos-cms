@@ -1,6 +1,6 @@
 <?php
 
-define('BEBOP_VERSION', '8.01.BUILDNUMBER');
+define('BEBOP_VERSION', '8.01.5981');
 
 // We load cache before everything else because
 // it helps us reduce the metadata reading time.
