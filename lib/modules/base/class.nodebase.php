@@ -1776,7 +1776,7 @@ class NodeBase
       }
     }
 
-    if ($schema['hasfiles']) {
+    if (!empty($schema['hasfiles'])) {
       $tab->addControl(new FileListControl(array(
        'value' => 'node_content_files',
         )));
