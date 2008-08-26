@@ -407,6 +407,7 @@ class NodeQueryBuilder
       case 'code':
       case 'class':
       case 'parent_id':
+      case 'created':
       case 'published':
       case 'deleted':
       case 'uid':
