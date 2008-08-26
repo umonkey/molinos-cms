@@ -294,6 +294,8 @@ class ListAdminWidget extends ListWidget
 
           if ($field == 'code' and is_numeric($text))
             $text = null;
+          elseif ('created' == $field or 'updated' == $field)
+            $text = mcms_date($node[$field]);
 
           if ($link) {
             if (empty($text))

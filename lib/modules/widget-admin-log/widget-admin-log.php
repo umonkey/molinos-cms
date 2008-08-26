@@ -207,6 +207,8 @@ class LogAdminWidget extends Widget implements iAdminWidget
 
         $data['syslog_list'][$k]['published'] = true;
         $data['syslog_list'][$k]['internal'] = true;
+
+        $data['syslog_list'][$k]['timestamp'] = mcms_date($v['timestamp']);
       }
 
       return $data;
