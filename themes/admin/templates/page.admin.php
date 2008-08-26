@@ -11,8 +11,15 @@ function render_notifications()
 
 function render_username()
 {
-  $user = mcms::user();
-  return empty($user->fullname) ? $user->name : $user->fullname;
+  $user = mcms::user()->getRaw();
+
+  $link = 'admin?cgroup=access&mode=edit&id='. mcms::user()->id .'&destination=CURRENT';
+  $name = mcms_plain(l($user));
+
+  return l($link, $name, array(
+    'title' => 'Редактирование профиля',
+    'class' => 'editprofile',
+    ));
 }
 
 function get_version_info()
@@ -106,8 +113,7 @@ function get_dba_link()
       <div id="navbar">
         <div id="top_toolbar">
           <div class="right">
-            <div class="greeting">Здравствуйте, <?php print render_username(); ?>.</div>
-            <?php print l('admin?cgroup=access&mode=edit&id='. mcms::user()->id .'&destination=CURRENT', 'Настройки', array('title' => 'Редактирование профиля')); ?>
+            <?php print render_username(); ?>
             <?php print get_dba_link(); ?>
             <a href="<?php print l('admin.rpc?action=reload&destination=CURRENT'); ?>&amp;reload=1&flush=1" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
             <?php print l('base.rpc?action=logout',
@@ -138,7 +144,8 @@ function get_dba_link()
 
     <?php if (empty($_GET['picker'])): ?>
     <div id="footer">
-      <img src="themes/admin/img/siteimage/logo_molinos_btm.png" alt="Molinos.Ru" align="middle" />
+      <img src="themes/admin/img/siteimage/logo_molinos_btm_ico.gif" alt="Molinos.Ru" align="middle" />
+      <img src="themes/admin/img/siteimage/logo_molinos_btm.gif" alt="Molinos.Ru" align="middle" />
       <span>Версия <?php print get_version_info(); ?></span>
     </div>
     <?php endif; ?>

@@ -545,3 +545,8 @@ table.form-revision-history td {
 table.form-revision-history tr.rev-active {
   font-weight: bold;
 }
+
+a.editprofile {
+  padding-left: 18px;
+  background: transparent url(../img/user-16x16.png) no-repeat center left;
+}
