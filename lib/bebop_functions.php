@@ -599,7 +599,7 @@ function mcms_date($date, $mode = 'display')
       .'(\d{1,2})\:(\d{1,2})(?:\:(\d{1,2}))?$@';
     $fm = '%Y-%m-%d %H:%M:%S';
 
-    $result = null;
+    $result = $date;
 
     if (preg_match($re, $date, $m)) {
       if (empty($m[3]))
@@ -616,7 +616,7 @@ function mcms_date($date, $mode = 'display')
       $result = gmstrftime($fm, $time);
     }
 
-    if (null === $result)
+    if (empty($result))
       $result = gmdate('Y-m-d H:i:s');
 
     return $result;
