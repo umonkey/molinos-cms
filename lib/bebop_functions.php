@@ -570,3 +570,59 @@ function mcms_decrypt($input)
 
     return trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $securekey, base64_decode(rawurldecode($input)), MCRYPT_MODE_ECB, $iv));
 }
+
+function mcms_date($date, $mode = 'display')
+{
+  switch ($mode) {
+  case 'display':
+    if (empty($date))
+      return null;
+
+    $orig = $date;
+
+    // Прибавляем смещение, т.к. strtotime() оперирует локальными датами и
+    // автоматически отнимает это смещение, а наша дата уже в GMT.
+    if (!is_numeric($date))
+      $date = strtotime($date) + date('Z', time());
+
+    $result = date('d.m', $date);
+
+    if (date('Y') != ($year = date('Y', $date)))
+      $result .= '.'. $year;
+
+    $result .= date(', H:i', $date);
+
+    return $result;
+
+  case 'save':
+    $re = '@^(\d{1,2})\.(\d{1,2})(?:\.(\d{2,4}))?[ ,]+'
+      .'(\d{1,2})\:(\d{1,2})(?:\:(\d{1,2}))?$@';
+    $fm = '%Y-%m-%d %H:%M:%S';
+
+    $result = null;
+
+    if (preg_match($re, $date, $m)) {
+      if (empty($m[3]))
+        $m[3] = date('Y');
+      elseif ($m[3] < 2000)
+        $m[3] += 2000;
+      if (empty($m[6]))
+        $m[6] = 0;
+
+      $value = sprintf('%04d-%02d-%02d %02d:%02d:%02d',
+        $m[3], $m[2], $m[1], $m[4], $m[5], $m[6]);
+
+      $time = strtotime($value);
+      $result = gmstrftime($fm, $time);
+    }
+
+    if (null === $result)
+      $result = gmdate('Y-m-d H:i:s');
+
+    return $result;
+
+  default:
+    throw new InvalidArgumentException(__FUNCTION__ .' работает в двух режимах: '
+      .'display или save.');
+  }
+}
