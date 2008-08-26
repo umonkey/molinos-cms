@@ -22,9 +22,9 @@ mcms::extras('themes/all/styles/pages.error.css');
     <div id="content">
       <h1 id="logo"><a href="."><span>Molinos CMS</span></a></h1>
     
-      <h2><?php print $error['description']; ?></h2>
-      <?php if (!empty($error['message'])): ?>
-        <p><?php print $error['message']; ?></p>
+      <h2><?php print $error['message']; ?></h2>
+      <?php if (!empty($error['description'])): ?>
+        <p><?php print $error['description']; ?></p>
       <?php endif; ?>
 
       <?php if (!empty($error['stack'])): ?>
