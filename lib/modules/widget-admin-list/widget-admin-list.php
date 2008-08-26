@@ -193,7 +193,7 @@ class ListAdminWidget extends ListWidget
       'limit' => $pagelim,
       );
 
-    if (empty($query['#sort']) and !array_key_exists('tags', $query))
+    if (empty($query['#sort']) and  !array_key_exists('tags',$query))
       $query['#sort'] = array('id' => 'desc');
 
     $nodelist = Node::find($query, $pagelim, $pagelim ? (($pagenum - 1) * $pagelim) : null);
@@ -213,7 +213,7 @@ class ListAdminWidget extends ListWidget
         elseif ($field == 'class')
           $text = $this->resolveType($node->$field);
         elseif ($field == 'created' or $field == 'updated')
-          $text = $this->resolveDate($node->$field);
+          $text = mcms_date($node->$field);
         else
           $text = mcms_plain($node->$field);
 
@@ -478,24 +478,5 @@ class ListAdminWidget extends ListWidget
     }
 
     return $text;
-  }
-
-  private function resolveDate($value)
-  {
-    $orig = $value;
-
-    // Прибавляем смещение, т.к. strtotime() оперирует локальными датами и
-    // автоматически отнимает это смещение, а наша дата уже в GMT.
-    if (!is_numeric($value))
-      $value = strtotime($value) + date('Z', time());
-
-    $result = date('d.m', $value);
-
-    if (date('Y') != ($year = date('Y', $value)))
-      $result .= '.'. $year;
-
-    $result .= date(', H:i', $value);
-
-    return $result;
   }
 };

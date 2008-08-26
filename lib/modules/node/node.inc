@@ -155,6 +155,9 @@ class NodeBase implements iFormObject
     // Рендерим документ.
     $this->data['html'] = $this->render();
 
+    $this->data['created'] = mcms_date($this->created, 'save');
+    $this->data['updated'] = mcms_date($this->updated, 'save');
+
     $tg->nodeSave($this->data, $this->forcedrev);
 
     BebopCache::getInstance()->flush();

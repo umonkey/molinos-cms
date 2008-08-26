@@ -572,6 +572,10 @@ class DateTimeControl extends Control
   {
     $output = '';
 
+    $date = empty($data[$this->value])
+      ? null
+      : mcms_date($data[$this->value], 'display');
+
     if ($this->text)
       $output .= parent::makeHTML('label', array(
         'for' => $this->id,
@@ -582,7 +586,7 @@ class DateTimeControl extends Control
       'id' => $this->id,
       'class' => array('form-text', 'form-date'),
       'name' => $this->value,
-      'value' => empty($data[$this->value]) ? null : $data[$this->value],
+      'value' => $date,
       ));
 
     return $this->wrapHTML($output);

@@ -36,6 +36,16 @@ class Node extends NodeBase implements iContentType
     $this->data = $data;
   }
 
+  private function fixdate(array &$data, $key)
+  {
+    if (!empty($data[$key])) {
+      if (!is_numeric($value))
+        $value = strtotime($value) + date('Z', time());
+
+      $data[$key] = date('d.m.Y H:i:s');
+    }
+  }
+
   // Форматирует документ в соответствии с шаблоном.
   public function render()
   {
