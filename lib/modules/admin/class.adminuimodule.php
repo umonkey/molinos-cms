@@ -424,10 +424,15 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     switch ($ctx->get('action')) {
     case 'reload':
-      if (file_exists($tmp = mcms::config('tmpdir') .'/.modmap.php'))
+      $tmpdir = mcms::config('tmpdir');
+
+      if (file_exists($tmp = $tmpdir .'/.modmap.php'))
         unlink($tmp);
 
-      foreach (glob(mcms::config('tmpdir') .'/.pcache.*') as $tmp)
+      foreach (glob($tmpdir .'/.pcache.*') as $tmp)
+        unlink($tmp);
+
+      foreach (glob($tmpdir .'/mcms-fetch.*') as $tmp)
         unlink($tmp);
 
       DBCache::getInstance()->flush(false);
