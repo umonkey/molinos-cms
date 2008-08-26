@@ -450,7 +450,7 @@ class url
     $result .= mcms::path() .'/';
 
     if (self::$clean)
-      $result .= $this->path;
+      $result .= ltrim($this->path, '/');
     elseif (!empty($_SERVER['SCRIPT_FILENAME']))
       $result .= basename($_SERVER['SCRIPT_FILENAME']);
     else
