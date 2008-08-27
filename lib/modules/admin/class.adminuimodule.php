@@ -426,7 +426,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     case 'reload':
       $tmpdir = mcms::config('tmpdir');
 
-      if (file_exists($tmp = $tmpdir .'/.modmap.php'))
+      if (file_exists($tmp = mcms::modmap()))
         unlink($tmp);
 
       foreach (glob($tmpdir .'/.pcache.*') as $tmp)

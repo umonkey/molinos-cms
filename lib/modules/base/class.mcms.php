@@ -601,7 +601,7 @@ class mcms
   public static function getModuleMap($name = null)
   {
     $result = null;
-    $filename = mcms::config('tmpdir') .'/.modmap.php';
+    $filename = mcms::modmap();
 
     mcms::mkdir(dirname($filename), t('Каталог для временных файлов (%path) '
       .'отсутствует и не может быть создан.',
@@ -758,7 +758,7 @@ class mcms
     $tmp->set('modules', join(',', $list), 'runtime');
     $tmp->write();
 
-    if (file_exists($tmp = 'tmp/.modmap.php'))
+    if (file_exists($tmp = mcms::modmap()))
       unlink($tmp);
   }
 
@@ -1341,6 +1341,12 @@ class mcms
     }
 
     die();
+  }
+
+  public static function modmap()
+  {
+    return mcms::config('tmpdir') .'/modmap.'.
+      md5(MCMS_ROOT .','.  $_SERVER['HTTP_HOST']);
   }
 };
 
