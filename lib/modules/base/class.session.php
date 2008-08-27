@@ -89,6 +89,10 @@ class Session
   {
     static $sent = false;
 
+    // При запуске из консоли сессии никуда не сохраняем.
+    if (empty($_SERVER['REMOTE_ADDR']))
+      return;
+
     if (null === $this->data)
       throw new RuntimExeption(t('Session is being saved '
         .'without having been loaded.'));
@@ -112,9 +116,10 @@ class Session
         $time = time() + 60*60*24*30;
         $name = self::cookie;
 
-        setcookie($name, empty($this->data) ? null : $this->id, $time, $path);
-
-        mcms::log('session', "cookie set: {$name}={$this->id}");
+        if (!headers_sent()) {
+          setcookie($name, empty($this->data) ? null : $this->id, $time, $path);
+          mcms::log('session', "cookie set: {$name}={$this->id}");
+        }
       }
     }
 
