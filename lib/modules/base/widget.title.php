@@ -38,6 +38,20 @@ class TitleWidget extends Widget
       );
   }
 
+  public static function formGetConfig()
+  {
+    $form = parent::formGetConfig();
+
+    $form->addControl(new BoolControl(array(
+      'value' => 'config_showpath',
+      'label' => t('Возвращать путь к текущему разделу'),
+      'description' => t('Добавляет лишний запрос, незначительно сказывается '
+        .'на производительности.'),
+      )));
+
+    return $form;
+  }
+
   /**
    * Препроцессор параметров.
    *
@@ -70,9 +84,15 @@ class TitleWidget extends Widget
     $result = array('list' => array());
 
     if (null !== ($tmp = $this->ctx->document))
-      $result['list'][] = $tmp->getRaw();
-    if (null !== ($tmp = $this->ctx->section))
-      $result['list'][] = $tmp->getRaw();
+      $result['document'] = $tmp->getRaw();
+
+    if (null !== ($tmp = $this->ctx->section)) {
+      $result['section'] = $tmp->getRaw();
+
+      if ($this->showpath)
+        foreach ($tmp->getParents() as $p)
+          $result['path'][] = $p->getRaw();
+    }
 
     return $result;
   }

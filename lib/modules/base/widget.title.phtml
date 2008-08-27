@@ -3,8 +3,10 @@
 if (!empty($list)) {
   $names = array();
 
-  foreach ($list as $n)
-    $names[] = mcms_plain(l($n));
+  if (!empty($document))
+    $names[] = mcms_plain(l($document));
+  if (!empty($section))
+    $names[] = mcms_plain(l($section));
 
   print mcms::html('title', join(' — ', $names));
 }
