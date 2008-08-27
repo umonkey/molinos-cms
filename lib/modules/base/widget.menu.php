@@ -180,8 +180,6 @@ class MenuWidget extends Widget implements iWidget
     if (!empty($output)) {
       if (in_array($this->header, array('h2', 'h3', 'h4')))
         $output = '<h2>'. mcms_plain($this->me->title) .'</h2>'. $output;
-
-      $output = "<div class='widget-menu-{$this->me->name}'>{$output}</div>";
     }
 
     return array('html' => $output);
