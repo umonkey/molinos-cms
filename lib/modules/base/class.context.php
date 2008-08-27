@@ -176,4 +176,17 @@ class Context
 
     mcms::redirect($url->getAbsolute($this), $status);
   }
+
+  /**
+   * Возвращает метод запроса (GET, POST итд).
+   */
+  public function method()
+  {
+    if (array_key_exists('method', $this->args))
+      return $this->args['method'];
+    elseif (array_key_exists('REQUEST_METHOD', $_SERVER))
+      return $_SERVER['REQUEST_METHOD'];
+    else
+      return 'GET';
+  }
 }
