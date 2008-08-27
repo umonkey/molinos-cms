@@ -21,6 +21,8 @@ class url
   private static $localhost = null;
   private static $root = null;
 
+  private $readonly;
+
   private $scheme = null;
   private $user = null;
   private $pass = null;
@@ -35,7 +37,7 @@ class url
    *
    * @param mixed $source строка, url или массив (см. as_array()).
    */
-  public function __construct($source = null)
+  public function __construct($source = null, $readonly = false)
   {
     self::init();
 
@@ -52,6 +54,8 @@ class url
 
     if ($this->islocal and $this->path != trim($this->path, '/'))
       $this->path = trim($this->path, '/');
+
+    $this->readonly = $readonly;
   }
 
   /**
@@ -159,6 +163,9 @@ class url
    */
   public function __set($key, $val)
   {
+    if ($this->readonly)
+      throw new RuntimeException(t('Этот URL модифицировать нельзя.'));
+
     switch ($key) {
     case 'args':
       throw new InvalidArgumentException(t('Для изменения аргументов '
@@ -439,17 +446,27 @@ class url
    *
    * @return string абсолютная ссылка.
    */
-  public function getAbsolute(RequestContext $ctx = null)
+  public function getAbsolute()
   {
-    $result = $this->scheme
-      ? $this->scheme : 'http';
+    $result = '';
 
-    $result .= '://'. ($this->host
-      ? $this->host : $_SERVER['HTTP_HOST']);
+    if (!$this->islocal) {
+      $result .= $this->scheme
+        ? $this->scheme : 'http';
+
+      $result .= '://';
+
+      if (!empty($this->host))
+        $result .= $this->host;
+      elseif (!empty($_SERVER['HTTP_HOST']))
+        $result .= $_SERVER['HTTP_HOST'];
+      else
+        $result .= 'localhost';
+    }
 
     $result .= mcms::path() .'/';
 
-    if (self::$clean)
+    if (self::$clean or !$this->islocal)
       $result .= ltrim($this->path, '/');
     elseif (!empty($_SERVER['SCRIPT_FILENAME']))
       $result .= basename($_SERVER['SCRIPT_FILENAME']);
