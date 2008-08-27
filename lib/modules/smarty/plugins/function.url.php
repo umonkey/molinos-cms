@@ -3,16 +3,20 @@
 
 function smarty_function_url($params, &$smarty) 
 {
-  if (empty($params['path']) or empty($params['text']))
+  if (!empty($params['link'])) {
+    $tmp = new url($params['link']);
+    return $tmp;
+  } elseif (empty($params['path']) or empty($params['text'])) {
     throw new SmartyException(t("Отсутствует URL и/или текст ссылки."));
+  } else {
+    $a = array();
+    $url = new url($params['path']);
 
-  $a = array();
-  $url = bebop_split_url($params['path']);
-
-  $a['href'] = bebop_combine_url($url);
-  $a['title'] = $params['title'];
-  $a['style'] = $params['style'];
-  $a['target'] = $params['target'];
- 
-  return mcms::html('a', $a, $params['text']);
+    $a['href'] = strval($url);
+    $a['title'] = $params['title'];
+    $a['style'] = $params['style'];
+    $a['target'] = $params['target'];
+   
+    return mcms::html('a', $a, $params['text']);
+  }
 }
