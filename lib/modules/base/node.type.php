@@ -90,7 +90,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if (empty($this->name))
       throw new ValidationException('name', t('Внутреннее имя типа '
         .'не может быть пустым.'));
-    elseif (strspn(strtolower($this->name, 'abcdefghijklmnopqrstuvwxyz0123456789_') != strlen($this->name)))
+    elseif (strspn(strtolower($this->name), 'abcdefghijklmnopqrstuvwxyz0123456789_') != strlen($this->name))
       throw new ValidationException('name', t('Внутреннее имя типа может '
         .'содержать только латинские буквы, арабские цифры и прочерк.'));
 
