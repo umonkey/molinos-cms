@@ -3,6 +3,9 @@
 
 require(dirname(__FILE__) .'/lib/bootstrap.php');
 
+// Проверка окружения.  Если что не так — выводит сообщение об ошибке.
+mcms::check();
+
 $me = new RequestController();
 
 $output = $me->getContent();
