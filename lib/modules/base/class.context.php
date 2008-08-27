@@ -159,4 +159,21 @@ class Context
       $this->_url = new url($this->getarg('url'), /* readonly = */ true);
     return $this->_url;
   }
+
+  /**
+   * Перенаправление в контексте CMS.
+   *
+   * Позволяет перенаправлять используя относительные урлы (относительно папки,
+   * в которой установлена CMS); mcms::redirect() не принимает относительные
+   * адреса.
+   *
+   * @param mixed $url текст ссылки, массив или объект url.
+   * @return void
+   */
+  public function redirect($url, $status = 301)
+  {
+    $url = new url();
+
+    mcms::redirect($url->getAbsolute($this), $status);
+  }
 }

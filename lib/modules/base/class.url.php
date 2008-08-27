@@ -449,7 +449,7 @@ class url
    *
    * @return string абсолютная ссылка.
    */
-  public function getAbsolute()
+  public function getAbsolute(Context $ctx = null)
   {
     $result = '';
 
@@ -467,7 +467,10 @@ class url
         $result .= 'localhost';
     }
 
-    $result .= mcms::path() .'/';
+    if (null !== $ctx)
+      $result .= $ctx->folder();
+
+    $result .= '/';
 
     if (self::$clean or !$this->islocal)
       $result .= ltrim($this->path, '/');
