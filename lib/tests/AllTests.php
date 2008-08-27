@@ -25,21 +25,29 @@ class AllTests
 
     $suite = new PHPUnit_Framework_TestSuite('PHPUnit Framework');
 
-    $mask = realpath(dirname(__FILE__) .'/../modules') .'/*/tests.php';
+    $mask = realpath(dirname(__FILE__) .'/../modules')
+      .'/*/{tests,class.*.test}.php';
 
-    foreach (glob($mask) as $file) {
+    foreach (glob($mask, GLOB_BRACE) as $file) {
       $module = basename(dirname($file));
-      $class = ucfirst($module) .'ModuleTests';
+
+      if ('.test.php' == substr(basename($file), -9))
+        $class = ucfirst(substr(basename($file), 6, -9)) .'Tests';
+      else
+        $class = ucfirst($module) .'ModuleTests';
 
       require_once $file;
-      if (class_exists($class, false))
+
+      if (class_exists($class, false)) {
+        printf("%s => %s\n", $file, $class);
         $suite->addTestSuite($class);
-      else
+      } else {
         die("Class {$class} not found in {$file}.\n");
+      }
     }
 
-    ini_set('error_log', dirname(__FILE__) .'/AllTests.log');
-    ini_set('display_errors', 0);
+    ini_set('error_log', dirname(__FILE__) .'/tests.log');
+    ini_set('display_errors', 1);
 
     return $suite;
   }

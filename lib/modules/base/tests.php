@@ -355,32 +355,6 @@ class BaseModuleTests extends PHPUnit_Framework_TestCase
     $this->assertEquals($post, $ndata);
   }
 
-  public function testRedirect()
-  {
-    url::__setclean(false);
-    $urls = array(
-      'admin?n=1' => mcms::path() .'/'. 'admin?n=1&q=admin',
-      'http://ya.ru' => 'http://ya.ru',
-       mcms::path() => mcms::path().'/'
-      );
-    foreach ($urls as $k => $v) {
-      $link = url::getRedirectURL($k);
-      $this->assertEquals($v, $link);
-    }
-
-    url::__setclean(true);
-    $urls = array(
-      'admin' => mcms::path().'/admin',
-      'http://ya.ru' => 'http://ya.ru',
-      'admin?n=1' => mcms::path().'/admin?n=1'
-      );
-
-    foreach ($urls as $k => $v) {
-      $link = url::getRedirectURL($k);
-      $this->assertEquals($v, $link);
-    }
-  }
-
   public function testRestore()
   {
     unlink(MCMS_ROOT.'/conf/test.db');
