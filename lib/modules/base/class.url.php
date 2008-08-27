@@ -192,6 +192,9 @@ class url
    */
   public function setarg($key, $value)
   {
+    if ($this->readonly)
+      throw new RuntimeException(t('Trying to modify an immutable URL.'));
+
     if (false === strpos($key, '.'))
       $this->args[$key] = $value;
     else {
