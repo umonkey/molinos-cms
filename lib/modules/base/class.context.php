@@ -25,15 +25,17 @@ class Context
   private $_files;
 
   /**
+   * Путь к инсталляции CMS относительно корня сайта.
+   *
+   * Например, если CMS доступна как /mcms/index.php, здесь будет "/mcms".
+   */
+  private $_folder;
+
+  /**
    * Хранит параметры в том виде, в котором они получены при создании объекта.
    * При обращении парсятся и копируются в $url, $post и $files.
    */
   private $_args;
-
-  private function __construct(array $args = array())
-  {
-    $this->args = $args;
-  }
 
   /**
    * Создание простого контекста.
@@ -42,13 +44,13 @@ class Context
    *
    * @return Context $ctx описание контекста.
    */
-  public static function make(array $args = array())
+  public function __construct(array $args = array())
   {
-    return new Context(array_merge(array(
+    $this->args = array_merge(array(
       'url' => null,
       'post' => $_POST,
       'files' => $_FILES,
-      ), $args));
+      ), $args);
   }
 
   /**
@@ -98,15 +100,58 @@ class Context
   }
 
   /**
-   * Доступ к пути текущего запроса.
+   * Определение папки, в которой установлена CMS.
+   *
+   * @return string папка, в которой установлена CMS.  Например, если она
+   * доступна как "/mcms/index.php", значение будет "/mcms"; если в корень
+   * сайта, или запуск происходит из консоли — пустая строка.
    */
-  public function path()
+  public function folder()
   {
-    return $this->url()->path;
+    if (null === $this->_folder) {
+      // Папка указана при создании объекта (используется в основном в тестах).
+      if (array_key_exists('folder', $this->args))
+        $this->_folder = $this->args['folder'];
+
+      // Запуск через веб, всё просто.
+      elseif (!empty($_SERVER['HTTP_HOST']))
+        $this->_folder = trim(dirname($_SERVER['SCRIPT_NAME']), '/');
+
+      // Запуск из командной строки.
+      else
+        $this->_folder = '';
+    }
+
+    return empty($this->_folder)
+      ? ''
+      : '/'. trim($this->_folder, '/');
+  }
+
+  /**
+   * Определение имени запрошенной страницы.
+   *
+   * @return string имя текущей страницы, без параметров (часть URL от имени
+   * хоста до вопросительного знака).  Имя не содержит путь к CMS; например,
+   * если система расположена в папке "mcms" и запрошен урл "/mcms/node/123",
+   * метод вернёт "node/123".
+   */
+  public function query()
+  {
+    $result = $this->url()->path;
+
+    // Отсекание папки из абсолютных урлов.
+    if ('/' == substr($result, 0, 1)) {
+      $folder = $this->folder() .'/';
+      $result = substr($result, strlen($folder));
+    }
+
+    return $result;
   }
 
   /**
    * Доступ к текущему URL.
+   *
+   * @return url описание ссылки.
    */
   public function url()
   {

@@ -4,13 +4,13 @@ class ContextTests extends PHPUnit_Framework_TestCase
 {
   public function testDefaultMakeNotEmpty()
   {
-    $ctx = Context::make();
+    $ctx = new Context();
     $this->assertEquals(true, empty($ctx->get));
   }
 
   public function testMakeWithEmptyArray()
   {
-    $ctx = Context::make(array());
+    $ctx = new Context(array());
     $this->assertEquals(false, empty($ctx));
   }
 
@@ -18,7 +18,7 @@ class ContextTests extends PHPUnit_Framework_TestCase
   {
     $url = 'http://www.molinos-cms.ru/?test=ok';
 
-    $ctx = Context::make(array(
+    $ctx = new Context(array(
       'url' => $url,
       ));
 
@@ -27,38 +27,35 @@ class ContextTests extends PHPUnit_Framework_TestCase
     $this->assertEquals($url, $ctx->url()->getAbsolute());
   }
 
-  public function testEmptyPath()
-  {
-    $url = 'http://www.molinos-cms.ru/?test=ok';
-
-    $ctx = Context::make(array(
-      'url' => $url,
-      ));
-
-    $this->assertEquals('/', $ctx->path());
-  }
-
-  public function testNonEmptyPath()
-  {
-    $url = 'http://www.molinos-cms.ru/test/?test=ok';
-
-    $ctx = Context::make(array(
-      'url' => $url,
-      ));
-
-    $this->assertEquals('/test/', $ctx->path());
-  }
-
   public function testGetArgs()
   {
     $url = 'http://www.molinos-cms.ru/?a=1&b=0';
 
-    $ctx = Context::make(array(
+    $ctx = new Context(array(
       'url' => $url,
       ));
 
     $this->assertEquals('1', $ctx->get('a'));
     $this->assertEquals('0', $ctx->get('b'));
+  }
+
+  public function testEmptyFolder()
+  {
+    $ctx = new Context(array(
+      'url' => '/mcms/node/123',
+      ));
+    $this->assertEquals('', $ctx->folder());
+    $this->assertEquals('mcms/node/123', $ctx->query());
+  }
+
+  public function testNonEmptyFolder()
+  {
+    $ctx = new Context(array(
+      'url' => '/mcms/node/123',
+      'folder' => 'mcms',
+      ));
+    $this->assertEquals('/mcms', $ctx->folder());
+    $this->assertEquals('node/123', $ctx->query());
   }
 
   /**
@@ -68,7 +65,7 @@ class ContextTests extends PHPUnit_Framework_TestCase
   {
     $url = 'http://www.molinos-cms.ru/?a=1&b=0';
 
-    $ctx = Context::make(array(
+    $ctx = new Context(array(
       'url' => $url,
       ));
 
