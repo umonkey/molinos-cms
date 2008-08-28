@@ -126,7 +126,7 @@ class User
   {
     $key = 'access:'. md5($sql);
 
-    if (false and is_array($result = mcms::cache($key)))
+    if (is_array($result = mcms::cache($key)))
       return $result;
 
     $result = array();
