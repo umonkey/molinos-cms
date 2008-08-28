@@ -30,10 +30,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     $result['dashboard'] = strval(new AdminMenu());
 
-    $output = self::getPage($result);
-
-    header('Content-Type: text/html; charset=utf-8');
-    die($output);
+    return self::getPage($result);
   }
 
   private static function getPage(array $data)
