@@ -11,7 +11,7 @@ class AdminTreeHandler
   protected $selectors;
   protected $zoomlink;
 
-  public function __construct(RequestContext $ctx)
+  public function __construct(Context $ctx)
   {
     $this->ctx = $ctx;
   }

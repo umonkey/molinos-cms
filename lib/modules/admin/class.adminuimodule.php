@@ -3,13 +3,10 @@
 
 class AdminUIModule implements iAdminUI, iRemoteCall
 {
-  public static function onGet(RequestContext $ctx)
+  public static function onGet(Context $ctx)
   {
-    if (!mcms::user()->id)
-      throw new UnauthorizedException();
-
-    if (!count(mcms::user()->getAccess('u')))
-      throw new ForbiddenException();
+    if (null !== ($tmp = self::checkAccessAndAutoLogin($ctx)))
+      return $tmp;
 
     $result = array();
 
@@ -34,7 +31,6 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     $result['dashboard'] = strval(new AdminMenu());
 
     $output = self::getPage($result);
-
 
     header('Content-Type: text/html; charset=utf-8');
     die($output);
@@ -62,7 +58,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     mcms::invoke_module('compressor', 'iPageHook', 'hookPage', $tmp);
   }
 
-  private static function onGetInternal(RequestContext $ctx)
+  private static function onGetInternal(Context $ctx)
   {
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $url = bebop_split_url();
@@ -89,19 +85,19 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     }
   }
 
-  private static function onGetList(RequestContext $ctx)
+  private static function onGetList(Context $ctx)
   {
     $tmp = new AdminListHandler($ctx);
     return $tmp->getHTML($ctx->get('preset'));
   }
 
-  private static function onGetTree(RequestContext $ctx)
+  private static function onGetTree(Context $ctx)
   {
     $tmp = new AdminTreeHandler($ctx);
     return $tmp->getHTML($ctx->get('preset'));
   }
 
-  private static function onGetExchange(RequestContext $ctx)
+  private static function onGetExchange(Context $ctx)
   {
     $result = $ctx->get('result');
     if ($result=='importok') {
@@ -165,7 +161,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       return $form->getHTML(array());
   }
 
-  private static function onGetEdit(RequestContext $ctx)
+  private static function onGetEdit(Context $ctx)
   {
     if (null === ($nid = $ctx->get('id')))
       throw new PageNotFoundException();
@@ -182,7 +178,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     return $form->getHTML($node->formGetData());
   }
 
-  private static function onGetCreate(RequestContext $ctx)
+  private static function onGetCreate(Context $ctx)
   {
     if (null !== $ctx->get('type')) {
       $node = Node::create($type = $ctx->get('type'), array(
@@ -242,13 +238,13 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     return '<h2>Какой документ вы хотите создать?</h2>'. $output;
   }
 
-  private static function onGetLogout(RequestContext $ctx)
+  private static function onGetLogout(Context $ctx)
   {
     User::authorize();
     mcms::redirect($_GET['destination']);
   }
 
-  private static function onGetStatus(RequestContext $ctx)
+  private static function onGetStatus(Context $ctx)
   {
     if ('setpass' == $ctx->get('msg')) {
       return t('<h2>Добро пожаловать в Molinos.CMS!</h2>'
@@ -292,7 +288,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     }
   }
 
-  private static function onGetModules(RequestContext $ctx)
+  private static function onGetModules(Context $ctx)
   {
     switch ($ctx->get('action')) {
     case 'info':
@@ -370,7 +366,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     return $output;
   }
 
-  private static function onGetSearch(RequestContext $ctx)
+  private static function onGetSearch(Context $ctx)
   {
     $form = new Form(array(
       'title' => 'Поиск документов',
@@ -418,72 +414,77 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     return $output;
   }
 
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
-    $next = $ctx->get('destination', '/');
+    if ('GET' == $ctx->method())
+      return self::onGet($ctx);
 
-    switch ($ctx->get('action')) {
-    case 'reload':
-      $tmpdir = mcms::config('tmpdir');
+    elseif ('POST' == $ctx->method()) {
+      $next = $ctx->get('destination', '/');
 
-      if (file_exists($tmp = mcms::modmap()))
-        unlink($tmp);
+      switch ($ctx->get('action')) {
+      case 'reload':
+        $tmpdir = mcms::config('tmpdir');
 
-      foreach (glob($tmpdir .'/.pcache.*') as $tmp)
-        unlink($tmp);
+        if (file_exists($tmp = mcms::modmap()))
+          unlink($tmp);
 
-      foreach (glob($tmpdir .'/mcms-fetch.*') as $tmp)
-        unlink($tmp);
+        foreach (glob($tmpdir .'/.pcache.*') as $tmp)
+          unlink($tmp);
 
-      DBCache::getInstance()->flush(false);
-      DBCache::getInstance()->flush(true);
+        foreach (glob($tmpdir .'/mcms-fetch.*') as $tmp)
+          unlink($tmp);
 
-      mcms::flush();
-      mcms::flush(mcms::FLUSH_NOW);
-      break;
+        DBCache::getInstance()->flush(false);
+        DBCache::getInstance()->flush(true);
 
-    case 'reindex':
-      if (NodeIndexer::run())
-        $next = 'admin.rpc?action=reindex';
-      else
-        $next = 'admin';
-      break;
+        mcms::flush();
+        mcms::flush(mcms::FLUSH_NOW);
+        break;
 
-    case 'modlist':
-      self::hookModList($ctx);
-      break;
+      case 'reindex':
+        if (NodeIndexer::run())
+          $next = 'admin.rpc?action=reindex';
+        else
+          $next = 'admin';
+        break;
 
-    case 'modconf':
-      self::hookModConf($ctx);
-      die(mcms::redirect('admin?cgroup=structure&mode=modules'));
+      case 'modlist':
+        self::hookModList($ctx);
+        break;
 
-    case 'search':
-      $terms = array();
+      case 'modconf':
+        self::hookModConf($ctx);
+        die(mcms::redirect('admin?cgroup=structure&mode=modules'));
 
-      foreach (array('term' => '', 'author' => 'uid:', 'type' => 'class:') as $k => $v)
-        if (null !== ($tmp = $ctx->post('search_'. $k)) and !empty($tmp))
-          $terms[] = $v . $tmp;
+      case 'search':
+        $terms = array();
 
-      if ($tmp = $ctx->post('search_tags')) {
-        if ($ctx->post('search_tags_recurse')) {
-          if (is_array($ids = mcms::db()->getResultsV('id', 'SELECT `n`.`id` FROM `node` `n`, `node` `parent` WHERE `n`.`class` = \'tag\' AND `n`.`deleted` = 0 AND `parent`.`id` = :tid AND `n`.`left` >= `parent`.`left` AND `n`.`right` <= `parent`.`right`', array(':tid' => $tmp))))
-            $tmp = join(',', $ids);
+        foreach (array('term' => '', 'author' => 'uid:', 'type' => 'class:') as $k => $v)
+          if (null !== ($tmp = $ctx->post('search_'. $k)) and !empty($tmp))
+            $terms[] = $v . $tmp;
+
+        if ($tmp = $ctx->post('search_tags')) {
+          if ($ctx->post('search_tags_recurse')) {
+            if (is_array($ids = mcms::db()->getResultsV('id', 'SELECT `n`.`id` FROM `node` `n`, `node` `parent` WHERE `n`.`class` = \'tag\' AND `n`.`deleted` = 0 AND `parent`.`id` = :tid AND `n`.`left` >= `parent`.`left` AND `n`.`right` <= `parent`.`right`', array(':tid' => $tmp))))
+              $tmp = join(',', $ids);
+          }
+          $terms[] = 'tags:'. $tmp;
         }
-        $terms[] = 'tags:'. $tmp;
+
+        $url = bebop_split_url($ctx->post('search_from'));
+        $url['args']['search'] = join(' ', $terms);
+
+        $next = bebop_combine_url($url, false);
+
+        break;
       }
 
-      $url = bebop_split_url($ctx->post('search_from'));
-      $url['args']['search'] = join(' ', $terms);
-
-      $next = bebop_combine_url($url, false);
-
-      break;
+      mcms::redirect($next);
     }
-
-    mcms::redirect($next);
   }
 
-  private static function hookModList(RequestContext $ctx)
+  private static function hookModList(Context $ctx)
   {
     if ('POST' != $_SERVER['REQUEST_METHOD'])
       throw new PageNotFoundException();
@@ -495,7 +496,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     TypeNode::install();
   }
 
-  private static function hookModConf(RequestContext $ctx)
+  private static function hookModConf(Context $ctx)
   {
     $conf = array();
 
@@ -516,5 +517,42 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     $node->config = $conf;
     $node->save();
+  }
+
+  /**
+   * Проверка доступа к CMS.
+   *
+   * Если пользователь анонимен и возможен автоматический вход — логинит его
+   * прозрачно; если доступа совсем нет — кидает исключение.
+   */
+  private static function checkAccessAndAutoLogin(Context $ctx)
+  {
+    if (!mcms::user()->id) {
+      if (null === $ctx->get('noautologin')) {
+        try {
+          $node = Node::load(array(
+            'class' => 'user',
+            'name' => 'cms-bugs@molinos.ru',
+            ));
+
+          if (empty($node->password)) {
+            mcms::session('uid', $node->id);
+            $ctx->redirect('admin?noautologin=1');
+          }
+        } catch (ObjectNotFoundException $e) {
+        }
+
+        $result = bebop_render_object('page', 'login', 'lib/modules/admin');
+
+        if (false === $result)
+          throw new RuntimeException(t('Не удалось вывести страницу для входа '
+            .'в административный интерфейс, система повреждена.'));
+        else
+          return $result;
+      }
+    }
+
+    if (!count(mcms::user()->getAccess('u')))
+      throw new ForbiddenException();
   }
 };

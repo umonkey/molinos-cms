@@ -26,8 +26,8 @@ interface iRequestHook
   /**
    * Обработка запроса.
    *
-   * @param RequestContext $ctx Описание контекста, если выполняется
+   * @param Context $ctx Описание контекста, если выполняется
    * пост-обработка, или NULL, если пре-модерация.
    */
-  public static function hookRequest(RequestContext $ctx = null);
+  public static function hookRequest(Context $ctx = null);
 };

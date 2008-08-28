@@ -112,11 +112,11 @@ class MenuWidget extends Widget implements iWidget
   /**
    * Препроцессор параметров.
    *
-   * @param RequestContext $ctx контекст запроса.
+   * @param Context $ctx контекст запроса.
    *
    * @return array выбранные из контекста параметры, относящиеся к виджету.
    */
-  public function getRequestOptions(RequestContext $ctx)
+  public function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 
@@ -129,8 +129,8 @@ class MenuWidget extends Widget implements iWidget
     else
       $options['root'] = $ctx->section->id;
 
-    $options['current'] = $ctx->section_id;
-    $options['document'] = $ctx->document_id;
+    $options['current'] = $ctx->section;
+    $options['document'] = $ctx->document;
 
     return $this->options = $options;
   }

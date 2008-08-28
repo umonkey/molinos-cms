@@ -22,7 +22,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     closedir($hdl);
   }
 
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     $exchmode = $ctx->post('exchmode');
     $result = '';
@@ -408,7 +408,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     return $icons;
   }
 
-  public static function onGet(RequestContext $ctx)
+  public static function onGet(Context $ctx)
   {
     if (null !== ($tmp = $ctx->get('result')))
       return self::getResult($tmp);

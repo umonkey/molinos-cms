@@ -30,7 +30,7 @@ class MsgModule implements iRemoteCall
     throw new InvalidArgumentException(t('Получатель сообщения должен быть указан числом или объектом Node.'));
   }
 
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     $next = null;
 

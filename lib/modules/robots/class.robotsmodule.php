@@ -20,7 +20,7 @@ class RobotsModule implements iModuleConfig, iRequestHook
   {
   }
 
-  public static function hookRequest(RequestContext $ctx = null)
+  public static function hookRequest(Context $ctx = null)
   {
     if (null === $ctx and '/robots.txt' == $_SERVER['REQUEST_URI']) {
       $conf = mcms::modconf('robots');

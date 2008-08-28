@@ -3,7 +3,7 @@
 
 class CommentListHandler extends AdminListHandler implements iAdminUI, iAdminMenu
 {
-  public static function onGet(RequestContext $ctx)
+  public static function onGet(Context $ctx)
   {
     $tmp = new CommentListHandler($ctx);
     $output = $tmp->getHTML('comments');

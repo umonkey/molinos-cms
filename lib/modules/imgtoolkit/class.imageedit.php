@@ -9,7 +9,7 @@ class ImageEdit implements iRemoteCall
   private $nw;
   private $nh;
 
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     $img = new ImageEdit($ctx);
     $img->sendFile();
@@ -37,7 +37,7 @@ class ImageEdit implements iRemoteCall
   private $node = null;
   private $mergeNode = null;
 
-  public function __construct(RequestContext $ctx)
+  public function __construct(Context $ctx)
   {
     // Если кроме id аттачмента ничего не задали, ругаемся
     if (null == $ctx->get('fid', null) or null == $ctx->get('scale', null))

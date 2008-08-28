@@ -3,7 +3,7 @@
 
 class InstallModule implements iRemoteCall
 {
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     if (self::checkInstalled())
       throw new RuntimeException(t('Molinos CMS уже установлена.'));
@@ -47,7 +47,7 @@ class InstallModule implements iRemoteCall
     return false;
   }
 
-  public static function onGet(RequestContext $ctx)
+  public static function onGet(Context $ctx)
   {
     self::checkEnvironment();
 
@@ -165,7 +165,7 @@ class InstallModule implements iRemoteCall
       );
   }
 
-  public static function onPost(RequestContext $ctx)
+  public static function onPost(Context $ctx)
   {
     $pdo = null;
 

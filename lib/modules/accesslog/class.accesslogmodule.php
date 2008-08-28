@@ -18,7 +18,7 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
   }
 
   // Препроцессор параметров.
-  public function getRequestOptions(RequestContext $ctx)
+  public function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 
@@ -26,7 +26,7 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
   }
 
   // Обработка GET запросов.
-  public static function onGet(RequestContext $ctx)
+  public static function onGet(Context $ctx)
   {
     $tmp = new AccessLogListHandler($ctx);
     return $tmp->getHTML();
@@ -205,7 +205,7 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
   }
 
   // Обработка статистики
-  public static function hookRequest(RequestContext $ctx = null)
+  public static function hookRequest(Context $ctx = null)
   {
     if (null !== $ctx) {
       $conf = mcms::modconf('accesslog');

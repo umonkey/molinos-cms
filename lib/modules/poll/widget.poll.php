@@ -32,7 +32,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
   }
 
   // Препроцессор параметров.
-  public function getRequestOptions(RequestContext $ctx)
+  public function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 

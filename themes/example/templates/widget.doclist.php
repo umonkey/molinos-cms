@@ -8,8 +8,9 @@ if (!empty($documents)) {
 		print '<ul class="articles">';
 		foreach ($documents as $doc){
 			print '<li>';
-			print '<h2><a href="node/' . $doc['id'] . '/">' . $doc['name'] . '</a></h2>';
-			print $doc['teaser'];
+			print '<h2><a href="node/' . $doc['id'] . '">' . $doc['name'] . '</a></h2>';
+      if (!empty($doc['teaser']))
+        print $doc['teaser'];
 			print '</li>';
 		};
 		print '<ul>';

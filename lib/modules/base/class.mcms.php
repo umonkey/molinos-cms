@@ -862,8 +862,7 @@ class mcms
       if (null !== $backtrace)
         $html .= '<h2>Стэк вызова</h2><pre>'. $backtrace .'</pre>';
 
-      $html .= '<hr/><em>Molinos CMS v'. mcms::version() .' at '.
-        $_SERVER['HTTP_HOST'] .'</em>';
+      $html .= '<hr/>'. self::getSignature();
 
       $html .= '</body></html>';
 
@@ -1324,9 +1323,7 @@ class mcms
       if (null !== $backtrace)
         $html .= '<h2>Стэк вызова</h2><pre>'. $backtrace .'</pre>';
 
-      $html .= '<hr/><em>Molinos CMS v'. mcms::version() .' at '.
-        $_SERVER['HTTP_HOST'] .'</em>';
-
+      $html .= '<hr/>'. self::getSignature();
       $html .= '</body></html>';
 
       header('Content-Length: '. strlen($html));
@@ -1423,6 +1420,20 @@ class mcms
       header('Content-Length: '. strlen($output));
       die($output);
     }
+  }
+
+  private static function getSignature()
+  {
+    $ctx = new Context();
+
+    $at = mcms::html('a', array(
+      'href' => $ctx->url()->getBase($ctx),
+      ), $ctx->host() . $ctx->folder());
+
+    $sig = '<em>Molinos CMS v'. mcms::version()
+      .' at '. $at .'</em>';
+
+    return $sig;
   }
 };
 

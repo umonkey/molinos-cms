@@ -3,7 +3,7 @@
 
 class XspfModule implements iRemoteCall, iModuleConfig
 {
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     if (!count($nids = explode(',', $ctx->get('nodes'))))
       throw new InvalidArgumentException('Nodes not specified.');

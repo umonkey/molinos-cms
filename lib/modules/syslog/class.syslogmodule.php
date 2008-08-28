@@ -17,7 +17,7 @@ class SysLogModule implements iAdminUI, iAdminMenu
   }
 
   // Обработка GET запросов.
-  public static function onGet(RequestContext $ctx)
+  public static function onGet(Context $ctx)
   {
     $tmp = new SyslogListHandler($ctx);
     return $tmp->getHTML();

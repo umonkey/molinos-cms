@@ -2,7 +2,7 @@
 
 class OpenIdModule implements iRemoteCall
 {
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     $openidinfo = $ctx->get('openid');
 

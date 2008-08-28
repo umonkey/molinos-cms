@@ -3,7 +3,7 @@
 
 class RSSModule implements iRemoteCall, iAdminMenu, iAdminUI
 {
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     if (null === ($name = $ctx->get('feed')))
       throw new PageNotFoundException(t('Вы не указали имя RSS ленты: '
@@ -39,7 +39,7 @@ class RSSModule implements iRemoteCall, iAdminMenu, iAdminUI
     return $icons;
   }
 
-  public static function onGet(RequestContext $ctx)
+  public static function onGet(Context $ctx)
   {
     $tmp = new RSSListHandler($ctx);
     return $tmp->getHTML();

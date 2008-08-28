@@ -62,11 +62,11 @@ interface iWidget
    * Выбирает из окружения всю информацию, необходимую виджету для обработки
    * запроса, возвращает её в виде одного простого массива.
    *
-   * @param RequestContext $ctx контекст запроса.
+   * @param Context $ctx контекст запроса.
    *
    * @return array параметры виджета.
    */
-  public function getRequestOptions(RequestContext $ctx);
+  public function getRequestOptions(Context $ctx);
 
   /**
    * Получение кода формы.

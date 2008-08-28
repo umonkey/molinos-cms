@@ -12,7 +12,7 @@ class SyslogListHandler extends AdminListHandler
     $this->noedit = true;
   }
 
-  public function __construct(RequestContext $ctx)
+  public function __construct(Context $ctx)
   {
     parent::__construct($ctx);
   }

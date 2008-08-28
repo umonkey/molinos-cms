@@ -73,7 +73,7 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
     }
   }
 
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     $path = self::get_file_path();
 

@@ -37,7 +37,7 @@ class MessageListWidget extends Widget
     return $form;
   }
 
-  public function getRequestOptions(RequestContext $ctx)
+  public function getRequestOptions(Context $ctx)
   {
     $options = array(
       'uid' => mcms::user()->id,

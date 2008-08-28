@@ -99,11 +99,11 @@ class TagsWidget extends Widget implements iWidget
   /**
    * Препроцессор параметров.
    *
-   * @param RequestContext $ctx параметры запроса.
+   * @param Context $ctx параметры запроса.
    *
    * @return array массив с параметрами виджета.
    */
-  public function getRequestOptions(RequestContext $ctx)
+  public function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 

@@ -55,11 +55,11 @@ class TitleWidget extends Widget
   /**
    * Препроцессор параметров.
    *
-   * @param RequestContext $ctx контекст вызова.
+   * @param Context $ctx контекст вызова.
    *
    * @return array параметры виджета.
    */
-  public function getRequestOptions(RequestContext $ctx)
+  public function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 

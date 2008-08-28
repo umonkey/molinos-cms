@@ -134,11 +134,11 @@ class ListWidget extends Widget
    *
    * Выбирает из информации о контексте параметры, относящиеся к этому виджету.
    *
-   * @param RequestContext $ctx контекст запроса.
+   * @param Context $ctx контекст запроса.
    *
    * @return array массив с параметрами.
    */
-  public function getRequestOptions(RequestContext $ctx)
+  public function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 
@@ -163,11 +163,11 @@ class ListWidget extends Widget
         $options['filter']['tags'] = array($ctx->root);
       elseif ('always' == $this->fallbackmode and !empty($this->fixed))
         $options['filter']['tags'] = array($this->fixed);
-      elseif (null !== ($tmp = $ctx->section_id))
-        $options['filter']['tags'] = array($ctx->section_id);
+      elseif (null !== ($tmp = $ctx->section->id))
+        $options['filter']['tags'] = array($tmp);
 
       if ($this->skipcurrent)
-        $options['current_document'] = $ctx->document_id;
+        $options['current_document'] = $ctx->document->id;
 
       if (is_array($tmp = $ctx->get('classes')))
         $options['filter']['class'] = array_unique($tmp);
@@ -270,9 +270,6 @@ class ListWidget extends Widget
     if (empty($filter['tags']))
       return null;
 
-    if ($this->getInstanceName() == 'tracker')
-      unset($filter['tags']);
-
     $result = array(
       'path' => array(),
       'section' => array(),
@@ -282,7 +279,7 @@ class ListWidget extends Widget
 
     // Возращаем путь к текущему корню.
     // FIXME: это неверно, т.к. виджет может возвращать произвольный раздел!
-    if (null !== $this->ctx->section_id) {
+    if (null !== $this->ctx->section->id) {
       foreach ($this->ctx->section->getParents() as $node)
         $result['path'][] = $node->getRaw();
     }
@@ -488,8 +485,8 @@ class ListWidget extends Widget
       if (!empty($options['search']))
         $query['#search'] = $options['search'];
 
-      if ($this->skipcurrent and null !== $this->ctx->document_id)
-        $query['-id'] = $this->ctx->document_id;
+      if ($this->skipcurrent and null !== $this->ctx->document->id)
+        $query['-id'] = $this->ctx->document->id;
 
       if (!empty($query['tags'])) {
         if (!is_array($query['tags']))

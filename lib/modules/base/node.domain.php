@@ -529,4 +529,154 @@ class DomainNode extends Node implements iContentType
       $tmp->options = $dirs;
     }
   }
+
+  /**
+   * Рендеринг страницы.
+   *
+   * Загружает прикреплённые к странице виджеты, загружает результаты их работы
+   * из кэша, отсутствующие в кэше виджеты рендерятся на лету.
+   *
+   * @return string содержимое для выдачи клиенту.
+   */
+  public function render(Context $ctx)
+  {
+    $ctx->theme = $this->theme;
+
+    $data = array(
+      'base' => $ctx->url()->getBase($ctx),
+      'lang' => $ctx->getLang(),
+      'page' => $this->getRaw(),
+      'widgets' => $this->getWidgetData($ctx),
+      );
+
+    $html = bebop_render_object('page', $this->template_name,
+      $this->theme, $data);
+
+    $content_type = empty($this->content_type)
+      ? 'text/html'
+      : $this->content_type;
+
+    if (bebop_is_debugger() and 'page' == $ctx->get('debug'))
+      mcms::debug(array(
+        'template_name' => $this->template_name,
+        'data' => $data,
+        ));
+
+    header('Content-Type: '. $content_type .'; charset=utf-8');
+
+    return $html;
+  }
+
+  /**
+   * Рендеринг отдельных виджетов.
+   *
+   * Возвращает массив отрендеренных виджетов, name => html.
+   */
+  private function getWidgetData(Context $ctx)
+  {
+    // Получаем массив всех виджетов, готовых к рендерингу.
+    $objects = $this->getWidgetObjects($ctx);
+
+    // Получаем кэшированные виджеты.
+    $result = $this->getCachedWidgets($ctx, $objects);
+
+    // Добавляем виджеты, отсутствующие в кэше, кэширует их.
+    $this->getNonCachedWidgets($ctx, $objects, $result);
+
+    return $result;
+  }
+
+  /**
+   * Получение массива виджетов.
+   *
+   * Возвращает объекты виджетов, прикреплённые к странице и доступные для
+   * вывода (некоторые виджеты могут отказаться работать).
+   *
+   * @return array массив виджетов.
+   */
+  private function getWidgetObjects(Context $ctx)
+  {
+    $objects = array();
+
+    $widgets = Node::find(array(
+      'class' => 'widget',
+      'published' => true,
+      'tags' => $this->id,
+      ));
+
+    foreach ($widgets as $w) {
+      if (!empty($w->classname) and class_exists($w->classname)) {
+        $wo = new $w->classname($w);
+        $tmp = $wo->getRequestOptions($ctx);
+
+        if (is_array($tmp))
+          $objects[] = $wo;
+        elseif (false !== $tmp)
+          throw new RuntimeException(t('%class::getRequestOptions() '
+            .'должен вернуть массив или false.',
+            array('%class' => get_class($wo))));
+      }
+    }
+
+    return $objects;
+  }
+
+  /**
+   * Получение виджетов из кэша.
+   *
+   * Загружает из кэша результаты работы виджетов.
+   *
+   * @return array данные виджетов, name => content.
+   */
+  private function getCachedWidgets(Context $ctx, array $objects)
+  {
+    // TODO: работа с кэшем через DBCache или вручную.
+    // Не забыть учесть #cache => false.
+    return array();
+  }
+
+  /**
+   * Рендеринг виджетов, отсутствующих в кэше.
+   *
+   * Возвращает отрендеренные блоки виджетов, не найденных в кэше.  Попутно
+   * кэширует их, если это не запрещено конкретными виджетами.
+   */
+  private function getNonCachedWidgets(Context $ctx, array $objects, array &$result)
+  {
+    // Данные для включения в кэш.
+    $cache = array();
+
+    foreach ($objects as $o) {
+      $name = $o->getInstanceName();
+
+      if (!array_key_exists($name, $result)) {
+        if ('' !== ($result[$name] = strval($o->render($ctx))))
+          if (!empty($o->options['#cache']))
+            $cache[$o->getCacheKey()] = $result[$name];
+      }
+    }
+
+    $this->saveWidgetsToCache($ctx, $cache);
+  }
+
+  /**
+   * Сохраняет в кэше отрендеренные блоки виджетов.
+   */
+  private function saveWidgetsToCache(Context $ctx, array $data)
+  {
+    if (!empty($data)) {
+      $db = mcms::db();
+      $lang = $ctx->getLang();
+
+      $db->beginTransaction();
+
+      foreach ($data as $k => $v) {
+        if (is_string($v))
+          $db->exec("REPLACE INTO `node__cache` (`cid`, `lang`, `data`) "
+            ."VALUES (?, ?, ?)", array($k, $lang, $v));
+      }
+
+      $db->commit();
+    }
+  }
 };

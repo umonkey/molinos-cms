@@ -3,7 +3,7 @@
 
 class AutocompleteModule implements iRemoteCall
 {
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     if (null !== $ctx->get('source') and null !== $ctx->get('q')) {
       $output = array();

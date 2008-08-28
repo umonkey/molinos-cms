@@ -3,7 +3,7 @@
 
 class Updater implements iAdminUI, iRemoteCall
 {
-  public static function onGet(RequestContext $ctx)
+  public static function onGet(Context $ctx)
   {
     $version = mcms::version();
     $available = mcms::version(mcms::VERSION_AVAILABLE);
@@ -53,7 +53,7 @@ class Updater implements iAdminUI, iRemoteCall
     return $output;
   }
 
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     switch ($ctx->get('action')) {
     case 'update':

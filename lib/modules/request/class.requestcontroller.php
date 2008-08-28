@@ -3,792 +3,246 @@
 
 class RequestController
 {
+  private $ctx;
+
   private $page = null;
   private $widgets = array();
-  private $begin = null;
 
   private $get_vars = array();
-  private $post_vars = array();
 
   private $context = null;
 
   private $root = null;
-  private static $killfiles = null;
 
-  public function __construct()
+  /**
+   * Базовая настройка обработки запроса.
+   *
+   * Определяет контекст, если он не указан; больше ничего не делает.
+   */
+  public function __construct(Context $ctx = null)
   {
-    ob_start();
+    if (null === $ctx)
+      $ctx = new Context();
 
-    $url = new url();
-
-    try {
-      // FIXME: переписать нафиг этот класс!
-      // Issue 318.
-      if ('install.rpc' == $url->path) {
-        RequestContext::setGlobal();
-        InstallModule::hookRemoteCall(RequestContext::getGlobal());
-      } else {
-        $this->run();
-      }
-    } catch (NotInstalledException $e) {
-      mcms::redirect('index.php?q=install.rpc&msg='. $e->get_type());
-    }
+    $this->ctx = $ctx;
   }
 
-  public function __destruct()
-  {
-    $this->cleanFiles();
-  }
-
-  private function run()
-  {
-    $pdo = null;
-
-    try {
-      User::identify();
-
-      if (!BebopConfig::getInstance()->isok())
-        throw new NotInstalledException('config');
-
-      $this->begin = microtime(true);
-
-      $this->parseGet();
-
-      if ($_SERVER['REQUEST_METHOD'] == 'POST')
-        $this->parsePost();
-
-      if (null !== ($tmp = $this->parseSpecialPath()))
-        return $tmp;
-
-      $this->parsePath();
-
-      mcms::invoke('iRequestHook', 'hookRequest', array(RequestContext::getGlobal()));
-
-      switch ($_SERVER["REQUEST_METHOD"]) {
-      case 'GET':
-      case 'HEAD':
-        $this->runGet();
-
-        break;
-
-      case 'POST':
-        $this->runPost();
-        break;
-
-      default:
-        throw new UserErrorException("Метод не поддерживается", 405, "Метод {$_SERVER['REQUEST_METHOD']} не поддерживается", "Вы послали запрос, который сервер обработать не может.");
-        break;
-      }
-    } catch (NotInstalledException $e) {
-      throw $e;
-    } catch (Exception $e) {
-      if (ob_get_length())
-        ob_end_clean();
-
-      if (404 == $e->getCode()) {
-        try {
-          $new = mcms::db()->getResult("SELECT new FROM node__fallback WHERE old = ?",
-            array($_SERVER['REQUEST_URI']));
-          if (!empty($new))
-            mcms::redirect($new, 302);
-        } catch (PDOException $e2) { }
-      }
-
-      $message = $e->getMessage();
-
-      if (bebop_is_debugger())
-        $message = get_class($e) .': '. $message;
-
-      mcms::log('request', 'showing '. get_class($e));
-
-      bebop_on_json(array('message' => $message));
-
-      if ($this->renderError($e))
-        return;
-
-      throw $e;
-    }
-
-    // Сбрасываем кэш, если были запросы.
-    mcms::flush(mcms::FLUSH_NOW);
-
-    PDO_Singleton::disconnect();
-  }
-
-  // Возвращает нагенерированный обработчиками контент.
-  public function getContent()
-  {
-    return ob_get_clean();
-  }
-
-  private function parsePath()
-  {
-    mcms::invoke('iRequestHook', 'hookRequest', array());
-
-    // Запрашиваем структуру домена.  Если запрошен несуществующий
-    // домен, исключение будет брошено автоматически.
-    try {
-      $map = self::getUrlsForDomain($_SERVER['HTTP_HOST']);
-    } catch (PDOException $e) {
-      if ($e->getCode() == '42S02')
-        throw new NotInstalledException('table');
-      else
-        throw $e;
-    }
-
-    // Убедимся, что на конце урла есть слэш.
-    $url = new url();
-
-    // Начинаем поиск отсюда.
-    $this->root = $root = $map;
-
-    // Текущий путь, будем вырезать из него фрагменты по мере обработки.
-    $apath = explode('/', trim($url->path, '/'));
-
-    // Разобранные элементы пути.
-    $ppath = array();
-
-    // Здесь будет последний активный путь.
-    $last_active = null;
-
-    // Продвигаемся вглубь урлов, пока не закончится путь.
-    while (!empty($apath)) {
-      $current = array_shift($apath);
-
-      if (!empty($root['children'])) {
-        foreach ($root['children'] as $url) {
-          if (empty($url['deleted']) and $url['name'] == $current) {
-            $root = $url;
-            $ppath[] = $current;
-            $current = null;
-          }
-        }
-      }
-
-      // Если подходящий элемент не был найден -- прекращаем поиск.
-      if ($current !== null) {
-        array_unshift($apath, $current);
-        break;
-      }
-    }
-
-    // Сохраним информацию о текущей странице.  Список детей не очищаем, если
-    // вдруг шаблону взбредёт в голову его использовать -- на здоровье.
-    $this->page = Node::create($root['class'], $root);
-
-    // Сохраняем контекст, для виджетов.
-    RequestContext::setGlobal($ppath, $apath, $this->page);
-
-    // Если запрошен отдельный виджет, загружаем его.
-    if (!empty($_GET['widget'])) {
-      try {
-        $widgets = array(Node::load(array('class' => 'widget', 'name' => $_GET['widget'])));
-      } catch (ObjectNotFoundException $e) {
-        throw new UserErrorException("Виджет не найден", 404, "Виджет не найден", "Запрошенного виджета у нас нет.");
-      }
-    }
-
-    // Загружаем все виджеты для страницы.
-    else {
-      $key = "page:{$this->page->id}:widgets";
-
-      // FIXME: почему-то в кэш мусор попадает
-      $widgets = mcms::cache($key);
-
-      if ($widgets === false) {
-        $widgets = Node::find(array(
-          'class' => 'widget',
-          'id' => $this->page->linkListChildren('widget', true),
-          '#cache' => true,
-          ));
-        mcms::cache($key, $widgets);
-      }
-    }
-
-    if (is_array($widgets)) {
-      // Обрабатываем виджеты, превращая их в контроллеры.
-      foreach ($widgets as $widget) {
-        if (!mcms::class_exists($class = $widget->classname)) {
-          mcms::log('request', $widget->name .': skipped, unknown class: '.
-              $class);
-          continue;
-        }
-
-        $obj = new $class($widget);
-
-        // Обрабатываем только виджеты, остальной мусор, если он сюда
-        // как-то попал, пропускаем, чтобы не получить исключение.
-        if (!($obj instanceof Widget))
-          mcms::debug($obj);
-
-        // Параметризация виджета.
-        $ctx = RequestContext::getWidget(
-          array_key_exists($widget->name, $this->get_vars) ? $this->get_vars[$widget->name] : array(),
-          array_key_exists($widget->name, $this->post_vars) ? $this->post_vars[$widget->name] : array(),
-          array()
-          );
-
-        try {
-          $this->widgets[$widget->name] = array(
-            'cache_key' => $obj->getCacheKey($ctx),
-            'options' => $obj->getRequestOptions($ctx),
-            'object' => $obj,
-            );
-        } catch (WidgetHaltedException $e) {
-        }
-      }
-    }
-
-    // Готовимся к обработке запроса.
-    // $this->page->prepareSmarty(null);
-  }
-
-  private function parseSpecialPath()
-  {
-    $url = new url();
-
-    switch (trim($url->path, '/')) {
-    case 'info.php':
-      if (bebop_is_debugger())
-        phpinfo();
-      break;
-
-    case 'admin':
-      if (class_exists('AdminUIModule')) {
-        $ctx = RequestContext::getWidget($url->args, $this->post_vars);
-
-        if (null === ($tmp = AdminUIModule::onGet($ctx)))
-          throw new RuntimeException(t('Не удалось отобразить страницу административного интерфейса.'));
-
-        mcms::debug($tmp);
-        return $tmp;
-      }
-      break;
-    }
-  }
-
-  // Разбивает параметры GET-запроса на модули.
-  private function parseGet()
-  {
-    $this->get_vars = array();
-
-    $urlinfo = new url();
-
-    foreach ($urlinfo->args as $k => $v) {
-      if (is_array($v))
-        $this->get_vars[$k] = $v;
-    }
-  }
-
-  private function parsePost()
-  {
-    $this->post_vars = array();
-
-    foreach ($_POST as $k => $v) {
-      $point = strpos($k, '_', 1);
-      if ($point !== false) {
-        $module_name = substr($k, 0, $point);
-        $var_name = substr($k, $point + 1);
-
-        if (!array_key_exists($module_name, $this->post_vars))
-          $this->post_vars[$module_name] = array();
-
-        $this->post_vars[$module_name][$var_name] = $v;
-      }
-    }
-  }
-
-  private function cleanFiles()
-  {
-    return;
-
-    foreach ($this->file_vars as $module => $files) {
-      foreach ($files as $group) {
-        foreach ($group as $file) {
-          if (file_exists($file['tmp_name'])) {
-            unlink($file['tmp_name']);
-          }
-        }
-      }
-    }
-
-    if (is_array(self::$killfiles)) {
-      foreach (self::$killfiles as $f) {
-        if (file_exists($f) and is_writable($dir = dirname($f)))
-          unlink($f);
-      }
-    }
-  }
-
-  public static function killfile($filename)
-  {
-    self::$killfiles[] = $filename;
-  }
-
-  private function runGet()
-  {
-    static $pdo = null;
-
-    // Сюда складываем время выполнения виджетов.
-    $profile = array('__total' => microtime(true));
-
-    // Сюда будем складывать блоки для смарти.
-    $blocks = array('widgets' => array());
-
-    // Эта штука будет нас кэшировать.
-    $cache = new DBCache($this->page->language);
-    $allextras = $widgetextr = $dt = array();
-
-    // Загружаем закэшированные виджеты.
-    if (empty($_GET['widget']))
-      $this->getCachedWidgets($cache, $blocks, $profile);
-
-    $allextras = mcms::get_extras();
-    // Обрабатываем оставшиеся виджеты.
-    foreach ($this->widgets as $name => $info) {
-      if (null === $pdo)
-        $pdo = mcms::db();
-
-      $time = microtime(true);
-
-      if (bebop_is_debugger() and !empty($_GET['profile']))
-        $pdo->log("--- {$name}.onGet() ---");
-
-      $pdo->beginTransaction();
-
-      try {
-        $data = $info['object']->onGet($info['options']);
-        $pdo->commit();
-      } catch (Exception $e) {
-        $pdo->rollback();
-        throw $e;
-      }
-
-      $blocks[$name] = $data;
-
-      // Пытаемся отрендерить.
-      if (is_string($data))
-        $blocks['widgets'][$name] = $data;
-
-      elseif (!empty($data['html']) and is_string($data['html'])) {
-        $blocks['widgets'][$name] = $data['html'];
-        $data = $data['html'];
-      }
-
-      elseif (($html = $info['object']->render($this->page, $data)) !== null) {
-        $blocks['widgets'][$name] = $html;
-        $data = $html;
-        $widgetextr = mcms::get_extras();
-        $allextras = array_merge($allextras, $widgetextr);
-      }
-
-      // Кэшируем, если можно.
-      if (!empty($info['cache_key']) and (empty($_GET['nocache']) or !bebop_is_debugger())) {
-        $dt['html']   = $data;
-        $dt['extras'] = $widgetextr;
-        $cache->$info['cache_key'] = $dt;
-      }
-
-      $profile[$name] = microtime(true) - $time;
-    }
-
-    if (!empty($_GET['widget'])) {
-      if (!array_key_exists($_GET['widget'], $blocks['widgets'])) {
-        if (bebop_is_json() and array_key_exists($_GET['widget'], $blocks) and !empty($blocks[$_GET['widget']]))
-          bebop_on_json($blocks[$_GET['widget']]);
-
-        mcms::debug("Widget {$_GET['widget']} not found.", $blocks);
-        throw new PageNotFoundException();
-      }
-
-      $data = $blocks['widgets'][$_GET['widget']];
-      header('Content-Type: text/html; charset=utf-8');
-      header('Content-Length: '. strlen($data));
-      die($data);
-    }
-
-    foreach ($allextras as $ex => $v)
-      mcms::extras($ex);
-
-    // Рендерим страницу.
-    $time = microtime(true);
-    $output = $this->page->renderSmarty($blocks);
-    $profile['__smarty'] = microtime(true) - $time;
-
-    if (!empty($_GET['widget_debug']))
-      mcms::debug($blocks);
-
-    $profile['__total'] = microtime(true) - $profile['__total'];
-    $profile['__request'] = microtime(true) - $this->begin;
-
-    if (!empty($_GET['profile']) and bebop_is_debugger()) {
-      $this->printProfileData($profile);
-      exit();
-    }
-
-    $output = str_replace('$execution_time', $profile['__request'], $output);
-
-    if (mcms::ismodule('compressor') and mcms::modconf('compressor', 'strip_html'))
-      $output = preg_replace('@\>\s+\<@', '><', $output);
-
-    $args = array(&$output, $this->page);
-    mcms::invoke('iPageHook', 'hookPage', $args);
-
-    $this->page->sendHeaders();
-
-    if ($_SERVER['REQUEST_METHOD'] == 'GET')
-      print $output;
-  }
-
-  private function printProfileData(array $data = null)
+  /**
+   * Обработка запроса.
+   *
+   * Вызывает один из методов onGet(), onPost() итд; если обработчик не найден —
+   * бросает исключение BadRequest.  Если произошло обращение к RPC или
+   * специальной странице (на данный момент — только "admin"), вместо этих
+   * методов вызывается обработчик RPC.
+   *
+   * Перед обработкой вызывается iRequestHook::hookRequest() с указанием
+   * контекста.
+   */
+  public function run()
   {
     header('Content-Type: text/html; charset=utf-8');
 
-    $link = bebop_split_url();
-    $link['args']['profile'] = null;
-    $url = bebop_combine_url($link);
+    if (null !== ($result = $this->checkRPC()))
+      return $result;
 
-    print "<html><head><title>Profile Info &mdash; Molinos.CMS</title><style type='text/css'>body { font-family: monospace } td { padding-right: 10px } li { margin-bottom: .5em }</style></head><body><p><em>You see this information because your IP address is added to the configuration file.</em></p>";
-    print "<p><a href='". htmlspecialchars($url) ."'>Disable profiling</a>.</p>";
+    $method = 'on'. ucfirst(strtolower($this->ctx->method()));
 
-    if ($data !== null) {
-      asort($data);
-      print "<h1>Widget Timing</h1><table><tr><th>Widget</th><th>Time</th><th>Cache</th></tr>";
-      foreach ($data as $k => $v) {
-        if (substr($k, 0, 2) == '__')
-          continue;
-        print "<tr><td>{$k}</td><td style='text-align: left'>{$v}</td><td>no</td></tr>";
-      }
-      print "<tr style='background-color: #ddd'><td>smarty</td><td style='text-align: left'>{$data['__smarty']}</td><td>&nbsp;</td></tr>";
-      print "<tr style='background-color: #ddd'><td>page total</td><td style='text-align: left'>{$data['__total']}</td><td>&nbsp;</td></tr>";
-      print "<tr style='background-color: #ddd'><td>request total</td><td style='text-align: left'>{$data['__request']}</td><td>&nbsp;</td></tr>";
-      print "<tr style='background-color: #ddd'><td>SQL queries</td><td style='text-align: left'>". mcms::db()->getLogSize() ."</td><td>&nbsp;</td></tr>";
-      print "</table>";
+    if (method_exists($this, $method)) {
+      mcms::invoke('iRequestHook', 'hookRequest', array($this->ctx));
+
+      return call_user_func(array($this, $method));
+    } else {
+      throw new BadRequestException(t('Метод %method не поддерживается.',
+        array('%method' => $this->ctx->method())), 405);
     }
-
-    $log = mcms::db()->getLog();
-    if (!empty($log)) {
-      print "<h1>SQL Query Log</h1><ol>";
-      foreach ($log as $query)
-        print "<li>". mcms_plain($query) ."</li>";
-      print "</ol>";
-    }
-
-    print "</body></html>";
   }
 
-  private function runPost()
+  /**
+   * Обработка запросов методом GET.
+   *
+   * Находит нужную типовую страницу и вызывает её рендеринг.
+   *
+   * @return string результат для выдачи пользователю.
+   */
+  protected function onGet()
   {
-    $redirect = null;
+    return $this->locatePage($this->ctx)
+      ->render($this->ctx);
+  }
 
-    // Проверяем, есть ли у нас обработчик формы.
-    if (array_key_exists('form_handler', $_POST))
-      if (!array_key_exists($_POST['form_handler'], $this->widgets))
-        throw new PageNotFoundException(t("Обработчик формы (%widget) не найден.", array('%widget' => $_POST['form_handler'])));
-      elseif (empty($_POST['form_id']))
-        throw new InvalidArgumentException(t("Не указан идентификатор формы."));
-      else
-        $form_handler = $_POST['form_handler'];
+  /**
+   * Заглушка для обработчика POST.
+   *
+   * Выводит сообщение о том, что все формы нужно слать на RPC.
+   */
+  protected function onPost()
+  {
+    throw new BadRequestException(t('Формы и другие запросы методом POST '
+      .'нужно отправлять на RPC (имя_модуля.rpc).'));
+  }
+
+  private function locatePage(Context $ctx)
+  {
+    $ids = $path = array();
+    $domain = $this->locateDomain($ctx);
+
+    // При обращении к главной странице экономим на подгрузке детей.
+    if (null !== $ctx->query()) {
+      $domain->loadChildren();
+
+      $ids = explode('/', trim($ctx->query(), '/'));
+
+      while (!empty($ids)) {
+        $found = false;
+
+        if (is_array($domain->children)) {
+          foreach ($domain->children as $page) {
+            if ($ids[0] == $page->name) {
+              $found = true;
+              $domain = $page;
+              $path[] = array_shift($ids);
+            }
+          }
+        }
+
+        // Если подходящая страница не найдена — прерываем поиск, $ids
+        // содержат потенциальные идентификаторы объектов.
+        if (!$found)
+          break;
+      }
+    }
+
+    if (empty($path))
+      $domain->template_name = 'index';
     else
-      $form_handler = null;
+      $domain->template_name = join('-', $path);
 
-    $pdo = mcms::db();
+    $this->setContextObjectIds($ctx, $domain, $ids);
 
-    foreach ($this->widgets as $name => $info) {
-      $pdo->log("--- {$name}.onGet() ---");
-
-      $post = empty($this->post_vars[$name]) ? array() : $this->post_vars[$name];
-      $files = empty($this->file_vars[$name]) ? array() : $this->file_vars[$name];
-
-      try {
-        $res = null;
-        $this->decodeInputButtons($post);
-
-        $pdo->beginTransaction();
-
-        if ($name == $form_handler) {
-          if (null !== ($form = $info['object']->formGet($_POST['form_id']))) {
-            if ($form->validate($_POST)) {
-              $data = $_POST;
-
-              unset($data['form_id']);
-              unset($data['form_handler']);
-
-              $res = $info['object']->formProcess($_POST['form_id'], $data);
-            } else {
-              throw new InvalidArgumentException(t("Form did not validate."));
-            }
-          }
-        } else {
-          $res = $info['object']->onPost($info['options'], $post, $files);
-        }
-
-        if (!empty($res) and is_string($res))
-          $redirect = $res;
-        $pdo->commit();
-      } catch (WidgetHaltedException $e) {
-        $pdo->rollback();
-      } catch (Exception $e) {
-        $pdo->rollback();
-        throw $e;
-      }
-    }
-
-    $this->cleanFiles();
-
-    if (is_array($res) and array_key_exists('redirect', $res)) {
-      $redirect = $res['redirect'];
-    } elseif (is_array($res)) {
-      bebop_on_json($res);
-    }
-
-    if (empty($redirect)) {
-      if (!empty($_GET['destination']))
-        $redirect = $_GET['destination'];
-      elseif (!empty($_SERVER['HTTP_REFERER']))
-        $redirect = $_SERVER['HTTP_REFERER'];
-      else
-        $redirect = $_SERVER['REQUEST_URI'];
-    }
-
-    // mcms::debug($redirect);
-
-    if (bebop_is_debugger() and !empty($_GET['postprofile']))
-      exit($this->printProfileData());
-
-    mcms::redirect($redirect);
+    return $domain;
   }
 
-  // Декодирование кнопок.  Проблема в том, что значение элемента <input> -- его текст,
-  // который и приходит на сервер при нажатии на кнопку.  Этот текст, как правило,
-  // локализован, и приходит на непонятном языке.  Чтобы эту проблему обойти, мы
-  // добавляем к каждой кнопке скрытый элемент (hidden), формирующий масив вида:
-  //
-  //   текст => реальное значение
-  //
-  // Таким образом, при обработке формы мы можем однозначно выяснить, какая кнопка
-  // была нажата пользователем, в удобном для нас виде.
-  private function decodeInputButtons(array &$post)
+  private function setContextObjectIds(Context $ctx, DomainNode $page, array $ids)
   {
-    // Декодируем кнопки.
-    if (array_key_exists('button_values', $post) and is_array($post['button_values'])) {
-      foreach ($post['button_values'] as $button => $values) {
-        if (empty($post[$button])) {
-          unset($post['button_values'][$button]);
-        }
+    $sec = null;
+    $doc = null;
 
-        else {
-          foreach ($values as $k => $v) {
-            if ($post[$button] == $k) {
-              $post[$button] = $v;
-            }
-          }
-        }
+    $load = array();
+
+    switch ($page->params) {
+    case 'sec':
+      if (null === ($sec = array_shift($ids)))
+        $sec = $page->defaultsection;
+      $load[] = $sec;
+      break;
+    case 'doc':
+      $load[] = $doc = array_shift($ids);
+      break;
+    case 'sec+doc':
+      if (null === ($sec = array_shift($ids)))
+        $sec = $page->defaultsection;
+      $load[] = $sec;
+      $load[] = $doc = array_shift($ids);
+      break;
+    }
+
+    // Остался мусор в урле — страница не найдена.
+    if (!empty($ids))
+      throw new PageNotFoundException();
+
+    // Загружаем объекты.
+    if (!empty($load)) {
+      $nodes = Node::find(array(
+        'id' => $load,
+        ));
+
+      // Найдено не всё: сообщаем об ошибке.
+      if (count($nodes) != count($load)) {
+        $message = null;
+
+        if (null !== $sec and !array_key_exists($sec, $nodes))
+          $message = t('Раздел не найден.');
+        elseif (null !== $doc and !array_key_exists($doc, $nodes))
+          $message = t('Объект не найден.');
+
+        throw new PageNotFoundException($message);
       }
 
-      unset($post['button_values']);
+      // Записываем объекты в контекст.
+      if (null !== $sec)
+        $ctx->section = $nodes[$sec];
+      if (null !== $doc)
+        $ctx->document = $nodes[$doc];
     }
   }
 
-  // Возвращает дерево урлов для текущего домена.
-  private function getUrlsForDomain($domain)
+  private function locateDomain(Context $ctx)
   {
-    $tree = DomainNode::getSiteMap();
+    $domains = Node::find(array(
+      'class' => 'domain',
+      'parent_id' => null,
+      'published' => true,
+      ));
 
-    if (empty($tree))
+    if (empty($domains))
       throw new NotInstalledException('domain');
 
-    if (is_array($tree)) {
-      foreach ($tree as $nid => $branch) {
-        // Точное совпадение, возвращаем.
-        if ($branch['name'] == $domain)
-          return $branch;
+    elseif (count($domains) == 1)
+      return array_shift($domains);
 
-        // Найден алиас -- редиректим.
-        if (in_array($domain, $branch['aliases'])) {
-          $url = new url();
-          $url->host = $branch['name'];
-          $url->path = mcms::path() .'/';
+    $host = $ctx->host();
 
-          exit(mcms::redirect(strval($url)));
-        }
-      }
+    foreach ($domains as $dom) {
+      // Точное совпадение, возвращаем домен.
+      if ($host == $dom->name)
+        return $dom;
+
+      // TODO: поддержка алиасов.
     }
 
-    if (!empty($tree))
-      return array_shift($tree);
-
-    throw new UserErrorException("Домен не найден", 404, "Домен &laquo;{$domain}&raquo; не обслуживается");
+    throw new PageNotFoundException();
   }
 
-  private function getValidDomains(array $tree)
+  private function checkRPC()
   {
-    $list = array();
+    $q = $this->ctx->query();
 
-    foreach ($tree as $domain) {
-      $tmp = mcms::html('a', array(
-        'class' => 'hostname',
-        'href' => 'http://'. $domain['name'] .'/',
-        ), empty($domain['title']) ? $domain['name'] : $domain['title']);
+    if ('admin' == $q)
+      $q .= '.rpc';
 
-      if (!empty($domain['description']))
-        $tmp .= '<br />'. $domain['description'];
+    if ('.rpc' == substr($q, -4)) {
+      $module = substr($q, 0, -4);
 
-      $list[] = mcms::html('li', $tmp);
-    }
+      $map = mcms::getModuleMap();
 
-    if (!empty($list)) {
-      $output = '<div class=\'domainlist\'>';
-      $output .= '<p>На данный момент обслуживаются следующие домены:</p>';
-      $output .= '<ol>'. join('', $list) .'</ol>';
-      $output .= '</div>';
-    } else {
-      $output = '<p>На данный момент сервером не обслуживает ни один домен.&nbsp; Скорее всего, сервер не до конца настроен.</p>';
-    }
+      if (array_key_exists($module, $map['modules'])) {
+        $result = null;
 
-    if (bebop_is_debugger())
-      $output .= '<p>'. l(self::getDomainConfigLink(), 'Настроить домены') .'</p>';
+        if ('post' == $this->ctx->method())
+          mcms::db()->beginTransaction();
 
-    return $output;
-  }
-
-  // Загрузка виджетов из кэша.
-  private function getCachedWidgets(DBCache $cache, array &$blocks, array &$profile)
-  {
-    // Засекаем время.
-    $time = microtime(true);
-
-    try {
-      if (empty($_GET['nocache']) or !bebop_is_debugger()) {
-        // Список всех идентификаторов кэша.
-        $keys = array();
-
-        // Формируем список идентификаторов.
-        foreach ($this->widgets as $k => $v) {
-          if (!empty($v['cache_key'])) {
-            if (false !== ($tmp = mcms::cache('widget:'. $v['cache_key']))) {
-              if (array_key_exists('html', $tmp))
-                $blocks['widgets'][$k] = $tmp['html'];
-              if (array_key_exists('extras', $tmp))
-                foreach ($tmp['extras'] as $k => $v)
-                  mcms::extras($k, $v);
-              unset($this->widgets[$k]);
-            } else {
-              $keys[] = $v['cache_key'];
-            }
+        if (!empty($map['modules'][$module]['implementors']['iRemoteCall'])) {
+          foreach ($map['modules'][$module]['implementors']['iRemoteCall'] as $class) {
+            if (mcms::class_exists($class))
+              $result = call_user_func_array(array($class, 'hookRemoteCall'),
+                array($this->ctx));
           }
-        }
 
-        if (!empty($keys)) {
-          $lang = empty($this->page->language) ? 'en' : $this->page->language;
-          $rows = mcms::db()->getResultsKV("cid", "data", "SELECT `cid`, `data` FROM `node__cache` "
-            ."WHERE `lang` = ? AND `cid` IN ('". join("', '", $keys) ."') "
-            ."-- RequestController::getCachedWidgets()", array($lang));
+          if ('post' == $this->ctx->method())
+            mcms::db()->commit();
 
-          // Разгребаем данные, найденные в кэше.
-          foreach ($rows as $cid => $data) {
-            $data = unserialize($data);
+          if (null !== $result)
+            return $result;
 
-            mcms::cache('widget:'. $cid, $data);
-
-            foreach ($this->widgets as $name => $info) {
-              // Виджет найден в кэше.  Добавляем его в отрендеренные и удаляем из списка виджетов.
-              if ($info['cache_key'] == $cid) {
-                // Готовый HTML код.
-                if (is_array($data) && array_key_exists('html',$data)) {
-                  $blocks['widgets'][$name] = $data['html'];
-                  if (!empty($data['extras'])) {
-                     foreach ($data['extras'] as $ex=>$v)
-                       mcms::extras($ex);
-                  }
-                  unset($this->widgets[$name]);
-                }
-                else if (is_string($data)) {
-                  $blocks['widgets'][$name] = $data;
-                  unset($this->widgets[$name]);
-                }
-
-                // Массив данных.
-                else {
-                  $blocks[$name] = $data;
-                }
-              }
-            }
-          }
+          header('HTTP/1.1 200 OK');
+          header('Content-Type: text/plain; charset=utf-8');
+          die('Request not handled.');
         }
       }
-    } catch (PDOException $e) {
-      // FIXME: после введения автосоздаваемых таблиц это ещё нужно?
-      if ($e->getCode() == '42S02')
-        throw new NotInstalledException('table');
-      else
-        throw $e;
+
+      header('HTTP/1.1 404 Not Found');
+      header('Content-Type: text/plain; charset=utf-8');
+      die('Request handler not found.');
     }
-
-    // Добавляем информацию в профайлер.
-    $profile['__cache'] = microtime(true) - $time;
-  }
-
-  private function renderError(Exception $e)
-  {
-    if (bebop_is_debugger() and mcms::config('pass_exceptions') and $e->getCode() != 401 and $e->getCode() != 403)
-      return false;
-
-    mcms::report($e);
-
-    if (null !== $this->page)
-      $theme = $this->page->theme;
-    elseif (null !== $this->root)
-      $theme = $this->root->theme;
-    else
-      $theme = 'all';
-
-    $output = bebop_render_object("error", $e->getCode(), $theme, array('error' => array(
-      'code' => $e->getCode(),
-      'type' => get_class($e),
-      'message' => $e->getMessage(),
-      'description' => method_exists($e, 'getDescription') ? $e->getDescription() : 'Внутренняя ошибка',
-      'note' => method_exists($e, 'getNote') ? $e->getNote() : $e->getMessage(),
-      'stack' => bebop_is_debugger() ? mcms::backtrace($e) : null,
-      )));
-
-    if (mcms::ismodule('compressor') and mcms::modconf('compressor', 'strip_html'))
-      $output = preg_replace('@\>\s+\<@', '><', $output);
-
-    if (!is_numeric($code = $e->getCode()))
-      $code = 500;
-
-    header("HTTP/1.1 {$code} Error");
-    header("Content-Type: text/html; charset=utf-8");
-    header("Content-Length: ". strlen($output));
-    die($output);
-  }
-
-  private function findErrorTemplate($theme, $code)
-  {
-    if (file_exists($fname = "htdocs/themes/{$theme}/templates/error.{$code}.tpl"))
-      return $fname;
-    if (file_exists($fname = "htdocs/themes/{$theme}/templates/error.default.tpl"))
-      return $fname;
-    return null;
-  }
-
-  private function findErrorPage($name)
-  {
-    // Ищем в текущем домене.
-    if (!empty($this->root['children'])) {
-      foreach ($this->root['children'] as $page) {
-        if ($page['name'] == $name)
-          return $page;
-      }
-    }
-
-    return null;
-  }
-
-  private function getDomainConfigLink()
-  {
-    if (!mcms::user()->id or mcms::user()->hasAccess('c', 'domain'))
-      return 'admin/?cgroup=structure&mode=tree&preset=pages&msg=welcome';
   }
 }

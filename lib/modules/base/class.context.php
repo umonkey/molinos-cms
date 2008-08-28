@@ -46,7 +46,7 @@ class Context
    */
   public function __construct(array $args = array())
   {
-    $this->args = array_merge(array(
+    $this->_args = array_merge(array(
       'url' => null,
       'post' => $_POST,
       'files' => $_FILES,
@@ -77,11 +77,11 @@ class Context
    */
   public function post($key, $default = null)
   {
-    if (null === $this->post)
-      $this->post = $this->getarg('post', array());
+    if (null === $this->_post)
+      $this->_post = $this->getarg('post', array());
 
-    return array_key_exists($key, $this->post)
-      ? $this->post[$key]
+    return array_key_exists($key, $this->_post)
+      ? $this->_post[$key]
       : $default;
   }
 
@@ -91,9 +91,9 @@ class Context
    */
   private function getarg($name, $default = null)
   {
-    if (array_key_exists($name, $this->args)) {
-      $default = $this->args[$name];
-      unset($this->args[$name]);
+    if (array_key_exists($name, $this->_args)) {
+      $default = $this->_args[$name];
+      unset($this->_args[$name]);
     }
 
     return $default;
@@ -110,8 +110,8 @@ class Context
   {
     if (null === $this->_folder) {
       // Папка указана при создании объекта (используется в основном в тестах).
-      if (array_key_exists('folder', $this->args))
-        $this->_folder = $this->args['folder'];
+      if (array_key_exists('folder', $this->_args))
+        $this->_folder = $this->_args['folder'];
 
       // Запуск через веб, всё просто.
       elseif (!empty($_SERVER['HTTP_HOST']))
@@ -172,7 +172,7 @@ class Context
    */
   public function redirect($url, $status = 301)
   {
-    $url = new url();
+    $url = new url($url);
 
     mcms::redirect($url->getAbsolute($this), $status);
   }
@@ -182,11 +182,70 @@ class Context
    */
   public function method()
   {
-    if (array_key_exists('method', $this->args))
-      return $this->args['method'];
+    if (array_key_exists('method', $this->_args))
+      return $this->_args['method'];
     elseif (array_key_exists('REQUEST_METHOD', $_SERVER))
       return $_SERVER['REQUEST_METHOD'];
     else
       return 'GET';
+  }
+
+  /**
+   * Возвращает имя текущего хоста.
+   */
+  public function host()
+  {
+    if (array_key_exists('host', $this->_args))
+      return $this->_args['host'];
+    elseif ($host = $this->url()->host)
+      return $host;
+    elseif (array_key_exists('HTTP_HOST', $_SERVER))
+      return $_SERVER['HTTP_HOST'];
+    else
+      return 'localhost';
+  }
+
+  /**
+   * Возвращает язык, предпочитаемый пользователем.
+   *
+   * Язык выбирается из списка доступных для текущей страницы.  Если язык
+   * неопределён — возвращает '??'.
+   */
+  public function getLang()
+  {
+    return '??';
+  }
+
+  private function __get($key)
+  {
+    switch ($key) {
+    case 'section':
+    case 'document':
+      if (!array_key_exists($key, $this->_args))
+        return Node::create('dummy');
+      return $this->_args[$key];
+    case 'theme':
+      if (!array_key_exists($key, $this->_args))
+        throw new InvalidArgumentException(t('Свойство %name не определено'
+          .' в этом контексте.', array('%name' => $key)));
+      return $this->_args[$key];
+    }
+  }
+
+  private function __set($key, $value)
+  {
+    switch ($key) {
+    case 'section':
+    case 'document':
+    case 'theme':
+      if (array_key_exists($key, $this->_args))
+        throw new InvalidArgumentException(t('Свойство %name уже определено'
+          .' в этом контексте.', array('%name' => $key)));
+      $this->_args[$key] = $value;
+      break;
+    default:
+      throw new InvalidArgumentException(t('Неизвестное свойство '
+        .'контекста: %name.', array('%name' => $key)));
+    }
   }
 }

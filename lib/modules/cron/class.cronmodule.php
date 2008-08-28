@@ -20,7 +20,7 @@ class CronModule implements iModuleConfig, iRemoteCall
   {
   }
 
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     if (!self::isClientAllowed())
       throw new ForbiddenException(t('Вам не позволено запускать периодические задачи.'));

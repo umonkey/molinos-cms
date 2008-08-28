@@ -61,7 +61,7 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
     return $form;
   }
 
-  public function getRequestOptions(RequestContext $ctx)
+  public function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 

@@ -3,5 +3,5 @@
 
 interface iAdminUI
 {
-  public static function onGet(RequestContext $ctx);
+  public static function onGet(Context $ctx);
 };

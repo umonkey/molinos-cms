@@ -444,33 +444,14 @@ class url
    * получения абсолютной версии достаточно будет strval($url).  Кроме того, это
    * будет логически правильнее.
    *
-   * @param RequestContext $ctx контекст, в котором существуют локальные ссылки.
+   * @param Context $ctx контекст, в котором существуют локальные ссылки.
    * Используется, в основном, при написании тестов.
    *
    * @return string абсолютная ссылка.
    */
   public function getAbsolute(Context $ctx = null)
   {
-    $result = '';
-
-    if (!$this->islocal) {
-      $result .= $this->scheme
-        ? $this->scheme : 'http';
-
-      $result .= '://';
-
-      if (!empty($this->host))
-        $result .= $this->host;
-      elseif (!empty($_SERVER['HTTP_HOST']))
-        $result .= $_SERVER['HTTP_HOST'];
-      else
-        $result .= 'localhost';
-    }
-
-    if (null !== $ctx)
-      $result .= $ctx->folder();
-
-    $result .= '/';
+    $result = $this->getBase($ctx);
 
     if (self::$clean or !$this->islocal)
       $result .= ltrim($this->path, '/');
@@ -480,6 +461,30 @@ class url
       $result .= 'index.php';
 
     $result .= $this->getArgsAsString();
+
+    return $result;
+  }
+
+  public function getBase(Context $ctx = null)
+  {
+    $result = '';
+
+    $result .= $this->scheme
+      ? $this->scheme : 'http';
+
+    $result .= '://';
+
+    if (!empty($this->host))
+      $result .= $this->host;
+    elseif (!empty($_SERVER['HTTP_HOST']))
+      $result .= $_SERVER['HTTP_HOST'];
+    else
+      $result .= 'localhost';
+
+    if (null !== $ctx)
+      $result .= $ctx->folder();
+
+    $result .= '/';
 
     return $result;
   }

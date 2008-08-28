@@ -171,7 +171,7 @@ function bebop_on_json(array $result)
 }
 
 // Применяет шаблон к данным.
-function bebop_render_object($type, $name, $theme = null, $data, $classname = null)
+function bebop_render_object($type, $name, $theme = null, $data = array(), $classname = null)
 {
   // Префикс всегда фиксированный и показывает на корень сайта.  Это нужно
   // для корректной подгрузки стилей и скриптов, а также для работы
@@ -188,6 +188,10 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
     }
   }
 
+  // Сокращённое указание темы, дополняем.
+  if (false === strpos($theme, '/'))
+    $theme = 'themes/'. $theme .'/templates';
+
   if ($data instanceof Exception) {
     $data = array('error' => array(
       'code' => $data->getCode(),
@@ -200,23 +204,25 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
   }
 
   // Варианты шаблонов для этого объекта.
-  if (null !== $type and null !== $name)
+  if (null !== $type and null !== $name) {
     $__options = array(
-      "themes/{$theme}/templates/{$type}.{$name}.tpl",
-      "themes/{$theme}/templates/{$type}.{$name}.php",
-      "themes/{$theme}/templates/{$type}.{$name}.phtml",
-      "themes/{$theme}/templates/{$type}.default.tpl",
-      "themes/{$theme}/templates/{$type}.default.php",
-      "themes/{$theme}/templates/{$type}.default.phtml",
-      "themes/all/templates/{$type}.{$name}.tpl",
-      "themes/all/templates/{$type}.{$name}.php",
-      "themes/all/templates/{$type}.{$name}.phtml",
-      "themes/all/templates/{$type}.default.tpl",
-      "themes/all/templates/{$type}.default.php",
-      "themes/all/templates/{$type}.default.phtml",
+      "{$theme}/{$type}.{$name}.tpl",
+      "{$theme}/{$type}.{$name}.php",
+      "{$theme}/{$type}.{$name}.phtml",
+      "{$theme}/{$type}.default.tpl",
+      "{$theme}/{$type}.default.php",
+      "{$theme}/{$type}.default.phtml",
       );
-  else
+  } else {
     $__options = array();
+  }
+
+  // Передаём шаблону путь к шкуре.
+  $data['theme'] = $theme;
+
+  // Исправляем разделители пути (для Windows итд).
+  foreach ($__options as $k => $v)
+    $__options[$k] = str_replace('/', DIRECTORY_SEPARATOR, $v);
 
   if (!mcms::ismodule('smarty')) {
     foreach ($__options as $k => $v) {
@@ -238,9 +244,10 @@ function bebop_render_object($type, $name, $theme = null, $data, $classname = nu
     }
   }
 
-  foreach ($__options as $__filename)
+  foreach ($__options as $__filename) {
     if (false !== ($output = mcms::render($__filename, $data)))
       return $output;
+  }
 
   return false;
 }

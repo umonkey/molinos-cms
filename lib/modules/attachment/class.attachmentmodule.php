@@ -14,7 +14,7 @@ class AttachmentModule implements iRemoteCall
   static $node = null;
   static $realname = null;
 
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     $folder = $ctx->get('folder', 'attachment');
 

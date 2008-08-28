@@ -165,11 +165,11 @@ abstract class Widget implements iWidget
    * настройки, которые переопределяют или дополняют переданные извне параметры,
    * нужно переопределить этот метод (можно в начале вызвать родительский).
    *
-   * @param RequestContext $ctx контекст запроса.
+   * @param Context $ctx контекст запроса.
    *
    * @return array параметры виджета.
    */
-  public function getRequestOptions(RequestContext $ctx)
+  public function getRequestOptions(Context $ctx)
   {
     if ($this->onlyathome and null !== $ctx->section_id)
       throw new WidgetHaltedException();
@@ -180,6 +180,7 @@ abstract class Widget implements iWidget
     $options = array();
     $options['groups'] = array_keys($this->user->getGroups());
     $options['__cleanurls'] = mcms::config('cleanurls');
+    $options['#cache'] = true;
 
     sort($options['groups']);
 
@@ -218,24 +219,9 @@ abstract class Widget implements iWidget
    *
    * @return string ключ (md5-слепок параметров).
    */
-  public final function getCacheKey(RequestContext $ctx)
+  public final function getCacheKey()
   {
-    if (!$this->checkPreConditions($ctx->apath, $ctx->get))
-      throw new WidgetHaltedException();
-
-    $options = $this->getRequestOptions($ctx);
-
-    $url = new url();
-
-    if ('admin' == trim($url->path, '/') and empty($options['groups']))
-      $options['groups'] = $this->user->getGroups();
-
-    if (!empty($options['#nocache']))
-      return null;
-
-    $options['#instance'] = $this->getInstanceName();
-
-    return md5(serialize($options));
+    return md5(serialize($this->options));
   }
 
   /**
@@ -356,15 +342,27 @@ abstract class Widget implements iWidget
    *
    * @return string результат работы шаблона или NULL.
    */
-  public final function render($page, $args, $class = null)
+  public final function render(Context $ctx)
   {
-    $args['instance'] = $this->getInstanceName();
-    $args['lang'] = $page->language;
+    if (!is_array($data = $this->onGet($this->options))) {
+      $output = $data;
+    } else {
+      $data['instance'] = $this->getInstanceName();
+      $data['lang'] = $ctx->getLang();
 
-    $output = bebop_render_object('widget', $this->getInstanceName(), $page->theme, $args, get_class($this));
+      $output = bebop_render_object('widget', $data['instance'], $ctx->theme,
+          $data, get_class($this));
+    }
 
-    if ((null === $output) and !empty($args['html']) and is_string($args['html']))
-      $output = $args['html'];
+    if (false === $output and array_key_exists('html', $data))
+      $output = $data['html'];
+
+    if (bebop_is_debugger() and 'widget' == $ctx->get('debug'))
+      if ($data['instance'] == $ctx->get('widget'))
+        mcms::debug(array(
+          'input' => $data,
+          'output' => $output,
+          ));
 
     return $output;
   }

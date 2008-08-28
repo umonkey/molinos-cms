@@ -122,7 +122,7 @@ class NodeBase
    */
   public final function __toString()
   {
-    return $this->id;
+    return strval($this->id);
   }
 
   // Достаёт объект из кэша.

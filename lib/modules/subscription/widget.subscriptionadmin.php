@@ -17,7 +17,7 @@ class SubscriptionAdminWidget extends Widget implements iScheduler, iAdminMenu
   }
 
   // Препроцессор параметров.
-  public function getRequestOptions(RequestContext $ctx)
+  public function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 

@@ -168,7 +168,7 @@ class DrawTextModule implements iModuleConfig, iRemoteCall
   {
   }
 
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     $options = array();
     $conf = mcms::modconf('drawtext');

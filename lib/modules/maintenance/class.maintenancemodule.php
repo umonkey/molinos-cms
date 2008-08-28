@@ -25,7 +25,7 @@ class MaintenanceModule implements iModuleConfig, iRequestHook
   {
   }
 
-  public static function hookRequest(RequestContext $ctx = null)
+  public static function hookRequest(Context $ctx = null)
   {
     if (null === $ctx) {
       $conf = mcms::modconf('maintenance');

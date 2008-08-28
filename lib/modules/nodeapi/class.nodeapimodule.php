@@ -3,7 +3,7 @@
 
 class NodeApiModule implements iRemoteCall
 {
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     if ($ctx->get('action') == 'mass')
       $next = self::doMassAction($ctx);
@@ -20,7 +20,7 @@ class NodeApiModule implements iRemoteCall
     mcms::redirect($next);
   }
 
-  private static function doMassAction(RequestContext $ctx)
+  private static function doMassAction(Context $ctx)
   {
     if (!empty($_POST['nodes']) and !empty($_POST['action']) and is_array($_POST['action'])) {
       foreach ($_POST['action'] as $action) {
@@ -33,7 +33,7 @@ class NodeApiModule implements iRemoteCall
     }
   }
 
-  private static function doSingleAction(RequestContext $ctx, $action = null, $nid = null)
+  private static function doSingleAction(Context $ctx, $action = null, $nid = null)
   {
     if (null === $action)
       $action = $ctx->get('action');

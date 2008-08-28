@@ -34,10 +34,10 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
    * При успешно обработанных запросах от XMLHttpRequest возвращает
    * JSON объект с параметром status=ok.
    *
-   * @param RequestContext $ctx используется для доступа к GET/POST данным.
+   * @param Context $ctx используется для доступа к GET/POST данным.
    * @return void
    */
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     $next = null;
     $methods = array('login', 'logout', 'su', 'restore', 'openid');
@@ -54,7 +54,7 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
     if (null === $next)
       $next = $ctx->get('destination', '/');
 
-    mcms::redirect($next);
+    $ctx->redirect($next);
   }
 
   private static function login($uid)
@@ -74,10 +74,10 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
    * Если указан GET-параметр onerror, он используется как адрес для
    * редиректа при ошибке входа.
    *
-   * @param RequestContext $ctx используется для доступа к GET/POST данным.
+   * @param Context $ctx используется для доступа к GET/POST данным.
    * @return string адрес перенаправления пользователя.
    */
-  protected static function onRemoteLogin(RequestContext $ctx)
+  protected static function onRemoteLogin(Context $ctx)
   {
     if (null !== ($otp = $ctx->get('otp'))) {
       try {
@@ -134,10 +134,10 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
    * Если пользователь был ранее идентифицирован с помощью
    * action=su, происходит возврат к предыдущему пользователю.
    *
-   * @param RequestContext $ctx используется для доступа к GET/POST данным.
+   * @param Context $ctx используется для доступа к GET/POST данным.
    * @return string адрес перенаправления пользователя.
    */
-  protected static function onRemoteLogout(RequestContext $ctx)
+  protected static function onRemoteLogout(Context $ctx)
   {
     if (is_array($stack = mcms::session('uidstack'))) {
       $uid = array_pop($stack);
@@ -164,10 +164,10 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
    *
    * Это действие доступно только отладчикам.
    *
-   * @param RequestContext $ctx используется для доступа к GET/POST данным.
+   * @param Context $ctx используется для доступа к GET/POST данным.
    * @return string адрес перенаправления пользователя.
    */
-  protected static function onRemoteSu(RequestContext $ctx)
+  protected static function onRemoteSu(Context $ctx)
   {
     if (!bebop_is_debugger())
       throw new ForbiddenException(t('У вас нет прав доступа к sudo'));
@@ -204,10 +204,10 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
    * пользователя, поэтому если вспомнить пароль и изменить его,
    * неиспользованные одноразовые ссылки перестанут работать.
    *
-   * @param RequestContext $ctx используется для доступа к GET/POST данным.
+   * @param Context $ctx используется для доступа к GET/POST данным.
    * @return string адрес перенаправления пользователя.
    */
-  protected static function onRemoteRestore(RequestContext $ctx)
+  protected static function onRemoteRestore(Context $ctx)
   {
     $back = new url($ctx->post('destination'));
 
@@ -266,10 +266,10 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
    * Используется (???) для работы OpenID.
    * Кажется это давно было перенесено в mod_openid.
    *
-   * @param RequestContext $ctx используется для доступа к GET/POST данным.
+   * @param Context $ctx используется для доступа к GET/POST данным.
    * @return void
    */
-  protected static function onRemoteOpenid(RequestContext $ctx)
+  protected static function onRemoteOpenid(Context $ctx)
   {
     if (!empty($_GET['openid_mode']))
       $node = OpenIdProvider::openIDAuthorize($_GET['openid_mode']);

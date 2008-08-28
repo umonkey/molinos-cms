@@ -25,7 +25,7 @@ class AdminListHandler
   // Кэшируем для исключения повторных вызовов.
   private $count = null;
 
-  public function __construct(RequestContext $ctx)
+  public function __construct(Context $ctx)
   {
     $this->ctx = $ctx;
 

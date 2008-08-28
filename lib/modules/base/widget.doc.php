@@ -83,11 +83,11 @@ class DocWidget extends Widget implements iWidget
    *
    * @return array параметры, необходимые виджеты
    *
-   * @param RequestContext $ctx контекст запроса.  Используемые GET-параметры:
+   * @param Context $ctx контекст запроса.  Используемые GET-параметры:
    * action, код раздела (если используется возврат информации о соседях), код
    * документа (если не используется возврат фиксированного документа).
    */
-  public function getRequestOptions(RequestContext $ctx)
+  public function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 
@@ -102,10 +102,10 @@ class DocWidget extends Widget implements iWidget
     }
 
     if ($this->showneighbors)
-      $options['section'] = $ctx->section_id;
+      $options['section'] = $ctx->section;
 
     if (empty($this->fixed))
-      $options['root'] = $ctx->document_id;
+      $options['root'] = $ctx->document;
     else
       $options['root'] = $this->fixed;
 
@@ -152,9 +152,7 @@ class DocWidget extends Widget implements iWidget
       'schema' => array(),
       );
 
-    if ($root = $options['root']) {
-      $node = Node::load(array('id' => $options['root'], '#recurse' => 1));
-
+    if (null !== ($node = $this->getDocument())) {
       if (in_array($node->class, array('tag', 'config')))
         throw new PageNotFoundException();
 
@@ -212,5 +210,18 @@ class DocWidget extends Widget implements iWidget
     $form->addClass('tabbed');
 
     return $form->getHTML($node->formGetData());
+  }
+
+  private function getDocument()
+  {
+    if ($this->options['root'] instanceof Node)
+      return $this->options['root']->id
+        ? $this->options['root']
+        : null;
+
+    elseif (!empty($this->options['root']))
+      return Node::load($this->options['root']);
+
+    return null;
   }
 };

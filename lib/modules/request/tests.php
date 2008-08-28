@@ -16,7 +16,7 @@ class RequestModuleTests extends PHPUnit_Framework_TestCase
     $node = Node::find(array('class' => 'domain'));
     $node = array_pop($node);
     $this->assertTrue(!empty($node));
-    $ctx = RequestContext::setGlobal(null, null, $node);
+    $ctx = Context::setGlobal(null, null, $node);
     $this->assertTrue(!empty($ctx));
   }
 

@@ -64,11 +64,11 @@ class TagCloudWidget extends Widget implements iWidget
   /**
    * Препроцессор параметров.
    *
-   * @param RequestContext $ctx контекст запроса.
+   * @param Context $ctx контекст запроса.
    *
    * @return array массив с параметрами виджета.
    */
-  public function getRequestOptions(RequestContext $ctx)
+  public function getRequestOptions(Context $ctx)
   {
     $options = array(
       'types' => $this->classes,

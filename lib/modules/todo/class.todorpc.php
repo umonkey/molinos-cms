@@ -26,7 +26,7 @@
  */
 class TodoRPC implements iRemoteCall
 {
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     switch ($ctx->get('action')) {
     case 'add':

@@ -3,7 +3,7 @@
 
 class CartWidget extends Widget implements iRemoteCall, iModuleConfig
 {
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
       $cart = mcms::session('cart');
       $items = $ctx->post('item');
@@ -19,7 +19,7 @@ class CartWidget extends Widget implements iRemoteCall, iModuleConfig
       if (empty($result) or !empty($recalc)) //Возможно, все товары из корзины уже были удалены
         mcms::redirect($widgetname);
 
-      RequestContext::setGlobal();
+      Context::setGlobal();
       $report = bebop_render_object('widget', $widgetname, null, array('items' => $items, 'mode' => 'report'), 'CartWidget');
 
       $data = array();
@@ -97,7 +97,7 @@ class CartWidget extends Widget implements iRemoteCall, iModuleConfig
   }
 
   // Препроцессор параметров.
-  public function getRequestOptions(RequestContext $ctx)
+  public function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
     $options['#nocache'] = true;

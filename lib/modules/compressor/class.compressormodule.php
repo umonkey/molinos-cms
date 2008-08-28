@@ -8,7 +8,7 @@ class CompressorModule implements iRemoteCall
     return mcms::mkdir(mcms::config('tmpdir') .'/compressor');
   }
 
-  public static function hookRemoteCall(RequestContext $ctx)
+  public static function hookRemoteCall(Context $ctx)
   {
     $type = $ctx->get('type');
     $fn = $ctx->get('hash');
