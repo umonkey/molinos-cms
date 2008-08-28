@@ -248,4 +248,12 @@ class Context
         .'контекста: %name.', array('%name' => $key)));
     }
   }
+
+  public function debug()
+  {
+    if (!bebop_is_debugger())
+      return false;
+
+    return $this->get('debug');
+  }
 }
