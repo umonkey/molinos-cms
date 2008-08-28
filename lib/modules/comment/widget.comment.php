@@ -95,7 +95,7 @@ class CommentWidget extends Widget
   }
 
   // Препроцессор параметров.
-  public function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 

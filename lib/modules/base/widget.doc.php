@@ -87,7 +87,7 @@ class DocWidget extends Widget implements iWidget
    * action, код раздела (если используется возврат информации о соседях), код
    * документа (если не используется возврат фиксированного документа).
    */
-  public function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 

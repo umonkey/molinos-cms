@@ -138,7 +138,7 @@ class ListWidget extends Widget
    *
    * @return array массив с параметрами.
    */
-  public function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 

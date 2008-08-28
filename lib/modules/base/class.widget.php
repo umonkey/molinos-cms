@@ -157,6 +157,11 @@ abstract class Widget implements iWidget
     return empty($this->groups);
   }
 
+  public function getOptions(Context $ctx)
+  {
+    return $this->options = $this->getRequestOptions($ctx);
+  }
+
   /**
    * Препроцессор параметров.
    *
@@ -169,7 +174,7 @@ abstract class Widget implements iWidget
    *
    * @return array параметры виджета.
    */
-  public function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx)
   {
     if ($this->onlyathome and null !== $ctx->section_id)
       throw new WidgetHaltedException();
@@ -359,8 +364,8 @@ abstract class Widget implements iWidget
     if (false === $output and array_key_exists('html', $data))
       $output = $data['html'];
 
-    if (bebop_is_debugger() and 'widget' == $ctx->get('debug'))
-      if ($data['instance'] == $ctx->get('widget'))
+    if ($ctx->debug() == 'widget')
+      if ($this->getInstanceName() == $ctx->get('widget'))
         mcms::debug(array(
           'input' => $data,
           'output' => $output,

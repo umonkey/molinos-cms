@@ -103,7 +103,7 @@ class TagsWidget extends Widget implements iWidget
    *
    * @return array массив с параметрами виджета.
    */
-  public function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 

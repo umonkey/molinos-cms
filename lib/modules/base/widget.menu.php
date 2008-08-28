@@ -116,7 +116,7 @@ class MenuWidget extends Widget implements iWidget
    *
    * @return array выбранные из контекста параметры, относящиеся к виджету.
    */
-  public function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 

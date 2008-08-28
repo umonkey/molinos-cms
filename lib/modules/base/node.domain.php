@@ -556,11 +556,17 @@ class DomainNode extends Node implements iContentType
       ? 'text/html'
       : $this->content_type;
 
-    if (bebop_is_debugger() and 'page' == $ctx->get('debug'))
+    switch ($ctx->debug()) {
+    case 'page':
       mcms::debug(array(
         'template_name' => $this->template_name,
         'data' => $data,
         ));
+
+    case 'widget':
+      if (!array_key_exists($name = $ctx->get('widget'), $data['widgets']))
+        mcms::debug(sprintf('Widget %s does not exist.', $name));
+    }
 
     header('Content-Type: '. $content_type .'; charset=utf-8');
 
@@ -607,7 +613,7 @@ class DomainNode extends Node implements iContentType
     foreach ($widgets as $w) {
       if (!empty($w->classname) and class_exists($w->classname)) {
         $wo = new $w->classname($w);
-        $tmp = ($wo->options = $wo->getRequestOptions($ctx));
+        $tmp = $wo->getOptions($ctx);
 
         if (is_array($tmp))
           $objects[] = $wo;
@@ -632,9 +638,16 @@ class DomainNode extends Node implements iContentType
   {
     $result = array();
 
+    if ($ctx->debug() == 'widget')
+      $skip = $ctx->get('widget');
+    else
+      $skip = null;
+
     foreach ($objects as $o) {
-      if (null !== ($key = $o->getCacheKey()))
-        $result[$o->getInstanceName()] = $key;
+      $name = $o->getInstanceName();
+
+      if (null !== ($key = $o->getCacheKey()) and $name != $skip)
+        $result[$name] = $key;
     }
 
     if (!empty($result)) {

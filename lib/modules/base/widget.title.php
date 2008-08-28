@@ -59,7 +59,7 @@ class TitleWidget extends Widget
    *
    * @return array параметры виджета.
    */
-  public function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 

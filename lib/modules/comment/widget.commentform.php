@@ -73,7 +73,7 @@ class CommentFormWidget extends Widget
     return $list;
   }
 
-  public function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 

@@ -97,7 +97,7 @@ class CartWidget extends Widget implements iRemoteCall, iModuleConfig
   }
 
   // Препроцессор параметров.
-  public function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
     $options['#nocache'] = true;

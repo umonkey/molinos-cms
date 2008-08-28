@@ -71,7 +71,7 @@ class ArchiveWidget extends Widget implements iWidget
    *
    * @param Context $ctx контекст вызова.
    */
-  public function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx)
   {
     $options = parent::getRequestOptions($ctx);
 

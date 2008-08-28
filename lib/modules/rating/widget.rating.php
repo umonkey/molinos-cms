@@ -41,7 +41,7 @@ class RatingWidget extends Widget implements iNodeHook
   }
 
   // Препроцессор параметров.
-  public function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx)
   {
     $halt = false;
 
