@@ -109,6 +109,9 @@ class DocWidget extends Widget implements iWidget
     else
       $options['root'] = $this->fixed;
 
+    if ('' == strval($options['root']))
+      return false;
+
     return $this->options = $options;
   }
 
