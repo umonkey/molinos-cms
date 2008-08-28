@@ -607,7 +607,7 @@ class DomainNode extends Node implements iContentType
     foreach ($widgets as $w) {
       if (!empty($w->classname) and class_exists($w->classname)) {
         $wo = new $w->classname($w);
-        $tmp = $wo->getRequestOptions($ctx);
+        $tmp = ($wo->options = $wo->getRequestOptions($ctx));
 
         if (is_array($tmp))
           $objects[] = $wo;
@@ -630,9 +630,27 @@ class DomainNode extends Node implements iContentType
    */
   private function getCachedWidgets(Context $ctx, array $objects)
   {
-    // TODO: работа с кэшем через DBCache или вручную.
-    // Не забыть учесть #cache => false.
-    return array();
+    $result = array();
+
+    foreach ($objects as $o) {
+      if (null !== ($key = $o->getCacheKey()))
+        $result[$o->getInstanceName()] = $key;
+    }
+
+    if (!empty($result)) {
+      $data = mcms::db()->getResultsKV('cid', 'data',
+        "SELECT `cid`, `data` FROM `node__cache` "
+        ."WHERE `cid` IN ('". join("', '", $result) ."')");
+
+      foreach ($result as $k => $v) {
+        if (!array_key_exists($v, $data))
+          unset($result[$k]);
+        else
+          $result[$k] = $data[$v];
+      }
+    }
+
+    return $result;
   }
 
   /**
@@ -650,9 +668,10 @@ class DomainNode extends Node implements iContentType
       $name = $o->getInstanceName();
 
       if (!array_key_exists($name, $result)) {
-        if ('' !== ($result[$name] = strval($o->render($ctx))))
-          if (!empty($o->options['#cache']))
-            $cache[$o->getCacheKey()] = $result[$name];
+        if ('' !== ($result[$name] = strval($o->render($ctx)))) {
+          if (null !== ($ck = $o->getCacheKey()))
+            $cache[$ck] = $result[$name];
+        }
       }
     }
 
@@ -666,14 +685,13 @@ class DomainNode extends Node implements iContentType
   {
     if (!empty($data)) {
       $db = mcms::db();
-      $lang = $ctx->getLang();
 
       $db->beginTransaction();
 
       foreach ($data as $k => $v) {
         if (is_string($v))
-          $db->exec("REPLACE INTO `node__cache` (`cid`, `lang`, `data`) "
-            ."VALUES (?, ?, ?)", array($k, $lang, $v));
+          $db->exec("REPLACE INTO `node__cache` (`cid`, `data`) "
+            ."VALUES (?, ?)", array($k, $v));
       }
 
       $db->commit();
