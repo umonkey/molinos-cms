@@ -22,7 +22,7 @@ class PDO_Singleton extends PDO
     if (version_compare(PHP_VERSION, "5.1.3", ">="))
       $this->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
-    if ((!empty($_GET['profile']) or !empty($_GET['postprofile'])) and bebop_is_debugger())
+    if (bebop_is_debugger() and !empty($_GET['debug']) and $_GET['debug'] == 'profile')
       $this->query_log = array();
   }
 
@@ -256,6 +256,7 @@ class PDO_Singleton extends PDO
     if (!$this->transaction) {
       parent::beginTransaction();
       $this->transaction = true;
+      $this->log('-- transaction: begin --');
     } else {
       throw new InvalidArgumentException("transaction is already running");
     }
@@ -267,6 +268,7 @@ class PDO_Singleton extends PDO
     if ($this->transaction) {
       parent::rollback();
       $this->transaction = false;
+      $this->log('-- transaction: rollback --');
     }
   }
 
@@ -276,6 +278,7 @@ class PDO_Singleton extends PDO
     if ($this->transaction) {
       parent::commit();
       $this->transaction = false;
+      $this->log('-- transaction: commit --');
     }
   }
 
