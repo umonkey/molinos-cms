@@ -924,15 +924,19 @@ class NodeBase
     if (null === $tmp)
       return null;
 
-    $sql = "SELECT `parent`.`id` as `id`, `parent`.`parent_id` as `parent_id`, "
-      ."`parent`.`class` as `class`, `rev`.`name` as `name`, "
-      ."`rev`.`data` as `data` "
-      ."FROM `node` AS `self`, `node` AS `parent`, `node__rev` AS `rev` "
-      ."WHERE `self`.`left` BETWEEN `parent`.`left` "
-      ."AND `parent`.`right` AND `self`.`id` = {$tmp} AND `rev`.`rid` = `parent`.`rid` "
-      ."ORDER BY `parent`.`left` -- NodeBase::getParents({$tmp})";
+    if (false === ($nodes = mcms::cache($ck = 'NodeBase:getParents:'. $tmp))) {
+      $sql = "SELECT `parent`.`id` as `id`, `parent`.`parent_id` as `parent_id`, "
+        ."`parent`.`class` as `class`, `rev`.`name` as `name`, "
+        ."`rev`.`data` as `data` "
+        ."FROM `node` AS `self`, `node` AS `parent`, `node__rev` AS `rev` "
+        ."WHERE `self`.`left` BETWEEN `parent`.`left` "
+        ."AND `parent`.`right` AND `self`.`id` = {$tmp} AND `rev`.`rid` = `parent`.`rid` "
+        ."ORDER BY `parent`.`left` -- NodeBase::getParents({$tmp})";
 
-    $nodes = self::dbRead($sql);
+      $nodes = self::dbRead($sql);
+
+      mcms::cache($ck, $nodes);
+    }
 
     if (!$current and array_key_exists($this->id, $nodes))
       unset($nodes[$this->id]);
