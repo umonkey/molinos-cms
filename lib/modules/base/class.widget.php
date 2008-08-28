@@ -344,6 +344,8 @@ abstract class Widget implements iWidget
    */
   public final function render(Context $ctx)
   {
+    mcms::db()->log('-- widget: '. $this->getInstanceName() .' --');
+
     if (!is_array($data = $this->onGet($this->options))) {
       $output = $data;
     } else {

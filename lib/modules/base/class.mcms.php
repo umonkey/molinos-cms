@@ -474,8 +474,7 @@ class mcms
           printf("\n--- SQL log ---\n");
 
           foreach ($log as $sql)
-            if (substr($sql, 0, 2) != '--')
-              printf("%3d. %s\n", $idx++, $sql);
+            printf("%3d. %s\n", $idx++, $sql);
         }
       }
 
