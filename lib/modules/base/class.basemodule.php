@@ -93,7 +93,7 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
           User::authorize($node->name, null, true);
           mcms::log('auth', $node->name .': logged in using otp');
 
-          mcms::redirect($ctx->get('destination', './'));
+          $ctx->redirect($ctx->get('destination', ''));
         }
       } catch (ObjectNotFoundException $e) {
         throw new ForbiddenException(t('Пользователя с таким адресом нет.'));

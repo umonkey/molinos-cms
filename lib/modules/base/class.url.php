@@ -19,7 +19,6 @@ class url
 {
   private static $clean = null;
   private static $localhost = null;
-  private static $root = null;
 
   private $readonly;
 
@@ -47,8 +46,8 @@ class url
       $this->fromArray($source);
     elseif (is_string($source))
       $this->fromString($source);
-    elseif (!empty($_SERVER['QUERY_STRING']))
-      $this->fromString('?'. $_SERVER['QUERY_STRING']);
+    elseif (!empty($_SERVER['REQUEST_URI']))
+      $this->fromString($_SERVER['REQUEST_URI']);
     else
       $this->fromArray(array());
 
@@ -210,19 +209,6 @@ class url
     return $default;
   }
 
-  /**
-   * Получение текущего пути.
-   *
-   * @return string Путь к инсталляции CMS относительно корня сайта.  При
-   * установке в корень сайта возвращается "" (пустая строка).
-   */
-  public static function path()
-  {
-    if (null === self::$root)
-      self::init();
-    return self::$root;
-  }
-
   private static function init()
   {
     if (null === self::$clean) {
@@ -230,11 +216,6 @@ class url
       self::$localhost = empty($_SERVER['HTTP_HOST'])
         ? 'example.com'
         : $_SERVER['HTTP_HOST'];
-
-      if (empty($_SERVER['REMOTE_ADDR']))
-        self::$root = '';
-      else
-        self::$root = mcms::path();
     }
   }
 
@@ -298,22 +279,7 @@ class url
     // Применяем некоторые дефолты.
     $url = $this->complement($url);
 
-    if (!empty($url['path']) and mcms::path()) {
-      $prefixpos = strpos($url['path'], mcms::path());
-    } else {
-      $prefixpos = null;
-    }
-
-    if (empty($url['host'])  or (self::$localhost == $url['host'])) {
-      if (substr($url['path'], 0, 1) != '/')
-        $this->islocal = true;
-      elseif ($prefixpos === 0)
-        $this->islocal = true;
-    }
-
-    if (($this->islocal) && ($prefixpos === 0))
-      $url['path'] = ltrim(substr_replace($url['path'], "", 0, strlen(mcms::path())),'/');
-
+    $prefixpos = null;
 
     // Для локальных ссылок предпочитаем q реальному пути.
     if ($this->islocal) {
@@ -321,23 +287,6 @@ class url
         $url['path'] = trim($url['args']['q'], '/');
         unset($url['args']['q']);
       }
-
-      // Если CMS установлена в папку (/cms/), при парсинге урлов надо удалять
-      // эту папку из пути, чтобы /cms/index.php превращалось в /index.php, итд.
-      //
-      // Без этого возникают проблемы если, например, мы пытаемся вернуться по
-      // адресу, указанному в $_GET['destination'] — %2Fcms%2Findex.php.  Если
-      // путь к CMS не вырезать, он продублируется (получится /cms/cms/index.php).
-      //
-      // @todo поправить парсер так, чтобы он корректно обрабатывал относительные
-      // и абсолютные урлы (не пытался придавлять self::path() к тому, что начинается
-      // со слэша), но тогда возникнет другая проблема: в коде надо будет очень
-      // внимательно формировать ссылки: l(/compress.rpc) будет работать на большинстве
-      // инсталляций — с поддержкой mod_rewrite и с установкой в корень, но в остальных
-      // ситуациях будут возникать неожиданные проблемы.
-
-      if (substr($url['path'], 1, strlen(self::path())) == self::path())
-        $url['path'] = substr($url['path'], strlen(self::path()));
     }
 
     foreach (array('scheme', 'user', 'pass', 'host', 'path', 'args', 'fragment') as $key)
@@ -380,7 +329,7 @@ class url
     }
 
     if (!empty($args)) {
-      $forbidden = array('nocache', 'widget', '__cleanurls', '__rootpath');
+      $forbidden = array('nocache', 'widget', '__cleanurls');
 
       $pairs = array();
 
@@ -451,7 +400,8 @@ class url
    */
   public function getAbsolute(Context $ctx = null)
   {
-    $result = $this->getBase($ctx);
+    // Если ссылка начинается со слэша — выкидываем папку с CMS.
+    $result = $this->getBase(substr($this->path, 0, 1) == '/' ? null : $ctx);
 
     if (self::$clean or !$this->islocal)
       $result .= ltrim($this->path, '/');

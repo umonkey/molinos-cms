@@ -172,9 +172,10 @@ class Context
    */
   public function redirect($url, $status = 301)
   {
-    $url = new url($url);
+    $url1 = new url($url);
+    $next = strval($url1->getAbsolute($this));
 
-    mcms::redirect($url->getAbsolute($this), $status);
+    mcms::redirect($next, $status);
   }
 
   /**

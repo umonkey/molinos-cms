@@ -133,16 +133,22 @@ class RequestController
     case 'sec':
       if (null === ($sec = array_shift($ids)))
         $sec = $page->defaultsection;
-      $load[] = $sec;
+      if (!empty($sec))
+        $load[] = $sec;
       break;
     case 'doc':
-      $load[] = $doc = array_shift($ids);
+      $doc = array_shift($ids);
+      if (!empty($doc))
+        $load[] = $doc;
       break;
     case 'sec+doc':
       if (null === ($sec = array_shift($ids)))
         $sec = $page->defaultsection;
-      $load[] = $sec;
-      $load[] = $doc = array_shift($ids);
+      if (!empty($sec))
+        $load[] = $sec;
+      $doc = array_shift($ids);
+      if (!empty($doc))
+        $load[] = $doc;
       break;
     }
 
