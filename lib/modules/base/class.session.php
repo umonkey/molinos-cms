@@ -55,8 +55,11 @@ class Session
     if (!empty($_COOKIE[self::cookie])) {
       $this->id = $_COOKIE[self::cookie];
 
-      $tmp = mcms::db()->getResult("SELECT `data` FROM node__session "
-        ."WHERE `sid` = ?", array($this->id));
+      if (false === ($tmp = mcms::cache($cid = 'session:'. $this->id))) {
+        $tmp = mcms::db()->getResult("SELECT `data` FROM node__session "
+          ."WHERE `sid` = ?", array($this->id));
+        mcms::cache($cid, $tmp);
+      }
 
       if (!empty($tmp) and is_array($arr = unserialize($tmp)))
         $this->data = $arr;
@@ -104,10 +107,14 @@ class Session
       mcms::db()->exec("DELETE FROM node__session WHERE `sid` = ?",
         array($this->id));
 
-      if (!empty($this->data))
+      if (!empty($this->data)) {
         mcms::db()->exec("INSERT INTO node__session (`created`, `sid`, `data`) "
           ."VALUES (UTC_TIMESTAMP(), ?, ?)",
           array($this->id, serialize($this->data)));
+        mcms::cache('session:'. $this->id, serialize($this->data));
+      } else {
+        mcms::cache('session:'. $this->id, false);
+      }
 
       if (!$sent) {
         $sent = true;
