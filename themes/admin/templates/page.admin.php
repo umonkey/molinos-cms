@@ -113,6 +113,7 @@ function get_dba_link()
       <div id="navbar">
         <div id="top_toolbar">
           <div class="right">
+            <a href="<?php print $base; ?>">www</a>
             <?php print render_username(); ?>
             <?php print get_dba_link(); ?>
             <a href="<?php print l('admin.rpc?action=reload&destination=CURRENT'); ?>&amp;reload=1&flush=1" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
