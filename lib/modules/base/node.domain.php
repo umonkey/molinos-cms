@@ -174,7 +174,7 @@ class DomainNode extends Node implements iContentType
 
     $output = bebop_render_object('page', $name, $this->theme, $data);
 
-    if (!empty($_GET['smarty_debug']) and bebop_is_debugger())
+    if (!empty($_GET['debug']) and $_GET['debug'] == 'smarty' and bebop_is_debugger())
       $this->content_type = 'text/html';
 
     return trim(preg_replace("/^(\xEF\xBB\xBF)/", '', $output));

@@ -58,7 +58,9 @@ class BebopSmarty extends Smarty
 
     public static function debug()
     {
-        if (empty($_GET['smarty_debug']))
+        if (empty($_GET['debug']))
+            return false;
+        if ($_GET['debug'] != 'smarty')
             return false;
         if (!bebop_is_debugger())
             return false;
