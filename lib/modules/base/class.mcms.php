@@ -860,8 +860,8 @@ class mcms
       header('HTTP/1.1 500 Internal Server Error');
       header("Content-Type: text/html; charset=utf-8");
 
-      $html = '<html><head><title>Internal Server Error</title></head><body>'
-        .'<h1>Internal Server Error</h1><p>'. $message .'</p>';
+      $html = '<html><head><title>Fatal Error</title></head><body>'
+        .'<h1>Fatal Error</h1><p>'. $message .'</p>';
 
       if (null !== $backtrace)
         $html .= '<h2>Стэк вызова</h2><pre>'. $backtrace .'</pre>';
@@ -1468,17 +1468,23 @@ class mcms
           )));
         $output = $req->run();
 
-        if (empty($output))
+        if (empty($output)) {
+          $url = new url($ctx->url()->getBase($ctx)
+              .'?q=admin&mode=tree&preset=pages&cgroup=structure');
+
           mcms::fatal(t('<p>При обработке запроса возникла ошибка '
-            .'%code: «%name».</p><p>Этот обработчик ошибок можно '
-            .'заменить на произвольный, создав в корне сайта '
-            .'страницу с именем «%code».',
+            .'%code:<br/><strong>%name</strong>.</p><p><em>PS: этот обработчик ошибок можно '
+            .'заменить на произвольный, <a href="@url">создав '
+            .'страницу</a> с именем «%code» в корне сайта.</em></p>',
             array(
               '%code' => $e->getCode(),
               '%name' => trim($e->getMessage(), '.'),
+              '@url' => strval($url),
               )));
+        }
 
-        header(sprintf('HTTP/1.1 %s Error', $e->getCode()));
+        header(sprintf('HTTP/1.1 %s %s', $e->getCode(),
+          self::getHttpStatusMessage($e->getCode())));
       } else {
         throw $e;
       }
@@ -1493,6 +1499,18 @@ class mcms
 
     header('Content-Length: '. strlen($output));
     die($output);
+  }
+
+  public static function getHttpStatusMessage($code)
+  {
+    $map = array(
+      404 => 'Not Found',
+      );
+
+    if (!array_key_exists($code, $map))
+      return 'Unknown Error';
+    else
+      return $map[$code];
   }
 };
 

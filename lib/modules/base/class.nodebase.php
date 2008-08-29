@@ -219,7 +219,7 @@ class NodeBase
 
     $cacheid = 'node:find:'. md5(serialize($query));
 
-    if (empty($_GET['nocache']) or !bebop_is_debugger())
+    if (true or empty($_GET['nocache']) or !bebop_is_debugger())
       if (is_array($data = mcms::cache($cacheid)))
         return $data;
 

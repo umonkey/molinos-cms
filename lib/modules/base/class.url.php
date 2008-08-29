@@ -17,11 +17,11 @@
  */
 class url
 {
-  private static $clean = null;
   private static $localhost = null;
 
   private $readonly;
 
+  private $clean = false;
   private $scheme = null;
   private $user = null;
   private $pass = null;
@@ -38,21 +38,29 @@ class url
    */
   public function __construct($source = null, $readonly = false)
   {
-    self::init();
-
     if ($source instanceof url)
       $this->fromArray($source->as_array());
     elseif (is_array($source))
       $this->fromArray($source);
     elseif (is_string($source))
       $this->fromString($source);
-    elseif (!empty($_SERVER['REQUEST_URI']))
-      $this->fromString($_SERVER['REQUEST_URI']);
-    else
-      $this->fromArray(array());
+    else {
+      // При работе mod_rewrite в REQUEST_URI содержится то, что запросил
+      // пользователь, а добавленые правилом аргументы видны только в
+      // QUERY_STRING.
 
-    if ($this->islocal and $this->path != trim($this->path, '/'))
-      $this->path = trim($this->path, '/');
+      $this->fromString($_SERVER['REQUEST_URI']);
+      $this->args = $_GET;
+    }
+
+    if (!empty($this->args['__cleanurls'])) {
+      $this->path .= $this->args['q'];
+
+      unset($this->args['q']);
+      unset($this->args['__cleanurls']);
+
+      $this->clean = true;
+    }
 
     $this->readonly = $readonly;
   }
@@ -87,7 +95,7 @@ class url
     if (!empty($this->host))
       $result .= $this->host;
 
-    if (!empty($this->path) and (!$this->islocal or is_readable($this->path) or self::$clean))
+    if (!empty($this->path) and (!$this->islocal or is_readable($this->path) or $this->$clean))
       $result .= $this->path;
 
     $result .= $this->getArgsAsString();
@@ -207,16 +215,6 @@ class url
     if (null !== $this->args and array_key_exists($key, $this->args))
       return $this->args[$key];
     return $default;
-  }
-
-  private static function init()
-  {
-    if (null === self::$clean) {
-      self::$clean = mcms::config('cleanurls');
-      self::$localhost = empty($_SERVER['HTTP_HOST'])
-        ? 'example.com'
-        : $_SERVER['HTTP_HOST'];
-    }
   }
 
   private function fromString($source)
