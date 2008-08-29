@@ -564,7 +564,9 @@ class DomainNode extends Node implements iContentType
         ));
 
     case 'widget':
-      if (!array_key_exists($name = $ctx->get('widget'), $data['widgets']))
+      if (null === $ctx->get('widget'))
+        mcms::debug('Usage: ?debug=widget&widget=name');
+      elseif (!array_key_exists($name = $ctx->get('widget'), $data['widgets']))
         mcms::debug(sprintf('Widget %s does not exist.', $name));
     }
 
