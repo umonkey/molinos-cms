@@ -131,7 +131,7 @@ class RequestController
 
     switch ($page->params) {
     case 'sec':
-      if (null === ($sec = array_shift($ids)))
+      if (!($sec = array_shift($ids)))
         $sec = $page->defaultsection;
       if (!empty($sec))
         $load[] = $sec;
@@ -142,7 +142,7 @@ class RequestController
         $load[] = $doc;
       break;
     case 'sec+doc':
-      if (null === ($sec = array_shift($ids)))
+      if (!($sec = array_shift($ids)))
         $sec = $page->defaultsection;
       if (!empty($sec))
         $load[] = $sec;
