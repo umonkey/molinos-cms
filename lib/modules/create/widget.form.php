@@ -78,7 +78,7 @@ class FormWidget extends Widget
   }
 
   // Препроцессор параметров.
-  protected function getRequestOptions(Context $ctx)
+  public function getRequestOptions(RequestContext $ctx)
   {
     $options = parent::getRequestOptions($ctx);
     
@@ -86,7 +86,7 @@ class FormWidget extends Widget
     $options['default'] = $ctx->get('default', array());
     $options['#nocache'] = true;
 
-    if (!($options['root'] = $ctx->section->id))
+    if (null === ($options['root'] = $ctx->section_id))
       $options['root'] = $this->section_default;
 
     if ('default' != ($options['status'] = $ctx->get('status', 'default')))
@@ -192,12 +192,24 @@ class FormWidget extends Widget
         'tags' => array($root),
         ));
 
+    $atypes = $this->getAllowedTypes();
+
     // Выбираем то, что может создать пользователь.
     foreach ($allowed as $t)
-      if (mcms::user()->hasAccess('c', $t->name))
+      if (in_array($t->name, $atypes))
         $types[$t->name] = $t->title;
 
     return $types;
+  }
+
+  private function getAllowedTypes()
+  {
+    if ($this->anonymous)
+      $u = new User(Node::create('user'));
+    else
+      $u = mcms::user();
+
+    return $u->getAccess('c');
   }
 
   // РАБОТА С ФОРМАМИ.

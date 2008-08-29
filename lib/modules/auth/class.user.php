@@ -10,7 +10,7 @@ class User
 
   private static $instance = null;
 
-  protected function __construct(UserNode $node = null)
+  public function __construct(UserNode $node = null)
   {
     // Указан конкретный пользователь, работаем с ним.
     if (null !== $node) {
@@ -41,7 +41,7 @@ class User
     else {
       $this->groups = Node::find(array(
         'class' => 'group',
-        'published' => array(0, 1),
+        'published' => 1,
         'tagged' => array($this->node->id),
         '#cache' => true,
         ));
@@ -126,7 +126,7 @@ class User
   {
     $key = 'access:'. md5($sql);
 
-    if (is_array($result = mcms::cache($key)))
+    if (false and is_array($result = mcms::cache($key)))
       return $result;
 
     $result = array();
