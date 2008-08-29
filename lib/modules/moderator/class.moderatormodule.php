@@ -112,17 +112,19 @@ class ModeratorModule implements iModuleConfig, iNodeHook
       '%type' => isset($schema['title']) ? $schema['title'] : $node->class,
       )) .'</p>'. self::getNodeBody($node);
 
-    $rc = BebopMimeMail::send(
-      null,
-      $to = self::getRecipients(),
-      t('Редакторская активность на сайте %site', array('%site' => mcms::config('basedomain'))),
-      $body
-      );
+    if (count($to = self::getRecipients())) {
+      $rc = BebopMimeMail::send(
+        null,
+        $to,
+        t('Редакторская активность на сайте %site', array('%site' => mcms::config('basedomain'))),
+        $body
+        );
 
-    if (!$rc)
-      mcms::message(t('Ваши изменения должны пройти модерацию, однако отправить сообщение выпускающему редактору не удалось по техническим причинам.  Вам придётся подождать, пока он самостоятельно заметит изменения.'));
-    else
-      mcms::message(t('Ваши изменения были зафиксированы и ожидают одобрения выпускающим редактором.'));
+      if (!$rc)
+        mcms::message(t('Ваши изменения должны пройти модерацию, однако отправить сообщение выпускающему редактору не удалось по техническим причинам.  Вам придётся подождать, пока он самостоятельно заметит изменения.'));
+      else
+        mcms::message(t('Ваши изменения были зафиксированы и ожидают одобрения выпускающим редактором.'));
+    }
   }
 
   private static function getNodeBody(Node $node)
@@ -157,13 +159,15 @@ class ModeratorModule implements iModuleConfig, iNodeHook
     $config = mcms::modconf('moderator');
     $list = isset($config['super']) ? preg_split('/, */', $config['super']) : array();
 
-    $tmp = Node::load(array('class' => 'user', 'id' => mcms::user()->id));
-    if (!empty($tmp->publisher) and is_numeric($tmp->publisher)) {
-      try {
-        $tmp = Node::load(array('class' => 'user', 'id' => $tmp->publisher));
-        if (!empty($tmp->email))
-          $list[] = $tmp->email;
-      } catch (ObjectNotFoundException $e) {
+    if (mcms::user()->id) {
+      $tmp = Node::load(array('class' => 'user', 'id' => mcms::user()->id));
+      if (!empty($tmp->publisher) and is_numeric($tmp->publisher)) {
+        try {
+          $tmp = Node::load(array('class' => 'user', 'id' => $tmp->publisher));
+          if (!empty($tmp->email))
+            $list[] = $tmp->email;
+        } catch (ObjectNotFoundException $e) {
+        }
       }
     }
 
