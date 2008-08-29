@@ -364,15 +364,25 @@ abstract class Widget implements iWidget
     if (false === $output and array_key_exists('html', $data))
       $output = $data['html'];
 
-    if ($ctx->debug() == 'widget')
-      if ($this->getInstanceName() == $ctx->get('widget'))
+    if ($ctx->debug() == 'widget') {
+      if ($this->getInstanceName() == $ctx->get('widget')) {
+        $key = strtolower($classname = get_class($this));
+
+        if (array_key_exists($key, $classmap = mcms::getClassMap()))
+          $classpath = $classmap[$key];
+        else
+          $classpath = 'unknown';
+
         mcms::debug(array(
-          'class' => get_class($this),
+          'class' => $classname,
+          'class_path' => $classpath,
           'template_candidates' => bebop_get_templates('widget',
-            $this->getInstanceName(), $ctx->theme, get_class($this)),
+            $this->getInstanceName(), $ctx->theme, $classname),
           'template_input' => $data,
           'template_output' => $output,
           ));
+      }
+    }
 
     return $output;
   }
