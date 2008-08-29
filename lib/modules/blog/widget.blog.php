@@ -43,7 +43,7 @@ class BlogWidget extends Widget
   {
     $options = parent::getRequestOptions($ctx);
 
-    if (null !== $ctx->section_id or null !== $ctx->document_id) {
+    if ($ctx->section->id or $ctx->document->id) {
       mcms::debug("Виджет {$this->getInstanceName()} не может работать на страницах, параметризуемых кодом раздела или документа.");
       throw new WidgetHaltedException();
     }

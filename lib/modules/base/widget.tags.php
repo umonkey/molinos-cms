@@ -107,10 +107,10 @@ class TagsWidget extends Widget implements iWidget
   {
     $options = parent::getRequestOptions($ctx);
 
-    if ($this->forcefixed or (null === ($options['root'] = $ctx->section_id)))
+    if ($this->forcefixed or !($options['root'] = $ctx->section->id))
       $options['root'] = $this->fixed;
 
-    $options['dynamic'] = ($ctx->section_id !== null);
+    $options['dynamic'] = ($ctx->section->id !== null);
 
     return $options;
   }

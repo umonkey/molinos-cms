@@ -178,7 +178,7 @@ class DocWidget extends Widget implements iWidget
 
       $result['schema'] = TypeNode::getSchema($node->class);
 
-      if ($this->showneighbors and $this->ctx->section_id !== null and in_array($this->ctx->section->id, $sections)) {
+      if ($this->showneighbors and $this->ctx->section->id and in_array($this->ctx->section->id, $sections)) {
         if (null !== ($n = $node->getNeighbors($this->ctx->section->id))) {
           $result['neighbors'] = array(
             'prev' => empty($n['right']) ? null : $n['right']->getRaw(),

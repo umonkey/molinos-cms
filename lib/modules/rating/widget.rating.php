@@ -51,7 +51,7 @@ class RatingWidget extends Widget implements iNodeHook
     $options['action'] = $ctx->get('action', 'status');
     $options['vote'] = $ctx->get('vote');
 
-    if (null === ($options['node'] = $ctx->document_id))
+    if (null === ($options['node'] = $ctx->document->id))
       $halt = true;
 
     if (null !== ($options['rate'] = $ctx->get('rate')))
@@ -115,7 +115,7 @@ class RatingWidget extends Widget implements iNodeHook
     $pdo = mcms::db();
 
     $params = array(
-      ':nid' => $this->ctx->document_id,
+      ':nid' => $this->ctx->document->id,
       ':uid' => $this->user->id,
       ':ip' => $_SERVER['REMOTE_ADDR'],
       ':rate' => $options['vote'] / 5,
@@ -204,9 +204,9 @@ class RatingWidget extends Widget implements iNodeHook
 
     // Анонимных пользователей считаем по IP, зарегистрированных -- по идентификатору.
     if ($this->user->id == 0)
-      $status = 0 != mcms::db()->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = 0 AND `ip` = :ip", array(':nid' => $this->ctx->document_id, ':ip' => $_SERVER['REMOTE_ADDR']));
+      $status = 0 != mcms::db()->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = 0 AND `ip` = :ip", array(':nid' => $this->ctx->document->id, ':ip' => $_SERVER['REMOTE_ADDR']));
     else
-      $status = 0 != mcms::db()->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(':nid' => $this->ctx->document_id, ':uid' => $this->user->id));
+      $status = 0 != mcms::db()->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(':nid' => $this->ctx->document->id, ':uid' => $this->user->id));
 
     // Сохраняем в сессии для последующего быстрого доступа.
 

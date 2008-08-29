@@ -640,6 +640,9 @@ class DomainNode extends Node implements iContentType
   {
     $result = array();
 
+    if (bebop_is_debugger() and $ctx->get('nocache'))
+      return $result;
+
     if ($ctx->debug() == 'widget')
       $skip = $ctx->get('widget');
     else

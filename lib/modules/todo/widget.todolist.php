@@ -55,7 +55,7 @@ class TodoListWidget extends Widget
     $options['uid'] = mcms::user()->id;
     $options['mode'] = $ctx->get('mode');
 
-    if (null === ($options['rel'] = $ctx->document_id))
+    if (null === ($options['rel'] = $ctx->document->id))
       $options['relname'] = null;
     elseif ('user' == $ctx->document->class)
       $options['relname'] = empty($ctx->document->fullname) ? $ctx->document->name : $ctx->document->fullname;

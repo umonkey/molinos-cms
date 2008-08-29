@@ -80,7 +80,7 @@ class CommentFormWidget extends Widget
     $options['status'] = $ctx->get('status', 'form');
     $options['user'] = mcms::user()->id;
 
-    if (null === ($options['doc'] = $ctx->document_id))
+    if (null === ($options['doc'] = $ctx->document->id))
       throw new WidgetHaltedException();
 
     if (empty($this->allowed_types) or !in_array($ctx->document->class, $this->allowed_types)) {
@@ -293,8 +293,8 @@ class CommentFormWidget extends Widget
           ));
 
         $message .= '<p>'. t('Можно <a href=\'@reply\'>ответить</a> или <a href=\'@silence\'>отписаться от комментариев</a>.', array(
-          '@reply' => $prefix .'node/'. $this->ctx->document_id .'/',
-          '@silence' => $prefix .'/node/'. $this->ctx->document_id .'/?'. $this->getInstanceName() .'.silence=1',
+          '@reply' => $prefix .'node/'. $this->ctx->document->id .'/',
+          '@silence' => $prefix .'/node/'. $this->ctx->document->id .'/?'. $this->getInstanceName() .'.silence=1',
           )) .'</p>';
 
         if (null !== $me)

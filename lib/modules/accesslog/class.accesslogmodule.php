@@ -212,11 +212,11 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
 
       try {
         if (!empty($conf['options']) and is_array($conf['options'])) {
-          if (in_array('section', $conf['options']) and isset($ctx->section_id))
-            self::logNode($ctx->section_id);
+          if (in_array('section', $conf['options']) and isset($ctx->section->id))
+            self::logNode($ctx->section->id);
 
-          if (in_array('document', $conf['options']) and isset($ctx->document_id))
-            self::logNode($ctx->document_id);
+          if (in_array('document', $conf['options']) and isset($ctx->document->id))
+            self::logNode($ctx->document->id);
         }
       } catch (PDOException $e) {
         // Обычно здесь обламываемя при обращении к несуществующему урлу.

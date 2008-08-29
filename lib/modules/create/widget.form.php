@@ -86,7 +86,7 @@ class FormWidget extends Widget
     $options['default'] = $ctx->get('default', array());
     $options['#nocache'] = true;
 
-    if (null === ($options['root'] = $ctx->section_id))
+    if (!($options['root'] = $ctx->section->id))
       $options['root'] = $this->section_default;
 
     if ('default' != ($options['status'] = $ctx->get('status', 'default')))

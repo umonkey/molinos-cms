@@ -155,7 +155,7 @@ class MenuWidget extends Widget implements iWidget
     }
 
     // Определяем путь к текущему разделу.
-    if (null === $this->ctx->section_id)
+    if (null === $this->ctx->section->id)
       $path = array();
     elseif (!is_array($path = $this->ctx->section->getParents()))
       $path = array();
@@ -168,7 +168,7 @@ class MenuWidget extends Widget implements iWidget
       $root->loadChildren();
     }
 
-    if ($this->ctx->section_id)
+    if ($this->ctx->section->id)
       $current = $this->ctx->section->id;
     elseif (null !== $toplevel)
       $current = $toplevel->id;

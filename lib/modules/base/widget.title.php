@@ -63,8 +63,8 @@ class TitleWidget extends Widget
   {
     $options = parent::getRequestOptions($ctx);
 
-    $options['document_id'] = $ctx->document_id;
-    $options['section_id'] = $ctx->section_id;
+    $options['document_id'] = $ctx->document->id;
+    $options['section_id'] = $ctx->section->id;
 
     return $this->options = $options;
   }

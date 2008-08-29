@@ -176,10 +176,10 @@ abstract class Widget implements iWidget
    */
   protected function getRequestOptions(Context $ctx)
   {
-    if ($this->onlyathome and null !== $ctx->section_id)
+    if ($this->onlyathome and $ctx->section->id)
       throw new WidgetHaltedException();
 
-    if ($this->onlyiflast and null !== $ctx->document_id)
+    if ($this->onlyiflast and null !== $ctx->document->id)
       throw new WidgetHaltedException();
 
     $options = array();
