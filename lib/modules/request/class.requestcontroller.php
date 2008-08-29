@@ -101,6 +101,7 @@ class RequestController
               $found = true;
               $domain = $page;
               $path[] = array_shift($ids);
+              break;
             }
           }
         }

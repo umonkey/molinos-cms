@@ -157,9 +157,9 @@ abstract class Widget implements iWidget
     return empty($this->groups);
   }
 
-  public function getOptions(Context $ctx)
+  public function setContext(Context $ctx)
   {
-    return $this->options = $this->getRequestOptions($ctx);
+    return $this->options = $this->getRequestOptions($this->ctx = $ctx);
   }
 
   /**
@@ -348,8 +348,10 @@ abstract class Widget implements iWidget
    *
    * @return string результат работы шаблона или NULL.
    */
-  public final function render(Context $ctx)
+  public final function render()
   {
+    $ctx = $this->ctx;
+
     mcms::db()->log('-- widget: '. $this->getInstanceName() .' --');
 
     if (!is_array($data = $this->onGet($this->options))) {

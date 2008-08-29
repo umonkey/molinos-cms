@@ -572,6 +572,14 @@ class DomainNode extends Node implements iContentType
 
     header('Content-Type: '. $content_type .'; charset=utf-8');
 
+    if (null !== ($name = $ctx->get('widget'))) {
+      if (!array_key_exists($name, $data['widgets']))
+        throw new PageNotFoundException(t('Нет такого виджета '
+          .'на этой странице.'));
+      else
+        return $data['widgets'][$name];
+    }
+
     return $html;
   }
 
@@ -615,7 +623,7 @@ class DomainNode extends Node implements iContentType
     foreach ($widgets as $w) {
       if (!empty($w->classname) and class_exists($w->classname)) {
         $wo = new $w->classname($w);
-        $tmp = $wo->getOptions($ctx);
+        $tmp = $wo->setContext($ctx->forWidget($w->name));
 
         if (is_array($tmp))
           $objects[] = $wo;
@@ -686,7 +694,7 @@ class DomainNode extends Node implements iContentType
       $name = $o->getInstanceName();
 
       if (!array_key_exists($name, $result)) {
-        if ('' !== ($result[$name] = strval($o->render($ctx)))) {
+        if ('' !== ($result[$name] = strval($o->render()))) {
           if (null !== ($ck = $o->getCacheKey()))
             $cache[$ck] = self::strip($result[$name]);
         }
