@@ -686,4 +686,11 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     return $result;
   }
+
+  public function getAllowedSections()
+  {
+    if (count($ids = $this->linkListParents('tag', true)))
+      return Node::find(array('id' => $ids));
+    return array();
+  }
 };

@@ -2021,11 +2021,17 @@ class NodeBase
       $this->linkSetParents($data['node_tags'], 'tag');
     }
 
+    // Разделы не указаны — пытаемся прикрепить к первому попавшемуся разделу,
+    // в который можно помещать такие документы.
+    else {
+      $sections = Node::create('type', $schema)->getAllowedSections();
+      if (!empty($sections))
+        $this->linkAddParent(array_shift(array_keys($sections)));
+    }
+
     if (!empty($schema['hasfiles']) and !empty($data['node_ftp_files'])) {
       FileNode::getFilesFromFTP($data['node_ftp_files'], $this->id);
     }
-
-    return $this->save();
   }
 
   private function attachOneFile($field,  array $fileinfo)
