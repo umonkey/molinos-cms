@@ -65,7 +65,6 @@ class FormWidget extends Widget
     $form->addControl(new BoolControl(array(
       'value' => 'config_anonymous',
       'label' => t('Не работать с типами, недоступными анонимному пользователю'),
-      'description' => t("При установке этого флага форма будет содержать только основные поля создаваемого документа, без дополнительных вкладок (вроде настроек доступа и файловых приложений).&nbsp; Это полезно для форм с обратной связью."),
       )));
 
     $form->addControl(new TextLineControl(array(
