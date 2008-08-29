@@ -257,4 +257,23 @@ class Context
 
     return $this->get('debug');
   }
+
+  /**
+   * Возвращает контекст для виджета.
+   */
+  public function forWidget($name)
+  {
+    // Формируем новый урл, с параметрами виджета (и только).
+    $url = $this->url()->as_array();
+
+    if (!array_key_exists($name, $url['args']))
+      $url['args'] = array();
+    else
+      $url['args'] = $url['args'][$name];
+
+    $ctx = new Context($this->_args);
+    $ctx->_url = new url($url);
+
+    return $ctx;
+  }
 }
