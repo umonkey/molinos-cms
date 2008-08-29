@@ -215,6 +215,8 @@ class RequestController
 
     if ('admin' == $q)
       $q .= '.rpc';
+    elseif (strpos($q, 'attachment/') === 0)
+      $q = 'attachment.rpc';
 
     if ('.rpc' == substr($q, -4)) {
       $module = substr($q, 0, -4);

@@ -18,12 +18,17 @@ class AttachmentModule implements iRemoteCall
   {
     $folder = $ctx->get('folder', 'attachment');
 
-    if (count($path = explode('/', $ctx->get('fid'))) > 1)
+    if (0 === strpos($ctx->query(), 'attachment/'))
+      $fid = substr($ctx->query(), 11);
+    else
+      $fid = $ctx->get('fid');
+
+    if (count($path = explode('/', $fid)) > 1)
       self::$realname = $path[1];
 
     $args = explode(',', $path[0]);
 
-    self::$ckey = 'image:'. $ctx->get('fid');
+    self::$ckey = 'image:'. $fid;
 
     // На данный момент у нас есть идентификатор картинки.
     // Пытаемся достать её из кэша, если получается — отдаём
@@ -52,7 +57,7 @@ class AttachmentModule implements iRemoteCall
         self::sendError(500, 'usage: '.$folder.'/filename[,width[,height]]');
 
     self::$folder = MCMS_ROOT .'/'. $folder;
-    self::$output = self::$folder.'/'.$ctx->get('fid');
+    self::$output = self::$folder .'/'. $fid;
 
     if (!empty($args[3])) {
       for ($i = 0; $i < strlen($args[3]); $i++) {

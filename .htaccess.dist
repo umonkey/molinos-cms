@@ -15,9 +15,5 @@ php_value zlib.output_compression_level 6
   RewriteEngine on
 
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_URI} /(attachment)/(.+)$
-  RewriteRule ^.*$ ?__cleanurls=1&q=attachment.rpc&fid=%2 [L,QSA]
-
-  RewriteCond %{REQUEST_FILENAME} !-f
   RewriteRule ^(.*)$ ?__cleanurls=1&q=$1 [L,QSA]
 </IfModule>
