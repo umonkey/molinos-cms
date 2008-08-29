@@ -281,7 +281,8 @@ class mcms
     $cache = BebopCache::getInstance();
 
     $key = '.pcache.'. $args[0];
-    $fname = mcms::config('tmpdir') .'/'. $key;
+    $fname = mcms::config('tmpdir') .'/'. $key
+      .md5(MCMS_ROOT .','.  $_SERVER['HTTP_HOST']);
 
     switch (count($args)) {
     case 1:
@@ -1343,9 +1344,9 @@ class mcms
     die();
   }
 
-  public static function modmap()
+  public static function modmap($prefix = 'modmap')
   {
-    return mcms::config('tmpdir') .'/modmap.'.
+    return mcms::config('tmpdir') .'/'. $prefix .'.'.
       md5(MCMS_ROOT .','.  $_SERVER['HTTP_HOST']);
   }
 
@@ -1462,10 +1463,20 @@ class mcms
         }
 
         // Пытаемся вывести страницу /$статус
-        $req = new RequestController(new Context(array(
-          'url' => $e->getCode(),
+        $req = new RequestController($c2 = new Context(array(
+          'url' => $ctx->url()->getBase($ctx) . $e->getCode(),
           )));
         $output = $req->run();
+
+        if (empty($output))
+          mcms::fatal(t('<p>При обработке запроса возникла ошибка '
+            .'%code: «%name».</p><p>Этот обработчик ошибок можно '
+            .'заменить на произвольный, создав в корне сайта '
+            .'страницу с именем «%code».',
+            array(
+              '%code' => $e->getCode(),
+              '%name' => trim($e->getMessage(), '.'),
+              )));
 
         header(sprintf('HTTP/1.1 %s Error', $e->getCode()));
       } else {

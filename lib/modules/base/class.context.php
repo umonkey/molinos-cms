@@ -220,6 +220,13 @@ class Context
   private function __get($key)
   {
     switch ($key) {
+    case 'post':
+      if (null === $this->_post)
+        $this->_post = $this->getarg('post', array());
+      if (null === $this->_post)
+        return array();
+      else
+        return $this->_post;
     case 'section':
     case 'document':
       if (!array_key_exists($key, $this->_args))
