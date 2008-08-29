@@ -179,18 +179,7 @@ function bebop_render_object($type, $name, $theme = null, $data = array(), $clas
   // намеренно отключена, чтобы ссылка "node/123" _всегда_ вела в одно место.
   $data['base'] = 'http://'. $_SERVER['HTTP_HOST'] . mcms::path() .'/';
 
-  if (null === $theme) {
-    try {
-      $ctx = RequestContext::getGlobal();
-      $theme = $ctx->theme;
-    } catch (InvalidArgumentException $e) {
-      $theme = 'all';
-    }
-  }
-
-  // Сокращённое указание темы, дополняем.
-  if (false === strpos($theme, '/'))
-    $theme = 'themes/'. $theme .'/templates';
+  $__options = bebop_get_templates($type, $name, $theme, $classname);
 
   if ($data instanceof Exception) {
     $data = array('error' => array(
@@ -201,20 +190,6 @@ function bebop_render_object($type, $name, $theme = null, $data = array(), $clas
       ));
   } elseif (!is_array($data)) {
     $data = array($data);
-  }
-
-  // Варианты шаблонов для этого объекта.
-  if (null !== $type and null !== $name) {
-    $__options = array(
-      "{$theme}/{$type}.{$name}.tpl",
-      "{$theme}/{$type}.{$name}.php",
-      "{$theme}/{$type}.{$name}.phtml",
-      "{$theme}/{$type}.default.tpl",
-      "{$theme}/{$type}.default.php",
-      "{$theme}/{$type}.default.phtml",
-      );
-  } else {
-    $__options = array();
   }
 
   // Передаём шаблону путь к шкуре.
@@ -234,6 +209,36 @@ function bebop_render_object($type, $name, $theme = null, $data = array(), $clas
     }
   }
 
+  foreach ($__options as $__filename) {
+    if (false !== ($output = mcms::render($__filename, $data)))
+      return $output;
+  }
+
+  return false;
+}
+
+function bebop_get_templates($type, $name, $theme = null, $classname = null)
+{
+  if (null === $theme)
+    $theme = 'all';
+  // Сокращённое указание темы, дополняем.
+  elseif (false === strpos($theme, '/'))
+    $theme = 'themes/'. $theme .'/templates';
+
+  // Варианты шаблонов для этого объекта.
+  if (null !== $type and null !== $name) {
+    $__options = array(
+      "{$theme}/{$type}.{$name}.tpl",
+      "{$theme}/{$type}.{$name}.php",
+      "{$theme}/{$type}.{$name}.phtml",
+      "{$theme}/{$type}.default.tpl",
+      "{$theme}/{$type}.default.php",
+      "{$theme}/{$type}.default.phtml",
+      );
+  } else {
+    $__options = array();
+  }
+
   // Если класс существует — добавляем его дефолтный шаблон в конец.
   if (null !== $classname) {
     $key = strtolower($classname);
@@ -244,12 +249,7 @@ function bebop_render_object($type, $name, $theme = null, $data = array(), $clas
     }
   }
 
-  foreach ($__options as $__filename) {
-    if (false !== ($output = mcms::render($__filename, $data)))
-      return $output;
-  }
-
-  return false;
+  return $__options;
 }
 
 // Определяет тип файла.
