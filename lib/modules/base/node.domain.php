@@ -623,14 +623,17 @@ class DomainNode extends Node implements iContentType
     foreach ($widgets as $w) {
       if (!empty($w->classname) and class_exists($w->classname)) {
         $wo = new $w->classname($w);
-        $tmp = $wo->setContext($ctx->forWidget($w->name));
 
-        if (is_array($tmp))
-          $objects[] = $wo;
-        elseif (false !== $tmp)
-          throw new RuntimeException(t('%class::getRequestOptions() '
-            .'должен вернуть массив или false.',
-            array('%class' => get_class($wo))));
+        try {
+          $tmp = $wo->setContext($ctx->forWidget($w->name));
+
+          if (is_array($tmp))
+            $objects[] = $wo;
+          elseif (false !== $tmp)
+            throw new RuntimeException(t('%class::getRequestOptions() '
+              .'должен вернуть массив или false.',
+              array('%class' => get_class($wo))));
+        } catch (WidgetHaltedException $e) { }
       }
     }
 
