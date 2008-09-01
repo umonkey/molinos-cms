@@ -1463,10 +1463,14 @@ class mcms
         }
 
         // Пытаемся вывести страницу /$статус
-        $req = new RequestController($c2 = new Context(array(
-          'url' => $ctx->url()->getBase($ctx) . $e->getCode(),
-          )));
-        $output = $req->run();
+        try {
+          $req = new RequestController($c2 = new Context(array(
+            'url' => $ctx->url()->getBase($ctx) . $e->getCode(),
+            )));
+          $output = $req->run();
+        } catch (PageNotFoundException $e2) {
+          $output = null;
+        }
 
         if (empty($output)) {
           $url = new url($ctx->url()->getBase($ctx)
