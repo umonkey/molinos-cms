@@ -6,9 +6,12 @@ function smarty_function_user($params, &$smarty)
   $node = mcms::user();
 
   if (!array_key_exists('field', $params))
-    return $node->getRaw();
-  elseif (array_key_exists('assign', $params))
-    $smarty->assign($params['assign'], $node->$params['field']);
+    $result = $node->getRaw();
   else
-    return $node->$params['field'];
+    $result = $node->$params['field'];
+
+  if (array_key_exists('assign', $params))
+    $smarty->assign($params['assign'], $result);
+  else
+    return $result;
 }
