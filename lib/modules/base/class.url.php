@@ -53,14 +53,12 @@ class url
       $this->args = $_GET;
     }
 
-    if (!empty($this->args['__cleanurls'])) {
-      $this->path .= $this->args['q'];
-
-      unset($this->args['q']);
-      unset($this->args['__cleanurls']);
-
+    if (empty($this->host) and !empty($this->args['__cleanurls'])) {
       $this->clean = true;
+      unset($this->args['__cleanurls']);
     }
+
+    // mcms::debug($this);
 
     $this->readonly = $readonly;
   }
@@ -320,7 +318,7 @@ class url
     $args = $this->args;
 
     if ($this->islocal and !is_readable($this->path)) {
-      if (self::$clean or 'index.php' == $this->path)
+      if ($this->clean or 'index.php' == $this->path)
         $args['q'] = null;
       else
         $args['q'] = trim($this->path, '/');
@@ -351,7 +349,8 @@ class url
             }
 
             elseif (null !== $argval and '' !== $argval) {
-              $pairs[] = $prefix .'='. urlencode($argval);
+              $pairs[] = $prefix .'='.
+                str_replace('%2F', '/', urlencode($argval));
             }
           }
         }
@@ -360,7 +359,7 @@ class url
           if ('destination' === $k and 'CURRENT' === $v) {
             $pairs[] = $k .'='. urlencode($_SERVER['REQUEST_URI']);
           } else {
-            $pairs[] = $k .'='. urlencode($v);
+            $pairs[] = $k .'='. str_replace('%2F', '/', urlencode($v));
           }
         }
       }
@@ -377,7 +376,7 @@ class url
    */
   public function __setclean($value)
   {
-    self::$clean = empty($value) ? false : true;
+    $this->clean = empty($value) ? false : true;
   }
 
   /**
@@ -401,7 +400,7 @@ class url
     // Если ссылка начинается со слэша — выкидываем папку с CMS.
     $result = $this->getBase(substr($this->path, 0, 1) == '/' ? null : $ctx);
 
-    if (self::$clean or !$this->islocal)
+    if ($this->clean or !$this->islocal)
       $result .= ltrim($this->path, '/');
     elseif (!empty($_SERVER['SCRIPT_FILENAME']))
       $result .= basename($_SERVER['SCRIPT_FILENAME']);
