@@ -278,6 +278,9 @@ class Context
     else
       $url['args'] = $url['args'][$name];
 
+    if ('widget' == ($url['args']['debug'] = $this->debug()))
+      $url['args']['widget'] = $this->get('widget');
+
     $ctx = new Context($this->_args);
     $ctx->_url = new url($url);
 
