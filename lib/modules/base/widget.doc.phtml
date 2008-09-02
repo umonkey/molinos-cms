@@ -1,7 +1,7 @@
 <!-- default doc widget template --><?php
 
 if (!empty($document)) {
-  $code = bebop_render_object('type', $document['class'], null, array(
+  $code = bebop_render_object('type', $document['class'], $theme, array(
     'document' => $document,
     'tags' => $tags,
     ));
