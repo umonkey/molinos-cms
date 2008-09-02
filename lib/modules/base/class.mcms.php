@@ -1444,8 +1444,16 @@ class mcms
   {
     self::check();
 
+    // Определение текущего урла.
+    if (!empty($_GET['__cleanurls'])) {
+      $parts = explode('?', $_SERVER['REQUEST_URI']);
+      $url = $parts[0] .'?'. $_SERVER['QUERY_STRING'];
+    } else {
+      $url = $_SERVER['REQUEST_URI'];
+    }
+
     if (null === $ctx)
-      $ctx = new Context();
+      $ctx = new Context(array('url' => $url));
 
     try {
       $req = new RequestController($ctx);
