@@ -376,7 +376,7 @@ abstract class Widget implements iWidget
         else
           $classpath = 'unknown';
 
-        mcms::debug(array(
+        mcms::debug('Widget debug: '. $this->getInstanceName() .'.', array(
           'class' => $classname,
           'class_path' => $classpath,
           'template_candidates' => bebop_get_templates('widget',
