@@ -58,8 +58,6 @@ class url
       unset($this->args['__cleanurls']);
     }
 
-    // mcms::debug($this);
-
     $this->readonly = $readonly;
   }
 
