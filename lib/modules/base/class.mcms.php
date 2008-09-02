@@ -448,8 +448,11 @@ class mcms
         foreach (func_get_args() as $arg) {
           if (is_resource($arg))
             $output[] = 'resource';
+          elseif (is_string($arg))
+            $output[] = $arg;
           else
-            $output[] = preg_replace('/ =>\s+/', ' => ', var_export($arg, true));
+            $output[] = preg_replace('/ =>\s+/', ' => ', var_export($arg, true))
+              .';';
         }
       } else {
         $output[] = 'breakpoint';
@@ -463,7 +466,7 @@ class mcms
       if (!empty($_SERVER['REQUEST_METHOD']))
         header("Content-Type: text/plain; charset=utf-8");
 
-      print join(";\n\n", $output) .";\n\n";
+      print join("\n\n", $output) ."\n\n";
 
       if (true /* !empty($_SERVER['REMOTE_ADDR']) */) {
         printf("--- backtrace (request duration: %s) ---\n",
