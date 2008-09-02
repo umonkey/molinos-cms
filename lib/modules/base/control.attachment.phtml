@@ -2,27 +2,29 @@
 
 static $fid = 1;
 
-function fthumbnail(array $a)
-{
-  if (empty($a['id']))
-    $src = 'themes/admin/img/blank.gif';
-  else
-    $src = strval(new url('attachment.rpc?fid='.
-      $a['id'] .',48,48,c&rev='.  $a['rid']));
+if (!function_exists('fthumbnail')) {
+  function fthumbnail(array $a)
+  {
+    if (empty($a['id']))
+      $src = 'themes/admin/img/blank.gif';
+    else
+      $src = strval(new url('attachment.rpc?fid='.
+        $a['id'] .',48,48,c&rev='.  $a['rid']));
 
-  $img = mcms::html('img', array(
-    'src' => $src,
-    'width' => 48,
-    'height' => 48,
-    'alt' => 'thumbnail',
-    ));
+    $img = mcms::html('img', array(
+      'src' => $src,
+      'width' => 48,
+      'height' => 48,
+      'alt' => 'thumbnail',
+      ));
 
-  if (!empty($a['id']))
-    $img = l('attachment.rpc?fid='. $a['id'], $img);
-  else
-    $img = l('#', $img);
+    if (!empty($a['id']))
+      $img = l('attachment.rpc?fid='. $a['id'], $img);
+    else
+      $img = l('#', $img);
 
-  return $img;
+    return $img;
+  }
 }
 
 ?><table class='files'>
