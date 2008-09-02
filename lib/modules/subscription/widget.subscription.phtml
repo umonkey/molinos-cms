@@ -1,0 +1,19 @@
+<?php if ('default' == $mode): ?>
+<?php if (!empty($title)) print mcms::html('h2', $title); ?>
+<form action='<?php print $base;
+  ?>subscription.rpc?action=subscribe&destination=<?php
+  print urlencode($_SERVER['REQUEST_URI']);
+  ?>' method='post' enctype='multipart/form-data'>
+<input type='text' name='email' value='<?php
+  print empty($email) ? null : $email; ?>' />
+<input type='submit' value='Подписаться' />
+<?php foreach ($enabled as $id) {
+  print mcms::html('input', array(
+    'type' => 'hidden',
+    'name' => 'sections[]',
+    'value' => $id,
+    ));
+  } ?>
+
+</form>
+<?php endif; ?>
