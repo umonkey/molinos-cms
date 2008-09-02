@@ -12,7 +12,7 @@ function smarty_function_mcms_render_document($params, &$smarty)
   if (null !== $class) {
     $args = $params;
 
-    $html = bebop_render_object('type', $class, null, $args);
+    $html = bebop_render_object('type', $class, $params['theme'], $args);
 
     if (isset($params['assign']))
       $smarty->assign($params['assign'], $html);
