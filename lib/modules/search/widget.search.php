@@ -262,6 +262,7 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
     case 'search-form':
       $form = new Form(array(
         'action' => empty($this->action) ? null : '/'. trim($this->action, '/') .'/',
+        'method' => 'get',
         ));
 
       $form->addControl(new TextLineControl(array(
@@ -273,16 +274,6 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
         )));
 
       return $form;
-    }
-  }
-
-  public function formProcess($id, array $data)
-  {
-    switch ($id) {
-    case 'search-form':
-      $url = bebop_split_url();
-      $url['args'][$this->getInstanceName()]['q'] = $data['search_string'];
-      mcms::redirect($url);
     }
   }
 

@@ -502,23 +502,6 @@ abstract class Widget implements iWidget
   }
 
   /**
-   * Обработка формы.
-   *
-   * Ничего не делает (заглушка).  При обращении отладчика выводит отладочную
-   * информацию для облегчения поиска места, где пропущен обработчик.
-   *
-   * @param string $id идентификатор формы.
-   *
-   * @param array $data поступившие от пользователя данные.
-   *
-   * @return void
-   */
-  public function formProcess($id, array $data)
-  {
-    mcms::debug("Unhandled form {$id} in class ". get_class($this) .", data follows.", $data);
-  }
-
-  /**
    * Проверка применимости документа к виджету.
    *
    * Если виджет не привязан к документам такого типа — возвращает false.

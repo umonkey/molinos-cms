@@ -109,29 +109,6 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
     return array();
   }
 
-  public function formProcess($form_id, array $data)
-  {
-    switch ($form_id) {
-    case 'vote-form':
-      if (null !== ($poll = $this->getCurrentPoll())) {
-        if ($this->checkUserVoted($poll))
-          return;
-
-        if (!($uid = mcms::user()->id))
-          $uid = null;
-
-        mcms::db()->exec("INSERT INTO `node__poll` (`nid`, `uid`, `ip`, `option`) VALUES (:nid, :uid, :ip, :option)", array(
-          ':nid' => $poll->id,
-          ':uid' => $uid,
-          ':ip' => $_SERVER['REMOTE_ADDR'],
-          ':option' => isset($data['vote']) ? $data['vote'] : null,
-          ));
-      }
-
-      break;
-    }
-  }
-
   protected function getCurrentPoll()
   {
     $nodes = Node::find($filter = array('class' => 'poll', 'tags' => $this->options['section'], '#sort' => array('created' => 'desc')), 1, 0);

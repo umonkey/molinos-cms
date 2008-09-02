@@ -64,13 +64,4 @@ interface iWidget
    * @return Control описание формы.
    */
   public function formGet($id);
-
-  /**
-   * Обработка формы.
-   *
-   * @todo устранить.
-   *
-   * @return void
-   */
-  public function formProcess($id, array $data);
 };

@@ -151,42 +151,4 @@ class SubscriptionAdminWidget extends Widget
 
     return $data;
   }
-
-  public function formProcess($id, array $data)
-  {
-    $flush = false;
-
-    if (empty($data['subscription_types']))
-      $data['subscription_types'] = array();
-
-    foreach (Node::find(array('class' => 'type')) as $t) {
-      if ($t->sendmail and !in_array($t->id, $data['subscription_types'])) {
-        $t->sendmail = false;
-        $t->save();
-        $flush = true;
-      } elseif (!$t->sendmail and in_array($t->id, $data['subscription_types'])) {
-        $t->sendmail = true;
-        $t->save();
-        $flush = true;
-      }
-    }
-
-    if (empty($data['subscription_sections']))
-      $data['subscription_sections'] = array();
-
-    foreach (Node::find(array('class' => 'tag')) as $t) {
-      if ($t->bebop_subscribe and !in_array($t->id, $data['subscription_sections'])) {
-        $t->bebop_subscribe = false;
-        $t->save();
-        $flush = true;
-      } elseif (!$t->bebop_subscribe and in_array($t->id, $data['subscription_sections'])) {
-        $t->bebop_subscribe = true;
-        $t->save();
-        $flush = true;
-      }
-    }
-
-    if ($flush)
-      mcms::flush();
-  }
 };

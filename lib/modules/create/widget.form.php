@@ -324,19 +324,4 @@ class FormWidget extends Widget
 
     return $data;
   }
-
-  public function formProcess($id, array $data)
-  {
-    $next = null;
-
-    switch ($id) {
-    case 'form-create-edit':
-      $node = Node::load($this->options['node']);
-      $node->formProcess($data);
-      $node->save();
-      return $_GET['destination'];
-    }
-
-    return $next;
-  }
 };
