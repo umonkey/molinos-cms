@@ -43,9 +43,10 @@ class RatingWidget extends Widget implements iNodeHook
   // Препроцессор параметров.
   protected function getRequestOptions(Context $ctx)
   {
-    $halt = false;
+    if (!is_array($options = parent::getRequestOptions($ctx)))
+      return $options;
 
-    $options = parent::getRequestOptions($ctx);
+    $halt = false;
 
     $options['#nocache'] = true;
     $options['action'] = $ctx->get('action', 'status');
@@ -60,7 +61,7 @@ class RatingWidget extends Widget implements iNodeHook
     if ($halt)
       throw new WidgetHaltedException();
 
-    return $this->options = $options;
+    return $options;
   }
 
   // Обработка GET запросов.

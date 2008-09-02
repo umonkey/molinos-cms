@@ -75,7 +75,8 @@ class CommentFormWidget extends Widget
 
   protected function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (!is_array($options = parent::getRequestOptions($ctx)))
+      return $options;
 
     $options['status'] = $ctx->get('status', 'form');
     $options['user'] = mcms::user()->id;
@@ -90,7 +91,7 @@ class CommentFormWidget extends Widget
       throw new WidgetHaltedException();
     }
 
-    return $this->options = $options;
+    return $options;
   }
 
   public function onGet(array $options)

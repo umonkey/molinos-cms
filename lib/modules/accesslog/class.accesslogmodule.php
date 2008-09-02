@@ -17,14 +17,6 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
       );
   }
 
-  // Препроцессор параметров.
-  protected function getRequestOptions(Context $ctx)
-  {
-    $options = parent::getRequestOptions($ctx);
-
-    return $this->options = $options;
-  }
-
   // Обработка GET запросов.
   public static function onGet(Context $ctx)
   {

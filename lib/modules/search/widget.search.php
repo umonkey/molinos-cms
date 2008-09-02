@@ -63,7 +63,8 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
 
   protected function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (!is_array($options = parent::getRequestOptions($ctx)))
+      return $options;
 
     $options['q'] = $ctx->get('q');
     $options['page'] = $ctx->get('page', 1);

@@ -118,7 +118,8 @@ class MenuWidget extends Widget implements iWidget
    */
   protected function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (!is_array($options = parent::getRequestOptions($ctx)))
+      return $options;
 
     if ('root' == $this->fixed)
       $options['root'] = $ctx->root;
@@ -132,7 +133,7 @@ class MenuWidget extends Widget implements iWidget
     $options['current'] = $ctx->section;
     $options['document'] = $ctx->document;
 
-    return $this->options = $options;
+    return $options;
   }
 
   /**

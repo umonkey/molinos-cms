@@ -61,12 +61,13 @@ class TitleWidget extends Widget
    */
   protected function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (!is_array($options = parent::getRequestOptions($ctx)))
+      return $options;
 
     $options['document_id'] = $ctx->document->id;
     $options['section_id'] = $ctx->section->id;
 
-    return $this->options = $options;
+    return $options;
   }
 
   /**

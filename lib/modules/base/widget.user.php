@@ -89,7 +89,8 @@ class UserWidget extends Widget implements iWidget
    */
   protected function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (!is_array($options = parent::getRequestOptions($ctx)))
+      return $options;
 
     $options['uid'] = $ctx->get('uid');
     $options['login'] = $this->user->login;
@@ -101,7 +102,7 @@ class UserWidget extends Widget implements iWidget
     if (empty($options['uid']))
       $options['#nocache'] = true;
 
-    return $this->options = $options;
+    return $options;
   }
 
   /**

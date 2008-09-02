@@ -34,7 +34,8 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
   // Препроцессор параметров.
   protected function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (!is_array($options = parent::getRequestOptions($ctx)))
+      return $options;
 
     $options['#nocache'] = true;
     $options['action'] = $ctx->get('action', 'default');
@@ -42,7 +43,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
     if (!($options['section'] = $this->fixed))
       $options['section'] = $ctx->section->id;
 
-    return $this->options = $options;
+    return $options;
   }
 
   // Обработка GET запросов.

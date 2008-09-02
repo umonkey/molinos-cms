@@ -140,7 +140,8 @@ class ListWidget extends Widget
    */
   protected function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (!is_array($options = parent::getRequestOptions($ctx)))
+      return $options;
 
     $options['picker'] = $ctx->get('picker');
     $options['limit'] = $ctx->get('limit', $this->limit);
@@ -231,7 +232,7 @@ class ListWidget extends Widget
     if (!empty($options['sort']) and array_key_exists('RAND()', $options['sort']))
       $options['#nocache'] = true;
 
-    return $this->options = $options;
+    return $options;
   }
 
   /**

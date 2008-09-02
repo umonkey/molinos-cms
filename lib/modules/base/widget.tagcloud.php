@@ -74,7 +74,7 @@ class TagCloudWidget extends Widget implements iWidget
       'types' => $this->classes,
       );
 
-    return $this->options = $options;
+    return $options;
   }
 
   /**

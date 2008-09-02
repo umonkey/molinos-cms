@@ -19,7 +19,8 @@ class SubscriptionAdminWidget extends Widget
   // Препроцессор параметров.
   protected function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (!is_array($options = parent::getRequestOptions($ctx)))
+      return $options;
 
     $options['mode'] = $ctx->get('mode', 'default');
     $options['download'] = $ctx->get('download');

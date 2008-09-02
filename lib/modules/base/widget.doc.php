@@ -89,30 +89,30 @@ class DocWidget extends Widget implements iWidget
    */
   protected function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (is_array($options = parent::getRequestOptions($ctx))) {
+      if (null === ($options['action'] = $ctx->get('action', $this->mode)))
+        $options['action'] = 'view';
 
-    if (null === ($options['action'] = $ctx->get('action', $this->mode)))
-      $options['action'] = 'view';
+      if ($uid = mcms::user()->id) {
+        $options['cachecontrol'] = $uid;
+        $options['uid'] = $uid;
+      } else {
+        $options['cachecontrol'] = array_keys(mcms::user()->getGroups());
+      }
 
-    if ($uid = mcms::user()->id) {
-      $options['cachecontrol'] = $uid;
-      $options['uid'] = $uid;
-    } else {
-      $options['cachecontrol'] = array_keys(mcms::user()->getGroups());
+      if ($this->showneighbors)
+        $options['section'] = $ctx->section;
+
+      if (empty($this->fixed))
+        $options['root'] = $ctx->document;
+      else
+        $options['root'] = $this->fixed;
+
+      if ('' == strval($options['root']))
+        return false;
     }
 
-    if ($this->showneighbors)
-      $options['section'] = $ctx->section;
-
-    if (empty($this->fixed))
-      $options['root'] = $ctx->document;
-    else
-      $options['root'] = $this->fixed;
-
-    if ('' == strval($options['root']))
-      return false;
-
-    return $this->options = $options;
+    return $options;
   }
 
   /**

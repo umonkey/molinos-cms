@@ -79,7 +79,8 @@ class FormWidget extends Widget
   // Препроцессор параметров.
   public function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (!is_array($options = parent::getRequestOptions($ctx)))
+      return $options;
     
     $options['type'] = $ctx->get('type', $this->type);
     $options['default'] = $ctx->get('default', array());
@@ -97,8 +98,6 @@ class FormWidget extends Widget
       $options['parent_id'] = intval($tmp);
     else
       $options['parent_id'] = null;
-
-    $this->options = $options;
 
     return $options;
   }

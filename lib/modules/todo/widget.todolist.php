@@ -50,7 +50,8 @@ class TodoListWidget extends Widget
 
   protected function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (!is_array($options = parent::getRequestOptions($ctx)))
+      return $options;
 
     $options['uid'] = mcms::user()->id;
     $options['mode'] = $ctx->get('mode');
@@ -62,7 +63,7 @@ class TodoListWidget extends Widget
     else
       $options['relname'] = $ctx->document->name;
 
-    return $this->options = $options;
+    return $options;
   }
 
   public function onGet(array $options)

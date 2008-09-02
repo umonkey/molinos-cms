@@ -23,7 +23,8 @@ class StatusAdminWidget extends Widget
   // Препроцессор параметров.
   protected function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (!is_array($options = parent::getRequestOptions($ctx)))
+      return $options;
 
     $options['action'] = $ctx->get('action', 'status');
     $options['#nocache'] = true;

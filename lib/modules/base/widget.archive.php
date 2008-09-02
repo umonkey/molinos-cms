@@ -73,28 +73,28 @@ class ArchiveWidget extends Widget implements iWidget
    */
   protected function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (is_array($options = parent::getRequestOptions($ctx))) {
+      // Нужно для подавления кэширования.
+      $options['apath'] = $ctx->apath;
 
-    // Нужно для подавления кэширования.
-    $options['apath'] = $ctx->apath;
+      // Самостоятельно парсим урл, т.к. будем подглядывать за другими виджетами.
+      // FIXME: это надо получать из контекста.
+      $url = bebop_split_url();
 
-    // Самостоятельно парсим урл, т.к. будем подглядывать за другими виджетами.
-    // FIXME: это надо получать из контекста.
-    $url = bebop_split_url();
+      if (!empty($url['args'][$this->host])) {
+        // Вытаскиваем нужные нам параметры.
+        foreach (array('year', 'month', 'day') as $key) {
+          // Первый же отсутствующий параметр прерывает цепочку.
+          if (!array_key_exists($key, $url['args'][$this->host]))
+            break;
 
-    if (!empty($url['args'][$this->host])) {
-      // Вытаскиваем нужные нам параметры.
-      foreach (array('year', 'month', 'day') as $key) {
-        // Первый же отсутствующий параметр прерывает цепочку.
-        if (!array_key_exists($key, $url['args'][$this->host]))
-          break;
-
-        // Если параметр найден -- сохраняем его значение и продолжаем сканировать.
-        $options[$key] = $url['args'][$this->host][$key];
+          // Если параметр найден -- сохраняем его значение и продолжаем сканировать.
+          $options[$key] = $url['args'][$this->host][$key];
+        }
       }
     }
 
-    return $this->options = $options;
+    return $options;
   }
 
   /**

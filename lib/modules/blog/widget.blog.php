@@ -41,7 +41,8 @@ class BlogWidget extends Widget
   // Препроцессор параметров.
   protected function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (!is_array($options = parent::getRequestOptions($ctx)))
+      return $options;
 
     if ($ctx->section->id or $ctx->document->id) {
       mcms::debug("Виджет {$this->getInstanceName()} не может работать на страницах, параметризуемых кодом раздела или документа.");
@@ -58,7 +59,7 @@ class BlogWidget extends Widget
     $options['limit'] = $this->limit ? $this->limit : 10;
     $options['page'] = $ctx->get('page', 1);
 
-    return $this->options = $options;
+    return $options;
   }
 
   // Обработка GET запросов.

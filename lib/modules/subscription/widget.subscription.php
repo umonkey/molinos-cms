@@ -32,14 +32,15 @@ class SubscriptionWidget extends Widget
   // Препроцессор параметров.
   protected function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (!is_array($options = parent::getRequestOptions($ctx)))
+      return $options;
 
     $options['sections'] = empty($this->sections)
       ? array() : $this->sections;
 
     $options['#cache'] = false;
 
-    return $this->options = $options;
+    return $options;
   }
 
   public function onGet(array $options)

@@ -45,7 +45,7 @@ class MessageListWidget extends Widget
       'limit' => $this->limit,
       );
 
-    return $this->options = $options;
+    return $options;
   }
 
   public function onGet(array $options)

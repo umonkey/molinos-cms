@@ -97,7 +97,8 @@ class CommentWidget extends Widget
   // Препроцессор параметров.
   protected function getRequestOptions(Context $ctx)
   {
-    $options = parent::getRequestOptions($ctx);
+    if (!is_array($options = parent::getRequestOptions($ctx)))
+      return $options;
 
     $options['status'] = $ctx->get('status');
 
@@ -131,7 +132,7 @@ class CommentWidget extends Widget
       break;
     }
 
-    return $this->options = $options;
+    return $options;
   }
 
   private function listComments($nid, $page = 1)
