@@ -100,6 +100,14 @@ function get_dba_link()
     <?php print mcms::extras(); ?>
     <link rel="shortcut icon" href="themes/all/img/favicon.ico"
       type="image/x-icon" />
+    <link rel="home" href="admin" />
+    <link rel="contents" href="admin" />
+    <link rel="index" href="admin?mode=list&columns=name,class,uid,created" />
+    <link rel="search" type="text/html" href="admin?mode=search" />
+    <link rel="help" href="http://code.google.com/p/molinos-cms/w/list?can=2&q=label%3AFAQ&sort=&colspec=Summary+Changed+ChangedBy&nobtn=Update" />
+    <link rel="copyright" href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.html" />
+    <link rel="glossary" href="http://code.google.com/p/molinos-cms/w/list?can=2&q=label%3AUserGuide+-label%3AFAQ&colspec=PageName+Summary+Changed+ChangedBy+Phase+Needs" />
+    <link rel="author" href="http://www.molinos-cms.ru/" />
     <script type="text/javascript">var mcms_path = '<?php
       print mcms::path(); ?>';</script>
   </head>
