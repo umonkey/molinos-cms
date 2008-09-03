@@ -1527,6 +1527,18 @@ class mcms
     else
       return $map[$code];
   }
+
+  public static function matchip($value, $ips)
+  {
+    $re = preg_replace(
+      array('@,\s*@', '@\.@', '@\*@', '@\?@'),
+      array('|', '\.', '.*', '.'),
+      '@^('. $ips .')$@');
+
+    return preg_match($re, $value)
+      ? true
+      : false;
+  }
 };
 
 set_exception_handler('mcms::renderException');

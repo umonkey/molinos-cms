@@ -15,7 +15,7 @@ function bebop_is_debugger()
 
       if (empty($tmp))
         $skip = false;
-      elseif (!in_array($_SERVER['REMOTE_ADDR'], $list = preg_split('/[, ]+/', $tmp)))
+      elseif (!mcms::matchip($_SERVER['REMOTE_ADDR'], $tmp))
         $skip = true;
     }
   }
