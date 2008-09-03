@@ -2,19 +2,16 @@
 
 class SubscriptionScheduler implements iScheduler
 {
-  // Выполнение периодических задач.
+  /**
+   * Рассылка новостей.
+   */
   public static function taskRun()
   {
-    $pdo = mcms::db();
-
     // Отправка почты занимает много времени.
     if (!ini_get('safe_mode'))
       set_time_limit(0);
 
-    $types = array();
-
-    foreach (Node::find(array('class' => 'type', 'sendmail' => 1)) as $type)
-      $types[] = $type->name;
+    $types = mcms::modconf('subscription', 'types', array());
 
     if (empty($types)) {
       printf("  subscription: no types.\n");
