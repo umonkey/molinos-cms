@@ -13,7 +13,9 @@ function render_username()
 {
   $user = mcms::user()->getRaw();
 
-  $link = 'admin?cgroup=access&mode=edit&id='. mcms::user()->id .'&destination=CURRENT';
+  $link = 'admin?cgroup=access&mode=edit&id='. mcms::user()->id
+    .'&destination=CURRENT';
+
   $name = mcms_plain(l($user));
 
   return l($link, $name, array(

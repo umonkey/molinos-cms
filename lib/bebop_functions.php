@@ -77,6 +77,9 @@ function l($url, $title = null, array $options = null, $absolute = false)
   if ($parts->islocal)
     $url = strval($parts);
 
+  if (false !== strpos($url, '=CURRENT'))
+    $url = str_replace('CURRENT', urlencode($_SERVER['REQUEST_URI']), $url);
+
   $options['href'] = $url;
 
   if (null === $title)
