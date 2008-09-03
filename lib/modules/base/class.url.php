@@ -347,8 +347,7 @@ class url
             }
 
             elseif (null !== $argval and '' !== $argval) {
-              $pairs[] = $prefix .'='.
-                str_replace('%2F', '/', urlencode($argval));
+              $pairs[] = $prefix .'='. $this->fixEscape($argval);
             }
           }
         }
@@ -357,7 +356,7 @@ class url
           if ('destination' === $k and 'CURRENT' === $v) {
             $pairs[] = $k .'='. urlencode($_SERVER['REQUEST_URI']);
           } else {
-            $pairs[] = $k .'='. str_replace('%2F', '/', urlencode($v));
+            $pairs[] = $k .'='. $this->fixEscape($v);
           }
         }
       }
@@ -367,6 +366,14 @@ class url
     }
 
     return $result;
+  }
+
+  private function fixEscape($value)
+  {
+    return str_replace(
+      array('%2F', '%2C'),
+      array('/', ','),
+      urlencode($value));
   }
 
   /**
