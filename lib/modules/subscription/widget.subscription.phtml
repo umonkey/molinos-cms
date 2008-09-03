@@ -1,4 +1,3 @@
-<?php if ('default' == $mode): ?>
 <?php if (!empty($title)) print mcms::html('h2', $title); ?>
 <form action='<?php print $base;
   ?>subscription.rpc?action=subscribe&destination=<?php
@@ -16,4 +15,3 @@
   } ?>
 
 </form>
-<?php endif; ?>
