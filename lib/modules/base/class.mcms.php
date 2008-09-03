@@ -1539,6 +1539,28 @@ class mcms
       ? true
       : false;
   }
+
+  public static function filesize($file_or_size)
+  {
+    if (!is_numeric($file_or_size)) {
+      if (!file_exists($file_or_size))
+        $file_or_size = 0;
+      else
+        $file_or_size = filesize($file_or_size);
+    }
+
+    $sfx = 'Б';
+
+    if ($size > 1048576) {
+      $size /= 1048576;
+      $sfx = 'МБ';
+    } elseif ($size > 1024) {
+      $size /= 1024;
+      $sfx = 'КБ';
+    }
+
+    return number_format($size, 1, '.', '') . $sfx;
+  }
 };
 
 set_exception_handler('mcms::renderException');

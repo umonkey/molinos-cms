@@ -82,8 +82,8 @@ class AdminStatus implements iAdminMenu
         'сессий: !count');
 
       if ('SQLite' == mcms::db()->getDbType())
-        $parts[] = t('объём&nbsp;БД:&nbsp;%sizeКБ', array(
-          '%size' => number_format(filesize(mcms::db()->getDbName()) / 1024),
+        $parts[] = t('объём&nbsp;БД:&nbsp;%size', array(
+          '%size' => mcms::filesize(mcms::db()->getDbName()),
           ));
 
       if ($tmp = mcms::config('runtime_modules')) {
