@@ -612,10 +612,22 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       throw new ValidationException('name', t("Имя поля может содержать только буквы латинского алфавита, арабские цифры и символ подчёркивания (\"_\"), вы ввели: %name.", array('%name' => $name)));
   }
 
+  /**
+   * Выполнение периодических задач.
+   */
   public static function taskRun()
   {
+    // FIXME: что это должно делать ваще??
+    return;
+
     $count = 0;
-    $sql = "SELECT `x`.`id` AS `id` FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` INNER JOIN `node` `x` ON `x`.`class` = `r`.`name` WHERE `n`.`class` = 'type' AND `x`.`updated` < `n`.`updated` AND `n`.`deleted` = 0 AND `x`.`class` NOT IN ('type', 'widget', 'domain', 'tag', 'user') LIMIT 10";
+    $sql = "SELECT `x`.`id` AS `id` FROM `node` `n` "
+      ."INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` "
+      ."INNER JOIN `node` `x` ON `x`.`class` = `r`.`name` "
+      ."WHERE `n`.`class` = 'type' AND `x`.`updated` < `n`.`updated` "
+      ."AND `n`.`deleted` = 0 "
+      ."AND `x`.`class` NOT IN ('type', 'widget', 'domain', 'tag', 'user') "
+      ."LIMIT 10";
 
     while (count($ids = mcms::db()->getResultsV('id', $sql))) {
       $nodes = Node::find(array('id' => $ids));
@@ -679,7 +691,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     $result = array();
 
     foreach (self::getSchema() as $k => $v)
-      if (mcms::user()->hasAccess('r', $k))
+      if (null === $mode or mcms::user()->hasAccess('r', $k))
         $result[$k] = empty($v['title']) ? $k : $v['title'];
 
     asort($result);
