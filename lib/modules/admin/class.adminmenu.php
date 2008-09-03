@@ -16,6 +16,22 @@ class AdminMenu implements iAdminMenu
     return mcms::config($key, $value);
   }
 
+  private static function getGroupName($name)
+  {
+    $trans = array(
+      'access' => t('Доступ'),
+      'content' => t('Наполнение'),
+      'developement' => t('Разработка'),
+      'statistics' => t('Статистика'),
+      'structure' => t('Структура'),
+      'status' => t('Состояние'),
+      );
+
+    return array_key_exists($name, $trans)
+      ? $trans[$name]
+      : $name;
+  }
+
   public function getHTML()
   {
     $cgroup = empty($_GET['cgroup']) ? 'content' : $_GET['cgroup'];
@@ -23,41 +39,35 @@ class AdminMenu implements iAdminMenu
     if (is_string($tmp = $this->cache()))
       return $tmp;
 
-    $trans = array(
-      'access' => t('Доступ'),
-      'content' => t('Наполнение'),
-      'developement' => t('Разработка'),
-      'statistics' => t('Статистика'),
-      'structure' => t('Структура'),
-      );
-
     $menu = $this->getIcons();
 
     $output = '<ul>';
 
     foreach ($menu as $group => $icons) {
-      $url = $icons[0]['href'];
+      if (array_key_exists('href', $icons[0])) {
+        $url = $icons[0]['href'];
 
-      if ($group == $cgroup)
-        $output .= '<li class=\'current\'>';
-      else
-        $output .= '<li>';
+        if ($group == $cgroup)
+          $output .= '<li class=\'current\'>';
+        else
+          $output .= '<li>';
 
-      $output .= mcms::html('a', array(
-        'href' => $url,
-        ), array_key_exists($group, $trans) ? $trans[$group] : $group);
+        $output .= mcms::html('a', array(
+          'href' => $url,
+          ), self::getGroupName($group));
 
-      $output .= '<ul>';
+        $output .= '<ul>';
 
-      foreach ($icons as $icon) {
-        $tmp = mcms::html('a', array(
-          'href' => $icon['href'],
-          'title' => empty($icon['description']) ? null : $icon['description'],
-          ), $icon['title']);
-        $output .= mcms::html('li', $tmp);
+        foreach ($icons as $icon) {
+          $tmp = mcms::html('a', array(
+            'href' => $icon['href'],
+            'title' => empty($icon['description']) ? null : $icon['description'],
+            ), $icon['title']);
+          $output .= mcms::html('li', $tmp);
+        }
+
+        $output .= '</ul></li>';
       }
-
-      $output .= '</ul></li>';
     }
 
     $output .= '</ul>';
@@ -79,9 +89,11 @@ class AdminMenu implements iAdminMenu
 
       if (is_array($icons) and !empty($icons)) {
         foreach ($icons as $icon) {
-          $url = new url($icon['href']);
-          $url->setarg('cgroup', $icon['group']);
-          $icon['href'] = strval($url);
+          if (array_key_exists('href', $icon)) {
+            $url = new url($icon['href']);
+            $url->setarg('cgroup', $icon['group']);
+            $icon['href'] = strval($url);
+          }
 
           $result[$icon['group']][] = $icon;
         }
@@ -93,6 +105,9 @@ class AdminMenu implements iAdminMenu
     return $result;
   }
 
+  /**
+   * Базовая навигация по CMS.
+   */
   public static function getMenuIcons()
   {
     $icons = array();
@@ -103,6 +118,7 @@ class AdminMenu implements iAdminMenu
         'group' => 'content',
         'href' => 'admin?mode=tree&preset=taxonomy',
         'title' => t('Разделы'),
+        'message' => t('Управление разделами'),
         'description' => t('Управление разделами сайта.'),
         'weight' => -1,
         );
@@ -112,6 +128,11 @@ class AdminMenu implements iAdminMenu
         'group' => 'structure',
         'href' => 'admin?mode=list&preset=schema',
         'title' => t('Типы документов'),
+        'message' => t('<a href=\'@url1\'>Типы документов</a>, <a
+          href=\'@url2\'>справочники</a>', array(
+            '@url1' => 'admin?mode=list&preset=schema',
+            '@url2' => 'admin?mode=list&preset=dictlist',
+            )),
         );
 
     if (count($user->getAccess('u'))) {
@@ -119,6 +140,7 @@ class AdminMenu implements iAdminMenu
         'group' => 'content',
         'href' => 'admin?mode=list&columns=name,class,uid,created',
         'title' => t('Документы'),
+        'message' => t('Список всех документов'),
         'description' => t('Поиск, редактирование, добавление документов.'),
         );
       $icons[] = array(
@@ -131,6 +153,7 @@ class AdminMenu implements iAdminMenu
           'group' => 'content',
           'href' => 'admin?mode=list&preset=drafts',
           'title' => t('В модерации'),
+          'message' => t('Очередь модерации'),
           'description' => t('Поиск, редактирование, добавление документов.'),
           );
     }
@@ -140,12 +163,14 @@ class AdminMenu implements iAdminMenu
         'group' => 'structure',
         'href' => 'admin?mode=tree&preset=pages',
         'title' => t('Страницы'),
+        'message' => t('Домены и страницы'),
         'description' => t('Управление доменами, страницами и виджетами.'),
         );
       $icons[] = array(
         'group' => 'structure',
         'href' => 'admin?mode=list&preset=widgets',
         'title' => t('Виджеты'),
+        'message' => t('Виджеты'),
         );
     }
 
@@ -154,6 +179,7 @@ class AdminMenu implements iAdminMenu
         'group' => 'structure',
         'href' => 'admin?mode=modules',
         'title' => t('Модули'),
+        'message' => t('Модули'),
         );
     }
 
@@ -162,6 +188,7 @@ class AdminMenu implements iAdminMenu
         'group' => 'access',
         'href' => 'admin?mode=list&preset=users',
         'title' => t('Пользователи'),
+        'message' => t('Пользователи'),
         'description' => t('Управление профилями пользователей.'),
         );
     if ($user->hasAccess('u', 'group'))
@@ -169,6 +196,7 @@ class AdminMenu implements iAdminMenu
         'group' => 'access',
         'href' => 'admin?mode=list&preset=groups',
         'title' => t('Группы'),
+        'message' => t('Группы пользователей'),
         'description' => t('Управление группами пользователей.'),
         );
 
@@ -177,6 +205,7 @@ class AdminMenu implements iAdminMenu
         'group' => 'content',
         'href' => 'admin?mode=list&preset=files',
         'title' => t('Файлы'),
+        'message' => t('Файловый архив'),
         'description' => t('Просмотр, редактирование и добавление файлов.'),
         );
 
@@ -185,6 +214,7 @@ class AdminMenu implements iAdminMenu
         'group' => 'content',
         'href' => 'admin?mode=list&preset=trash',
         'title' => t('Корзина'),
+        'message' => t('Удалённые объекты'),
         'description' => t('Просмотр и восстановление удалённых файлов.'),
         'weight' => 10,
         );
@@ -195,5 +225,61 @@ class AdminMenu implements iAdminMenu
   public function __toString()
   {
     return $this->getHTML();
+  }
+
+  public function getDesktop()
+  {
+    $columns = array();
+    $idx = 0;
+
+    foreach ($this->getIcons() as $grname => $gritems) {
+      $items = array();
+
+      foreach ($gritems as $item) {
+        if (array_key_exists('message', $item)) {
+          $text = $item['message'];
+
+          if (false === strpos($text, '<') and array_key_exists('href', $item))
+            $text = l($item['href'], $text);
+
+          $items[] = $text;
+        }
+      }
+
+      if (!empty($items)) {
+        $content = mcms::html('legend', self::getGroupName($grname));
+
+        if (count($items) > 1)
+          $content .= mcms::html('ul', '<li>'. join('</li><li>', $items) .'</li>');
+        else
+          $content .= $items[0];
+
+        if (!array_key_exists($idx, $columns))
+          $columns[$idx] = '';
+
+        $columns[$idx] .= mcms::html('fieldset', $content);
+
+        $idx = ($idx + 1) % 2;
+
+        // $result .= mcms::html('fieldset', $content);
+      }
+    }
+
+    if (!empty($columns)) {
+      $result = '';
+
+      foreach ($columns as $idx => $col)
+        $result .= mcms::html('div', array(
+          'id' => 'desktop-column-'. ($idx + 1),
+          'class' => 'column',
+          ), $col);
+    }
+
+    if (empty($result))
+      return null;
+
+    return mcms::html('div', array(
+      'id' => 'desktop',
+      ), $result);
   }
 };

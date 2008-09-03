@@ -125,7 +125,7 @@ class PDO_Singleton extends PDO
 
   public function fetch($sql, array $params = null)
   {
-    $res = $this->GetResults($sql, $params);
+    $res = $this->getResults($sql, $params);
 
     while (is_array($res) and count($res) == 1)
       $res = array_shift($res);

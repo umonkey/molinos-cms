@@ -5,23 +5,29 @@ class NodeIndexer
 {
   public static function stats()
   {
-    $stat = array(
-      '_total' => 0,
-      );
+    static $stat = null;
 
-    foreach (TypeNode::getSchema() as $type => $meta) {
-      $indexed = false;
-      $reserved = TypeNode::getReservedNames();
+    if (null === $stat) {
+      $stat = array(
+        '_total' => 0,
+        );
 
-      foreach ($meta['fields'] as $k => $v) {
-        if (!empty($v['indexed']) and !in_array($k, $reserved)) {
-          $indexed = true;
-          break;
+      mcms::db()->log('-- node indexer stats --');
+
+      foreach (TypeNode::getSchema() as $type => $meta) {
+        $indexed = false;
+        $reserved = TypeNode::getReservedNames();
+
+        foreach ($meta['fields'] as $k => $v) {
+          if (!empty($v['indexed']) and !in_array($k, $reserved)) {
+            $indexed = true;
+            break;
+          }
         }
-      }
 
-      if ($indexed)
-        self::countTable($type, $stat, $meta);
+        if ($indexed)
+          self::countTable($type, $stat, $meta);
+      }
     }
 
     return empty($stat['_total']) ? null : $stat;

@@ -23,6 +23,7 @@ class ObjectNotFoundException extends UserErrorException
 {
   public function __construct()
   {
+    mcms::debug();
     parent::__construct("Объект не найден", 404, "Объект не найден", "Вы попытались обратиться к объекту, который не удалось найти.");
   }
 };

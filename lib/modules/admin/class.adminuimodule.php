@@ -243,23 +243,9 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
   private static function onGetStatus(Context $ctx)
   {
-    if ('setpass' == $ctx->get('msg')) {
-      return t('<h2>Добро пожаловать в Molinos.CMS!</h2>'
-        .'<p>Вы успешно установили систему.  Сейчас она работает в открытом режиме — любой пользователь будет автоматически идентифицирован как разработчик и получит полный набор прав, поэтому вы, скорее всего, первым делом захотите <a href=\'@url\'>установить пароль</a> на эту учётную запись.</p>', array(
-        '@url' => 'admin?cgroup=access&mode=edit&id='. mcms::user()->id,
-        ));
-    }
+    $m = new AdminMenu();
 
-    $output = self::getUnindexed();
-    $output .= self::getNoPassword();
-
-    return $output ? '<h2>Обнаружены проблемы</h2>'. $output : 'Система в порядке.';
-  }
-
-  private static function getUnindexed()
-  {
-    if (null !== ($stat = NodeIndexer::stats()))
-      return t('<p>%count объектов нуждаются в индексации.  Они будут проиндексирвоаны при выполнении планировщика, или вы можете <a href=\'@url\'>проиндексировать их вручную</a>.  Пока индексация не будет завершена, сортировка и выборка будут работать некорректно.', array('%count' => $stat['_total'], '@url' => 'admin.rpc?action=reindex'));
+    return $m->getDesktop();
   }
 
   private static function getNoPassword()

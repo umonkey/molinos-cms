@@ -550,3 +550,26 @@ a.editprofile {
   padding-left: 18px;
   background: transparent url(../img/user-16x16.png) no-repeat center left;
 }
+
+
+#desktop .column {
+  float: left;
+  width: 50%;
+}
+#desktop-column-1 fieldset {
+  margin-right: .5em;
+}
+#desktop-column-2 fieldset {
+  margin-left: .5em;
+}
+#desktop fieldset {
+  margin-bottom: .5em;
+}
+#desktop fieldset legend {
+  font-weight: normal;
+  font-size: 1.5em;
+}
+#desktop fieldset li {
+  list-style-type: none;
+  margin-bottom: .5em;
+}
