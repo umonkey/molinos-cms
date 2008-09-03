@@ -19,8 +19,8 @@ class SubscriptionScheduler implements iScheduler
     }
 
     // Обрабатываем активных пользователей.
-    foreach (Node::find(array('class' => 'subscription')) as $user) {
-      $last = null;
+    foreach (Node::find(array('class' => 'subscription', '#cache' => false)) as $user) {
+      $olast = $last = intval($user->last);
 
       // Получаем список разделов, на которые распространяется подписка.
       $tags = Node::find(array(
@@ -35,9 +35,12 @@ class SubscriptionScheduler implements iScheduler
       $nodes = Node::find(array(
         'class' => $types,
         'tags' => array_keys($tags),
-        'id' => ('>'. $user->last),
+        'id' => array('>'. $last),
         '#sort' => 'id',
+        '#cache' => false,
         ));
+
+      // mcms::debug($user, $last, $nodes);
 
       // Отправляем документы.
       foreach ($nodes as $node) {
@@ -47,10 +50,8 @@ class SubscriptionScheduler implements iScheduler
       }
 
       // Запоминаем последнее отправленное сообщение.
-      if ($last !== null) {
-        $user->last = $last;
-        $user->save();
-      }
+      $user->last = $last;
+      $user->save();
     }
   }
 }
