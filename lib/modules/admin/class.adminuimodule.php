@@ -401,9 +401,6 @@ class AdminUIModule implements iAdminUI, iRemoteCall
   {
     $action = $ctx->get('action');
 
-    if (null === $action and 'GET' == $ctx->method())
-      return self::onGet($ctx);
-
     $next = $ctx->get('destination', '');
 
     switch ($ctx->get('action')) {
@@ -462,6 +459,10 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       $next = bebop_combine_url($url, false);
 
       break;
+
+    default:
+      if ('GET' == $ctx->method())
+        return self::onGet($ctx);
     }
 
     mcms::redirect($next);
