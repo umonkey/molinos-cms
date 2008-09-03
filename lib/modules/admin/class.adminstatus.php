@@ -70,7 +70,7 @@ class AdminStatus implements iAdminMenu
         'удалённых: !count', 'admin?mode=list&preset=trash&cgroup=content');
 
       self::count($parts, 'SELECT COUNT(*) FROM `node` WHERE `published` = 0 AND `deleted` = 0',
-        'в модерации: !count', 'admin?mode=drafts&cgroup=content');
+        'в модерации: !count', 'admin?mode=list&preset=drafts&cgroup=content');
 
       self::count($parts, 'SELECT COUNT(*) FROM `node__rev`',
         'ревизий: !count');
