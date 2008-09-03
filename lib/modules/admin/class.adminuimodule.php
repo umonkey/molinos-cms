@@ -399,72 +399,72 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
   public static function hookRemoteCall(Context $ctx)
   {
-    if ('GET' == $ctx->method())
+    $action = $ctx->get('action');
+
+    if (null === $action and 'GET' == $ctx->method())
       return self::onGet($ctx);
 
-    elseif ('POST' == $ctx->method()) {
-      $next = $ctx->get('destination', '/');
+    $next = $ctx->get('destination', '');
 
-      switch ($ctx->get('action')) {
-      case 'reload':
-        $tmpdir = mcms::config('tmpdir');
+    switch ($ctx->get('action')) {
+    case 'reload':
+      $tmpdir = mcms::config('tmpdir');
 
-        if (file_exists($tmp = mcms::modmap()))
-          unlink($tmp);
+      if (file_exists($tmp = mcms::modmap()))
+        unlink($tmp);
 
-        foreach (glob($tmpdir .'/.pcache.*') as $tmp)
-          unlink($tmp);
+      foreach (glob($tmpdir .'/.pcache.*') as $tmp)
+        unlink($tmp);
 
-        foreach (glob($tmpdir .'/mcms-fetch.*') as $tmp)
-          unlink($tmp);
+      foreach (glob($tmpdir .'/mcms-fetch.*') as $tmp)
+        unlink($tmp);
 
-        DBCache::getInstance()->flush(false);
-        DBCache::getInstance()->flush(true);
+      DBCache::getInstance()->flush(false);
+      DBCache::getInstance()->flush(true);
 
-        mcms::flush();
-        mcms::flush(mcms::FLUSH_NOW);
-        break;
+      mcms::flush();
+      mcms::flush(mcms::FLUSH_NOW);
+      break;
 
-      case 'reindex':
-        if (NodeIndexer::run())
-          $next = 'admin.rpc?action=reindex';
-        else
-          $next = 'admin';
-        break;
+    case 'reindex':
+      if (NodeIndexer::run())
+        $next = 'admin.rpc?action=reindex';
+      else
+        $next = 'admin';
+      break;
 
-      case 'modlist':
-        self::hookModList($ctx);
-        break;
+    case 'modlist':
+      self::hookModList($ctx);
+      break;
 
-      case 'modconf':
-        self::hookModConf($ctx);
-        die(mcms::redirect('admin?cgroup=structure&mode=modules'));
+    case 'modconf':
+      self::hookModConf($ctx);
+      die(mcms::redirect('admin?cgroup=structure&mode=modules'));
 
-      case 'search':
-        $terms = array();
+    case 'search':
+      $terms = array();
 
-        foreach (array('term' => '', 'author' => 'uid:', 'type' => 'class:') as $k => $v)
-          if (null !== ($tmp = $ctx->post('search_'. $k)) and !empty($tmp))
-            $terms[] = $v . $tmp;
+      foreach (array('term' => '', 'author' => 'uid:', 'type' => 'class:') as $k => $v)
+        if (null !== ($tmp = $ctx->post('search_'. $k)) and !empty($tmp))
+          $terms[] = $v . $tmp;
 
-        if ($tmp = $ctx->post('search_tags')) {
-          if ($ctx->post('search_tags_recurse')) {
-            if (is_array($ids = mcms::db()->getResultsV('id', 'SELECT `n`.`id` FROM `node` `n`, `node` `parent` WHERE `n`.`class` = \'tag\' AND `n`.`deleted` = 0 AND `parent`.`id` = :tid AND `n`.`left` >= `parent`.`left` AND `n`.`right` <= `parent`.`right`', array(':tid' => $tmp))))
-              $tmp = join(',', $ids);
-          }
-          $terms[] = 'tags:'. $tmp;
+      if ($tmp = $ctx->post('search_tags')) {
+        if ($ctx->post('search_tags_recurse')) {
+          if (is_array($ids = mcms::db()->getResultsV('id', 'SELECT `n`.`id` FROM `node` `n`, `node` `parent` WHERE `n`.`class` = \'tag\' AND `n`.`deleted` = 0 AND `parent`.`id` = :tid AND `n`.`left` >= `parent`.`left` AND `n`.`right` <= `parent`.`right`', array(':tid' => $tmp))))
+            $tmp = join(',', $ids);
         }
-
-        $url = bebop_split_url($ctx->post('search_from'));
-        $url['args']['search'] = join(' ', $terms);
-
-        $next = bebop_combine_url($url, false);
-
-        break;
+        $terms[] = 'tags:'. $tmp;
       }
 
-      mcms::redirect($next);
+      $url = bebop_split_url($ctx->post('search_from'));
+      $url['args']['search'] = join(' ', $terms);
+
+      $next = bebop_combine_url($url, false);
+
+      break;
     }
+
+    mcms::redirect($next);
   }
 
   private static function hookModList(Context $ctx)
