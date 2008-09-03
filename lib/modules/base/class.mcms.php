@@ -1551,15 +1551,16 @@ class mcms
 
     $sfx = 'Б';
 
-    if ($size > 1048576) {
-      $size /= 1048576;
+    if ($file_or_size > 1048576) {
+      $file_or_size /= 1048576;
       $sfx = 'МБ';
-    } elseif ($size > 1024) {
-      $size /= 1024;
+    } elseif ($file_or_size > 1024) {
+      $file_or_size /= 1024;
       $sfx = 'КБ';
     }
 
-    return number_format($size, 1, '.', '') . $sfx;
+    return str_replace('.0', '', number_format($file_or_size, 1, '.', ''))
+      . $sfx;
   }
 };
 
