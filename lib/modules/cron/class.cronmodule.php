@@ -23,29 +23,38 @@ class CronModule implements iModuleConfig, iRemoteCall
   public static function hookRemoteCall(Context $ctx)
   {
     if (!self::isClientAllowed())
-      throw new ForbiddenException(t('Вам не позволено запускать периодические задачи.'));
+      throw new ForbiddenException(t('Настройки модуля cron не позволяют вам '
+        .'запускать периодические задачи.'));
+
+    set_time_limit(0);
 
     header('HTTP/1.1 200 OK');
     header('Content-Type: text/plain; charset=utf-8');
 
     mcms::invoke('iScheduler', 'taskRun');
 
+    self::touch();
+
+    if (null !== ($next = $ctx->get('destination')))
+      $ctx->redirect($next);
+
     die("OK\n");
   }
 
-  private static function isClientAllowed()
+  public static function isClientAllowed()
   {
-    if ('127.0.0.1' == $_SERVER['REMOTE_ADDR'])
-      return true;
+    return mcms::matchip($_SERVER['REMOTE_ADDR'],
+      mcms::modconf('cron', 'allowed', '127.0.0.1'));
+  }
 
-    if ($_SERVER['REMOTE_ADDR'] == $_SERVER['SERVER_ADDR'])
-      return true;
+  private static function touch()
+  {
+    try {
+      $node = Node::load(array('class' => 'cronstats'));
+    } catch (ObjectNotFoundException $e) {
+      $node = Node::create('cronstats');
+    }
 
-    $conf = mcms::modconf('cron');
-
-    if (isset($conf['allowed']) and in_array($_SERVER['REMOTE_ADDR'], preg_split('/, */', $conf['allowed'])))
-      return true;
-
-    return false;
+    $node->save();
   }
 };
