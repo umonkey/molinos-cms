@@ -26,7 +26,10 @@ class AdminStatus implements iAdminMenu
     if (!($p = mcms::user()->password) or $p == md5(''))
       $icons[] = array(
         'group' => 'status',
-        'message' => t('Пожалуйста, установите пароль на ваш аккаунт.'),
+        'message' => t('Пожалуйста, <a href=\'@url\'>установите пароль</a> '
+          .'на ваш аккаунт.', array(
+            '@url' => 'admin?cgroup=access&mode=edit&id=8&destination=CURRENT',
+            )),
         );
 
     if (null !== ($stat = NodeIndexer::stats()))
