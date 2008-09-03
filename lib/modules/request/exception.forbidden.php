@@ -8,6 +8,6 @@ class ForbiddenException extends UserErrorException
     if (null === $description)
       $description = t("Ваших полномочий недостаточно для выполнения запрошенной операции.");
 
-    parent::__construct(t("Нет доступа"), 403, $description);
+    parent::__construct($description, 403);
   }
 };
