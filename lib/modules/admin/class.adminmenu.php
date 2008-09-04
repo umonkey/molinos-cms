@@ -10,7 +10,7 @@ class AdminMenu implements iAdminMenu
 
     $key = 'adminmenu:'. (empty($_GET['cgroup']) ? 'content' : $_GET['cgroup']);
 
-    if (mcms::config('cleanurls'))
+    if (!empty($_GET['__cleanurls']))
       $key .= ':cleanurls';
 
     return mcms::config($key, $value);

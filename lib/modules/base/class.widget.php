@@ -184,7 +184,7 @@ abstract class Widget implements iWidget
 
     $options = array();
     $options['groups'] = array_keys($this->user->getGroups());
-    $options['__cleanurls'] = mcms::config('cleanurls');
+    $options['__cleanurls'] = !empty($_GET['__cleanurls']);
     $options['#cache'] = true;
     $options['#instance'] = $this->getInstanceName();
 

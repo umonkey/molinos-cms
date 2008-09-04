@@ -84,9 +84,9 @@ class NodeApiModule implements iRemoteCall
       $node = Node::load($nid);
 
       if ('tag' == $node->class)
-        $link = empty($_GET['__cleanurls']) ? '?q=ID' : 'ID/';
+        $link = '?q=ID';
       else
-        $link = empty($_GET['__cleanurls']) ? '?q=node/ID' : 'node/ID';
+        $link = '?q=node/ID';
 
       mcms::redirect(str_replace('ID', $node->id, $link));
 
