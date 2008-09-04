@@ -1636,7 +1636,7 @@ class NodeBase
 
           if ($v['type'] == 'AttachmentControl') {
             $t = array(
-             'value'   => 'node_content_files['. $k .']',
+             'value'   => 'file_'. $k,
              'medium'  => true,
              'unzip'   => false, // не разрешаем распаковывать зипы, загружаемые в поля.
              'archive' => true
@@ -1782,12 +1782,12 @@ class NodeBase
 
     if (!empty($schema['hasfiles'])) {
       $tab->addControl(new FileListControl(array(
-       'value' => 'node_content_files',
+       'value' => 'files',
         )));
 
       $tab->addControl(new AttachmentControl(array(
         'extended' => true,
-        'value' => 'node_content_files[__bebop][]',
+        'value' => 'file_'. rand(),
         'uploadtxt' => t('Загрузить'),
         'unzip' => true,
         )));
@@ -1896,26 +1896,24 @@ class NodeBase
 
         switch ($v['type']) {
         case 'AttachmentControl':
-          if (array_key_exists($k,$this->data))
-            $data['node_content_files['. $k .']'] = $this->data[$k];
-
-          if (isset($this->files[$k]))
-            $value = $this->files[$k];
+          if (($value = $this->$k) instanceof FileNode)
+            $data['file_'. $k] = $value->getRaw();
           break;
 
         default:
           $value = $this->$k;
+          $data['node_content_'. $k] = $value;
         }
-
-        $data['node_content_'. $k] = $value;
       }
 
+    /*
     if (!empty($this->files)) {
       foreach ($this->files as $key => $file) {
         $dt = $file->getRaw();
-        $data['node_content_files['. $dt['id'] .']'] = $file;
+        $data['file_'. $dt['id']] = $file;
       }
     }
+    */
 
     if (empty($schema['notags']))
       $data['node_tags'] = $this->linkListParents('tag', true);
@@ -1977,37 +1975,40 @@ class NodeBase
 
     $this->save();
 
-    if (!empty($data['node_content_files'])) {
-      foreach ($data['node_content_files'] as $field => $fileinfo) {
-        if (!is_array($fileinfo))
-          continue;
+    foreach ($data as $field => $fileinfo) {
+      if (0 !== strpos($field, 'file_'))
+        continue;
 
-        // Удаление ссылки на файл.
-        if (!empty($fileinfo['deleted'])) {
-          if (empty($fileinfo['id']))
-            $this->linkRemoveChild(null, $field);
-          else
-            $this->linkRemoveChild($fileinfo['id']);
-          unset($this->$field);
-          continue;
-        }
+      if (!is_array($fileinfo))
+        continue;
 
-        elseif (UPLOAD_ERR_NO_FILE == $fileinfo['error']) {
-          if (!empty($fileinfo['id']))
-            $this->linkAddChild($fileinfo['id'], $field);
-          elseif (!empty($fileinfo['deleted']))
-            $this->linkRemoveChild($fileinfo['id']);
-        }
+      $field = substr($field, 5);
 
-        elseif (UPLOAD_ERR_INI_SIZE == $fileinfo['error'])
-          throw new ValidationException(t('Файл %name слишком большой; '
-            .'максимальный размер файла: %size.', array(
-              '%name' => $fileinfo['name'],
-              '%size' => ini_get('upload_max_filesize'),
-              )));
-
-        $this->attachOneFile($field, $fileinfo);
+      // Удаление ссылки на файл.
+      if (!empty($fileinfo['deleted'])) {
+        if (empty($fileinfo['id']))
+          $this->linkRemoveChild(null, $field);
+        else
+          $this->linkRemoveChild($fileinfo['id']);
+        unset($this->$field);
+        continue;
       }
+
+      elseif (UPLOAD_ERR_NO_FILE == $fileinfo['error']) {
+        if (!empty($fileinfo['id']))
+          $this->linkAddChild($fileinfo['id'], $field);
+        elseif (!empty($fileinfo['deleted']))
+          $this->linkRemoveChild($fileinfo['id']);
+      }
+
+      elseif (UPLOAD_ERR_INI_SIZE == $fileinfo['error'])
+        throw new ValidationException(t('Файл %name слишком большой; '
+          .'максимальный размер файла: %size.', array(
+            '%name' => $fileinfo['name'],
+            '%size' => ini_get('upload_max_filesize'),
+            )));
+
+      $this->attachOneFile($field, $fileinfo);
     }
 
     if (!empty($data['reset_rel'])) {
