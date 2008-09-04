@@ -104,7 +104,7 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
         .'уже воспользовался.'));
     }
 
-    if ('POST' != $_SERVER['REQUEST_METHOD'])
+    if ('POST' != $ctx->method())
       throw new ForbiddenException('Идентификация возможна только '
         .'методом POST.');
 
@@ -113,8 +113,6 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
         User::authorize($ctx->get('id'), null);
       else
         User::authorize($ctx->post('login'), $ctx->post('password'));
-
-      mcms::log('base.rpc', 'logged in');
     } catch (ObjectNotFoundException $e) {
       bebop_on_json(array(
         'status' => 'wrong',

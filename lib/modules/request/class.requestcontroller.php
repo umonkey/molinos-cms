@@ -49,7 +49,6 @@ class RequestController
 
     if (method_exists($this, $method)) {
       mcms::invoke('iRequestHook', 'hookRequest', array($this->ctx));
-
       return call_user_func(array($this, $method));
     } else {
       throw new BadRequestException(t('Метод %method не поддерживается.',
@@ -188,7 +187,7 @@ class RequestController
     $domains = Node::find(array(
       'class' => 'domain',
       'parent_id' => null,
-      'published' => true,
+      'published' => array(0, 1),
       ));
 
     if (empty($domains))
@@ -230,28 +229,32 @@ class RequestController
         if ('post' == $this->ctx->method())
           mcms::db()->beginTransaction();
 
-        if (!empty($map['modules'][$module]['implementors']['iRemoteCall'])) {
-          foreach ($map['modules'][$module]['implementors']['iRemoteCall'] as $class) {
-            if (mcms::class_exists($class))
-              $result = call_user_func_array(array($class, 'hookRemoteCall'),
-                array($this->ctx));
+        try {
+          if (!empty($map['modules'][$module]['implementors']['iRemoteCall'])) {
+            foreach ($map['modules'][$module]['implementors']['iRemoteCall'] as $class) {
+              if (mcms::class_exists($class))
+                $result = call_user_func_array(array($class, 'hookRemoteCall'),
+                  array($this->ctx));
+            }
+
+            if ('post' == $this->ctx->method())
+              mcms::db()->commit();
+
+            if (null !== $result)
+              return $result;
+
+            header('HTTP/1.1 200 OK');
+            header('Content-Type: text/plain; charset=utf-8');
+            die('Request not handled.');
           }
-
-          if ('post' == $this->ctx->method())
-            mcms::db()->commit();
-
-          if (null !== $result)
-            return $result;
-
-          header('HTTP/1.1 200 OK');
-          header('Content-Type: text/plain; charset=utf-8');
-          die('Request not handled.');
+        } catch (UserErrorException $e) {
+          mcms::fatal($e);
         }
       }
-
-      header('HTTP/1.1 404 Not Found');
-      header('Content-Type: text/plain; charset=utf-8');
-      die('Request handler not found.');
     }
+
+    header('HTTP/1.1 404 Not Found');
+    header('Content-Type: text/plain; charset=utf-8');
+    die('Request handler for "'. $q .'" not found.');
   }
 }

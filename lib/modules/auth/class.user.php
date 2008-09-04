@@ -169,11 +169,16 @@ class User
 
     elseif (count($args) >= 2) {
       if ((strpos($args[0], '@') or false === strpos($args[0], '.')) or (!empty($args[3]))) { //e-mail в качестве логина или же мы уже прошли процедуры openID-авторищации
-        $node = Node::load($f = array(
-          'class' => 'user',
-          'name' => $args[0],
-          '#cache' => false,
-          ));
+        try {
+          $node = Node::load($f = array(
+            'class' => 'user',
+            'name' => $args[0],
+            '#cache' => false,
+            ));
+        } catch (ObjectNotFoundException $e) {
+          throw new ForbiddenException(t('Пользователь %name не '
+            .'зарегистрирован.', array('%name' => $args[0])));
+        }
 
         if (empty($args[2]) and !$node->checkpw($args[1]))
           throw new ForbiddenException(t('Введён неверный пароль.'));
