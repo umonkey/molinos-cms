@@ -137,7 +137,7 @@ class Context
    */
   public function query()
   {
-    $result = $this->url()->path;
+    $result = $this->get('q', $this->url()->path);
 
     // Отсекание папки из абсолютных урлов.
     if ('/' == substr($result, 0, 1)) {
