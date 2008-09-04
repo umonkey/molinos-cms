@@ -103,12 +103,12 @@ function get_dba_link()
     <link rel="shortcut icon" href="themes/all/img/favicon.ico"
       type="image/x-icon" />
     <link rel="home" href="admin" />
-    <link rel="contents" href="?q=admin&amp;mode=tree&amp;preset=taxonomy&amp;cgroup=content" />
-    <link rel="index" href="?q=admin&amp;mode=list&amp;columns=name,class,uid,created&amp;cgroup=content" />
-    <link rel="search" type="text/html" href="?q=admin&amp;mode=search" />
+    <link rel="contents" href="?q=admin/content/tree/taxonomy" />
+    <link rel="index" href="?q=admin/content/list&amp;columns=name,class,uid,created" />
+    <link rel="search" type="text/html" href="?q=admin/content/search" />
     <link rel="help" href="http://code.google.com/p/molinos-cms/w/list?can=2&amp;q=label%3AFAQ&amp;sort=&amp;colspec=Summary+Changed+ChangedBy&amp;nobtn=Update" />
     <link rel="copyright" href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.html" />
-    <link rel="glossary" href="?q=admin&amp;mode=list&amp;preset=schema&amp;cgroup=structure" />
+    <link rel="glossary" href="?q=admin/structure/list/schema" />
     <link rel="author" href="http://www.molinos-cms.ru/" />
     <script type="text/javascript">var mcms_path = '<?php
       print mcms::path(); ?>';</script>

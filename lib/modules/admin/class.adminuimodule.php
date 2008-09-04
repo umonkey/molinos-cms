@@ -33,6 +33,28 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     return self::getPage($result);
   }
 
+  private static function fixCleanURLs(Context $ctx)
+  {
+    if (count($m = explode('/', $ctx->query())) > 1) {
+      $url = new url($ctx->url());
+
+      switch (count($m)) {
+      case 4:
+        $url->setarg('preset', $m[3]);
+      case 3:
+        $url->setarg('mode', $m[2]);
+      case 2:
+        $url->setarg('cgroup', $m[1]);
+      }
+
+      $ctx = new Context(array(
+        'url' => $url,
+        ));
+    }
+
+    return $ctx;
+  }
+
   private static function getPage(array $data)
   {
     $data['base'] = mcms::path();
@@ -462,7 +484,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     default:
       if ('GET' == $ctx->method())
-        return self::onGet($ctx);
+        return self::onGet(self::fixCleanURLs($ctx));
     }
 
     mcms::redirect($next);

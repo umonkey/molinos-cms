@@ -217,8 +217,9 @@ class RequestController
   {
     $q = $this->ctx->query();
 
-    if ('admin' == $q)
-      $q .= '.rpc';
+    if ('admin' == $q or 0 === strpos($q, 'admin/'))
+      $q = 'admin.rpc';
+
     elseif (strpos($q, 'attachment/') === 0)
       $q = 'attachment.rpc';
 

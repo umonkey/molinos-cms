@@ -28,7 +28,7 @@ class AdminStatus implements iAdminMenu
         'group' => 'status',
         'message' => t('Пожалуйста, <a href=\'@url\'>установите пароль</a> '
           .'на ваш аккаунт.', array(
-            '@url' => 'admin?cgroup=access&mode=edit&id=8&destination=CURRENT',
+            '@url' => '?q=admin/access/edit&id=8&destination=CURRENT',
             )),
         );
 
@@ -64,13 +64,13 @@ class AdminStatus implements iAdminMenu
       mcms::db()->log('-- status counter --');
 
       self::count($parts, 'SELECT COUNT(*) FROM `node`',
-        'Объектов: !count', 'admin?mode=list&cgroup=content&columns=name,class,uid,created');
+        'Объектов: !count', '?q=admin/content/list&columns=name,class,uid,created');
 
       self::count($parts, 'SELECT COUNT(*) FROM `node` WHERE `deleted` = 1',
-        'удалённых: !count', 'admin?mode=list&preset=trash&cgroup=content');
+        'удалённых: !count', '?q=admin/content/list/trash');
 
       self::count($parts, 'SELECT COUNT(*) FROM `node` WHERE `published` = 0 AND `deleted` = 0',
-        'в модерации: !count', 'admin?mode=list&preset=drafts&cgroup=content');
+        'в модерации: !count', '?q=admin/content/list/drafts');
 
       self::count($parts, 'SELECT COUNT(*) FROM `node__rev`',
         'ревизий: !count');
@@ -92,7 +92,7 @@ class AdminStatus implements iAdminMenu
       if ($tmp = mcms::config('runtime_modules')) {
         $parts[] = t('<a href=\'@url\'>модулей</a>:&nbsp;%count', array(
           '%count' => count(explode(',', $tmp)),
-          '@url' => 'admin?mode=modules&cgroup=structure',
+          '@url' => '?q=admin/structure/modules',
           ));
       }
     }

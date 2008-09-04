@@ -27,7 +27,7 @@ class ModuleAdminUI
         if (!empty($module['implementors']['iModuleConfig']) and !empty($module['enabled']))
           $output .= mcms::html('td', mcms::html('a', array(
             'class' => 'icon configure',
-            'href' => "?q=admin&mode=modules&action=config&name={$modname}&cgroup={$_GET['cgroup']}&destination=CURRENT",
+            'href' => "?q=admin/structure/modules&action=config&name={$modname}&destination=CURRENT",
             ), '<span>настроить</span>'));
         else
           $output .= mcms::html('td');
@@ -41,8 +41,8 @@ class ModuleAdminUI
           $output .= mcms::html('td');
 
         $output .= mcms::html('td', mcms::html('a', array(
-          'href' => "?q=admin&mode=modules&action=info&name={$modname}"
-            ."&cgroup={$_GET['cgroup']}&destination=CURRENT"), $modname));
+          'href' => "?q=admin/structure/modules&action=info&name={$modname}"
+            ."&destination=CURRENT"), $modname));
 
         if (!empty($module['name']['ru']))
           $output .= mcms::html('td', $module['name']['ru']);
