@@ -184,14 +184,18 @@ class RequestController
 
   private function locateDomain(Context $ctx)
   {
-    $domains = Node::find(array(
+    $domains = Node::find($filter = array(
       'class' => 'domain',
       'parent_id' => null,
       'published' => array(0, 1),
       ));
 
-    if (empty($domains))
-      throw new NotInstalledException('domain');
+    if (empty($domains)) {
+      $filter['#cache'] = false;
+
+      if (!count($domains = Node::find($filter)))
+        throw new NotInstalledException('domain');
+    }
 
     elseif (count($domains) == 1)
       return array_shift($domains);
@@ -251,10 +255,10 @@ class RequestController
           mcms::fatal($e);
         }
       }
-    }
 
-    header('HTTP/1.1 404 Not Found');
-    header('Content-Type: text/plain; charset=utf-8');
-    die('Request handler for "'. $q .'" not found.');
+      header('HTTP/1.1 404 Not Found');
+      header('Content-Type: text/plain; charset=utf-8');
+      die('Request handler for "'. $q .'" not found.');
+    }
   }
 }
