@@ -199,7 +199,7 @@ class mcms
     if (count($nodes) == 1 or !mcms::ismodule('playlist'))
       $playlist = $firstfile;
     else
-      $playlist = l('playlist.rpc?nodes='. join(',', $nodes));
+      $playlist = l('?q=playlist.rpc&nodes='. join(',', $nodes));
 
     // Нет генератора плэйлистов, выходим.
 
@@ -873,8 +873,7 @@ class mcms
 
       $html .= '</body></html>';
 
-      header('Content-Length: '. strlen($html));
-      die($html);
+      mcms::fixurls($html, true);
     }
 
     print join("\n\n", $output) ."\n\n";
@@ -1505,15 +1504,10 @@ class mcms
       }
     }
 
-    if ('profile' == $ctx->debug()) {
+    if ('profile' == $ctx->debug())
       mcms::debug('Profiling.');
-    }
 
-    // TODO: вынести сюда профайлер, или может вообще его в отдельный модуль, на
-    // iRequestHook посадить?
-
-    header('Content-Length: '. strlen($output));
-    die($output);
+    mcms::fixurls($output, true);
   }
 
   public static function getHttpStatusMessage($code)
@@ -1561,6 +1555,35 @@ class mcms
 
     return str_replace('.0', '', number_format($file_or_size, 1, '.', ''))
       . $sfx;
+  }
+
+  public static function fixurls($content, $send = false)
+  {
+    // Замена "грязных" ссылок на "чистые".
+    if (!empty($_GET['__cleanurls'])) {
+      $re = '@(?:href|src|action)=(?:"([^"]+)"|\'([^\']+)\')@';
+
+      if (preg_match_all($re, $content, $m)) {
+        foreach ($m[0] as $idx => $source) {
+          $link = empty($m[1][$idx])
+            ? $m[2][$idx]
+            : $m[1][$idx];
+
+          if (0 === strpos($link, '?q=')) {
+            $parts = explode('&amp;', substr($link, 3), 2);
+            $new = str_replace($link, join('?', $parts), $source);
+            $content = str_replace($source, $new, $content);
+          }
+        }
+      }
+    }
+
+    if ($send) {
+      header('Content-Length: '. strlen($content));
+      die($content);
+    }
+
+    return $content;
   }
 };
 

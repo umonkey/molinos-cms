@@ -72,7 +72,7 @@ class AdminUIListControl extends Control
           } else {
             $href = isset($this->picker)
               ? "?q=attachment.rpc&fid={$node['id']}"
-              : 'admin?mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination=CURRENT';
+              : '?q=admin&mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination=CURRENT';
           }
 
           $row .= mcms::html('a', array(
@@ -166,7 +166,7 @@ class AdminUIListControl extends Control
       if (null !== $node and !empty($node['class']) and $node['class'] == 'file') {
         if (file_exists($path = mcms::config('filestorage') .'/'. $node['filepath'])) {
           $tmp = mcms::html('img', array(
-            'src' => "attachment.rpc?fid={$node['id']},48,48,c&rev={$node['rid']}",
+            'src' => "?q=attachment.rpc&fid={$node['id']},48,48,c&rev={$node['rid']}",
             'width' => 48,
             'height' => 48,
             'alt' => $node['filepath'],
@@ -177,7 +177,7 @@ class AdminUIListControl extends Control
 
           $tmp = mcms::html('a', array(
             'title' => 'Скачать',
-            'href' => "attachment.rpc?fid={$node['id']}",
+            'href' => "?q=attachment.rpc&fid={$node['id']}",
             'class' => isset($this->picker) ? 'returnHref' : null,
             ), $tmp);
 
@@ -218,7 +218,7 @@ class AdminUIListControl extends Control
           $class = null;
 
         return mcms::html('a', array(
-          'href' => 'admin?mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination=CURRENT',
+          'href' => '?q=admin&mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination=CURRENT',
           'class' => $class,
           ), $value);
       }
@@ -253,7 +253,7 @@ class AdminUIListControl extends Control
 
     if (mcms::user()->hasAccess('u', 'user'))
       return mcms::html('a', array(
-        'href' => "admin?mode=edit&id={$uid}&destination=CURRENT",
+        'href' => "?q=admin&mode=edit&id={$uid}&destination=CURRENT",
         ), $name);
 
     return $name;
@@ -320,7 +320,7 @@ class AdminUIListControl extends Control
     if (!bebop_is_debugger() or empty($node['id']))
       return;
 
-    return $this->getIcon('lib/modules/admin/img/debug.gif', "nodeapi.rpc?action=dump&node=". $node['id'], t('Просмотреть внутренности'));
+    return $this->getIcon('lib/modules/admin/img/debug.gif', "?q=nodeapi.rpc&action=dump&node=". $node['id'], t('Просмотреть внутренности'));
   }
 
   private function getEditLink(array $node)
@@ -328,7 +328,7 @@ class AdminUIListControl extends Control
     if (empty($node['id']))
       return;
 
-    return $this->getIcon('lib/modules/admin/img/edit.png', "admin?mode=edit&id={$node['id']}&destination=CURRENT", t('Редактировать внутренности'));
+    return $this->getIcon('lib/modules/admin/img/edit.png', "?q=admin&mode=edit&id={$node['id']}&destination=CURRENT", t('Редактировать внутренности'));
   }
 
   private function getViewLink(array $node)
@@ -336,7 +336,7 @@ class AdminUIListControl extends Control
     if (empty($node['class']) or empty($node['id']) or !empty($node['deleted']) or empty($node['published']))
       return;
 
-    return $this->getIcon('themes/admin/img/icon-www.png', 'nodeapi.rpc?action=locate&node='. $node['id'], t('Найти на сайте'));
+    return $this->getIcon('themes/admin/img/icon-www.png', '?q=nodeapi.rpc&action=locate&node='. $node['id'], t('Найти на сайте'));
   }
 
   private function getZoomLink(array $node)
@@ -375,7 +375,7 @@ class AdminUIListControl extends Control
 
     return $this->getIcon(
       'themes/admin/img/icon-su.png',
-      'base.rpc?action=su&uid='. $node['id'],
+      '?q=base.rpc&action=su&uid='. $node['id'],
       t('Переключиться в контекст пользователя')
       );
   }

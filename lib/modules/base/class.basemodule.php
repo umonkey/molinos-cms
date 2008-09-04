@@ -232,7 +232,7 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
         ."<p>Вы можете проигнорировать это сообщение, и ничего "
         ."не произойдёт.</p>", array(
           '%site' => $_SERVER['HTTP_HOST'],
-          '@url' => $link = l("base.rpc?action=login&email={$email}"
+          '@url' => $link = l("?q=base.rpc&action=login&email={$email}"
             ."&otp={$node->otp}"
             ."&destination={$back}"),
           ));

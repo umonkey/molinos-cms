@@ -45,7 +45,7 @@ class FileListControl extends Control
          $dt = $v->getRaw();
 
          $preview = mcms::html('img', array(
-           'src' => "attachment.rpc?fid={$dt['id']},48,48,c&rev={$dt['rid']}",
+           'src' => "?q=attachment.rpc&fid={$dt['id']},48,48,c&rev={$dt['rid']}",
            'width' => 48,
            'height' => 48,
            'alt' => empty($data['filepath'])?'':$data['filepath'],
@@ -56,7 +56,7 @@ class FileListControl extends Control
 
          $preview = mcms::html('a', array(
           'title' => 'Скачать',
-          'href' => "attachment.rpc?fid={$dt['id']}",
+          'href' => "?q=attachment.rpc&fid={$dt['id']}",
           'class' => isset($this->picker) ? 'returnHref' : null,
          ), $preview);
 

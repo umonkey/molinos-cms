@@ -4,8 +4,8 @@ $tmp = bebop_split_url();
 $tmp['args']['remind'] = '1';
 
 $laction = bebop_combine_url(array(
-  'path' => 'base.rpc',
   'args' => array(
+    'q' => 'base.rpc',
     'action' => 'login',
     'onerror' => bebop_combine_url($tmp, false),
     'destination' => $_SERVER['REQUEST_URI'],

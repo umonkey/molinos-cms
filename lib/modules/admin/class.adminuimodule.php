@@ -105,7 +105,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     $form = new Form(array(
       'title' => t('Экспорт/импорт сайта в формате XML'),
       'description' => t("Необходимо выбрать совершаемое вами действие"),
-      'action' => 'exchange.rpc',
+      'action' => '?q=exchange.rpc',
       'class' => '',
       ));
 
@@ -185,7 +185,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       $form = $node->formGet(false);
       $form->addClass('tabbed');
       $form->addClass("node-{$type}-create-form");
-      $form->action = "nodeapi.rpc?action=create&type={$type}&destination=". urlencode($_GET['destination']);
+      $form->action = "?q=nodeapi.rpc&action=create&type={$type}&destination=". urlencode($_GET['destination']);
 
       if ($ctx->get('dictionary')) {
         $form->title = t('Добавление справочника');
@@ -222,7 +222,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     foreach ($types as $type) {
       $output .= '<dt>';
       $output .= mcms::html('a', array(
-        'href' => "admin?mode=create&type={$type->name}&destination=". urlencode($_GET['destination']),
+        'href' => "?q=admin&mode=create&type={$type->name}&destination=". urlencode($_GET['destination']),
         ), $type->title);
       $output .= '</dt>';
 
@@ -259,7 +259,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
         if (empty($node->password)) {
           return t('<p>У административного аккаунта нет пароля, '
             .'<a href=\'@url\'>установите</a> его.</p>', array(
-              '@url' => 'admin??cgroup=access&mode=edit&id='
+              '@url' => '?q=admin&?cgroup=access&mode=edit&id='
                 .$node->id .'&destination=CURRENT',
               ));
         } else {
@@ -293,7 +293,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
         $form->title = t('Настройка модуля %name', array('%name' => $ctx->get('name')));
 
       $form->action = bebop_combine_url($tmp = array(
-        'path' => 'admin.rpc',
+        'path' => '?q=admin.rpc',
         'args' => array(
           'module' => $ctx->get('name'),
           'action' => 'modconf',
@@ -353,7 +353,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
   {
     $form = new Form(array(
       'title' => 'Поиск документов',
-      'action' => 'admin.rpc?action=search',
+      'action' => '?q=admin.rpc&action=search',
       'class' => 'advSearchForm',
       ));
     $form->addControl(new HiddenControl(array(
@@ -425,7 +425,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     case 'reindex':
       if (NodeIndexer::run())
-        $next = 'admin.rpc?action=reindex';
+        $next = '?q=admin.rpc&action=reindex';
       else
         $next = 'admin';
       break;
@@ -436,7 +436,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     case 'modconf':
       self::hookModConf($ctx);
-      die(mcms::redirect('admin?cgroup=structure&mode=modules'));
+      die(mcms::redirect('?q=admin&cgroup=structure&mode=modules'));
 
     case 'search':
       $terms = array();
@@ -521,7 +521,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
           if (empty($node->password)) {
             mcms::session('uid', $node->id);
-            $ctx->redirect('admin?noautologin=1');
+            $ctx->redirect('?q=admin&noautologin=1');
           }
         } catch (ObjectNotFoundException $e) {
         }

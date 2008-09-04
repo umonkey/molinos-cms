@@ -45,14 +45,14 @@ class HistoryControl extends Control
       if (empty($info['username']))
         $userlink = 'anonymous';
       else
-        $userlink = l("admin?mode=edit&cgroupo=access'
+        $userlink = l("?q=admin&mode=edit&cgroupo=access'
           .'&id={$info['uid']}&destination=CURRENT",
           $info['username']);
 
       $row = mcms::html('td', $rid);
       $row .= mcms::html('td', $info['created']);
       $row .= mcms::html('td', $userlink);
-      $row .= mcms::html('td', l("nodeapi.rpc?action=revert"
+      $row .= mcms::html('td', l("?q=nodeapi.rpc&action=revert"
         ."&rid={$rid}&destination=CURRENT", 'вернуть'));
 
       $rows[] = mcms::html('tr', array(

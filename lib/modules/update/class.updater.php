@@ -37,7 +37,7 @@ class Updater implements iAdminUI, iRemoteCall
           ));
         $form = mcms::html('form', array(
           'method' => 'post',
-          'action' => 'update.rpc?action=update',
+          'action' => '?q=update.rpc&action=update',
           ), $input);
         break;
       default:

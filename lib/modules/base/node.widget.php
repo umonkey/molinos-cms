@@ -291,7 +291,7 @@ class WidgetNode extends Node implements iContentType
       array_keys(DomainNode::getFlatSiteMap('select')));
 
     if ($isnew) {
-      $next = "admin?mode=edit&cgroup=structure&id={$this->id}"
+      $next = "?q=admin&mode=edit&cgroup=structure&id={$this->id}"
         ."&destination=". urlencode($_GET['destination']);
       mcms::redirect($next);
     } else if (!empty($_GET['destination'])) {

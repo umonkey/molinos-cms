@@ -375,7 +375,7 @@ class DomainNode extends Node implements iContentType
     foreach (Node::find(array('class' => 'widget', '#sort' => array('name' => 'ASC'))) as $w) {
       $name = t('%title (<a href=\'@edit\'>изменить</a>)', array(
         '%title' => $w->title,
-        '@edit' => "admin?mode=edit&cgroup=structure&id={$w->id}&destination=CURRENT",
+        '@edit' => "?q=admin&mode=edit&cgroup=structure&id={$w->id}&destination=CURRENT",
         ));
 
       $options[$w->id] = $name;

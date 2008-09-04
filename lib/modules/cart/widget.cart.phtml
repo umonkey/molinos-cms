@@ -7,7 +7,7 @@ if (empty($content) and ($mode != 'report')) {
 }
 else if (($mode == 'details') or ($mode == 'simple'))
 {
-  print "<form method='post' action=\"". l('cart.rpc')."\" id='cart-form' enctype='multipart/form-data'>";
+  print "<form method='post' action=\"?q=cart.rpc\" id='cart-form' enctype='multipart/form-data'>";
   print "<input type='hidden' name='widgetname' value='{$widgetname}'>";
   print '<table class="basket_list">';
   print '<thead>';

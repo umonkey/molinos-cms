@@ -21,7 +21,6 @@ class url
 
   private $readonly;
 
-  private $clean = false;
   private $scheme = null;
   private $user = null;
   private $pass = null;
@@ -51,11 +50,6 @@ class url
 
       $this->fromString($_SERVER['REQUEST_URI']);
       $this->args = $_GET;
-    }
-
-    if (empty($this->host) and !empty($this->args['__cleanurls'])) {
-      $this->clean = true;
-      unset($this->args['__cleanurls']);
     }
 
     $this->readonly = $readonly;
@@ -91,7 +85,7 @@ class url
     if (!empty($this->host))
       $result .= $this->host;
 
-    if (!empty($this->path) and (!$this->islocal or is_readable($this->path) or $this->$clean))
+    if (!empty($this->path) and (!$this->islocal or is_readable($this->path)))
       $result .= $this->path;
 
     $result .= $this->getArgsAsString();
@@ -316,7 +310,7 @@ class url
     $args = $this->args;
 
     if ($this->islocal and !is_readable($this->path)) {
-      if ($this->clean or 'index.php' == $this->path)
+      if ('index.php' == $this->path)
         $args['q'] = null;
       else
         $args['q'] = trim($this->path, '/');
@@ -377,14 +371,6 @@ class url
   }
 
   /**
-   * Одурачивание системы распознавания mod_rewrite, для тестов.
-   */
-  public function __setclean($value)
-  {
-    $this->clean = empty($value) ? false : true;
-  }
-
-  /**
    * Формирование абсолютной ссылки.
    *
    * Функция используется для получения полного URL, пригодного для
@@ -405,7 +391,7 @@ class url
     // Если ссылка начинается со слэша — выкидываем папку с CMS.
     $result = $this->getBase(substr($this->path, 0, 1) == '/' ? null : $ctx);
 
-    if ($this->clean or !$this->islocal)
+    if (!$this->islocal)
       $result .= ltrim($this->path, '/');
     elseif (!empty($_SERVER['SCRIPT_FILENAME']))
       $result .= basename($_SERVER['SCRIPT_FILENAME']);

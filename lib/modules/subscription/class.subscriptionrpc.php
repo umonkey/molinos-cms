@@ -30,8 +30,8 @@ class SubscriptionRPC implements iRemoteCall
         $catlist .= '<li>'. mcms_plain($tmp->name) .'</li>';
 
       $link = new url(array(
-        'path' => 'subscription.rpc',
         'args' => array(
+          'q' => 'subscription.rpc',
           'action' => 'confirm',
           'code' => base64_encode(serialize($bulk)),
           ),

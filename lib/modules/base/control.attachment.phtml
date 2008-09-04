@@ -8,7 +8,7 @@ if (!function_exists('fthumbnail')) {
     if (empty($a['id']))
       $src = 'themes/admin/img/blank.gif';
     else
-      $src = strval(new url('attachment.rpc?fid='.
+      $src = strval(new url('?q=attachment.rpc&fid='.
         $a['id'] .',48,48,c&rev='.  $a['rid']));
 
     $img = mcms::html('img', array(
@@ -19,7 +19,7 @@ if (!function_exists('fthumbnail')) {
       ));
 
     if (!empty($a['id']))
-      $img = l('attachment.rpc?fid='. $a['id'], $img);
+      $img = l('?q=attachment.rpc&fid='. $a['id'], $img);
     else
       $img = l('#', $img);
 

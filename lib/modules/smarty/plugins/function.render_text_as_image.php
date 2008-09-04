@@ -2,7 +2,7 @@
 
 function smarty_function_render_text_as_image($params, &$smarty)
 {
-  $url = new url('drawtext.rpc');
+  $url = new url('?q=drawtext.rpc');
 
   $url->setarg('text', base64_encode($params['text']));
   $url->setarg('font', $params['font']);

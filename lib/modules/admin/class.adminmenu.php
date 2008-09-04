@@ -116,7 +116,7 @@ class AdminMenu implements iAdminMenu
     if ($user->hasAccess('u', 'tag'))
       $icons[] = array(
         'group' => 'content',
-        'href' => 'admin?mode=tree&preset=taxonomy',
+        'href' => '?q=admin&mode=tree&preset=taxonomy',
         'title' => t('Разделы'),
         'message' => t('Управление разделами'),
         'description' => t('Управление разделами сайта.'),
@@ -126,32 +126,32 @@ class AdminMenu implements iAdminMenu
     if ($user->hasAccess('u', 'type'))
       $icons[] = array(
         'group' => 'structure',
-        'href' => 'admin?mode=list&preset=schema',
+        'href' => '?q=admin&mode=list&preset=schema',
         'title' => t('Типы документов'),
         'message' => t('<a href=\'@url1\'>Типы документов</a>, <a
           href=\'@url2\'>справочники</a>', array(
-            '@url1' => 'admin?mode=list&preset=schema',
-            '@url2' => 'admin?mode=list&preset=dictlist',
+            '@url1' => '?q=admin&mode=list&preset=schema',
+            '@url2' => '?q=admin&mode=list&preset=dictlist',
             )),
         );
 
     if (count($user->getAccess('u'))) {
       $icons[] = array(
         'group' => 'content',
-        'href' => 'admin?mode=list&columns=name,class,uid,created',
+        'href' => '?q=admin&mode=list&columns=name,class,uid,created',
         'title' => t('Документы'),
         'message' => t('Список всех документов'),
         'description' => t('Поиск, редактирование, добавление документов.'),
         );
       $icons[] = array(
         'group' => 'content',
-        'href' => 'admin?mode=list&preset=dictlist',
+        'href' => '?q=admin&mode=list&preset=dictlist',
         'title' => t('Справочники'),
         );
       if (Node::count(array('published' => 0, '-class' => TypeNode::getInternal())))
         $icons[] = array(
           'group' => 'content',
-          'href' => 'admin?mode=list&preset=drafts',
+          'href' => '?q=admin&mode=list&preset=drafts',
           'title' => t('В модерации'),
           'message' => t('Очередь модерации'),
           'description' => t('Поиск, редактирование, добавление документов.'),
@@ -161,14 +161,14 @@ class AdminMenu implements iAdminMenu
     if ($user->hasAccess('u', 'domain')) {
       $icons[] = array(
         'group' => 'structure',
-        'href' => 'admin?mode=tree&preset=pages',
+        'href' => '?q=admin&mode=tree&preset=pages',
         'title' => t('Страницы'),
         'message' => t('Домены и страницы'),
         'description' => t('Управление доменами, страницами и виджетами.'),
         );
       $icons[] = array(
         'group' => 'structure',
-        'href' => 'admin?mode=list&preset=widgets',
+        'href' => '?q=admin&mode=list&preset=widgets',
         'title' => t('Виджеты'),
         'message' => t('Виджеты'),
         );
@@ -177,7 +177,7 @@ class AdminMenu implements iAdminMenu
     if ($user->hasAccess('u', 'moduleinfo')) {
       $icons[] = array(
         'group' => 'structure',
-        'href' => 'admin?mode=modules',
+        'href' => '?q=admin&mode=modules',
         'title' => t('Модули'),
         'message' => t('Модули'),
         );
@@ -186,7 +186,7 @@ class AdminMenu implements iAdminMenu
     if ($user->hasAccess('u', 'user'))
       $icons[] = array(
         'group' => 'access',
-        'href' => 'admin?mode=list&preset=users',
+        'href' => '?q=admin&mode=list&preset=users',
         'title' => t('Пользователи'),
         'message' => t('Пользователи'),
         'description' => t('Управление профилями пользователей.'),
@@ -194,7 +194,7 @@ class AdminMenu implements iAdminMenu
     if ($user->hasAccess('u', 'group'))
       $icons[] = array(
         'group' => 'access',
-        'href' => 'admin?mode=list&preset=groups',
+        'href' => '?q=admin&mode=list&preset=groups',
         'title' => t('Группы'),
         'message' => t('Группы пользователей'),
         'description' => t('Управление группами пользователей.'),
@@ -203,7 +203,7 @@ class AdminMenu implements iAdminMenu
     if ($user->hasAccess('u', 'file'))
       $icons[] = array(
         'group' => 'content',
-        'href' => 'admin?mode=list&preset=files',
+        'href' => '?q=admin&mode=list&preset=files',
         'title' => t('Файлы'),
         'message' => t('Файловый архив'),
         'description' => t('Просмотр, редактирование и добавление файлов.'),
@@ -212,7 +212,7 @@ class AdminMenu implements iAdminMenu
     if (count($user->getAccess('u')) and Node::count(array('deleted' => 1, '-class' => TypeNode::getInternal())))
       $icons[] = array(
         'group' => 'content',
-        'href' => 'admin?mode=list&preset=trash',
+        'href' => '?q=admin&mode=list&preset=trash',
         'title' => t('Корзина'),
         'message' => t('Удалённые объекты'),
         'description' => t('Просмотр и восстановление удалённых файлов.'),

@@ -262,7 +262,7 @@ class UserWidget extends Widget implements iWidget
   /**
    * Обработчик запросов на восстановление пароля.
    *
-   * Вместо этого можно использовать base.rpc?action=restore, что не требует
+   * Вместо этого можно использовать ?q=base.rpc&action=restore, что не требует
    * наличия виджета.
    *
    * @todo переписать этот метод так, чтобы он использовал base.rpc.
@@ -487,7 +487,7 @@ class UserWidget extends Widget implements iWidget
     switch ($id) {
     case 'user-logout-form':
       $form = new Form(array(
-        'action' => 'base.rpc?action=logout',
+        'action' => '?q=base.rpc&action=logout',
         ));
 
       if (null !== $this->header) {
@@ -517,7 +517,7 @@ class UserWidget extends Widget implements iWidget
 
       $form = new Form(array(
         'title' => t('Вход'),
-        'action' => 'base.rpc?action=login&destination='. urlencode(bebop_combine_url($tmp, false)),
+        'action' => '?q=base.rpc&action=login&destination='. urlencode(bebop_combine_url($tmp, false)),
         ));
 
       if (null !== $this->header) {

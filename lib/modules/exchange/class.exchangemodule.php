@@ -416,7 +416,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     $form = new Form(array(
       'title' => t('Экспорт/импорт сайта в формате XML'),
       'description' => t("Необходимо выбрать совершаемое вами действие"),
-      'action' => 'exchange.rpc',
+      'action' => '?q=exchange.rpc',
       'class' => '',
       'id' => 'mod_exchange'
       ));

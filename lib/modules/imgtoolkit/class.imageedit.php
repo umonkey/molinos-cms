@@ -41,7 +41,7 @@ class ImageEdit implements iRemoteCall
   {
     // Если кроме id аттачмента ничего не задали, ругаемся
     if (null == $ctx->get('fid', null) or null == $ctx->get('scale', null))
-    	$this->sendError(500, 'usage: imgtoolkit.rpc&fid=attachment[&operation=parameter...]');
+    	$this->sendError(500, 'usage: ?q=imgtoolkit.rpc&fid=attachment[&operation=parameter...]');
 
     foreach ($this->options as $k => $v) {
       if ($p = $ctx->get($k)) {

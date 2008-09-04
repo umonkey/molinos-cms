@@ -31,7 +31,7 @@ class CronMenu implements iAdminMenu
 
     if (CronModule::isClientAllowed())
       $icon['message'] .= t('<a href=\'@url\'>Запустите его</a>.', array(
-        '@url' => 'cron.rpc?destination=CURRENT',
+        '@url' => '?q=cron.rpc&destination=CURRENT',
         ));
     else
       $icon['message'] .= t('Ваших полномочий '

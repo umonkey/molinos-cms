@@ -1721,9 +1721,9 @@ class NodeBase
       : $_GET['destination'];
 
     if ($this->id)
-      $form->action = "nodeapi.rpc?action=edit&node={$this->id}&destination=". urlencode($next);
+      $form->action = "?q=nodeapi.rpc&action=edit&node={$this->id}&destination=". urlencode($next);
     else
-      $form->action = "nodeapi.rpc?action=create&type={$this->class}&destination=". urlencode($next);
+      $form->action = "?q=nodeapi.rpc&action=create&type={$this->class}&destination=". urlencode($next);
 
     return $form;
   }
@@ -1739,11 +1739,11 @@ class NodeBase
     if (mcms::user()->hasAccess('u', 'type') and $this->class != 'type' and substr($_SERVER['REQUEST_URI'], 0, 7) == 'admin') {
       if (empty($schema['isdictionary']))
         $intro[] = t("Вы можете <a href='@typelink'>настроить этот тип</a>, добавив новые поля.", array(
-          '@typelink' => "admin?mode=edit&id={$schema['id']}&destination=CURRENT",
+          '@typelink' => "?q=admin&mode=edit&id={$schema['id']}&destination=CURRENT",
           ));
       else
         $intro[] = t("Вы можете <a href='@typelink'>настроить этот справочник</a>, добавив новые поля.", array(
-          '@typelink' => "admin?mode=edit&id={$schema['id']}&destination=CURRENT",
+          '@typelink' => "?q=admin&mode=edit&id={$schema['id']}&destination=CURRENT",
           ));
     }
 

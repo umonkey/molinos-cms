@@ -27,7 +27,7 @@ class AdminTreeHandler
 
     $form = new Form(array(
       'id' => 'nodelist-form',
-      'action' => 'nodeapi.rpc?action=mass&destination=CURRENT',
+      'action' => '?q=nodeapi.rpc&action=mass&destination=CURRENT',
       ));
     $form->addControl(new AdminUINodeActionsControl(array(
       'actions' => $this->actions,
@@ -57,7 +57,7 @@ class AdminTreeHandler
       $data = self::getNodeTree();
 
       if (empty($data))
-        mcms::redirect("admin?mode=create&type={$this->type}&destination=CURRENT");
+        mcms::redirect("?q=admin&mode=create&type={$this->type}&destination=CURRENT");
 
       return $data;
     default:
@@ -74,7 +74,7 @@ class AdminTreeHandler
       $this->columns = array('name', 'description', 'link', 'created');
       $this->actions = array('publish', 'unpublish', 'delete', 'clone');
       $this->title = t('Карта разделов сайта');
-      $this->zoomlink = "admin?cgroup=content&columns=name,class,uid,created&mode=list&search=tags%3ANODEID";
+      $this->zoomlink = "?q=admin&cgroup=content&columns=name,class,uid,created&mode=list&search=tags%3ANODEID";
       break;
     case 'pages':
       $this->type = 'domain';
@@ -142,7 +142,7 @@ class AdminTreeHandler
           if ($link) {
             $args = array(
               'class' => array(),
-              'href' => "admin?mode=edit&cgroup={$_GET['cgroup']}&id={$node['id']}&destination=CURRENT",
+              'href' => "?q=admin&mode=edit&cgroup={$_GET['cgroup']}&id={$node['id']}&destination=CURRENT",
               'style' => empty($node['depth']) ? null : 'margin-left:'. ($node['depth'] * 10) .'px',
               );
 

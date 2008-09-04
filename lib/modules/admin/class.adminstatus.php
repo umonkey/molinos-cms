@@ -41,7 +41,7 @@ class AdminStatus implements iAdminMenu
           .'Пока индексация не будет завершена, сортировка и выборка '
           .'будут работать некорректно.', array(
             '!count' => $stat['_total'],
-            '@url' => 'admin.rpc?action=reindex',
+            '@url' => '?q=admin.rpc&action=reindex',
             )),
         );
 

@@ -7,7 +7,7 @@ class RSSModule implements iRemoteCall, iAdminMenu, iAdminUI
   {
     if (null === ($name = $ctx->get('feed')))
       throw new PageNotFoundException(t('Вы не указали имя RSS ленты: '
-        .'rss.rpc?feed=имя.'));
+        .'?q=rss.rpc&feed=имя.'));
 
     $feed = Node::load(array('class' => 'rssfeed', 'name' => $name));
 

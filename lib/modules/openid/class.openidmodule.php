@@ -71,7 +71,7 @@ class OpenIdModule implements iRemoteCall
     } else {
       // Login canceled
       mcms::log('openid', 'login cancelled ?!');
-      mcms::redirect("base.rpc?action=logout");
+      mcms::redirect("?q=base.rpc&action=logout");
     }
   }
 
@@ -84,7 +84,7 @@ class OpenIdModule implements iRemoteCall
     // No auth request means we can't begin OpenID.
 
     if (!($auth_request = $consumer->begin($openid)))
-      mcms::redirect("base.rpc?action=logout");
+      mcms::redirect("?q=base.rpc&action=logout");
 
     $sreg_request = Auth_OpenID_SRegRequest::build(
       array('nickname'), // Required

@@ -20,7 +20,7 @@
  *
  * The RPC handler does two things: (1) creates a todo node,
  * and (2) toggles its finished state.  This is controlled with
- * the "action" argument of the RPC call, e.g.: todo.rpc?action=add
+ * the "action" argument of the RPC call, e.g.: ?q=todo.rpc&action=add
  *
  * @package mod_todo
  */

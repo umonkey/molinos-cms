@@ -85,7 +85,7 @@ class CompressorModule implements iRemoteCall
 
       $newscript = mcms::html('script', array(
         'type' => 'text/javascript',
-        'src' => 'compressor.rpc?type=js&hash='. $md5name,
+        'src' => '?q=compressor.rpc&type=js&hash='. $md5name,
         )) ."\n";
 
       return $newscript;
@@ -144,7 +144,7 @@ class CompressorModule implements iRemoteCall
       $newlink = mcms::html('link', array(
         'rel' => 'stylesheet',
         'type' => 'text/css',
-        'href' => 'compressor.rpc?type=css&hash='. $md5name,
+        'href' => '?q=compressor.rpc&type=css&hash='. $md5name,
         )) ."\n";
 
       return $newlink;
