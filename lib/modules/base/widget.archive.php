@@ -155,8 +155,6 @@ class ArchiveWidget extends Widget implements iWidget
           $result['days'] = $this->getDayList($options);
       }
 
-      // mcms::debug($options, $result);
-
       // Возвращаем параметризацию.
       foreach (array('year', 'month', 'day') as $key)
         if (array_key_exists($key, $options))
@@ -178,8 +176,10 @@ class ArchiveWidget extends Widget implements iWidget
     $url->path = $this->getUrlPath();
 
     $sql = "SELECT YEAR(`created`) AS `year`, COUNT(*) AS `count` "
-      ."FROM `node` WHERE `id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) "
-      ."AND `published` = 1 GROUP BY `year` ORDER BY `year`";
+      ."FROM `node` WHERE `id` IN "
+      ."(SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) "
+      ."AND `published` = 1 AND `created` "
+      ."IS NOT NULL GROUP BY `year` ORDER BY `year`";
 
     // FIXME: publishing
     foreach (mcms::db()->getResultsKV("year", "count", $sql, array(':tid' => $options['root'])) as $k => $v) {
