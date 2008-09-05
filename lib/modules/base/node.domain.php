@@ -154,32 +154,6 @@ class DomainNode extends Node implements iContentType
     return $vid;
   }
 
-  // Рендерит страницу с помощью Smarty.
-  public function renderSmarty(array $data, $pagetype = 'page')
-  {
-    $name = $this->parent_id === null ? 'index' : $this->name;
-
-    $data['title'] = $this->title;
-    $data['lang'] = $this->language;
-    $data['version'] = $this->getVersionId();
-    $data['user'] = array(
-      'uid' => mcms::user()->id,
-      'name' => mcms::user()->name,
-      'groups' => mcms::user()->getGroups(),
-      );
-    $data['page'] = $this->getRaw();
-
-    if (!empty($data['page']['language']))
-      $data['page']['lang'] = $data['page']['language'];
-
-    $output = bebop_render_object('page', $name, $this->theme, $data);
-
-    if (!empty($_GET['debug']) and $_GET['debug'] == 'smarty' and bebop_is_debugger())
-      $this->content_type = 'text/html';
-
-    return trim(preg_replace("/^(\xEF\xBB\xBF)/", '', $output));
-  }
-
   public function sendHeaders()
   {
     $content_type = empty($this->content_type) ? "text/html" : $this->content_type;
@@ -623,6 +597,9 @@ class DomainNode extends Node implements iContentType
     foreach ($widgets as $w) {
       if (!empty($w->classname) and class_exists($w->classname)) {
         $wo = new $w->classname($w);
+
+        if (null !== ($wn = $ctx->get('widget')) and $wn != $w->name)
+          continue;
 
         try {
           $tmp = $wo->setContext($ctx->forWidget($w->name));
