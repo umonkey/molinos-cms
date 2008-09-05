@@ -177,7 +177,7 @@ class ListWidget extends Widget
       foreach (array('year', 'month', 'day') as $key) {
         if (null === ($tmp = $ctx->get($key)))
           break;
-        $options['filter']['node.created.'. $key] = intval($tmp);
+        $options['filter']['node.created.'. $key] = $tmp;
       }
     }
 
@@ -458,7 +458,7 @@ class ListWidget extends Widget
    *
    * @return NodeQueryBuilder описание запроса.
    */
-  protected function queryGet(array $options = null)
+  public function queryGet(array $options = null)
   {
     $query = array();
 

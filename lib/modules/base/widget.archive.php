@@ -120,6 +120,9 @@ class ArchiveWidget extends Widget implements iWidget
     try {
       $tmp = new ListWidget($host);
       $tmpoptions = $tmp->getRequestOptions($this->ctx);
+
+      $query = $tmp->queryGet($tmpoptions);
+      $tmpoptions['filter']['tags'] = $query['tags'];
     } catch (WidgetHaltedException $e) {
       return null;
     }
@@ -169,22 +172,21 @@ class ArchiveWidget extends Widget implements iWidget
   {
     $result = array();
 
-    $url = new url();
-
-    $url->setarg($this->host .'.month', null);
-    $url->setarg($this->host .'.day', null);
-    $url->path = $this->getUrlPath();
+    $url = new url(array());
 
     $sql = "SELECT YEAR(`created`) AS `year`, COUNT(*) AS `count` "
       ."FROM `node` WHERE `id` IN "
       ."(SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) "
-      ."AND `published` = 1 AND `created` "
-      ."IS NOT NULL GROUP BY `year` ORDER BY `year`";
+      ."AND `published` = 1 "
+      ."AND `created` IS NOT NULL "
+      ."GROUP BY `year` ORDER BY `year`";
 
     // FIXME: publishing
     foreach (mcms::db()->getResultsKV("year", "count", $sql, array(':tid' => $options['root'])) as $k => $v) {
-      $url->setarg($this->host .'.year', $k);
-      $result[$k] = strval($url);
+      if (!empty($k)) {
+        $url->setarg($this->host .'.year', $k);
+        $result[$k] = strval($url);
+      }
     }
 
     return $result;
@@ -197,7 +199,6 @@ class ArchiveWidget extends Widget implements iWidget
 
     $url = bebop_split_url();
     $url['args'][$this->host]['day'] = null;
-    $url['path'] = $this->getUrlPath();
 
     // FIXME: publishing
     foreach (mcms::db()->getResultsKV("month", "count", "SELECT MONTH(`created`) AS `month`, COUNT(*) AS `count` FROM `node` WHERE `id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) AND YEAR(`created`) = :year AND `published` = 1 GROUP BY `month` ORDER BY `month`", array(':tid' => $options['root'], ':year' => $options['year'])) as $k => $v) {
@@ -219,7 +220,6 @@ class ArchiveWidget extends Widget implements iWidget
     $month = $options['month'];
 
     $url = bebop_split_url();
-    $url['path'] = $this->getUrlPath();
 
     // Список задействованных дней.
     // FIXME: publishing
@@ -277,15 +277,5 @@ class ArchiveWidget extends Widget implements iWidget
 
     $result .= "</table>";
     return $result;
-  }
-
-  private function getUrlPath()
-  {
-    $path = $this->ctx->ppath;
-
-    if (null !== ($s = $this->ctx->section))
-      $path[] = $s->id;
-
-    return join('/', $path);
   }
 };
