@@ -74,36 +74,6 @@ class mcms
     if (empty($parts))
       $parts = array();
 
-    $fixmap = array(
-      'img' => 'src',
-      'a' => 'href',
-      'form' => 'action',
-      'script' => 'src',
-      'link' => 'href',
-      );
-
-    // Прозрачная поддержка чистых урлов.
-    foreach ($fixmap as $k => $v) {
-      if ($k != $name or !array_key_exists($v, $parts))
-        continue;
-
-      if (false !== strstr($parts[$v], '://'))
-        continue;
-
-      if ('/' == substr($parts[$v], 0, 1))
-        continue;
-
-      if (is_readable(MCMS_ROOT .'/'. $parts[$v]))
-        continue;
-
-      if ('form' == $k)
-        $url = mcms::path() .'/'. strval(new url($parts[$v]));
-      else
-        $url = strval(new url($parts[$v]));
-
-      $parts[$v] = $url;
-    }
-
     if (null !== $parts) {
       foreach ($parts as $k => $v) {
         if (!empty($v)) {
