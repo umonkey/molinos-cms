@@ -123,13 +123,16 @@ class AdminListHandler
   private function getSearchForm()
   {
     $form = new Form(array(
-      'action' => $_SERVER['REQUEST_URI'],
-      'method' => 'post',
+      'action' => '?q=admin.rpc&action=search',
       ));
+    $form->addControl(new HiddenControl(array(
+      'value' => 'search_from',
+      'default' => $_SERVER['REQUEST_URI'],
+      )));
     $form->addControl(new AdminUISearchControl(array(
       'q' => $this->ctx->get('search'),
       'type' => $this->types,
-      'value' => 'search',
+      'value' => 'search_term',
       )));
     return $form->getHTML(array());
   }

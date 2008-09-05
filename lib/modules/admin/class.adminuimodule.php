@@ -378,6 +378,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       'action' => '?q=admin.rpc&action=search',
       'class' => 'advSearchForm',
       ));
+
     $form->addControl(new HiddenControl(array(
       'value' => 'search_from',
       'default' => $ctx->get('from'),
@@ -475,10 +476,9 @@ class AdminUIModule implements iAdminUI, iRemoteCall
         $terms[] = 'tags:'. $tmp;
       }
 
-      $url = bebop_split_url($ctx->post('search_from'));
-      $url['args']['search'] = join(' ', $terms);
-
-      $next = bebop_combine_url($url, false);
+      $url = new url($ctx->post('search_from'));
+      $url->setarg('search', trim(join(' ', $terms)));
+      $next = strval($url);
 
       break;
 
@@ -487,7 +487,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
         return self::onGet(self::fixCleanURLs($ctx));
     }
 
-    mcms::redirect($next);
+    $ctx->redirect($next);
   }
 
   private static function hookModList(Context $ctx)
