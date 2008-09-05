@@ -697,9 +697,9 @@ class DomainNode extends Node implements iContentType
       $name = $o->getInstanceName();
 
       if (!array_key_exists($name, $result)) {
-        if ('' !== ($result[$name] = strval($o->render()))) {
+        if ('' !== ($result[$name] = self::strip(strval($o->render())))) {
           if (null !== ($ck = $o->getCacheKey()))
-            $cache[$ck] = self::strip($result[$name]);
+            $cache[$ck] = $result[$name];
         }
       }
     }
@@ -729,6 +729,6 @@ class DomainNode extends Node implements iContentType
 
   private static function strip($data)
   {
-    return preg_replace('@>\s*[\r\n]+\s*<@', '><', $data);
+    return preg_replace('@>[\s\r\n\t]+<@', '><', $data);
   }
 };
