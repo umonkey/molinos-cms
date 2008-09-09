@@ -74,20 +74,36 @@ class mcms
     if (empty($parts))
       $parts = array();
 
-    if (null !== $parts) {
-      foreach ($parts as $k => $v) {
-        if (!empty($v)) {
-          if (is_array($v))
-            if ($k == 'class')
-              $v = join(' ', $v);
-            else {
-              $v = null;
-            }
+    $fixmap = array(
+      'a' => 'href',
+      'form' => 'action',
+      );
 
-          $output .= ' '.$k.'=\''. mcms_plain($v, false) .'\'';
-        } elseif ($k == 'value') {
-          $output .= " value=''";
-        }
+    // Замена CURRENT на текущий адрес.
+    if (array_key_exists($name, $fixmap)) {
+      if (array_key_exists($fixmap[$name], $parts)) {
+        $parts[$fixmap[$name]] = str_replace(array(
+          '&destination=CURRENT',
+          '?destination=CURRENT',
+          ), array(
+          '&destination='. urlencode($_SERVER['REQUEST_URI']),
+          '?destination='. urlencode($_SERVER['REQUEST_URI']),
+          ), strval($parts[$fixmap[$name]]));
+      }
+    }
+
+    foreach ($parts as $k => $v) {
+      if (!empty($v)) {
+        if (is_array($v))
+          if ($k == 'class')
+            $v = join(' ', $v);
+          else {
+            $v = null;
+          }
+
+        $output .= ' '.$k.'=\''. mcms_plain($v, false) .'\'';
+      } elseif ($k == 'value') {
+        $output .= " value=''";
       }
     }
 
