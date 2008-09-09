@@ -594,12 +594,16 @@ class DomainNode extends Node implements iContentType
       'tags' => $this->id,
       ));
 
+    $pick = ('widget' == $ctx->debug())
+      ? $ctx->get('widget')
+      : null;
+
     foreach ($widgets as $w) {
+      if (null !== $pick and $w->name != $pick)
+        continue;
+
       if (!empty($w->classname) and class_exists($w->classname)) {
         $wo = new $w->classname($w);
-
-        if (null !== ($wn = $ctx->get('widget')) and $wn != $w->name)
-          continue;
 
         try {
           $tmp = $wo->setContext($ctx->forWidget($w->name));
@@ -631,15 +635,10 @@ class DomainNode extends Node implements iContentType
     if (bebop_is_debugger() and $ctx->get('nocache'))
       return $result;
 
-    if ($ctx->debug() == 'widget')
-      $skip = $ctx->get('widget');
-    else
-      $skip = null;
-
     foreach ($objects as $o) {
       $name = $o->getInstanceName();
 
-      if (null !== ($key = $o->getCacheKey()) and $name != $skip)
+      if (null !== ($key = $o->getCacheKey()))
         $result[$name] = $key;
     }
 
