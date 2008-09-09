@@ -86,7 +86,7 @@ class FormWidget extends Widget
     $options['default'] = $ctx->get('default', array());
     $options['#nocache'] = true;
 
-    if (null === ($options['root'] = $ctx->section_id))
+    if (null === ($options['root'] = $ctx->section->id))
       $options['root'] = $this->section_default;
 
     if ('default' != ($options['status'] = $ctx->get('status', 'default')))
@@ -180,15 +180,14 @@ class FormWidget extends Widget
   {
     $types = array();
 
-    if (empty($root))
-      $allowed = Node::find(array(
-        'class' => 'type',
-        ));
-    else
-      $allowed = Node::find(array(
-        'class' => 'type',
-        'tags' => array($root),
-        ));
+    $filter = array(
+      'class' => 'type',
+      );
+
+    if (!empty($root))
+      $filter['tags'] = array($root);
+
+    $allowed = Node::find($filter);
 
     $atypes = $this->getAllowedTypes();
 
