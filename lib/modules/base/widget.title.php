@@ -84,11 +84,11 @@ class TitleWidget extends Widget
   {
     $result = array('list' => array());
 
-    if (null !== ($tmp = $this->ctx->document))
-      $result['document'] = $tmp->getRaw();
+    if ($this->ctx->document->id)
+      $result['document'] = $this->ctx->document->getRaw();
 
-    if (null !== ($tmp = $this->ctx->section)) {
-      $result['section'] = $tmp->getRaw();
+    if ($this->ctx->section->id) {
+      $result['section'] = $this->ctx->section->getRaw();
 
       if ($this->showpath)
         foreach ($tmp->getParents() as $p)
