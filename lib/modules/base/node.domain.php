@@ -516,6 +516,9 @@ class DomainNode extends Node implements iContentType
   {
     $ctx->theme = $this->theme;
 
+    if (!empty($this->defaultsection))
+      $ctx->root = $this->defaultsection;
+
     $data = array(
       'base' => $ctx->url()->getBase($ctx),
       'lang' => $ctx->getLang(),

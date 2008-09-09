@@ -235,6 +235,7 @@ class Context
         return $this->_post;
     case 'section':
     case 'document':
+    case 'root':
       if (!array_key_exists($key, $this->_args))
         return Node::create('dummy');
       return $this->_args[$key];
@@ -252,6 +253,7 @@ class Context
     case 'section':
     case 'document':
     case 'theme':
+    case 'root': // основной раздел
       if (array_key_exists($key, $this->_args))
         throw new InvalidArgumentException(t('Свойство %name уже определено'
           .' в этом контексте.', array('%name' => $key)));
