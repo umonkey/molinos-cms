@@ -1461,7 +1461,7 @@ class mcms
         // Пытаемся вывести страницу /$статус
         try {
           $req = new RequestController($c2 = new Context(array(
-            'url' => $ctx->url()->getBase($ctx) . $e->getCode(),
+            'url' => $ctx->url()->getBase($ctx) . 'errors/'. $e->getCode(),
             )));
           $output = $req->run();
         } catch (PageNotFoundException $e2) {
@@ -1475,7 +1475,7 @@ class mcms
           mcms::fatal(t('<p>При обработке запроса возникла ошибка '
             .'%code:<br/><strong>%name</strong>.</p><p><em>PS: этот обработчик ошибок можно '
             .'заменить на произвольный, <a href="@url">создав '
-            .'страницу</a> с именем «%code» в корне сайта.</em></p>',
+            .'страницу</a> «errors/%code» в корне сайта.</em></p>',
             array(
               '%code' => $e->getCode(),
               '%name' => trim($e->getMessage(), '.'),
