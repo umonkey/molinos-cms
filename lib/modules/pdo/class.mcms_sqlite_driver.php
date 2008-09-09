@@ -116,11 +116,13 @@ class mcms_sqlite_driver extends PDO_Singleton
       'YEAR(',
       'MONTH(',
       'DAY(',
+      'RAND()',
       ), array(
       '\''. gmdate('Y-m-d H:i:s') .'\'',
       'strftime(\'%Y\', ',
       'strftime(\'%m\', ',
       'strftime(\'%d\', ',
+      'RANDOM()',
       ), $newsql);
 
     if ($sql != $newsql)

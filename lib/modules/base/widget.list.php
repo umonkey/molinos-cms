@@ -229,8 +229,10 @@ class ListWidget extends Widget
       }
     }
 
-    if (!empty($options['sort']) and array_key_exists('RAND()', $options['sort']))
+    if (!empty($options['sort']) and array_key_exists('RAND()', $options['sort'])) {
       $options['#nocache'] = true;
+      $options['#cache'] = false;
+    }
 
     return $options;
   }
@@ -311,6 +313,9 @@ class ListWidget extends Widget
           unset($result['pager']);
       }
     }
+
+    if (empty($options['#cache']) or !empty($options['#nocache']))
+      $filter['#cache'] = false;
 
     // Формируем список документов.
     foreach ($nodes = Node::find($filter, $options['limit'], $options['offset']) as $node) {
