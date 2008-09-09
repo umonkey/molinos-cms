@@ -161,7 +161,7 @@ class ListWidget extends Widget
       // настроек текущей страницы.
 
       if ('root' == $this->fixed)
-        $options['filter']['tags'] = array($ctx->root);
+        $options['filter']['tags'] = array($ctx->section->id);
       elseif ('always' == $this->fallbackmode and !empty($this->fixed))
         $options['filter']['tags'] = array($this->fixed);
       elseif (null !== ($tmp = $ctx->section->id))
@@ -177,7 +177,7 @@ class ListWidget extends Widget
       foreach (array('year', 'month', 'day') as $key) {
         if (null === ($tmp = $ctx->get($key)))
           break;
-        $options['filter']['node.created.'. $key] = $tmp;
+        $options['filter']['node.created.'. $key] = intval($tmp);
       }
     }
 
