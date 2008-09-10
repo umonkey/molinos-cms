@@ -145,7 +145,7 @@ class Attachment
       $download = true;
 
     if ($download and empty($this->nw) and empty($this->nh)) {
-      if ($this->realname != $this->node->filename) {
+      if ($this->filename != $this->node->filename) {
         $path = 'attachment/'. $this->node->id .'/'.
           urlencode($this->node->filename);
         mcms::redirect($path);
