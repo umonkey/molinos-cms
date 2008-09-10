@@ -434,7 +434,7 @@ class mcms
         foreach (func_get_args() as $arg) {
           if (is_resource($arg))
             $output[] = 'resource';
-          elseif (is_string($arg))
+          elseif (is_string($arg) and !empty($arg))
             $output[] = $arg;
           else
             $output[] = preg_replace('/ =>\s+/', ' => ', var_export($arg, true))
