@@ -161,7 +161,7 @@ class ListWidget extends Widget
       // настроек текущей страницы.
 
       if ('root' == $this->fixed)
-        $options['filter']['tags'] = array($ctx->section->id);
+        $options['filter']['tags'] = array($ctx->root);
       elseif ('always' == $this->fallbackmode and !empty($this->fixed))
         $options['filter']['tags'] = array($this->fixed);
       elseif (null !== ($tmp = $ctx->section->id))
