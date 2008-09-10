@@ -1447,6 +1447,9 @@ class mcms
       $req = new RequestController($ctx);
       $output = $req->run();
     } catch (UserErrorException $e) {
+      if (mcms::config('debug_errors'))
+        mcms::fatal($e);
+
       if ($e->getCode()) {
         // Ошибка 404 — пытаемся использовать подстановку.
         if (404 == $e->getCode()) {
