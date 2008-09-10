@@ -52,6 +52,12 @@ class TagCloudWidget extends Widget implements iWidget
 
     $form = parent::formGetConfig();
 
+    $form->addControl(new TextLineControl(array(
+      'value' => 'config_linktpl',
+      'label' => t('Шаблон ссылки'),
+      'default' => 'section/$id',
+      )));
+
     $form->addControl(new SetControl(array(
       'value' => 'config_classes',
       'label' => t('Типы документов'),
@@ -112,9 +118,11 @@ class TagCloudWidget extends Widget implements iWidget
     foreach ($data as $k => $v)
       $total += $v['cnt'];
 
-    // Set percentage.
-    foreach ($data as $k => $v)
+    // Подсчёт процентов и установка ссылок.
+    foreach ($data as $k => $v) {
       $data[$k]['percent'] = intval(100 / $total * $v['cnt']);
+      $data[$k]['__link'] = str_replace('$id', $v['id'], $this->linktpl);
+    }
 
     $result = array('tags' => $data);
 

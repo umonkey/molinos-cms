@@ -4,9 +4,15 @@ if (!empty($tags)) {
   print '<ul class=\'tagcloud\'>';
 
   foreach ($tags as $t) {
+    $link = mcms::html('a', array(
+      'href' => $t['__link'],
+      ), $t['name']);
+
+    mcms::debug($link);
+
     print mcms::html('li', array(
       'style' => 'font-size:'. (100 + $t['percent']) .'%',
-      ), l($t['id'], $t['name'])) ."\n";
+      ), $link) ."\n";
   }
 
   print '</ul>';
