@@ -40,7 +40,7 @@ class AdminListHandler
     if (null !== ($tmp = $ctx->get('type')))
       $this->types = explode(',', $tmp);
 
-    $this->columns = explode(',', $ctx->get('columns', 'name'));
+    $this->columns = explode(',', $ctx->get('columns', 'name,class,uid,created'));
 
     $this->title = t('Список документов');
 
