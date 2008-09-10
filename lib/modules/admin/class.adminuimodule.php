@@ -381,7 +381,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     $form->addControl(new HiddenControl(array(
       'value' => 'search_from',
-      'default' => $ctx->get('from'),
+      'default' => $ctx->get('from', 'admin/content/list'),
       )));
 
     $form->addControl(new TextLineControl(array(
