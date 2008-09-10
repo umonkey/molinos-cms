@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehook
+class SearchWidget extends Widget implements iWidget
 {
   public function __construct(Node $node)
   {
@@ -14,51 +14,6 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
       'name' => 'Поиск по сайту',
       'description' => 'Контекстный морфологический поиск по сайту.',
       );
-  }
-
-  public static function formGetConfig()
-  {
-    $config = mcms::modconf('search');
-
-    $form = parent::formGetConfig();
-
-    switch ($config['engine']) {
-    case 'mg':
-      $form->addControl(new TextLineControl(array(
-        'value' => 'config_action',
-        'label' => t('Страница с результатами поиска'),
-        'description' => t('По умолчанию поиск производится на текущей странице.&nbsp; Если нужно при поиске перебрасывать пользователя на другую страницу, например &mdash; /search/, введите её имя здесь.'),
-        'class' => 'settings-mg',
-        )));
-      $form->addControl(new NumberControl(array(
-        'value' => 'config_per_page',
-        'label' => t('Количество результатов на странице'),
-        'class' => 'settings-mg',
-        )));
-      $form->addControl(new TextLineControl(array(
-        'value' => 'config_btngo',
-        'label' => t('Текст кнопки поиска'),
-        'class' => 'settings-mg',
-        )));
-      break;
-
-    case 'gas':
-      $form->addControl(new TextLineControl(array(
-        'value' => 'config_gas_ctl',
-        'label' => t('Блок с формой поиска'),
-        'class' => 'settings-gas',
-        'description' => t('Введите id элемента, в который нужно помещать форму поиска.'),
-        )));
-      $form->addControl(new TextLineControl(array(
-        'value' => 'config_gas_root',
-        'label' => t('Блок с результатами Google Ajax Search'),
-        'class' => 'settings-gas',
-        'description' => t('Введите id элемента, в который нужно помещать результаты поиска.  Обычно это — пустой div, скрытый по умолчанию.'),
-        )));
-      break;
-    }
-
-    return $form;
   }
 
   protected function getRequestOptions(Context $ctx)
@@ -278,139 +233,49 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
     }
   }
 
-  public static function formGetModuleConfig()
+  public static function formGetConfig()
   {
-    $form = new Form(array());
-    $form->addClass('tabbed');
+    $config = mcms::modconf('search');
 
-    $tab = new FieldSetControl(array(
-      'name' => 'main',
-      'label' => t('Режим'),
-      ));
-    $tab->addControl(new EnumControl(array(
-      'value' => 'config_engine',
-      'label' => t('Технология поиска'),
-      'options' => array(
-        'gas' => t('Google Ajax Search'),
-        'mg' => t('mnoGoSearch'),
-        ),
-      )));
-    $form->addControl($tab);
+    $form = parent::formGetConfig();
 
-    $tab = new FieldSetControl(array(
-      'name' => 'gas',
-      'label' => t('Google'),
-      ));
-    $tab->addControl(new TextLineControl(array(
-      'value' => 'config_gas_key',
-      'label' => t('Ключ Google API'),
-      'description' => t('Для работы Google Ajax Search нужно <a href=\'@url\'>получить ключ</a>, уникальный для вашего сайта (это делается бесплатно и быстро).', array('@url' => 'http://code.google.com/apis/ajaxsearch/signup.html')),
-      )));
-    $form->addControl($tab);
+    switch ($config['engine']) {
+    case 'mg':
+      $form->addControl(new TextLineControl(array(
+        'value' => 'config_action',
+        'label' => t('Страница с результатами поиска'),
+        'description' => t('По умолчанию поиск производится на текущей странице.&nbsp; Если нужно при поиске перебрасывать пользователя на другую страницу, например &mdash; /search/, введите её имя здесь.'),
+        'class' => 'settings-mg',
+        )));
+      $form->addControl(new NumberControl(array(
+        'value' => 'config_per_page',
+        'label' => t('Количество результатов на странице'),
+        'class' => 'settings-mg',
+        )));
+      $form->addControl(new TextLineControl(array(
+        'value' => 'config_btngo',
+        'label' => t('Текст кнопки поиска'),
+        'class' => 'settings-mg',
+        )));
+      break;
 
-    $tab = new FieldSetControl(array(
-      'name' => 'mg',
-      'label' => t('mnoGoSearch'),
-      ));
-    $tab->addControl(new TextLineControl(array(
-      'value' => 'config_mg_dsn',
-      'label' => t('Параметры подключения к БД'),
-      'description' => t('Строка формата mysql://mnogouser:pass@server/mnogodb/?dbmode=multi'),
-      )));
-    $tab->addControl(new TextLineControl(array(
-      'value' => 'config_mg_ispell',
-      'label' => t('Путь к словарям'),
-      'description' => t('Введите полный путь к папке ispell.'),
-      )));
-    $tab->addControl(new TextLineControl(array(
-      'value' => 'config_mg_indexer',
-      'label' => t('Путь к индексатору'),
-      'description' => t('Введите полный путь к исполняемому файлу индексатора (что-то вроде /usr/local/bin/indexer).'),
-      )));
-    $tab->addControl(new EnumControl(array(
-      'value' => 'config_mg_indexmode',
-      'label' => t('Режим индексирования'),
-      'required' => true,
-      'options' => array(
-        'web' => t('Обход сайта (медленно)'),
-        'db' => t('По базе данных (быстро)'),
-        ),
-      )));
-    $tab->addControl(new EnumControl(array(
-      'value' => 'config_mg_results',
-      'label' => t('Страница для результатов'),
-      'required' => true,
-      'options' => DomainNode::getFlatSiteMap('select'),
-      'description' => t('Используется только в режиме индексирования базы данных.  На эту страницу будут вести ссылки, отображаемые в результатах поиска.  При индексировании в режиме обхода сайта этот параметр не используется.'),
-      )));
-    $form->addControl($tab);
+    case 'gas':
+      $form->addControl(new TextLineControl(array(
+        'value' => 'config_gas_ctl',
+        'label' => t('Блок с формой поиска'),
+        'class' => 'settings-gas',
+        'description' => t('Введите id элемента, в который нужно помещать форму поиска.'),
+        )));
+      $form->addControl(new TextLineControl(array(
+        'value' => 'config_gas_root',
+        'label' => t('Блок с результатами Google Ajax Search'),
+        'class' => 'settings-gas',
+        'description' => t('Введите id элемента, в который нужно помещать результаты поиска.  Обычно это — пустой div, скрытый по умолчанию.'),
+        )));
+      break;
+    }
 
     return $form;
-  }
-
-  public static function hookPostInstall()
-  {
-    $t = new TableInfo('node__searchindex');
-
-    if (!$t->exists()) {
-      $t->columnSet('nid', array(
-        'type' => 'int',
-        'required' => true,
-        'key' => 'mul',
-        'autoincrement' => true,
-        ));
-      $t->columnSet('url', array(
-        'type' => 'varchar(255)',
-        'required' => true,
-        ));
-      $t->columnSet('html', array(
-        'type' => 'mediumblob',
-        ));
-
-      $t->commit();
-    }
-  }
-
-  public static function taskRun()
-  {
-    // 1. Проиндексировать документы, отсутствующие в индексе.
-    // 2. Удалить скрытые и удалённые.
-    // 3. Всё остальное нужно делать по hookNode().
-    $nids = mcms::db()->getResultsV("id", "SELECT `id` FROM `node` WHERE `deleted` = 0 AND `published` = 1 AND `class` NOT IN ('". join("', '", TypeNode::getInternal()) ."') AND `id` NOT IN (SELECT `nid` FROM `node__searchindex`)");
-
-    foreach (Node::find(array('id' => $nids), 100) as $node)
-      self::reindexNode($node);
-  }
-
-  private static function reindexNode($node)
-  {
-    static $schema = null;
-
-    if (null === $schema)
-      $schema = TypeNode::getSchema();
-
-    if (!is_object($node))
-      $node = Node::load(array('id' => $node));
-
-    if (in_array($node->class, TypeNode::getInternal()))
-      return;
-
-    if (array_key_exists($node->class, $schema)) {
-      foreach ($schema[$node->class]['fields'] as $k => $v) {
-        if (isset($node->$k)) {
-          $html .= '<strong>'. mcms_plain($v['label']) .'</strong>';
-          $html .= '<div class=\'data\'>'. $node->$k .'</div>';
-        }
-      }
-    }
-
-    $lang = empty($node->lang) ? 'en' : $node->lang;
-    $html = "HTTP/1.0 200 OK\nContent-Type: text/html; charset=utf-8\nContent-Language: {$lang}\n\n<html><head><title>{$node->name}</title></head><body><h1>{$node->name}</h1>{$html}</body></html>";
-
-    try {
-      mcms::db()->exec('DELETE FROM `node__searchindex` WHERE `nid` = :nid', array(':nid' => $node->id));
-      mcms::db()->exec('INSERT INTO `node__searchindex` (`nid`, `url`, `html`) VALUES (:nid, :url, :html)', array(':nid' => $node->id, ':url' => self::getNodeUrl($node), ':html' => $html));
-    } catch (TableNotFoundException $e) { }
   }
 
   private static function getNodeUrl(Node $node)
@@ -428,22 +293,5 @@ class SearchWidget extends Widget implements iModuleConfig, iScheduler, iNodehoo
     $url = 'http://'. mcms::config('basedomain') .'/'. $tag .'/'. $node->id .'/';
 
     return $url;
-  }
-
-  public static function hookNodeUpdate(Node $node, $op)
-  {
-    switch ($op) {
-    case 'create':
-    case 'update':
-    case 'publish':
-    case 'restore':
-      self::reindexNode($node);
-      break;
-    case 'delete':
-    case 'erase':
-    case 'unpublish':
-      mcms::db()->exec("DELETE FROM `node__searchindex` WHERE `nid` = :nid", array(':nid' => $node->id));
-      break;
-    }
   }
 };
