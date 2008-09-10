@@ -74,7 +74,7 @@ class AdminTreeHandler
       $this->columns = array('name', 'description', 'link', 'created');
       $this->actions = array('publish', 'unpublish', 'delete', 'clone');
       $this->title = t('Карта разделов сайта');
-      $this->zoomlink = "?q=admin&cgroup=content&columns=name,class,uid,created&mode=list&search=tags%3ANODEID";
+      $this->zoomlink = "?q=admin/content/list&columns=name,class,uid,created&search=tags%3ANODEID";
       break;
     case 'pages':
       $this->type = 'domain';
@@ -100,6 +100,15 @@ class AdminTreeHandler
           $this->columntitles[$k] = $v['label'];
       }
     }
+  }
+
+  private function getGroup()
+  {
+    if (array_key_exists('cgroup', $_GET))
+      return $_GET['cgroup'];
+    elseif (preg_match('@^admin/([a-z]+)/@', $_GET['q'], $m))
+      return $m[1];
+    return 'content';
   }
 
   private function getNodeTree()
@@ -142,7 +151,7 @@ class AdminTreeHandler
           if ($link) {
             $args = array(
               'class' => array(),
-              'href' => "?q=admin&mode=edit&cgroup={$_GET['cgroup']}&id={$node['id']}&destination=CURRENT",
+              'href' => "?q=admin/". $this->getGroup() ."/edit/{$node['id']}&destination=CURRENT",
               'style' => empty($node['depth']) ? null : 'margin-left:'. ($node['depth'] * 10) .'px',
               );
 

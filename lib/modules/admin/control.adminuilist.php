@@ -16,6 +16,15 @@ class AdminUIListControl extends Control
     parent::__construct($form, array('columns'));
   }
 
+  private function getGroup()
+  {
+    if (array_key_exists('cgroup', $_GET))
+      return $_GET['cgroup'];
+    elseif (preg_match('@^admin/([a-z]+)/@', $_GET['q'], $m))
+      return $m[1];
+    return 'content';
+  }
+
   public function getHTML(array $data)
   {
     $output = '';
@@ -72,7 +81,7 @@ class AdminUIListControl extends Control
           } else {
             $href = isset($this->picker)
               ? "?q=attachment.rpc&fid={$node['id']}"
-              : '?q=admin&mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination=CURRENT';
+              : '?q=admin/'. $this->getGroup() .'/edit/'. $node['id'] .'&destination=CURRENT';
           }
 
           $row .= mcms::html('a', array(
@@ -218,7 +227,7 @@ class AdminUIListControl extends Control
           $class = null;
 
         return mcms::html('a', array(
-          'href' => '?q=admin&mode=edit&cgroup='. $_GET['cgroup'] .'&id='. $node['id'] .'&destination=CURRENT',
+          'href' => '?q=admin/'. $this->getGroup() .'/edit/'. $node['id'] .'&destination=CURRENT',
           'class' => $class,
           ), $value);
       }
@@ -253,7 +262,8 @@ class AdminUIListControl extends Control
 
     if (mcms::user()->hasAccess('u', 'user'))
       return mcms::html('a', array(
-        'href' => "?q=admin&mode=edit&id={$uid}&destination=CURRENT",
+        'href' => "?q=admin/". $this->getGroup()
+          ."/edit/{$uid}&destination=CURRENT",
         ), $name);
 
     return $name;
@@ -328,7 +338,8 @@ class AdminUIListControl extends Control
     if (empty($node['id']))
       return;
 
-    return $this->getIcon('lib/modules/admin/img/edit.png', "?q=admin&mode=edit&id={$node['id']}&destination=CURRENT", t('Редактировать внутренности'));
+    return $this->getIcon('lib/modules/admin/img/edit.png',
+      "?q=admin/". $this->getGroup() ."/edit/{$node['id']}&destination=CURRENT", t('Редактировать внутренности'));
   }
 
   private function getViewLink(array $node)

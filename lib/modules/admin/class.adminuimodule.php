@@ -35,14 +35,18 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
   private static function fixCleanURLs(Context $ctx)
   {
+    $id = null;
+
     if (count($m = explode('/', $ctx->query())) > 1) {
       $url = new url($ctx->url());
 
       switch (count($m)) {
       case 4:
-        $url->setarg('preset', $m[3]);
+        $url->setarg('preset', $id = $m[3]);
       case 3:
         $url->setarg('mode', $m[2]);
+        if ('edit' == $m[2])
+          $url->setarg('id', $id);
       case 2:
         $url->setarg('cgroup', $m[1]);
       }
