@@ -131,26 +131,24 @@ class RequestController
 
     switch ($page->params) {
     case 'sec':
-      if (!($sec = array_shift($ids)))
-        $sec = $page->defaultsection;
-      if (!empty($sec))
-        $load[] = $sec;
+      $sec = array_shift($ids);
       break;
     case 'doc':
       $doc = array_shift($ids);
-      if (!empty($doc))
-        $load[] = $doc;
       break;
     case 'sec+doc':
-      if (!($sec = array_shift($ids)))
-        $sec = $page->defaultsection;
-      if (!empty($sec))
-        $load[] = $sec;
+      $sec = array_shift($ids);
       $doc = array_shift($ids);
-      if (!empty($doc))
-        $load[] = $doc;
       break;
     }
+
+    if (empty($sec) and !empty($page->defaultsection))
+      $sec = $page->defaultsection;
+
+    if (!empty($sec))
+      $load[] = $sec;
+    if (!empty($doc))
+      $load[] = $doc;
 
     // Остался мусор в урле — страница не найдена.
     if (!empty($ids))
