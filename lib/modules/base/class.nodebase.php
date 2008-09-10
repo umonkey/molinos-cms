@@ -2008,7 +2008,8 @@ class NodeBase
             '%size' => ini_get('upload_max_filesize'),
             )));
 
-      $this->attachOneFile($field, $fileinfo);
+      else
+        $this->attachOneFile($field, $fileinfo);
     }
 
     if (!empty($data['reset_rel'])) {
@@ -2035,7 +2036,7 @@ class NodeBase
     }
   }
 
-  private function attachOneFile($field,  array $fileinfo)
+  private function attachOneFile($field, array $fileinfo)
   {
     // Обработка вложенных массивов, обычно случается
     // при загрузке нескольких файлов через MultiFile.js.
