@@ -160,8 +160,8 @@ class ListWidget extends Widget
       // используем текущий раздел в зависимости от запроса и
       // настроек текущей страницы.
 
-      if ('root' == $this->fixed)
-        $options['filter']['tags'] = array($ctx->root);
+      if ('root' == $this->fixed and $ctx->root->id)
+        $options['filter']['tags'] = array($ctx->root->id);
       elseif ('always' == $this->fallbackmode and !empty($this->fixed))
         $options['filter']['tags'] = array($this->fixed);
       elseif (null !== ($tmp = $ctx->section->id))
@@ -290,7 +290,7 @@ class ListWidget extends Widget
     if (empty($this->options['filter']['tags']))
       $result['section'] = null;
     else {
-      $node = array_values(Node::find(array(
+      $node = array_values(Node::find($f = array(
         'class' => 'tag',
         'id' => $this->options['filter']['tags'][0],
         )));
