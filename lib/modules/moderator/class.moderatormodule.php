@@ -155,14 +155,15 @@ class ModeratorModule implements iModuleConfig, iNodeHook
     $list = isset($config['super']) ? preg_split('/, */', $config['super']) : array();
 
     if (mcms::user()->id) {
-      $tmp = Node::load(array('class' => 'user', 'id' => mcms::user()->id));
-      if (!empty($tmp->publisher) and is_numeric($tmp->publisher)) {
-        try {
+      try {
+        $tmp = Node::load(array('class' => 'user', 'id' => mcms::user()->id));
+
+        if (!empty($tmp->publisher) and is_numeric($tmp->publisher)) {
           $tmp = Node::load(array('class' => 'user', 'id' => $tmp->publisher));
           if (!empty($tmp->email))
             $list[] = $tmp->email;
-        } catch (ObjectNotFoundException $e) {
         }
+      } catch (ObjectNotFoundException $e) {
       }
     }
 
