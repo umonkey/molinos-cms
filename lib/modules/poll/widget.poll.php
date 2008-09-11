@@ -37,7 +37,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
 
-    $options['#nocache'] = true;
+    $options['#cache'] = false;
     $options['action'] = $ctx->get('action', 'default');
 
     if (!($options['section'] = $this->fixed))

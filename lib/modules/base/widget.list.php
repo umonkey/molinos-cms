@@ -230,10 +230,8 @@ class ListWidget extends Widget
       }
     }
 
-    if (!empty($options['sort']) and array_key_exists('RAND()', $options['sort'])) {
-      $options['#nocache'] = true;
+    if (!empty($options['sort']) and array_key_exists('RAND()', $options['sort']))
       $options['#cache'] = false;
-    }
 
     return $options;
   }
@@ -291,7 +289,7 @@ class ListWidget extends Widget
     if (empty($this->options['filter']['tags']))
       $result['section'] = null;
     else {
-      $node = array_values(Node::find($f = array(
+      $node = array_values(Node::find(array(
         'class' => 'tag',
         'id' => $this->options['filter']['tags'][0],
         )));
@@ -315,7 +313,7 @@ class ListWidget extends Widget
       }
     }
 
-    if (empty($options['#cache']) or !empty($options['#nocache']))
+    if (empty($options['#cache']))
       $filter['#cache'] = false;
 
     // Формируем список документов.

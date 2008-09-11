@@ -102,7 +102,7 @@ class CartWidget extends Widget implements iRemoteCall, iModuleConfig
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
 
-    $options['#nocache'] = true;
+    $options['#cache'] = false;
 
     // Режим работы задаётся администратором, но переопределяется извне.
     $options['mode'] = $ctx->get('mode', $this->mode);

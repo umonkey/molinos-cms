@@ -27,7 +27,7 @@ class StatusAdminWidget extends Widget
       return $options;
 
     $options['action'] = $ctx->get('action', 'status');
-    $options['#nocache'] = true;
+    $options['#cache'] = false;
 
     return $options;
   }

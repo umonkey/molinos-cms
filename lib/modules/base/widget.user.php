@@ -100,7 +100,7 @@ class UserWidget extends Widget implements iWidget
     $options['hash'] = $ctx->get('hash');
 
     if (empty($options['uid']))
-      $options['#nocache'] = true;
+      $options['#cache'] = false;
 
     return $options;
   }

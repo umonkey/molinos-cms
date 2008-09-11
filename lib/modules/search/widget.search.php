@@ -24,7 +24,7 @@ class SearchWidget extends Widget implements iWidget
     $options['q'] = $ctx->get('q');
     $options['page'] = $ctx->get('page', 1);
     $options['limit'] = $this->per_page;
-    $options['#nocache'] = true;
+    $options['#cache'] = false;
 
     return $options;
   }

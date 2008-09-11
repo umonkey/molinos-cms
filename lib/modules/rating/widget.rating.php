@@ -48,7 +48,7 @@ class RatingWidget extends Widget implements iNodeHook
 
     $halt = false;
 
-    $options['#nocache'] = true;
+    $options['#cache'] = false;
     $options['action'] = $ctx->get('action', 'status');
     $options['vote'] = $ctx->get('vote');
 

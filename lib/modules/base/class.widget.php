@@ -227,6 +227,8 @@ abstract class Widget implements iWidget
    */
   public final function getCacheKey()
   {
+    if (empty($this->options['#cache']))
+      return null;
     return md5(serialize($this->options));
   }
 
