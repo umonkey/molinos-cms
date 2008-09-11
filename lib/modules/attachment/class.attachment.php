@@ -10,7 +10,6 @@ class Attachment
   private $nh;
   private $options = array();
   private $node = null;
-  private $realname = null;
   private $guid = null;
 
   public function __construct(Context $ctx)
@@ -102,6 +101,7 @@ class Attachment
   {
     if (!$this->sendImage())
       $this->sendDownload();
+    die();
   }
 
   private function sendImage()
