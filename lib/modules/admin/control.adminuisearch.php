@@ -52,22 +52,14 @@ class AdminUISearchControl extends Control
       }
     }
 
-    $tmp = array(
-      'path' => 'admin',
-      'args' => array(
-        'mode' => 'create',
-        'type' => $type,
-        'destination' => $_SERVER['REQUEST_URI'],
-        'cgroup' => $_GET['cgroup'],
-        ),
-      );
+    $link = '?q=admin/content/create&type='. $type .'&destination=CURRENT';
 
     if (!empty($_GET['preset']) and $_GET['preset'] == 'dictlist')
-      $tmp['args']['dictionary'] = 1;
+      $link .= '&dictionary=1';
 
     $output = mcms::html('a', array(
       'class' => 'newlink',
-      'href' => bebop_combine_url($tmp, false),
+      'href' => $link,
       ), 'Добавить');
 
     return $output;
