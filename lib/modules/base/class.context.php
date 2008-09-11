@@ -238,6 +238,8 @@ class Context
     case 'root':
       if (!array_key_exists($key, $this->_args))
         return Node::create('dummy');
+      elseif (is_numeric($this->_args[$key]))
+        $this->_args[$key] = Node::load($this->_args[$key]);
       return $this->_args[$key];
     case 'theme':
       if (!array_key_exists($key, $this->_args))
