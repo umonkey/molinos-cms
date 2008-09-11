@@ -16,13 +16,14 @@ class DBSchema_node__seq extends TableManager
         );
   }
 
-  public  function createTable($table_name)
+  public function createTable($table_name)
   {
     parent::createTable($table_name);
 
     if (!($curid = mcms::db()->getResult("SELECT MAX(`id`) FROM `node`")))
       $curid = 1;
 
-    mcms::db()->exec("INSERT INTO `node__seq` (`id`, `n`) VALUES(:id, 1)", array(':id' => $curid));
+    mcms::db()->exec("INSERT INTO `node__seq` (`id`, `n`) VALUES (:id, 1)",
+      array(':id' => $curid));
   }
 }

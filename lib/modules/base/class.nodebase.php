@@ -2270,7 +2270,7 @@ class NodeBase
   // Возвращает следующий доступный идентификатор для таблицы node.
   private function dbGetNextId()
   {
-    mcms::db()->exec("insert into node__seq (n) values(1)");
+    mcms::db()->exec("INSERT INTO `node__seq` (`n`) VALUES (1)");
     $k = mcms::db()->lastInsertId();
     return $k;
   }
