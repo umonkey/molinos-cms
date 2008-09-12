@@ -75,7 +75,7 @@ class ArchiveWidget extends Widget implements iWidget
   {
     if (is_array($options = parent::getRequestOptions($ctx))) {
       // Нужно для подавления кэширования.
-      $options['apath'] = $ctx->apath;
+      $options['apath'] = $ctx->query();
 
       // Самостоятельно парсим урл, т.к. будем подглядывать за другими виджетами.
       // FIXME: это надо получать из контекста.
@@ -92,6 +92,14 @@ class ArchiveWidget extends Widget implements iWidget
           $options[$key] = $url['args'][$this->host][$key];
         }
       }
+    }
+
+    // Возвращаем параметризацию.
+    foreach (array('year', 'month', 'day') as $key) {
+      if (array_key_exists($key, $options))
+        $options['current'][$key] = $options[$key];
+      elseif (array_key_exists($k = $this->host .'_'. $key, $_GET))
+        $options['current'][$key] = $_GET[$k];
     }
 
     return $options;
@@ -158,13 +166,7 @@ class ArchiveWidget extends Widget implements iWidget
           $result['days'] = $this->getDayList($options);
       }
 
-      // Возвращаем параметризацию.
-      foreach (array('year', 'month', 'day') as $key) {
-        if (array_key_exists($key, $options))
-          $result['current'][$key] = $options[$key];
-        elseif (array_key_exists($k = $this->host .'_'. $key, $_GET))
-          $result['current'][$key] = $_GET[$k];
-      }
+      $result['current'] = $options['current'];
     }
 
     return $result;
