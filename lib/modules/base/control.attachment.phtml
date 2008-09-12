@@ -1,4 +1,4 @@
-<label><?php print empty($c->label) ? 'Дополнительный файл' : $c->label; ?>:</label>
+<label><span><?php print empty($c->label) ? 'Дополнительный файл' : $c->label; ?>:</span></label>
 <div class='attachment-control'>
 <div class='preview'>
 <span style='display:none'><?php print $d['id']; ?></span>
@@ -6,4 +6,3 @@
 <input type='file' name='<?php print $c->value; ?>' />
 <div class='sep'></div>
 </div>
-<?php // mcms::debug($data);

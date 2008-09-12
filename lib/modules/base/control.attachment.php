@@ -33,7 +33,8 @@ class AttachmentControl extends Control
     if (!empty($this->extensions))
       $parts[] = t('Допустимые типы файлов: %list.', array('%list' => $this->extensions));
 
-    $this->description .= '<p>'. join('  ', $parts) .'</p>';
+    if (!empty($parts))
+      $this->description .= '<p>'. join(' ', $parts) .'</p>';
   }
 
   public function getHTML(array $data)
