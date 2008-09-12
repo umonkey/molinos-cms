@@ -1636,14 +1636,17 @@ class NodeBase
           $v['wrapper_id'] = "{$k}-ctl-wrapper";
 
           if ($v['type'] == 'AttachmentControl') {
-            $t = array(
+            $v = array_merge(array(
              'value'   => 'file_'. $k,
              'medium'  => true,
              'unzip'   => false, // не разрешаем распаковывать зипы, загружаемые в поля.
              'archive' => true
-            );
-            $filefields[] = array_merge($t, $v);
-            continue;
+            ), $v);
+
+            if (!$simple) {
+              $filefields[] = $v;
+              continue;
+            }
           } else {
             $v['value'] = 'node_content_'. $k;
           }
