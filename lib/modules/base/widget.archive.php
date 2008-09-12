@@ -159,9 +159,12 @@ class ArchiveWidget extends Widget implements iWidget
       }
 
       // Возвращаем параметризацию.
-      foreach (array('year', 'month', 'day') as $key)
+      foreach (array('year', 'month', 'day') as $key) {
         if (array_key_exists($key, $options))
           $result['current'][$key] = $options[$key];
+        elseif (array_key_exists($k = $this->host .'_'. $key, $_GET))
+          $result['current'][$key] = $_GET[$k];
+      }
     }
 
     return $result;
