@@ -195,8 +195,16 @@ class Attachment
     $headers[] = "Content-Type: ". $this->node->filetype;
     $headers[] = "Content-Length: ". ($range_to - $range_from);
 
-    if ($download)
-      $headers[] = "Content-Disposition: attachment; filename=\"".$this->node->filename."\"";
+    if ($download) {
+      $filename = $this->node->filename;
+
+      if (function_exists('mb_convert_encoding'))
+        if (false !== strpos($_SERVER['HTTP_USER_AGENT'], 'compatible; MSIE'))
+          $filename = mb_convert_encoding($filename, 'windows-1251', 'utf-8');
+
+      $headers[] = "Content-Disposition: attachment; "
+        ."filename=\"". $filename ."\"";
+    }
 
     /*
     // Клиентское кэширование, хотя не уверен, что это используется со скачиваемыми файлами.
