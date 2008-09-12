@@ -1,4 +1,4 @@
-<label><?php print $c->label; ?>:</label>
+<label><?php print empty($c->label) ? 'Дополнительный файл' : $c->label; ?>:</label>
 <div class='attachment-control'>
 <div class='preview'>
 <span style='display:none'><?php print $d['id']; ?></span>

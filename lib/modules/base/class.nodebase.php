@@ -1781,13 +1781,19 @@ class NodeBase
     }
 
     if (!empty($schema['hasfiles'])) {
-      $tab->addControl(new FileListControl(array(
-       'value' => 'files',
-        )));
+      foreach ($this->files as $k => $v) {
+        if (is_numeric($k))
+          $tab->addControl(new AttachmentControl(array(
+            'extended' => true,
+            'value' => 'file_'. $v->id,
+            'uploadtxt' => t('Загрузить'),
+            'unzip' => true,
+            )));
+      }
 
       $tab->addControl(new AttachmentControl(array(
         'extended' => true,
-        'value' => 'file_'. rand(),
+        'value' => 'file_0',
         'uploadtxt' => t('Загрузить'),
         'unzip' => true,
         )));
@@ -1906,14 +1912,9 @@ class NodeBase
         }
       }
 
-    /*
-    if (!empty($this->files)) {
-      foreach ($this->files as $key => $file) {
-        $dt = $file->getRaw();
-        $data['file_'. $dt['id']] = $file;
-      }
-    }
-    */
+    foreach ($this->files as $k => $v)
+      if (is_numeric($k))
+        $data['file_'. $v->id] = $v->getRaw();
 
     if (empty($schema['notags']))
       $data['node_tags'] = $this->linkListParents('tag', true);
@@ -2062,10 +2063,11 @@ class NodeBase
 
       // Загрузка нового файла.
       if (!empty($fileinfo['tmp_name'])) {
-
         if (is_numeric($field)) { //замена существующего - сначала удалим старый файл
-          $file = Node::load(array('class' => 'file', 'id' => $field));
-          $file->linkRemoveParent($this->id);
+          try {
+            $file = Node::load(array('class' => 'file', 'id' => $field));
+            $file->linkRemoveParent($this->id);
+          } catch (ObjectNotFoundException $e) { }
         }
 
         $fileinfo['parent_id'] = $this->id;
