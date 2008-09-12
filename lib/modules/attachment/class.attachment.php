@@ -116,6 +116,10 @@ class Attachment
     if (null === ($guid = $this->getGuid()))
       return false;
 
+    // Отсеиваем немасштабируемые картинки.
+    if (!$this->isResizable())
+      return false;
+
     if (!file_exists($guid)) {
       ob_start();
 
@@ -146,9 +150,12 @@ class Attachment
 
     if (false !== strstr($this->node->filetype, 'shockwave'))
       $download = false;
-    elseif (0 === strpos($this->node->filetype, 'image/'))
+    elseif ($this->isResizable())
       $download = false;
-    else
+    elseif ($this->isImage()) {
+      $download = true;
+      $this->node->filetype = 'octet/stream';
+    } else
       $download = true;
 
     if ($download and empty($this->nw) and empty($this->nh)) {
@@ -299,5 +306,24 @@ class Attachment
     }
 
     $this->sendError(500, 'could not dump the file.');
+  }
+
+  private function isImage()
+  {
+    return 0 === strpos($this->node->filetype, 'image/');
+  }
+
+  private function isResizable()
+  {
+    if ($this->isImage()) {
+      switch ($this->node->filetype) {
+        case 'image/jpeg':
+        case 'image/png':
+        case 'image/gif':
+          return true;
+      }
+    }
+
+    return false;
   }
 };
