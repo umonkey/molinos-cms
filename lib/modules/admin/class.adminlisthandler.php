@@ -355,9 +355,13 @@ class AdminListHandler
     case 'schema':
       $tmp = array();
 
-      foreach ($result as $k => $v)
+      foreach ($result as $k => $v) {
         if (!bebop_is_debugger() and in_array($v['name'], $itypes) or !empty($v['isdictionary']))
           unset($result[$k]);
+
+        if (!empty($v['adminmodule']) and !mcms::ismodule($v['adminmodule']))
+          unset($result[$k]);
+      }
 
       foreach ($result as $v) {
         if (!in_array($v['name'], $itypes)) {
