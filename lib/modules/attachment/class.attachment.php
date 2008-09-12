@@ -70,6 +70,9 @@ class Attachment
 
   private function sendError($code, $more = null)
   {
+    if (ob_get_length())
+      ob_end_clean();
+
     $codes = array(
       '200' => 'OK',
       '400' => 'Bad Request',
@@ -91,7 +94,7 @@ class Attachment
     if ($more !== null)
       print ": ". rtrim($more, '.') .'.';
 
-    exit();
+    die();
   }
 
   /**
@@ -114,8 +117,12 @@ class Attachment
       return false;
 
     if (!file_exists($guid)) {
+      ob_start();
+
       $img = ImageMagick::getInstance();
       $rc = $img->open($this->getSourceFile(), $this->node->filetype);
+
+      ob_end_clean();
 
       // Если не удалось открыть, значит файл не является картинкой.  Отдаём его в режиме скачивания.
       if ($rc === false)

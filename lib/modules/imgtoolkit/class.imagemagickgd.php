@@ -16,8 +16,8 @@ class ImageMagickGD
 
     public function __destruct()
     {
-        if ($this->img !== null)
-            imagedestroy($this->img);
+      if (is_resource($this->img))
+        imagedestroy($this->img);
     }
 
     public function getError()
