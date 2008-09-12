@@ -226,19 +226,8 @@ abstract class Control implements iFormControl
 
   protected function wrapHTML($output, $with_label = true)
   {
-    if ($with_label and isset($this->label)) {
-      $star = $this->required
-        ? mcms::html('span', array('class' => 'required-label'), '*')
-        : '';
-
-      if (substr($label = $this->label, -3) != '...')
-        if (substr($label, -1) != ':')
-          $label .= ':';
-
-      $output  = mcms::html('label', array(
-        'class' => $this->required ? 'required' : null,
-        ), mcms::html('span', $label . $star) . $output);
-    }
+    if ($with_label)
+      $output = $this->getLabel() . $output;
 
     if (isset($this->description)) {
       $output .= mcms::html('div', array(
@@ -258,6 +247,26 @@ abstract class Control implements iFormControl
       'id' => $this->wrapper_id,
       'class' => $classes,
       ), $output);
+  }
+
+  protected function getLabel()
+  {
+    if (empty($this->label))
+      return null;
+
+    $star = $this->required
+      ? mcms::html('span', array('class' => 'required-label'), '*')
+      : '';
+
+    if (substr($label = $this->label, -3) != '...')
+      if (substr($label, -1) != ':')
+        $label .= ':';
+
+    $output = mcms::html('label', array(
+      'class' => $this->required ? 'required' : null,
+      ), mcms::html('span', $label . $star) . $output);
+
+    return $output;
   }
 
   protected function makeOptionsFromValues(array &$form)

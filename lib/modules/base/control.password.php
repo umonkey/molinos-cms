@@ -38,13 +38,16 @@ class PasswordControl extends Control
 
   public function getHTML(array $data)
   {
-    $output = mcms::html('input', array(
+    $output = $this->getLabel();
+
+    $output .= mcms::html('input', array(
       'type' => 'password',
       'id' => $this->id,
       'class' => 'form-text form-password1',
       'name' => $this->value .'[]',
       'value' => null,
       ));
+
     $output .= mcms::html('input', array(
       'type' => 'password',
       'id' => $this->id,
@@ -53,6 +56,6 @@ class PasswordControl extends Control
       'value' => null,
       ));
 
-    return $this->wrapHTML($output);
+    return $this->wrapHTML($output, false);
   }
 };
