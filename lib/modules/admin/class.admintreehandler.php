@@ -119,7 +119,13 @@ class AdminTreeHandler
     $columns = $this->columns;
     $columns[] = 'parent_id';
 
-    foreach (Node::find(array('class' => $this->type, 'parent_id' => null)) as $root) {
+    $filter = array(
+      'class' => $this->type,
+      'parent_id' => null,
+      '#cache' => false,
+      );
+
+    foreach (Node::find($filter) as $root) {
       $children = $root->getChildren('flat');
 
       foreach ($children as $node) {

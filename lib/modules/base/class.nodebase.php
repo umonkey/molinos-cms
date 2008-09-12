@@ -764,6 +764,7 @@ class NodeBase
           'left' => 'asc',
           ),
         '#recurse' => 1,
+        '#cache' => false,
         ));
 
       // Превращаем плоский список в дерево.
