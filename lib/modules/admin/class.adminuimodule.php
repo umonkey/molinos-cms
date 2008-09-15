@@ -563,6 +563,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     }
 
     if (!count(mcms::user()->getAccess('u')))
-      throw new ForbiddenException();
+      throw new ForbiddenException(t('У вас нет доступа '
+        .'к администрированию сайта.'));
   }
 };
