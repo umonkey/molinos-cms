@@ -2301,6 +2301,7 @@ class NodeBase
    */
   public static function dbRead($sql, array $params = null, $recurse = 0)
   {
+    $tags = false;
     $nodes = array();
 
     foreach ($res = mcms::db()->getResults($sql, $params) as $row) {
@@ -2314,6 +2315,9 @@ class NodeBase
       unset($row['data']);
 
       $nodes[$row['id']] = Node::create($row['class'], $row);
+
+      if ('tag' == $row['class'])
+        $tags = true;
     }
 
     // Подгружаем прилинкованые ноды.
@@ -2327,6 +2331,12 @@ class NodeBase
         ."FROM `node__rel` WHERE `nid` IN (SELECT `id` FROM `node` WHERE "
         ."`deleted` = 0) AND `tid` "
         ."IN (". join(', ', array_keys($nodes)) .")";
+
+      // FIXME: для разделов загружаем ТОЛЬКО именованые ссылки,
+      // иначе мы загрузим ВСЕ документы, привязанные к разделам,
+      // что при среднем-большом объёме контента перестанет работать.
+      if ($tags)
+        $sql .= ' AND `key` IS NOT NULL';
 
       foreach (mcms::db()->getResults($sql) as $l)
           $map[$l['nid']][] = $l;
