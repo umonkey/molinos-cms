@@ -121,42 +121,27 @@ class UserNode extends Node implements iContentType
    */
   public function formGet($simple = true)
   {
-    if (empty($this->id)) {
-      $form = new Form(array(
-        'title' => t('Добавление пользователя'),
-        'edit' => true,
-        ));
-      $form->addControl(new TextLineControl(array(
-        'value' => 'node_content_name',
-        'label' => t('Идентификатор'),
-        'description' => t('E-mail или OpenID (включая http://).'),
-        )));
-      $form->addControl(new SubmitControl());
-    }
+    $form = parent::formGet($simple);
 
-    else {
-      $form = parent::formGet($simple);
+    if (!$simple and (null !== ($tab = $this->formGetGroups())))
+      $form->addControl($tab);
 
-      if (!$simple and (null !== ($tab = $this->formGetGroups())))
-        $form->addControl($tab);
+    $form->title = t('Пользователь %name', array('%name' => $this->name));
 
-      $form->title = t('Пользователь %name', array('%name' => $this->name));
+    if ($this->id) {
+      $tmp = $form->findControl('node_content_name');
 
-      if ($this->id) {
-        $tmp = $form->findControl('node_content_name');
-
-        if ('cms-bugs@molinos.ru' == $this->name) {
-          $tmp->description = t('Замените это на свой почтовый адрес или OpenID, если он у вас есть.');
-          $form->title = t('Встроенный администратор');
-        } elseif (false === strstr($this->name, '@') and false !== strstr($this->name, '.')) {
-          if ($tmp)
-            $tmp->label = 'OpenID';
-          $form->replaceControl('node_content_password', null);
-        } else {
-          if ($tmp)
-            $tmp->label = 'Email';
-          $form->replaceControl('node_content_email', null);
-        }
+      if ('cms-bugs@molinos.ru' == $this->name) {
+        $tmp->description = t('Замените это на свой почтовый адрес или OpenID, если он у вас есть.');
+        $form->title = t('Встроенный администратор');
+      } elseif (false === strstr($this->name, '@') and false !== strstr($this->name, '.')) {
+        if ($tmp)
+          $tmp->label = 'OpenID';
+        $form->replaceControl('node_content_password', null);
+      } else {
+        if ($tmp)
+          $tmp->label = 'Email';
+        $form->replaceControl('node_content_email', null);
       }
     }
 
@@ -214,10 +199,18 @@ class UserNode extends Node implements iContentType
    */
   public function formProcess(array $data)
   {
+    $this->data['published'] = true;
+
+    $new = empty($this->id);
+
     parent::formProcess($data);
 
     if (mcms::user()->hasAccess('u', 'group') and !empty($data['reset_groups']))
       $this->linkSetParents(empty($data['node_user_groups']) ? array() : $data['node_user_groups'], 'group');
+
+    // Прозрачная идентификация при создании пользователя.
+    if ($new and !mcms::user()->id)
+      User::authorize($this->name, null, true);
   }
 
   /**

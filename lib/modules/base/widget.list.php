@@ -360,42 +360,6 @@ class ListWidget extends Widget
     }
   }
 
-  /**
-   * Обработка формы.
-   *
-   * Используется для организации параметрического поиска: при action=search
-   * вытаскивает из POST-параметра "search" значение, превращает его в
-   * GET-параметр и перенаправляет пользователя на полученный урл.  Нужно всё
-   * это потому, что запросы методом POST не могут возвращать данные, только
-   * обрабатывать входящие и перенаправлять.
-   *
-   * FIXME: устранить!
-   *
-   * @param array $options то, что насобирал getRequestOptions().
-   *
-   * @param array $post содержимое формы.
-   *
-   * @param array $files полученные файлы, если есть.
-   *
-   * @return string адрес для перенаправления пользователя.
-   */
-  public function onPost(array $options, array $post, array $files)
-  {
-    if (!empty($post['action'])) {
-      switch ($post['action']) {
-      case 'search':
-        $url = bebop_split_url();
-        $url['args'][$this->getInstanceName()] = array(
-          'search' => empty($post['search']) ? null : $post['search'],
-          );
-
-        mcms::redirect($url);
-
-        return bebop_combine_url($url, false);
-      }
-    }
-  }
-
   private function getNodePerms(array $nodes, $op)
   {
     return mcms::db()->getResultsKV("nid", "nid", "SELECT `nid` FROM `node__access` WHERE `nid` IN ({$op}CHECK) AND `nid` IN (". join(", ", $nodes) .")");

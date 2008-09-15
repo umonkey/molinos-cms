@@ -14,6 +14,12 @@ print urlencode($_SERVER['REQUEST_URI']);
 <input type='submit' value='Войти' />
 </div>
 </form>
+<?php if (!empty($register_link)): ?>
+<div class='register'><?php
+print l($register_link, 'Зарегистрироваться');
+?></div>
+<?php endif; ?>
+
 <?php elseif ('logout' == $mode): ?>
 <form action='?q=base.rpc&amp;action=logout&amp;destination=<?php
 print urlencode($_SERVER['REQUEST_URI']);
@@ -25,4 +31,11 @@ print urlencode($_SERVER['REQUEST_URI']);
 <input type='submit' value='Выйти' />
 </div>
 </form>
+
+<?php elseif ('register' == $mode): ?>
+<?php if (!empty($form)) print $form; ?>
+
+<?php elseif (!empty($form)): ?>
+<?php print $form; ?>
+
 <?php endif; ?>

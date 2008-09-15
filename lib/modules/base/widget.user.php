@@ -98,8 +98,7 @@ class UserWidget extends Widget implements iWidget
     $options['status'] = $ctx->get('status');
     $options['hash'] = $ctx->get('hash');
 
-    if (empty($options['uid']))
-      $options['#cache'] = false;
+    $options['#cache'] = false;
 
     return $options;
   }
@@ -143,12 +142,19 @@ class UserWidget extends Widget implements iWidget
       );
 
     // Добавка для вошедших.
-    if ($user->id)
+    if ($user->id) {
       $result['mode'] = 'logout';
+    }
 
     // Добавка для невошедших.
-    else
+    else {
+      $url = new url();
+      $url->path = null;
+      $url->setarg($this->getInstanceName() .'.action', 'register');
+
       $result['mode'] = 'login';
+      $result['register_link'] = strval($url);
+    }
 
     return $result;
   }
@@ -167,25 +173,17 @@ class UserWidget extends Widget implements iWidget
    */
   protected function onGetRegister(array $options)
   {
-    if ($this->user->id)
-      throw new BadRequestException("Регистрация возможна только "
-        ."для анонимных пользователей.");
-
-    switch ($options['status']) {
-    case 'registered':
-      $output = "<p>Регистрация прошла успешно.&nbsp; В ближайшее время "
-        ."на указанный в анкете почтовый адрес придёт инструкция "
-        ."по активации вашей новой учётной записи.</p>";
-      break;
-
-    default:
-      $output = parent::formRender('user-register-form');
-      break;
+    if ($this->user->id) {
+      $url = new url();
+      $url->setarg($this->getInstanceName() .'.action', 'edit');
+      mcms::redirect(strval($url));
     }
+
+    $node = Node::create('user');
 
     return array(
       'mode' => 'register',
-      'form' => $output,
+      'form' => $node->formGet()->getHTML($node->formGetData()),
       );
   }
 

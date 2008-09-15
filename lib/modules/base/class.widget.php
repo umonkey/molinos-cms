@@ -277,17 +277,6 @@ abstract class Widget implements iWidget
   }
 
   /**
-   * Обработка POST.
-   *
-   * FIXME: устранить здесь и во всех виджетах.
-   */
-  public function onPost(array $options, array $post, array $files)
-  {
-    if (empty($post))
-      throw new WidgetHaltedException();
-  }
-
-  /**
    * Диспетчер команд.
    *
    * Используется для упрощения разделения логики на методы.  В соответствии с
