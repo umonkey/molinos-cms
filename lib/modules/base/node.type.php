@@ -377,6 +377,11 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if (null !== ($tmp = $this->getAccessTab()))
       $form->addControl($tmp);
 
+    if ('tag' == $this->name) {
+      $form->replaceControl('node_content_notags', null);
+      $form->replaceControl('node_content_hasfiles', null);
+    }
+
     return $form;
   }
 
