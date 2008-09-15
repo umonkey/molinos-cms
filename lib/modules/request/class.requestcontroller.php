@@ -228,7 +228,7 @@ class RequestController
       if (array_key_exists($module, $map['modules'])) {
         $result = null;
 
-        if ('post' == $this->ctx->method())
+        if ('POST' == $this->ctx->method())
           mcms::db()->beginTransaction();
 
         try {
