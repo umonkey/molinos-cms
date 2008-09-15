@@ -21,6 +21,6 @@ class DuplicateException extends UserErrorException
 {
   public function __construct($message)
   {
-    parent::__construct("Нарушение уникальности", 400, "Нарушение уникальности", $message);
+    parent::__construct($message, 400);
   }
 };
