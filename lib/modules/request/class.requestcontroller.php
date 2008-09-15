@@ -195,20 +195,19 @@ class RequestController
         throw new NotInstalledException('domain');
     }
 
-    elseif (count($domains) == 1)
-      return array_shift($domains);
+    if (count($domains) > 1) {
+      $host = $ctx->host();
 
-    $host = $ctx->host();
+      foreach ($domains as $dom) {
+        // Точное совпадение, возвращаем домен.
+        if ($host == $dom->name)
+          return $dom;
 
-    foreach ($domains as $dom) {
-      // Точное совпадение, возвращаем домен.
-      if ($host == $dom->name)
-        return $dom;
-
-      // TODO: поддержка алиасов.
+        // TODO: поддержка алиасов.
+      }
     }
 
-    throw new PageNotFoundException();
+    return array_shift($domains);
   }
 
   private function checkRPC()
