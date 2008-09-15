@@ -32,11 +32,6 @@ function bebop_autoload($class_name)
       throw new RuntimeException("There is no {$class_name} class "
         ."in {$map[$k]}");
   }
-
-  else {
-    mcms::debug("There was an attempt to access an undefined class, name follows.",
-      $class_name);
-  }
 }
 
 spl_autoload_register('bebop_autoload');
