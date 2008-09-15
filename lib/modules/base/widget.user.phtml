@@ -1,0 +1,28 @@
+<?php if ('login' == $mode): ?>
+<form action='?q=base.rpc&amp;action=login&amp;destination=<?php
+print urlencode($_SERVER['REQUEST_URI']);
+?>' method='post' enctype='multipart/form-data'>
+<label class='login'>
+<span>Логин:</span>
+<input type='text' name='login' />
+</label>
+<label class='logout'>
+<span>Пароль:</span>
+<input type='password' name='password' />
+</label>
+<div class='submit'>
+<input type='submit' value='Войти' />
+</div>
+</form>
+<?php elseif ('logout' == $mode): ?>
+<form action='?q=base.rpc&amp;action=logout&amp;destination=<?php
+print urlencode($_SERVER['REQUEST_URI']);
+?>' method='post' enctype='multipart/form-data'>
+<div class='message'>
+<span>Вы идентифицированы как <?php print $user['name']; ?></span>
+</div>
+<div class='submit'>
+<input type='submit' value='Выйти' />
+</div>
+</form>
+<?php endif; ?>

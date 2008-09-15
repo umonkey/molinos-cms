@@ -119,12 +119,7 @@ class UserWidget extends Widget implements iWidget
    */
   public function onGet(array $options)
   {
-    $result = $this->dispatch(array($options['action']), $options);
-
-    if (is_array($result) and array_key_exists('html', $result))
-      $result['html'] = "<div id='user-widget-{$this->me->name}' class='user-widget'>". $result['html'] ."</div>";
-
-    return $result;
+    return $this->dispatch(array($options['action']), $options);
   }
 
   /**
@@ -142,23 +137,18 @@ class UserWidget extends Widget implements iWidget
     $user = mcms::user();
 
     $result = array(
-      'uid' => $user->id,
-      'name' => $options['login'],
+      'user' => $user->getRaw(),
       'groups' => $user->getGroups(true),
       'form' => null,
       );
 
     // Добавка для вошедших.
-    if (!empty($result['uid'])) {
+    if ($user->id)
       $result['mode'] = 'logout';
-      $result['form'] = $this->getLogoutForm($options);
-    }
 
     // Добавка для невошедших.
-    else {
+    else
       $result['mode'] = 'login';
-      $result['form'] = $this->getLoginForm($options);
-    }
 
     return $result;
   }
