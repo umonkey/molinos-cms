@@ -392,7 +392,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     $url = new url();
 
     // Добавляем вкладку с правами.
-    if ($user->hasAccess('u', 'user') and 'admin' == trim($url->path, '/')) {
+    if ($user->hasAccess('u', 'user') and 0 === strpos(trim($url->path, '/'), 'admin')) {
       $options = array(0 => t('Анонимные пользователи'));
 
       foreach ($acc = $this->getAccess() as $k => $v)
