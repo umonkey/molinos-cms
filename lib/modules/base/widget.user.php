@@ -94,7 +94,6 @@ class UserWidget extends Widget implements iWidget
 
     $options['uid'] = $ctx->get('uid');
     $options['login'] = $this->user->login;
-    $options['root'] = join('/', $ctx->ppath) .'/';
     $options['action'] = $ctx->get('action', 'default');
     $options['status'] = $ctx->get('status');
     $options['hash'] = $ctx->get('hash');
@@ -454,20 +453,6 @@ class UserWidget extends Widget implements iWidget
     $dest['args']['widget'] = null;
 
     return bebop_combine_url($dest, false);
-  }
-
-  /**
-   * Проверка доступа к виджету.
-   *
-   * @return bool по идее, возвращает true, если текущему пользователю
-   * разрешено работать с виджетом.  На практике, с этим виджетом всем всегда
-   * разрешено работать.
-   *
-   * @todo устранить.
-   */
-  public function checkRequiredGroups()
-  {
-    return true;
   }
 
   /**

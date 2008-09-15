@@ -3,15 +3,6 @@
 
 class StatusAdminWidget extends Widget
 {
-  public function __construct(Node $node)
-  {
-    parent::__construct($node);
-
-    $this->groups = array(
-      'Visitors',
-      );
-  }
-
   public static function getWidgetInfo()
   {
     return array(

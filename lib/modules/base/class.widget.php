@@ -140,23 +140,6 @@ abstract class Widget implements iWidget
     return $form;
   }
 
-  /**
-   * Проверка доступа.
-   *
-   * FIXME: deprecated.
-   *
-   * @return bool true, если пользователь состоит хоть в одной из требуемых
-   * групп, иначе false.
-   */
-  public function checkRequiredGroups()
-  {
-    if (!empty($this->groups) and is_array($this->groups))
-      foreach ($this->groups as $group)
-        if ($this->user->hasGroup($group))
-          return true;
-    return empty($this->groups);
-  }
-
   public function setContext(Context $ctx)
   {
     return $this->options = $this->getRequestOptions($this->ctx = $ctx);
@@ -210,9 +193,6 @@ abstract class Widget implements iWidget
       return false;
 
     if (!empty($this->config['onlyifasked']) and empty($get))
-      return false;
-
-    if (!$this->checkRequiredGroups())
       return false;
 
     return true;
