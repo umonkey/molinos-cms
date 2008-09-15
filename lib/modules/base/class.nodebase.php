@@ -1990,11 +1990,11 @@ class NodeBase
       $field = substr($field, 5);
 
       // Удаление ссылки на файл.
-      if (!empty($fileinfo['deleted'])) {
-        if (empty($fileinfo['id']))
-          $this->linkRemoveChild(null, $field);
+      if (!empty($data['file_'. $field .'_unlink'])) {
+        if (is_numeric($field))
+          $this->linkRemoveChild($field);
         else
-          $this->linkRemoveChild($fileinfo['id']);
+          $this->linkRemoveChild(null, $field);
         unset($this->$field);
         continue;
       }
