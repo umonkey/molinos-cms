@@ -34,9 +34,8 @@ class CronMenu implements iAdminMenu
         '@url' => '?q=cron.rpc&destination=CURRENT',
         ));
     else
-      $icon['message'] .= t('Ваших полномочий '
-        .'<a href=\'@url\'>недостаточно</a> '
-        .'для ручного запуска.', array(
+      $icon['message'] .= t('Ваших полномочий недостаточно для ручного запуска '
+        .'(см. <a href=\'@url\'>настройки модуля</a>).', array(
           '@url' => 'admin?mode=modules&action=config&name=cron&cgroup=structure&destination=CURRENT',
         ));
 
