@@ -159,7 +159,7 @@ class ArchiveWidget extends Widget implements iWidget
         return array();
 
       // Возвращаем данные.
-      $result['years'] = $this->getYearList($options);
+      $result['years'] = $this->getYearList($options, $query);
       if (!empty($options['year'])) {
         $result['months'] = $this->getMonthList($options);
         if (!empty($options['month']))
@@ -173,7 +173,7 @@ class ArchiveWidget extends Widget implements iWidget
   }
 
   // Возвращаем массив годов.
-  private function getYearList(array $options)
+  private function getYearList(array $options, array $query)
   {
     $result = array();
 
@@ -184,7 +184,10 @@ class ArchiveWidget extends Widget implements iWidget
       ."(SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) "
       ."AND `published` = 1 "
       ."AND `created` IS NOT NULL "
-      ."GROUP BY `year` ORDER BY `year`";
+      ."AND `deleted` = 0 "
+      .$this->getQueryFilter($query);
+
+    $sql .= "GROUP BY `year` ORDER BY `year`";
 
     // FIXME: publishing
     foreach (mcms::db()->getResultsKV("year", "count", $sql, array(':tid' => $options['root'])) as $k => $v) {
@@ -198,15 +201,23 @@ class ArchiveWidget extends Widget implements iWidget
   }
 
   // Возвращает массив месяцев.
-  private function getMonthList(array $options)
+  private function getMonthList(array $options, array $query)
   {
     $result = array();
 
     $url = bebop_split_url();
     $url['args'][$this->host]['day'] = null;
 
+    $sql = "SELECT MONTH(`created`) AS `month`, "
+      ."COUNT(*) AS `count` FROM `node` "
+      ."WHERE `id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) AND YEAR(`created`) = :year "
+      ."AND `published` = 1 "
+      ."AND `deleted` = 0 "
+      .$this->getQueryFilter($query)
+      ."GROUP BY `month` ORDER BY `month`";
+
     // FIXME: publishing
-    foreach (mcms::db()->getResultsKV("month", "count", "SELECT MONTH(`created`) AS `month`, COUNT(*) AS `count` FROM `node` WHERE `id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) AND YEAR(`created`) = :year AND `published` = 1 GROUP BY `month` ORDER BY `month`", array(':tid' => $options['root'], ':year' => $options['year'])) as $k => $v) {
+    foreach (mcms::db()->getResultsKV("month", "count", $sql, array(':tid' => $options['root'], ':year' => $options['year'])) as $k => $v) {
       $url['args'][$this->host]['month'] = $k;
       $result[$k] = bebop_combine_url($url);
     }
@@ -215,7 +226,7 @@ class ArchiveWidget extends Widget implements iWidget
   }
 
   // Возвращает массив дней.
-  private function getDayList(array $options)
+  private function getDayList(array $options, array $query)
   {
     $result = '';
     $instance = $this->host;
@@ -226,9 +237,16 @@ class ArchiveWidget extends Widget implements iWidget
 
     $url = bebop_split_url();
 
+    $sql = "SELECT DAY(`n`.`created`) AS `day`, COUNT(*) AS `count` "
+      ."FROM `node` `n` WHERE `n`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) "
+      ."AND YEAR(`n`.`created`) = :year AND MONTH(`n`.`created`) = :month "
+      ."AND `n`.`published` = 1 "
+      ."AND `n`.`deleted` = 0 "
+      ."GROUP BY `day` ORDER BY `day`";
+
     // Список задействованных дней.
     // FIXME: publishing
-    $days = mcms::db()->getResultsKV("day", "count", "SELECT DAY(`n`.`created`) AS `day`, COUNT(*) AS `count` FROM `node` `n` WHERE `n`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) AND YEAR(`n`.`created`) = :year AND MONTH(`n`.`created`) = :month AND `n`.`published` = 1 GROUP BY `day` ORDER BY `day`", array(':tid' => $root, ':year' => $year, ':month' => $month));
+    $days = mcms::db()->getResultsKV("day", "count", $sql, array(':tid' => $root, ':year' => $year, ':month' => $month));
 
     // Список месяцев.
     $months = array('Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь');
@@ -282,5 +300,19 @@ class ArchiveWidget extends Widget implements iWidget
 
     $result .= "</table>";
     return $result;
+  }
+
+  private function getQueryFilter(array $query)
+  {
+    $sql = '';
+
+    if (empty($query['class']))
+      ;
+    elseif (count($query['class']) == 1)
+      $sql .= "AND `class` = '{$query['class'][0]}' ";
+    else
+      $sql .= "AND `class` IN ('". join("', '", $query['class']) ."') ";
+
+    return $sql;
   }
 };
