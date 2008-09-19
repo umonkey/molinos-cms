@@ -4,18 +4,40 @@ class OpenIdModule implements iRemoteCall
 {
   public static function hookRemoteCall(Context $ctx)
   {
-    $openidinfo = $ctx->get('openid');
+    switch ($ctx->get('action')) {
+    case 'checkauth':
+      if (mcms::session()->id != $ctx->get('id')) {
+        mcms::fatal(t('Идентификация не удалась: ваш браузер '
+          .'по какой-то причине не принимает cookie (код сессии'
+          .'равен %a вместо %b).', array(
+            '%a' => mcms::session()->id,
+            '%b' => $ctx->get('id'),
+            )));
+      }
 
-    try {
-      $node = self::openIDAuthorize($openidinfo['mode']);
-      User::authorize($node->name, null, true, true);
-    } catch (ObjectNotFoundException $e) {
-      throw new ForbiddenException(t('Вы успешно авторизировались, '
-        .'но пользоваться сайтом не можете, т.к. прозрачная регистрация '
-        .'пользователей OpenID отключена. Соболезнования.'));
+      $ctx->redirect($ctx->get('next', '?q=admin'));
+
+    default:
+      $openidinfo = $ctx->get('openid');
+
+      try {
+        $node = self::openIDAuthorize($openidinfo['mode']);
+
+        mcms::session()->reset(array(
+          'uid' => $node->id,
+          ));
+        mcms::session()->save();
+        mcms::db()->commit();
+
+        $ctx->redirect('?q=openid.rpc&action=checkauth&id='. mcms::session()->id);
+      } catch (ObjectNotFoundException $e) {
+        throw new ForbiddenException(t('Вы успешно авторизировались, '
+          .'но пользоваться сайтом не можете, т.к. прозрачная регистрация '
+          .'пользователей OpenID отключена. Соболезнования.'));
+      }
+
+      $ctx->redirect("?q=admin");
     }
-
-    mcms::redirect("?q=admin");
   }
 
   public static function openIDAuthorize($openid_mode)
@@ -25,9 +47,11 @@ class OpenIdModule implements iRemoteCall
     if ('none' == ($mode = mcms::modconf('openid', 'mode', 'open')))
       throw new RuntimeException(t('Поддержка OpenID отключена администратором.'));
 
+    /*
     if (null === mcms::session()->id())
       throw new RuntimeException(t('Ваш браузер не поддерживает '
         .'(или криво поддерживает) cookie, работа с OpenID невозможна.'));
+    */
 
     if ('id_res' == $openid_mode) {
       $openid = null;
