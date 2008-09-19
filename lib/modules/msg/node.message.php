@@ -86,9 +86,22 @@ class MessageNode extends Node
   {
     $user = mcms::user();
 
-    if ($user->id == $this->uid or $user->id == $this->re)
+    mcms::debug($this->uid, $this->re);
+
+    if ($this->cmp($this->uid, $user->id))
+      return true;
+
+    if ($this->cmp($this->re, $user->id))
       return true;
 
     return false;
+  }
+
+  private function cmp($a, $b)
+  {
+    if ($a instanceof Node)
+      return $a->id == $b;
+    else
+      return $a == $b;
   }
 }
