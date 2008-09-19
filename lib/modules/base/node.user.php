@@ -258,6 +258,12 @@ class UserNode extends Node implements iContentType
         'icon' => 'sudo',
         );
 
+    $links['search'] = array(
+      'href' => '?q=admin/content/list?search=uid%3A'. $this->id,
+      'title' => t('Найти документы пользователя'),
+      'icon' => 'search',
+      );
+
     return $links;
   }
 };

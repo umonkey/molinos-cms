@@ -576,14 +576,12 @@ a.editprofile {
 
 table.mcms.nodelist td.selector {
   border-right: 1px dashed #E3E2E1;
-  vertical-align: top;
 }
 table.mcms.nodelist td.icon {
   padding-left: 2px;
   padding-right: 0;
   width: 16px;
   border-left: none;
-  vertical-align: top;
 }
 table.nodelist td.icon a {
   display: block;
@@ -635,4 +633,8 @@ table.nodelist td.icon .icon-feed {
 
 table.nodelist td.icon .icon-validate {
   background-image: url(../img/icon-validate.gif);
+}
+
+table.nodelist td.icon .icon-search {
+  background-image: url(../img/icon-search.png);
 }
