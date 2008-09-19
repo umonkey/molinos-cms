@@ -41,7 +41,8 @@ function bebop_split_url($url = null)
 // Заворачивает результат работы предыдущей функции обратно.
 function bebop_combine_url(array $url, $escape = true)
 {
-  return strval(new url($url));
+  $url = strval(new url($url));
+  return $escape ? htmlspecialchars($url) : $url;
 }
 
 // Возвращает отформатированную ссылку.
@@ -144,7 +145,7 @@ function t($message, array $argv = array())
       $message = str_replace($k, $v, $message);
       break;
     case '@':
-      $message = str_replace($k, l($v), $message);
+      $message = str_replace($k, htmlspecialchars(l($v)), $message);
       break;
     }
   }
