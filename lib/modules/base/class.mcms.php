@@ -484,7 +484,12 @@ class mcms
     if (mcms::ismodule('syslog'))
       SysLogModule::log($op, $message, $nid);
     else
-      error_log("[{$op}] {$message}", 0);
+      self::flog($op, $message);
+  }
+
+  public static function flog($op, $message)
+  {
+    error_log("[{$op}] {$message}", 0);
   }
 
   public static function url($text, $url)
