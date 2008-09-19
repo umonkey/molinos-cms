@@ -207,8 +207,7 @@ class WidgetNode extends Node implements iContentType
         $tmp->required = false;
       }
 
-      // $form->replaceControl('node_content_classname', null);
-      $form->replaceControl('node_content_config', null);
+      $form->hideControl('node_content_config');
     }
 
     return $form;

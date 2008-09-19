@@ -219,10 +219,10 @@ class AdminUIModule implements iAdminUI, iRemoteCall
         if (null !== ($tmp = $form->findControl('tab_general')))
           $tmp->intro = t('Вы создаёте первый справочник.  Вы сможете использовать его значения в качестве выпадающих списков (для этого надо будет добавить соответствующее поле в нужный <a href=\'@types\'>тип документа</a>).', array('@types' => 'admin/?cgroup=structure&mode=list&preset=schema'));
 
-        $form->replaceControl('node_content_hasfiles', null);
-        $form->replaceControl('node_content_notags', null);
-        $form->replaceControl('tab_sections', null);
-        $form->replaceControl('tab_widgets', null);
+        $form->hideControl('node_content_hasfiles');
+        $form->hideControl('node_content_notags');
+        $form->hideControl('tab_sections');
+        $form->hideControl('tab_widgets');
 
         if (null !== ($ctl = $form->findControl('node_content_title')))
           $ctl->label = t('Название справочника');

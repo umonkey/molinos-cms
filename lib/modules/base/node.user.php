@@ -137,11 +137,11 @@ class UserNode extends Node implements iContentType
       } elseif (false === strstr($this->name, '@') and false !== strstr($this->name, '.')) {
         if ($tmp)
           $tmp->label = 'OpenID';
-        $form->replaceControl('node_content_password', null);
+        $form->hideControl('node_content_password');
       } else {
         if ($tmp)
           $tmp->label = 'Email';
-        $form->replaceControl('node_content_email', null);
+        $form->hideControl('node_content_email');
       }
     }
 

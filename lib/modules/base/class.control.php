@@ -195,6 +195,13 @@ abstract class Control implements iFormControl
     return false;
   }
 
+  public function hideControl($name)
+  {
+    $this->replaceControl($name, new HiddenControl(array(
+      'value' => $name,
+      )));
+  }
+
   protected function getChildrenHTML(array $data)
   {
     $fields = '';
