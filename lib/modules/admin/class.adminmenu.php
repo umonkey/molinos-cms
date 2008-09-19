@@ -84,7 +84,7 @@ class AdminMenu implements iAdminMenu
 
     $output .= '</ul>';
 
-    BebopCache::getInstance()->{'adminmenu:'. $cgroup} = $output;
+    mcms::cache('adminmenu:'. $cgroup, $output);
 
     return $output;
   }
