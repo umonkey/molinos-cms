@@ -18,17 +18,23 @@ function smarty_function_gravatar($params, &$smarty)
     if ($f instanceof Node)
       $f = $f->getRaw();
 
-    if (substr($f['filetype'], 0, 6) == 'image/') {
-      $default = 'http://'. $_SERVER['HTTP_HOST'] .mcms::path(). "/attachment/{$f['id']},{$size},{$size},c";
+    if (0 === strpos($f['filetype'], 'image/')) {
+      $default = 'http://'. $_SERVER['HTTP_HOST'] .mcms::path()
+        ."/attachment/{$f['id']},{$size},{$size},c";
       break;
     }
   }
+
+  if (false !== strpos($user->name, '@'))
+    $email = $user->name;
+  else
+    $email = $user->email;
 
   $url = array(
     'host' => 'www.gravatar.com',
     'path' => '/avatar.php',
     'args' => array(
-      'gravatar_id' => md5($user->email),
+      'gravatar_id' => md5($email),
       'size' => $size,
       'default' => $default,
       ),
