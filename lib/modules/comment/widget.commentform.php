@@ -101,46 +101,22 @@ class CommentFormWidget extends Widget
 
   protected function getNewForm($strip = true)
   {
-    $user = mcms::user();
-    $schema = TypeNode::getSchema('comment');
-    $hidden = $user->id ? $this->hide_user : $this->hide_anon;
-
-    $form = new Form(array(
-      'title' => t('Добавить комментарий'),
-      ));
-
-    $welcome = null;
-
-    switch ($this->options['status']) {
-      case 'pending':
-        $welcome = t('Ваш комментарий добавлен, но на сайте будет показан только после одобрения модератором.');
-        break;
-      case 'published':
-        $welcome = t('Ваш комментарий добавлен.');
-        break;
-    }
-
-    if (null !== $welcome)
-      $form->addControl(new InfoControl(array(
-        'text' => $welcome,
-        )));
-
-    foreach ($schema['fields'] as $k => $v) {
-      if (!in_array($k, (array)$hidden) or !$strip) {
-        $v['value'] = 'comment_'. $k;
-
-        if (null !== ($ctl = Control::make($v)))
-          $form->addControl($ctl);
-      }
-    }
+    $form = Node::create('comment')->formGet(/* simple = */ true);
 
     $form->addControl(new HiddenControl(array(
       'value' => 'comment_node',
+      'default' => $this->options['doc'],
       )));
 
-    $form->addControl(new SubmitControl(array(
-      'text' => t('Отправить'),
-      )));
+    if ($strip) {
+      if (mcms::user()->id)
+        $skip = $this->hide_user;
+      else
+        $skip = $this->hide_anon;
+
+      foreach ($skip as $k)
+        $form->replaceControl('node_content_'. $k, null);
+    }
 
     return $form;
   }
@@ -160,19 +136,9 @@ class CommentFormWidget extends Widget
     return $form;
   }
 
-  public function formGetData($id)
+  public function formGetData()
   {
-    $result = array();
-
-    switch ($id) {
-    case 'comment-new':
-      $user = mcms::user();
-      $result['comment_node'] = $this->options['doc'];
-      $result['comment_name'] = $user->name;
-      break;
-    }
-
-    return $result;
+    return array();
   }
 
   private function sendNotifications(Node $c)
