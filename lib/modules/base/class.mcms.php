@@ -247,12 +247,15 @@ class mcms
 
     $args = func_get_args();
 
+    if (count($args))
+      $key = mcms::config('filename') .':'. $args[0];
+
     switch (count($args)) {
     case 1:
-      $result = $cache->$args[0];
+      $result = $cache->$key;
       break;
     case 2:
-      $cache->$args[0] = $args[1];
+      $cache->$key = $args[1];
       break;
     }
 
