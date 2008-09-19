@@ -119,4 +119,58 @@ class Node extends NodeBase implements iContentType
         ),
       );
   }
+
+  public function getActionLinks()
+  {
+    $links = array();
+
+    if ($this->checkPermission('u'))
+      $links['edit'] = array(
+        'href' => 'admin/content/edit/'. $this->id
+          .'?destination=CURRENT',
+        'title' => t('Редактировать'),
+        'icon' => 'edit',
+        );
+
+    if ($this->checkPermission('d'))
+      $links['delete'] = array(
+        'href' => 'nodeapi.rpc?action=delete&node='. $this->id
+          .'&destination=CURRENT',
+        'title' => t('Удалить'),
+        'icon' => 'delete',
+        );
+
+    if ($this->checkPermission('p')) {
+      if ($this->published) {
+        $action = 'unpublish';
+        $title = 'Скрыть';
+      } else {
+        $action = 'publish';
+        $title = 'Опубликовать';
+      }
+
+      $links['publish'] = array(
+        'href' => '?q=nodeapi.rpc&action='. $action .'&node='. $this->id
+          .'&destination=CURRENT',
+        'title' => t($title),
+        'icon' => $action,
+        );
+    }
+
+    if ($this->published and !in_array($this->class, array('domain', 'widget')))
+      $links['locate'] = array(
+        'href' => '?q=nodeapi.rpc&action=locate&node='. $this->id,
+        'title' => t('Просмотреть'),
+        'icon' => 'locate',
+        );
+
+    if (bebop_is_debugger())
+      $links['dump'] = array(
+        'href' => '?q=nodeapi.rpc&action=dump&node='. $this->id,
+        'title' => 'Dump',
+        'icon' => 'dump',
+        );
+
+    return $links;
+  }
 };

@@ -68,4 +68,19 @@ class TodoNode extends Node
       }
     }
   }
+
+  public function getActionLinks()
+  {
+    $links = parent::getActionLinks();
+
+    if ($this->checkPermission('u'))
+      $links['todoaction'] = array(
+        'href' => '?q=todo.rpc&action=toggle&id='. $this->id
+          .'&destination=CURRENT',
+        'title' => $this->closed ? t('Реактивировать') : t('Выполнено'),
+        'icon' => 'todoaction',
+        );
+
+    return $links;
+  }
 }

@@ -166,6 +166,7 @@ class DocWidget extends Widget implements iWidget
         throw new ForbiddenException(t('У вас нет доступа к этому документу.'));
 
       $result['document'] = $node->getRaw();
+      $result['document']['_links'] = $node->getActionLinks();
 
       $sections = array();
 
