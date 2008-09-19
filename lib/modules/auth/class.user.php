@@ -167,6 +167,18 @@ class User
         mcms::session('uid', null);
     }
 
+    // Авторизация без проверки.
+    elseif (count($args) >= 3 and !empty($args[2])) {
+      if (!is_object($node = $args[0]))
+        $node = Node::load(array(
+          'class' => 'user',
+          'name' => $args[0],
+          ));
+
+      mcms::session('uid', $node->id);
+      self::$instance = new User($node);
+    }
+
     elseif (count($args) >= 2) {
       if ((strpos($args[0], '@') or false === strpos($args[0], '.')) or (!empty($args[3]))) { //e-mail в качестве логина или же мы уже прошли процедуры openID-авторищации
         try {
