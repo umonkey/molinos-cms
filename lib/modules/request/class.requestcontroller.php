@@ -89,7 +89,10 @@ class RequestController
     if (null !== $ctx->query()) {
       $domain->loadChildren();
 
-      $ids = explode('/', trim($ctx->query(), '/'));
+      if (false !== $ctx->query())
+        $ids = explode('/', trim($ctx->query(), '/'));
+      else
+        $ids = array();
 
       while (!empty($ids)) {
         $found = false;
@@ -142,7 +145,7 @@ class RequestController
       break;
     }
 
-    if (empty($sec) and !empty($page->defaultsection))
+    if (empty($sec) and is_numeric($page->defaultsection))
       $sec = $page->defaultsection;
 
     if (!empty($sec))
@@ -234,9 +237,13 @@ class RequestController
         try {
           if (!empty($map['modules'][$module]['implementors']['iRemoteCall'])) {
             foreach ($map['modules'][$module]['implementors']['iRemoteCall'] as $class) {
-              if (mcms::class_exists($class))
-                $result = call_user_func_array(array($class, 'hookRemoteCall'),
+              if (mcms::class_exists($class)) {
+                $method = 'rpc_'. $this->ctx->get('action');
+                if (!method_exists($class, $method))
+                  $method = 'hookRemoteCall';
+                $result = call_user_func_array(array($class, $method),
                   array($this->ctx));
+              }
             }
 
             if ('post' == $this->ctx->method())
@@ -244,6 +251,9 @@ class RequestController
 
             if (null !== $result)
               return $result;
+
+            if (null !== ($next = $this->ctx->get('destination')))
+              $this->ctx->redirect($next);
 
             header('HTTP/1.1 200 OK');
             header('Content-Type: text/plain; charset=utf-8');
