@@ -7,8 +7,7 @@ class RSSListHandler extends AdminListHandler
   {
     $this->types = array('rssfeed');
     $this->title = t('Исходящие RSS ленты');
-    $this->columns = array('feedicon', 'feedcheck', 'name',
-      'title', 'uid', 'created');
+    $this->columns = array('name', 'title', 'uid', 'created');
     $this->actions = array('clone', 'publish', 'unpublish', 'delete');
 
     $this->columntitles = array(
@@ -19,20 +18,5 @@ class RSSListHandler extends AdminListHandler
       'uid' => t('Создатель'),
       'created' => t('Дата добавления'),
       );
-  }
-
-  protected function getData()
-  {
-    $data = parent::getData();
-
-    foreach ($data as $k => $v) {
-      if (!empty($v['published']))
-        $data[$k]['feedicon'] = "<a href='?q=rss.rpc&feed={$v['name']}'><img src='lib/modules/rss/icon.png' width='28' height='28' alt='rss' /></a>";
-      else
-        $data[$k]['feedicon'] = '&nbsp;';
-      $data[$k]['feedcheck'] = "<a href='http://feedvalidator.org/check.cgi?url=". urlencode('http://'. $_SERVER['HTTP_HOST'] .'?q=rss.rpc&feed='. $v['name']) ."'><img src='lib/modules/rss/valid.png' alt='[Valid RSS]' title='Validate my RSS feed' width='88' height='31' /></a>";
-    }
-
-    return $data;
   }
 };

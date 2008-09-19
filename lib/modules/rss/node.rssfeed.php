@@ -210,4 +210,20 @@ class RssfeedNode extends Node
       'type' => $file->filetype,
       ));
   }
+
+  public function getActionLinks()
+  {
+    $links = parent::getActionLinks();
+
+    $links['locate']['href'] = '?q=rss.rpc&feed='. $this->name;
+    $links['locate']['icon'] = 'feed';
+
+    $links['validate'] = array(
+      'href' => 'about:blank',
+      'title' => t('Валидировать'),
+      'icon' => 'validate',
+      );
+
+    return $links;
+  }
 };

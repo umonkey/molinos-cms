@@ -2142,6 +2142,9 @@ class NodeBase
   {
     $extra = $this->data;
 
+    if (array_key_exists('_links', $extra))
+      unset($extra['_links']);
+
     // Вытаскиваем данные, которые идут в поля таблиц.
     $node = $this->dbWriteExtract($extra, array(
       'id', 'lang', 'parent_id', 'class', 'left', 'right',

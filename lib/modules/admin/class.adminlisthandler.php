@@ -348,8 +348,11 @@ class AdminListHandler
     $result = array();
     $itypes = TypeNode::getInternal();
 
-    foreach (Node::find($this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit) as $node)
-      $result[] = $node->getRaw();
+    foreach (Node::find($this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit) as $node) {
+      $tmp = $node->getRaw();
+      $tmp['_links'] = $node->getActionLinks();
+      $result[] = $tmp;
+    }
 
     switch ($this->ctx->get('preset')) {
     case 'schema':

@@ -126,21 +126,21 @@ class Node extends NodeBase implements iContentType
 
     if ($this->checkPermission('u'))
       $links['edit'] = array(
-        'href' => 'admin/content/edit/'. $this->id
-          .'?destination=CURRENT',
+        'href' => '?q=admin/content/edit/'. $this->id
+          .'&destination=CURRENT',
         'title' => t('Редактировать'),
         'icon' => 'edit',
         );
 
     if ($this->checkPermission('d'))
       $links['delete'] = array(
-        'href' => 'nodeapi.rpc?action=delete&node='. $this->id
+        'href' => '?q=nodeapi.rpc&action=delete&node='. $this->id
           .'&destination=CURRENT',
         'title' => t('Удалить'),
         'icon' => 'delete',
         );
 
-    if ($this->checkPermission('p')) {
+    if ($this->checkPermission('p') and !in_array($this->class, array('type')) and !$this->deleted) {
       if ($this->published) {
         $action = 'unpublish';
         $title = 'Скрыть';
@@ -157,7 +157,7 @@ class Node extends NodeBase implements iContentType
         );
     }
 
-    if ($this->published and !in_array($this->class, array('domain', 'widget')))
+    if ($this->published and !$this->deleted and !in_array($this->class, array('domain', 'widget', 'type')))
       $links['locate'] = array(
         'href' => '?q=nodeapi.rpc&action=locate&node='. $this->id,
         'title' => t('Просмотреть'),

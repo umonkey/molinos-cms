@@ -3,6 +3,8 @@
 
 class AdminUIListControl extends Control
 {
+  private $_actions = array();
+
   public static function getInfo()
   {
     return array(
@@ -37,7 +39,7 @@ class AdminUIListControl extends Control
     }
     $preset  = empty($data['preset']) ? null : $data['preset'];
     $output .= '<table class=\'mcms nodelist\' border=\'0\'>';
-    $output .= $this->getTableHeader();
+    $output .= $this->getTableHeader($data);
 
     $odd = true;
 
@@ -109,7 +111,7 @@ class AdminUIListControl extends Control
     return $output;
   }
 
-  private function getTableHeader()
+  private function getTableHeader(array $data)
   {
     $map = $this->getColumnTitles();
 
@@ -117,6 +119,8 @@ class AdminUIListControl extends Control
 
     if ($this->selectors)
       $output .= '<th class=\'selector\'>&nbsp;</th>';
+
+    $output .= $this->getActionsHeader($data);
 
     // Редактирование.
     if (!$this->noedit)
@@ -299,96 +303,27 @@ class AdminUIListControl extends Control
 
   private function getActions(array $node, $preset = null)
   {
-    $output = array();
+    $output = '';
 
-    if (null !== ($tmp = $this->getDebugLink($node)))
-      $output[] = $tmp;
-    if (null !== ($tmp = $this->getSuLink($node)))
-      $output[] = $tmp;
-    if (null !== ($tmp = $this->getZoomLink($node)))
-      $output[] = $tmp;
-    if (null !== ($tmp = $this->getViewLink($node)))
-      $output[] = $tmp;
+    $links = empty($node['_links']) ? array() : $node['_links'];
 
-    if ($preset == 'dictlist') {
-      $output[] = $this->getEditLink($node);
+    foreach ($this->_actions as $key) {
+      if (array_key_exists($key, $links)) {
+        $link = mcms::html('a', array(
+          'href' => $links[$key]['href'],
+          'class' => 'icon-'. $links[$key]['icon'],
+          'title' => $links[$key]['title'],
+          ), mcms::html('span', $links[$key]['title']));
+      } else {
+        $link = '';
+      }
+
+      $output .= mcms::html('td', array(
+        'class' => 'icon',
+        ), $link);
     }
 
-    if (!empty($output)) {
-      return mcms::html('td', array(
-        'class' => 'actions',
-        'style' => 'padding-left: 4px; padding-right: 4px; width: '. (18 * count($output)) .'px',
-        ), join('', $output));
-    }
-    else {
-      return "<td></td>";
-    }
-  }
-
-  private function getDebugLink(array $node)
-  {
-    if (!bebop_is_debugger() or empty($node['id']))
-      return;
-
-    return $this->getIcon('lib/modules/admin/img/debug.gif', "?q=nodeapi.rpc&action=dump&node=". $node['id'], t('Просмотреть внутренности'));
-  }
-
-  private function getEditLink(array $node)
-  {
-    if (empty($node['id']))
-      return;
-
-    return $this->getIcon('lib/modules/admin/img/edit.png',
-      "?q=admin/". $this->getGroup() ."/edit/{$node['id']}&destination=CURRENT", t('Редактировать внутренности'));
-  }
-
-  private function getViewLink(array $node)
-  {
-    if (empty($node['class']) or empty($node['id']) or !empty($node['deleted']) or empty($node['published']))
-      return;
-
-    return $this->getIcon('themes/admin/img/icon-www.png', '?q=nodeapi.rpc&action=locate&node='. $node['id'], t('Найти на сайте'));
-  }
-
-  private function getZoomLink(array $node)
-  {
-    if (!$this->zoomlink)
-      return;
-
-    if (empty($node['class']) or empty($node['id']) or !mcms::user()->hasAccess('u', $node['class']))
-      return;
-
-    if (!empty($node['deleted']))
-      return;
-
-    return $this->getIcon(
-      'themes/admin/img/zoom.png',
-      str_replace(
-        array('NODEID', 'NODENAME'),
-        array($node['id'], $node['name']),
-        $this->zoomlink),
-      t('Найти'));
-  }
-
-  private function getSuLink(array $node)
-  {
-    if ('user' != $node['class'])
-      return;
-
-    if (!empty($node['deleted']))
-      return;
-
-    if (!bebop_is_debugger())
-      return;
-
-    if (mcms::user()->id == $node['id'])
-      return;
-
-    return $this->getIcon(
-      'themes/admin/img/icon-su.png',
-      '?q=base.rpc&action=su&uid='. $node['id'],
-      t('Переключиться в контекст пользователя')
-      );
+    return $output;
   }
 
   private function getIcon($img, $href, $title)
@@ -405,5 +340,29 @@ class AdminUIListControl extends Control
       'href' => $href,
       'title' => $title,
       ), $tmp);
+  }
+
+  /**
+   * Формирует заголовок для возможных действий.
+   *
+   * Список действий сохраняется в $this->_actions.
+   */
+  private function getActionsHeader(array $data)
+  {
+    $actions = array();
+
+    foreach ($data['nodes'] as $node) {
+      if (!empty($node['_links'])) {
+        foreach (array_keys($node['_links']) as $key)
+          if (!in_array($key, $actions))
+            $actions[] = $key;
+      }
+    }
+
+    $this->_actions = $actions;
+
+    return mcms::html('th', array(
+      'colspan' => count($actions),
+      ));
   }
 };
