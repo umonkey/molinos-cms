@@ -13,8 +13,13 @@ function smarty_function_node($params, &$smarty)
     else
       $node = $params['link'];
 
-    if (is_numeric($node))
-      $node = Node::load($node)->getRaw();
+    if (is_numeric($node)) {
+      try {
+        $node = Node::load($node)->getRaw();
+      } catch (ObjectNotFoundException $e) {
+        return 'oops.';
+      }
+    }
 
     $path = array_key_exists('path', $params)
       ? $params['path']
