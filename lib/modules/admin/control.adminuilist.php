@@ -122,10 +122,6 @@ class AdminUIListControl extends Control
 
     $output .= $this->getActionsHeader($data);
 
-    // Редактирование.
-    if (!$this->noedit)
-      $output .= '<th class=\'actions\'>&nbsp;</th>';
-
     foreach ($this->columns as $col) {
       $output .= "<th class='field-{$col}'>";
 
