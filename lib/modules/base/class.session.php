@@ -88,9 +88,12 @@ class Session
    *
    * @return Session $this
    */
-  public function save()
+  public function save($force = false)
   {
     static $sent = false;
+
+    if ($force)
+      $sent = false;
 
     // При запуске из консоли сессии никуда не сохраняем.
     if (empty($_SERVER['REMOTE_ADDR']))
@@ -156,6 +159,9 @@ class Session
   {
     if (null === $this->data)
       $this->load();
+
+    if ('id' == $key)
+      return $this->id;
 
     return array_key_exists($key, $this->data)
       ? $this->data[$key]
