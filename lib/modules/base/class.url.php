@@ -202,7 +202,7 @@ class url
 
   public function arg($key, $default = null)
   {
-    if (null !== $this->args and array_key_exists($key, $this->args))
+    if (is_array($this->args) and array_key_exists($key, $this->args))
       return $this->args[$key];
     return $default;
   }

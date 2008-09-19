@@ -39,9 +39,11 @@ class FileNode extends Node implements iContentType
       }
     }
 
-    parent::save();
+    $res = parent::save();
 
     $this->purge();
+
+    return $res;
   }
 
   /**
@@ -150,7 +152,7 @@ class FileNode extends Node implements iContentType
       if (null === ($node = $this->unzip($file['tmp_name'])))
         throw new InvalidArgumentException("ZIP file was empty");
       $this->data = $node->getRaw();
-      return;
+      return $this;
     }
 
     // Заполняем метаданные.
@@ -199,6 +201,8 @@ class FileNode extends Node implements iContentType
     // Прикрепляем файл к родительскому объекту.
     if (!empty($file['parent_id']))
       $this->linkAddParent($file['parent_id']);
+
+    return $this;
   }
 
   /**

@@ -302,10 +302,13 @@ class NodeBase
    */
   public function save()
   {
-    $isnew = !isset($this->id);
+    $isnew = empty($this->id);
 
     if (empty($this->created))
       $this->created = gmdate('Y-m-d H:i:s');
+
+    if (empty($this->uid))
+      $this->data['uid'] = mcms::session('uid');
 
     $this->dbWrite();
     $this->saveLinks();
@@ -334,7 +337,9 @@ class NodeBase
     if (is_array($schema)) {
       if (array_key_exists('fields', $schema)) {
         foreach ($schema['fields'] as $field => $info) {
-          if ('NodeLinkControl' == $info['type']) {
+          switch ($info['type']) {
+          case 'NodeLinkControl':
+          case 'AttachmentControl':
             if (empty($this->data[$field]))
               $value = null;
             elseif (is_array($v = $this->data[$field]))
@@ -350,6 +355,8 @@ class NodeBase
               $this->linkRemoveChild($field);
             else
               $this->linkAddChild($value, $field);
+
+            break;
           }
         }
       }
@@ -643,9 +650,6 @@ class NodeBase
       $data['parent_id'] = null;
     if (!array_key_exists('lang', $data))
       $data['lang'] = 'ru';
-
-    if (empty($data['uid']))
-      $data['uid'] = mcms::session('uid');
 
     // Не проверяем пользователей, чтобы не войти в вечный цикл.
     if (empty($data['id']) and 'user' !== $class)
@@ -1975,10 +1979,7 @@ class NodeBase
       }
     }
 
-    if (array_key_exists('#node_override', $data))
-      $this->data = array_merge($this->data, $data['#node_override']);
-
-    $this->save();
+    // $this->save();
 
     foreach ($data as $field => $fileinfo) {
       if (0 !== strpos($field, 'file_'))
@@ -1991,19 +1992,24 @@ class NodeBase
 
       // Удаление ссылки на файл.
       if (!empty($data['file_'. $field .'_unlink'])) {
-        if (is_numeric($field))
+        if (is_numeric($field)) {
           $this->linkRemoveChild($field);
-        else
+          foreach ($this->files as $k => $v)
+            if ($v->id == $field)
+              unset($this->files[$k]);
+        } else {
           $this->linkRemoveChild(null, $field);
-        unset($this->$field);
+          $this->$field = null;
+        }
         continue;
       }
 
       elseif (UPLOAD_ERR_NO_FILE == $fileinfo['error']) {
-        if (!empty($fileinfo['id']))
+        if (!empty($fileinfo['id'])) {
           $this->linkAddChild($fileinfo['id'], $field);
-        elseif (!empty($fileinfo['deleted']))
+        } elseif (!empty($fileinfo['deleted'])) {
           $this->linkRemoveChild($fileinfo['id']);
+        }
       }
 
       elseif (UPLOAD_ERR_INI_SIZE == $fileinfo['error'])
@@ -2013,8 +2019,15 @@ class NodeBase
             '%size' => ini_get('upload_max_filesize'),
             )));
 
-      else
-        $this->attachOneFile($field, $fileinfo);
+      else {
+        $fileinfo['parent_id'] = $this->id;
+        $file = Node::create('file')->import($fileinfo)->save();
+
+        if (is_numeric($field))
+          $this->files[] = $file;
+        else
+          $this->$field = $file;
+      }
     }
 
     if (!empty($data['reset_rel'])) {
@@ -2039,6 +2052,8 @@ class NodeBase
     if (!empty($schema['hasfiles']) and !empty($data['node_ftp_files'])) {
       FileNode::getFilesFromFTP($data['node_ftp_files'], $this->id);
     }
+
+    $this->save();
   }
 
   private function attachOneFile($field, array $fileinfo)
@@ -2132,6 +2147,9 @@ class NodeBase
       'id', 'lang', 'parent_id', 'class', 'left', 'right',
       'uid', 'created', 'published', 'deleted'));
     $node_rev = $this->dbWriteExtract($extra, array('name'));
+
+    if (empty($node['created']))
+      $node['created'] = strftime('%Y-%m-%d %H:%M:%S');
 
     // Выделяем место в иерархии, если это необходимо.
     $this->dbExpandParent($node);
