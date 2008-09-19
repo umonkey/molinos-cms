@@ -1458,6 +1458,9 @@ class mcms
       if (mcms::config('debug_errors'))
         mcms::fatal($e);
 
+      if ('errors' == $ctx->debug())
+        mcms::fatal($e);
+
       if ($e->getCode()) {
         // Ошибка 404 — пытаемся использовать подстановку.
         if (404 == $e->getCode()) {
