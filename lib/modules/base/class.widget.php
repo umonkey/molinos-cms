@@ -347,14 +347,25 @@ abstract class Widget implements iWidget
         else
           $classpath = 'unknown';
 
-        mcms::debug('Widget debug: '. $this->getInstanceName() .'.', array(
+        $tdata = array(
           'class' => $classname,
           'class_path' => $classpath,
           'template_candidates' => bebop_get_templates('widget',
             $this->getInstanceName(), $ctx->theme, $classname),
-          'template_input' => $data,
-          'template_output' => $output,
-          ));
+          );
+
+        if ('widget' == $ctx->debug()) {
+          $tdata['existing_templates'] = array();
+
+          foreach ($tdata['template_candidates'] as $f)
+            if (file_exists($f))
+              $tdata['existing_templates'][] = $f;
+        }
+
+        $tdata['template_input'] = $data;
+        $tdata['template_output'] = $output;
+
+        mcms::debug('Widget debug: '. $this->getInstanceName() .'.', $tdata);
       }
     }
 
@@ -370,7 +381,7 @@ abstract class Widget implements iWidget
    */
   public function __get($key)
   {
-    if (isset($this->me->config) and array_key_exists($key, $this->me->config))
+    if (is_array($this->me->config) and array_key_exists($key, $this->me->config))
       return $this->me->config[$key];
     return null;
   }
@@ -400,7 +411,7 @@ abstract class Widget implements iWidget
    */
   public function __isset($key)
   {
-    return isset($this->me->config) and array_key_exists($key, $this->me->config);
+    return is_array($this->me->config) and array_key_exists($key, $this->me->config);
   }
 
   /**
