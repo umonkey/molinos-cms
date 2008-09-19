@@ -101,6 +101,9 @@ class PDO_Singleton extends PDO
 
   public function exec($sql, array $params = null)
   {
+    if (!$this->transaction and $this->isModifying($sql))
+      throw new RuntimeException(t('Модификация данных вне транзакции.'));
+
     try {
       $sth = $this->prepare($sql);
       $sth->execute($params);
@@ -138,8 +141,15 @@ class PDO_Singleton extends PDO
 
   public function log($string)
   {
-    if (null !== $this->query_log)
+    if (null !== $this->query_log) {
+      if (substr($string, 0, 2) == '--') {
+        static $time = null;
+        if (null === $time)
+          $time = microtime(true);
+        $string .= ' '. (microtime(true) - $time);
+      }
       $this->query_log[] = $string;
+    }
   }
 
   // Возвращает результат запроса в виде ассоциативного массива k => v.
@@ -251,13 +261,13 @@ class PDO_Singleton extends PDO
   }
 
   // Открываем транзакцию, запоминаем статус.
-  public function beginTransaction()
+  public function beginTransaction($reentrant = false)
   {
     if (!$this->transaction) {
       parent::beginTransaction();
       $this->transaction = true;
       $this->log('-- transaction: begin --');
-    } else {
+    } elseif (!$reentrant) {
       throw new InvalidArgumentException("transaction is already running");
     }
   }
@@ -285,5 +295,16 @@ class PDO_Singleton extends PDO
   public function hasOrderedUpdates()
   {
     return false;
+  }
+
+  /**
+   * Проеряет, модифицирует ли запрос данные.
+   */
+  private function isModifying($sql)
+  {
+    return preg_match(
+      '(INSERT\s+INTO|REPLACE|UPDATE|DELETE)',
+      strtoupper($sql)
+      );
   }
 }
