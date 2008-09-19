@@ -6,7 +6,7 @@ class ExchangeModuleTests extends PHPUnit_Framework_TestCase
   {
     copy(MCMS_ROOT.'/conf/default.db', MCMS_ROOT.'/conf/test.db');
     copy(MCMS_ROOT.'/conf/default.ini', MCMS_ROOT.'/conf/default_backup.ini');
-    $config = BebopConfig::getInstance();
+    $config = Config::getInstance();
     $config->set('default','sqlite:conf/test.db','db');
     PDO_Singleton::getInstance('default', true);
   }
@@ -16,7 +16,7 @@ class ExchangeModuleTests extends PHPUnit_Framework_TestCase
     $xml = ExchangeModule::export('testprofile', 'testprofile');
     $this->assertTrue(!empty($xml));
 
-    $config = BebopConfig::getInstance();
+    $config = Config::getInstance();
     if (file_exists($dbfile = MCMS_ROOT.'/conf/exporttest.db'))
       unlink($dbfile);
 
@@ -37,7 +37,7 @@ class ExchangeModuleTests extends PHPUnit_Framework_TestCase
     unlink(MCMS_ROOT.'/conf/test.db');
     copy(MCMS_ROOT.'/conf/default_backup.ini', MCMS_ROOT.'/conf/default.ini');
     unlink(MCMS_ROOT.'/conf/default_backup.ini');
-    $config = BebopConfig::getInstance();
+    $config = Config::getInstance();
     $config->set('default','sqlite:conf/default.db','db');
     PDO_Singleton::getInstance('default', true);
   }

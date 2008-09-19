@@ -2,7 +2,7 @@
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 // some changes.
 
-class BebopConfig
+class Config
 {
     private static $instance = null;
     private $data = null;
@@ -16,7 +16,7 @@ class BebopConfig
     static public function getInstance(User $user = null)
     {
         if (self::$instance === null)
-            self::$instance = new BebopConfig();
+            self::$instance = new Config();
         return self::$instance;
     }
 

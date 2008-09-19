@@ -6,7 +6,7 @@ class ModuleAdminUI
   public function getList()
   {
     $map = $this->getModules();
-    $writable = BebopConfig::getInstance()->isWritable();
+    $writable = Config::getInstance()->isWritable();
 
     $output = '';
 

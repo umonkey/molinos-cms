@@ -303,11 +303,11 @@ class mcms
 
   public static function config($key, $default = null)
   {
-    if (!class_exists('BebopConfig'))
+    if (!class_exists('Config'))
       self::fatal('Отсутствует поддержка конфигурационных файлов.');
 
-    return isset(BebopConfig::getInstance()->$key)
-      ? BebopConfig::getInstance()->$key
+    return isset(Config::getInstance()->$key)
+      ? Config::getInstance()->$key
       : $default;
   }
 
@@ -755,7 +755,7 @@ class mcms
 
   public static function enableModules(array $list)
   {
-    $tmp = BebopConfig::getInstance();
+    $tmp = Config::getInstance();
     $tmp->set('modules', join(',', $list), 'runtime');
     $tmp->write();
 
