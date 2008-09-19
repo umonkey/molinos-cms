@@ -90,8 +90,11 @@ class RssfeedNode extends Node
       );
   }
 
-  public function getRSS()
+  public function getRSS(Context $ctx)
   {
+    if ('no' == $ctx->get('limit'))
+      $this->limit = null;
+
     $output = '<?xml version="1.0" encoding="utf-8"?>';
     $output .= '<?xml-stylesheet href="http://'. $_SERVER['HTTP_HOST'] .'/lib/modules/rss/style.css" type="text/css" media="screen"?>';
     $output .= '<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">';

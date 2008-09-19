@@ -14,7 +14,7 @@ class RSSModule implements iRemoteCall, iAdminMenu, iAdminUI
     if (!$feed->published)
       throw new ForbiddenException(t('Доступ к запрошенной ленте закрыт.'));
 
-    $xml = $feed->getRSS();
+    $xml = $feed->getRSS($ctx);
 
     header('Content-Type: application/rss+xml; charset=utf-8');
     header('Content-Length: '. strlen($xml));
