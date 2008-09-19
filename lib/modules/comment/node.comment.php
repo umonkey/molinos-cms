@@ -23,6 +23,21 @@ class CommentNode extends Node
     return $form;
   }
 
+  public function formProcess(array $data)
+  {
+    $this->node = $data['comment_node'];
+
+    $res = parent::formProcess($data);
+
+    if (empty($data['comment_node']))
+      throw new ValidationException(t('Не указан документ, '
+        .'к которому добавлен комментарий.'));
+    else
+      $this->linkAddParent($data['comment_node']);
+
+    return $res;
+  }
+
   public function getDefaultSchema()
   {
     return array(
@@ -48,5 +63,13 @@ class CommentNode extends Node
           ),
       ),
     );
+  }
+
+  public function checkPermission($perm)
+  {
+    if ('d' == $perm and mcms::user()->id == $this->uid)
+      return true;
+
+    return parent::checkPermission($perm);
   }
 };
