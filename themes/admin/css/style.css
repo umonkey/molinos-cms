@@ -307,6 +307,8 @@ table.mcms.nodelist td {
   border-bottom: 3px solid #FFFFFF;
 }
 
+table.mcms.nodelist tr:hover td {background-color: #ecece9;}
+
 #center .control {
   margin-bottom: 15px;
   width: 390px;
