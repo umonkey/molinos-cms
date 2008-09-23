@@ -8,9 +8,6 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     if (null !== ($tmp = self::checkAccessAndAutoLogin($ctx)))
       return $tmp;
 
-    if ($ctx->get('destination'))
-      $ctx->redirect($ctx->get('destination'));
-
     $result = array();
 
     $m = $ctx->get('module');
