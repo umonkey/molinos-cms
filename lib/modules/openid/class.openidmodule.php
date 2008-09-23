@@ -5,31 +5,22 @@ class OpenIdModule implements iRemoteCall
   public static function hookRemoteCall(Context $ctx)
   {
     switch ($ctx->get('action')) {
-    case 'checkauth':
-      if (mcms::session()->id != $ctx->get('id')) {
-        mcms::fatal(t('Идентификация не удалась: ваш браузер '
-          .'по какой-то причине не принимает cookie (код сессии'
-          .'равен %a вместо %b).', array(
-            '%a' => mcms::session()->id,
-            '%b' => $ctx->get('id'),
-            )));
-      }
-
-      $ctx->redirect($ctx->get('next', '?q=admin'));
-
     default:
       $openidinfo = $ctx->get('openid');
 
       try {
         $node = self::openIDAuthorize($openidinfo['mode']);
 
-        mcms::session()->reset(array(
-          'uid' => $node->id,
-          ));
+        mcms::session('uid', $node->id);
         mcms::session()->save();
-        mcms::db()->commit();
 
-        $ctx->redirect('?q=openid.rpc&action=checkauth&id='. mcms::session()->id);
+        /*
+        if (empty($_COOKIE))
+          mcms::fatal(t('Идентификация не удалась: ваш браузер '
+            .'не вернул cookie.'));
+        */
+
+        $ctx->redirect($ctx->get('destination', '?q=admin'));
       } catch (ObjectNotFoundException $e) {
         throw new ForbiddenException(t('Вы успешно авторизировались, '
           .'но пользоваться сайтом не можете, т.к. прозрачная регистрация '
@@ -187,8 +178,8 @@ class OpenIdModule implements iRemoteCall
 
   private static function getReturnTo($id = null)
   {
-    $url = sprintf('http://%s%s/?q=openid.rpc&action=openid&id=%s',
-      $_SERVER['HTTP_HOST'], mcms::path(), urlencode($id));
+    $url = sprintf('http://%s%s/?q=openid.rpc&action=openid&id=%s&sid=%s',
+      $_SERVER['HTTP_HOST'], mcms::path(), urlencode($id), mcms::session()->id);
 
     return $url;
   }

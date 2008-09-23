@@ -52,9 +52,7 @@ class Session
   {
     $this->data = array();
 
-    if (!empty($_COOKIE[self::cookie])) {
-      $this->id = $_COOKIE[self::cookie];
-
+    if ($this->id = $this->getSessionId()) {
       if (false === ($tmp = mcms::cache($cid = 'session:'. $this->id))) {
         $tmp = mcms::db()->getResult("SELECT `data` FROM node__session "
           ."WHERE `sid` = ?", array($this->id));
@@ -105,7 +103,7 @@ class Session
 
     if ($this->hash() != $this->_hash) {
       if (null === $this->id)
-        $this->id = md5($_SERVER['REMOTE_ADDR'] . microtime(false) . rand());
+        $this->id = $this->getsessionId();
 
       mcms::db()->exec("DELETE FROM node__session WHERE `sid` = ?",
         array($this->id));
@@ -198,5 +196,25 @@ class Session
   public function raw()
   {
     return $this->data;
+  }
+
+  public function reset($data = array())
+  {
+    $this->data = $data;
+  }
+
+  private function getSessionId()
+  {
+    if (!empty($_COOKIE[self::cookie]))
+      return $_COOKIE[self::cookie];
+
+    if (!empty($_GET['sid']) and $_GET['q'] == 'openid.rpc')
+      return $_GET['sid'];
+
+    $id = md5($_SERVER['REMOTE_ADDR'] . microtime(false) . rand());
+
+    // mcms::flog('session', $id .': new id for '. $_SERVER['REMOTE_ADDR']);
+
+    return $id;
   }
 }
