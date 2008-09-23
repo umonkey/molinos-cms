@@ -223,7 +223,7 @@ class AdminMenu implements iAdminMenu
         'description' => t('Просмотр, редактирование и добавление файлов.'),
         );
 
-    if (count($user->getAccess('u')) and Node::count(array('deleted' => 1, '-class' => TypeNode::getInternal())))
+    if (count($user->getAccess('u')) and Node::count(array('deleted' => 1, 'published' => array(0, 1))))
       $icons[] = array(
         'group' => 'content',
         'href' => '?q=admin/content/list/trash',
