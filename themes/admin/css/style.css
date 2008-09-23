@@ -307,6 +307,8 @@ table.mcms.nodelist td {
   border-bottom: 3px solid #FFFFFF;
 }
 
+table.mcms.nodelist tr:hover td {background-color: #ecece9;}
+
 #center .control {
   margin-bottom: 15px;
   width: 390px;
@@ -607,8 +609,8 @@ table.nodelist td.icon .icon-locate {
   background-image: url(../img/icon-www.png);
 }
 
-table.nodelist td.icon .icon-su {
-  background-image: url(../img/icon-su.png);
+table.nodelist td.icon .icon-sudo {
+  background-image: url(../img/icon-sudo.gif);
 }
 
 table.nodelist td.icon .icon-delete {

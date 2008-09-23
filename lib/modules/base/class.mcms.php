@@ -1486,13 +1486,20 @@ class mcms
           $url = new url($ctx->url()->getBase($ctx)
               .'?q=admin&mode=tree&preset=pages&cgroup=structure');
 
+          $extra = ($e->getCode() == 401)
+            ? t('<p>Вы можете авторизоваться <a href=\'@url\'>здесь</a>.</p>',
+              array('@url' => '?q=admin&destination=CURRENT'))
+            : null;
+
           mcms::fatal(t('<p>При обработке запроса возникла ошибка '
-            .'%code:<br/><strong>%name</strong>.</p><p><em>PS: этот обработчик ошибок можно '
+            .'%code:<br/><strong>%name</strong>.</p>%extra'
+            .'<p><em>PS: этот обработчик ошибок можно '
             .'заменить на произвольный, <a href="@url">создав '
             .'страницу</a> «errors/%code» в корне сайта.</em></p>',
             array(
               '%code' => $e->getCode(),
               '%name' => trim($e->getMessage(), '.'),
+              '%extra' => $extra,
               '@url' => strval($url),
               )));
         }
