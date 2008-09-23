@@ -1964,7 +1964,7 @@ class NodeBase
 
           case 'PasswordControl':
             if (!empty($value)) {
-              if ($value[0] != $value[1])
+              if (is_array($value) and ($value[0] != $value[1]))
                 throw new ValidationException($k);
 
               $this->$k = $value[0];
