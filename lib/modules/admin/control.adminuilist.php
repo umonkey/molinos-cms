@@ -304,7 +304,7 @@ class AdminUIListControl extends Control
     $links = empty($node['_links']) ? array() : $node['_links'];
 
     foreach ($this->_actions as $key) {
-      if (array_key_exists($key, $links)) {
+      if (array_key_exists($key, $links) and is_array($links[$key])) {
         $link = mcms::html('a', array(
           'href' => $links[$key]['href'],
           'class' => 'icon-'. $links[$key]['icon'],
@@ -349,9 +349,10 @@ class AdminUIListControl extends Control
 
     foreach ($data['nodes'] as $node) {
       if (!empty($node['_links'])) {
-        foreach (array_keys($node['_links']) as $key)
-          if (!in_array($key, $actions))
+        foreach ($node['_links'] as $key => $val) {
+          if (!in_array($key, $actions) and is_array($val))
             $actions[] = $key;
+        }
       }
     }
 
