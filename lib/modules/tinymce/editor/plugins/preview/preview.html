@@ -6,23 +6,14 @@
 tinyMCEPopup.onInit.add(function(ed) {
 	var dom = tinyMCEPopup.dom;
 
-	// Load editor content_css
-	tinymce.each(ed.settings.content_css.split(','), function(u) {
-		dom.loadCSS(ed.documentBaseURI.toAbsolute(u));
-	});
-
-	// Place contents inside div container
 	dom.setHTML('content', ed.getContent());
 });
+
+document.write('<base href="' + tinyMCEPopup.getWindowArg("base") + '">');
 </script>
-<title>Example of a custom preview page</title>
+<title>{#preview.preview_desc}</title>
 </head>
-<body>
-
-Editor contents: <br />
-<div id="content">
+<body id="content">
 <!-- Gets filled with editor contents -->
-</div>
-
 </body>
 </html>
