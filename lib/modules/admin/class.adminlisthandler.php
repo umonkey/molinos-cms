@@ -295,7 +295,11 @@ class AdminListHandler
       $filter['class'] = $this->types;
     else {
       $filter['class'] = array();
-      $itypes = TypeNode::getInternal();
+
+      if (0 === $this->published)
+        $itypes = array('moduleinfo');
+      else
+        $itypes = TypeNode::getInternal();
 
       foreach (TypeNode::getSchema() as $k => $v) {
         if (empty($v['isdictionary']) and (empty($v['adminmodule']) or !mcms::ismodule($v['adminmodule'])) and !in_array($k, $itypes))
