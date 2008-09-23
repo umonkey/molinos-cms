@@ -996,17 +996,16 @@ class NodeBase
   public function linkListParents($class = null, $idsonly = false)
   {
     $params = array(':nid' => $this->id);
-    $sql = "SELECT `r`.`tid` as `tid`, `r`.`key` as `key` "
-      ."FROM `node__rel` `r` INNER JOIN `node` `n` ON `n`.`id` = `r`.`tid` "
-      ."WHERE `n`.`deleted` = 0 AND `r`.`nid` = :nid";
 
+    $sub = "SELECT `id` FROM `node` WHERE `deleted` = 0";
     if (null !== $class) {
-      $sql .= " AND `n`.`class` = :class";
+      $sub .= " AND `class` = :class";
       $params[':class'] = $class;
     }
 
-    $sql .= sprintf(" ORDER BY `r`.`order` ASC -- linkListParents(%u, %s, %d)",
-      $this->id, $class ? $class : 'NULL', $idsonly);
+    $sql = "SELECT `tid`, `key` FROM `node__rel` `r` "
+      ."WHERE `tid` IN ({$sub}) AND `nid` = :nid ORDER BY `key` ASC "
+      ."-- linkListParents({$this->id}, {$class}, {$idsonly})";
 
     $pdo = mcms::db();
 
