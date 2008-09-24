@@ -254,8 +254,8 @@ class NodeQueryBuilder
 
     // Добавляем поиск по имени.
     $param = $this->getNextParam();
-    $matches[] = "`node__rev`.`name` LIKE {$param}";
-    $this->params[$param] = $needle;
+    $matches[] = "`node__rev`.`name_lc` LIKE {$param}";
+    $this->params[$param] = mb_strtolower($needle);
 
     // Добавляем поиск по всем текстовым индексированным полям задействованных классов.
     if (!empty($this->query['class'])) {

@@ -2198,6 +2198,7 @@ class NodeBase
       'nid' => $node['id'],
       'uid' => self::dbId($node['uid']),
       'name' => $node_rev['name'],
+      'name_lc' => mb_strtolower($node_rev['name']),
       'created' => mcms::now(),
       'data' => empty($extra) ? null : self::dbSerialize($extra),
       ));

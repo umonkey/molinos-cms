@@ -29,6 +29,14 @@ class DBSchema_node__rev extends TableManager
         'key' =>'mul'
         );
 
+    // Название, приведённое к нижнему регистру.  Используется для поиска в
+    // SQLite, где есть только один режим сравнения: binary.
+    $this->columns['name_lc'] = array(
+        'type' => 'varchar(255)',
+        'required' => 0,
+        'key' =>'mul'
+        );
+
     $this->columns['data'] = array(
         'type' => 'mediumblob',
         'required' => 0,
