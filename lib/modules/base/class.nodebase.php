@@ -2194,7 +2194,7 @@ class NodeBase
     }
 
     // Сохранение ревизии.
-    mcms::db()->exec($sql = "INSERT INTO `node__rev` (`nid`, `uid`, `name`, `created`, `data`) VALUES (:nid, :uid, :name, :created, :data)", $params = array(
+    mcms::db()->exec($sql = "INSERT INTO `node__rev` (`nid`, `uid`, `name`, `name_lc`, `created`, `data`) VALUES (:nid, :uid, :name, :name_lc, :created, :data)", $params = array(
       'nid' => $node['id'],
       'uid' => self::dbId($node['uid']),
       'name' => $node_rev['name'],
