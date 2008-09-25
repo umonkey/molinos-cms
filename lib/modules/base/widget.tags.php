@@ -54,6 +54,10 @@ class TagsWidget extends Widget implements iWidget
       'label' => t('Всегда использовать этот раздел'),
       'description' => t('Всегда возвращать информацию о выбранном разделе, независимо от того, в каком разделе находится посетитель.'),
       )));
+    $form->addControl(new BoolControl(array(
+      'value' => 'config_illcache',
+      'label' => t('Используется для формирования меню'),
+      )));
 
     return $form;
   }
@@ -112,6 +116,9 @@ class TagsWidget extends Widget implements iWidget
       $options['root'] = $this->fixed;
 
     $options['dynamic'] = ($ctx->section->id !== null);
+
+    if ($this->illcache)
+      $options['anchor'] = $ctx->section->id;
 
     return $options;
   }
