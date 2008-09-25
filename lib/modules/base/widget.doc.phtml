@@ -1,10 +1,15 @@
 <!-- default doc widget template --><?php
 
 if (!empty($document)) {
-  $code = bebop_render_object('type', $document['class'], $theme, array(
+  $data = array(
     'document' => $document,
     'tags' => $tags,
-    ));
+    );
+
+  if (!empty($neighbors))
+    $data['neighbors'] = $neighbors;
+
+  $code = bebop_render_object('type', $document['class'], $theme, $data);
 
   if (!empty($code))
     print mcms::html('div', array(
