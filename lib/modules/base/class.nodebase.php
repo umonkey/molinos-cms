@@ -2360,7 +2360,9 @@ class NodeBase
       // иначе мы загрузим ВСЕ документы, привязанные к разделам,
       // что при среднем-большом объёме контента перестанет работать.
       if ($tags)
-        $sql .= ' AND `key` IS NOT NULL';
+        $sql .= ' AND (`key` IS NOT NULL OR `tid` NOT IN '
+          .'(SELECT `id` FROM `node` WHERE `class` = \'tag\' '
+          .'AND `deleted` = 0 AND `published` = 1))';
 
       foreach (mcms::db()->getResults($sql) as $l)
           $map[$l['nid']][] = $l;
