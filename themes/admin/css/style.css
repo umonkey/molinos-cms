@@ -617,11 +617,11 @@ table.nodelist td.icon .icon-delete {
 }
 
 table.nodelist td.icon .icon-unpublish {
-  background-image: url(../img/icon-publish.gif);
+  background-image: url(../img/icon-publish.png);
 }
 
 table.nodelist td.icon .icon-publish {
-  background-image: url(../img/icon-unpublish.gif);
+  background-image: url(../img/icon-unpublish.png);
 }
 
 table.nodelist td.icon .icon-add {
