@@ -1174,6 +1174,9 @@ class NodeBase
     $pdo = mcms::db();
     $xtra = '';
 
+    if (empty($this->id))
+      $this->save();
+
     if (null !== $available)
       $xtra = ' AND `tid` IN ('. join(', ', $available) .')';
 
