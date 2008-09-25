@@ -710,4 +710,14 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       return Node::find(array('id' => $ids));
     return array();
   }
+
+  public function getActionLinks()
+  {
+    $links = parent::getActionLinks();
+
+    if (in_array($this->name, self::getInternal()))
+      $links['delete'] = null;
+
+    return $links;
+  }
 };
