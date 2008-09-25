@@ -485,7 +485,11 @@ class NodeQueryBuilder
     // Выборка по одному разделу -- используем обычную связку,
     // чтобы можно было отсортировать по ручному порядку.
     if (!is_array($this->query['tags']) or count($this->query['tags']) < 2) {
-      $tag = intval($this->query['tags'][0]);
+      if (is_array($this->query['tags']))
+        $tag = intval($this->query['tags'][0]);
+      else
+        $tag = intval($this->query['tags']);
+
       $this->where[] = "`node`.`id` IN (SELECT `nid` FROM `node__rel` "
         ."WHERE `tid` = {$tag})";
       return null;
