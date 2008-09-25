@@ -484,13 +484,16 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       break;
 
     case '404':
+      mcms::user()->checkAccess('u', 'type');
+
       if ('update' == $ctx->get('mode')) {
         if (null !== ($src = $ctx->post('src')) and null !== ($dst = $ctx->post('dst'))) {
           mcms::db()->exec("UPDATE `node__fallback` SET `new` = ? "
             ."WHERE `old` = ?", array($dst, $src));
         }
       } elseif ('delete' == $ctx->get('mode')) {
-        mcms::debug($ctx);
+        mcms::db()->exec("DELETE FROM `node__fallback` WHERE `old` = ?",
+          array($ctx->get('src')));
       }
 
       $next = $ctx->get('destination');
