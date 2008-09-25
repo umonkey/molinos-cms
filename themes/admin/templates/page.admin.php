@@ -123,12 +123,11 @@ function get_dba_link()
       <div id="navbar">
         <div id="top_toolbar">
           <div class="right">
-            <a href="<?php print $base; ?>">www</a>
             <?php print render_username(); ?>
+            <a href="<?php print $base; ?>" title="Перейти на сайт"><img src="themes/admin/img/icon-home.png" alt="home" width="16" height="16" /></a>
             <?php print get_dba_link(); ?>
-            <a href="<?php print l('admin.rpc?action=reload&destination=CURRENT'); ?>&amp;reload=1&flush=1" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
-            <?php print l('base.rpc?action=logout',
-              'Выйти', array('id' => 'lnk_exit')); ?>
+            <a href="<?php print l('admin.rpc?action=reload&destination=CURRENT'); ?>&amp;reload=1&flush=1" title="Очистить кэш"><img src="themes/admin/img/icon-reload.png" alt="reload" width="16" height="16" /></a>
+            <a href="base.rpc?action=logout" id="lnk_exit" title="Выйти"><img src="themes/admin/img/icon-exit.png" alt="logout" width="16" height="16" /></a>
           </div>
         </div><!-- id=top_toolbar -->
 
