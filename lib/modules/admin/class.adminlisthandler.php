@@ -233,6 +233,14 @@ class AdminListHandler
           );
         $this->sort = array('name');
         break;
+      case '404':
+        $this->columns = array('old', 'new');
+        $this->columntitles = array(
+          'old' => 'Запрошенная страница',
+          'new' => 'Адрес перенаправления',
+          );
+        $this->title = t('Страницы, которые не были найдены');
+        break;
       }
     }
 
@@ -295,11 +303,7 @@ class AdminListHandler
       $filter['class'] = $this->types;
     else {
       $filter['class'] = array();
-
-      if (0 === $this->published)
-        $itypes = array('moduleinfo');
-      else
-        $itypes = TypeNode::getInternal();
+      $itypes = TypeNode::getInternal();
 
       foreach (TypeNode::getSchema() as $k => $v) {
         if (empty($v['isdictionary']) and (empty($v['adminmodule']) or !mcms::ismodule($v['adminmodule'])) and !in_array($k, $itypes))
@@ -349,6 +353,31 @@ class AdminListHandler
 
   protected function getData()
   {
+    if ('404' == $this->preset) {
+      $data = array();
+
+      foreach (mcms::db()->getResults("SELECT * FROM `node__fallback`") as $row) {
+        $row['_links'] = array(
+          'edit' => array(
+            'href' => '?q=admin/content/edit/404/'. urlencode($row['old'])
+              .'&destination=CURRENT',
+            'title' => 'Изменить',
+            'icon' => 'edit',
+            ),
+          'delete' => array(
+            'href' => '?q=admin.rpc&action=404&mode=delete'
+              .'&src='. urlencode($row['old']) .'&destination=CURRENT',
+            'title' => 'Удалить',
+            'icon' => 'delete',
+            ),
+          );
+
+        $data[] = $row;
+      }
+
+      return $data;
+    }
+
     $result = array();
     $itypes = TypeNode::getInternal();
 
@@ -404,8 +433,15 @@ class AdminListHandler
   protected function getCount()
   {
     if (null === $this->pgcount) {
-      $filter = $this->getNodeFilter();
-      $this->pgcount = Node::count($filter);
+      switch ($this->preset) {
+      case '404':
+        $this->pgcount = mcms::db()
+          ->fetch("SELECT COUNT(*) FROM `node__fallback`");
+        break;
+      default:
+        $filter = $this->getNodeFilter();
+        $this->pgcount = Node::count($filter);
+      }
     }
 
     return $this->pgcount;

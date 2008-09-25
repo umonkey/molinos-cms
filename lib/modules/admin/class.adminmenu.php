@@ -223,7 +223,7 @@ class AdminMenu implements iAdminMenu
         'description' => t('Просмотр, редактирование и добавление файлов.'),
         );
 
-    if (count($user->getAccess('u')) and Node::count(array('deleted' => 1, 'published' => array(0, 1))))
+    if (count($user->getAccess('u')) and Node::count(array('deleted' => 1, '-class' => TypeNode::getInternal())))
       $icons[] = array(
         'group' => 'content',
         'href' => '?q=admin/content/list/trash',
@@ -231,6 +231,13 @@ class AdminMenu implements iAdminMenu
         'message' => t('Удалённые объекты'),
         'description' => t('Просмотр и восстановление удалённых файлов.'),
         'weight' => 10,
+        );
+
+    if (mcms::user()->hasAccess('u', 'type') and mcms::db()->fetch("SELECT COUNT(*) FROM `node__fallback`"))
+      $icons[] = array(
+        'group' => 'content',
+        'message' => t('Отсутствующие страницы'),
+        'href' => '?q=admin/content/list/404',
         );
 
     return $icons;
