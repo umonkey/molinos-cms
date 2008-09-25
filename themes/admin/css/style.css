@@ -617,11 +617,11 @@ table.nodelist td.icon .icon-delete {
 }
 
 table.nodelist td.icon .icon-unpublish {
-  background-image: url(../img/icon-publish.png);
+  background-image: url(../img/icon-unpublish.png);
 }
 
 table.nodelist td.icon .icon-publish {
-  background-image: url(../img/icon-unpublish.png);
+  background-image: url(../img/icon-publish.png);
 }
 
 table.nodelist td.icon .icon-add {
@@ -642,4 +642,8 @@ table.nodelist td.icon .icon-search {
 
 table.nodelist td.icon .icon-clone {
   background-image: url(../img/icon-clone.png);
+}
+
+table.nodelist td.icon .icon-link {
+  background-image: url(../img/icon-link.png);
 }

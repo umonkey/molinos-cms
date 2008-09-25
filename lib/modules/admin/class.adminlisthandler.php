@@ -451,7 +451,10 @@ class AdminListHandler
 
     case 'pages':
       foreach ($result as $k => $v)
-        $result[$k]['#link'] = '?q=admin/structure/tree/pages/'. $v['id'];
+        if (empty($v['redirect']))
+          $result[$k]['#link'] = '?q=admin/structure/tree/pages/'. $v['id'];
+        else
+          $result[$k]['#nolink'] = true;
     }
 
     return $result;

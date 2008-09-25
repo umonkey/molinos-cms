@@ -278,67 +278,61 @@ class DomainNode extends Node implements iContentType
 
   public function formGet($simple = true)
   {
-    $domain = empty($_GET['parent']);
-
-    if (null === $this->id) {
-      $form = new Form(array(
-        'title' => $domain
-          ? t('Добавление домена')
-          : t('Добавление страницы'),
-        ));
-      $form->addControl(new TextLineControl(array(
-        'value' => 'node_content_name',
-        'label' => $domain ? t('Доменное имя') : t('Название'),
-        'class' => 'form-title',
-        )));
-      $form->addControl(new HiddenControl(array(
-        'value' => 'page_type',
-        'default' => $domain ? 'domain' : 'page',
-        )));
-      if ($domain)
-        $form->addControl(new TextAreaControl(array(
-          'wrapper_id' => 'domain-aliases-wrapper',
-          'value' => 'node_content_aliases',
-          'label' => t('Дополнительные адреса'),
-          'description' => t('Введите дополнительные адреса, на которые должен откликаться этот домен, по одному имени на строку.'),
-          )));
-      else
-        $form->addControl(new EnumControl(array(
-          'wrapper_id' => 'domain-parent-wrapper',
-          'value' => 'node_content_parent_id',
-          'label' => t('Родительский объект'),
-          'options' => self::getFlatSiteMap('select'),
-          'class' => 'hidden',
-          )));
-      $form->addControl(new SubmitControl(array(
-        'text' => t('Продолжить'),
-        )));
-
-      // Добавляем скрытые параметры, чтобы применить значения по умолчанию.
-      foreach (array('class', 'language', 'content_type', 'http_code', 'html_charset', 'params') as $key)
-        $form->addControl(new HiddenControl(array(
-          'value' => 'node_content_'. $key,
-          )));
-
-      return $form;
-    }
+    if (!empty($this->redirect) or (empty($this->id) and !empty($_GET['alias'])))
+      return $this->formGetAlias();
 
     $form = parent::formGet($simple);
     $user = mcms::user();
 
-    if ($user->hasAccess('u', 'domain')) {
+    $form->hideControl('node_content_redirect');
+
+    if ($this->parent_id) {
+      $form->hideControl('node_content_robots');
+    }
+
+    if (empty($this->parent_id))
+      $form->title = $this->id ? t('Свойства домена') : t('Добавление домена');
+    else
+      $form->title = $this->id ? t('Свойства страницы') : t('Добавление страницы');
+
+    $form->hideControl('node_content_aliases');
+
+    if ($user->hasAccess('u', 'widget') and !$simple) {
       if (null !== ($tab = $this->formGetWidgets()))
         $form->addControl($tab);
     }
 
     $this->fixThemes($form);
 
-    if (null === $this->id)
-      $form->title = t('Добавление домена или страницы');
-    elseif (null === $this->parent_id)
-      $form->title = t('Редактирование домена %name', array('%name' => $this->name));
-    else
-      $form->title = t('Редактирование страницы %name', array('%name' => $this->name));
+    return $form;
+  }
+
+  private function formGetAlias()
+  {
+    $target = $this->id
+      ? $this->redirect
+      : Node::load($_GET['alias'])->name;
+
+    $form = new Form(array(
+      'action' => parent::formGet()->action,
+      'title' => $this->id
+        ? t('Редактирование алиаса')
+        : t('Добавление алиаса'),
+      ));
+
+    $form->addControl(new TextLineControl(array(
+      'value' => 'node_content_name',
+      'label' => t('Доменное имя'),
+      'default' => 'www.'. $target,
+      )));
+
+    $form->addControl(new TextLineControl(array(
+      'value' => 'node_content_redirect',
+      'label' => t('Перенаправлять на'),
+      'default' => $target,
+      )));
+
+    $form->addControl(new SubmitControl());
 
     return $form;
   }
@@ -384,6 +378,9 @@ class DomainNode extends Node implements iContentType
       $data['node_content_html_charset'] = 'utf-8';
       $data['node_content_params'] = 'sec+doc';
       $data['page_type'] = 'domain';
+      $data['node_content_robots'] = "User-agent: *\n"
+        ."Disallow: /lib\n"
+        ."Disallow: /themes";
     } else {
       $data['node_content_defaultsection:options'] = TagNode::getTags('select');
     }
@@ -710,5 +707,27 @@ class DomainNode extends Node implements iContentType
   private static function strip($data)
   {
     return preg_replace('@>[\s\r\n\t]+<@', '><', $data);
+  }
+
+  public function getActionLinks()
+  {
+    $links = parent::getActionLinks();
+
+    if (empty($this->redirect))
+      $links['alias'] = array(
+        'href' => '?q=admin/structure/create&type=domain'
+          .'&alias='. $this->id
+          .'&destination=CURRENT',
+        'title' => t('Добавить алиас'),
+        'icon' => 'link',
+        );
+
+    $links['edit']['href'] = '?q=admin/structure/edit/'. $this->id
+      .'&destination=CURRENT';
+
+    if (!empty($this->redirect) and array_key_exists('clone', $links))
+      unset($links['clone']);
+
+    return $links;
   }
 };
