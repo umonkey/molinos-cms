@@ -401,6 +401,40 @@ class DomainNode extends Node implements iContentType
 
     // Если объект новый -- редиректим на его редактирование.
     if ($isnew) {
+      // Страница с ошибками.
+      $node = Node::create('domain', array(
+        'parent_id' => $this->id,
+        'name' => 'errors',
+        'title' => t('Обработчики ошибок'),
+        'theme' => $this->theme,
+        'lang' => $this->lang,
+        'published' => true,
+        ))->save();
+
+      Node::create('domain', array(
+        'parent_id' => $node,
+        'name' => '403',
+        'title' => 'Forbidden',
+        'theme' => $this->theme,
+        'published' => true,
+        ))->save();
+
+      Node::create('domain', array(
+        'parent_id' => $node,
+        'name' => '404',
+        'title' => 'Not Found',
+        'theme' => $this->theme,
+        'published' => true,
+        ))->save();
+
+      Node::create('domain', array(
+        'parent_id' => $node,
+        'name' => '500',
+        'title' => 'Internal Server Error',
+        'theme' => $this->theme,
+        'published' => true,
+        ))->save();
+
       return "admin/node/{$this->id}/edit/?destination=". urlencode($_GET['destination']);
     }
 
