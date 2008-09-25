@@ -260,6 +260,7 @@ class AdminListHandler
         $this->hidesearch = true;
         $this->addlink = '?q=admin/structure/create&type=domain'
           .'&destination=CURRENT';
+        $this->sort = array('name');
         break;
       }
     }
