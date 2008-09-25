@@ -54,7 +54,7 @@ img.png {
   height: auto;
   _height: 100%;
   min-height: 100%;
-  margin: 0 30px -65px 30px;
+  margin: 0 30px -90px 30px;
 }
 
 .spacer {
@@ -411,12 +411,11 @@ form textarea.resizable {
 
 /*footer - begin*/
 #footer_spacer {
-  height: 65px;
+  height: 90px;
   clear: both;
 }
 
 #footer {
-  height: 45px;
   margin: 0 30px;
   padding-top: 20px;
   font-size: 93%;
