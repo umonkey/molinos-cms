@@ -7,6 +7,22 @@ function render_dashboard($result)
 
 function render_notifications()
 {
+  if (!empty($_GET['created']) and !empty($_GET['type'])) {
+    $map = array(
+      'domain' => 'Страница добавлена, <a href="@url">настроить</a>?',
+      );
+
+    if (array_key_exists($_GET['type'], $map)) {
+      $output = t($map[$_GET['type']], array(
+        '%id' => $_GET['created'],
+        '@url' => '?q=admin/content/edit/'. $_GET['created']
+          .'&destination=CURRENT',
+        ));
+      return mcms::html('div', array(
+        'class' => 'notification',
+        ), $output);
+    }
+  }
 }
 
 function render_username()
