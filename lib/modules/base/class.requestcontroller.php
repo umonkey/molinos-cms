@@ -203,14 +203,20 @@ class RequestController
 
       foreach ($domains as $dom) {
         // Точное совпадение, возвращаем домен.
-        if ($host == $dom->name)
+        if ($host == $dom->name) {
+          if (!empty($dom->redirect))
+            $ctx->redirect($dom->redirect);
           return $dom;
-
-        // TODO: поддержка алиасов.
+        }
       }
     }
 
-    return array_shift($domains);
+    $dom = array_shift($domains);
+
+    if (!empty($dom->redirect))
+      $ctx->redirect($dom);
+
+    return $dom;
   }
 
   private function checkRPC()
