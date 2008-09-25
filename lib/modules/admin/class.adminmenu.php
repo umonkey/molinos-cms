@@ -17,13 +17,8 @@ class AdminMenu implements iAdminMenu
 
   private function cache($value = null)
   {
-    if (!empty($_GET['nocache']))
+    if (null === ($key = $this->getCacheKey()))
       return null;
-
-    $key = 'adminmenu:'. $this->getCurrentGroup();
-
-    if (!empty($_GET['__cleanurls']))
-      $key .= ':cleanurls';
 
     return mcms::config($key, $value);
   }
@@ -84,9 +79,23 @@ class AdminMenu implements iAdminMenu
 
     $output .= '</ul>';
 
-    mcms::cache('adminmenu:'. $cgroup, $output);
+    if (null !== ($key = $this->getCacheKey()))
+      mcms::cache($key, $output);
 
     return $output;
+  }
+
+  private function getCacheKey()
+  {
+    if (!empty($_GET['nocache']))
+      return null;
+
+    $key = 'adminmenu:'. $this->getCurrentGroup();
+
+    if (!empty($_GET['__cleanurls']))
+      $key .= ':cleanurls';
+
+    return $key;
   }
 
   private function getIcons()
