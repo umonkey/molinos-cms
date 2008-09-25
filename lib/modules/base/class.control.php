@@ -271,7 +271,7 @@ abstract class Control implements iFormControl
 
     $output = mcms::html('label', array(
       'class' => $this->required ? 'required' : null,
-      ), mcms::html('span', $label . $star) . $output);
+      ), mcms::html('span', $label . $star));
 
     return $output;
   }
