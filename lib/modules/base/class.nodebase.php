@@ -558,6 +558,15 @@ class NodeBase
       $pdo->exec("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
         ."SELECT `tid`, :new, `key` FROM `node__rel` WHERE `nid` = :old", $params);
 
+      if (($this->right - $this->left) > 1) {
+        $children = Node::find(array(
+          'parent_id' => $id,
+          ));
+
+        foreach ($children as $c)
+          $c->duplicate($this->id);
+      }
+
       mcms::flush();
     }
 
