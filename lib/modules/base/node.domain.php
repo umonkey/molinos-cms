@@ -278,37 +278,38 @@ class DomainNode extends Node implements iContentType
 
   public function formGet($simple = true)
   {
+    $domain = empty($_GET['parent']);
+
     if (null === $this->id) {
-      $form = new Form(array('title' => t('Добавление домена или страницы')));
-      $form->addControl(new InfoControl(array(
-        'text' => t('Выберите тип и расположение объекта, после чего будут доступны дополнительные свойства.'),
-        )));
+      $form = new Form(array(
+        'title' => $domain
+          ? t('Добавление домена')
+          : t('Добавление страницы'),
+        ));
       $form->addControl(new TextLineControl(array(
         'value' => 'node_content_name',
-        'label' => t('Название'),
+        'label' => $domain ? t('Доменное имя') : t('Название'),
         'class' => 'form-title',
         )));
-      $form->addControl(new EnumRadioControl(array(
+      $form->addControl(new HiddenControl(array(
         'value' => 'page_type',
-        'label' => t('Тип объекта'),
-        'options' => array(
-          'domain' => t('Домен'),
-          'page' => t('Страница'),
-          ),
+        'default' => $domain ? 'domain' : 'page',
         )));
-      $form->addControl(new TextAreaControl(array(
-        'wrapper_id' => 'domain-aliases-wrapper',
-        'value' => 'node_content_aliases',
-        'label' => t('Дополнительные адреса'),
-        'description' => t('Введите дополнительные адреса, на которые должен откликаться этот домен, по одному имени на строку.'),
-        )));
-      $form->addControl(new EnumControl(array(
-        'wrapper_id' => 'domain-parent-wrapper',
-        'value' => 'node_content_parent_id',
-        'label' => t('Родительский объект'),
-        'options' => self::getFlatSiteMap('select'),
-        'class' => 'hidden',
-        )));
+      if ($domain)
+        $form->addControl(new TextAreaControl(array(
+          'wrapper_id' => 'domain-aliases-wrapper',
+          'value' => 'node_content_aliases',
+          'label' => t('Дополнительные адреса'),
+          'description' => t('Введите дополнительные адреса, на которые должен откликаться этот домен, по одному имени на строку.'),
+          )));
+      else
+        $form->addControl(new EnumControl(array(
+          'wrapper_id' => 'domain-parent-wrapper',
+          'value' => 'node_content_parent_id',
+          'label' => t('Родительский объект'),
+          'options' => self::getFlatSiteMap('select'),
+          'class' => 'hidden',
+          )));
       $form->addControl(new SubmitControl(array(
         'text' => t('Продолжить'),
         )));

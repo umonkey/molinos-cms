@@ -14,6 +14,7 @@ class AdminListHandler
   public $actions;
   public $linkfield;
   public $zoomlink;
+  protected $addlink;
 
   protected $selectors;
 
@@ -21,6 +22,7 @@ class AdminListHandler
   protected $page;
 
   protected $preset = null;
+  protected $hidesearch = false;
 
   // Кэшируем для исключения повторных вызовов.
   private $count = null;
@@ -64,7 +66,9 @@ class AdminListHandler
     }
 
     $output = '<h2>'. $this->title .'</h2>';
-    $output .= $this->getSearchForm();
+
+    if (!$this->hidesearch)
+      $output .= $this->getSearchForm();
 
     if (!empty($data)) {
       $form = new Form(array(
@@ -74,6 +78,7 @@ class AdminListHandler
       if (empty($_GET['picker']))
         $form->addControl(new AdminUINodeActionsControl(array(
           'actions' => $this->actions,
+          'addlink' => $this->addlink,
           )));
 
       $form->addControl(new AdminUIListControl(array(
@@ -89,6 +94,7 @@ class AdminListHandler
       if (empty($_GET['picker']))
         $form->addControl(new AdminUINodeActionsControl(array(
           'actions' => $this->actions,
+          'addlink' => $this->addlink,
           )));
       $form->addControl(new PagerControl(array(
         'value' => '__pager',
@@ -241,6 +247,20 @@ class AdminListHandler
           );
         $this->title = t('Страницы, которые не были найдены');
         break;
+      case 'pages':
+        $this->columns = array('name', 'title', 'redirect', 'theme');
+        $this->columntitles = array(
+          'name' => 'Домен',
+          'title' => 'Заголовок',
+          'redirect' => 'Редирект',
+          'theme' => 'Шкура',
+          );
+        $this->types = array('domain');
+        $this->title = t('Обрабатываемые домены');
+        $this->hidesearch = true;
+        $this->addlink = '?q=admin/structure/create&type=domain'
+          .'&destination=CURRENT';
+        break;
       }
     }
 
@@ -348,6 +368,9 @@ class AdminListHandler
     $filter['#permcheck'] = true;
     $filter['#cache'] = false;
 
+    if ('pages' == $this->preset)
+      $filter['parent_id'] = null;
+
     return $filter;
   }
 
@@ -425,6 +448,10 @@ class AdminListHandler
         }
       }
       break;
+
+    case 'pages':
+      foreach ($result as $k => $v)
+        $result[$k]['#link'] = '?q=admin/structure/tree/pages/'. $v['id'];
     }
 
     return $result;

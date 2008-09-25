@@ -184,8 +184,8 @@ class AdminMenu implements iAdminMenu
     if ($user->hasAccess('u', 'domain')) {
       $icons[] = array(
         'group' => 'structure',
-        'href' => '?q=admin/structure/tree/pages',
-        'title' => t('Страницы'),
+        'href' => '?q=admin/structure/list/pages',
+        'title' => t('Домены'),
         'message' => t('Домены и страницы'),
         'description' => t('Управление доменами, страницами и виджетами.'),
         );
