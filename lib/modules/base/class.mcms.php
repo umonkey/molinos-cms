@@ -1465,10 +1465,14 @@ class mcms
         // Ошибка 404 — пытаемся использовать подстановку.
         if (404 == $e->getCode()) {
           try {
-            $new = mcms::db()->getResult("SELECT `new` FROM `node__fallback` "
-              ."WHERE old = ?", array($_SERVER['REQUEST_URI']));
-            if (!empty($new))
-              mcms::redirect($new, 302);
+            $new = mcms::db()->getResults("SELECT `new` FROM `node__fallback` "
+              ."WHERE old = ?", array($ctx->query()));
+
+            if (!empty($new[0]['new']))
+              $ctx->redirect($new[0]['new'], 302);
+
+            mcms::db()->exec("INSERT INTO `node__fallback` (`old`, `new`) "
+              ."VALUES (?, ?)", array($ctx->query(), null));
           } catch (Exception $e2) { }
         }
 
