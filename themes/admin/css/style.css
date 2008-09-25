@@ -639,3 +639,7 @@ table.nodelist td.icon .icon-validate {
 table.nodelist td.icon .icon-search {
   background-image: url(../img/icon-search.png);
 }
+
+table.nodelist td.icon .icon-clone {
+  background-image: url(../img/icon-clone.png);
+}

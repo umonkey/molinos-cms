@@ -132,6 +132,14 @@ class Node extends NodeBase implements iContentType
         'icon' => 'edit',
         );
 
+    if ($this->checkPermission('c'))
+      $links['clone'] = array(
+        'href' => '?q=nodeapi.rpc&action=clone&node='. $this->id
+          .'&destination=CURRENT',
+        'title' => t('Клонировать'),
+        'icon' => 'clone',
+        );
+
     if ($this->checkPermission('d'))
       $links['delete'] = array(
         'href' => '?q=nodeapi.rpc&action=delete&node='. $this->id
