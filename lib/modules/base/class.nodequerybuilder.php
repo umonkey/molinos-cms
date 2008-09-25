@@ -233,13 +233,15 @@ class NodeQueryBuilder
       $parts = explode(' ', $this->search);
 
       foreach ($parts as $k => $v) {
-        if (preg_match('/^([^:]+)\:([a-z0-9_,]+)$/', $v, $m)) {
+        if (preg_match('/^([^:]+)\:([a-z0-9_,]+)$/i', $v, $m)) {
           $this->query[$m[1]] = explode(',', $m[2]);
           unset($parts[$k]);
         }
       }
 
-      $this->search = join(' ', $parts);
+      $this->search = empty($parts)
+        ? null
+        : join(' ', $parts);
     }
   }
 
