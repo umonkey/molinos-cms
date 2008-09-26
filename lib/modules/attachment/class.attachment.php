@@ -11,24 +11,40 @@ class Attachment
   private $options = array();
   private $node = null;
   private $guid = null;
+  private $ctx = null;
 
   public function __construct(Context $ctx)
   {
-    if (!preg_match('@^(\d+)(?:,(\d*))?(?:,(\d*))?(?:,([^/]+))?(?:/(.+))?@', $q = $ctx->get('fid'), $m))
+    if (preg_match('@attachment/(\d+)/(.*)$@', $ctx->query(), $m)) {
+      $this->nw = null;
+      $this->nh = null;
+      $this->filename = $m[2];
+
+      $fid = $m[1];
+    }
+
+    elseif (preg_match('@^(\d+)(?:,(\d*))?(?:,(\d*))?(?:,([^/]+))?(?:/(.+))?@', $q = $ctx->get('fid'), $m)) {
+      $this->nw = empty($m[2]) ? null : $m[2];
+      $this->nh = empty($m[3]) ? null : $m[3];
+      $this->filename = empty($m[5]) ? null : $m[5];
+
+      $fid = $m[1];
+    }
+    
+    else {
       mcms::fatal('Usage: ?q=attachment.rpc&fid=id[,width[,height[,options[/filename]]]]');
+    }
+
+    $this->ctx = $ctx;
 
     try {
       $this->node = Node::load(array(
         'class' => 'file',
-        'id' => $m[1],
+        'id' => $fid,
         ));
     } catch (ObjectNotFoundException $e) {
       $this->sendError(404, 'file not found.');
     }
-
-    $this->nw = empty($m[2]) ? null : $m[2];
-    $this->nh = empty($m[3]) ? null : $m[3];
-    $this->filename = $m[5];
 
     if (!empty($this->filename) and $this->filename != $this->node->filename)
       $this->sendError(404, 'file "'. $this->filename .'" not found.');
@@ -162,7 +178,7 @@ class Attachment
       if ($this->filename != $this->node->filename) {
         $path = 'attachment/'. $this->node->id .'/'.
           urlencode($this->node->filename);
-        mcms::redirect($path);
+        $this->ctx->redirect($path);
       }
     }
 
