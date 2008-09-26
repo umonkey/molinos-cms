@@ -41,7 +41,11 @@ function bebop_split_url($url = null)
 // Заворачивает результат работы предыдущей функции обратно.
 function bebop_combine_url(array $url, $escape = true)
 {
+  if (empty($url['host']) and $url['args']['__cleanurls'])
+    $url['args']['q'] = null;
+
   $url = strval(new url($url));
+
   return $escape ? htmlspecialchars($url) : $url;
 }
 
