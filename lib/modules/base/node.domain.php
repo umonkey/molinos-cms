@@ -23,17 +23,6 @@ class DomainNode extends Node implements iContentType
 {
   private $oldname;
 
-  // Возвращает базовое имя домена из конфига.
-  private static function getBaseDomainName()
-  {
-    static $base = null;
-
-    if ($base === null)
-      $base = mcms::config('basedomain');
-
-    return $base;
-  }
-
   /**
    * Обработка изменения имени домена.
    *
@@ -184,49 +173,6 @@ class DomainNode extends Node implements iContentType
     }
 
     return $result;
-  }
-
-  // Возвращает полную карту доменов.
-  public static function getSiteMap($mode = null)
-  {
-    $result = mcms::cache('urlmap');
-
-    if (!is_array($result)) {
-      $f = array(
-        'class' => 'domain',
-        'parent_id' => null,
-        '#recurse' => 1,
-        );
-      $roots = Node::find($f);
-
-      // FIXME: переписать getObjectTree()!
-
-      foreach ($roots as $root) {
-        $root->loadChildren();
-
-        $branch = $root->getChildren('nested');
-
-        $result[$branch['id']] = $branch;
-      }
-
-      mcms::cache('urlmap', $result);
-    }
-
-    return $result;
-  }
-
-  // Возвращает базовый домен.
-  public static function getBaseDomain()
-  {
-    $tree = self::getSiteMap();
-    $base = self::getBaseDomainName();
-
-    foreach ($tree as $root) {
-      if ($root['name'] == $base or in_array($base, $root['aliases']))
-        return $root;
-    }
-
-    return null;
   }
 
   // РАБОТА С ФОРМАМИ.

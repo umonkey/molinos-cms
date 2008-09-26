@@ -629,29 +629,4 @@ class UserWidget extends Widget implements iWidget
       mcms::debug("Form {$id} is not handled by UserWidget");
     }
   }
-
-  // Формирует урл для нужного действия.
-  private function getActionUrl($action = null)
-  {
-    $path = '';
-
-    if (!empty($this->page)) {
-      $base = mcms::config('basedomain');
-
-      $nodes = Node::load(array('class' => 'domain', 'id' => $this->page))->getParents();
-
-      foreach ($nodes as $idx => $em) {
-        if (empty($em['parent_id']))
-          $path .= 'http://'. str_replace('DOMAIN', $base, $em['name']) .'/';
-        else
-          $path .= $em['name'] .'/';
-      }
-    }
-
-    $url = bebop_split_url($path);
-    $url['args'][$this->getInstanceName()]['action'] = $action;
-    $url['args']['destination'] = empty($_GET['destination']) ? $_SERVER['REQUEST_URI'] : $_GET['destination'];
-
-    return bebop_combine_url($url, false);
-  }
 };

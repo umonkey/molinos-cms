@@ -280,7 +280,7 @@ class SearchWidget extends Widget implements iWidget
 
   private static function getNodeUrl(Node $node)
   {
-    return 'http://'. mcms::config('basedomain') .'/node/'. $node->id .'/';
+    return 'http://'. $_SERVER['HTTP_HOST'] .'/node/'. $node->id .'/';
 
     $tag = mcms::db()->getResults("SELECT `id`, `code` FROM `node` `n` "
       ."INNER JOIN `node__rel` `r` ON `r`.`tid` = `n`.`id` "
@@ -290,7 +290,7 @@ class SearchWidget extends Widget implements iWidget
 
     $tag = $tag[0]['id'];
 
-    $url = 'http://'. mcms::config('basedomain') .'/'. $tag .'/'. $node->id .'/';
+    $url = 'http://'. $_SERVER['HTTP_HOST'] .'/'. $tag .'/'. $node->id .'/';
 
     return $url;
   }
