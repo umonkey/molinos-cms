@@ -352,8 +352,8 @@ class AdminUIModule implements iAdminUI, iRemoteCall
         $form->title = t('Настройка модуля %name', array('%name' => $ctx->get('name')));
 
       $form->action = bebop_combine_url($tmp = array(
-        'path' => '?q=admin.rpc',
         'args' => array(
+          'q' => 'admin.rpc',
           'module' => $ctx->get('name'),
           'action' => 'modconf',
           'destination' => $_SERVER['REQUEST_URI'],
@@ -512,7 +512,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     case 'modconf':
       self::hookModConf($ctx);
-      die(mcms::redirect('?q=admin&cgroup=structure&mode=modules'));
+      $ctx->redirect('?q=admin&cgroup=structure&mode=modules');
 
     case 'search':
       $terms = array();
