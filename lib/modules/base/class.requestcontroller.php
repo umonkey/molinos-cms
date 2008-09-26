@@ -204,8 +204,19 @@ class RequestController
       foreach ($domains as $dom) {
         // Точное совпадение, возвращаем домен.
         if ($host == $dom->name) {
-          if (!empty($dom->redirect))
-            $ctx->redirect($dom->redirect);
+          if (!empty($dom->redirect)) {
+            // Указан раздел — не выполняем редирект, если целевой домен — наш.
+            if (!empty($dom->defaultsection)) {
+              foreach ($domains as $dom2)
+                if ($dom2->name == $dom->redirect) {
+                  $dom2->defaultsection = $dom->defaultsection;
+                  return $dom2;
+                }
+            }
+
+            $ctx->redirect('http://'. $dom->redirect);
+          }
+
           return $dom;
         }
       }

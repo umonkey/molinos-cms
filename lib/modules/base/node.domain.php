@@ -286,16 +286,13 @@ class DomainNode extends Node implements iContentType
 
     $form->hideControl('node_content_redirect');
 
-    if ($this->parent_id) {
+    if ($this->parent_id)
       $form->hideControl('node_content_robots');
-    }
 
     if (empty($this->parent_id))
       $form->title = $this->id ? t('Свойства домена') : t('Добавление домена');
     else
       $form->title = $this->id ? t('Свойства страницы') : t('Добавление страницы');
-
-    $form->hideControl('node_content_aliases');
 
     if ($user->hasAccess('u', 'widget') and !$simple) {
       if (null !== ($tab = $this->formGetWidgets()))
@@ -330,6 +327,16 @@ class DomainNode extends Node implements iContentType
       'value' => 'node_content_redirect',
       'label' => t('Перенаправлять на'),
       'default' => $target,
+      )));
+
+    $form->addControl(new EnumControl(array(
+      'value' => 'node_content_defaultsection',
+      'label' => t('Раздел по умолчанию'),
+      'description' => t('При указании раздела перенаправление '
+        .'выполняться не будет. Страница будет открываться по '
+        .'введённому адресу, но будет использоваться домен, '
+        .'на который настроено перенаправление. Базовый раздел '
+        .'этого домена будет подменён.'),
       )));
 
     $form->addControl(new SubmitControl());
@@ -381,9 +388,15 @@ class DomainNode extends Node implements iContentType
       $data['node_content_robots'] = "User-agent: *\n"
         ."Disallow: /lib\n"
         ."Disallow: /themes";
-    } else {
-      $data['node_content_defaultsection:options'] = TagNode::getTags('select');
     }
+
+    $data['node_content_defaultsection:options'] = TagNode::getTags('select');
+    $data['node_content_params:options'] = array(
+      '' => '(без параметров)',
+      'sec' => '/раздел',
+      'sec+doc' => '/раздел/документ',
+      'doc' => '/документ',
+      );
 
     $data['node_domain_widgets'] = $this->linkListChildren('widget', true);
 
