@@ -28,7 +28,7 @@ class SetControl extends Control
 
   public function __construct(array $form)
   {
-    parent::makeOptionsFromValues($form);
+    self::makeOptionsFromValues($form);
     parent::__construct($form, array('value', 'options'));
   }
 
@@ -51,5 +51,28 @@ class SetControl extends Control
     }
 
     return $this->wrapHTML($content);
+  }
+
+  protected function makeOptionsFromValues(array &$form)
+  {
+    if (!empty($form['values']) and !is_array($form['values'])) {
+      if (0 === strpos($form['values'], ':')) {
+        $nodes = Node::find(array(
+          'class' => substr($form['values'], 1),
+          'published' => 1,
+          '#sort' => 'name',
+          ));
+
+        $result = array();
+
+        foreach ($nodes as $node)
+          $result[$node->id] = $node->name;
+
+        $form['options'] = $result;
+        return;
+      }
+    }
+
+    parent::makeOptionsFromValues($form);
   }
 };
