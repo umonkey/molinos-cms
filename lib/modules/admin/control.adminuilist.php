@@ -191,7 +191,7 @@ class AdminUIListControl extends Control
 
           $tmp = mcms::html('a', array(
             'title' => 'Скачать',
-            'href' => "?q=attachment.rpc&fid={$node['id']}",
+            'href' => "?q=attachment/{$node['id']}/". urlencode($node['filename']),
             'class' => isset($this->picker) ? 'returnHref' : null,
             ), $tmp);
 
