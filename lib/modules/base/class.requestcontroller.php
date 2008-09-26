@@ -161,6 +161,7 @@ class RequestController
     if (!empty($load)) {
       $nodes = Node::find(array(
         'id' => $load,
+        'published' => 1,
         ));
 
       // Найдено не всё: сообщаем об ошибке.
