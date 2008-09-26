@@ -157,9 +157,11 @@ class DomainNode extends Node implements iContentType
     $result = array();
 
     foreach ($roots = Node::find(array('class' => 'domain', 'parent_id' => null)) as $root) {
-      foreach ($root->getChildren('flat') as $em)
-        if ($dev or $em['theme'] != 'admin')
-          $result[] = $em;
+      if (empty($root->redirect)) {
+        foreach ($root->getChildren('flat') as $em)
+          if ($dev or $em['theme'] != 'admin')
+            $result[] = $em;
+      }
     }
 
     if ('select' == $mode) {
