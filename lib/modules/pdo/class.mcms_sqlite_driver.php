@@ -46,7 +46,7 @@ class mcms_sqlite_driver extends PDO_Singleton
 
       parent::loga(' -- params: '
         . str_replace("\n", "", var_export($params, true))
-        . ', -- timing: '. $time);
+        . ', -- timing: '. number_format($time, 5));
     } catch (PDOException $e) {
       $info = $this->errorInfo();
 
