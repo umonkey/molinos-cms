@@ -29,6 +29,9 @@ class FileNode extends Node implements iContentType
    */
   public function save()
   {
+    if (empty($this->filepath))
+      throw new RuntimeException(t('Ошибка загрузки файла.'));
+
     $path = mcms::config('filestorage');
     $path .= '/'. $this->filepath;
 
