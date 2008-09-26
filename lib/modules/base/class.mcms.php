@@ -1471,8 +1471,9 @@ class mcms
             if (!empty($new[0]['new']))
               $ctx->redirect($new[0]['new'], 302);
 
-            mcms::db()->exec("INSERT INTO `node__fallback` (`old`, `new`) "
-              ."VALUES (?, ?)", array($ctx->query(), null));
+            mcms::db()->exec("INSERT INTO `node__fallback` "
+              ."(`old`, `new`, `ref`) VALUES (?, ?, ?)",
+              array($ctx->query(), null, $_SERVER['HTTP_REFERER']));
           } catch (Exception $e2) { }
         }
 

@@ -240,10 +240,11 @@ class AdminListHandler
         $this->sort = array('name');
         break;
       case '404':
-        $this->columns = array('old', 'new');
+        $this->columns = array('old', 'new', 'ref');
         $this->columntitles = array(
           'old' => 'Запрошенная страница',
           'new' => 'Адрес перенаправления',
+          'ref' => 'Источник',
           );
         $this->title = t('Страницы, которые не были найдены');
         break;

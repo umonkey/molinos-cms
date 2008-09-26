@@ -14,5 +14,10 @@ class DBSchema_node__fallback extends TableManager
       'type' => 'varchar(255)',
       'required' => 0,
       );
+
+    $this->columns['ref'] = array(
+      'type' => 'varchar(255)',
+      'required' => 0,
+      );
   }
 }
