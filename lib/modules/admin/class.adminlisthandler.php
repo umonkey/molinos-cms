@@ -397,6 +397,13 @@ class AdminListHandler
             ),
           );
 
+        if (!empty($row['ref'])) {
+          $url = new url($row['ref']);
+          if (0 === strpos($name = $url->host, 'www.'))
+            $name = substr($name, 4);
+          $row['ref'] = l($row['ref'], $name);
+        }
+
         $data[] = $row;
       }
 
