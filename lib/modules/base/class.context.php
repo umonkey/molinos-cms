@@ -77,6 +77,10 @@ class Context
    */
   public function post($key, $default = null)
   {
+    if (!$this->method('post'))
+      throw new InvalidArgumentException(t('Обращение к данным '
+        .'формы возможно только при запросах типа POST.'));
+
     if (null === $this->_post)
       $this->_post = $this->getarg('post', array());
 
@@ -187,14 +191,19 @@ class Context
   /**
    * Возвращает метод запроса (GET, POST итд).
    */
-  public function method()
+  public function method($check = null)
   {
     if (array_key_exists('method', $this->_args))
-      return $this->_args['method'];
+      $value = $this->_args['method'];
     elseif (array_key_exists('REQUEST_METHOD', $_SERVER))
-      return $_SERVER['REQUEST_METHOD'];
+      $value = $_SERVER['REQUEST_METHOD'];
     else
-      return 'GET';
+      $value = 'GET';
+
+    if (null === $check)
+      return $value;
+    else
+      return !strcasecmp($value, $check);
   }
 
   /**
