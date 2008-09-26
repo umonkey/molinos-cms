@@ -21,18 +21,7 @@
  */
 class DomainNode extends Node implements iContentType
 {
-  public function __construct(array $data)
-  {
-    if (empty($data['parent_id'])) {
-      if (!empty($data['name']))
-        $data['name'] = self::getRealDomainName($data['name']);
-      if (!empty($data['aliases']) and is_array($data['aliases']))
-        foreach ($data['aliases'] as $k => $v)
-          $data['aliases'][$k] = self::getRealDomainName($v);
-    }
-
-    parent::__construct($data);
-  }
+  private $oldname;
 
   // Возвращает базовое имя домена из конфига.
   private static function getBaseDomainName()
@@ -45,16 +34,16 @@ class DomainNode extends Node implements iContentType
     return $base;
   }
 
-  // Разворачивает имя домена.
-  private static function getRealDomainName($name)
+  /**
+   * Обработка изменения имени домена.
+   *
+   * Обновляются ссылки во всех доменах, ссылающихся на этот.
+   */
+  public function __set($key, $val)
   {
-    return str_replace('DOMAIN', self::getBaseDomainName(), $name);
-  }
-
-  // Сворачивает имя домена.
-  private static function getFakeDomainName($name)
-  {
-    return str_replace(self::getBaseDomainName(), 'DOMAIN', $name);
+    if ('name' == $key and empty($this->oldname))
+      $this->oldname = $this->name;
+    return parent::__set($key, $val);
   }
 
   /**
@@ -67,12 +56,15 @@ class DomainNode extends Node implements iContentType
    */
   public function save()
   {
-    $this->fixAliases();
-
-    if ($this->parent_id === null)
-      $this->name = self::getFakeDomainName($this->name);
-
     parent::checkUnique('name', t('Страница с таким именем уже существует.'), array('parent_id' => $this->parent_id));
+
+    if (!empty($this->oldname) and $this->oldname != $this->name) {
+      foreach (Node::find(array('class' => 'domain')) as $node)
+        if ($node->redirect == $this->oldname) {
+          $node->redirect = $this->name;
+          $node->save();
+        }
+    }
 
     return parent::save();
   }
@@ -85,32 +77,6 @@ class DomainNode extends Node implements iContentType
       $this->name = preg_replace('/_[0-9]+$/', '', $this->name) .'_'. rand();
 
     parent::duplicate($parent);
-  }
-
-  // Конвертирует алиасы в массив.
-  private function fixAliases()
-  {
-    if ($this->aliases === null or is_array($this->aliases))
-      return;
-
-    $aliases = array();
-
-    foreach (preg_split('/[\r\n]+/', $this->aliases) as $alias)
-      $aliases[] = self::getFakeDomainName($alias);
-
-    $this->aliases = $aliases;
-  }
-
-  // Формирует строку из списка алиасов.
-  private function getAliases()
-  {
-    $aliases = array();
-
-    if (is_array($this->aliases))
-      foreach ($this->aliases as $alias)
-        $aliases[] = self::getRealDomainName($alias);
-
-    return join("\n", $aliases);
   }
 
   private function getThemes()
@@ -239,17 +205,6 @@ class DomainNode extends Node implements iContentType
         $root->loadChildren();
 
         $branch = $root->getChildren('nested');
-
-        // Правим имя домена.
-        $branch['name'] = self::getRealDomainName($branch['name']);
-
-        // Правим алиасы.
-        if (!empty($branch['aliases']) and is_array($branch['aliases'])) {
-          foreach ($branch['aliases'] as $k => $v)
-            $branch['aliases'][$k] = self::getRealDomainName($v);
-        } else {
-          $branch['aliases'] = array();
-        }
 
         $result[$branch['id']] = $branch;
       }
