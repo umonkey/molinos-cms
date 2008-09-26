@@ -310,6 +310,8 @@ class DomainNode extends Node implements iContentType
   {
     $isnew = (null === $this->id);
 
+    self::checkSchema();
+
     if ($data['page_type'] == 'domain')
       $data['node_content_parent_id'] = null;
 
@@ -317,39 +319,41 @@ class DomainNode extends Node implements iContentType
 
     // Если объект новый -- редиректим на его редактирование.
     if ($isnew) {
-      // Страница с ошибками.
-      $node = Node::create('domain', array(
-        'parent_id' => $this->id,
-        'name' => 'errors',
-        'title' => t('Обработчики ошибок'),
-        'theme' => $this->theme,
-        'lang' => $this->lang,
-        'published' => true,
-        ))->save();
+      if (empty($this->redirect)) {
+        // Если это — не алиас, добавляем страницы для обработки ошибок.
+        $node = Node::create('domain', array(
+          'parent_id' => $this->id,
+          'name' => 'errors',
+          'title' => t('Обработчики ошибок'),
+          'theme' => $this->theme,
+          'lang' => $this->lang,
+          'published' => true,
+          ))->save();
 
-      Node::create('domain', array(
-        'parent_id' => $node,
-        'name' => '403',
-        'title' => 'Forbidden',
-        'theme' => $this->theme,
-        'published' => true,
-        ))->save();
+        Node::create('domain', array(
+          'parent_id' => $node,
+          'name' => '403',
+          'title' => 'Forbidden',
+          'theme' => $this->theme,
+          'published' => true,
+          ))->save();
 
-      Node::create('domain', array(
-        'parent_id' => $node,
-        'name' => '404',
-        'title' => 'Not Found',
-        'theme' => $this->theme,
-        'published' => true,
-        ))->save();
+        Node::create('domain', array(
+          'parent_id' => $node,
+          'name' => '404',
+          'title' => 'Not Found',
+          'theme' => $this->theme,
+          'published' => true,
+          ))->save();
 
-      Node::create('domain', array(
-        'parent_id' => $node,
-        'name' => '500',
-        'title' => 'Internal Server Error',
-        'theme' => $this->theme,
-        'published' => true,
-        ))->save();
+        Node::create('domain', array(
+          'parent_id' => $node,
+          'name' => '500',
+          'title' => 'Internal Server Error',
+          'theme' => $this->theme,
+          'published' => true,
+          ))->save();
+      }
 
       return "admin/node/{$this->id}/edit/?destination=". urlencode($_GET['destination']);
     }
@@ -679,5 +683,32 @@ class DomainNode extends Node implements iContentType
       unset($links['clone']);
 
     return $links;
+  }
+
+  /**
+   * Проверка структуры типа domain.
+   *
+   * При отсутствии нужных полей они добавляются.
+   */
+  private static function checkSchema()
+  {
+    $type = Node::load(array(
+      'class' => 'type',
+      'name' => 'domain',
+      ));
+
+    $save = false;
+
+    if (!array_key_exists('redirect', $type->getFields())) {
+      $type->fieldSet('redirect', array(
+        'label' => t('Перенаправлять на'),
+        'type' => 'TextLineControl',
+        'required' => false,
+        ));
+      $save = true;
+    }
+
+    if ($save)
+      $type->save();
   }
 };
