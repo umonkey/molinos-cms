@@ -531,6 +531,8 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
       $url = new url($ctx->post('search_from'));
       $url->setarg('search', trim(join(' ', $terms)));
+      $url->setarg('page', null);
+
       $next = strval($url);
 
       break;
