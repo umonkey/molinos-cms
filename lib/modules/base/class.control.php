@@ -234,7 +234,7 @@ abstract class Control implements iFormControl
   protected function wrapHTML($output, $with_label = true)
   {
     if ($with_label)
-      $output = $this->getLabel() . $output;
+      $output = $this->getLabel($output);
 
     if (isset($this->description)) {
       $output .= mcms::html('div', array(
@@ -256,10 +256,10 @@ abstract class Control implements iFormControl
       ), $output);
   }
 
-  protected function getLabel()
+  protected function getLabel($output = null)
   {
     if (empty($this->label))
-      return null;
+      return $output;
 
     $star = $this->required
       ? mcms::html('span', array('class' => 'required-label'), '*')
@@ -271,7 +271,7 @@ abstract class Control implements iFormControl
 
     $output = mcms::html('label', array(
       'class' => $this->required ? 'required' : null,
-      ), mcms::html('span', $label . $star));
+      ), mcms::html('span', $label . $star) . $output);
 
     return $output;
   }
