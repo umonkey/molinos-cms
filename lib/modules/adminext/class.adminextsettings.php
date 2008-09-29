@@ -14,6 +14,18 @@ class AdminExtSettings implements iModuleConfig
         .'у указанных групп.'),
       )));
 
+    $form->addControl(new SetControl(array(
+      'value' => 'config_hide',
+      'label' => t('Скрыть действия'),
+      'options' => array(
+        'delete' => 'Удаление объекта',
+        'publish' => 'Публикация',
+        'clone' => 'Клонирование',
+        'locate' => 'Поиск объекта на сайте',
+        'search' => 'Поиск документов пользователя',
+        ),
+      )));
+
     return $form;
   }
 

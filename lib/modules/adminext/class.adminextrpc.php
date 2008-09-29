@@ -8,6 +8,8 @@ class AdminExtRPC implements iRemoteCall
 
   public static function rpc_getlinks(Context $ctx)
   {
+    $hide = mcms::modconf('adminext', 'hide', array());
+
     if (false !== ($pos = strpos($url = $ctx->get('url'), '?')))
       $url = substr($url, 0, $pos);
 
@@ -20,16 +22,18 @@ class AdminExtRPC implements iRemoteCall
     $output = '';
 
     foreach ($node->getActionLinks() as $action => $info) {
-      $link = str_replace(
-        '&destination=CURRENT',
-        '&destination='. urlencode($ctx->get('from', 'CURRENT')),
-        $info['href']);
+      if (!in_array($action, $hide)) {
+        $link = str_replace(
+          '&destination=CURRENT',
+          '&destination='. urlencode($ctx->get('from', 'CURRENT')),
+          $info['href']);
 
-      $a = l($link, $info['title'], array(
-        'title' => $info['title'],
-        'class' => 'icon-'. $info['icon'],
-        ));
-      $output .= mcms::html('li', $a);
+        $a = l($link, $info['title'], array(
+          'title' => $info['title'],
+          'class' => 'icon-'. $info['icon'],
+          ));
+        $output .= mcms::html('li', $a);
+      }
     }
 
     $output = mcms::html('ul', array(
