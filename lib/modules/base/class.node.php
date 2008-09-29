@@ -124,6 +124,8 @@ class Node extends NodeBase implements iContentType
   {
     $links = array();
 
+    $adminui = (false !== strpos($_SERVER['REQUEST_URI'], 'admin/'));
+
     if ($this->checkPermission('u'))
       $links['edit'] = array(
         'href' => '?q=admin/content/edit/'. $this->id
@@ -132,7 +134,7 @@ class Node extends NodeBase implements iContentType
         'icon' => 'edit',
         );
 
-    if ($this->checkPermission('c'))
+    if ($adminui and $this->checkPermission('c'))
       $links['clone'] = array(
         'href' => '?q=nodeapi.rpc&action=clone&node='. $this->id
           .'&destination=CURRENT',
@@ -165,7 +167,7 @@ class Node extends NodeBase implements iContentType
         );
     }
 
-    if (false !== strpos($_SERVER['REQUEST_URI'], 'admin/'))
+    if ($adminui)
       if ($this->published and !$this->deleted and !in_array($this->class, array('domain', 'widget', 'type')))
         $links['locate'] = array(
           'href' => '?q=nodeapi.rpc&action=locate&node='. $this->id,
