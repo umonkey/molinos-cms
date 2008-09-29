@@ -165,20 +165,33 @@ class Node extends NodeBase implements iContentType
         );
     }
 
-    if ($this->published and !$this->deleted and !in_array($this->class, array('domain', 'widget', 'type')))
-      $links['locate'] = array(
-        'href' => '?q=nodeapi.rpc&action=locate&node='. $this->id,
-        'title' => t('Просмотреть'),
-        'icon' => 'locate',
-        );
+    if (false !== strpos($_SERVER['REQUEST_URI'], 'admin/'))
+      if ($this->published and !$this->deleted and !in_array($this->class, array('domain', 'widget', 'type')))
+        $links['locate'] = array(
+          'href' => '?q=nodeapi.rpc&action=locate&node='. $this->id,
+          'title' => t('Найти на сайте'),
+          'icon' => 'locate',
+          );
 
     if (bebop_is_debugger())
       $links['dump'] = array(
         'href' => '?q=nodeapi.rpc&action=dump&node='. $this->id,
-        'title' => 'Dump',
+        'title' => 'Содержимое объекта',
         'icon' => 'dump',
         );
 
     return $links;
+  }
+
+  public static function getSortedList($class)
+  {
+    $result = array();
+
+    foreach (Node::find(array('class' => $class)) as $n)
+      $result[$n->id] = $n->name;
+
+    asort($result);
+
+    return $result;
   }
 };

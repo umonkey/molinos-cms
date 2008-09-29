@@ -254,7 +254,7 @@ class UserNode extends Node implements iContentType
       $links['sudo'] = array(
         'href' => '?q=base.rpc&action=su&uid='. $this->id
           .'&destination=CURRENT',
-        'title' => 'sudo',
+        'title' => 'Переключиться в пользователя',
         'icon' => 'sudo',
         );
 
