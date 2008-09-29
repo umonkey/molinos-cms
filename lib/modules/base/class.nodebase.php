@@ -1458,6 +1458,14 @@ class NodeBase
     if (empty($_SERVER['HTTP_HOST']))
       return true;
 
+    if (strval($this->uid) == mcms::user()->id) {
+      $schema = TypeNode::getSchema($this->class);
+
+      if (!empty($schema['perm_own']) and is_array($schema['perm_own']))
+        if (in_array($perm, $schema['perm_own']))
+          return true;
+    }
+
     return mcms::user()->hasAccess($perm, $this->class);
   }
 
