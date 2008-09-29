@@ -307,7 +307,8 @@ class ListWidget extends Widget
       if ($this->pager and empty($filter['#sort']['RAND()'])) {
         $options['count'] = Node::count($filter);
 
-        $result['pager'] = $this->getPager($options['count'], $options['page'], $options['limit']);
+        $result['pager'] = mcms::pager($options['count'], $options['page'],
+          $options['limit'], $this->getInstanceName() .'.page');
         if ($result['pager']['pages'] < 2)
           unset($result['pager']);
       }

@@ -49,7 +49,7 @@ class url
       // QUERY_STRING.
 
       $this->fromString($_SERVER['REQUEST_URI']);
-      $this->args = $_GET;
+      // $this->args = $_GET;
     }
 
     $this->readonly = $readonly;

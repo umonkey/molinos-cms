@@ -410,8 +410,7 @@ class mcms
       $status = 303;
 
     $url = new url($path);
-    $target = mcms::fixurl($url->getAbsolute());
-
+    $target = $url->getAbsolute();
     mcms::log('redirect', $target);
 
     // При работе с JSON возвращаем адрес.
@@ -470,11 +469,8 @@ class mcms
           foreach ($log as $sql) {
             if (substr($sql, 0, 2) == '--')
               printf("     %s\n", $sql);
-            else {
-              if (false !== ($pos = strpos($sql, ', -- timing: ')))
-                $sql = substr($sql, 0, $pos) ."\n       ". substr($sql, $pos + 5);
+            else
               printf("%3d. %s\n", $idx++, $sql);
-            }
           }
         }
       }
@@ -779,7 +775,8 @@ class mcms
     return false;
   }
 
-  public static function pager($total, $current, $limit, $paramname = 'page', $default = 1)
+  public static function pager($total, $current, $limit,
+    $paramname = 'page', $default = 1)
   {
     $result = array();
 
@@ -808,11 +805,11 @@ class mcms
       $end = min($pages, $current + 5);
 
       // Расщеплённый текущий урл.
-      $url = bebop_split_url();
+      $url = new url();
 
       for ($i = $beg; $i <= $end; $i++) {
-        $url['args'][$paramname] = ($i == $default) ? '' : $i;
-        $result['list'][$i] = ($i == $current) ? '' : bebop_combine_url($url);
+        $url->setarg($paramname, ($i == $default) ? '' : $i);
+        $result['list'][$i] = ($i == $current) ? '' : strval($url);
       }
 
       if (!empty($result['list'][$current - 1]))
@@ -1469,15 +1466,10 @@ class mcms
         // Ошибка 404 — пытаемся использовать подстановку.
         if (404 == $e->getCode()) {
           try {
-            $new = mcms::db()->getResults("SELECT `new` FROM `node__fallback` "
-              ."WHERE old = ?", array($ctx->query()));
-
-            if (!empty($new[0]['new']))
-              $ctx->redirect($new[0]['new'], 302);
-
-            mcms::db()->exec("INSERT INTO `node__fallback` "
-              ."(`old`, `new`, `ref`) VALUES (?, ?, ?)",
-              array($ctx->query(), null, $_SERVER['HTTP_REFERER']));
+            $new = mcms::db()->getResult("SELECT `new` FROM `node__fallback` "
+              ."WHERE old = ?", array($_SERVER['REQUEST_URI']));
+            if (!empty($new))
+              mcms::redirect($new, 302);
           } catch (Exception $e2) { }
         }
 
@@ -1600,16 +1592,6 @@ class mcms
     }
 
     return $content;
-  }
-
-  public static function fixurl($url)
-  {
-    if (!empty($_GET['__cleanurls']) and false !== strpos($url, '?q=')) {
-      $parts = explode('?q=', $url, 2);
-      $url = join(array($parts[0], join('?', explode('&', $parts[1], 2))));
-    }
-
-    return $url;
   }
 };
 

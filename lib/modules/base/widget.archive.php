@@ -161,9 +161,9 @@ class ArchiveWidget extends Widget implements iWidget
       // Возвращаем данные.
       $result['years'] = $this->getYearList($options, $query);
       if (!empty($options['year'])) {
-        $result['months'] = $this->getMonthList($options);
+        $result['months'] = $this->getMonthList($options, $query);
         if (!empty($options['month']))
-          $result['days'] = $this->getDayList($options);
+          $result['days'] = $this->getDayList($options, $query);
       }
 
       $result['current'] = $options['current'];
