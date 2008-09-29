@@ -22,7 +22,7 @@ class AdminExtRPC implements iRemoteCall
     foreach ($node->getActionLinks() as $action => $info) {
       $link = str_replace(
         '&destination=CURRENT',
-        '&destination='. $ctx->get('from', 'CURRENT'),
+        '&destination='. urlencode($ctx->get('from', 'CURRENT')),
         $info['href']);
 
       $a = l($link, $info['title'], array(
