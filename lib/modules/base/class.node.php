@@ -76,6 +76,11 @@ class Node extends NodeBase implements iContentType
    */
   public function formProcess(array $data)
   {
+    if (empty($this->id))
+      mcms::user()->checkAccess('c', $this->class);
+    else
+      mcms::user()->checkAccess('u', $this->class);
+
     $res = parent::formProcess($data);
 
     $user = mcms::user();
