@@ -38,7 +38,7 @@ class SetControl extends Control
       return null;
 
     $values = array();
-    $content = '';
+    $content = $this->getLabel();
 
     foreach ($this->options as $k => $v) {
       $inner = mcms::html('input', array(
@@ -50,7 +50,7 @@ class SetControl extends Control
       $content .= '<div class=\'form-checkbox\'>'. mcms::html('label', array('class' => 'normal'), $inner . $v) .'</div>';
     }
 
-    return $this->wrapHTML($content);
+    return $this->wrapHTML($content, false);
   }
 
   protected function makeOptionsFromValues(array &$form)
