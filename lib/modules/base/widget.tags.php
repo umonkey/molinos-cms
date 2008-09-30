@@ -46,7 +46,8 @@ class TagsWidget extends Widget implements iWidget
       'value' => 'config_fixed',
       'label' => t('Раздел по умолчанию'),
       'description' => t('Здесь можно выбрать раздел, который будет использован, если из адреса текущего запроса вытащить код раздела не удалось.'),
-      'options' => TagNode::getTags('select'),
+      'options' => array('page' => 'Из настроек страницы')
+        + TagNode::getTags('select'),
       'default' => t('не используется'),
       )));
     $form->addControl(new BoolControl(array(
@@ -112,8 +113,12 @@ class TagsWidget extends Widget implements iWidget
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
 
-    if ($this->forcefixed or !($options['root'] = $ctx->section->id))
-      $options['root'] = $this->fixed;
+    if ($this->forcefixed) {
+      if ('page' == ($option['root'] = $this->fixed))
+        $options['root'] = $this->ctx->root->id;
+    } else {
+      $options['root'] = $ctx->section->id;
+    }
 
     $options['dynamic'] = ($ctx->section->id !== null);
 
