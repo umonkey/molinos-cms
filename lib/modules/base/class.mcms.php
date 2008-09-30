@@ -1625,6 +1625,87 @@ class mcms
 
     return $url;
   }
+
+  public static function embed($url, $options = array(), $nothing = null)
+  {
+    $link = array();
+    $options = array_merge(array('width' => 425, 'height' => 318), $options);
+
+    if (null === $nothing)
+      $nothing = ''; // 'Для просмотра этого ролика нужен Flash.';
+
+    if (strtolower(substr($url, -4)) == '.mp3') {
+      $link['type'] = 'audio/mpeg';
+      $link['is_audio'] = true;
+    } elseif (preg_match('%^http://vimeo.com/([0-9]+)%', $url, $m1)) {
+      $link['type'] = 'video/x-flv';
+      $link['embed'] = '<object width="'. $options['width'] .'" height="'. $options['height'] .'">'
+        .'<param name="allowfullscreen" value="true" />'
+        .'<param name="allowscriptaccess" value="always" />'
+        .'<param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id='. $m1[1] .'&server=vimeo.com&show_title=0&show_byline=0&show_portrait=0&color=00ADEF&fullscreen=1" />'
+        .'<embed src="http://vimeo.com/moogaloop.swf?clip_id='. $m1[1] .'&server=vimeo.com&show_title=0&show_byline=0&show_portrait=0&color=00ADEF&fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="'. $options['width'] .'" height="'. $options['height'] .'">'
+        .'</embed></object>';
+      $link['is_video'] = true;
+      $link['host'] = 'Vimeo';
+      $link['vid'] = $m1[1];
+    } elseif (preg_match('%^http://video\.google\.com/videoplay\?docid=([0-9\-]+)%i', $url, $m1)) {
+      $link['type'] = 'video/x-flv';
+      $link['embed'] = '<object width="'.$options['width'].'" height="'.$options['height'].'"><param name="movie" value="http://video.google.com/googleplayer.swf?docId='.$m1[1].'&amp;hl=en"></param><param name="wmode" value="transparent"></param><embed src="http://video.google.com/googleplayer.swf?docId='.$m1[1].'&amp;hl=en" type="application/x-shockwave-flash" wmode="transparent" width="'.$options['width'].'" height="'.$options['height'].'"></embed></object>';
+      $link['is_video'] = true;
+      $link['host'] = 'Google Video';
+      $link['vid'] = $m1[1];
+    } elseif (preg_match('%^http://([a-z0-9]+\.){0,1}youtube\.com/(?:watch\?v=|v/)([^&]+)%i', $url, $m1)) {
+      $o = mcms::html('param', array(
+        'name' => 'movie',
+        'value' => 'http://www.youtube.com/v/'. $m1[2],
+        ));
+      $o .= mcms::html('param', array(
+        'name' => 'wmode',
+        'value' => 'transparent',
+        ));
+      $o .= mcms::html('embed', array(
+        'src' => 'http://www.youtube.com/v/'. $m1[2],
+        'type' => 'application/x-shockwave-flash',
+        'wmode' => 'transparent',
+        'width' => $options['width'],
+        'height' => $options['height'],
+        ), $nothing);
+      $link['embed'] = mcms::html('object', array(
+        'width' => $options['width'],
+        'height' => $options['height'],
+        ), $o);
+      $link['type'] = 'video/x-flv';
+      $link['is_video'] = true;
+      $link['host'] = 'YouTube';
+      $link['vid'] = $m1[2];
+    } elseif (preg_match('%^http://vids\.myspace\.com/index.cfm\?fuseaction=[^&]+\&(?:amp;){0,1}videoID=([0-9]+)%i', $url, $m1)) {
+      $link['type'] = 'video/x-flv';
+      $link['embed'] = '<embed src="http://lads.myspace.com/videos/vplayer.swf" flashvars="m='.$m1[1].'&type=video" type="application/x-shockwave-flash" width="'.$options['width'].'" height="'.$options['height'].'"></embed>';
+      $link['is_video'] = true;
+      $link['host'] = 'MySpace';
+      $link['vid'] = $m1[1];
+    } elseif (preg_match('%^http://vision\.rambler\.ru/users/(.+)$%i', $url, $m1)) {
+      $link['type'] = 'video/x-flv';
+      $link['embed'] = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=7,0,0,0" width="'.$options['width'].'" height="'.$options['height'].'"><param name="wmode" value="transparent"></param><param name="movie" value="http://vision.rambler.ru/i/e.swf?id='.$m1[1].'&logo=1" /><embed src="http://vision.rambler.ru/i/e.swf?id='.$m1[1].'&logo=1" width="'.$options['width'].'" height="'.$options['height'].'" type="application/x-shockwave-flash" wmode="transparent"/></object>';
+      $link['is_video'] = true;
+      $link['host'] = 'Rambler';
+      $link['vid'] = $m1[1];
+    } elseif (preg_match('%^http://video\.mail\.ru/([a-z]+)/([^/]+)/([0-9]+)/([0-9]+)\.html*%i', $url, $m1)) {
+      $link['type'] = 'video/x-flv';
+      $link['embed'] = '<object width="'.$options['width'].'" height="'.$options['height'].'"><param name="flashvars" value="imaginehost=video.mail.ru&perlhost=my.video.mail.ru&alias='.$m1[1].'&username='.$m1[2].'&albumid='.$m1[3].'&id='.$m1[4].'&catalogurl=http://video.mail.ru/catalog/music/" /><param name="movie" value="http://img.mail.ru/r/video/player_full_size.swf?par=http://video.mail.ru/'.$m1[1].'/'.$m1[2].'/'.$m1[3].'/$'.$m1[4].'$0$248"></param><embed src="http://img.mail.ru/r/video/player_full_size.swf?par=http://video.mail.ru/'.$m1[1].'/'.$m1[2].'/'.$m1[3].'/$'.$m1[4].'$0$248" type="application/x-shockwave-flash" width="'.$options['width'].'" height="'.$options['height'].'" flashvars="imaginehost=video.mail.ru&perlhost=my.video.mail.ru&alias='.$m1[1].'&username='.$m1[2].'&albumid='.$m1[3].'&id='.$m1[4].'&catalogurl=http://video.mail.ru/catalog/music/"></embed></object>';
+      $link['is_video'] = true;
+      $link['host'] = 'Mail.Ru';
+      $link['vid'] = $m1[1].'/'.$m1[2].'/'.$m1[3].'/'.$m1[4];
+    } elseif (preg_match('%^http://rutube\.ru/tracks/(\d+).html\?v=(.+)$%i', $url, $m1)) {
+      $link['type'] = 'video/x-flv';
+      $link['embed'] = '<OBJECT width="'.$options['width'].'" height="'.$options['height'].'"><PARAM name="movie" value="http://video.rutube.ru/'.$m1[2].'" /><PARAM name="wmode" value="transparent" /><EMBED src="http://video.rutube.ru/'.$m1[2].'" type="application/x-shockwave-flash" wmode="transparent" width="'.$options['width'].'" height="'.$options['height'].'" /></OBJECT>';
+      $link['is_video'] = true;
+      $link['host'] = 'RuTube';
+      $link['vid'] = $m[2];
+    }
+
+    return empty($link) ? null : $link;
+  }
 };
 
 set_exception_handler('mcms::fatal');
