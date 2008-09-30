@@ -1976,6 +1976,37 @@ class NodeBase
           case 'AttachmentControl':
             break;
 
+          case 'NodeLinkControl':
+            try {
+              if (empty($value)) {
+                $node = null;
+              } elseif (!empty($schema['fields'][$k]['dictionary'])) {
+                $node = Node::load(array(
+                  'class' => $schema['fields'][$k]['dictionary'],
+                  'name' => $value,
+                  'published' => 1,
+                  'deleted' => 0,
+                  ));
+              } elseif (!empty($schema['fields'][$k]['values'])) {
+                $parts = explode('.', $schema['fields'][$k]['values'], 2);
+
+                $filter = array(
+                  'class' => $parts[0],
+                  $parts[1] => $value,
+                  'published' => 1,
+                  'deleted' => 0,
+                  );
+              } else {
+                mcms::debug($schema['fields'][$k]);
+              }
+            } catch (ObjectNotFoundException $e) {
+              if (is_numeric($value))
+                $node = Node::load($value);
+            }
+
+            $this->$k = $node;
+            break;
+
           case 'NumberControl':
             $value = str_replace(',', '.', $value);
             $this->$k = $value;
