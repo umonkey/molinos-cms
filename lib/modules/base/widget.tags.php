@@ -114,7 +114,7 @@ class TagsWidget extends Widget implements iWidget
       return $options;
 
     if ($this->forcefixed) {
-      if ('page' == ($option['root'] = $this->fixed))
+      if ('page' == ($options['root'] = $this->fixed))
         $options['root'] = $this->ctx->root->id;
     } else {
       $options['root'] = $ctx->section->id;
