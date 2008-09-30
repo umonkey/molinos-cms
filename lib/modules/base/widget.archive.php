@@ -178,10 +178,11 @@ class ArchiveWidget extends Widget implements iWidget
     $result = array();
 
     $url = new url(array());
+    $taglist = $this->getTagList($query);
 
     $sql = "SELECT YEAR(`created`) AS `year`, COUNT(*) AS `count` "
       ."FROM `node` WHERE `id` IN "
-      ."(SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) "
+      ."(SELECT `nid` FROM `node__rel` WHERE `tid` IN ({$taglist})) "
       ."AND `published` = 1 "
       ."AND `created` IS NOT NULL "
       ."AND `deleted` = 0 "
@@ -190,7 +191,7 @@ class ArchiveWidget extends Widget implements iWidget
     $sql .= "GROUP BY `year` ORDER BY `year`";
 
     // FIXME: publishing
-    foreach (mcms::db()->getResultsKV("year", "count", $sql, array(':tid' => $options['root'])) as $k => $v) {
+    foreach (mcms::db()->getResultsKV("year", "count", $sql) as $k => $v) {
       if (!empty($k)) {
         $url->setarg($this->host .'.year', $k);
         $result[$k] = strval($url);
@@ -200,24 +201,37 @@ class ArchiveWidget extends Widget implements iWidget
     return $result;
   }
 
+  private function getTagList(array $query)
+  {
+    if (empty($query['#recurse']))
+      return sprintf("SELECT `nid` FROM `node__rel` "
+        ."WHERE `tid` = %d", $query['tags'][0]);
+    else
+      return sprintf("SELECT a.id FROM node a, node b WHERE a.class = 'tag' "
+        ."AND b.id = %d AND a.left >= b.left AND a.right <= b.right "
+        ."AND a.deleted = 0 AND a.published = 1", $query['tags'][0]);
+  }
+
   // Возвращает массив месяцев.
   private function getMonthList(array $options, array $query)
   {
     $result = array();
+    $taglist = $this->getTagList($query);
 
     $url = bebop_split_url();
     $url['args'][$this->host]['day'] = null;
 
     $sql = "SELECT MONTH(`created`) AS `month`, "
       ."COUNT(*) AS `count` FROM `node` "
-      ."WHERE `id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) AND YEAR(`created`) = :year "
+      ."WHERE `id` IN (SELECT `nid` FROM `node__rel` "
+      ."WHERE `tid` IN ({$taglist})) AND YEAR(`created`) = :year "
       ."AND `published` = 1 "
       ."AND `deleted` = 0 "
       .$this->getQueryFilter($query)
       ."GROUP BY `month` ORDER BY `month`";
 
     // FIXME: publishing
-    foreach (mcms::db()->getResultsKV("month", "count", $sql, array(':tid' => $options['root'], ':year' => $options['year'])) as $k => $v) {
+    foreach (mcms::db()->getResultsKV("month", "count", $sql, array(':year' => $options['year'])) as $k => $v) {
       $url['args'][$this->host]['month'] = $k;
       $result[$k] = bebop_combine_url($url);
     }
@@ -230,6 +244,7 @@ class ArchiveWidget extends Widget implements iWidget
   {
     $result = '';
     $instance = $this->host;
+    $taglist = $this->getTagList($query);
 
     $root = $options['root'];
     $year = $options['year'];
@@ -238,7 +253,8 @@ class ArchiveWidget extends Widget implements iWidget
     $url = bebop_split_url();
 
     $sql = "SELECT DAY(`n`.`created`) AS `day`, COUNT(*) AS `count` "
-      ."FROM `node` `n` WHERE `n`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid) "
+      ."FROM `node` `n` WHERE `n`.`id` IN "
+      ."(SELECT `nid` FROM `node__rel` WHERE `tid` IN ({$taglist})) "
       ."AND YEAR(`n`.`created`) = :year AND MONTH(`n`.`created`) = :month "
       ."AND `n`.`published` = 1 "
       ."AND `n`.`deleted` = 0 "
@@ -246,7 +262,7 @@ class ArchiveWidget extends Widget implements iWidget
 
     // Список задействованных дней.
     // FIXME: publishing
-    $days = mcms::db()->getResultsKV("day", "count", $sql, array(':tid' => $root, ':year' => $year, ':month' => $month));
+    $days = mcms::db()->getResultsKV("day", "count", $sql, array(':year' => $year, ':month' => $month));
 
     // Список месяцев.
     $months = array('Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь');
