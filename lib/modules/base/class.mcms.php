@@ -865,20 +865,42 @@ class mcms
         $html .= '<h2>Стэк вызова</h2><pre>'. $backtrace .'</pre>';
 
       $html .= '<hr/>'. self::getSignature();
-
       $html .= '</body></html>';
 
-      mcms::fixurls($html, true);
-    }
+      $content = mcms::fixurls($html, false);
 
-    print join("\n\n", $output) ."\n\n";
+      $report = sprintf("--- Request method: %s ---\n--- Host: %s ---\n--- URL: %s ---\n\n%s", $_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], $_SERVER['REQUEST_URI'], $content);
+      self::writeCrashDump($report);
 
-    if (!empty($_SERVER['REMOTE_ADDR'])) {
-      printf("--- backtrace (time: %s) ---\n", microtime());
-      print $backtrace;
+      header('Content-Length: '. strlen($content));
+      echo $content;
+
+      die();
     }
+    
+    $backtrace = sprintf("--- backtrace (time: %s) ---\n\n%s", microtime(), $backtrace);
+    self::writeCrashDump($backtrace);
+    echo $backtrace;
 
     die();
+  }
+
+  private static function writeCrashDump($contents)
+  {
+    // Узнаем, куда же складывать дампы.
+    // Если такой директории нет, пытаемся создать.
+    $dumpdir = mcms::config('dumpdir', 'tmp/crashdump');
+    if (!is_dir($dumpdir))
+      mkdir($dumpdir);
+    // Задаем файл для выгрузки дампа и проверяем на наличие,
+    // если существует - добавляем случайный мусор в название.
+    $dumpfile = $dumpdir . '/' . date('Y-m-d-') . md5(serialize($_SERVER));
+    if (file_exists($dumpfile))
+      $dumpfile .= rand();
+    $dumpfile .= '.log';
+
+    if (is_writable($dumpdir))
+      file_put_contents($dumpfile, $contents);
   }
 
   public static function mail($from = null, $to, $subject, $text)
@@ -1593,8 +1615,18 @@ class mcms
 
     return $content;
   }
+
+  public static function fixurl($url)
+  {
+    if (!empty($_GET['__cleanurls']) and false !== strpos($url, '?q=')) {
+      $parts = explode('?q=', $url, 2);
+      $url = join(array($parts[0], join('?', explode('&', $parts[1], 2))));
+    }
+
+    return $url;
+  }
 };
 
-set_exception_handler('mcms::renderException');
+set_exception_handler('mcms::fatal');
 set_error_handler('mcms::error_handler', E_ERROR /*|E_WARNING|E_PARSE*/);
 register_shutdown_function('mcms::shutdown_handler');
