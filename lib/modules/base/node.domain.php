@@ -317,8 +317,8 @@ class DomainNode extends Node implements iContentType
 
     parent::formProcess($data);
 
-    // Если объект новый -- редиректим на его редактирование.
-    if ($isnew) {
+    // Если это — новый домен, редиректим на его редактирование.
+    if ($isnew and empty($this->parent_id)) {
       if (empty($this->redirect)) {
         // Если это — не алиас, добавляем страницы для обработки ошибок.
         $node = Node::create('domain', array(
