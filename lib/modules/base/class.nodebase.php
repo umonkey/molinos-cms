@@ -1681,13 +1681,6 @@ class NodeBase
       }
     }
 
-    if (!empty($schema['hasfiles']))
-      $tabs['content']->addControl(new SetControl(array(
-        'value' => 'node_ftp_files',
-        'label' => t('Прикрепить файлы с FTP'),
-        'options' => FileNode::listFilesOnFTP(),
-        )));
-
     if (!$simple) {
       if (empty($schema['notags']) and null !== ($tab = $this->formGetSections($schema)))
         $tabs['sections'] = $tab;
@@ -2107,10 +2100,6 @@ class NodeBase
       $sections = Node::create('type', $schema)->getAllowedSections();
       if (!empty($sections))
         $this->linkAddParent(array_shift(array_keys($sections)));
-    }
-
-    if (!empty($schema['hasfiles']) and !empty($data['node_ftp_files'])) {
-      FileNode::getFilesFromFTP($data['node_ftp_files'], $this->id);
     }
 
     $this->save();
