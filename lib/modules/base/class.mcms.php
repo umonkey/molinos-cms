@@ -1158,23 +1158,27 @@ class mcms
 
     $compress = (mcms::ismodule('compressor') and empty($_GET['nocompress']));
 
+    $js = $css = '';
+
     // Заход первый: выводим некомпрессируемые объекты
     // или все объекты, если нет компрессора.
     foreach ($extras as $file => $ok) {
       if (!$ok or !$compress) {
         if ('.js' == substr($file, -3))
-          $output .= mcms::html('script', array(
+          $js .= mcms::html('script', array(
             'type' => 'text/javascript',
             'src' => $file,
             )) ."\n";
         elseif ('.css' == substr($file, -4))
-          $output .= mcms::html('link', array(
+          $css .= mcms::html('link', array(
             'rel' => 'stylesheet',
             'type' => 'text/css',
             'href' => $file,
             )) ."\n";
       }
     }
+
+    $output = $css . $js;
 
     // Заход второй: компрессируем всё, что можно.
     if ($compress)
