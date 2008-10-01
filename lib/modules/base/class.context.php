@@ -99,6 +99,12 @@ class Context
       $default = $this->_args[$name];
 
       if ('post' == $name and !empty($this->_args['files'])) {
+        foreach ($this->_args['files'] as $k => $v) {
+          if (array_key_exists($k, $this->_args['post']))
+            $v = array_merge($v, $this->_args['post'][$k]);
+          $this->_args['post'][$k] = $v;
+        }
+
         $default = array_merge($default, $this->_args['files']);
         unset($this->_args['files']);
       }
