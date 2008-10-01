@@ -1801,8 +1801,8 @@ class NodeBase
     if (!empty($filefields) and is_array($filefields)) {
       foreach ($filefields as $fname => $f) {
         $tmp = Control::make($f);
-
-        $tmp->addClass('archive');
+        $tmp->archive = true;
+        $tmp->fetch = true;
         $tab->addControl($tmp);
       }
     }
@@ -1815,6 +1815,8 @@ class NodeBase
             'value' => 'file_'. $v->id,
             'uploadtxt' => t('Загрузить'),
             'unzip' => true,
+            'remote' => true,
+            'fetch' => true,
             )));
       }
 
@@ -2055,8 +2057,9 @@ class NodeBase
       }
 
       elseif (UPLOAD_ERR_NO_FILE == $fileinfo['error']) {
+        // Выбор из ахрива.
         if (!empty($fileinfo['id'])) {
-          $this->linkAddChild($fileinfo['id'], $field);
+          $this->$field = Node::load($fileinfo['id']);
         } elseif (!empty($fileinfo['deleted'])) {
           $this->linkRemoveChild($fileinfo['id']);
         }

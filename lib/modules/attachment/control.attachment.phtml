@@ -1,0 +1,54 @@
+<?php if ($c->label): ?>
+<label><span><?php print $c->label; ?>:</span></label>
+<?php endif; ?>
+<div class='attachment-control local<?php
+if ($c->unzip)
+  print ' unzip';
+if ($c->archive)
+  print ' archive';
+if ($c->fetch)
+  print ' remote';
+?>'>
+
+<div class='local tab'>
+  <?php if (!empty($d['id'])): ?>
+  <div class='preview'>
+    <?php print mcms::html('img', array(
+      'alt' => $d['filename'],
+      'width' => 50,
+      'height' => 50,
+      'src' => '?q=attachment.rpc&fid='. $d['id']
+        .',50,50,cw',
+      )); ?>
+  </div>
+  <?php endif; ?>
+
+  <input type='file' name='<?php print $c->value; ?>' />
+  <?php if (!empty($d['id'])): ?>
+  <label><input type="checkbox" name="<?php print $c->value; ?>[unlink]" value="1" /> Удалить файл</label>
+  <?php endif; ?>
+  <?php if ($c->unzip): ?>
+    <label><input type="checkbox" value="1" name="<?php print $c->value; ?>[unzip]" /> Распаковать архив</label>
+  <?php endif; ?>
+</div>
+
+<div class='remote tab'>
+  <input type='text' class='text-url' name='<?php print $c->value; ?>[url]' />
+</div>
+
+<div class='archive tab'>
+  <label>Поиск: <input type='text' class='text-search' /></label>
+  <div class='search-result'></div>
+</div>
+
+<div class='controls'>
+  <span class="local active">Файл</span>
+  <?php if ($c->fetch): ?>
+    <span class="remote">URL</span>
+  <?php endif; ?>
+  <?php if ($c->archive): ?>
+    <span class="archive">Архив</span>
+  <?php endif; ?>
+</div>
+<div class='sep'></div>
+</div>
