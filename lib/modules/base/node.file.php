@@ -457,7 +457,7 @@ class FileNode extends Node implements iContentType
    *
    * Папка FTP используется для загрузки больших файлов, которые проблематично
    * загрузить через браузер.  Путь указывается в конфигурационном файле,
-   * параметром filestorage_ftp; если такого параметра нет — используется
+   * параметром ftpfolder; если такого параметра нет — используется
    * подпапка "ftp" в обычном файловом хранилище.
    *
    * @todo вынести из конфига в настройки модуля base.
@@ -466,7 +466,7 @@ class FileNode extends Node implements iContentType
    */
   public static function getFTPRoot()
   {
-    if (null === ($path = mcms::config('filestorage_ftp')))
+    if (null === ($path = mcms::config('ftpfolder')))
       $path = mcms::config('filestorage') .'/ftp';
     return $path;
   }
@@ -531,9 +531,7 @@ class FileNode extends Node implements iContentType
         $node->save();
       }
 
-      if (file_exists($filename) and is_writable($path)) {
-        RequestController::killFile($filename);
-      }
+      Context::killFile($filename);
     }
   }
 

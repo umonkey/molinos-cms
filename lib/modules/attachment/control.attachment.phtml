@@ -8,6 +8,8 @@ if ($c->archive)
   print ' archive';
 if ($c->fetch)
   print ' remote';
+if ($c->value)
+  print ' single';
 ?>'>
 
 <div class='local tab'>
@@ -18,7 +20,7 @@ if ($c->fetch)
       'width' => 50,
       'height' => 50,
       'src' => '?q=attachment.rpc&fid='. $d['id']
-        .',50,50,cw',
+        .',50,50,cdw',
       )); ?>
   </div>
   <?php endif; ?>
@@ -28,7 +30,7 @@ if ($c->fetch)
   <label><input type="checkbox" name="<?php print $c->value; ?>[unlink]" value="1" /> Удалить файл</label>
   <?php endif; ?>
   <?php if ($c->unzip): ?>
-    <label><input type="checkbox" value="1" name="<?php print $c->value; ?>[unzip]" /> Распаковать архив</label>
+    <label><input type="checkbox" value="1" name="<?php print $c->value; ?>[unzip]" /> Распаковать загружаемый архив</label>
   <?php endif; ?>
 </div>
 
@@ -41,6 +43,10 @@ if ($c->fetch)
   <div class='search-result'></div>
 </div>
 
+<div class='ftp tab'>
+  <div class="ftp-results"></div>
+</div>
+
 <div class='controls'>
   <span class="local active">Файл</span>
   <?php if ($c->fetch): ?>
@@ -49,6 +55,7 @@ if ($c->fetch)
   <?php if ($c->archive): ?>
     <span class="archive">Архив</span>
   <?php endif; ?>
+  <span class="ftp">FTP</span>
 </div>
 <div class='sep'></div>
 </div>

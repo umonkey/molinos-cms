@@ -1789,8 +1789,11 @@ class NodeBase
     if (empty($schema['hasfiles']) and empty($filefields))
       return null;
 
+    /*
+    // WTF?
     mcms::extras('themes/admin/css/filetab.css');
     mcms::extras('themes/admin/js/filetab.js');
+    */
 
     $tab = new FieldSetControl(array(
       'name' => 'files',
@@ -1807,7 +1810,7 @@ class NodeBase
       }
     }
 
-    if (!empty($schema['hasfiles'])) {
+    if (empty($schema['nofiles'])) {
       foreach ($this->files as $k => $v) {
         if (is_numeric($k))
           $tab->addControl(new AttachmentControl(array(
@@ -1825,6 +1828,7 @@ class NodeBase
         'value' => 'file_0',
         'uploadtxt' => t('Загрузить'),
         'unzip' => true,
+        'fetch' => true,
         )));
     }
 
@@ -2031,8 +2035,6 @@ class NodeBase
       }
     }
 
-    // $this->save();
-
     foreach ($data as $field => $fileinfo) {
       if (0 !== strpos($field, 'file_'))
         continue;
@@ -2058,9 +2060,14 @@ class NodeBase
 
       elseif (UPLOAD_ERR_NO_FILE == $fileinfo['error']) {
         // Выбор из ахрива.
-        if (!empty($fileinfo['id'])) {
+        if (!empty($fileinfo['id']))
           $this->$field = Node::load($fileinfo['id']);
-        } elseif (!empty($fileinfo['deleted'])) {
+
+        // Загрузка по FTP.
+        elseif (!empty($fileinfo['ftp']))
+          FileNode::getFilesFromFTP($fileinfo['ftp'], $this->id);
+
+        elseif (!empty($fileinfo['deleted'])) {
           $this->linkRemoveChild($fileinfo['id']);
         }
       }

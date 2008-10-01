@@ -38,6 +38,11 @@ class Context
   private $_args;
 
   /**
+   * Файлы, удаляемые в конце работы.
+   */
+  private static $_killfiles = array();
+
+  /**
    * Создание простого контекста.
    *
    * @param $args ключ url содержит текущий URL, post и files — сырые данные.
@@ -312,5 +317,10 @@ class Context
     $ctx->_url = new url($url);
 
     return $ctx;
+  }
+
+  public static function killFile($path)
+  {
+    self::$_killfiles[] = $path;
   }
 }

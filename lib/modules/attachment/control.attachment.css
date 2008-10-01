@@ -43,7 +43,30 @@ form.node-file-create-form .url-wrapper {
   display: none;
 }
 
-.attachment-control .archive.tab .options td {
+.attachment-control .archive.tab .options {
+  border-collapse: collapse;
+}
+
+.attachment-control .options,
+.attachment-control .options td.name,
+.attachment-control .options td.info {
+  width: 100%;
+}
+
+.attachment-control .options tr.odd {
+  background-color: #ddd;
+}
+
+.attachment-control .options td {
   vertical-align: middle;
-  padding-right: 4px;
+  padding: 4px 4px 4px 0;
+}
+.attachment-control .options td.check {
+  padding-left: 4px;
+}
+.attachment-control .options td.size {
+  text-align: right;
+}
+.attachment-control .options th {
+  background-color: transparent;
 }
