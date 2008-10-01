@@ -85,7 +85,7 @@ class AttachmentModule implements iRemoteCall
         'value' => $k,
         ));
       $c2 = htmlspecialchars($k);
-      $c3 = filesize($path .'/'. $k) .'Б';
+      $c3 = mcms::filesize($path .'/'. $k);
 
       $row = mcms::html('td', array(
         'class' => 'checkbox',
