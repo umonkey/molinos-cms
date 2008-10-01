@@ -15,10 +15,19 @@ class Attachment
 
   public function __construct(Context $ctx)
   {
-    if (preg_match('@attachment/(\d+)/(.*)$@', $ctx->query(), $m)) {
-      $this->nw = null;
-      $this->nh = null;
-      $this->filename = $m[2];
+    if (preg_match('@attachment/(\d+)(?:,([a-z0-9,.]*))?(?:/(.*))?$@', $ctx->query(), $m)) {
+      if (!empty($m[2])) {
+        $parts = explode(',', $m[2]);
+
+        if (!empty($parts[0]))
+          $this->nw = $parts[0];
+        if (!empty($parts[1]))
+          $this->nh = $parts[1];
+
+        // TODO: cdw, другие опции
+      }
+
+      $this->filename = $m[3];
 
       $fid = $m[1];
     }
