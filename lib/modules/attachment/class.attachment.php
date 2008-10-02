@@ -15,12 +15,19 @@ class Attachment
 
   public function __construct(Context $ctx)
   {
-    $options = null;
+    if (preg_match('@attachment/(\d+)(?:,([a-z0-9,.]*))?(?:/(.*))?$@', $ctx->query(), $m)) {
+      if (!empty($m[2])) {
+        $parts = explode(',', $m[2]);
 
-    if (preg_match('@attachment/(\d+)/(.*)$@', $ctx->query(), $m)) {
-      $this->nw = null;
-      $this->nh = null;
-      $this->filename = $m[2];
+        if (!empty($parts[0]))
+          $this->nw = $parts[0];
+        if (!empty($parts[1]))
+          $this->nh = $parts[1];
+
+        // TODO: cdw, другие опции
+      }
+
+      $this->filename = $m[3];
 
       $fid = $m[1];
     }
@@ -31,7 +38,6 @@ class Attachment
       $this->filename = empty($m[5]) ? null : $m[5];
 
       $fid = $m[1];
-      $options = $m[4];
     }
     
     else {
@@ -52,7 +58,7 @@ class Attachment
     if (!empty($this->filename) and $this->filename != $this->node->filename)
       $this->sendError(404, 'file "'. $this->filename .'" not found.');
 
-    $this->parseOptions($options);
+    $this->parseOptions($m[4]);
   }
 
   private function parseOptions($opt)
