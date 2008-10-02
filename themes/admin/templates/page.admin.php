@@ -90,14 +90,14 @@ function get_dba_link()
       mcms::extras('themes/admin/css/colors-green.css');
 
       if (empty($_GET['picker'])) {
-        mcms::extras('themes/all/jquery/jquery.min.js');
-        mcms::extras('themes/all/jquery/plugins/jquery.suggest.min.js');
+        mcms::extras('themes/all/jquery/jquery.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.suggest.js');
         mcms::extras('themes/all/jquery/plugins/jquery.suggest.css');
-        mcms::extras('themes/all/jquery/plugins/jquery.ifixpng.min.js');
-        mcms::extras('themes/all/jquery/plugins/jquery.mcms.tabber.min.js');
-        mcms::extras('themes/all/jquery/plugins/jquery.dimensions.min.js');
-        mcms::extras('themes/all/jquery/plugins/jquery.bgiframe.min.js');
-        mcms::extras('themes/admin/js/bebop.min.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.ifixpng.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.mcms.tabber.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.dimensions.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.bgiframe.js');
+        mcms::extras('themes/admin/js/bebop.js');
       } elseif (!empty($_GET['mcmsarchive'])) {
         mcms::extras('themes/admin/js/picker-redux.js');
         print '<script type="text/javascript">var picker = "'.
