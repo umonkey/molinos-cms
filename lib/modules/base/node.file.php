@@ -35,7 +35,6 @@ class FileNode extends Node implements iContentType
       return $this;
 
     if (empty($this->filepath)) {
-      mcms::debug($this);
       throw new RuntimeException(t('Ошибка загрузки файла.'));
     }
 
@@ -176,16 +175,19 @@ class FileNode extends Node implements iContentType
 
     // Находим существующий файл.
     try {
-      $node = Node::load(array(
+      $node = Node::find(array(
         'class' => 'file',
         'filepath' => $this->filepath,
-        ));
+        ), 1);
+
+      if (empty($node))
+        throw new ObjectNotFoundException();
 
       // Исправление для Issue 300: файла физически нет, и заменить ноду нельзя.
       if (!file_exists($storage .'/'. $this->filepath))
         throw new ObjectNotFoundException();
 
-      $this->data = $node->data;
+      $this->data = array_shift($node)->data;
     }
 
     // Файл не найден, создаём новый.
@@ -300,16 +302,10 @@ class FileNode extends Node implements iContentType
         )));
 
       $form->addControl(new AttachmentControl(array(
-        'value' => '__file_node_update',
+        'value' => 'file_0',
         'unzip' => true,
         'archive' => false,
         'fetch' => true,
-        )));
-
-      $form->addControl(new SetControl(array(
-        'value' => '__file_from_ftp',
-        'label' => t('Загрузить файлы с FTP'),
-        'options' => self::listFilesOnFTP(),
         )));
 
       $form->addControl(new URLControl(array(
@@ -359,77 +355,8 @@ class FileNode extends Node implements iContentType
   public function formProcess(array $data)
   {
     if (null === $this->id) {
-      $d = $data['__file_node_update'];
-
-      if (!empty($d['url'])) {
-        if (null !== ($tmp = mcms_fetch_file($d['url'], false))) {
-          $file = Node::create('file', array(
-            'published' => true,
-            ));
-          $file->import(array(
-            'name' => basename($d['url']),
-            'tmp_name' => $tmp,
-            ), false);
-
-          $file->save();
-        } else {
-          throw new RuntimeException(t('Не удалось загрузить указанный файл.'));
-        }
-      }
-
-      elseif (!empty($d['archive'])) {
-      }
-
-      elseif (!empty($d['ftp'])) {
-        if (!empty($data['__file_from_ftp']) and is_array($data['__file_from_ftp']))
-          self::getFilesFromFTP($data['__file_from_ftp']);
-      }
-
-      else {
-        if (!empty($d['error']) or empty($d['tmp_name'])) {
-          $noException = false;
-          $errorMessage = 'При загрузке файла возникла ошибка.';
-
-          switch ($data['__file_node_update']['error']) {
-            case UPLOAD_ERR_INI_SIZE:
-              $errorMessage = t('Загружаемый файл слишком велик: настройки '
-                .'позволяют принимать файлы до %limit.', array(
-                  '%limit' => ini_get('upload_max_filesize'),
-                  ));
-              break;
-            case UPLOAD_ERR_FORM_SIZE:
-              $errorMessage = 'Загружаемый файл больше '
-                .'установленного лимита в форме';
-              break;
-            case UPLOAD_ERR_PARTIAL:
-              $errorMessage = 'Файл не был загружен полностью';
-              break;
-            case UPLOAD_ERR_NO_TMP_DIR:
-              $errorMessage = 'Отсутствует временный каталог '
-                .'для загрузки файлов';
-              break;
-            case UPLOAD_ERR_CANT_WRITE:
-              $errorMessage = 'Невозможно записать файл на диск';
-              break;
-            case UPLOAD_ERR_EXTENSION:
-              $errorMessage = 'Некое расширение php остановило загрузку файла';
-              break;
-            // Все в порядке. ;)
-            case UPLOAD_ERR_OK:
-            case UPLOAD_ERR_NO_FILE:
-              $noException = true;
-              break;
-          }
-
-          if (false === $noException)
-            throw new RuntimeException(t($errorMessage));
-        }
-
-        $this->import($d);
-        $this->name = $this->filename;
-        $this->data['published'] = true;
-        $this->save();
-      }
+      parent::addFile('tmp', $d = $data['file_0'], $this);
+      return;
     }
 
     elseif (!empty($data['__file_node_update']) and empty($data['__file_node_update']['error'])) {
@@ -522,12 +449,12 @@ class FileNode extends Node implements iContentType
       $file = basename($file);
 
       if (in_array($file, $available) and is_readable($filename = $path .'/'. $file)) {
-        $node = Node::create('file');
-        $node->import(array(
+        $node = Node::create('file')->import($i = array(
           'filename' => $file,
           'tmp_name' => $filename,
           'parent_id' => $parent_id,
           ), false);
+
         $node->save();
       }
 

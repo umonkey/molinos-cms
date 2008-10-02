@@ -118,8 +118,6 @@ function get_dba_link()
     <link rel="copyright" href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.html" />
     <link rel="glossary" href="?q=admin/structure/list/schema" />
     <link rel="author" href="http://www.molinos-cms.ru/" />
-    <script type="text/javascript">var mcms_path = '<?php
-      print mcms::path(); ?>';</script>
   </head>
   <body>
     <div id="preloaded_images"></div>

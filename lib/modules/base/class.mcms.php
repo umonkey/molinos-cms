@@ -1178,7 +1178,7 @@ class mcms
       }
     }
 
-    $output = $css . $js;
+    $output .= $css . $js;
 
     // Заход второй: компрессируем всё, что можно.
     if ($compress)

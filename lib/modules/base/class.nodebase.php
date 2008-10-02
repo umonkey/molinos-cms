@@ -438,7 +438,7 @@ class NodeBase
    */
   public function __isset($key)
   {
-    return array_key_exists($key, $this->data);
+    return is_array($this->data) and array_key_exists($key, $this->data);
   }
 
   /**
@@ -2037,50 +2037,7 @@ class NodeBase
 
       $field = substr($field, 5);
 
-      // Удаление ссылки на файл.
-      if (!empty($data['file_'. $field .'_unlink'])) {
-        if (is_numeric($field)) {
-          $this->linkRemoveChild($field);
-          foreach ($this->files as $k => $v)
-            if ($v->id == $field)
-              unset($this->files[$k]);
-        } else {
-          $this->linkRemoveChild(null, $field);
-          $this->$field = null;
-        }
-        continue;
-      }
-
-      elseif (UPLOAD_ERR_NO_FILE == $fileinfo['error']) {
-        // Выбор из ахрива.
-        if (!empty($fileinfo['id']))
-          $this->$field = Node::load($fileinfo['id']);
-
-        // Загрузка по FTP.
-        elseif (!empty($fileinfo['ftp']))
-          FileNode::getFilesFromFTP($fileinfo['ftp'], $this->id);
-
-        elseif (!empty($fileinfo['deleted'])) {
-          $this->linkRemoveChild($fileinfo['id']);
-        }
-      }
-
-      elseif (UPLOAD_ERR_INI_SIZE == $fileinfo['error'])
-        throw new ValidationException(t('Файл %name слишком большой; '
-          .'максимальный размер файла: %size.', array(
-            '%name' => $fileinfo['name'],
-            '%size' => ini_get('upload_max_filesize'),
-            )));
-
-      else {
-        $fileinfo['parent_id'] = $this->id;
-        $file = Node::create('file')->import($fileinfo)->save();
-
-        if (is_numeric($field))
-          $this->files[] = $file;
-        else
-          $this->$field = $file;
-      }
+      $this->addFile($field, $fileinfo, $this);
     }
 
     if (!empty($data['reset_rel'])) {
@@ -2522,5 +2479,53 @@ class NodeBase
         $arr[$k] = $v->id;
 
     return serialize($arr);
+  }
+
+  protected function addFile($field, array $fileinfo, Node &$node = null)
+  {
+    // Удаление ссылки на файл.
+    if (!empty($fileinfo['unlink'])) {
+      if (is_numeric($field)) {
+        $node->linkRemoveChild($field);
+
+        foreach ($node->files as $k => $v)
+          if ($v->id == $field)
+            unset($node->files[$k]);
+      } else {
+        $node->linkRemoveChild(null, $field);
+        $node->$field = null;
+      }
+    }
+
+    elseif (UPLOAD_ERR_NO_FILE == $fileinfo['error']) {
+      // Выбор из ахрива.
+      if (!empty($fileinfo['id']))
+        $node->$field = Node::load($fileinfo['id']);
+
+      // Загрузка по FTP.
+      elseif (!empty($fileinfo['ftp']))
+        FileNode::getFilesFromFTP($fileinfo['ftp'], $node->id);
+
+      elseif (!empty($fileinfo['deleted'])) {
+        $node->linkRemoveChild($fileinfo['id']);
+      }
+    }
+
+    elseif (UPLOAD_ERR_INI_SIZE == $fileinfo['error'])
+      throw new ValidationException(t('Файл %name слишком большой; '
+        .'максимальный размер файла: %size.', array(
+          '%name' => $fileinfo['name'],
+          '%size' => ini_get('upload_max_filesize'),
+          )));
+
+    else {
+      $fileinfo['parent_id'] = $node->id;
+      $file = Node::create('file')->import($fileinfo)->save();
+
+      if (is_numeric($field))
+        $node->files[] = $file;
+      else
+        $node->$field = $file;
+    }
   }
 };

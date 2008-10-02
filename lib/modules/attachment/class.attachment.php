@@ -173,6 +173,9 @@ class Attachment
   {
     $headers = array();
 
+    if (!file_exists($this->getSourceFile()))
+      $this->sendError(404, 'Ошибка: файл не найден в файловом архиве.');
+
     if (false !== strstr($this->node->filetype, 'shockwave'))
       $download = false;
     elseif ($this->isResizable())
@@ -195,8 +198,12 @@ class Attachment
     $range_from = 0;
     $range_to = $this->node->filesize;
 
-    if (!empty($this->nw) or !empty($this->nh))
-      $this->send(MCMS_ROOT .'/themes/admin/img/media-floppy.png', 'image/png');
+    if (!empty($this->nw) or !empty($this->nh)) {
+      $sig = str_replace('/', '-', $this->node->filetype);
+      if (!file_exists($icon = dirname(__FILE__) .'/mime/'. $sig .'.png'))
+        $icon = dirname(__FILE__) .'/mime/application-octet-stream.png';
+      $this->send($icon, 'image/png');
+    }
 
     ini_set('zlib.output_compression', 0);
 
@@ -227,8 +234,9 @@ class Attachment
         if (false !== strpos($_SERVER['HTTP_USER_AGENT'], 'compatible; MSIE'))
           $filename = mb_convert_encoding($filename, 'windows-1251', 'utf-8');
 
-      $headers[] = "Content-Disposition: attachment; "
-        ."filename=\"". $filename ."\"";
+      if ('text/plain' != $this->node->filetype)
+        $headers[] = "Content-Disposition: attachment; "
+          ."filename=\"". $filename ."\"";
     }
 
     /*
