@@ -24,6 +24,8 @@ class SearchIndexer implements iNodeHook
   {
     static $schema = null;
 
+    return;
+
     if (null === $schema)
       $schema = TypeNode::getSchema();
 
