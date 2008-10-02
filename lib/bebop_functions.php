@@ -280,6 +280,9 @@ function bebop_get_file_type($filename, $realname = null)
       return 'image/png';
     case '.mp3':
       return 'audio/mpeg';
+    case '.php':
+    case '.txt':
+      return 'text/plain';
     }
   }
 
