@@ -3,10 +3,10 @@
 mcms::extras('themes/admin/css/bebop.css', false);
 mcms::extras('themes/admin/css/style.css', false);
 mcms::extras('themes/admin/css/colors-green.css', false);
-mcms::extras('themes/all/jquery/jquery.min.js', false);
-mcms::extras('themes/all/jquery/plugins/jquery.mcms.tabber.min.js', false);
-mcms::extras('themes/admin/js/bebop.min.js', false);
-mcms::extras('themes/admin/js/installer.min.js', false);
+mcms::extras('themes/all/jquery/jquery.js', false);
+mcms::extras('themes/all/jquery/plugins/jquery.mcms.tabber.js', false);
+mcms::extras('themes/admin/js/bebop.js', false);
+mcms::extras('themes/admin/js/installer.js', false);
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
