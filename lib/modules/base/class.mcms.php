@@ -469,8 +469,11 @@ class mcms
           foreach ($log as $sql) {
             if (substr($sql, 0, 2) == '--')
               printf("     %s\n", $sql);
-            else
+            else {
+              if (false !== ($pos = strpos($sql, ', -- timing: ')))
+                $sql = substr($sql, 0, $pos) ."\n       ". substr($sql, $pos + 5);
               printf("%3d. %s\n", $idx++, $sql);
+            }
           }
         }
       }
