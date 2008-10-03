@@ -410,7 +410,8 @@ class mcms
       $status = 303;
 
     $url = new url($path);
-    $target = $url->getAbsolute();
+    $target = mcms::fixurl($url->getAbsolute());
+
     mcms::log('redirect', $target);
 
     // При работе с JSON возвращаем адрес.
