@@ -61,7 +61,9 @@ class AdminTreeHandler
       $data = self::getNodeTree();
 
       if (empty($data))
-        mcms::redirect("?q=admin&mode=create&type={$this->type}&destination=CURRENT");
+        mcms::redirect("?q=admin&mode=create&type={$this->type}"
+          ."&parent=". $this->ctx->get('subid')
+          ."&destination=CURRENT");
 
       return $data;
     default:

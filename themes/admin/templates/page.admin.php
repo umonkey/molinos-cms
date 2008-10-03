@@ -8,6 +8,11 @@ function render_dashboard($result)
 function render_notifications()
 {
   if (!empty($_GET['created']) and !empty($_GET['type'])) {
+    switch ($_GET['type']) {
+    case 'domain':
+      return;
+    }
+
     $map = array(
       'domain' => 'Страница добавлена, <a href="@url">настроить</a>?',
       );
