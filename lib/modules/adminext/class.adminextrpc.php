@@ -36,6 +36,9 @@ class AdminExtRPC implements iRemoteCall
       }
     }
 
+    if (empty($output))
+      $output = mcms::html('li', t('Нет доступных действий.'));
+
     $output = mcms::html('ul', array(
       'class' => 'nodelinks',
       ), $output);
