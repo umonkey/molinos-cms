@@ -76,6 +76,11 @@ class Node extends NodeBase implements iContentType
    */
   public function formProcess(array $data)
   {
+    if (empty($this->id))
+      mcms::user()->checkAccess('c', $this->class);
+    else
+      mcms::user()->checkAccess('u', $this->class);
+
     $res = parent::formProcess($data);
 
     $user = mcms::user();
@@ -124,12 +129,22 @@ class Node extends NodeBase implements iContentType
   {
     $links = array();
 
+    $adminui = (false !== strpos($_SERVER['REQUEST_URI'], 'admin/'));
+
     if ($this->checkPermission('u'))
       $links['edit'] = array(
         'href' => '?q=admin/content/edit/'. $this->id
           .'&destination=CURRENT',
         'title' => t('Редактировать'),
         'icon' => 'edit',
+        );
+
+    if ($adminui and $this->checkPermission('c'))
+      $links['clone'] = array(
+        'href' => '?q=nodeapi.rpc&action=clone&node='. $this->id
+          .'&destination=CURRENT',
+        'title' => t('Клонировать'),
+        'icon' => 'clone',
         );
 
     if ($this->checkPermission('d'))
@@ -157,20 +172,33 @@ class Node extends NodeBase implements iContentType
         );
     }
 
-    if ($this->published and !$this->deleted and !in_array($this->class, array('domain', 'widget', 'type')))
-      $links['locate'] = array(
-        'href' => '?q=nodeapi.rpc&action=locate&node='. $this->id,
-        'title' => t('Просмотреть'),
-        'icon' => 'locate',
-        );
+    if ($adminui)
+      if ($this->published and !$this->deleted and !in_array($this->class, array('domain', 'widget', 'type')))
+        $links['locate'] = array(
+          'href' => '?q=nodeapi.rpc&action=locate&node='. $this->id,
+          'title' => t('Найти на сайте'),
+          'icon' => 'locate',
+          );
 
     if (bebop_is_debugger())
       $links['dump'] = array(
         'href' => '?q=nodeapi.rpc&action=dump&node='. $this->id,
-        'title' => 'Dump',
+        'title' => 'Содержимое объекта',
         'icon' => 'dump',
         );
 
     return $links;
+  }
+
+  public static function getSortedList($class)
+  {
+    $result = array();
+
+    foreach (Node::find(array('class' => $class)) as $n)
+      $result[$n->id] = $n->name;
+
+    asort($result);
+
+    return $result;
   }
 };

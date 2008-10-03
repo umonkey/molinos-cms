@@ -17,13 +17,8 @@ class AdminMenu implements iAdminMenu
 
   private function cache($value = null)
   {
-    if (!empty($_GET['nocache']))
+    if (null === ($key = $this->getCacheKey()))
       return null;
-
-    $key = 'adminmenu:'. $this->getCurrentGroup();
-
-    if (!empty($_GET['__cleanurls']))
-      $key .= ':cleanurls';
 
     return mcms::config($key, $value);
   }
@@ -84,9 +79,23 @@ class AdminMenu implements iAdminMenu
 
     $output .= '</ul>';
 
-    mcms::cache('adminmenu:'. $cgroup, $output);
+    if (null !== ($key = $this->getCacheKey()))
+      mcms::cache($key, $output);
 
     return $output;
+  }
+
+  private function getCacheKey()
+  {
+    if (!empty($_GET['nocache']))
+      return null;
+
+    $key = 'adminmenu:'. $this->getCurrentGroup();
+
+    if (!empty($_GET['__cleanurls']))
+      $key .= ':cleanurls';
+
+    return $key;
   }
 
   private function getIcons()
@@ -175,8 +184,8 @@ class AdminMenu implements iAdminMenu
     if ($user->hasAccess('u', 'domain')) {
       $icons[] = array(
         'group' => 'structure',
-        'href' => '?q=admin/structure/tree/pages',
-        'title' => t('Страницы'),
+        'href' => '?q=admin/structure/list/pages',
+        'title' => t('Домены'),
         'message' => t('Домены и страницы'),
         'description' => t('Управление доменами, страницами и виджетами.'),
         );
@@ -223,7 +232,7 @@ class AdminMenu implements iAdminMenu
         'description' => t('Просмотр, редактирование и добавление файлов.'),
         );
 
-    if (count($user->getAccess('u')) and Node::count(array('deleted' => 1, 'published' => array(0, 1))))
+    if (count($user->getAccess('u')) and Node::count(array('deleted' => 1, '-class' => TypeNode::getInternal())))
       $icons[] = array(
         'group' => 'content',
         'href' => '?q=admin/content/list/trash',
@@ -231,6 +240,13 @@ class AdminMenu implements iAdminMenu
         'message' => t('Удалённые объекты'),
         'description' => t('Просмотр и восстановление удалённых файлов.'),
         'weight' => 10,
+        );
+
+    if (mcms::user()->hasAccess('u', 'type') and mcms::db()->fetch("SELECT COUNT(*) FROM `node__fallback`"))
+      $icons[] = array(
+        'group' => 'content',
+        'title' => t('404'),
+        'href' => '?q=admin/content/list/404',
         );
 
     return $icons;

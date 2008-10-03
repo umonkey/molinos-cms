@@ -438,7 +438,7 @@ class NodeBase
    */
   public function __isset($key)
   {
-    return array_key_exists($key, $this->data);
+    return is_array($this->data) and array_key_exists($key, $this->data);
   }
 
   /**
@@ -557,6 +557,15 @@ class NodeBase
         ."SELECT :new, `nid`, `key` FROM `node__rel` WHERE `tid` = :old", $params);
       $pdo->exec("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
         ."SELECT `tid`, :new, `key` FROM `node__rel` WHERE `nid` = :old", $params);
+
+      if (($this->right - $this->left) > 1) {
+        $children = Node::find(array(
+          'parent_id' => $id,
+          ));
+
+        foreach ($children as $c)
+          $c->duplicate($this->id);
+      }
 
       mcms::flush();
     }
@@ -1174,6 +1183,9 @@ class NodeBase
     $pdo = mcms::db();
     $xtra = '';
 
+    if (empty($this->id))
+      $this->save();
+
     if (null !== $available)
       $xtra = ' AND `tid` IN ('. join(', ', $available) .')';
 
@@ -1446,6 +1458,14 @@ class NodeBase
     if (empty($_SERVER['HTTP_HOST']))
       return true;
 
+    if (strval($this->uid) == mcms::user()->id) {
+      $schema = TypeNode::getSchema($this->class);
+
+      if (!empty($schema['perm_own']) and is_array($schema['perm_own']))
+        if (in_array($perm, $schema['perm_own']))
+          return true;
+    }
+
     return mcms::user()->hasAccess($perm, $this->class);
   }
 
@@ -1661,13 +1681,6 @@ class NodeBase
       }
     }
 
-    if (!empty($schema['hasfiles']))
-      $tabs['content']->addControl(new SetControl(array(
-        'value' => 'node_ftp_files',
-        'label' => t('Прикрепить файлы с FTP'),
-        'options' => FileNode::listFilesOnFTP(),
-        )));
-
     if (!$simple) {
       if (empty($schema['notags']) and null !== ($tab = $this->formGetSections($schema)))
         $tabs['sections'] = $tab;
@@ -1769,8 +1782,11 @@ class NodeBase
     if (empty($schema['hasfiles']) and empty($filefields))
       return null;
 
+    /*
+    // WTF?
     mcms::extras('themes/admin/css/filetab.css');
     mcms::extras('themes/admin/js/filetab.js');
+    */
 
     $tab = new FieldSetControl(array(
       'name' => 'files',
@@ -1781,13 +1797,13 @@ class NodeBase
     if (!empty($filefields) and is_array($filefields)) {
       foreach ($filefields as $fname => $f) {
         $tmp = Control::make($f);
-
-        $tmp->addClass('archive');
+        $tmp->archive = true;
+        $tmp->fetch = true;
         $tab->addControl($tmp);
       }
     }
 
-    if (!empty($schema['hasfiles'])) {
+    if (empty($schema['nofiles'])) {
       foreach ($this->files as $k => $v) {
         if (is_numeric($k))
           $tab->addControl(new AttachmentControl(array(
@@ -1795,6 +1811,8 @@ class NodeBase
             'value' => 'file_'. $v->id,
             'uploadtxt' => t('Загрузить'),
             'unzip' => true,
+            'remote' => true,
+            'fetch' => true,
             )));
       }
 
@@ -1803,6 +1821,7 @@ class NodeBase
         'value' => 'file_0',
         'uploadtxt' => t('Загрузить'),
         'unzip' => true,
+        'fetch' => true,
         )));
     }
 
@@ -1956,6 +1975,37 @@ class NodeBase
           case 'AttachmentControl':
             break;
 
+          case 'NodeLinkControl':
+            try {
+              if (empty($value)) {
+                $node = null;
+              } elseif (!empty($schema['fields'][$k]['dictionary'])) {
+                $node = Node::load(array(
+                  'class' => $schema['fields'][$k]['dictionary'],
+                  'name' => $value,
+                  'published' => 1,
+                  'deleted' => 0,
+                  ));
+              } elseif (!empty($schema['fields'][$k]['values'])) {
+                $parts = explode('.', $schema['fields'][$k]['values'], 2);
+
+                $filter = array(
+                  'class' => $parts[0],
+                  $parts[1] => $value,
+                  'published' => 1,
+                  'deleted' => 0,
+                  );
+              } else {
+                mcms::debug($schema['fields'][$k]);
+              }
+            } catch (ObjectNotFoundException $e) {
+              if (is_numeric($value))
+                $node = Node::load($value);
+            }
+
+            $this->$k = $node;
+            break;
+
           case 'NumberControl':
             $value = str_replace(',', '.', $value);
             $this->$k = $value;
@@ -1978,8 +2028,6 @@ class NodeBase
       }
     }
 
-    // $this->save();
-
     foreach ($data as $field => $fileinfo) {
       if (0 !== strpos($field, 'file_'))
         continue;
@@ -1989,44 +2037,7 @@ class NodeBase
 
       $field = substr($field, 5);
 
-      // Удаление ссылки на файл.
-      if (!empty($data['file_'. $field .'_unlink'])) {
-        if (is_numeric($field)) {
-          $this->linkRemoveChild($field);
-          foreach ($this->files as $k => $v)
-            if ($v->id == $field)
-              unset($this->files[$k]);
-        } else {
-          $this->linkRemoveChild(null, $field);
-          $this->$field = null;
-        }
-        continue;
-      }
-
-      elseif (UPLOAD_ERR_NO_FILE == $fileinfo['error']) {
-        if (!empty($fileinfo['id'])) {
-          $this->linkAddChild($fileinfo['id'], $field);
-        } elseif (!empty($fileinfo['deleted'])) {
-          $this->linkRemoveChild($fileinfo['id']);
-        }
-      }
-
-      elseif (UPLOAD_ERR_INI_SIZE == $fileinfo['error'])
-        throw new ValidationException(t('Файл %name слишком большой; '
-          .'максимальный размер файла: %size.', array(
-            '%name' => $fileinfo['name'],
-            '%size' => ini_get('upload_max_filesize'),
-            )));
-
-      else {
-        $fileinfo['parent_id'] = $this->id;
-        $file = Node::create('file')->import($fileinfo)->save();
-
-        if (is_numeric($field))
-          $this->files[] = $file;
-        else
-          $this->$field = $file;
-      }
+      $this->addFile($field, $fileinfo, $this);
     }
 
     if (!empty($data['reset_rel'])) {
@@ -2046,10 +2057,6 @@ class NodeBase
       $sections = Node::create('type', $schema)->getAllowedSections();
       if (!empty($sections))
         $this->linkAddParent(array_shift(array_keys($sections)));
-    }
-
-    if (!empty($schema['hasfiles']) and !empty($data['node_ftp_files'])) {
-      FileNode::getFilesFromFTP($data['node_ftp_files'], $this->id);
     }
 
     $this->save();
@@ -2194,10 +2201,11 @@ class NodeBase
     }
 
     // Сохранение ревизии.
-    mcms::db()->exec($sql = "INSERT INTO `node__rev` (`nid`, `uid`, `name`, `created`, `data`) VALUES (:nid, :uid, :name, :created, :data)", $params = array(
+    mcms::db()->exec($sql = "INSERT INTO `node__rev` (`nid`, `uid`, `name`, `name_lc`, `created`, `data`) VALUES (:nid, :uid, :name, :name_lc, :created, :data)", $params = array(
       'nid' => $node['id'],
       'uid' => self::dbId($node['uid']),
       'name' => $node_rev['name'],
+      'name_lc' => mb_strtolower($node_rev['name']),
       'created' => mcms::now(),
       'data' => empty($extra) ? null : self::dbSerialize($extra),
       ));
@@ -2356,7 +2364,9 @@ class NodeBase
       // иначе мы загрузим ВСЕ документы, привязанные к разделам,
       // что при среднем-большом объёме контента перестанет работать.
       if ($tags)
-        $sql .= ' AND `key` IS NOT NULL';
+        $sql .= ' AND (`key` IS NOT NULL OR `tid` NOT IN '
+          .'(SELECT `id` FROM `node` WHERE `class` = \'tag\' '
+          .'AND `deleted` = 0 AND `published` = 1))';
 
       foreach (mcms::db()->getResults($sql) as $l)
           $map[$l['nid']][] = $l;
@@ -2469,5 +2479,57 @@ class NodeBase
         $arr[$k] = $v->id;
 
     return serialize($arr);
+  }
+
+  protected function addFile($field, array $fileinfo, Node &$node = null)
+  {
+    if (UPLOAD_ERR_NO_FILE == $fileinfo['error']) {
+      // Удаление ссылки на файл.
+      if (!empty($fileinfo['unlink'])) {
+        if (is_numeric($field)) {
+          $node->linkRemoveChild($field);
+
+          foreach ($node->files as $k => $v)
+            if ($v->id == $field)
+              unset($node->files[$k]);
+        } else {
+          $node->linkRemoveChild(null, $field);
+          $node->$field = null;
+        }
+      }
+
+      // Выбор из ахрива.
+      elseif (!empty($fileinfo['id']))
+        $node->$field = Node::load($fileinfo['id']);
+
+      // Загрузка по FTP.
+      elseif (!empty($fileinfo['ftp']))
+        FileNode::getFilesFromFTP($fileinfo['ftp'], $node->id);
+
+      elseif (!empty($fileinfo['deleted'])) {
+        $node->linkRemoveChild($fileinfo['id']);
+      }
+    }
+
+    elseif (UPLOAD_ERR_INI_SIZE == $fileinfo['error'])
+      throw new ValidationException(t('Файл %name слишком большой; '
+        .'максимальный размер файла: %size.', array(
+          '%name' => $fileinfo['name'],
+          '%size' => ini_get('upload_max_filesize'),
+          )));
+
+    // Загрузка архива.
+    elseif (!empty($fileinfo['unzip']) and 'application/zip' == $fileinfo['type'])
+      FileNode::unzip($fileinfo['tmp_name'], 'tmp/upload', $node ? $node->id : $node);
+
+    else {
+      $fileinfo['parent_id'] = $node->id;
+      $file = Node::create('file')->import($fileinfo)->save();
+
+      if (is_numeric($field))
+        $node->files[] = $file;
+      else
+        $node->$field = $file;
+    }
   }
 };

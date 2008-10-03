@@ -17,6 +17,8 @@
  */
 class FileNode extends Node implements iContentType
 {
+  private $nosave = false;
+
   /**
    * Сохранение объекта.
    *
@@ -29,6 +31,13 @@ class FileNode extends Node implements iContentType
    */
   public function save()
   {
+    if (!empty($this->nosave))
+      return $this;
+
+    if (empty($this->filepath)) {
+      throw new RuntimeException(t('Ошибка загрузки файла.'));
+    }
+
     $path = mcms::config('filestorage');
     $path .= '/'. $this->filepath;
 
@@ -166,16 +175,19 @@ class FileNode extends Node implements iContentType
 
     // Находим существующий файл.
     try {
-      $node = Node::load(array(
+      $node = Node::find(array(
         'class' => 'file',
         'filepath' => $this->filepath,
-        ));
+        ), 1);
+
+      if (empty($node))
+        throw new ObjectNotFoundException();
 
       // Исправление для Issue 300: файла физически нет, и заменить ноду нельзя.
       if (!file_exists($storage .'/'. $this->filepath))
         throw new ObjectNotFoundException();
 
-      $this->data = $node->data;
+      $this->data = array_shift($node)->data;
     }
 
     // Файл не найден, создаём новый.
@@ -213,7 +225,7 @@ class FileNode extends Node implements iContentType
    * @return Node последний добавленный в архив файл
    * @param string $zipfile путь к ZIP-архиву.
    */
-  public static function unzip($zipfile)
+  public static function unzip($zipfile, $folder = null, $parent_id = null)
   {
     $node = null;
     $tmpdir = mcms::mkdir(mcms::config('tmpdir') .'/upload');
@@ -225,23 +237,30 @@ class FileNode extends Node implements iContentType
           zip_entry_open($zip, $zip_entry);
 
           if (substr(zip_entry_name($zip_entry), -1) == '/') {
+            /*
+            mcms::debug(zip_entry_name($zip_entry));
+
             $zdir = substr(zip_entry_name($zip_entry), 0, -1);
-            if (file_exists($zdir)) {
+            if (file_exists($zdir))
               throw new Exception('Directory "<b>' . $zdir . '</b>" exists');
-            }
+
             mcms::mkdir($zdir);
+            */
           } else {
-            $name = zip_entry_name($zip_entry);
+            $name = basename(zip_entry_name($zip_entry));
             $tmpname = tempnam($tmpdir, 'unzip');
 
             file_put_contents($tmpname, zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
 
             $node = Node::create('file');
-            $node->import(array(
+            $node->import($a = array(
+              'parent_id' => $parent_id,
               'tmp_name' => $tmpname,
               'name' => $name,
               'filename' => $name,
+              'type' => bebop_get_file_type($name),
               ), false);
+
             $node->save();
 
             unlink($tmpname);
@@ -250,10 +269,10 @@ class FileNode extends Node implements iContentType
         }
         zip_close($zip);
       } else {
-        throw new Exception("No such file {$zipfile}");
+        throw new RuntimeException("No such file {$zipfile}");
       }
     } else {
-      throw new Exception('zlib extension is not available');
+      throw new RuntimeException('zlib extension is not available');
     }
 
     return $node;
@@ -285,40 +304,15 @@ class FileNode extends Node implements iContentType
 
       $ftpfiles = self::listFilesOnFTP();
 
-      $modes = array(
-        'local' => t('Со своего компьютера'),
-        'ftp' => t('Из тех, что загружены на FTP'),
-        'remote' => t('Скачать с другого сайта'),
-        );
-
-      if (empty($ftpfiles))
-        unset($modes['ftp']);
-
-      $form->addControl(new EnumRadioControl(array(
-        'value' => '__file_mode',
-        'label' => t('Как вы хотите добавить файл?'),
-        'options' => $modes,
-        'default' => 'local',
-        'required' => true,
-        )));
-
-      $form->addControl(new HiddenControl(array(
-        'value' => 'node_content_id',
-        )));
       $form->addControl(new HiddenControl(array(
         'value' => 'node_content_class',
         )));
 
       $form->addControl(new AttachmentControl(array(
-        'value' => '__file_node_update',
-        'label' => t('Загрузите новый файл'),
+        'value' => 'file_0',
         'unzip' => true,
-        )));
-
-      $form->addControl(new SetControl(array(
-        'value' => '__file_from_ftp',
-        'label' => t('Загрузить файлы с FTP'),
-        'options' => self::listFilesOnFTP(),
+        'archive' => false,
+        'fetch' => true,
         )));
 
       $form->addControl(new URLControl(array(
@@ -368,76 +362,8 @@ class FileNode extends Node implements iContentType
   public function formProcess(array $data)
   {
     if (null === $this->id) {
-      switch ($data['__file_mode']) {
-      case 'ftp':
-        if (!empty($data['__file_from_ftp']) and is_array($data['__file_from_ftp']))
-          self::getFilesFromFTP($data['__file_from_ftp']);
-        return;
-
-      case 'remote':
-        if (!empty($data['__file_url'])) {
-          if (null !== ($tmp = mcms_fetch_file($data['__file_url'], false))) {
-            $file = Node::create('file', array(
-              'published' => true,
-              ));
-
-            $file->import(array(
-              'name' => basename($data['__file_url']),
-              'tmp_name' => $tmp,
-              ), false);
-
-            $file->save();
-          } else {
-            throw new InvalidArgumentException(t('Не удалось загрузить указанный файл.'));
-          }
-        }
-        return;
-
-      case 'local':
-        if (!empty($data['__file_node_update']['error']) or empty($data['__file_node_update']['tmp_name'])) {
-          $noException = false;
-          $errorMessage = 'При загрузке файла возникла ошибка.';
-
-          switch ($data['__file_node_update']['error']) {
-            case UPLOAD_ERR_INI_SIZE:
-              $errorMessage = t('Загружаемый файл слишком велик: настройки '
-                .'позволяют принимать файлы до %limit.', array(
-                  '%limit' => ini_get('upload_max_filesize'),
-                  ));
-              break;
-            case UPLOAD_ERR_FORM_SIZE:
-              $errorMessage = 'Загружаемый файл больше установленного лимита в форме';
-              break;
-            case UPLOAD_ERR_PARTIAL:
-              $errorMessage = 'Файл не был загружен полностью';
-              break;
-            case UPLOAD_ERR_NO_TMP_DIR:
-              $errorMessage = 'Отсутствует временный каталог для загрузки файлов';
-              break;
-            case UPLOAD_ERR_CANT_WRITE:
-              $errorMessage = 'Невозможно записать файл на диск';
-              break;
-            case UPLOAD_ERR_EXTENSION:
-              $errorMessage = 'Некое расширение php остановило загрузку файла';
-              break;
-            // Все в порядке, надо просто обработать ситуацию для исключения исключения. ;)
-            case UPLOAD_ERR_OK:
-            case UPLOAD_ERR_NO_FILE:
-              $noException = true;
-              break;
-          }
-
-          if (false === $noException)
-            throw new InvalidArgumentException(t($errorMessage));
-        }
-
-        $this->import($data['__file_node_update']);
-        $this->name = $this->filename;
-        $this->data['published'] = true;
-        $this->save();
-
-        return;
-      }
+      parent::addFile('tmp', $d = $data['file_0'], $this);
+      return;
     }
 
     elseif (!empty($data['__file_node_update']) and empty($data['__file_node_update']['error'])) {
@@ -453,6 +379,8 @@ class FileNode extends Node implements iContentType
       unset($data['__file_node_update']);
     }
 
+    $this->nosave = true;
+
     parent::formProcess($data);
   }
 
@@ -463,7 +391,7 @@ class FileNode extends Node implements iContentType
    *
    * Папка FTP используется для загрузки больших файлов, которые проблематично
    * загрузить через браузер.  Путь указывается в конфигурационном файле,
-   * параметром filestorage_ftp; если такого параметра нет — используется
+   * параметром ftpfolder; если такого параметра нет — используется
    * подпапка "ftp" в обычном файловом хранилище.
    *
    * @todo вынести из конфига в настройки модуля base.
@@ -472,7 +400,7 @@ class FileNode extends Node implements iContentType
    */
   public static function getFTPRoot()
   {
-    if (null === ($path = mcms::config('filestorage_ftp')))
+    if (null === ($path = mcms::config('ftpfolder')))
       $path = mcms::config('filestorage') .'/ftp';
     return $path;
   }
@@ -528,18 +456,16 @@ class FileNode extends Node implements iContentType
       $file = basename($file);
 
       if (in_array($file, $available) and is_readable($filename = $path .'/'. $file)) {
-        $node = Node::create('file');
-        $node->import(array(
+        $node = Node::create('file')->import($i = array(
           'filename' => $file,
           'tmp_name' => $filename,
           'parent_id' => $parent_id,
           ), false);
+
         $node->save();
       }
 
-      if (file_exists($filename) and is_writable($path)) {
-        RequestController::killFile($filename);
-      }
+      Context::killFile($filename);
     }
   }
 

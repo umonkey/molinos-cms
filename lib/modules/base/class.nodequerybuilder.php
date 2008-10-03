@@ -233,13 +233,15 @@ class NodeQueryBuilder
       $parts = explode(' ', $this->search);
 
       foreach ($parts as $k => $v) {
-        if (preg_match('/^([^:]+)\:([a-z0-9_,]+)$/', $v, $m)) {
+        if (preg_match('/^([^:]+)\:([a-z0-9_,]+)$/i', $v, $m)) {
           $this->query[$m[1]] = explode(',', $m[2]);
           unset($parts[$k]);
         }
       }
 
-      $this->search = join(' ', $parts);
+      $this->search = empty($parts)
+        ? null
+        : join(' ', $parts);
     }
   }
 
@@ -254,8 +256,8 @@ class NodeQueryBuilder
 
     // Добавляем поиск по имени.
     $param = $this->getNextParam();
-    $matches[] = "`node__rev`.`name` LIKE {$param}";
-    $this->params[$param] = $needle;
+    $matches[] = "`node__rev`.`name_lc` LIKE {$param}";
+    $this->params[$param] = mb_strtolower($needle);
 
     // Добавляем поиск по всем текстовым индексированным полям задействованных классов.
     if (!empty($this->query['class'])) {
@@ -483,12 +485,14 @@ class NodeQueryBuilder
     // Выборка по одному разделу -- используем обычную связку,
     // чтобы можно было отсортировать по ручному порядку.
     if (!is_array($this->query['tags']) or count($this->query['tags']) < 2) {
-      if (!in_array('node__rel', $this->tables)) {
-        $this->tables[] = 'node__rel';
-        $this->where[] = "`node__rel`.`nid` = `node`.`id`";
-      }
+      if (is_array($this->query['tags']))
+        $tag = intval($this->query['tags'][0]);
+      else
+        $tag = intval($this->query['tags']);
 
-      return "`node__rel`.`tid`";
+      $this->where[] = "`node`.`id` IN (SELECT `nid` FROM `node__rel` "
+        ."WHERE `tid` = {$tag})";
+      return null;
     }
 
     // Выборка по нескольким разделам.

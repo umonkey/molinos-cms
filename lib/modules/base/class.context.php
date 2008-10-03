@@ -38,6 +38,11 @@ class Context
   private $_args;
 
   /**
+   * Файлы, удаляемые в конце работы.
+   */
+  private static $_killfiles = array();
+
+  /**
    * Создание простого контекста.
    *
    * @param $args ключ url содержит текущий URL, post и files — сырые данные.
@@ -77,6 +82,10 @@ class Context
    */
   public function post($key, $default = null)
   {
+    if (!$this->method('post'))
+      throw new InvalidArgumentException(t('Обращение к данным '
+        .'формы возможно только при запросах типа POST.'));
+
     if (null === $this->_post)
       $this->_post = $this->getarg('post', array());
 
@@ -95,8 +104,16 @@ class Context
       $default = $this->_args[$name];
 
       if ('post' == $name and !empty($this->_args['files'])) {
-        $default = array_merge($default, $this->_args['files']);
+        foreach ($this->_args['files'] as $k => $v) {
+          if (array_key_exists($k, $this->_args['post']))
+            $v = array_merge($v, $this->_args['post'][$k]);
+
+          $this->_args['post'][$k] = $v;
+        }
+
         unset($this->_args['files']);
+
+        $default = array_merge($default, $this->_args[$name]);
       }
 
       unset($this->_args[$name]);
@@ -187,14 +204,19 @@ class Context
   /**
    * Возвращает метод запроса (GET, POST итд).
    */
-  public function method()
+  public function method($check = null)
   {
     if (array_key_exists('method', $this->_args))
-      return $this->_args['method'];
+      $value = $this->_args['method'];
     elseif (array_key_exists('REQUEST_METHOD', $_SERVER))
-      return $_SERVER['REQUEST_METHOD'];
+      $value = $_SERVER['REQUEST_METHOD'];
     else
-      return 'GET';
+      $value = 'GET';
+
+    if (null === $check)
+      return $value;
+    else
+      return !strcasecmp($value, $check);
   }
 
   /**
@@ -295,5 +317,10 @@ class Context
     $ctx->_url = new url($url);
 
     return $ctx;
+  }
+
+  public static function killFile($path)
+  {
+    self::$_killfiles[] = $path;
   }
 }

@@ -161,6 +161,7 @@ class RequestController
     if (!empty($load)) {
       $nodes = Node::find(array(
         'id' => $load,
+        'published' => 1,
         ));
 
       // Найдено не всё: сообщаем об ошибке.
@@ -203,14 +204,31 @@ class RequestController
 
       foreach ($domains as $dom) {
         // Точное совпадение, возвращаем домен.
-        if ($host == $dom->name)
-          return $dom;
+        if ($host == $dom->name) {
+          if (!empty($dom->redirect)) {
+            // Указан раздел — не выполняем редирект, если целевой домен — наш.
+            if (!empty($dom->defaultsection)) {
+              foreach ($domains as $dom2)
+                if ($dom2->name == $dom->redirect) {
+                  $dom2->defaultsection = $dom->defaultsection;
+                  return $dom2;
+                }
+            }
 
-        // TODO: поддержка алиасов.
+            $ctx->redirect('http://'. $dom->redirect);
+          }
+
+          return $dom;
+        }
       }
     }
 
-    return array_shift($domains);
+    $dom = array_shift($domains);
+
+    if (!empty($dom->redirect))
+      $ctx->redirect($dom);
+
+    return $dom;
   }
 
   private function checkRPC()

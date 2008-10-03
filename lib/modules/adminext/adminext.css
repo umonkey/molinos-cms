@@ -1,0 +1,6 @@
+span.mcms-node-actions-wrapper { position:relative; }
+img.mcms-node-actions { position:relative; top:3px; margin:0 4px 0 0; cursor:pointer; }
+
+.mcms-node-actions-list-wrapper { position:absolute; z-index:500; background:#fff; border:1px solid #ccc; padding:.667em .667em 0 .667em; }
+.mcms-node-actions-list-wrapper ul { list-style:none outside; margin:0; }
+.mcms-node-actions-list-wrapper ul li { font:normal 11px/1.46em Tahoma, Helvetica, sans-serif; margin:0 0 .73em 0; }

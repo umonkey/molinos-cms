@@ -9,29 +9,23 @@ class OpenIdModule implements iRemoteCall
       $openidinfo = $ctx->get('openid');
 
       try {
-        $node = self::openIDAuthorize($openidinfo['mode']);
+        $node = self::openIDAuthorize($openidinfo['mode'], $ctx);
 
         mcms::session('uid', $node->id);
         mcms::session()->save();
 
-        /*
-        if (empty($_COOKIE))
-          mcms::fatal(t('Идентификация не удалась: ваш браузер '
-            .'не вернул cookie.'));
-        */
-
-        $ctx->redirect($ctx->get('destination', '?q=admin'));
+        $ctx->redirect($ctx->get('destination', '?q=admin&openid=ok'));
       } catch (ObjectNotFoundException $e) {
         throw new ForbiddenException(t('Вы успешно авторизировались, '
           .'но пользоваться сайтом не можете, т.к. прозрачная регистрация '
           .'пользователей OpenID отключена. Соболезнования.'));
       }
 
-      $ctx->redirect("?q=admin");
+      $ctx->redirect("?q=admin&openid=failed");
     }
   }
 
-  public static function openIDAuthorize($openid_mode)
+  public static function openIDAuthorize($openid_mode, Context $ctx)
   {
     self::includeOpenID();
 
@@ -86,7 +80,7 @@ class OpenIdModule implements iRemoteCall
     } else {
       // Login canceled
       mcms::log('openid', 'login cancelled ?!');
-      mcms::redirect("?q=base.rpc&action=logout");
+      $ctx->redirect("?q=base.rpc&action=logout");
     }
   }
 
@@ -98,8 +92,11 @@ class OpenIdModule implements iRemoteCall
     // Begin the OpenID authentication process.
     // No auth request means we can't begin OpenID.
 
-    if (!($auth_request = $consumer->begin($openid)))
+    if (!($auth_request = $consumer->begin($openid))) {
+      mcms::fatal(t('Не удалось соединиться с провайдером OpenID, '
+        .'попробуйте повторить попытку позже.'));
       mcms::redirect("?q=base.rpc&action=logout");
+    }
 
     $sreg_request = Auth_OpenID_SRegRequest::build(
       array('nickname'), // Required
@@ -181,7 +178,7 @@ class OpenIdModule implements iRemoteCall
     $url = sprintf('http://%s%s/?q=openid.rpc&action=openid&id=%s&sid=%s',
       $_SERVER['HTTP_HOST'], mcms::path(), urlencode($id), mcms::session()->id);
 
-    return $url;
+    return mcms::fixurl($url);
   }
 
   function getScheme()

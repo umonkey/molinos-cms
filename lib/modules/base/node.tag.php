@@ -56,6 +56,14 @@ class TagNode extends Node implements iContentType
     return $this;
   }
 
+  public function duplicate($parent = null)
+  {
+    if (empty($this->parent_id))
+      throw new RuntimeException(t('Корневой раздел клонировать нельзя.'));
+
+    return parent::duplicate($parent);
+  }
+
   // Возвращает список существующих разделов, в виде плоского списка
   // с элементом depth, для рендеринга в виде дерева.
   /**

@@ -21,7 +21,9 @@ class AdminUINodeActionsControl extends Control
     if (!count($actions = $this->filterActions()))
       return null;
 
-    $output = $this->getSelectors();
+    $output = '';
+
+    $output .= $this->getSelectors();
     $output .= $this->getActions($actions);
 
     $output .= mcms::html('div', array('class' => 'spacer_not_ie'));
@@ -46,7 +48,12 @@ class AdminUINodeActionsControl extends Control
     foreach ($map as $k => $v)
       $list[] = "<u class='fakelink select-{$k}'>{$v}</u>";
 
-    $output = t('Выбрать') .': '. join(', ', $list);
+    $output = '';
+
+    if (!empty($this->addlink))
+      $output .= l($this->addlink, t('Добавить')) .'&nbsp; | &nbsp;';
+
+    $output .= t('Выбрать') .': '. join(', ', $list);
 
     if (!empty($this->actions)) {
       $output .= ' &nbsp; и &nbsp; ';

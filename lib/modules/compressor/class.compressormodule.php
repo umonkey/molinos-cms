@@ -207,8 +207,8 @@ class CompressorModule implements iRemoteCall
 
   public static function format(array $files)
   {
-    $output = self::formatJS($files);
-    $output .= self::formatCSS($files);
+    $output = self::formatCSS($files);
+    $output .= self::formatJS($files);
     return $output;
   }
 }

@@ -41,6 +41,8 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       $url = new url($ctx->url());
 
       switch (count($m)) {
+      case 5:
+        $url->setarg('subid', $m[4]);
       case 4:
         $url->setarg('preset', $id = $m[3]);
       case 3:
@@ -101,6 +103,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     case 'drafts':
     case 'exchange':
     case 'trash':
+    case '404':
       $method = 'onGet'. ucfirst(strtolower($mode));
       return call_user_func_array(array('AdminUIModule', $method), array($ctx));
     default:
@@ -186,6 +189,36 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
   private static function onGetEdit(Context $ctx)
   {
+    // Отдельный вывод редактора ошибок 404.
+    if ('404' == $ctx->get('preset') and null !== ($src = $ctx->get('subid'))) {
+      $dst = mcms::db()->fetch("SELECT `new` FROM `node__fallback` "
+        ."WHERE `old` = ?", array($src));
+
+      $form = new Form(array(
+        'method' => 'post',
+        'action' => '?q=admin.rpc&action=404&mode=update'
+          .'&destination='. urlencode($ctx->get('destination')),
+        'title' => t('Подмена отсутствующей страницы'),
+        ));
+      $form->addControl(new TextLineControl(array(
+        'value' => 'src', 
+        'label' => t('Запрашиваемый адрес'),
+        'default' => $src,
+        'readonly' => true,
+        )));
+      $form->addControl(new TextLineControl(array(
+        'value' => 'dst',
+        'label' => t('Перенаправлять на'),
+        'default' => $dst,
+        'description' => t('Обычно это — относительная ссылка, '
+          .'вроде node/123, но может быть и внешней, например: '
+          .'http://www.google.com/'),
+        )));
+      $form->addControl(new SubmitControl());
+
+      return $form->getHTML(array());
+    }
+
     if (null === ($nid = $ctx->get('id')))
       throw new PageNotFoundException();
 
@@ -319,8 +352,8 @@ class AdminUIModule implements iAdminUI, iRemoteCall
         $form->title = t('Настройка модуля %name', array('%name' => $ctx->get('name')));
 
       $form->action = bebop_combine_url($tmp = array(
-        'path' => '?q=admin.rpc',
         'args' => array(
+          'q' => 'admin.rpc',
           'module' => $ctx->get('name'),
           'action' => 'modconf',
           'destination' => $_SERVER['REQUEST_URI'],
@@ -450,6 +483,22 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       mcms::flush(mcms::FLUSH_NOW);
       break;
 
+    case '404':
+      mcms::user()->checkAccess('u', 'type');
+
+      if ('update' == $ctx->get('mode')) {
+        if (null !== ($src = $ctx->post('src')) and null !== ($dst = $ctx->post('dst'))) {
+          mcms::db()->exec("UPDATE `node__fallback` SET `new` = ? "
+            ."WHERE `old` = ?", array($dst, $src));
+        }
+      } elseif ('delete' == $ctx->get('mode')) {
+        mcms::db()->exec("DELETE FROM `node__fallback` WHERE `old` = ?",
+          array($ctx->get('src')));
+      }
+
+      $next = $ctx->get('destination');
+      break;
+
     case 'reindex':
       if (NodeIndexer::run())
         $next = '?q=admin.rpc&action=reindex';
@@ -463,7 +512,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
     case 'modconf':
       self::hookModConf($ctx);
-      die(mcms::redirect('?q=admin&cgroup=structure&mode=modules'));
+      $ctx->redirect('?q=admin&cgroup=structure&mode=modules');
 
     case 'search':
       $terms = array();
@@ -482,6 +531,8 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
       $url = new url($ctx->post('search_from'));
       $url->setarg('search', trim(join(' ', $terms)));
+      $url->setarg('page', null);
+
       $next = strval($url);
 
       break;

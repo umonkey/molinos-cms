@@ -153,7 +153,6 @@ class InstallModule implements iRemoteCall
 
     $data = array(
       'db[host]' => 'localhost',
-      'config[basedomain]' => $_SERVER['HTTP_HOST'],
       'config[backtracerecipient]' => 'cms-bugs@molinos.ru',
       'config[debuggers]' => $_SERVER['REMOTE_ADDR'] .', 127.0.0.1',
       'config[mail_from]' => "Molinos.CMS <no-reply@cms.molinos.ru>",

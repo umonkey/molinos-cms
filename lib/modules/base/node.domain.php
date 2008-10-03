@@ -21,40 +21,18 @@
  */
 class DomainNode extends Node implements iContentType
 {
-  public function __construct(array $data)
+  private $oldname;
+
+  /**
+   * Обработка изменения имени домена.
+   *
+   * Обновляются ссылки во всех доменах, ссылающихся на этот.
+   */
+  public function __set($key, $val)
   {
-    if (empty($data['parent_id'])) {
-      if (!empty($data['name']))
-        $data['name'] = self::getRealDomainName($data['name']);
-      if (!empty($data['aliases']) and is_array($data['aliases']))
-        foreach ($data['aliases'] as $k => $v)
-          $data['aliases'][$k] = self::getRealDomainName($v);
-    }
-
-    parent::__construct($data);
-  }
-
-  // Возвращает базовое имя домена из конфига.
-  private static function getBaseDomainName()
-  {
-    static $base = null;
-
-    if ($base === null)
-      $base = mcms::config('basedomain');
-
-    return $base;
-  }
-
-  // Разворачивает имя домена.
-  private static function getRealDomainName($name)
-  {
-    return str_replace('DOMAIN', self::getBaseDomainName(), $name);
-  }
-
-  // Сворачивает имя домена.
-  private static function getFakeDomainName($name)
-  {
-    return str_replace(self::getBaseDomainName(), 'DOMAIN', $name);
+    if ('name' == $key and empty($this->oldname))
+      $this->oldname = $this->name;
+    return parent::__set($key, $val);
   }
 
   /**
@@ -67,12 +45,15 @@ class DomainNode extends Node implements iContentType
    */
   public function save()
   {
-    $this->fixAliases();
-
-    if ($this->parent_id === null)
-      $this->name = self::getFakeDomainName($this->name);
-
     parent::checkUnique('name', t('Страница с таким именем уже существует.'), array('parent_id' => $this->parent_id));
+
+    if (!empty($this->oldname) and $this->oldname != $this->name) {
+      foreach (Node::find(array('class' => 'domain')) as $node)
+        if ($node->redirect == $this->oldname) {
+          $node->redirect = $this->name;
+          $node->save();
+        }
+    }
 
     return parent::save();
   }
@@ -85,32 +66,6 @@ class DomainNode extends Node implements iContentType
       $this->name = preg_replace('/_[0-9]+$/', '', $this->name) .'_'. rand();
 
     parent::duplicate($parent);
-  }
-
-  // Конвертирует алиасы в массив.
-  private function fixAliases()
-  {
-    if ($this->aliases === null or is_array($this->aliases))
-      return;
-
-    $aliases = array();
-
-    foreach (preg_split('/[\r\n]+/', $this->aliases) as $alias)
-      $aliases[] = self::getFakeDomainName($alias);
-
-    $this->aliases = $aliases;
-  }
-
-  // Формирует строку из списка алиасов.
-  private function getAliases()
-  {
-    $aliases = array();
-
-    if (is_array($this->aliases))
-      foreach ($this->aliases as $alias)
-        $aliases[] = self::getRealDomainName($alias);
-
-    return join("\n", $aliases);
   }
 
   private function getThemes()
@@ -202,9 +157,11 @@ class DomainNode extends Node implements iContentType
     $result = array();
 
     foreach ($roots = Node::find(array('class' => 'domain', 'parent_id' => null)) as $root) {
-      foreach ($root->getChildren('flat') as $em)
-        if ($dev or $em['theme'] != 'admin')
-          $result[] = $em;
+      if (empty($root->redirect)) {
+        foreach ($root->getChildren('flat') as $em)
+          if ($dev or $em['theme'] != 'admin')
+            $result[] = $em;
+      }
     }
 
     if ('select' == $mode) {
@@ -220,124 +177,72 @@ class DomainNode extends Node implements iContentType
     return $result;
   }
 
-  // Возвращает полную карту доменов.
-  public static function getSiteMap($mode = null)
-  {
-    $result = mcms::cache('urlmap');
-
-    if (!is_array($result)) {
-      $f = array(
-        'class' => 'domain',
-        'parent_id' => null,
-        '#recurse' => 1,
-        );
-      $roots = Node::find($f);
-
-      // FIXME: переписать getObjectTree()!
-
-      foreach ($roots as $root) {
-        $root->loadChildren();
-
-        $branch = $root->getChildren('nested');
-
-        // Правим имя домена.
-        $branch['name'] = self::getRealDomainName($branch['name']);
-
-        // Правим алиасы.
-        if (!empty($branch['aliases']) and is_array($branch['aliases'])) {
-          foreach ($branch['aliases'] as $k => $v)
-            $branch['aliases'][$k] = self::getRealDomainName($v);
-        } else {
-          $branch['aliases'] = array();
-        }
-
-        $result[$branch['id']] = $branch;
-      }
-
-      mcms::cache('urlmap', $result);
-    }
-
-    return $result;
-  }
-
-  // Возвращает базовый домен.
-  public static function getBaseDomain()
-  {
-    $tree = self::getSiteMap();
-    $base = self::getBaseDomainName();
-
-    foreach ($tree as $root) {
-      if ($root['name'] == $base or in_array($base, $root['aliases']))
-        return $root;
-    }
-
-    return null;
-  }
-
   // РАБОТА С ФОРМАМИ.
 
   public function formGet($simple = true)
   {
-    if (null === $this->id) {
-      $form = new Form(array('title' => t('Добавление домена или страницы')));
-      $form->addControl(new InfoControl(array(
-        'text' => t('Выберите тип и расположение объекта, после чего будут доступны дополнительные свойства.'),
-        )));
-      $form->addControl(new TextLineControl(array(
-        'value' => 'node_content_name',
-        'label' => t('Название'),
-        'class' => 'form-title',
-        )));
-      $form->addControl(new EnumRadioControl(array(
-        'value' => 'page_type',
-        'label' => t('Тип объекта'),
-        'options' => array(
-          'domain' => t('Домен'),
-          'page' => t('Страница'),
-          ),
-        )));
-      $form->addControl(new TextAreaControl(array(
-        'wrapper_id' => 'domain-aliases-wrapper',
-        'value' => 'node_content_aliases',
-        'label' => t('Дополнительные адреса'),
-        'description' => t('Введите дополнительные адреса, на которые должен откликаться этот домен, по одному имени на строку.'),
-        )));
-      $form->addControl(new EnumControl(array(
-        'wrapper_id' => 'domain-parent-wrapper',
-        'value' => 'node_content_parent_id',
-        'label' => t('Родительский объект'),
-        'options' => self::getFlatSiteMap('select'),
-        'class' => 'hidden',
-        )));
-      $form->addControl(new SubmitControl(array(
-        'text' => t('Продолжить'),
-        )));
-
-      // Добавляем скрытые параметры, чтобы применить значения по умолчанию.
-      foreach (array('class', 'language', 'content_type', 'http_code', 'html_charset', 'params') as $key)
-        $form->addControl(new HiddenControl(array(
-          'value' => 'node_content_'. $key,
-          )));
-
-      return $form;
-    }
+    if (!empty($this->redirect) or (empty($this->id) and !empty($_GET['alias'])))
+      return $this->formGetAlias();
 
     $form = parent::formGet($simple);
     $user = mcms::user();
 
-    if ($user->hasAccess('u', 'domain')) {
+    $form->hideControl('node_content_redirect');
+
+    if ($this->parent_id)
+      $form->hideControl('node_content_robots');
+
+    if (empty($this->parent_id))
+      $form->title = $this->id ? t('Свойства домена') : t('Добавление домена');
+    else
+      $form->title = $this->id ? t('Свойства страницы') : t('Добавление страницы');
+
+    if ($user->hasAccess('u', 'widget') and !$simple) {
       if (null !== ($tab = $this->formGetWidgets()))
         $form->addControl($tab);
     }
 
     $this->fixThemes($form);
 
-    if (null === $this->id)
-      $form->title = t('Добавление домена или страницы');
-    elseif (null === $this->parent_id)
-      $form->title = t('Редактирование домена %name', array('%name' => $this->name));
-    else
-      $form->title = t('Редактирование страницы %name', array('%name' => $this->name));
+    return $form;
+  }
+
+  private function formGetAlias()
+  {
+    $target = $this->id
+      ? $this->redirect
+      : Node::load($_GET['alias'])->name;
+
+    $form = new Form(array(
+      'action' => parent::formGet()->action,
+      'title' => $this->id
+        ? t('Редактирование алиаса')
+        : t('Добавление алиаса'),
+      ));
+
+    $form->addControl(new TextLineControl(array(
+      'value' => 'node_content_name',
+      'label' => t('Доменное имя'),
+      'default' => 'www.'. $target,
+      )));
+
+    $form->addControl(new TextLineControl(array(
+      'value' => 'node_content_redirect',
+      'label' => t('Перенаправлять на'),
+      'default' => $target,
+      )));
+
+    $form->addControl(new EnumControl(array(
+      'value' => 'node_content_defaultsection',
+      'label' => t('Раздел по умолчанию'),
+      'description' => t('При указании раздела перенаправление '
+        .'выполняться не будет. Страница будет открываться по '
+        .'введённому адресу, но будет использоваться домен, '
+        .'на который настроено перенаправление. Базовый раздел '
+        .'этого домена будет подменён.'),
+      )));
+
+    $form->addControl(new SubmitControl());
 
     return $form;
   }
@@ -383,9 +288,18 @@ class DomainNode extends Node implements iContentType
       $data['node_content_html_charset'] = 'utf-8';
       $data['node_content_params'] = 'sec+doc';
       $data['page_type'] = 'domain';
-    } else {
-      $data['node_content_defaultsection:options'] = TagNode::getTags('select');
+      $data['node_content_robots'] = "User-agent: *\n"
+        ."Disallow: /lib\n"
+        ."Disallow: /themes";
     }
+
+    $data['node_content_defaultsection:options'] = TagNode::getTags('select');
+    $data['node_content_params:options'] = array(
+      '' => '(без параметров)',
+      'sec' => '/раздел',
+      'sec+doc' => '/раздел/документ',
+      'doc' => '/документ',
+      );
 
     $data['node_domain_widgets'] = $this->linkListChildren('widget', true);
 
@@ -396,13 +310,51 @@ class DomainNode extends Node implements iContentType
   {
     $isnew = (null === $this->id);
 
+    self::checkSchema();
+
     if ($data['page_type'] == 'domain')
       $data['node_content_parent_id'] = null;
 
     parent::formProcess($data);
 
-    // Если объект новый -- редиректим на его редактирование.
-    if ($isnew) {
+    // Если это — новый домен, редиректим на его редактирование.
+    if ($isnew and empty($this->parent_id)) {
+      if (empty($this->redirect)) {
+        // Если это — не алиас, добавляем страницы для обработки ошибок.
+        $node = Node::create('domain', array(
+          'parent_id' => $this->id,
+          'name' => 'errors',
+          'title' => t('Обработчики ошибок'),
+          'theme' => $this->theme,
+          'lang' => $this->lang,
+          'published' => true,
+          ))->save();
+
+        Node::create('domain', array(
+          'parent_id' => $node,
+          'name' => '403',
+          'title' => 'Forbidden',
+          'theme' => $this->theme,
+          'published' => true,
+          ))->save();
+
+        Node::create('domain', array(
+          'parent_id' => $node,
+          'name' => '404',
+          'title' => 'Not Found',
+          'theme' => $this->theme,
+          'published' => true,
+          ))->save();
+
+        Node::create('domain', array(
+          'parent_id' => $node,
+          'name' => '500',
+          'title' => 'Internal Server Error',
+          'theme' => $this->theme,
+          'published' => true,
+          ))->save();
+      }
+
       return "admin/node/{$this->id}/edit/?destination=". urlencode($_GET['destination']);
     }
 
@@ -709,5 +661,54 @@ class DomainNode extends Node implements iContentType
   private static function strip($data)
   {
     return preg_replace('@>[\s\r\n\t]+<@', '><', $data);
+  }
+
+  public function getActionLinks()
+  {
+    $links = parent::getActionLinks();
+
+    if (empty($this->redirect))
+      $links['alias'] = array(
+        'href' => '?q=admin/structure/create&type=domain'
+          .'&alias='. $this->id
+          .'&destination=CURRENT',
+        'title' => t('Добавить алиас'),
+        'icon' => 'link',
+        );
+
+    $links['edit']['href'] = '?q=admin/structure/edit/'. $this->id
+      .'&destination=CURRENT';
+
+    if (!empty($this->redirect) and array_key_exists('clone', $links))
+      unset($links['clone']);
+
+    return $links;
+  }
+
+  /**
+   * Проверка структуры типа domain.
+   *
+   * При отсутствии нужных полей они добавляются.
+   */
+  private static function checkSchema()
+  {
+    $type = Node::load(array(
+      'class' => 'type',
+      'name' => 'domain',
+      ));
+
+    $save = false;
+
+    if (!array_key_exists('redirect', $type->getFields())) {
+      $type->fieldSet('redirect', array(
+        'label' => t('Перенаправлять на'),
+        'type' => 'TextLineControl',
+        'required' => false,
+        ));
+      $save = true;
+    }
+
+    if ($save)
+      $type->save();
   }
 };

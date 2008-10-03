@@ -178,7 +178,7 @@ class ListWidget extends Widget
       foreach (array('year', 'month', 'day') as $key) {
         if (null === ($tmp = $ctx->get($key)))
           break;
-        $options['filter']['node.created.'. $key] = intval($tmp);
+        $options['filter']['node.created.'. $key] = $tmp;
       }
     }
 
@@ -307,7 +307,8 @@ class ListWidget extends Widget
       if ($this->pager and empty($filter['#sort']['RAND()'])) {
         $options['count'] = Node::count($filter);
 
-        $result['pager'] = $this->getPager($options['count'], $options['page'], $options['limit']);
+        $result['pager'] = mcms::pager($options['count'], $options['page'],
+          $options['limit'], $this->getInstanceName() .'.page');
         if ($result['pager']['pages'] < 2)
           unset($result['pager']);
       }

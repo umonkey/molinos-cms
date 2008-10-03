@@ -54,7 +54,7 @@ class MenuWidget extends Widget implements iWidget
     $tags = array(
       'anything' => t('Текущий, если в нём пусто — родительский'),
       'parent' => t('Родительский (соседние разделы)'),
-      'root' => t('Основной для страницы (или домена)'),
+      'root' => t('Из настроек страницы'),
       );
 
     foreach (TagNode::getTags('select') as $k => $v)

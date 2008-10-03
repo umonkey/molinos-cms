@@ -775,7 +775,8 @@ class mcms
     return false;
   }
 
-  public static function pager($total, $current, $limit, $paramname = 'page', $default = 1)
+  public static function pager($total, $current, $limit,
+    $paramname = 'page', $default = 1)
   {
     $result = array();
 
@@ -804,11 +805,11 @@ class mcms
       $end = min($pages, $current + 5);
 
       // Расщеплённый текущий урл.
-      $url = bebop_split_url();
+      $url = new url();
 
       for ($i = $beg; $i <= $end; $i++) {
-        $url['args'][$paramname] = ($i == $default) ? '' : $i;
-        $result['list'][$i] = ($i == $current) ? '' : bebop_combine_url($url);
+        $url->setarg($paramname, ($i == $default) ? '' : $i);
+        $result['list'][$i] = ($i == $current) ? '' : strval($url);
       }
 
       if (!empty($result['list'][$current - 1]))
@@ -864,20 +865,42 @@ class mcms
         $html .= '<h2>Стэк вызова</h2><pre>'. $backtrace .'</pre>';
 
       $html .= '<hr/>'. self::getSignature();
-
       $html .= '</body></html>';
 
-      mcms::fixurls($html, true);
-    }
+      $content = mcms::fixurls($html, false);
 
-    print join("\n\n", $output) ."\n\n";
+      $report = sprintf("--- Request method: %s ---\n--- Host: %s ---\n--- URL: %s ---\n\n%s", $_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], $_SERVER['REQUEST_URI'], $content);
+      self::writeCrashDump($report);
 
-    if (!empty($_SERVER['REMOTE_ADDR'])) {
-      printf("--- backtrace (time: %s) ---\n", microtime());
-      print $backtrace;
+      header('Content-Length: '. strlen($content));
+      echo $content;
+
+      die();
     }
+    
+    $backtrace = sprintf("--- backtrace (time: %s) ---\n\n%s", microtime(), $backtrace);
+    self::writeCrashDump($backtrace);
+    echo $backtrace;
 
     die();
+  }
+
+  private static function writeCrashDump($contents)
+  {
+    // Узнаем, куда же складывать дампы.
+    // Если такой директории нет, пытаемся создать.
+    $dumpdir = mcms::config('dumpdir', 'tmp/crashdump');
+    if (!is_dir($dumpdir))
+      mkdir($dumpdir);
+    // Задаем файл для выгрузки дампа и проверяем на наличие,
+    // если существует - добавляем случайный мусор в название.
+    $dumpfile = $dumpdir . '/' . date('Y-m-d-') . md5(serialize($_SERVER));
+    if (file_exists($dumpfile))
+      $dumpfile .= rand();
+    $dumpfile .= '.log';
+
+    if (is_writable($dumpdir))
+      file_put_contents($dumpfile, $contents);
   }
 
   public static function mail($from = null, $to, $subject, $text)
@@ -1135,23 +1158,27 @@ class mcms
 
     $compress = (mcms::ismodule('compressor') and empty($_GET['nocompress']));
 
+    $js = $css = '';
+
     // Заход первый: выводим некомпрессируемые объекты
     // или все объекты, если нет компрессора.
     foreach ($extras as $file => $ok) {
       if (!$ok or !$compress) {
         if ('.js' == substr($file, -3))
-          $output .= mcms::html('script', array(
+          $js .= mcms::html('script', array(
             'type' => 'text/javascript',
             'src' => $file,
             )) ."\n";
         elseif ('.css' == substr($file, -4))
-          $output .= mcms::html('link', array(
+          $css .= mcms::html('link', array(
             'rel' => 'stylesheet',
             'type' => 'text/css',
             'href' => $file,
             )) ."\n";
       }
     }
+
+    $output .= $css . $js;
 
     // Заход второй: компрессируем всё, что можно.
     if ($compress)
@@ -1592,8 +1619,99 @@ class mcms
 
     return $content;
   }
+
+  public static function fixurl($url)
+  {
+    if (!empty($_GET['__cleanurls']) and false !== strpos($url, '?q=')) {
+      $parts = explode('?q=', $url, 2);
+      $url = join(array($parts[0], join('?', explode('&', $parts[1], 2))));
+    }
+
+    return $url;
+  }
+
+  public static function embed($url, $options = array(), $nothing = null)
+  {
+    $link = array();
+    $options = array_merge(array('width' => 425, 'height' => 318), $options);
+
+    if (null === $nothing)
+      $nothing = ''; // 'Для просмотра этого ролика нужен Flash.';
+
+    if (strtolower(substr($url, -4)) == '.mp3') {
+      $link['type'] = 'audio/mpeg';
+      $link['is_audio'] = true;
+    } elseif (preg_match('%^http://vimeo.com/([0-9]+)%', $url, $m1)) {
+      $link['type'] = 'video/x-flv';
+      $link['embed'] = '<object width="'. $options['width'] .'" height="'. $options['height'] .'">'
+        .'<param name="allowfullscreen" value="true" />'
+        .'<param name="allowscriptaccess" value="always" />'
+        .'<param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id='. $m1[1] .'&server=vimeo.com&show_title=0&show_byline=0&show_portrait=0&color=00ADEF&fullscreen=1" />'
+        .'<embed src="http://vimeo.com/moogaloop.swf?clip_id='. $m1[1] .'&server=vimeo.com&show_title=0&show_byline=0&show_portrait=0&color=00ADEF&fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="'. $options['width'] .'" height="'. $options['height'] .'">'
+        .'</embed></object>';
+      $link['is_video'] = true;
+      $link['host'] = 'Vimeo';
+      $link['vid'] = $m1[1];
+    } elseif (preg_match('%^http://video\.google\.com/videoplay\?docid=([0-9\-]+)%i', $url, $m1)) {
+      $link['type'] = 'video/x-flv';
+      $link['embed'] = '<object width="'.$options['width'].'" height="'.$options['height'].'"><param name="movie" value="http://video.google.com/googleplayer.swf?docId='.$m1[1].'&amp;hl=en"></param><param name="wmode" value="transparent"></param><embed src="http://video.google.com/googleplayer.swf?docId='.$m1[1].'&amp;hl=en" type="application/x-shockwave-flash" wmode="transparent" width="'.$options['width'].'" height="'.$options['height'].'"></embed></object>';
+      $link['is_video'] = true;
+      $link['host'] = 'Google Video';
+      $link['vid'] = $m1[1];
+    } elseif (preg_match('%^http://([a-z0-9]+\.){0,1}youtube\.com/(?:watch\?v=|v/)([^&]+)%i', $url, $m1)) {
+      $o = mcms::html('param', array(
+        'name' => 'movie',
+        'value' => 'http://www.youtube.com/v/'. $m1[2],
+        ));
+      $o .= mcms::html('param', array(
+        'name' => 'wmode',
+        'value' => 'transparent',
+        ));
+      $o .= mcms::html('embed', array(
+        'src' => 'http://www.youtube.com/v/'. $m1[2],
+        'type' => 'application/x-shockwave-flash',
+        'wmode' => 'transparent',
+        'width' => $options['width'],
+        'height' => $options['height'],
+        ), $nothing);
+      $link['embed'] = mcms::html('object', array(
+        'width' => $options['width'],
+        'height' => $options['height'],
+        ), $o);
+      $link['type'] = 'video/x-flv';
+      $link['is_video'] = true;
+      $link['host'] = 'YouTube';
+      $link['vid'] = $m1[2];
+    } elseif (preg_match('%^http://vids\.myspace\.com/index.cfm\?fuseaction=[^&]+\&(?:amp;){0,1}videoID=([0-9]+)%i', $url, $m1)) {
+      $link['type'] = 'video/x-flv';
+      $link['embed'] = '<embed src="http://lads.myspace.com/videos/vplayer.swf" flashvars="m='.$m1[1].'&type=video" type="application/x-shockwave-flash" width="'.$options['width'].'" height="'.$options['height'].'"></embed>';
+      $link['is_video'] = true;
+      $link['host'] = 'MySpace';
+      $link['vid'] = $m1[1];
+    } elseif (preg_match('%^http://vision\.rambler\.ru/users/(.+)$%i', $url, $m1)) {
+      $link['type'] = 'video/x-flv';
+      $link['embed'] = '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=7,0,0,0" width="'.$options['width'].'" height="'.$options['height'].'"><param name="wmode" value="transparent"></param><param name="movie" value="http://vision.rambler.ru/i/e.swf?id='.$m1[1].'&logo=1" /><embed src="http://vision.rambler.ru/i/e.swf?id='.$m1[1].'&logo=1" width="'.$options['width'].'" height="'.$options['height'].'" type="application/x-shockwave-flash" wmode="transparent"/></object>';
+      $link['is_video'] = true;
+      $link['host'] = 'Rambler';
+      $link['vid'] = $m1[1];
+    } elseif (preg_match('%^http://video\.mail\.ru/([a-z]+)/([^/]+)/([0-9]+)/([0-9]+)\.html*%i', $url, $m1)) {
+      $link['type'] = 'video/x-flv';
+      $link['embed'] = '<object width="'.$options['width'].'" height="'.$options['height'].'"><param name="flashvars" value="imaginehost=video.mail.ru&perlhost=my.video.mail.ru&alias='.$m1[1].'&username='.$m1[2].'&albumid='.$m1[3].'&id='.$m1[4].'&catalogurl=http://video.mail.ru/catalog/music/" /><param name="movie" value="http://img.mail.ru/r/video/player_full_size.swf?par=http://video.mail.ru/'.$m1[1].'/'.$m1[2].'/'.$m1[3].'/$'.$m1[4].'$0$248"></param><embed src="http://img.mail.ru/r/video/player_full_size.swf?par=http://video.mail.ru/'.$m1[1].'/'.$m1[2].'/'.$m1[3].'/$'.$m1[4].'$0$248" type="application/x-shockwave-flash" width="'.$options['width'].'" height="'.$options['height'].'" flashvars="imaginehost=video.mail.ru&perlhost=my.video.mail.ru&alias='.$m1[1].'&username='.$m1[2].'&albumid='.$m1[3].'&id='.$m1[4].'&catalogurl=http://video.mail.ru/catalog/music/"></embed></object>';
+      $link['is_video'] = true;
+      $link['host'] = 'Mail.Ru';
+      $link['vid'] = $m1[1].'/'.$m1[2].'/'.$m1[3].'/'.$m1[4];
+    } elseif (preg_match('%^http://rutube\.ru/tracks/(\d+).html\?v=(.+)$%i', $url, $m1)) {
+      $link['type'] = 'video/x-flv';
+      $link['embed'] = '<OBJECT width="'.$options['width'].'" height="'.$options['height'].'"><PARAM name="movie" value="http://video.rutube.ru/'.$m1[2].'" /><PARAM name="wmode" value="transparent" /><EMBED src="http://video.rutube.ru/'.$m1[2].'" type="application/x-shockwave-flash" wmode="transparent" width="'.$options['width'].'" height="'.$options['height'].'" /></OBJECT>';
+      $link['is_video'] = true;
+      $link['host'] = 'RuTube';
+      $link['vid'] = $m[2];
+    }
+
+    return empty($link) ? null : $link;
+  }
 };
 
-set_exception_handler('mcms::renderException');
+set_exception_handler('mcms::fatal');
 set_error_handler('mcms::error_handler', E_ERROR /*|E_WARNING|E_PARSE*/);
 register_shutdown_function('mcms::shutdown_handler');

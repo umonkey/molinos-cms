@@ -80,17 +80,22 @@ class AdminUIListControl extends Control
         elseif ((null !== $linkfield) and ($linkfield == $field)) {
           if (!empty($node['#link'])) {
             $href = $node['#link'];
+          } elseif (!empty($node['#nolink'])) {
+            $href = null;
           } else {
             $href = isset($this->picker)
               ? "?q=attachment.rpc&fid={$node['id']}"
               : '?q=admin/'. $this->getGroup() .'/edit/'. $node['id'] .'&destination=CURRENT';
           }
 
-          $row .= mcms::html('a', array(
-            'href' => $href,
-            'class' => isset($this->picker) ? 'returnHref' : null,
-            'onclick' => isset($this->picker) ? "return mcms_picker.mySubmit(\"". l('?q=attachment.rpc&fid='. $node['id']) ."\",{$node['id']})" : null,
-            ), empty($value) ? '(без названия)' : mcms_plain($value, false));
+          if ($href)
+            $row .= mcms::html('a', array(
+              'href' => $href,
+              'class' => isset($this->picker) ? 'returnHref' : null,
+              'onclick' => isset($this->picker) ? "return mcms_picker.mySubmit(\"". l('?q=attachment.rpc&fid='. $node['id']) ."\",{$node['id']})" : null,
+              ), empty($value) ? '(без названия)' : mcms_plain($value, false));
+          else
+            $row .= mcms_plain($value, false);
         } elseif (empty($value))
           $row .= '&nbsp;';
         else
@@ -186,7 +191,7 @@ class AdminUIListControl extends Control
 
           $tmp = mcms::html('a', array(
             'title' => 'Скачать',
-            'href' => "?q=attachment.rpc&fid={$node['id']}",
+            'href' => "?q=attachment/{$node['id']}/". urlencode($node['filename']),
             'class' => isset($this->picker) ? 'returnHref' : null,
             ), $tmp);
 

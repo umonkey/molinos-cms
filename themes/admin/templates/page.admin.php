@@ -7,6 +7,22 @@ function render_dashboard($result)
 
 function render_notifications()
 {
+  if (!empty($_GET['created']) and !empty($_GET['type'])) {
+    $map = array(
+      'domain' => 'Страница добавлена, <a href="@url">настроить</a>?',
+      );
+
+    if (array_key_exists($_GET['type'], $map)) {
+      $output = t($map[$_GET['type']], array(
+        '%id' => $_GET['created'],
+        '@url' => '?q=admin/content/edit/'. $_GET['created']
+          .'&destination=CURRENT',
+        ));
+      return mcms::html('div', array(
+        'class' => 'notification',
+        ), $output);
+    }
+  }
 }
 
 function render_username()
@@ -46,14 +62,6 @@ function get_version_info()
 
   $version .= '+'. ini_get('memory_limit') .')';
 
-  if (mcms::version() != ($available = mcms::version(mcms::VERSION_AVAILABLE))) {
-    $version .= t(' — <a href=\'@url\'>обновить</a>', array(
-      '@url' => '?q=admin&cgroup=none&module=update',
-      ));
-  }
-
-  // $version .= t(' — <a href=\'@url\'>проверить обновления</a>', array('@url' => '/admin/?mode=update'));
-
   return $version;
 }
 
@@ -82,14 +90,14 @@ function get_dba_link()
       mcms::extras('themes/admin/css/colors-green.css');
 
       if (empty($_GET['picker'])) {
-        mcms::extras('themes/all/jquery/jquery.min.js');
-        mcms::extras('themes/all/jquery/plugins/jquery.suggest.min.js');
+        mcms::extras('themes/all/jquery/jquery.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.suggest.js');
         mcms::extras('themes/all/jquery/plugins/jquery.suggest.css');
-        mcms::extras('themes/all/jquery/plugins/jquery.ifixpng.min.js');
-        mcms::extras('themes/all/jquery/plugins/jquery.mcms.tabber.min.js');
-        mcms::extras('themes/all/jquery/plugins/jquery.dimensions.min.js');
-        mcms::extras('themes/all/jquery/plugins/jquery.bgiframe.min.js');
-        mcms::extras('themes/admin/js/bebop.min.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.ifixpng.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.mcms.tabber.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.dimensions.js');
+        mcms::extras('themes/all/jquery/plugins/jquery.bgiframe.js');
+        mcms::extras('themes/admin/js/bebop.js');
       } elseif (!empty($_GET['mcmsarchive'])) {
         mcms::extras('themes/admin/js/picker-redux.js');
         print '<script type="text/javascript">var picker = "'.
@@ -110,8 +118,6 @@ function get_dba_link()
     <link rel="copyright" href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.html" />
     <link rel="glossary" href="?q=admin/structure/list/schema" />
     <link rel="author" href="http://www.molinos-cms.ru/" />
-    <script type="text/javascript">var mcms_path = '<?php
-      print mcms::path(); ?>';</script>
   </head>
   <body>
     <div id="preloaded_images"></div>
@@ -123,12 +129,11 @@ function get_dba_link()
       <div id="navbar">
         <div id="top_toolbar">
           <div class="right">
-            <a href="<?php print $base; ?>">www</a>
             <?php print render_username(); ?>
+            <a href="<?php print $base; ?>" title="Перейти на сайт"><img src="themes/admin/img/icon-home.png" alt="home" width="16" height="16" /></a>
             <?php print get_dba_link(); ?>
-            <a href="<?php print l('admin.rpc?action=reload&destination=CURRENT'); ?>&amp;reload=1&flush=1" title="Сбрасывает кэш и сканирует модули, это медленно!">Перезагрузка</a>
-            <?php print l('base.rpc?action=logout',
-              'Выйти', array('id' => 'lnk_exit')); ?>
+            <a href="<?php print l('admin.rpc?action=reload&destination=CURRENT'); ?>&amp;reload=1&flush=1" title="Очистить кэш"><img src="themes/admin/img/icon-reload.png" alt="reload" width="16" height="16" /></a>
+            <a href="base.rpc?action=logout" id="lnk_exit" title="Выйти"><img src="themes/admin/img/icon-exit.png" alt="logout" width="16" height="16" /></a>
           </div>
         </div><!-- id=top_toolbar -->
 

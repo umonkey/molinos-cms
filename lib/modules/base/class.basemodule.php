@@ -270,7 +270,7 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
   protected static function onRemoteOpenid(Context $ctx)
   {
     if (!empty($_GET['openid_mode']))
-      $node = OpenIdProvider::openIDAuthorize($_GET['openid_mode']);
+      $node = OpenIdProvider::openIDAuthorize($_GET['openid_mode'], $ctx);
     mcms::debug($node, $_GET);
   }
 

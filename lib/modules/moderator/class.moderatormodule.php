@@ -116,7 +116,8 @@ class ModeratorModule implements iModuleConfig, iNodeHook
       $rc = BebopMimeMail::send(
         null,
         $to,
-        t('Редакторская активность на сайте %site', array('%site' => mcms::config('basedomain'))),
+        t('Редакторская активность на сайте %site',
+          array('%site' => $_SERVER['HTTP_HOST'])),
         $body
         );
     }

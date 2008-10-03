@@ -91,7 +91,7 @@ class TitleWidget extends Widget
       $result['section'] = $this->ctx->section->getRaw();
 
       if ($this->showpath)
-        foreach ($tmp->getParents() as $p)
+        foreach ($this->ctx->section->getParents() as $p)
           $result['path'][] = $p->getRaw();
     }
 

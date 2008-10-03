@@ -46,13 +46,18 @@ class TagsWidget extends Widget implements iWidget
       'value' => 'config_fixed',
       'label' => t('Раздел по умолчанию'),
       'description' => t('Здесь можно выбрать раздел, который будет использован, если из адреса текущего запроса вытащить код раздела не удалось.'),
-      'options' => TagNode::getTags('select'),
+      'options' => array('page' => 'Из настроек страницы')
+        + TagNode::getTags('select'),
       'default' => t('не используется'),
       )));
     $form->addControl(new BoolControl(array(
       'value' => 'config_forcefixed',
       'label' => t('Всегда использовать этот раздел'),
       'description' => t('Всегда возвращать информацию о выбранном разделе, независимо от того, в каком разделе находится посетитель.'),
+      )));
+    $form->addControl(new BoolControl(array(
+      'value' => 'config_illcache',
+      'label' => t('Используется для формирования меню'),
       )));
 
     return $form;
@@ -108,10 +113,17 @@ class TagsWidget extends Widget implements iWidget
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
 
-    if ($this->forcefixed or !($options['root'] = $ctx->section->id))
-      $options['root'] = $this->fixed;
+    if ($this->forcefixed) {
+      if ('page' == ($options['root'] = $this->fixed))
+        $options['root'] = $this->ctx->root->id;
+    } else {
+      $options['root'] = $ctx->section->id;
+    }
 
     $options['dynamic'] = ($ctx->section->id !== null);
+
+    if ($this->illcache)
+      $options['anchor'] = $ctx->section->id;
 
     return $options;
   }

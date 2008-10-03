@@ -1,12 +1,10 @@
 <?php
 
-if (!empty($list)) {
-  $names = array();
+if (!empty($document))
+  $title = mcms_plain(l($document));
+elseif (!empty($section))
+  $title = mcms_plain(l($section));
+else
+  return null;
 
-  if (!empty($document))
-    $names[] = mcms_plain(l($document));
-  if (!empty($section))
-    $names[] = mcms_plain(l($section));
-
-  print mcms::html('title', join(' — ', $names));
-}
+print $title;

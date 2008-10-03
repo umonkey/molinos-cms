@@ -11,24 +11,49 @@ class Attachment
   private $options = array();
   private $node = null;
   private $guid = null;
+  private $ctx = null;
 
   public function __construct(Context $ctx)
   {
-    if (!preg_match('@^(\d+)(?:,(\d*))?(?:,(\d*))?(?:,([^/]+))?(?:/(.+))?@', $q = $ctx->get('fid'), $m))
+    if (preg_match('@attachment/(\d+)(?:,([a-z0-9,.]*))?(?:/(.*))?$@', $ctx->query(), $m)) {
+      if (!empty($m[2])) {
+        $parts = explode(',', $m[2]);
+
+        if (!empty($parts[0]))
+          $this->nw = $parts[0];
+        if (!empty($parts[1]))
+          $this->nh = $parts[1];
+
+        // TODO: cdw, другие опции
+      }
+
+      $this->filename = $m[3];
+
+      $fid = $m[1];
+    }
+
+    elseif (preg_match('@^(\d+)(?:,(\d*))?(?:,(\d*))?(?:,([^/]+))?(?:/(.+))?@', $q = $ctx->get('fid'), $m)) {
+      $this->nw = empty($m[2]) ? null : $m[2];
+      $this->nh = empty($m[3]) ? null : $m[3];
+      $this->filename = empty($m[5]) ? null : $m[5];
+
+      $fid = $m[1];
+    }
+    
+    else {
       mcms::fatal('Usage: ?q=attachment.rpc&fid=id[,width[,height[,options[/filename]]]]');
+    }
+
+    $this->ctx = $ctx;
 
     try {
       $this->node = Node::load(array(
         'class' => 'file',
-        'id' => $m[1],
+        'id' => $fid,
         ));
     } catch (ObjectNotFoundException $e) {
       $this->sendError(404, 'file not found.');
     }
-
-    $this->nw = empty($m[2]) ? null : $m[2];
-    $this->nh = empty($m[3]) ? null : $m[3];
-    $this->filename = $m[5];
 
     if (!empty($this->filename) and $this->filename != $this->node->filename)
       $this->sendError(404, 'file "'. $this->filename .'" not found.');
@@ -148,6 +173,9 @@ class Attachment
   {
     $headers = array();
 
+    if (!file_exists($this->getSourceFile()))
+      $this->sendError(404, 'Ошибка: файл не найден в файловом архиве.');
+
     if (false !== strstr($this->node->filetype, 'shockwave'))
       $download = false;
     elseif ($this->isResizable())
@@ -162,7 +190,7 @@ class Attachment
       if ($this->filename != $this->node->filename) {
         $path = 'attachment/'. $this->node->id .'/'.
           urlencode($this->node->filename);
-        mcms::redirect($path);
+        $this->ctx->redirect($path);
       }
     }
 
@@ -170,8 +198,12 @@ class Attachment
     $range_from = 0;
     $range_to = $this->node->filesize;
 
-    if (!empty($this->nw) or !empty($this->nh))
-      $this->send(MCMS_ROOT .'/themes/admin/img/media-floppy.png', 'image/png');
+    if (!empty($this->nw) or !empty($this->nh)) {
+      $sig = str_replace('/', '-', $this->node->filetype);
+      if (!file_exists($icon = dirname(__FILE__) .'/mime/'. $sig .'.png'))
+        $icon = dirname(__FILE__) .'/mime/application-octet-stream.png';
+      $this->send($icon, 'image/png');
+    }
 
     ini_set('zlib.output_compression', 0);
 
@@ -202,8 +234,9 @@ class Attachment
         if (false !== strpos($_SERVER['HTTP_USER_AGENT'], 'compatible; MSIE'))
           $filename = mb_convert_encoding($filename, 'windows-1251', 'utf-8');
 
-      $headers[] = "Content-Disposition: attachment; "
-        ."filename=\"". $filename ."\"";
+      if ('text/plain' != $this->node->filetype)
+        $headers[] = "Content-Disposition: attachment; "
+          ."filename=\"". $filename ."\"";
     }
 
     /*

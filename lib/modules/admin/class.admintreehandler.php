@@ -10,6 +10,7 @@ class AdminTreeHandler
   protected $columntitles = array();
   protected $selectors;
   protected $zoomlink;
+  protected $addlink;
 
   public function __construct(Context $ctx)
   {
@@ -31,6 +32,7 @@ class AdminTreeHandler
       ));
     $form->addControl(new AdminUINodeActionsControl(array(
       'actions' => $this->actions,
+      'addlink' => $this->addlink,
       )));
     $form->addControl(new AdminUITreeControl(array(
       'columns' => $this->columns,
@@ -38,8 +40,10 @@ class AdminTreeHandler
       'selectors' => $this->selectors,
       'zoomlink' => $this->zoomlink,
       )));
+
     $form->addControl(new AdminUINodeActionsControl(array(
       'actions' => $this->actions,
+      'addlink' => $this->addlink,
       )));
 
     $output .= $form->getHTML(array(
@@ -81,7 +85,19 @@ class AdminTreeHandler
       $this->parent = null;
       $this->columns = array('name', 'title', 'language', 'params', 'theme');
       $this->actions = array('publish', 'unpublish', 'delete', 'clone');
-      $this->title = t('Типовые страницы');
+
+      try {
+        $node = Node::load($this->ctx->get('subid'));
+        $this->title = t('Страницы в домене «%name»',
+          array('%name' => $node->name));
+      } catch (ObjectNotFoundException $e) {
+        $this->title = t('Непонятный домен');
+      }
+
+      $this->addlink = '?q=admin/structure/create&type=domain'
+        .'&parent='. $this->ctx->get('subid')
+        .'&destination=CURRENT';
+
       break;
     }
 
@@ -121,12 +137,15 @@ class AdminTreeHandler
 
     $filter = array(
       'class' => $this->type,
-      'parent_id' => null,
+      'parent_id' => $this->ctx->get('subid'),
       '#cache' => false,
       );
 
     foreach (Node::find($filter) as $root) {
-      $children = $root->getChildren('flat');
+      // if ($this->ctx->get('subid'))
+        $children = $root->getChildren('flat');
+      // else
+      //  $children = array();
 
       foreach ($children as $node) {
         if ($this->type == 'pages' and $node['theme'] == 'admin' and !$user->hasAccess('u', 'moduleinfo'))

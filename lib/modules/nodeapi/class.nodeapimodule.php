@@ -133,8 +133,9 @@ class NodeApiModule implements iRemoteCall
       break;
 
     case 'create':
-      if ('POST' != $_SERVER['REQUEST_METHOD'])
-        throw new BadRequestException();
+      if (!$ctx->method('post'))
+        throw new BadRequestException(t('Этот запрос можно отправить '
+          .'только методом POST.'));
 
       $parent = $ctx->post('node_content_parent_id');
 
@@ -148,6 +149,9 @@ class NodeApiModule implements iRemoteCall
       break;
 
     case 'edit':
+      if (!$ctx->method('post'))
+        throw new BadRequestException(t('Этот запрос можно отправить '
+          .'только методом POST.'));
       $node = Node::load($ctx->get('node'));
       $node->formProcess($ctx->post);
       break;

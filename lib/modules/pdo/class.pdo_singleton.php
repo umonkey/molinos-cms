@@ -106,6 +106,7 @@ class PDO_Singleton extends PDO
 
     try {
       $sth = $this->prepare($sql);
+      $this->query_log[] = '-- params: '. var_export($params, true);
       $sth->execute($params);
     } catch (PDOException $e) {
       if ('sqlite' == self::$dbtype) {
@@ -149,6 +150,17 @@ class PDO_Singleton extends PDO
         $string .= ' '. (microtime(true) - $time);
       }
       $this->query_log[] = $string;
+    }
+  }
+
+  /**
+   * Дополнение последней записи в логе.
+   */
+  protected function loga($string)
+  {
+    if (null !== $this->query_log) {
+      $msg = array_pop($this->query_log);
+      $this->query_log[] = $msg . $string;
     }
   }
 

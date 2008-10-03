@@ -54,7 +54,7 @@ img.png {
   height: auto;
   _height: 100%;
   min-height: 100%;
-  margin: 0 30px -65px 30px;
+  margin: 0 30px -90px 30px;
 }
 
 .spacer {
@@ -411,12 +411,11 @@ form textarea.resizable {
 
 /*footer - begin*/
 #footer_spacer {
-  height: 65px;
+  height: 90px;
   clear: both;
 }
 
 #footer {
-  height: 45px;
   margin: 0 30px;
   padding-top: 20px;
   font-size: 93%;
@@ -618,11 +617,11 @@ table.nodelist td.icon .icon-delete {
 }
 
 table.nodelist td.icon .icon-unpublish {
-  background-image: url(../img/icon-publish.gif);
+  background-image: url(../img/icon-unpublish.png);
 }
 
 table.nodelist td.icon .icon-publish {
-  background-image: url(../img/icon-unpublish.gif);
+  background-image: url(../img/icon-publish.png);
 }
 
 table.nodelist td.icon .icon-add {
@@ -639,4 +638,12 @@ table.nodelist td.icon .icon-validate {
 
 table.nodelist td.icon .icon-search {
   background-image: url(../img/icon-search.png);
+}
+
+table.nodelist td.icon .icon-clone {
+  background-image: url(../img/icon-clone.png);
+}
+
+table.nodelist td.icon .icon-link {
+  background-image: url(../img/icon-link.png);
 }

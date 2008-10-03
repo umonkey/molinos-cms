@@ -122,10 +122,12 @@ class GroupNode extends Node implements iContentType
       ));
     $tab->addControl(new HiddenControl(array(
       'value' => 'reset_group_perm',
+      'default' => 1,
       )));
     $tab->addControl(new AccessControl(array(
       'value' => 'perm',
       'options' => $options,
+      'label' => t('Права на типы документов'),
       )));
 
     return $tab;

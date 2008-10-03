@@ -415,6 +415,18 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
         'options' => $options,
         'label' => t('Доступ разрешён группам'),
         )));
+    $tab->addControl(new SetControl(array(
+      'value' => 'perm_own',
+      'label' => t('Права на собственные объекты'),
+      'options' => array(
+        'u' => t('Изменение'),
+        'd' => t('Удаление'),
+        ),
+      )));
+    $tab->addControl(new HiddenControl(array(
+      'value' => 'perm_own_reset',
+      'default' => 1,
+      )));
 
       return $tab;
     }
@@ -488,6 +500,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     $data = parent::formGetData();
     $data['node_content_fields'] = $this->fields;
     $data['node_type_widgets'] = $this->linkListChildren('widget', true);
+    $data['perm_own'] = $this->perm_own;
 
     return $data;
   }
@@ -500,6 +513,13 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if (empty($this->id) and !empty($data['node_content_isdictionary'])) {
       $this->data['isdictionary'] = true;
       $this->data['published'] = true;
+    }
+
+    // Установка прав на собственные объекты.
+    if (!empty($data['perm_own_reset'])) {
+      if (empty($data['perm_own']))
+        $data['perm_own'] = array();
+      $this->data['perm_own'] = $data['perm_own'];
     }
 
     // @todo этот блок раньше был ПОД formProcess(), почему?  Были какие-то
@@ -709,5 +729,15 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if (count($ids = $this->linkListParents('tag', true)))
       return Node::find(array('id' => $ids));
     return array();
+  }
+
+  public function getActionLinks()
+  {
+    $links = parent::getActionLinks();
+
+    if (in_array($this->name, self::getInternal()))
+      $links['delete'] = null;
+
+    return $links;
   }
 };

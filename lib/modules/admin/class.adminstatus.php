@@ -23,6 +23,9 @@ class AdminStatus implements iAdminMenu
   {
     $icons = array();
 
+    if ('admin' != $_GET['q'])
+      return $icons;
+
     if (!($p = mcms::user()->password) or $p == md5(''))
       $icons[] = array(
         'group' => 'status',

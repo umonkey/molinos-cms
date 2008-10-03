@@ -14,6 +14,7 @@ class AdminListHandler
   public $actions;
   public $linkfield;
   public $zoomlink;
+  protected $addlink;
 
   protected $selectors;
 
@@ -21,6 +22,7 @@ class AdminListHandler
   protected $page;
 
   protected $preset = null;
+  protected $hidesearch = false;
 
   // Кэшируем для исключения повторных вызовов.
   private $count = null;
@@ -64,7 +66,9 @@ class AdminListHandler
     }
 
     $output = '<h2>'. $this->title .'</h2>';
-    $output .= $this->getSearchForm();
+
+    if (!$this->hidesearch)
+      $output .= $this->getSearchForm();
 
     if (!empty($data)) {
       $form = new Form(array(
@@ -74,6 +78,7 @@ class AdminListHandler
       if (empty($_GET['picker']))
         $form->addControl(new AdminUINodeActionsControl(array(
           'actions' => $this->actions,
+          'addlink' => $this->addlink,
           )));
 
       $form->addControl(new AdminUIListControl(array(
@@ -89,6 +94,7 @@ class AdminListHandler
       if (empty($_GET['picker']))
         $form->addControl(new AdminUINodeActionsControl(array(
           'actions' => $this->actions,
+          'addlink' => $this->addlink,
           )));
       $form->addControl(new PagerControl(array(
         'value' => '__pager',
@@ -233,6 +239,30 @@ class AdminListHandler
           );
         $this->sort = array('name');
         break;
+      case '404':
+        $this->columns = array('old', 'new', 'ref');
+        $this->columntitles = array(
+          'old' => 'Запрошенная страница',
+          'new' => 'Адрес перенаправления',
+          'ref' => 'Источник',
+          );
+        $this->title = t('Страницы, которые не были найдены');
+        break;
+      case 'pages':
+        $this->columns = array('name', 'title', 'redirect', 'theme');
+        $this->columntitles = array(
+          'name' => 'Домен',
+          'title' => 'Заголовок',
+          'redirect' => 'Редирект',
+          'theme' => 'Шкура',
+          );
+        $this->types = array('domain');
+        $this->title = t('Обрабатываемые домены');
+        $this->hidesearch = true;
+        $this->addlink = '?q=admin/structure/create&type=domain'
+          .'&destination=CURRENT';
+        $this->sort = array('name');
+        break;
       }
     }
 
@@ -295,11 +325,7 @@ class AdminListHandler
       $filter['class'] = $this->types;
     else {
       $filter['class'] = array();
-
-      if (0 === $this->published)
-        $itypes = array('moduleinfo');
-      else
-        $itypes = TypeNode::getInternal();
+      $itypes = TypeNode::getInternal();
 
       foreach (TypeNode::getSchema() as $k => $v) {
         if (empty($v['isdictionary']) and (empty($v['adminmodule']) or !mcms::ismodule($v['adminmodule'])) and !in_array($k, $itypes))
@@ -344,11 +370,46 @@ class AdminListHandler
     $filter['#permcheck'] = true;
     $filter['#cache'] = false;
 
+    if ('pages' == $this->preset)
+      $filter['parent_id'] = null;
+
     return $filter;
   }
 
   protected function getData()
   {
+    if ('404' == $this->preset) {
+      $data = array();
+
+      foreach (mcms::db()->getResults("SELECT * FROM `node__fallback`") as $row) {
+        $row['_links'] = array(
+          'edit' => array(
+            'href' => '?q=admin/content/edit/404/'. urlencode($row['old'])
+              .'&destination=CURRENT',
+            'title' => 'Изменить',
+            'icon' => 'edit',
+            ),
+          'delete' => array(
+            'href' => '?q=admin.rpc&action=404&mode=delete'
+              .'&src='. urlencode($row['old']) .'&destination=CURRENT',
+            'title' => 'Удалить',
+            'icon' => 'delete',
+            ),
+          );
+
+        if (!empty($row['ref'])) {
+          $url = new url($row['ref']);
+          if (0 === strpos($name = $url->host, 'www.'))
+            $name = substr($name, 4);
+          $row['ref'] = l($row['ref'], $name);
+        }
+
+        $data[] = $row;
+      }
+
+      return $data;
+    }
+
     $result = array();
     $itypes = TypeNode::getInternal();
 
@@ -396,6 +457,13 @@ class AdminListHandler
         }
       }
       break;
+
+    case 'pages':
+      foreach ($result as $k => $v)
+        if (empty($v['redirect']))
+          $result[$k]['#link'] = '?q=admin/structure/tree/pages/'. $v['id'];
+        else
+          $result[$k]['#nolink'] = true;
     }
 
     return $result;
@@ -404,8 +472,15 @@ class AdminListHandler
   protected function getCount()
   {
     if (null === $this->pgcount) {
-      $filter = $this->getNodeFilter();
-      $this->pgcount = Node::count($filter);
+      switch ($this->preset) {
+      case '404':
+        $this->pgcount = mcms::db()
+          ->fetch("SELECT COUNT(*) FROM `node__fallback`");
+        break;
+      default:
+        $filter = $this->getNodeFilter();
+        $this->pgcount = Node::count($filter);
+      }
     }
 
     return $this->pgcount;
