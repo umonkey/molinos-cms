@@ -46,6 +46,11 @@ abstract class Control implements iFormControl
    */
   private $children;
 
+  /**
+   * Уникальный идентификатор контрола.
+   */
+  private $_id;
+
   public function __construct(array $form = array(), array $required_fields = null)
   {
     static $lastid = 0;
@@ -82,8 +87,15 @@ abstract class Control implements iFormControl
   {
     if (array_key_exists($key, $this->form))
       return $this->form[$key];
-    else
+    elseif ('id' == $key) {
+      if (null === $this->_id) {
+        static $nextid = 1;
+        $this->_id = $nextid++;
+      }
+      return 'ctl__'. $this->_id;
+    } else {
       return null;
+    }
   }
 
   protected function __set($key, $value)
