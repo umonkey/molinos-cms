@@ -15,7 +15,7 @@ class MsgModule implements iRemoteCall
       'received' => null,
       ));
 
-    $msg->save();
+    return $msg->save();
   }
 
   private static function getUid($re)
