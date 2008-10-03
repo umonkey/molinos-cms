@@ -228,7 +228,7 @@ class MenuWidget extends Widget implements iWidget
         $a['href'] = str_replace('$tid', $child->id, $link);
 
         if ($this->hidecurrent and in_array('current', $li['class'])) {
-          if (empty($this->options['document'])) {
+          if (empty($this->options['document']->id)) {
             $a['href'] = null;
             $a['class'][] = 'nolink';
           }
