@@ -190,12 +190,12 @@ class Node extends NodeBase implements iContentType
     return $links;
   }
 
-  public static function getSortedList($class)
+  public static function getSortedList($class, $field = 'name', $key = 'id')
   {
     $result = array();
 
     foreach (Node::find(array('class' => $class)) as $n)
-      $result[$n->id] = $n->name;
+      $result[$n->$key] = $n->$field;
 
     asort($result);
 
