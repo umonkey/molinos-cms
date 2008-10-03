@@ -1995,6 +1995,11 @@ class NodeBase
                   'published' => 1,
                   'deleted' => 0,
                   );
+
+                $node = Node::find($filter, 1);
+
+                if (!empty($node))
+                  $node = array_shift($node);
               } else {
                 mcms::debug($schema['fields'][$k]);
               }
