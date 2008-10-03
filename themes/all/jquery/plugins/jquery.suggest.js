@@ -124,7 +124,7 @@
 						
 					} else {
 					
-						$.get(options.source, {q: q}, function(txt) {
+						$.get(options.source, {search: q}, function(txt) {
 
 							$results.hide();
 							
