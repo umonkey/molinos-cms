@@ -25,14 +25,6 @@ abstract class Widget implements iWidget
   protected $info = array();
 
   /**
-   * Список имён групп, необходимых для работы с виджетом.
-   *
-   * FIXME: оно кому-нибудь нужно?  "Административных виджетов" давно нет,
-   * погаситься можно в getRequestOptions().
-   */
-  protected $groups = array();
-
-  /**
    * Карта параметров.  Используется большинством виджетов с несложной
    * валидацией параметров (для более сложной нужен собственный обработчик
    * метода getViewOptions()).  Формат: имя_параметра => array(значение =>
@@ -503,5 +495,14 @@ abstract class Widget implements iWidget
       throw new PageNotFoundException();
 
     return true;
+  }
+
+  protected function checkGroups()
+  {
+    $diff = array_intersect(
+      (array)$this->groups,
+      array_keys(mcms::user()->getGroups()));
+
+    return !empty($diff);
   }
 };
