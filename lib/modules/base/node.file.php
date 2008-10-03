@@ -225,7 +225,7 @@ class FileNode extends Node implements iContentType
    * @return Node последний добавленный в архив файл
    * @param string $zipfile путь к ZIP-архиву.
    */
-  public static function unzip($zipfile)
+  public static function unzip($zipfile, $folder = null, $parent_id = null)
   {
     $node = null;
     $tmpdir = mcms::mkdir(mcms::config('tmpdir') .'/upload');
@@ -237,23 +237,30 @@ class FileNode extends Node implements iContentType
           zip_entry_open($zip, $zip_entry);
 
           if (substr(zip_entry_name($zip_entry), -1) == '/') {
+            /*
+            mcms::debug(zip_entry_name($zip_entry));
+
             $zdir = substr(zip_entry_name($zip_entry), 0, -1);
-            if (file_exists($zdir)) {
+            if (file_exists($zdir))
               throw new Exception('Directory "<b>' . $zdir . '</b>" exists');
-            }
+
             mcms::mkdir($zdir);
+            */
           } else {
-            $name = zip_entry_name($zip_entry);
+            $name = basename(zip_entry_name($zip_entry));
             $tmpname = tempnam($tmpdir, 'unzip');
 
             file_put_contents($tmpname, zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
 
             $node = Node::create('file');
-            $node->import(array(
+            $node->import($a = array(
+              'parent_id' => $parent_id,
               'tmp_name' => $tmpname,
               'name' => $name,
               'filename' => $name,
+              'type' => bebop_get_file_type($name),
               ), false);
+
             $node->save();
 
             unlink($tmpname);
@@ -262,10 +269,10 @@ class FileNode extends Node implements iContentType
         }
         zip_close($zip);
       } else {
-        throw new Exception("No such file {$zipfile}");
+        throw new RuntimeException("No such file {$zipfile}");
       }
     } else {
-      throw new Exception('zlib extension is not available');
+      throw new RuntimeException('zlib extension is not available');
     }
 
     return $node;

@@ -2483,23 +2483,23 @@ class NodeBase
 
   protected function addFile($field, array $fileinfo, Node &$node = null)
   {
-    // Удаление ссылки на файл.
-    if (!empty($fileinfo['unlink'])) {
-      if (is_numeric($field)) {
-        $node->linkRemoveChild($field);
+    if (UPLOAD_ERR_NO_FILE == $fileinfo['error']) {
+      // Удаление ссылки на файл.
+      if (!empty($fileinfo['unlink'])) {
+        if (is_numeric($field)) {
+          $node->linkRemoveChild($field);
 
-        foreach ($node->files as $k => $v)
-          if ($v->id == $field)
-            unset($node->files[$k]);
-      } else {
-        $node->linkRemoveChild(null, $field);
-        $node->$field = null;
+          foreach ($node->files as $k => $v)
+            if ($v->id == $field)
+              unset($node->files[$k]);
+        } else {
+          $node->linkRemoveChild(null, $field);
+          $node->$field = null;
+        }
       }
-    }
 
-    elseif (UPLOAD_ERR_NO_FILE == $fileinfo['error']) {
       // Выбор из ахрива.
-      if (!empty($fileinfo['id']))
+      elseif (!empty($fileinfo['id']))
         $node->$field = Node::load($fileinfo['id']);
 
       // Загрузка по FTP.
@@ -2517,6 +2517,10 @@ class NodeBase
           '%name' => $fileinfo['name'],
           '%size' => ini_get('upload_max_filesize'),
           )));
+
+    // Загрузка архива.
+    elseif (!empty($fileinfo['unzip']) and 'application/zip' == $fileinfo['type'])
+      FileNode::unzip($fileinfo['tmp_name'], 'tmp/upload', $node ? $node->id : $node);
 
     else {
       $fileinfo['parent_id'] = $node->id;
