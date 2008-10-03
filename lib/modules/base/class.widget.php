@@ -151,6 +151,9 @@ abstract class Widget implements iWidget
    */
   protected function getRequestOptions(Context $ctx)
   {
+    if (null != $this->groups and !$this->checkGroups())
+      throw new WidgetHaltedException();
+
     if ($this->onlyathome and $ctx->section->id)
       throw new WidgetHaltedException();
 

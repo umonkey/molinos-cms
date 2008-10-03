@@ -183,11 +183,6 @@ class WidgetNode extends Node implements iContentType
           $form->addControl($tab);
         }
 
-      $tab = new FieldSetControl(array(
-        'names' => 'pages',
-        'label' => t('Страницы'),
-        ));
-
       $form->addClass($this->classname .'-config');
 
       $tab = new FieldSetControl(array(
@@ -200,6 +195,16 @@ class WidgetNode extends Node implements iContentType
         'options' => DomainNode::getFlatSiteMap('select'),
         )));
       $form->addControl($tab);
+
+      $tab = $form->addControl(new FieldSetControl(array(
+        'name' => 'access',
+        'label' => t('Доступ'),
+        )));
+      $tab->addControl(new SetControl(array(
+        'value' => 'config_groups',
+        'label' => t('Виджет доступен группам'),
+        'options' => Node::getSortedList('group'),
+        )));
 
       if (null !== ($tmp = $form->findControl('node_content_classname'))) {
         $tmp->label = 'Тип';
