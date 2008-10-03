@@ -1,0 +1,14 @@
+<?php
+
+if (!empty($documents)) {
+  $output = '';
+
+  foreach ($documents as $doc) {
+    $link = l('node/'. $doc['id'], htmlspecialchars($doc['name']));
+    $output .= mcms::html('li', array(
+      'class' => 'node-'. $doc['class'],
+      ), $link);
+  }
+
+  print mcms::html('ul', $output);
+}
