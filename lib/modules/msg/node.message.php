@@ -5,7 +5,7 @@ class MessageNode extends Node
 {
   public function save()
   {
-    if (!isset($this->id)) {
+    if (empty($this->id)) {
       try {
         $dst = Node::load(array('class' => 'user', 'id' => $this->re));
 
@@ -20,7 +20,7 @@ class MessageNode extends Node
         }
 
         // Сохраняем в базе только если пользователь найден.
-        // Чтобы можно было спокойно вызывать mcms::()mail для
+        // Чтобы можно было спокойно вызывать mcms::mail() для
         // любых объектов, не парясь с проверкой на class=user.
         return parent::save();
       } catch (ObjectNotFoundException $e) {
