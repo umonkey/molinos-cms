@@ -590,6 +590,9 @@ class DomainNode extends Node implements iContentType
     if (bebop_is_debugger() and $ctx->get('nocache'))
       return $result;
 
+    if ($ctx->debug('widget'))
+      return $result;
+
     foreach ($objects as $o) {
       $name = $o->getInstanceName();
 
