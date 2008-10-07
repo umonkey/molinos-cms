@@ -81,7 +81,7 @@ class TodoRPC implements iRemoteCall
 
       $node->save();
 
-      if (null !== ($comment = $ctx->post('comment'))) {
+      if ($ctx->method('POST') and null !== ($comment = $ctx->post('comment'))) {
         $tmp = Node::create('comment', array(
           'uid' => mcms::user()->id,
           'author' => mcms::user()->name,
