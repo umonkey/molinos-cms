@@ -109,7 +109,7 @@ function get_dba_link()
           $_GET['picker'] .'";</script>';
       } else {
         mcms::extras('lib/modules/tinymce/editor/tiny_mce_popup.js', false);
-        mcms::extras('lib/modules/base/control.attachment.js');
+        mcms::extras('lib/modules/attachment/control.attachment.js');
       }
     ?>
     <?php print mcms::extras(); ?>
