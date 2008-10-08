@@ -2524,7 +2524,7 @@ class NodeBase
           )));
 
     // Загрузка архива.
-    elseif (!empty($fileinfo['unzip']) and 'application/zip' == $fileinfo['type'])
+    elseif (FileNode::isUnzipable($fileinfo))
       FileNode::unzip($fileinfo['tmp_name'], 'tmp/upload', $node ? $node->id : $node);
 
     else {

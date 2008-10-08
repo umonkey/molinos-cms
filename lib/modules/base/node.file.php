@@ -157,7 +157,7 @@ class FileNode extends Node implements iContentType
     if (!array_key_exists('type', $file) or 'application/octet-stream' == $file['type'])
       $file['type'] = bebop_get_file_type($file['tmp_name'], $file['name']);
 
-    if ($this->id === null and $file['type'] == 'application/zip' and !empty($file['unzip'])) {
+    if ($this->id === null and FileNode::isUnzipable($file)) {
       if (null === ($node = $this->unzip($file['tmp_name'])))
         throw new InvalidArgumentException("ZIP file was empty");
       $this->data = $node->getRaw();
@@ -527,5 +527,27 @@ class FileNode extends Node implements iContentType
           ),
         ),
       );
+  }
+
+  /**
+   * Проверяет, можно ли файл распаковать.
+   */
+  public static function isUnzipable(array $finfo)
+  {
+    if (empty($finfo['unzip']))
+      return false;
+
+    switch ($finfo['type']) {
+      case 'application/zip':
+      case 'application/x-zip-compressed':
+        return true;
+    }
+
+    switch (strtolower(substr($finfo['name'], strrpos($finfo['name'], '.')))) {
+    case '.zip':
+      return true;
+    }
+
+    return false;
   }
 };
