@@ -27,6 +27,9 @@ class MsgModule implements iRemoteCall
     elseif (is_numeric($re))
       return intval($re);
 
+    if (is_array($re) and count($re) == 1)
+      return self::getUid(array_shift($re));
+
     throw new InvalidArgumentException(t('Получатель сообщения должен быть указан числом или объектом Node.'));
   }
 
