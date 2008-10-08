@@ -37,9 +37,9 @@ form.node-file-create-form .url-wrapper {
   width: 350px;
 }
 
-/* По умолчанию скрываем всё, кроме локального файла */
-.attachment-control .remote.tab,
-.attachment-control .archive.tab {
+
+.attachment-control div.tab.remote,
+.attachment-control div.tab.archive {
   display: none;
 }
 
