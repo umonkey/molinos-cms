@@ -96,6 +96,8 @@ function get_dba_link()
 
       if (empty($_GET['picker'])) {
         mcms::extras('themes/all/jquery/jquery.js');
+        mcms::extras('themes/all/jquery/ui/ui.core.js');
+        mcms::extras('themes/all/jquery/ui/ui.sortable.js');
         mcms::extras('themes/all/jquery/plugins/jquery.suggest.js');
         mcms::extras('themes/all/jquery/plugins/jquery.suggest.css');
         mcms::extras('themes/all/jquery/plugins/jquery.ifixpng.js');
