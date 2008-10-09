@@ -909,7 +909,8 @@ class mcms
 
   public static function mail($from = null, $to, $subject, $text)
   {
-    return MsgModule::send($from, $to, $subject, $text);
+    foreach ((array)$to as $re)
+      return MsgModule::send($from, $re, $subject, $text);
   }
 
   public static function version($mode = mcms::VERSION_CURRENT)
