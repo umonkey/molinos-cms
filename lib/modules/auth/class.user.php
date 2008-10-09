@@ -255,6 +255,19 @@ class User
     return false;
   }
 
+  /**
+   * Проверка наличия пользователя в группах.
+   *
+   * @param array $ids идентификаторы групп.
+   * @return bool true, если пользователь состоит в одной из указанных групп.
+   */
+  public function hasGroups(array $ids)
+  {
+    $i = array_intersect(array_keys($this->groups), $ids);
+
+    return !empty($i);
+  }
+
   public function checkGroup($name)
   {
     if (!$this->hasGroup($name) and !bebop_skip_checks())
