@@ -1,0 +1,19 @@
+table.orderdetails {
+  border-collapse: collapse;
+}
+
+table.orderdetails td,
+table.orderdetails th {
+  border: solid 1px gray;
+  padding: 2px 4px;
+}
+
+table.orderdetails .qty,
+table.orderdetails .sum {
+  text-align: right;
+}
+
+table.orderdetails td.empty {
+  border-left: none;
+  border-bottom: none;
+}
