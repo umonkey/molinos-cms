@@ -264,7 +264,7 @@ function bebop_get_templates($type, $name, $theme = null, $classname = null)
 function bebop_get_file_type($filename, $realname = null)
 {
   if (strrchr($filename, '.')) {
-    switch (substr($filename, strrpos($filename, '.'))) {
+    switch (strtolower(substr($filename, strrpos($filename, '.')))) {
     case '.pdf':
       return 'application/pdf';
     case '.desktop':
