@@ -1740,9 +1740,14 @@ class NodeBase
     if ($this->canPublish())
       ;
 
-    $form->addControl(new SubmitControl(array(
-      'text' => 'Сохранить',
+    $tmp = $form->addControl(new SubmitControl(array(
+      'text' => empty($schema['okbuttontext'])
+        ? t('Сохранить')
+        : $schema['okbuttontext'],
       )));
+
+    if (empty($this->id) and !empty($schema['newdocformtitle']))
+      $form->title = $schema['newdocformtitle'];
 
     $next = empty($_GET['destination'])
       ? $_SERVER['REQUEST_URI']
