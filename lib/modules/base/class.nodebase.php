@@ -25,6 +25,11 @@ class NodeBase
   protected $data = array();
 
   /**
+   * Содержимое объекта до его модификации.
+   */
+  protected $olddata = array();
+
+  /**
    * Прикреплённые файлы.
    *
    * Вынесены в отдельный массив чтобы не попадать в $data и не сохраняться в
@@ -411,6 +416,9 @@ class NodeBase
       $this->data['rid'] = null;
       return;
     }
+
+    if (!array_key_exists($key, $this->olddata))
+      $this->olddata[$key] = $this->__get($key);
 
     return $this->data[$key] = $val;
   }
