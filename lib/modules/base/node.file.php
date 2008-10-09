@@ -379,7 +379,8 @@ class FileNode extends Node implements iContentType
       unset($data['__file_node_update']);
     }
 
-    $this->nosave = true;
+    // Зачем?
+    // $this->nosave = true;
 
     parent::formProcess($data);
   }
