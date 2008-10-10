@@ -145,7 +145,12 @@ class NodeApiModule implements iRemoteCall
 
       $node->formProcess($ctx->post);
 
-      mcms::redirect(self::fixredir($ctx->get('destination', '/'), $node));
+      if ($ctx->method('post'))
+        $next = $ctx->post('destination', $ctx->get('destination', '/'));
+      else
+        $next = $ctx->get('destination', '/');
+
+      mcms::redirect(self::fixredir($next, $node));
       break;
 
     case 'edit':
