@@ -132,6 +132,11 @@ class CartRPC implements iRemoteCall
     return self::goNext($ctx);
   }
 
+  public static function rpc_redir(Context $ctx)
+  {
+    return self::goNext($ctx);
+  }
+
   private static function getCart()
   {
     if (!is_array($cart = mcms::session('cart')))
