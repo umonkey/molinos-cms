@@ -612,7 +612,7 @@ class mcms
       .'отсутствует и не может быть создан.',
       array('%path' => mcms::config('tmpdir'))));
 
-    if (file_exists($filename) and (filemtime($filename) < filemtime('lib/modules')))
+    if (file_exists($filename) and (filemtime($filename) < filemtime(MCMS_LIB)))
       unlink($filename);
 
     if (file_exists($filename) and is_readable($filename) and filesize($filename)) {
@@ -648,7 +648,7 @@ class mcms
       'interfaces' => array(),
       );
 
-    foreach ($modules = glob('lib/modules/*') as $path) {
+    foreach ($modules = glob(MCMS_LIB .'/modules/*') as $path) {
       $modname = basename($path);
 
       $result['modules'][$modname] = array(
@@ -658,7 +658,7 @@ class mcms
         'enabled' => $modok = in_array($modname, $enabled),
         );
 
-      if (file_exists($modinfo = MCMS_ROOT .DIRECTORY_SEPARATOR. $path .'/module.info')) {
+      if (file_exists($modinfo = $path .'/module.info')) {
         if (is_array($ini = parse_ini_file($modinfo, true))) {
           // Копируем базовые свойства.
           foreach (array('group', 'version', 'name', 'docurl') as $k) {
@@ -1375,7 +1375,7 @@ class mcms
   public static function modmap($prefix = 'modmap')
   {
     return mcms::config('tmpdir') .'/'. $prefix .'.'.
-      md5(MCMS_ROOT .','.  $_SERVER['HTTP_HOST']);
+      md5(MCMS_LIB.','.  $_SERVER['HTTP_HOST']);
   }
 
   /**

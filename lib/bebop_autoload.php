@@ -1,15 +1,14 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-require_once(dirname(__FILE__) .'/modules/base/class.mcms.php');
+require_once(MCMS_LIB .'/modules/base/class.mcms.php');
 
 function bebop_autoload($class_name)
 {
   static $map = null;
 
-  if (null === $map) {
+  if (null === $map)
     $map = mcms::getClassMap();
-  }
 
   $k = strtolower($class_name);
 
@@ -21,7 +20,7 @@ function bebop_autoload($class_name)
       throw new RuntimeException("{$class_name} is in a file which "
         ."is read-protected: {$map[$k]}");
 
-    include(MCMS_ROOT .DIRECTORY_SEPARATOR. $map[$k]);
+    include($map[$k]);
 
     $isif = (substr($class_name, 0, 1) === 'i');
 

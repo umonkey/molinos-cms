@@ -1,34 +1,21 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2
 
-// Нет адреса — запуск из консоли, нужно в основном для тестов.
-if (empty($_SERVER['HTTP_HOST'])) {
-  define('MCMS_ROOT', dirname(dirname(__FILE__)));
-}
+// Текущая версия.
+define('MCMS_VERSION', '8.05.6194');
 
-// Обычная ситуация — запуск через веб.
+// Полный путь к папке, в которую установлена CMS.
+define('MCMS_ROOT', dirname(realpath(__FILE__)));
+
+// Работа в нормальном режиме.
+if (file_exists($bootstrap = dirname(__FILE__) .'/lib/'. MCMS_VERSION .'/loader.php'))
+  require_once $bootstrap;
+
+// Работа прямо из git.
+elseif (file_exists($bootstrap = dirname(__FILE__) .'/lib/loader.php'))
+  require_once $bootstrap;
+
 else {
-  if (!empty($_SERVER['SCRIPT_FILENAME']))
-    define('MCMS_ROOT', dirname(realpath($_SERVER['SCRIPT_FILENAME'])));
-  else
-    define('MCMS_ROOT', dirname(dirname(realpath(__FILE__))));
+  header('HTTP 500 Internal Server Error');
+  header('Content-Type: text/plain; charset=utf-8');
+  die('Molinos CMS loader not found in lib/'. MCMS_VERSION ."\n");
 }
-
-define('MCMS_START_TIME', microtime(true));
-
-// Выходим на корневой каталог админки.
-chdir(MCMS_ROOT);
-
-// Некоторые файлы загружаем принудительно, т.к. без них работать не получится.
-// require(MCMS_ROOT .'/lib/modules/cache/class.bebopcache.php');
-require(MCMS_ROOT .'/lib/modules/base/class.config.php');
-
-// Проверка добавлена для того, чтобы не получить дурацкое
-// сообщение о неизвестном классе; мы сами сообщаем об отсутствии
-// PDO в RequestController::checkSettings().
-if (class_exists('PDO', false))
-  require(MCMS_ROOT .'/lib/modules/pdo/class.pdo_singleton.php');
-
-// Загружаем основные файлы.
-require(MCMS_ROOT .'/lib/bebop_functions.php');
-require(MCMS_ROOT .'/lib/bebop_autoload.php');

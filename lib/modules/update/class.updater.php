@@ -93,6 +93,8 @@ class Updater implements iAdminUI, iRemoteCall
   {
     $f = zip_open($zipname);
 
+    $bootstrap = null;
+
     while ($entry = zip_read($f)) {
       $path = zip_entry_name($entry);
 
@@ -108,11 +110,15 @@ class Updater implements iAdminUI, iRemoteCall
         if (file_exists($path))
           rename($path, $path .'.old');
 
+        // Этот файл переписываем в самом конце.
+        if (basename($new = $path) == 'bootstrap.php')
+          $bootstrap = $new = $path .'.new';
+
         // Создаём новый.
-        if (false === ($out = fopen($path, "wb"))) {
+        if (false === ($out = fopen($new, "wb"))) {
           // Не удалось -- возвращаем старый на место.
           rename($path .'.old', $path);
-          throw new InvalidArgumentException(t("Не удалось распаковать файл %path", array('%path' => $path)));
+          throw new RuntimeException(t("Не удалось распаковать файл %path", array('%path' => $path)));
         }
 
         // Размер нового файла.
@@ -134,5 +140,11 @@ class Updater implements iAdminUI, iRemoteCall
     }
 
     zip_close($f);
+
+    // Архив успешно распакован, можно обновить загрузчик.
+    if (null !== $bootstrap)
+      rename($bootstrap, substr($bootstrap, 0, -4));
+    else
+      throw new RuntimeException(t('Не удалось распаковать загрузчик.'));
   }
 }
