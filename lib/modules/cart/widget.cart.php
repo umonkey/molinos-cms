@@ -86,16 +86,16 @@ class CartWidget extends Widget
 
   protected function onGetConfirm(array $options)
   {
-    $cart = CartRPC::getCartContent();
+    $result = self::onGetSimple($options);
 
-    if (empty($cart))
+    if (empty($result['content']))
       throw new ForbiddenException(t('Вы не можете оформить заказ, '
         .'т.к. ваша корзина пуста.'));
 
-    return array(
-      'mode' => 'confirm',
-      'form' => parent::formRender('cart-confirm'),
-      );
+    $result['mode'] = 'confirm';
+    $result['form'] = parent::formRender('cart-confirm');
+
+    return $result;
   }
 
   protected function onGetOk(array $options)
