@@ -13,6 +13,6 @@ if (!empty($document)) {
 
   if (!empty($code))
     print mcms::html('div', array(
-      'class' => 'node '. $document['class'],
+      'class' => 'node node-'. $document['class'],
       ), $code);
 }
