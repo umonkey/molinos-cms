@@ -487,6 +487,8 @@ class DomainNode extends Node implements iContentType
 
     switch ($ctx->debug()) {
     case 'page':
+      if (!empty($data['page']['children']))
+        unset($data['page']['children'];
       mcms::debug(array(
         'template_name' => $this->template_name,
         'data' => $data,
