@@ -243,14 +243,13 @@ abstract class Control implements iFormControl
     return $output;
   }
 
-  protected function wrapHTML($output, $with_label = true, $sep_label = false)
+  protected function wrapHTML($output, $with_label = true)
   {
-    if ($with_label) {
-      if ($sep_label)
-        $output = $this->getLabel() . $output;
-      else
-        $output = $this->getLabel($output);
-    }
+    if (!empty($this->nolabel))
+      $with_label = false;
+
+    if ($with_label)
+      $output = $this->getLabel($output);
 
     if (isset($this->description)) {
       $output .= mcms::html('div', array(
