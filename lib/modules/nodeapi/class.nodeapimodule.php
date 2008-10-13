@@ -42,6 +42,22 @@ class NodeApiModule implements iRemoteCall
       $nid = $ctx->get('node');
 
     switch ($action) {
+    case 'modify':
+      $node = Node::load($nid);
+
+      $field = $ctx->get('field');
+      $value = $ctx->get('value');
+
+      if (null === $field)
+        throw new InvalidArgumentException(t('Не указан параметр field.'));
+
+      if (!$node->checkPermission('u'))
+        throw new ForbiddenException();
+
+      $node->$field = $value;
+      $node->save();
+      break;
+
     case 'revert':
       $info = mcms::db()->getResults("SELECT `v`.`nid` AS `id`, "
         ."`n`.`class` AS `class` FROM `node__rev` `v` "
