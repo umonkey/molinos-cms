@@ -14,13 +14,10 @@ function smarty_function_gravatar($params, &$smarty)
   $size = empty($params['size']) ? 50 : $params['size'];
   $default = null;
 
-  foreach ((array)$user->files as $f) {
-    if ($f instanceof Node)
-      $f = $f->getRaw();
-
-    if (0 === strpos($f['filetype'], 'image/')) {
+  foreach ($user->getRaw() as $k => $v) {
+    if ('file' == $v['class'] and 0 === strpos($v['filetype'], 'image/')) {
       $default = 'http://'. $_SERVER['HTTP_HOST'] .mcms::path()
-        ."/attachment/{$f['id']},{$size},{$size},c";
+        ."/attachment/{$v['id']},{$size},{$size},c";
       break;
     }
   }
