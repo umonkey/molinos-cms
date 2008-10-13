@@ -1,0 +1,6 @@
+group = Service
+docurl = http://getid3.sourceforge.net/
+
+[name]
+en = ID3 Tag Library
+ru = Доступ к тэгам файлов

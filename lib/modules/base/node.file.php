@@ -34,9 +34,8 @@ class FileNode extends Node implements iContentType
     if (!empty($this->nosave))
       return $this;
 
-    if (empty($this->filepath)) {
+    if (empty($this->filepath))
       throw new RuntimeException(t('Ошибка загрузки файла.'));
-    }
 
     $path = mcms::config('filestorage');
     $path .= '/'. $this->filepath;
@@ -45,6 +44,15 @@ class FileNode extends Node implements iContentType
       if (is_readable($path) and ($info = @getimagesize($path))) {
         $this->width = $info[0];
         $this->height = $info[1];
+      }
+    }
+
+    elseif ('.swf' == strtolower(substr($this->filename, -4))) {
+      if (mcms::ismodule('getid3')) {
+        list($x, $y) = ID3Tools::getFlashSize($this);
+
+        $this->width = $x;
+        $this->height = $y;
       }
     }
 
@@ -379,8 +387,7 @@ class FileNode extends Node implements iContentType
       unset($data['__file_node_update']);
     }
 
-    // Зачем?
-    // $this->nosave = true;
+    $this->nosave = true;
 
     parent::formProcess($data);
   }
