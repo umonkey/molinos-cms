@@ -540,7 +540,7 @@ class NodeBase
    * @param integer $parent идентификатор нового родителя.  Позволяет прикрепить
    * клонированный объект к новому родителю.
    */
-  public function duplicate($parent = null)
+  public function duplicate($parent = null, $with_children = true)
   {
     if (null !== ($id = $this->id)) {
       $this->id = null;
@@ -556,23 +556,25 @@ class NodeBase
       $pdo = mcms::db();
       $params = array(':new' => $this->id, ':old' => $id);
 
-      // Копируем права.
-      $pdo->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`)"
-        ."SELECT :new, `uid`, `c`, `r`, `u`, `d`, `p` FROM `node__access` WHERE `nid` = :old", $params);
+      if ($with_children) {
+        // Копируем права.
+        $pdo->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`)"
+          ."SELECT :new, `uid`, `c`, `r`, `u`, `d`, `p` FROM `node__access` WHERE `nid` = :old", $params);
 
-      // Копируем связи с другими объектами.
-      $pdo->exec("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
-        ."SELECT :new, `nid`, `key` FROM `node__rel` WHERE `tid` = :old", $params);
-      $pdo->exec("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
-        ."SELECT `tid`, :new, `key` FROM `node__rel` WHERE `nid` = :old", $params);
+        // Копируем связи с другими объектами.
+        $pdo->exec("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
+          ."SELECT :new, `nid`, `key` FROM `node__rel` WHERE `tid` = :old", $params);
+        $pdo->exec("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
+          ."SELECT `tid`, :new, `key` FROM `node__rel` WHERE `nid` = :old", $params);
 
-      if (($this->right - $this->left) > 1) {
-        $children = Node::find(array(
-          'parent_id' => $id,
-          ));
+        if (($this->right - $this->left) > 1) {
+          $children = Node::find(array(
+            'parent_id' => $id,
+            ));
 
-        foreach ($children as $c)
-          $c->duplicate($this->id);
+          foreach ($children as $c)
+            $c->duplicate($this->id);
+        }
       }
 
       mcms::flush();
