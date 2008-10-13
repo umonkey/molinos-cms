@@ -58,6 +58,32 @@ class NodeApiModule implements iRemoteCall
       $node->save();
       break;
 
+    case 'editor':
+      $node = Node::load($nid);
+
+      if (!$node->checkPermission('u'))
+        throw new ForbiddenException(t('Вам нельзя редактировать этот объект.'));
+
+      $schema = TypeNode::getSchema($node->class);
+
+      if (!array_key_exists($field = $ctx->get('field'), $schema['fields']))
+        throw new PageNotFoundException(t('Нет такого поля у этого объекта.'));
+
+      $tpl = $schema['fields'][$field];
+      $tpl['value'] = 'node_content_'. $field;
+      $tpl['nolabel'] = true;
+
+      $form = new Form(array(
+        'action' => '?q=nodeapi.rpc&action=modify&node='. $node->id
+          .'&field='. $field,
+        ));
+      $form->addControl(Control::make($tpl));
+      $form->addControl(new SubmitControl(array(
+        'text' => 'OK',
+        )));
+
+      die($form->getHTML($node->formGetData()));
+
     case 'revert':
       $info = mcms::db()->getResults("SELECT `v`.`nid` AS `id`, "
         ."`n`.`class` AS `class` FROM `node__rev` `v` "
