@@ -25,6 +25,8 @@ function smarty_function_tagger_get_sections($params, &$smarty)
     if (!array_key_exists('children', $children))
       $children['children'] = array();
 
+    TagsWidget::tagsFilterPublished($children);
+
     $smarty->assign($params['assign'], $children['children']);
   } else {
     return ('<span style="'. $errorstyle .'">Ошибка tagger_get_sections: Вы забыли указать обязательный параметр root или assign при вызове функции.</span>'); 

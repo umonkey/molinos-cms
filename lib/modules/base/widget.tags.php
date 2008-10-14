@@ -82,6 +82,8 @@ class TagsWidget extends Widget implements iWidget
       $result['path'] = array();
       $result['dynamic'] = $options['dynamic'];
 
+      self::tagsFilterPublished($result['sections']);
+
       foreach ($root->getParents() as $node)
         $result['path'][] = $node->getRaw();
     }
@@ -89,14 +91,14 @@ class TagsWidget extends Widget implements iWidget
     return $result;
   }
 
-  private function tagsFilterPublished(array &$tree)
+  public static function tagsFilterPublished(array &$tree)
   {
     if (!empty($tree['children'])) {
       foreach ($tree['children'] as $k => $v) {
         if (empty($v['published']) or !empty($v['deleted']))
           unset($tree['children'][$k]);
         else
-          $this->tagsFilterPublished($tree['children'][$k]);
+          self::tagsFilterPublished($tree['children'][$k]);
       }
     }
   }
