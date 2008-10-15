@@ -41,7 +41,11 @@ class Node extends NodeBase implements iContentType
   // Форматирует документ в соответствии с шаблоном.
   public function render($prefix = null, $theme = null, array $data = null)
   {
-    return bebop_render_object("class", $this->class, "all", $this->data);
+    if (null === $theme)
+      $theme = Context::last()->locateDomain()->theme;
+    if (null === $data)
+      $data = $this->data;
+    return bebop_render_object("type", $this->class, $theme, $data);
   }
 
   /**
