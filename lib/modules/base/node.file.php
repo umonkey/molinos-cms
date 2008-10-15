@@ -558,4 +558,16 @@ class FileNode extends Node implements iContentType
 
     return false;
   }
+
+  public function getRaw()
+  {
+    $result = parent::getRaw();
+
+    if (!empty($_GET['__cleanurls']))
+      $result['_url'] = 'attachment/'. $this->id .'/'. urlencode($this->filename);
+    else
+      $result['_url'] = '?q=attachment.rpc&fid='. $this->id;
+
+    return $result;
+  }
 };
