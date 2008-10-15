@@ -83,7 +83,7 @@ class RequestController
   private function locatePage(Context $ctx)
   {
     $ids = $path = array();
-    $domain = $this->locateDomain($ctx);
+    $domain = $ctx->locateDomain($ctx);
 
     // При обращении к главной странице экономим на подгрузке детей.
     if (null !== $ctx->query()) {
@@ -182,53 +182,6 @@ class RequestController
       if (null !== $doc)
         $ctx->document = $nodes[$doc];
     }
-  }
-
-  private function locateDomain(Context $ctx)
-  {
-    $domains = Node::find($filter = array(
-      'class' => 'domain',
-      'parent_id' => null,
-      'published' => array(0, 1),
-      ));
-
-    if (empty($domains)) {
-      $filter['#cache'] = false;
-
-      if (!count($domains = Node::find($filter)))
-        throw new NotInstalledException('domain');
-    }
-
-    if (count($domains) > 1) {
-      $host = $ctx->host();
-
-      foreach ($domains as $dom) {
-        // Точное совпадение, возвращаем домен.
-        if ($host == $dom->name) {
-          if (!empty($dom->redirect)) {
-            // Указан раздел — не выполняем редирект, если целевой домен — наш.
-            if (!empty($dom->defaultsection)) {
-              foreach ($domains as $dom2)
-                if ($dom2->name == $dom->redirect) {
-                  $dom2->defaultsection = $dom->defaultsection;
-                  return $dom2;
-                }
-            }
-
-            $ctx->redirect('http://'. $dom->redirect);
-          }
-
-          return $dom;
-        }
-      }
-    }
-
-    $dom = array_shift($domains);
-
-    if (!empty($dom->redirect))
-      $ctx->redirect($dom);
-
-    return $dom;
   }
 
   private function checkRPC()

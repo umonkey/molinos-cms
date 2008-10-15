@@ -42,6 +42,8 @@ class Context
    */
   private static $_killfiles = array();
 
+  private static $_last = null;
+
   /**
    * Создание простого контекста.
    *
@@ -56,6 +58,13 @@ class Context
       'post' => $_POST,
       'files' => $_FILES,
       ), $args);
+
+    self::$_last = $this;
+  }
+
+  public static function last()
+  {
+    return self::$_last;
   }
 
   /**
@@ -322,5 +331,52 @@ class Context
   public static function killFile($path)
   {
     self::$_killfiles[] = $path;
+  }
+
+  public function locateDomain()
+  {
+    $domains = Node::find($filter = array(
+      'class' => 'domain',
+      'parent_id' => null,
+      'published' => array(0, 1),
+      ));
+
+    if (empty($domains)) {
+      $filter['#cache'] = false;
+
+      if (!count($domains = Node::find($filter)))
+        throw new NotInstalledException('domain');
+    }
+
+    if (count($domains) > 1) {
+      $host = $this->host();
+
+      foreach ($domains as $dom) {
+        // Точное совпадение, возвращаем домен.
+        if ($host == $dom->name) {
+          if (!empty($dom->redirect)) {
+            // Указан раздел — не выполняем редирект, если целевой домен — наш.
+            if (!empty($dom->defaultsection)) {
+              foreach ($domains as $dom2)
+                if ($dom2->name == $dom->redirect) {
+                  $dom2->defaultsection = $dom->defaultsection;
+                  return $dom2;
+                }
+            }
+
+            $ctx->redirect('http://'. $dom->redirect);
+          }
+
+          return $dom;
+        }
+      }
+    }
+
+    $dom = array_shift($domains);
+
+    if (!empty($dom->redirect))
+      $this->redirect($dom);
+
+    return $dom;
   }
 }
