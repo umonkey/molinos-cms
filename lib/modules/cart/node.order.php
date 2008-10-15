@@ -4,10 +4,11 @@ class OrderNode extends Node implements iContentType
 {
   public function save()
   {
-    if (empty($this->id))
+    if ($isnew = (!$this->id)) {
       $this->orderdetails = CartRPC::getCartContent();
-    elseif (array_key_exists('orderdetails', $this->olddata))
+    } elseif (array_key_exists('orderdetails', $this->olddata)) {
       $this->orderdetails = $this->olddata['orderdetails'];
+    }
 
     if (empty($this->orderdetails))
       throw new ForbiddenException(t('Не удалось оформить заказ: '
@@ -15,8 +16,25 @@ class OrderNode extends Node implements iContentType
 
     $res = parent::save();
 
+    if ($isnew)
+      $this->sendInvoice();
+
     CartRPC::resetCart();
 
     return $res;
+  }
+
+  protected function sendInvoice()
+  {
+    if (empty($this->email))
+      return;
+
+    $result = $this->render(null, null, array(
+      'mode' => 'invoice',
+      'content' => $this->orderdetails,
+      ));
+
+    if (!empty($result))
+      BebopMimeMail::send(null, $this->email, t('Ваш заказ на %host', array('%host' => $_SERVER['HTTP_HOST']), $result);
   }
 }
