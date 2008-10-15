@@ -47,9 +47,9 @@ class OrderDetailsControl extends Control
       $rows .= '<tr>';
       $rows .= mcms::html('td', $item['id']);
       $rows .= mcms::html('td', $this->getProductLink($item));
-      $rows .= mcms::html('td', array('class' => 'sum'), number_format($item['price'], 0, ',', ' '));
+      $rows .= mcms::html('td', array('class' => 'sum'), number_format(abs($item['price']), 2, ',', '.'));
       $rows .= mcms::html('td', array('class' => 'qty'), number_format($item['qty'], 0, ',', ' '));
-      $rows .= mcms::html('td', array('class' => 'sum'), number_format($item['sum'], 2, ',', '.'));
+      $rows .= mcms::html('td', array('class' => 'sum'), number_format(abs($item['sum']), 2, ',', '.'));
       $rows .= '</tr>';
 
       $sum += $item['sum'];
@@ -69,6 +69,9 @@ class OrderDetailsControl extends Control
   private function getProductLink(array $item)
   {
     $ctx = new Context();
+
+    if (empty($item['id']))
+      return htmlspecialchars($item['name']);
 
     if (0 === strpos($ctx->query(), 'admin/'))
       $url = '?q=admin/content/edit/'. $item['id'] .'&destination=admin';

@@ -23,6 +23,34 @@ class CartSettings implements iModuleConfig
       'description' => t('Почтовый адрес, на который будут приходить уведомления о новых заказах. Все заказы также будут сохранены в виде документов типа "Заказ" (если такого типа на данный момент нет, он будет создан при сохранении этого виджета).'),
       )));
 
+    $tab = $form->addControl(new FieldSetControl(array(
+      'label' => t('Скидка'),
+      'tabable' => false,
+      )));
+    $tab->addControl(new NumberControl(array(
+      'value' => 'config_discount_threshold',
+      'label' => t('Минимальная сумма для скидки'),
+      'description' => t('Если сумма заказа превышает указанное значение, предоставляется скидка.'),
+      )));
+    $tab->addControl(new NumberControl(array(
+      'value' => 'config_discount_price',
+      'label' => t('Размер скидки'),
+      'description' => t('Введите сумму в основных единицах, либо размер скидки в процентах от общей стоимости заказа (не включая доставку).'),
+      )));
+
+    $tab = $form->addControl(new FieldSetControl(array(
+      'label' => t('Доставка'),
+      'tabable' => false,
+      )));
+    $tab->addControl(new NumberControl(array(
+      'value' => 'config_delivery_threshold',
+      'label' => t('Бесплатная доставка от'),
+      'description' => t('Если сумма заказа превышает указанное значение, доставка осуществляется бесплатно.'),
+      )));
+    $tab->addControl(new NumberControl(array(
+      'value' => 'config_delivery_price',
+      'label' => t('Стоимость доставки'),
+      )));
 
     return $form;
   }

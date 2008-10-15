@@ -56,6 +56,7 @@ class CartRPC implements iRemoteCall
     $cart = self::getCart();
 
     if (!empty($cart)) {
+      $sum = 0;
       $ids = array_keys($cart);
 
       foreach (Node::find(array('id' => $ids)) as $node) {
@@ -71,7 +72,7 @@ class CartRPC implements iRemoteCall
           $cart[$node->id] = $qty;
         }
 
-        $count += $qty;
+        $sum += $node->price * $qty;
 
         $result[] = array(
           'id' => $node->id,
@@ -80,6 +81,41 @@ class CartRPC implements iRemoteCall
           'price' => $node->price,
           'sum' => $node->price * $qty,
           );
+      }
+
+      $conf = mcms::modconf('cart');
+
+      if (!empty($conf['discount_threshold'])) {
+        if ($sum >= $conf['discount_threshold']) {
+          if (!empty($conf['discount_price'])) {
+            if ('%' == substr($price = $conf['discount_price'], -1))
+              $price = $sum / 100 * substr($price, 0, -1);
+            $result['discount'] = array(
+              'name' => t('Скидка %size при заказе от %sum', array(
+                '%size' => $conf['discount_price'],
+                '%sum' => number_format($conf['discount_threshold'], 2, ',', '.'),
+                )),
+              'qty' => 1,
+              'price' => -$price,
+              'sum' => -$price,
+              );
+          }
+        }
+      }
+
+      if (!empty($conf['delivery_threshold'])) {
+        if (!empty($conf['delivery_price'])) {
+          $result['delivery'] = array(
+            'name' => t('Доставка (бесплатно при заказе от %size)', array(
+              '%size' => number_format($conf['delivery_threshold'], 2, ',', '.'),
+              )),
+            'qty' => 1,
+            'price' => ($sum < $conf['delivery_threshold'])
+              ? $conf['delivery_price']
+              : 0,
+            );
+          $result['delivery']['sum'] = $result['delivery']['price'];
+        }
       }
     }
 

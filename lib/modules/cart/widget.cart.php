@@ -57,11 +57,13 @@ class CartWidget extends Widget
       'content' => CartRPC::getCartContent(),
       'sum' => 0,
       'qty' => 0,
+      'config' => mcms::modconf('cart'),
       );
 
     foreach ($result['content'] as $c) {
       $result['sum'] += $c['sum'];
-      $result['qty'] += $c['qty'];
+      if (!empty($c['id']))
+        $result['qty'] += $c['qty'];
     }
 
     return $result;
