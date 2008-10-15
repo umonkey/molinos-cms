@@ -359,6 +359,7 @@ class Attachment
     if ($this->isImage()) {
       switch ($this->node->filetype) {
         case 'image/jpeg':
+        case 'image/pjpeg':
         case 'image/png':
         case 'image/gif':
           return true;
