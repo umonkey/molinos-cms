@@ -648,7 +648,7 @@ class mcms
       'interfaces' => array(),
       );
 
-    foreach ($modules = glob(MCMS_LIB .'/modules/*') as $path) {
+    foreach ($modules = glob(self::localpath(MCMS_LIB) .'/modules/*') as $path) {
       $modname = basename($path);
 
       $result['modules'][$modname] = array(
@@ -1321,57 +1321,6 @@ class mcms
     }
   }
 
-  /**
-   * Базовый вывод сообщения об ошибке.
-   *
-   * Формирует простой HTML код с описанием ошибки.  Отладчики при этом видят
-   * стэк вызова.
-   *
-   * @return void
-   */
-  public static function renderException(Exception $e)
-  {
-    $message = $e->getMessage();
-    $backtrace = mcms::backtrace($e);
-
-    if (!bebop_is_debugger())
-      $backtrace = null;
-
-    bebop_on_json(array(
-      'status' => 'error',
-      'message' => $message,
-      ));
-
-    if (ob_get_length())
-      ob_end_clean();
-
-    if (!empty($_SERVER['REQUEST_METHOD'])) {
-      header('HTTP/1.1 500 Internal Server Error');
-      header("Content-Type: text/html; charset=utf-8");
-
-      $html = '<html><head><title>Internal Server Error</title></head><body>'
-        .'<h1>Internal Server Error</h1><p>'. $message .'</p>';
-
-      if (null !== $backtrace)
-        $html .= '<h2>Стэк вызова</h2><pre>'. $backtrace .'</pre>';
-
-      $html .= '<hr/>'. self::getSignature();
-      $html .= '</body></html>';
-
-      header('Content-Length: '. strlen($html));
-      die($html);
-    }
-
-    print $message ."\n\n";
-
-    if (!empty($_SERVER['REMOTE_ADDR'])) {
-      printf("--- backtrace (time: %s) ---\n", microtime());
-      print $backtrace;
-    }
-
-    die();
-  }
-
   public static function modmap($prefix = 'modmap')
   {
     return mcms::config('tmpdir') .'/'. $prefix .'.'.
@@ -1720,6 +1669,17 @@ class mcms
     }
 
     return empty($link) ? null : $link;
+  }
+
+  /**
+   * Превращает абсолютный путь к файлу в относительный.
+   */
+  public static function localpath($path)
+  {
+    if (0 === strpos($path, MCMS_ROOT))
+      return substr($path, strlen(MCMS_ROOT) + 1);
+    else
+      return $path;
   }
 };
 
