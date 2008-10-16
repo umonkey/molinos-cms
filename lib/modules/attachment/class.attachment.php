@@ -256,7 +256,7 @@ class Attachment
 
     if ('GET' == $_SERVER['REQUEST_METHOD']) {
       if (!$range_from and mcms::ismodule('accesslog'))
-        AccessLogModule::logNode($this->node['id']);
+        AccessLogModule::logNode($this->node->id);
 
       $f = fopen($this->getSourceFile(), 'rb')
         or $this->sendError(403, "could not read the file");
