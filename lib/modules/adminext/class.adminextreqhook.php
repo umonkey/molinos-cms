@@ -12,6 +12,7 @@ class AdminExtReqHook implements iRequestHook
     if (!count(array_intersect($conf['groups'], array_keys(mcms::user()->getGroups()))))
       return;
 
+    mcms::extras('themes/all/jquery/jquery.js');
     mcms::extras('lib/modules/adminext/adminext.js');
     mcms::extras('lib/modules/adminext/adminext.css');
   }
