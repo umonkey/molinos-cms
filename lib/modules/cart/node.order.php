@@ -34,7 +34,9 @@ class OrderNode extends Node implements iContentType
       'content' => $this->orderdetails,
       ));
 
-    if (!empty($result))
-      BebopMimeMail::send(null, $this->email, t('Ваш заказ на %host', array('%host' => $_SERVER['HTTP_HOST']), $result);
+    if (!empty($result)) {
+      $subject = t('Ваш заказ на %host', array('%host' => $_SERVER['HTTP_HOST']));
+      BebopMimeMail::send(null, $this->email, $subject, $result);
+    }
   }
 }
