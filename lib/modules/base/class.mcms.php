@@ -915,14 +915,7 @@ class mcms
 
   public static function version($mode = mcms::VERSION_CURRENT)
   {
-    static $version = null;
-
-    if (null === $version) {
-      if (is_readable($fname = 'lib/version.info'))
-        $version = trim(file_get_contents($fname));
-      else
-        $version = 'unknown.trunk';
-    }
+    $version = MCMS_VERSION;
 
     switch ($mode) {
     case self::VERSION_CURRENT:

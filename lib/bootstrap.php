@@ -1,7 +1,7 @@
 <?php
 
 // Текущая версия.
-define('MCMS_VERSION', '8.05.6194');
+define('MCMS_VERSION', '8.05.6195');
 
 // Полный путь к папке, в которую установлена CMS.
 define('MCMS_ROOT', realpath(dirname(realpath(__FILE__)) .'/..'));
