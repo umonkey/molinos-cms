@@ -1719,6 +1719,7 @@ class NodeBase
     // Формируем окончательную форму.
     $form = new Form(array(
       'title' => $title,
+      'captcha' => $this->id ? false : true,
       ));
     $form->addControl(new HiddenControl(array('value' => 'node_content_id')));
 
