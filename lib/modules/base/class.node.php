@@ -80,10 +80,9 @@ class Node extends NodeBase implements iContentType
    */
   public function formProcess(array $data)
   {
-    if (empty($this->id))
-      mcms::user()->checkAccess('c', $this->class);
-    else
-      mcms::user()->checkAccess('u', $this->class);
+    if (!$this->checkPermission($this->id ? 'u' : 'c'))
+      throw new ForbiddenException(t('Ваших полномочий недостаточно '
+        .'для редактирования этого объекта.'));
 
     $res = parent::formProcess($data);
 
