@@ -32,6 +32,7 @@ class OrderNode extends Node implements iContentType
     $result = $this->render(null, null, array(
       'mode' => 'invoice',
       'content' => $this->orderdetails,
+      'details' => $this->data,
       ));
 
     if (!empty($result)) {
