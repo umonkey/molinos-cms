@@ -40,4 +40,16 @@ class OrderNode extends Node implements iContentType
       BebopMimeMail::send(null, $this->email, $subject, $result);
     }
   }
+
+  public function schema()
+  {
+    $result = parent::schema();
+
+    $result['fields']['orderdetails'] = array(
+      'label' => t('Содержимое заказа'),
+      'type' => 'OrderDetailsControl',
+      );
+
+    return $result;
+  }
 }

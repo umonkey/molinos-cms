@@ -56,7 +56,7 @@ class CartRPC implements iRemoteCall
     $cart = self::getCart();
 
     if (!empty($cart)) {
-      $sum = 0;
+      $sum = $sumqty = 0;
       $ids = array_keys($cart);
 
       foreach (Node::find(array('id' => $ids)) as $node) {
@@ -73,6 +73,7 @@ class CartRPC implements iRemoteCall
         }
 
         $sum += $node->price * $qty;
+        $sumqty += $qty;
 
         $result[] = array(
           'id' => $node->id,
@@ -82,6 +83,8 @@ class CartRPC implements iRemoteCall
           'sum' => $node->price * $qty,
           );
       }
+
+      $total = $sum;
 
       $conf = mcms::modconf('cart');
 
@@ -99,6 +102,8 @@ class CartRPC implements iRemoteCall
               'price' => -$price,
               'sum' => -$price,
               );
+
+            $total -= $price;
           }
         }
       }
@@ -115,9 +120,19 @@ class CartRPC implements iRemoteCall
               : 0,
             );
           $result['delivery']['sum'] = $result['delivery']['price'];
+
+          $total += $result['delivery']['sum'];
         }
       }
     }
+
+    if (count($result) > 1)
+      $result['total'] = array(
+        'name' => t('Итого'),
+        'qty' => $sumqty,
+        'price' => null,
+        'sum' => $total,
+        );
 
     mcms::session('cart', $cart);
     return $result;

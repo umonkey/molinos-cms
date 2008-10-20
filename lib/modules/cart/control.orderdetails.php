@@ -30,9 +30,10 @@ class OrderDetailsControl extends Control
     if (empty($data[$this->value]))
       return;
 
-    $html = $this->renderContent($data[$this->value]);
+    $html = $this->getLabel();
+    $html .= $this->renderContent($data[$this->value]);
 
-    return $this->wrapHTML($html, true, true);
+    return $this->wrapHTML($html, false, true);
   }
 
   private function renderContent(array $content)
@@ -43,20 +44,25 @@ class OrderDetailsControl extends Control
     $rows .= '<tr><th>id</th><th>Название</th><th>Цена</th><th>Количество</th><th>Сумма</th></tr>';
     $rows .= '</thead><tbody>';
 
-    foreach ($content as $item) {
-      $rows .= '<tr>';
-      $rows .= mcms::html('td', $item['id']);
-      $rows .= mcms::html('td', $this->getProductLink($item));
-      $rows .= mcms::html('td', array('class' => 'sum'), number_format(abs($item['price']), 2, ',', '.'));
-      $rows .= mcms::html('td', array('class' => 'qty'), number_format($item['qty'], 0, ',', ' '));
-      $rows .= mcms::html('td', array('class' => 'sum'), number_format(abs($item['sum']), 2, ',', '.'));
-      $rows .= '</tr>';
-
-      $sum += $item['sum'];
+    foreach ($content as $k => $item) {
+      if ($k !== 'total') {
+        $rows .= '<tr>';
+        $rows .= mcms::html('td', $item['id']);
+        $rows .= mcms::html('td', $this->getProductLink($item));
+        $rows .= mcms::html('td', array('class' => 'sum'), number_format(abs($item['price']), 2, ',', '.'));
+        if (is_numeric($k))
+          $rows .= mcms::html('td', array('class' => 'qty'), number_format($item['qty'], 0, ',', ' '));
+        else
+          $rows .= mcms::html('td');
+        $rows .= mcms::html('td', array('class' => 'sum'), number_format(abs($item['sum']), 2, ',', '.'));
+        $rows .= '</tr>';
+      }
     }
 
-    $rows .= '<tr><td colspan=\'4\' class=\'empty\'>&nbsp;</td><td><strong>'
-      . number_format($sum, 2, ',', '.')
+    $rows .= '<tr><td colspan=\'3\' class=\'empty\'>&nbsp;</td>'
+      . '<td>'. $content['total']['qty'] .'</td>'
+      . '<td><strong>'
+      . number_format($content['total']['sum'], 2, ',', '.')
       . '</strong></td></tr>';
 
     $rows .= '</tbody></table>';
