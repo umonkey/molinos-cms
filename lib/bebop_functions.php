@@ -334,7 +334,10 @@ function mcms_fetch_file($url, $content = true, $cache = true)
 
       curl_setopt($ch, CURLOPT_FILE, $fp);
       curl_setopt($ch, CURLOPT_HEADER, 0);
-      curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+
+      if (null !== ($time = ini_get('max_execution_time')))
+        curl_setopt($ch, CURLOPT_TIMEOUT, $time);
+
       curl_setopt($ch, CURLOPT_USERAGENT, 'Molinos.CMS/' . mcms::version() . '; ' . l('/'));
 
       if (!ini_get('safe_mode'))
