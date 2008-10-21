@@ -420,8 +420,14 @@ class mcms
       'redirect' => $target,
       ));
 
-    header('HTTP/1.1 '. $status .' Redirect');
-    header('Location: '. $target);
+    if (!headers_sent()) {
+      header('HTTP/1.1 '. $status .' Redirect');
+      header('Location: '. $target);
+    } else {
+      die("now please go to {$target}\n"
+        ."Somebody screw up the cron by PRINTING something.\n");
+    }
+
     exit();
   }
 
