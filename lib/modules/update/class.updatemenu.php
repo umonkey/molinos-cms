@@ -6,7 +6,7 @@ class UpdateMenu implements iAdminMenu
   {
     $icons = array();
 
-    if (file_exists($tmp = mcms::config('tmpdir') .'/updates.txt')) {
+    if (file_exists($tmp = mcms::config('tmpdir') .'/update.txt')) {
       list($version, $filename) = explode(',', file_get_contents($tmp));
 
       $icons[] = array(

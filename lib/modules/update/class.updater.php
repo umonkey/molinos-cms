@@ -9,7 +9,7 @@ class Updater implements iAdminUI, iRemoteCall
     $message = mcms::html('p', t('Обновлений нет, '
       .'вы используете самую свежую версию CMS.'));
 
-    if (file_exists($tmp = mcms::config('tmpdir') .'/updates.txt')) {
+    if (file_exists($tmp = mcms::config('tmpdir') .'/update.txt')) {
       list($version, $filename) = explode(',', trim(file_get_contents($tmp)));
 
       if (file_exists($filename)) {
