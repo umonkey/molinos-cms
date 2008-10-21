@@ -23,10 +23,8 @@ class BaseCron implements iScheduler
     }
 
     if (0 != $count) {
-      echo t('Sending crash report to %to', array('%to' => mcms::config('backtracerecipients') ));
+      mcms::flog('cron', t('Sending crash report to %to', array('%to' => mcms::config('backtracerecipients'))));
       BebopMimeMail::send(mcms::config('mail_from'), mcms::config('backtracerecipients'), 'Crashdump report for ' . $_SERVER['SERVER_NAME'], $message);
-    } else {
-      echo t('No crashdumps, excellent') . "\n";
     }
   }
 }
