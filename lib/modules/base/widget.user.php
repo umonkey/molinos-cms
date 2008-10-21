@@ -149,7 +149,7 @@ class UserWidget extends Widget implements iWidget
     // Добавка для невошедших.
     else {
       $url = new url();
-      $url->path = null;
+      $url->path = $this->ctx->url()->path;
       $url->setarg($this->getInstanceName() .'.action', 'register');
 
       $result['mode'] = 'login';
