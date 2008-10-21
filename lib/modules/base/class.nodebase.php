@@ -337,7 +337,7 @@ class NodeBase
    */
   private function saveLinks()
   {
-    $schema = TypeNode::getSchema($this->class);
+    $schema = $this->schema();
 
     if (is_array($schema)) {
       if (array_key_exists('fields', $schema)) {
@@ -1469,7 +1469,7 @@ class NodeBase
       return true;
 
     if (strval($this->uid) == mcms::user()->id) {
-      $schema = TypeNode::getSchema($this->class);
+      $schema = $this->schema();
 
       if (!empty($schema['perm_own']) and is_array($schema['perm_own']))
         if (in_array($perm, $schema['perm_own']))
@@ -1650,7 +1650,8 @@ class NodeBase
       'value' => 'tab_general',
       ));
 
-    $schema = TypeNode::getSchema($this->class);
+    $schema = $this->schema();
+
     $filefields = array();
     if (!$simple and (null !== ($intro = $this->formGetIntro())))
       $tabs['content']->addControl($intro);
@@ -1766,7 +1767,7 @@ class NodeBase
 
   private function formGetIntro()
   {
-    $schema = TypeNode::getSchema($this->class);
+    $schema = $this->schema();
 
     $description = empty($schema['description']) ? '' : '&nbsp; '. t('Его описание: %description.', array('%description' => rtrim($schema['description'], '.')));
 
@@ -1793,7 +1794,7 @@ class NodeBase
 
   private function formGetFilesTab($filefields)
   {
-    $schema = TypeNode::getSchema($this->class);
+    $schema = $this->schema();
 
     if (empty($schema['hasfiles']) and empty($filefields))
       return null;
@@ -1929,7 +1930,7 @@ class NodeBase
    */
   public function formGetData()
   {
-    $schema = TypeNode::getSchema($this->class);
+    $schema = $this->schema();
 
     $data = array(
       'node_content_id' => $this->id,
@@ -1978,7 +1979,7 @@ class NodeBase
    */
   public function formProcess(array $data)
   {
-    $schema = TypeNode::getSchema($this->class);
+    $schema = $this->schema();
 
     if (array_key_exists('fields', $schema)) {
       foreach ($schema['fields'] as $k => $v) {
@@ -2428,7 +2429,7 @@ class NodeBase
     $fields = array('id');
     $params = array(':id' => $this->id);
 
-    $schema = TypeNode::getSchema($this->class);
+    $schema = $this->schema();
 
     foreach ($schema['fields'] as $k => $v) {
       if (empty($v['indexed']))
@@ -2552,5 +2553,10 @@ class NodeBase
       else
         $node->$field = $file;
     }
+  }
+
+  public function schema()
+  {
+    return TypeNode::getSchema($this->class);
   }
 };

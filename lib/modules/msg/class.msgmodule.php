@@ -5,8 +5,6 @@ class MsgModule implements iRemoteCall
 {
   public static function send($from, $to, $subject, $text)
   {
-    $schema = TypeNode::getSchema('message');
-
     $msg = Node::create('message', array(
       'uid' => self::getUid($from),
       're' => self::getUid($to),

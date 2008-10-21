@@ -98,22 +98,6 @@ class NodeQueryBuilder
     $this->scanBase($sql, $params);
     $this->addSortFields();
 
-    // Если мы работаем с одним классом, добавляем его специальные поля в запрос сразу.
-    /*
-    if (null !== $fields and null !== ($class = $this->getClassName())) {
-      $schema = TypeNode::getSchema($class);
-      $reserved = TypeNode::getReservedNames();
-
-      if (!empty($schema['fields'])) {
-        foreach ($schema['fields'] as $k => $v)
-          if (!empty($v['indexed']) and !in_array($k, $reserved)) {
-            $this->addTable('node_'. $class);
-            $fields[] = "`node_{$class}`.`{$k}`";
-          }
-      }
-    }
-    */
-
     if ($fields === null)
       $fields = '*';
     else
@@ -262,7 +246,7 @@ class NodeQueryBuilder
     // Добавляем поиск по всем текстовым индексированным полям задействованных классов.
     if (!empty($this->query['class'])) {
       foreach ((array)$this->query['class'] as $class) {
-        $schema = TypeNode::getSchema($class);
+        $schema = Node::create($class)->schema();
 
         foreach ($schema['fields'] as $field => $meta) {
           if (empty($meta['indexed']) or $field == 'name')
@@ -595,7 +579,7 @@ class NodeQueryBuilder
         if (array_key_exists('class', $this->query)) {
           $class = is_array($this->query['class']) ? $this->query['class'][0] : $this->query['class'];
 
-          $schema = TypeNode::getSchema($class);
+          $schema = Node::create($class)->schema();
 
           if (!empty($schema['fields'][$field]['indexed'])) {
             $this->addTable('node__idx_'. $class);
@@ -607,7 +591,7 @@ class NodeQueryBuilder
 
     // Выборка по дополнительной таблице.
     else {
-      $schema = TypeNode::getSchema($table);
+      $schema = Node::create($table)->schema();
 
       if (!empty($schema['fields'][$field]['indexed'])) {
         $this->addTable('node__idx_'. $table);

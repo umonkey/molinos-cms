@@ -144,7 +144,7 @@ class FormWidget extends Widget
       foreach ($types as $type => $v) {
         $url->setarg($key, $type);
 
-        $schema = TypeNode::getSchema($type);
+        $schema = Node::create($type)->schema();
 
         $result['types'][$type] = array(
           'title' => $v,
@@ -251,7 +251,7 @@ class FormWidget extends Widget
 
     elseif (false !== strstr($id, 'form-create-')) {
       if (!array_key_exists($type = substr($id, 12), $types)) {
-        $schema = TypeNode::getSchema($type);
+        $schema = Node::create($type)->schema();
 
         if (empty($schema['id']))
           throw new PageNotFoundException(t('Тип документа «%name» '

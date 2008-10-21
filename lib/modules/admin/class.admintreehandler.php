@@ -105,7 +105,7 @@ class AdminTreeHandler
     }
 
     if (!empty($this->type) and !is_array($this->type)) {
-      $schema = TypeNode::getSchema($this->type);
+      $schema = $this->schema();
 
       // Удаляем отсутствующие колонки.
       foreach ($this->columns as $k => $v) {

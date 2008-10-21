@@ -147,8 +147,7 @@ class AdminUIListControl extends Control
   {
     switch ($field) {
     case 'class':
-      if (null === ($schema = TypeNode::getSchema($value)))
-        return $value .'(???)';
+      $schema = Node::create($value)->schema();
 
       if (empty($schema['title']))
         return $value;

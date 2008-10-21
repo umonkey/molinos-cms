@@ -15,7 +15,7 @@ function smarty_function_bebop_get_unique_values($params, &$smarty)
       $result = array();
 
       $pdo = mcms::db();
-      $schema = TypeNode::getSchema($params['type']);
+      $schema = Node::create($params['type'])->schema();
 
       foreach ($schema['fields'] as $field => $meta) {
         if (!empty($meta['indexed'])) {

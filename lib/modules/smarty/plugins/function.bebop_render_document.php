@@ -7,7 +7,7 @@ function smarty_function_bebop_render_document($params, &$smarty)
     return '';
 
   $doc = $params['doc'];
-  $schema = TypeNode::getSchema($doc['class']);
+  $schema = Node::create($doc['class'])->schema();
 
   $output = "<div class='doc-type-{$doc['class']}'>";
 

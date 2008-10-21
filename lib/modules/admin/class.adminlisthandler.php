@@ -285,7 +285,7 @@ class AdminListHandler
           $this->title = t('Список групп');
           break;
         default:
-          $tmp = TypeNode::getSchema($type);
+          $tmp = Node::create($type)->schema();
 
           if (!empty($tmp['isdictionary']))
             $this->title = t('Справочник «%name»', array('%name' => mb_strtolower($tmp['title'])));
@@ -327,8 +327,8 @@ class AdminListHandler
       $filter['class'] = array();
       $itypes = TypeNode::getInternal();
 
-      foreach (TypeNode::getSchema() as $k => $v) {
-        if (empty($v['isdictionary']) and (empty($v['adminmodule']) or !mcms::ismodule($v['adminmodule'])) and !in_array($k, $itypes))
+      foreach (Node::getSortedList('type') as $k => $v) {
+        if (empty($v->isdictionary) and (empty($v->adminmodule) or !mcms::ismodule($v->adminmodule)) and !in_array($k, $itypes))
           $filter['class'][] = $k;
       }
 

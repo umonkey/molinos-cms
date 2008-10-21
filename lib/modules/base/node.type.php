@@ -69,7 +69,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     foreach (mcms::getImplementors('iContentType') as $class) {
       if ('Node' == substr($class, -4) and strlen($type = strtolower(substr($class, 0, -4)))) {
         if (0 == Node::count(array('class' => 'type', 'name' => $type))) {
-          $tmp = TypeNode::getSchema($type);
+          $tmp = Node::create($type)->schema();
           $tmp['published'] = true;
           $tmp['name'] = $type;
 
@@ -297,7 +297,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   public function recreateIdxTable($tblname)
   {
     mcms::db()->exec("DROP TABLE IF EXISTS node__idx_{$tblname}");
-    $result = $this->getSchema($tblname);
+    $result = Node::create($tblname)->schema();
     $this->fields = $result['fields'];
     $this->name = $tblname;
     $this->updateTable();

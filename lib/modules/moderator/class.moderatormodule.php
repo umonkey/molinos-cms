@@ -72,7 +72,7 @@ class ModeratorModule implements iModuleConfig, iNodeHook
     if (in_array($node->class, array('domain', 'widget', 'user', 'group')))
       return;
 
-    $schema = TypeNode::getSchema($node->class);
+    $schema = $node->schema();
 
     // Несуществующий тип, вроде moduleinfo.
     if (empty($schema['id']))
@@ -127,7 +127,7 @@ class ModeratorModule implements iModuleConfig, iNodeHook
   {
     $body = '<dl>';
 
-    $schema = TypeNode::getSchema($node->class);
+    $schema = $node->schema();
 
     foreach ($schema['fields'] as $k => $v) {
       if (isset($node->$k)) {

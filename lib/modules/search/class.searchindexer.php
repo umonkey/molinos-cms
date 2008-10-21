@@ -20,27 +20,17 @@ class SearchIndexer implements iNodeHook
     }
   }
 
-  private static function reindexNode($node)
+  private static function reindexNode(Node $node)
   {
-    static $schema = null;
-
     return;
 
-    if (null === $schema)
-      $schema = TypeNode::getSchema();
+    $html = '';
+    $schema = $node->schema();
 
-    if (!is_object($node))
-      $node = Node::load(array('id' => $node));
-
-    if (in_array($node->class, TypeNode::getInternal()))
-      return;
-
-    if (array_key_exists($node->class, $schema)) {
-      foreach ($schema[$node->class]['fields'] as $k => $v) {
-        if (isset($node->$k)) {
-          $html .= '<strong>'. mcms_plain($v['label']) .'</strong>';
-          $html .= '<div class=\'data\'>'. $node->$k .'</div>';
-        }
+    foreach ($schema['fields'] as $k => $v) {
+      if (isset($node->$k)) {
+        $html .= '<strong>'. mcms_plain($v['label']) .'</strong>';
+        $html .= '<div class=\'data\'>'. $node->$k .'</div>';
       }
     }
 

@@ -43,7 +43,7 @@ class MenuWidget extends Widget implements iWidget
   {
     $fields = array();
 
-    $schema = TypeNode::getSchema('tag');
+    $schema = Node::create('tag')->schema();
 
     foreach ($schema['fields'] as $k => $v)
       if ($v['type'] == 'URLControl')

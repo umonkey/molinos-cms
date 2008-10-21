@@ -12,11 +12,18 @@ class NodeIndexer
         '_total' => 0,
         );
 
-      mcms::db()->log('-- node indexer stats --');
+      mcms::db()->log('-- node indexer starts --');
 
-      foreach (TypeNode::getSchema() as $type => $meta) {
+      $types = Node::find(array(
+        'class' => 'type',
+        'deleted' => 0,
+        ));
+
+      foreach ($types as $type => $meta) {
         $indexed = false;
         $reserved = TypeNode::getReservedNames();
+
+        $meta = $meta->schema();
 
         foreach ($meta['fields'] as $k => $v) {
           if (!empty($v['indexed']) and !in_array($k, $reserved)) {

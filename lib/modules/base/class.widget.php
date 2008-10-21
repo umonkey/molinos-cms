@@ -492,7 +492,7 @@ abstract class Widget implements iWidget
   {
     $types = $this->me->linkListParents('type', true);
 
-    $schema = TypeNode::getSchema($node->class);
+    $schema = $this->schema();
 
     if (!empty($types) and !in_array($schema['id'], (array)$types))
       throw new PageNotFoundException();

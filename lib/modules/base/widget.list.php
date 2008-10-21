@@ -323,7 +323,7 @@ class ListWidget extends Widget
       $result['keys'][] = $node->id;
 
       if (!array_key_exists($node->class, $result['schema']))
-        $result['schema'][$node->class] = TypeNode::getSchema($node->class);
+        $result['schema'][$node->class] = $node->schema();
     }
 
     // Добавляем информацию о поиске.

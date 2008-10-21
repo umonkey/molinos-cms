@@ -28,7 +28,7 @@ class CommentFormWidget extends Widget
     $form = parent::formGetConfig();
 
     $fields = array();
-    $schema = TypeNode::getSchema('comment');
+    $schema = Node::create('comment')->schema();
 
     foreach ($schema['fields'] as $k => $v)
       $fields[$k] = $v['label'];
