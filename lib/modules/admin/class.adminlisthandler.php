@@ -327,9 +327,9 @@ class AdminListHandler
       $filter['class'] = array();
       $itypes = TypeNode::getInternal();
 
-      foreach (Node::getSortedList('type') as $k => $v) {
-        if (empty($v->isdictionary) and (empty($v->adminmodule) or !mcms::ismodule($v->adminmodule)) and !in_array($k, $itypes))
-          $filter['class'][] = $k;
+      foreach (Node::find(array('class' => 'type')) as $n) {
+        if (empty($n->isdictionary) and (empty($n->adminmodule) or !mcms::ismodule($n->adminmodule)) and !in_array($n->name, $itypes))
+          $filter['class'][] = $n->name;
       }
 
       if (empty($filter['class']))
