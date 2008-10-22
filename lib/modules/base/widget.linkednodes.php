@@ -95,6 +95,7 @@ class LinkedNodesWidget extends Widget
     if (!in_array($ctx->document->class, $this->hosts))
       return false;
 
+    $options['doc'] = $ctx->document;
     $options['classes'] = $this->classes;
     $options['field'] = $this->field;
 
@@ -117,6 +118,7 @@ class LinkedNodesWidget extends Widget
       $filter['#sort'] = $this->sort;
 
     $result = array(
+      'doc' => $options['doc']->getRaw(),
       'documents' => Node::find($filter),
       );
 
