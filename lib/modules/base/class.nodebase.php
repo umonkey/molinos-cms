@@ -2017,10 +2017,8 @@ class NodeBase
 
                 if (!empty($node))
                   $node = array_shift($node);
-                elseif (is_numeric($value)) {
-                  $this->$k = $value;
-                  break;
-                }
+                elseif (is_numeric($value))
+                  $node = Node::load($value);
               } else {
                 mcms::debug($schema['fields'][$k]);
               }
@@ -2028,6 +2026,9 @@ class NodeBase
               if (is_numeric($value))
                 $node = Node::load($value);
             }
+
+            if (empty($node))
+              $node = null;
 
             $this->$k = $node;
             break;
