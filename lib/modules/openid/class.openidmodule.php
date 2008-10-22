@@ -14,7 +14,7 @@ class OpenIdModule implements iRemoteCall
         mcms::session('uid', $node->id);
         mcms::session()->save();
 
-        $ctx->redirect($ctx->get('destination', '?q=admin&openid=ok'));
+        $ctx->redirect($ctx->get('destination', ''));
       } catch (ObjectNotFoundException $e) {
         throw new ForbiddenException(t('Вы успешно авторизировались, '
           .'но пользоваться сайтом не можете, т.к. прозрачная регистрация '
@@ -177,6 +177,9 @@ class OpenIdModule implements iRemoteCall
   {
     $url = sprintf('http://%s%s/?q=openid.rpc&action=openid&id=%s&sid=%s',
       $_SERVER['HTTP_HOST'], mcms::path(), urlencode($id), mcms::session()->id);
+
+    if (!empty($_GET['destination']))
+      $url .= '&destination='. urlencode($_GET['destination']);
 
     return mcms::fixurl($url);
   }
