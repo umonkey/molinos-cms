@@ -9,6 +9,7 @@ class AdminExtRPC implements iRemoteCall
   public static function rpc_getlinks(Context $ctx)
   {
     $hide = mcms::modconf('adminext', 'hide', array());
+    $etpl = mcms::modconf('adminext', 'edit_tpl');
 
     if (false !== ($pos = strpos($url = $ctx->get('url'), '?')))
       $url = substr($url, 0, $pos);
@@ -23,10 +24,15 @@ class AdminExtRPC implements iRemoteCall
 
     foreach ($node->getActionLinks() as $action => $info) {
       if (!in_array($action, $hide)) {
+        $link = $info['href'];
+
+        if ('edit' == $action and !empty($etpl))
+          $link = str_replace('$id', $node->id, $etpl);
+
         $link = str_replace(
-          '&destination=CURRENT',
-          '&destination='. urlencode($ctx->get('from', 'CURRENT')),
-          $info['href']);
+          'destination=CURRENT',
+          'destination='. urlencode($ctx->get('from', 'CURRENT')),
+          $link);
 
         $a = l($link, $info['title'], array(
           'title' => $info['title'],

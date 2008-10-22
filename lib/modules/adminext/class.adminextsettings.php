@@ -26,6 +26,12 @@ class AdminExtSettings implements iModuleConfig
         ),
       )));
 
+    $form->addControl(new TextLineControl(array(
+      'value' => 'config_edit_tpl',
+      'label' => t('Шаблон ссылки на редактирование'),
+      'default' => 'admin/content/edit/$id?destination=CURRENT',
+      )));
+
     return $form;
   }
 
