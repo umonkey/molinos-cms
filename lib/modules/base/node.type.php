@@ -438,8 +438,10 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     $id = 1;
 
-    if (!empty($this->fields)) {
-      foreach ($this->fields as $k => $v) {
+    $schema = Node::create($this->name)->schema();
+
+    if (!empty($schema['fields'])) {
+      foreach ($schema['fields'] as $k => $v) {
         $field = new FieldControl(array(
           'id' => 'field'. $id++,
           'name' => $k,
@@ -494,8 +496,10 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   public function formGetData()
   {
+    $schema = Node::create($this->name)->schema();
+
     $data = parent::formGetData();
-    $data['node_content_fields'] = $this->fields;
+    $data['node_content_fields'] = $schema['fields'];
     $data['node_type_widgets'] = $this->linkListChildren('widget', true);
     $data['perm_own'] = $this->perm_own;
 
