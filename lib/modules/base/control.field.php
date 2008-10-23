@@ -68,6 +68,11 @@ class FieldControl extends Control
       'class' => 'nextid',
       'name' => "{$this->value}[{$id}][label]",
       )));
+    $body .= $this->addProperty($data, 'description', 'Подсказка', mcms::html('textarea', array(
+      'class' => 'nextid',
+      'name' => "{$this->value}[{$id}][description]",
+      'rows' => 5,
+      ), mcms_plain($this->isnull($data, 'description'))));
     $body .= $this->addProperty($data, 'type', 'Тип', mcms::html('select', array(
       'value' => $this->isnull($data, 'type'),
       'class' => 'nextid',
