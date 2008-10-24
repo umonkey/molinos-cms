@@ -58,6 +58,16 @@ class ArchiveWidget extends Widget implements iWidget
       'options' => $widgets,
       )));
 
+    $form->addControl(new BoolControl(array(
+      'value' => 'config_reverse_years',
+      'label' => t('Список годов в обратном порядке'),
+      )));
+
+    $form->addControl(new BoolControl(array(
+      'value' => 'config_reverse_months',
+      'label' => t('Список месяцев в обратном порядке'),
+      )));
+
     return $form;
   }
 
@@ -190,6 +200,9 @@ class ArchiveWidget extends Widget implements iWidget
 
     $sql .= "GROUP BY `year` ORDER BY `year`";
 
+    if ($this->reverse_years)
+      $sql .= ' DESC';
+
     // FIXME: publishing
     foreach (mcms::db()->getResultsKV("year", "count", $sql) as $k => $v) {
       if (!empty($k)) {
@@ -229,6 +242,9 @@ class ArchiveWidget extends Widget implements iWidget
       ."AND `deleted` = 0 "
       .$this->getQueryFilter($query)
       ."GROUP BY `month` ORDER BY `month`";
+
+    if ($this->reverse_months)
+      $sql .= ' DESC';
 
     // FIXME: publishing
     foreach (mcms::db()->getResultsKV("month", "count", $sql, array(':year' => $options['year'])) as $k => $v) {
