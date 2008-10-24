@@ -469,6 +469,11 @@ class mcms
           microtime(true) - MCMS_START_TIME);
         print mcms::backtrace();
 
+        if (function_exists('memory_get_peak_usage'))
+          printf("\n--- memory usage ---\nnow:  %s\npeak: %s\n",
+            self::filesize(memory_get_usage()),
+            self::filesize(memory_get_peak_usage()));
+
         if (null !== ($log = mcms::db()->getLog())) {
           $idx = 1;
           printf("\n--- SQL log ---\n");
@@ -1506,6 +1511,11 @@ class mcms
 
     if ('profile' == $ctx->debug())
       mcms::debug('Profiling.');
+
+    if (function_exists('memory_get_peak_usage'))
+      $output .= sprintf('<!-- request time: %s sec, peak memory: %s. -->',
+        microtime(true) - MCMS_START_TIME,
+        self::filesize(memory_get_peak_usage()));
 
     mcms::fixurls($output, true);
   }
