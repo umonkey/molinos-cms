@@ -188,7 +188,8 @@ class NodeApiModule implements iRemoteCall
       $node->formProcess($ctx->post);
 
       if ($ctx->method('post'))
-        $next = $ctx->post('destination', $ctx->get('destination', '/'));
+        if (!($next = $ctx->post('destination')))
+          $next = $ctx->get('destination', '/');
       else
         $next = $ctx->get('destination', '/');
 

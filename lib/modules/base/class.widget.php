@@ -454,7 +454,6 @@ abstract class Widget implements iWidget
     if (null === ($form->findControl('destination')))
       $form->addControl(new HiddenControl(array(
         'value' => 'destination',
-        'default' => empty($_GET['destination']) ? null : $_GET['destination'],
         )));
 
     $html = $form->getHTML($data);
