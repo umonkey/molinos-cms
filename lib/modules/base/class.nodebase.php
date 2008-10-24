@@ -2448,9 +2448,21 @@ class NodeBase
       $fields[] = $k;
 
       if ($this->$k instanceof Node)
-        $params[':'. $k] = $this->$k->id;
+        $value = $this->$k->id;
       else
-        $params[':'. $k] = $this->$k;
+        $value = $this->$k;
+
+      switch ($v['type']) {
+      case 'BoolControl':
+        $value = empty($value) ? 0 : 1;
+        break;
+      case 'FloatControl':
+      case 'NumberControl':
+        $value = floatval(str_replace(' ', '', $value));
+        break;
+      }
+
+      $params[':' . $k] = $value;
     }
 
     if (count($fields) > 1) {
