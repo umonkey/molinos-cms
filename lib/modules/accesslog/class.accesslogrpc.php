@@ -4,6 +4,7 @@ class AccessLogRPC implements iRemoteCall
 {
   public static function hookRemoteCall(Context $ctx)
   {
+    mcms::dispatch_rpc(__CLASS__, $ctx);
   }
 
   public static function rpc_stat(Context $ctx)

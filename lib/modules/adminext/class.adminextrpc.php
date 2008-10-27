@@ -4,6 +4,7 @@ class AdminExtRPC implements iRemoteCall
 {
   public static function hookRemoteCall(Context $ctx)
   {
+    mcms::dispatch_rpc(__CLASS__, $ctx);
   }
 
   public static function rpc_getlinks(Context $ctx)

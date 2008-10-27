@@ -396,9 +396,10 @@ class mcms
   public static function invoke($interface, $method, array $args = array())
   {
     $res = array();
+    $list = self::invoke_list($interface, $method);
 
-    foreach (self::invoke_list($interface, $method) as $f)
-      $res[] = call_user_func_array($f, $args);
+    foreach ($list as $class)
+      $res[] = call_user_func_array(array($class, $method), $args);
 
     return $res;
   }
@@ -406,9 +407,11 @@ class mcms
   public static function invoke_module($module, $interface, $method, array &$args = array())
   {
     $res = false;
+    $list = self::invoke_list($interface, $method, $module);
 
-    foreach (self::invoke_list($interface, $method, $module) as $f)
-      $res = call_user_func_array($f, $args);
+    foreach ($list as $class)
+      if (method_exists($class, $method))
+        $res = call_user_func_array(array($class, $method), $args);
 
     return $res;
   }
@@ -420,10 +423,13 @@ class mcms
   {
     $list = array();
 
-    if (array_key_exists($if = strtolower($interface), $map = Loader::map('interfaces'))) {
+    $interface = strtolower($interface);
+    $map = Loader::map('interfaces');
+
+    if (array_key_exists($interface, $map)) {
       $rev = Loader::map('rclasses');
 
-      foreach ($map[$if] as $class) {
+      foreach ($map[$interface] as $class) {
         // Указан конкретный модуль, и текущий класс находится не в нём.
         if ($module !== null and $rev[$class] != $module)
           continue;
@@ -432,10 +438,12 @@ class mcms
         if (!mcms::ismodule($rev[$class]))
           continue;
 
-        if (method_exists($class, $method))
-          $list[] = array($class, $method);
+        $list[] = $class;
       }
     }
+
+    mcms::flog('invoke', $interface .'::'. $method .' = '.
+      (count($list) ? implode(', ', $list) : 'empty'));
 
     return $list;
   }
@@ -1582,6 +1590,16 @@ class mcms
       return substr($path, strlen(MCMS_ROOT) + 1);
     else
       return $path;
+  }
+
+  public static function dispatch_rpc($class, Context $ctx)
+  {
+    $method = 'rpc_'. $ctx->get('action', 'default');
+
+    if (method_exists($class, $method))
+      return call_user_func($class, $method, $ctx);
+
+    return false;
   }
 };
 

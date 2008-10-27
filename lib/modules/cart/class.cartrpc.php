@@ -4,49 +4,7 @@ class CartRPC implements iRemoteCall
 {
   public static function hookRemoteCall(Context $ctx)
   {
-    mcms::debug($ctx);
-    $cart = mcms::session('cart');
-    $items = $ctx->post('item');
-    $result = self::getCartContent($items);
-
-    $tmp = mcms::modconf('cart');
-    if (array_key_exists('email', $tmp))
-      $email = $tmp['email'];
-
-    $widgetname = $ctx->post('widgetname');
-    $recalc = $ctx->post('recalc');
-
-    if (empty($result) or !empty($recalc)) //Возможно, все товары из корзины уже были удалены
-      mcms::redirect($widgetname);
-
-    Context::setGlobal();
-    $report = bebop_render_object('widget', $widgetname, null, array('items' => $items, 'mode' => 'report'), 'CartWidget');
-
-    $data = array();
-
-    // Подставляем содержимое заказа в поле.
-    $data['details'] = $report;
-    $data['uid'] = mcms::user()->id;
-
-    if (empty($data['uid'])) // нужно зарегистрироваться перед оформлением заказа
-      mcms::redirect("{$widgetname}?{$widgetname}.mode=notregistered");
-
-    $login = $data['email'] = mcms::user()->email;
-    $node = Node::create('order',$data);
-    $node->save();
-
-    //Заказ уже отправлен, очистим содержимое корзины
-     mcms::session('cart', array());
-
-    if (!empty($email)) {
-      $body = t("<p>Пользователь %login только что оформил заказ следующего содержания: %report</p>",
-          array('%login' => $login, '%report' => str_replace('<table>', '<table border=\'1\' cellspacing=\'0\' cellpadding=\'2\'>', $report)));
-
-      BebopMimeMail::send(null, $email, 'Новый заказ на сайте', $body);
-    }
-
-    $next = "{$widgetname}?{$widgetname}.mode=ok";
-    mcms::redirect($next);
+    return mcms::dispatch_rpc(__CLASS__, $ctx);
   }
 
   public static function getCartContent($items = array())

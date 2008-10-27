@@ -202,8 +202,7 @@ class RequestController
 
       $args = array($this->ctx);
 
-      if (false === ($result = mcms::invoke_module($module, 'iRemoteCall', 'rpc_'. $this->ctx->get('action'), $args)))
-        $result = mcms::invoke_module($module, 'iRemoteCall', 'hookRemoteCall', $args);
+      $result = mcms::invoke_module($module, 'iRemoteCall', 'hookRemoteCall', $args);
 
       if ($this->ctx->method('post'))
         mcms::db()->commit();

@@ -5,6 +5,9 @@ class AttachmentModule implements iRemoteCall
 {
   public static function hookRemoteCall(Context $ctx)
   {
+    if (mcms::dispatch_rpc(__CLASS__, $ctx))
+      return;
+
     $att = new Attachment($ctx);
     $att->sendFile();
   }
