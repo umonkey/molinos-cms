@@ -204,4 +204,14 @@ class Node extends NodeBase implements iContentType
 
     return $result;
   }
+
+  public static function _id($node)
+  {
+    if (is_object($node))
+      return $node->id;
+    elseif (is_array($node))
+      return $node['id'];
+    else
+      return $node;
+  }
 };

@@ -724,7 +724,7 @@ class mcms
 
       for ($i = $beg; $i <= $end; $i++) {
         $url->setarg($paramname, ($i == $default) ? '' : $i);
-        $result['list'][$i] = ($i == $current) ? '' : strval($url);
+        $result['list'][$i] = ($i == $current) ? '' : $url->string();
       }
 
       if (!empty($result['list'][$current - 1]))
@@ -1392,7 +1392,7 @@ class mcms
               '%code' => $e->getCode(),
               '%name' => trim($e->getMessage(), '.'),
               '%extra' => $extra,
-              '@url' => strval($url),
+              '@url' => $url->string(),
               )));
         }
 

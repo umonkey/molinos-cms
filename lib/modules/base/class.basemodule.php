@@ -257,7 +257,7 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
         ));
     }
 
-    return strval($back);
+    return $back->string();
   }
 
   /**

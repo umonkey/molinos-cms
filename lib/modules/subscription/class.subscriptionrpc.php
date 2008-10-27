@@ -45,7 +45,7 @@ class SubscriptionRPC implements iRemoteCall
           ."Вы можете проигнорировать это сообщение, тогда подписка на новости изменена не будет.</p>", array(
           '%host' => $_SERVER['HTTP_HOST'],
           '%list' => $catlist,
-          '@link' => strval($link),
+          '@link' => $link->string(),
           ));
       else
         $body = t("<p>Здравствуйте! Я — почтовый робот сайта %host, и я хотел бы уточнить, действительно ли "
@@ -53,7 +53,7 @@ class SubscriptionRPC implements iRemoteCall
           ."<p>Чтобы активировать подписку, пройдите, пожалуйста, по <a href='@link'>этой ссылке</a>.&nbsp; "
           ."Вы можете проигнорировать это сообщение, тогда подписка на новости изменена не будет.</p>", array(
           '%host' => $_SERVER['HTTP_HOST'],
-          '@link' => strval($link),
+          '@link' => $link->string(),
           ));
 
       BebopMimeMail::send(null, $data['email'], t('Подписка на новости сайта %host', array('%host' => $_SERVER['HTTP_HOST'])), $body);

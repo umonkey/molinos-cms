@@ -267,6 +267,6 @@ class NodeApiModule implements iRemoteCall
       $url->setarg('type', $node->class);
     }
 
-    return strval($url);
+    return $url->string();
   }
 };

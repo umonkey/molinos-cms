@@ -78,16 +78,16 @@ class Form extends Control
         $next = new url($next);
         $next->setarg('pending', null);
         $next->setarg('created', null);
-        $destination = strval($next);
+        $destination = $next->string();
 
         $next->setarg('mode', 'edit');
         $next->setarg('type', null);
         $next->setarg('id', '%ID');
         $next->setarg('destination', $destination);
 
-        $url->setarg('destination', strval($next));
+        $url->setarg('destination', $next->string());
 
-        $action = strval($url);
+        $action = $url->string();
       }
     }
 

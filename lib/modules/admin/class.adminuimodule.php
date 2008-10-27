@@ -28,7 +28,8 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       $result['content'] = call_user_func_array(array($classes[0], 'onGet'), array($ctx));
     }
 
-    $result['dashboard'] = strval(new AdminMenu());
+    $am = new AdminMenu();
+    $result['dashboard'] = $am->__toString();
 
     return self::getPage($result);
   }
@@ -324,7 +325,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
         } else {
           $url = new url();
           $url->setarg('noautologin', null);
-          mcms::redirect(strval($url));
+          mcms::redirect($url->string());
         }
       } catch (ObjectNotFoundException $e) { }
     }
@@ -530,7 +531,7 @@ class AdminUIModule implements iAdminUI, iRemoteCall
       $url->setarg('search', trim(join(' ', $terms)));
       $url->setarg('page', null);
 
-      $next = strval($url);
+      $next = $url->string();
 
       break;
 

@@ -44,7 +44,8 @@ function bebop_combine_url(array $url, $escape = true)
   if (empty($url['host']) and !empty($url['args']['__cleanurls']))
     $url['args']['q'] = null;
 
-  $url = strval(new url($url));
+  $url = new url($url);
+  $url = $url->string();
 
   return $escape ? htmlspecialchars($url) : $url;
 }
@@ -80,7 +81,7 @@ function l($url, $title = null, array $options = null, $absolute = false)
   $parts = new url($url);
 
   if ($parts->islocal)
-    $url = strval($parts);
+    $url = $parts->string();
 
   if (false !== strpos($url, '=CURRENT'))
     $url = str_replace('CURRENT', urlencode($_SERVER['REQUEST_URI']), $url);

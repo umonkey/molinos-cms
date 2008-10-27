@@ -153,7 +153,7 @@ class UserWidget extends Widget implements iWidget
       $url->setarg($this->getInstanceName() .'.action', 'register');
 
       $result['mode'] = 'login';
-      $result['register_link'] = strval($url);
+      $result['register_link'] = $url->string();
     }
 
     return $result;
@@ -176,7 +176,7 @@ class UserWidget extends Widget implements iWidget
     if ($this->user->id) {
       $url = new url();
       $url->setarg($this->getInstanceName() .'.action', 'edit');
-      mcms::redirect(strval($url));
+      mcms::redirect($url->string());
     }
 
     $node = Node::create('user');
@@ -337,7 +337,7 @@ class UserWidget extends Widget implements iWidget
     $output = parent::formRender('user-login-form');
     $output .= t("<p class='profileRegisterLink'><a href='@url'>"
       ."Зарегистрироваться</a></p>", array(
-        '@url' => strval($url),
+        '@url' => $url->string(),
         ));
 
     return $output;

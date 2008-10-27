@@ -23,7 +23,7 @@ class ContextTests extends PHPUnit_Framework_TestCase
       ));
 
     $this->assertEquals(true, $ctx->url() instanceof url);
-    $this->assertEquals($url, strval($ctx->url()));
+    $this->assertEquals($url, $ctx->url()->string());
     $this->assertEquals($url, $ctx->url()->getAbsolute());
   }
 

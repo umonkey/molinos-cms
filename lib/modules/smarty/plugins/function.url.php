@@ -12,7 +12,7 @@ function smarty_function_url($params, &$smarty)
     $a = array();
     $url = new url($params['path']);
 
-    $a['href'] = strval($url);
+    $a['href'] = $url->string();
     $a['title'] = $params['title'];
     $a['style'] = $params['style'];
     $a['target'] = $params['target'];

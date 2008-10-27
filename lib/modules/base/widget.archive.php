@@ -207,7 +207,7 @@ class ArchiveWidget extends Widget implements iWidget
     foreach (mcms::db()->getResultsKV("year", "count", $sql) as $k => $v) {
       if (!empty($k)) {
         $url->setarg($this->host .'.year', $k);
-        $result[$k] = strval($url);
+        $result[$k] = $url->string();
       }
     }
 

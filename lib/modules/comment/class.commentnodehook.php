@@ -13,7 +13,7 @@ class CommentNodeHook implements iNodeHook
       mcms::db()->exec("DELETE FROM `node` WHERE `class` = 'comment' AND `id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = :tid)", array(':tid' => $node->id));
       break;
     case 'create':
-      if (!empty($node->doc) and is_numeric($nid = strval($node->doc))) {
+      if (!empty($node->doc) and is_numeric($nid = Node::_id($node->doc))) {
         // Собираем прикреплённых пользователей.
         $l1 = mcms::db()->getResultsV("nid", "SELECT `nid` "
           ."FROM `node__rel` WHERE `tid` = ? AND `nid` IN (SELECT `id` "
@@ -42,7 +42,7 @@ class CommentNodeHook implements iNodeHook
               $subject = t('Новый комментарий');
             else
               $subject = t('Новый комментарий [%id]',
-                array('%id' => strval($node->doc)));
+                array('%id' => Node::_id($node->doc)));
             mcms::mail(null, $uid, $subject, $body);
           }
       }

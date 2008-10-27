@@ -150,7 +150,7 @@ class FormWidget extends Widget
           'title' => $v,
           'description' => empty($schema['description'])
             ? '' : $schema['description'],
-          'link' => strval($url),
+          'link' => $url->string(),
           );
       }
     }
