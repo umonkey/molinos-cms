@@ -85,10 +85,10 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
   private static function onGetInternal(Context $ctx)
   {
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if ($ctx->method('post')) {
       $url = bebop_split_url();
-      $url['args']['search'] = empty($_POST['search']) ? null : $_POST['search'];
-      mcms::redirect($url);
+      $url['args']['search'] = $ctx->post('search');
+      $ctx->redirect($url);
     }
 
     switch ($mode = $ctx->get('mode', 'status')) {
