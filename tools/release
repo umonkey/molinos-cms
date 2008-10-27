@@ -9,13 +9,9 @@ fi
 
 git clean -fd
 
+echo "Rebuilding class map"
+php -f tools/rebuild_modmap.php
+
 echo "Preparing Molinos CMS v$MCMS_VERSION"
 
-rm -rf package && mkdir -p package/lib/$MCMS_VERSION
-cp -R conf doc themes index.php .htaccess.dist package/
-cp -R lib/* package/lib/$MCMS_VERSION/
-
-sed -e "s@__VERSION__@$MCMS_VERSION@g" < package/lib/$MCMS_VERSION/bootstrap.php > package/lib/bootstrap.php
-rm package/lib/$MCMS_VERSION/bootstrap.php
-
-(cd package && zip -9rq ../molinos-cms-$MCMS_VERSION.zip .htaccess.dist *)
+zip -9rq molinos-cms-$MCMS_VERSION.zip .htaccess.dist *.php conf doc lib themes
