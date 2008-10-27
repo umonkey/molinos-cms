@@ -64,11 +64,6 @@ class Updater implements iAdminUI, iRemoteCall
 
     self::unpack($tmpname);
 
-    // FIXME: вынести в одно место со всем остальным сканированием.
-    $filename = mcms::modmap();
-    if (file_exists($filename))
-      unlink($filename);
-
     mcms::redirect('admin');
   }
 

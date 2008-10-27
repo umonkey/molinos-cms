@@ -602,9 +602,8 @@ class mcms
   {
     static $map = null;
 
-    if (null === $map) {
+    if (null === $map)
       $map = self::getModuleMap();
-    }
 
     if (null === $module and array_key_exists($interface, $map['interfaces']))
       return array_unique($map['interfaces'][$interface]); // FIXME: как сюда попадают неуникальные?  Пример: mcms::getImplementors('iContentType');
@@ -616,156 +615,7 @@ class mcms
 
   public static function getModuleMap($name = null)
   {
-    $result = null;
-    $filename = mcms::modmap();
-
-    mcms::mkdir(dirname($filename), t('Каталог для временных файлов (%path) '
-      .'отсутствует и не может быть создан.',
-      array('%path' => mcms::config('tmpdir'))));
-
-    if (file_exists($filename) and (filemtime($filename) < filemtime(MCMS_LIB)))
-      unlink($filename);
-
-    if (file_exists($filename) and is_readable($filename) and filesize($filename)) {
-      if (is_array($result = unserialize(file_get_contents($filename))))
-        return $result;
-    }
-
-    $result = self::getModuleMapScan();
-
-    if (null !== $name)
-      return $result['modules'][$name];
-
-    if (is_writable(dirname($filename)))
-      file_put_contents($filename, serialize($result));
-
-    return $result;
-  }
-
-  private static function getModuleMapScan()
-  {
-    static $lock = false;
-
-    if ($lock)
-      throw new RuntimeException(t('Повторный вход в getModuleMapScan().'));
-
-    $lock = true;
-
-    $enabled = explode(',', mcms::config('runtime_modules'));
-
-    $result = array(
-      'modules' => array(),
-      'classes' => array(),
-      'interfaces' => array(),
-      );
-
-    foreach ($modules = glob(self::localpath(MCMS_LIB) .'/modules/*') as $path) {
-      $modname = basename($path);
-
-      $result['modules'][$modname] = array(
-        'classes' => array(),
-        'interfaces' => array(),
-        'implementors' => array(),
-        'enabled' => $modok = in_array($modname, $enabled),
-        );
-
-      if (file_exists($modinfo = $path .'/module.info')) {
-        if (is_array($ini = parse_ini_file($modinfo, true))) {
-          // Копируем базовые свойства.
-          foreach (array('group', 'version', 'name', 'docurl') as $k) {
-            if (array_key_exists($k, $ini)) {
-              $result['modules'][$modname][$k] = $ini[$k];
-
-              if ('group' == $k and 'core' == strtolower($ini[$k]))
-                $modok = $result['modules'][$modname]['enabled'] = true;
-            }
-          }
-        }
-      }
-
-      // Составляем список доступных классов.
-      foreach (glob($path .DIRECTORY_SEPARATOR.'*.php') as $classpath) {
-        $parts = explode('.', basename($classpath), 3);
-
-        if (count($parts) != 3 or $parts[2] != 'php')
-          continue;
-
-        $classname = null;
-
-        switch ($type = $parts[0]) {
-        case 'class':
-          $classname = $parts[1];
-          break;
-        case 'control':
-        case 'node':
-        case 'widget':
-        case 'exception':
-          $classname = $parts[1] . $type;
-          break;
-        case 'interface':
-          $classname = 'i'. $parts[1];
-          break;
-        }
-
-        if (null !== $classname and is_readable($classpath)) {
-          // Добавляем в список только первый найденный класс.
-          if ($modok and !array_key_exists($classname, $result['classes'])) {
-            $result['classes'][$classname] = $classpath;
-          }
-
-          // $result['modules'][$modname]['classes'][] = $classname;
-
-          // Строим список интерфейсов.
-          if ($type !== 'interface') {
-            if (preg_match('@^\s*(abstract\s+){0,1}class\s+([^\s]+)(\s+extends\s+([^\s]+))*(\s+implements\s+([^\n\r]+))*@im', file_get_contents($classpath), $m)) {
-              $classname = $m[2];
-
-              $result['modules'][$modname]['classes'][] = $classname;
-
-              if (!empty($m[6]))
-                $interfaces = preg_split('/[,\s]+/', preg_replace('#/\*.*\*/#', '', $m[6]), -1, PREG_SPLIT_NO_EMPTY);
-              else
-                $interfaces = array();
-
-              if (!empty($m[4])) {
-                switch ($m[4]) {
-                case 'Control':
-                  $interfaces[] = 'iFormControl';
-                  break;
-                case 'Widget':
-                  $interfaces[] = 'iWidget';
-                  break;
-                case 'Node':
-                case 'NodeBase':
-                  $interfaces[] = 'iContentType';
-                  break;
-                }
-              }
-
-              foreach ($interfaces as $i) {
-                if (!in_array($i, $result['modules'][$modname]['interfaces']))
-                  $result['modules'][$modname]['interfaces'][] = $i;
-                $result['modules'][$modname]['implementors'][$i][] = $classname;
-
-                if ($modok)
-                  $result['interfaces'][$i][] = $classname;
-              }
-            } else {
-              // mcms::log('modscanner', "No suitable class in ". $classpath);
-            }
-          }
-        }
-      }
-
-      if (empty($result['modules'][$modname]['classes']))
-        unset($result['modules'][$modname]);
-    }
-
-    ksort($result['classes']);
-
-    $lock = false;
-
-    return $result;
+    return Loader::map();
   }
 
   public static function enableModules(array $list)
@@ -773,9 +623,6 @@ class mcms
     $tmp = Config::getInstance();
     $tmp->set('modules', join(',', $list), 'runtime');
     $tmp->write();
-
-    if (file_exists($tmp = mcms::modmap()))
-      unlink($tmp);
   }
 
   // Проверяет, существует ли указанный класс.  В отличие от базовой
@@ -1330,12 +1177,6 @@ class mcms
 
       return trim($output);
     }
-  }
-
-  public static function modmap($prefix = 'modmap')
-  {
-    return mcms::config('tmpdir') .'/'. $prefix .'.'.
-      md5(MCMS_LIB.','.  $_SERVER['HTTP_HOST']);
   }
 
   /**

@@ -1,5 +1,5 @@
 <?php
 
-require(dirname(__FILE__) .'/lib/bootstrap.php');
+require(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'bootstrap.php');
 
 mcms::run();
