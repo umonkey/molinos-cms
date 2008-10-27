@@ -347,6 +347,25 @@ class mcms
   {
     static $enabled = null;
 
+    // FIXME: придумать решение по-лучше
+    switch ($name) {
+    case 'admin':
+    case 'attachment':
+    case 'auth':
+    case 'base':
+    case 'cache':
+    case 'cron':
+    case 'exchange':
+    case 'imgtoolkit':
+    case 'install':
+    case 'mimemail':
+    case 'nodeapi':
+    case 'openid':
+    case 'pdo':
+    case 'update':
+      return true;
+    }
+
     if (null === $enabled)
       $enabled = explode(',', mcms::config('runtime_modules'));
 
@@ -376,10 +395,10 @@ class mcms
 
   public static function invoke($interface, $method, array $args = array())
   {
-    $res = null;
+    $res = array();
 
     foreach (self::invoke_list($interface, $method) as $f)
-      $res = call_user_func_array($f, $args);
+      $res[] = call_user_func_array($f, $args);
 
     return $res;
   }
@@ -401,18 +420,20 @@ class mcms
   {
     $list = array();
 
-    foreach (Loader::map('modules') as $name => $info) {
-      if (null !== $module and strcasecmp($module, $name))
-        continue;
+    if (array_key_exists($if = strtolower($interface), $map = Loader::map('interfaces'))) {
+      $rev = Loader::map('rclasses');
 
-      if (strcasecmp('core', $info['group']) and !mcms::ismodule($name))
-        continue;
+      foreach ($map[$if] as $class) {
+        // Указан конкретный модуль, и текущий класс находится не в нём.
+        if ($module !== null and $rev[$class] != $module)
+          continue;
 
-      if (!array_key_exists($interface, $info['implementors']))
-        continue;
+        // Класс находится в отключенном модуле.
+        if (!mcms::ismodule($rev[$class]))
+          continue;
 
-      foreach ($info['implementors'][$interface] as $class)
         $list[] = array($class, $method);
+      }
     }
 
     return $list;

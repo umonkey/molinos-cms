@@ -102,25 +102,10 @@ class AdminMenu implements iAdminMenu
   {
     $result = array();
 
-    $classes = mcms::getClassMap();
-    $rootlen = strlen(dirname(dirname(dirname(dirname(__FILE__)))));
-
-    foreach (mcms::getImplementors('iAdminMenu') as $class) {
-      $icons = call_user_func(array($class, 'getMenuIcons'));
-
-      if (is_array($icons) and !empty($icons)) {
-        foreach ($icons as $icon) {
-          if (array_key_exists('href', $icon)) {
-            /*
-            $url = new url($icon['href']);
-            $url->setarg('cgroup', $icon['group']);
-            $icon['href'] = strval($url);
-            */
-          }
-
+    foreach ($i = mcms::invoke('iAdminMenu', 'getMenuIcons') as $tmp) {
+      foreach ($tmp as $icon)
+        if (array_key_exists('group', $icon))
           $result[$icon['group']][] = $icon;
-        }
-      }
     }
 
     ksort($result);
