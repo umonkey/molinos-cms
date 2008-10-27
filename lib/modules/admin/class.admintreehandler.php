@@ -105,7 +105,7 @@ class AdminTreeHandler
     }
 
     if (!empty($this->type) and !is_array($this->type)) {
-      $schema = $this->schema();
+      $schema = Node::create($this->type)->schema();
 
       // Удаляем отсутствующие колонки.
       foreach ($this->columns as $k => $v) {
@@ -142,13 +142,15 @@ class AdminTreeHandler
       'class' => $this->type,
       'parent_id' => $this->ctx->get('subid'),
       '#cache' => false,
+      '#recurse' => 0,
+      '#files' => 0,
+      '#deleted' => 0,
       );
 
     foreach (Node::find($filter) as $root) {
-      // if ($this->ctx->get('subid'))
-        $children = $root->getChildren('flat');
-      // else
-      //  $children = array();
+      $root->loadChildren($root->class, true);
+
+      $children = $root->getChildren('flat');
 
       foreach ($children as $node) {
         if ($this->type == 'pages' and $node['theme'] == 'admin' and !$user->hasAccess('u', 'moduleinfo'))
