@@ -1374,32 +1374,6 @@
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_smarty',
     ),
-    'status' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'StatusAdminWidget',
-      ),
-      'interfaces' => 
-      array (
-        0 => 'iWidget',
-      ),
-      'implementors' => 
-      array (
-        'iWidget' => 
-        array (
-          0 => 'StatusAdminWidget',
-        ),
-      ),
-      'enabled' => true,
-      'group' => 'Statistics',
-      'version' => '8.02.4782',
-      'name' => 
-      array (
-        'en' => 'Site Status monitor',
-        'ru' => 'Мониторинг состояния системы',
-      ),
-    ),
     'subscription' => 
     array (
       'classes' => 
@@ -1790,7 +1764,6 @@
     'sitemap' => 'lib/modules/sitemap/class.sitemap.php',
     'smartyexception' => 'lib/modules/smarty/exception.smarty.php',
     'smtp' => 'lib/modules/mimemail/class.smtp.php',
-    'statusadminwidget' => 'lib/modules/status/widget.statusadmin.php',
     'submitcontrol' => 'lib/modules/base/control.submit.php',
     'subscriptionadmin' => 'lib/modules/subscription/class.subscriptionadmin.php',
     'subscriptionadminlist' => 'lib/modules/subscription/class.subscriptionadminlist.php',
@@ -2018,16 +1991,15 @@
       12 => 'pollwidget',
       13 => 'ratingwidget',
       14 => 'searchwidget',
-      15 => 'statusadminwidget',
-      16 => 'subscriptionadminwidget',
-      17 => 'subscriptionwidget',
-      18 => 'tagcloudwidget',
-      19 => 'tagswidget',
-      20 => 'titlewidget',
-      21 => 'todolistwidget',
-      22 => 'userwidget',
-      23 => 'widget',
-      24 => 'xmlimporter',
+      15 => 'subscriptionadminwidget',
+      16 => 'subscriptionwidget',
+      17 => 'tagcloudwidget',
+      18 => 'tagswidget',
+      19 => 'titlewidget',
+      20 => 'todolistwidget',
+      21 => 'userwidget',
+      22 => 'widget',
+      23 => 'xmlimporter',
     ),
   ),
   'rclasses' => 
@@ -2216,7 +2188,6 @@
     'sitemap' => 'sitemap',
     'bebopsmarty' => 'smarty',
     'smartyexception' => 'smarty',
-    'statusadminwidget' => 'status',
     'subscriptionadmin' => 'subscription',
     'subscriptionadminlist' => 'subscription',
     'subscriptionconfig' => 'subscription',
