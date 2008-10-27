@@ -197,47 +197,26 @@ class RequestController
     if ('.rpc' == substr($q, -4)) {
       $module = substr($q, 0, -4);
 
-      $map = mcms::getModuleMap();
+      if ($this->ctx->method('post'))
+        mcms::db()->beginTransaction();
 
-      if (array_key_exists($module, $map['modules'])) {
-        $result = null;
+      $args = array($this->ctx);
 
-        if ('POST' == $this->ctx->method())
-          mcms::db()->beginTransaction();
+      if (false === ($result = mcms::invoke_module($module, 'iRemoteCall', 'rpc_'. $this->ctx->get('action'), $args)))
+        $result = mcms::invoke_module($module, 'iRemoteCall', 'hookRemoteCall', $args);
 
-        try {
-          if (!empty($map['modules'][$module]['implementors']['iRemoteCall'])) {
-            foreach ($map['modules'][$module]['implementors']['iRemoteCall'] as $class) {
-              if (mcms::class_exists($class)) {
-                $method = 'rpc_'. $this->ctx->get('action');
-                if (!method_exists($class, $method))
-                  $method = 'hookRemoteCall';
-                $result = call_user_func_array(array($class, $method),
-                  array($this->ctx));
-              }
-            }
+      if ($this->ctx->method('post'))
+        mcms::db()->commit();
 
-            if ('post' == $this->ctx->method())
-              mcms::db()->commit();
+      if (false !== $result)
+        return $result;
 
-            if (null !== $result)
-              return $result;
+      if (null !== ($next = $this->ctx->get('destination')))
+        $this->ctx->redirect($next);
 
-            if (null !== ($next = $this->ctx->get('destination')))
-              $this->ctx->redirect($next);
-
-            header('HTTP/1.1 200 OK');
-            header('Content-Type: text/plain; charset=utf-8');
-            die('Request not handled.');
-          }
-        } catch (UserErrorException $e) {
-          mcms::fatal($e);
-        }
-      }
-
-      header('HTTP/1.1 404 Not Found');
+      header('HTTP/1.1 200 OK');
       header('Content-Type: text/plain; charset=utf-8');
-      die('Request handler for "'. $q .'" not found.');
+      die('Request not handled.');
     }
   }
 }
