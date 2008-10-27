@@ -27,13 +27,14 @@ class AdminStatus implements iAdminMenu
       return $icons;
 
     if (!($p = mcms::user()->password) or $p == md5(''))
-      $icons[] = array(
-        'group' => 'status',
-        'message' => t('Пожалуйста, <a href=\'@url\'>установите пароль</a> '
-          .'на ваш аккаунт.', array(
-            '@url' => '?q=admin/access/edit&id=8&destination=CURRENT',
-            )),
-        );
+      if (0 !== strpos(mcms::user()->name, 'http://'))
+        $icons[] = array(
+          'group' => 'status',
+          'message' => t('Пожалуйста, <a href=\'@url\'>установите пароль</a> '
+            .'на ваш аккаунт.', array(
+              '@url' => '?q=admin/access/edit&id=8&destination=CURRENT',
+              )),
+          );
 
     if (null !== ($stat = NodeIndexer::stats()))
       $icons[] = array(
