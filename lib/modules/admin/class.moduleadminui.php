@@ -14,17 +14,22 @@ class ModuleAdminUI
       $output .= "<tr class='modgroup'><th colspan='5'>{$group}</th></tr>";
 
       foreach ($modules as $modname => $module) {
+        $enabled = mcms::ismodule($modname);
+
+        if (!strcasecmp($module['group'], 'core'))
+          $enabled = true;
+
         $output .= '<tr>';
 
         $output .= "<td>". mcms::html('input', array(
           'type' => 'checkbox',
           'name' => 'selected[]',
           'value' => $modname,
-          'checked' => empty($module['enabled']) ? null : 'checked',
+          'checked' => $enabled ? 'checked' : null,
           'disabled' => ('core' == strtolower($group) or !$writable) ? 'disabled' : null,
           )) ."</td>";
 
-        if (!empty($module['implementors']['iModuleConfig']) and !empty($module['enabled']))
+        if (!empty($module['implementors']['iModuleConfig']) and $enabled)
           $output .= mcms::html('td', mcms::html('a', array(
             'class' => 'icon configure',
             'href' => "?q=admin/structure/modules&action=config&name={$modname}&destination=CURRENT",

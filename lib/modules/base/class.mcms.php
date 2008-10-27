@@ -345,13 +345,8 @@ class mcms
 
   public static function ismodule($name)
   {
-    $tmp = mcms::getModuleMap();
-    return !empty($tmp['modules'][$name]['enabled']);
-  }
-
-  public static function modpath($name)
-  {
-    return 'lib/modules/'. $name;
+    $enabled = explode(',', mcms::config('runtime_modules'));
+    return in_array($name, $enabled);
   }
 
   public static function flush($flags = null)
