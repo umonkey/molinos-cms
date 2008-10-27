@@ -3,6 +3,9 @@
 // Текущая версия.
 define('MCMS_VERSION', '8.05.6194');
 
+// Начало обработки запроса, для замеров производительности.
+define('MCMS_START_TIME', microtime(true));
+
 define('MCMS_LIB', dirname(realpath(__FILE__)));
 define('MCMS_ROOT', dirname(MCMS_LIB));
 
