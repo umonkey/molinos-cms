@@ -10,7 +10,7 @@ class Loader
 {
   public static function rebuild($local = false)
   {
-    $map = self::scan($mode);
+    $map = self::scan($local);
 
     $path = MCMS_LIB . DIRECTORY_SEPARATOR . ($local
       ? 'classpath.local.inc'
@@ -36,7 +36,7 @@ class Loader
 
     $modules = glob(join(DIRECTORY_SEPARATOR, array(
       self::localpath(MCMS_LIB),
-      'modules',
+      $folder,
       '*',
       'module.info')));
 

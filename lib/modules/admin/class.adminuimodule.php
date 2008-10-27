@@ -544,12 +544,15 @@ class AdminUIModule implements iAdminUI, iRemoteCall
 
   private static function hookModList(Context $ctx)
   {
-    if ('POST' != $_SERVER['REQUEST_METHOD'])
+    if (!$ctx->method('post'))
       throw new PageNotFoundException();
 
     mcms::user()->checkAccess('u', 'moduleinfo');
 
     mcms::enableModules($ctx->post('selected', array()));
+
+    // Перестраиваем раскладку кастомных модулей.
+    Loader::rebuild(true);
 
     TypeNode::install();
   }
