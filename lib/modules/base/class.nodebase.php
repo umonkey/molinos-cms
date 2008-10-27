@@ -762,7 +762,7 @@ class NodeBase
    *
    * @return Node ссылка на себя.
    */
-  public function loadChildren($class = null)
+  public function loadChildren($class = null, $bare = false)
   {
     if (null === $class)
       $class = $this->class;
@@ -786,7 +786,8 @@ class NodeBase
         '#sort' => array(
           'left' => 'asc',
           ),
-        '#recurse' => 1,
+        '#recurse' => $bare ? 0 : 1,
+        '#files' => $bare ? 0 : 1,
         '#cache' => false,
         ));
 
