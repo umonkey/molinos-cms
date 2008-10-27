@@ -345,7 +345,11 @@ class mcms
 
   public static function ismodule($name)
   {
-    $enabled = explode(',', mcms::config('runtime_modules'));
+    static $enabled = null;
+
+    if (null === $enabled)
+      $enabled = explode(',', mcms::config('runtime_modules'));
+
     return in_array($name, $enabled);
   }
 
@@ -372,22 +376,46 @@ class mcms
 
   public static function invoke($interface, $method, array $args = array())
   {
-    foreach ($tmp = mcms::getImplementors($interface) as $class)
-      if (mcms::class_exists($class))
-        call_user_func_array(array($class, $method), $args);
+    $res = null;
+
+    foreach (self::invoke_list($interface, $method) as $f)
+      $res = call_user_func_array($f, $args);
+
+    return $res;
   }
 
   public static function invoke_module($module, $interface, $method, array &$args = array())
   {
     $res = null;
-    $tmp = mcms::getImplementors($interface, $module);
 
-    foreach (mcms::getImplementors($interface, $module) as $class) {
-      if (self::class_exists($class))
-      $res = call_user_func_array(array($class, $method), $args);
-    }
+    foreach (self::invoke_list($interface, $method, $module) as $f)
+      $res = call_user_func_array($f, $args);
 
     return $res;
+  }
+
+  /**
+   * Получение списка методов, обрабатывающих вызов.
+   */
+  private static function invoke_list($interface, $method, $module = null)
+  {
+    $list = array();
+
+    foreach (Loader::map('modules') as $name => $info) {
+      if (null !== $module and strcasecmp($module, $name))
+        continue;
+
+      if (strcasecmp('core', $info['group']) and !mcms::ismodule($name))
+        continue;
+
+      if (!array_key_exists($interface, $info['implementors']))
+        continue;
+
+      foreach ($info['implementors'][$interface] as $class)
+        $list[] = array($class, $method);
+    }
+
+    return $list;
   }
 
   public static function redirect($path, $status = 301)
