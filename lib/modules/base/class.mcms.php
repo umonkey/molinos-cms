@@ -405,7 +405,7 @@ class mcms
 
   public static function invoke_module($module, $interface, $method, array &$args = array())
   {
-    $res = null;
+    $res = false;
 
     foreach (self::invoke_list($interface, $method, $module) as $f)
       $res = call_user_func_array($f, $args);
@@ -432,7 +432,8 @@ class mcms
         if (!mcms::ismodule($rev[$class]))
           continue;
 
-        $list[] = array($class, $method);
+        if (method_exists($class, $method))
+          $list[] = array($class, $method);
       }
     }
 
