@@ -91,6 +91,7 @@ class Loader
           // Добавляем в список только первый найденный класс.
           if ($modok and !array_key_exists($classname, $result['classes'])) {
             $result['classes'][$classname] = $classpath;
+            $result['rclasses'][$classname] = $modname;
           }
 
           // Строим список интерфейсов.
@@ -126,7 +127,7 @@ class Loader
                 $result['modules'][$modname]['implementors'][$i][] = $classname;
 
                 if ($modok)
-                  $result['interfaces'][$i][] = $classname;
+                  $result['interfaces'][strtolower($i)][] = strtolower($classname);
               }
             }
           }
@@ -175,15 +176,6 @@ class Loader
           ."is read-protected: {$map[$k]}");
 
       include $map[$k];
-
-      $isif = (substr($className, 0, 1) === 'i');
-
-      if ($isif and !in_array($className, get_declared_interfaces()))
-        throw new RuntimeException("There is no {$className} interface "
-          ."in {$map[$k]}.\nAPC freaks out this way sometimes.");
-      elseif (!$isif and !in_array($className, get_declared_classes()))
-        throw new RuntimeException("There is no {$className} class "
-          ."in {$map[$k]}");
     }
   }
 
