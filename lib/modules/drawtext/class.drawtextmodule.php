@@ -62,9 +62,11 @@ class DrawTextModule implements iModuleConfig, iRemoteCall
 
   private function drawttftext($size = 14, $posX = 0, $posY = 0, $text = 'Hello, world')
   {
-    if ($size > self::DRAW_TTF_BASE) {
+    if ($size > self::DRAW_TTF_BASE)
       throw new RuntimeException('Нельзя задавать размер шрифта больше ' . self::DRAW_TTF_BASE . '.');
-    }
+
+    if (empty($text))
+      throw new RuntimeException(t('Текст не указан.'));
 
     //-----------------------------------------
     // Simulate text and get data.
@@ -196,7 +198,11 @@ class DrawTextModule implements iModuleConfig, iRemoteCall
 
   public function onGet(array $options)
   {
-    $text = base64_decode($options['text']);
+    $text = base64_decode(str_replace(' ', '+', $options['text']));
+
+    if (false === $text or (empty($text) and !empty($options['text'])))
+      throw new RuntimeException(t('Не удалось декодировать текст: %base',
+        array('%base' => $options['text'])));
 
     $img = new DrawTextModule();
 
