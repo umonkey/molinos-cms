@@ -185,6 +185,9 @@ class CompressorModule implements iRemoteCall
       // Fix relative url()
       $data = preg_replace('@(url\(([^/][^)]+)\))@i', 'url('. dirname($filename) .'/\2)', $data);
 
+      if (!is_writable(dirname($result)))
+        throw new RuntimeException(t('Папка для сжатых файлов закрыта от записи.'));
+
       file_put_contents($result, $data);
     }
 

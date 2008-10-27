@@ -381,11 +381,15 @@ class AdminListHandler
     if ('404' == $this->preset) {
       $data = array();
 
-      foreach (mcms::db()->getResults("SELECT * FROM `node__fallback`") as $row) {
+      $limit = $this->ctx->get('limit', 10);
+      $offset = $limit * $this->ctx->get('page') - $limit;
+
+      foreach (mcms::db()->getResults("SELECT * FROM `node__fallback` ORDER BY `old` LIMIT {$offset}, {$limit}") as $row) {
         $row['_links'] = array(
           'edit' => array(
-            'href' => '?q=admin/content/edit/404/'. urlencode($row['old'])
-              .'&destination=CURRENT',
+            'href' => '?q=admin/content/edit/404'
+              . '&subid=' . urlencode($row['old'])
+              . '&destination=CURRENT',
             'title' => 'Изменить',
             'icon' => 'edit',
             ),
@@ -396,6 +400,11 @@ class AdminListHandler
             'icon' => 'delete',
             ),
           );
+
+        if (!empty($row['new']))
+          $row['new'] = mcms::html('a', array(
+            'href' => '?q='. urlencode($row['new']),
+            ), mcms_plain($row['new']));
 
         if (!empty($row['ref'])) {
           $url = new url($row['ref']);
