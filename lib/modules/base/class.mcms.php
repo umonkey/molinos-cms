@@ -396,9 +396,8 @@ class mcms
   public static function invoke($interface, $method, array $args = array())
   {
     $res = array();
-    $list = self::invoke_list($interface, $method);
 
-    foreach ($list as $class)
+    foreach (self::getImplementors($interface) as $class)
       $res[] = call_user_func_array(array($class, $method), $args);
 
     return $res;
@@ -406,12 +405,10 @@ class mcms
 
   public static function invoke_module($module, $interface, $method, array &$args = array())
   {
-    $res = false;
-    $list = self::invoke_list($interface, $method, $module);
+    $res = null;
 
-    foreach ($list as $class)
-      if (method_exists($class, $method))
-        $res = call_user_func_array(array($class, $method), $args);
+    foreach (self::getImplementors($interface, $module) as $class)
+      $res = call_user_func_array(array($class, $method), $args);
 
     return $res;
   }
@@ -419,17 +416,14 @@ class mcms
   /**
    * Получение списка методов, обрабатывающих вызов.
    */
-  private static function invoke_list($interface, $method, $module = null)
+  public static function getImplementors($interface, $module = null)
   {
     $list = array();
 
-    $interface = strtolower($interface);
-    $map = Loader::map('interfaces');
-
-    if (array_key_exists($interface, $map)) {
+    if (array_key_exists($if = strtolower($interface), $map = Loader::map('interfaces'))) {
       $rev = Loader::map('rclasses');
 
-      foreach ($map[$interface] as $class) {
+      foreach ($map[$if] as $class) {
         // Указан конкретный модуль, и текущий класс находится не в нём.
         if ($module !== null and $rev[$class] != $module)
           continue;
@@ -441,9 +435,6 @@ class mcms
         $list[] = $class;
       }
     }
-
-    mcms::flog('invoke', $interface .'::'. $method .' = '.
-      (count($list) ? implode(', ', $list) : 'empty'));
 
     return $list;
   }
@@ -649,21 +640,6 @@ class mcms
   {
     $tmp = self::getModuleMap();
     return $tmp['classes'];
-  }
-
-  public static function getImplementors($interface, $module = null)
-  {
-    static $map = null;
-
-    if (null === $map)
-      $map = self::getModuleMap();
-
-    if (null === $module and array_key_exists($interface, $map['interfaces']))
-      return array_unique($map['interfaces'][$interface]); // FIXME: как сюда попадают неуникальные?  Пример: mcms::getImplementors('iContentType');
-    elseif (!empty($map['modules'][$module]['implementors'][$interface]))
-      return $map['modules'][$module]['implementors'][$interface];
-
-    return array();
   }
 
   public static function getModuleMap($name = null)
