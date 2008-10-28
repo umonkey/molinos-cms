@@ -46,7 +46,7 @@ class ArchiveWidget extends Widget implements iWidget
     $widgets = array();
 
     foreach (Node::find(array('class' => 'widget')) as $w)
-      if ('ListWidget' == $w->classname)
+      if (!strcasecmp('ListWidget', $w->classname))
         $widgets[$w->name] = $w->title;
 
     $form = parent::formGetConfig();
