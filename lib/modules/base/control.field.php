@@ -143,7 +143,7 @@ class FieldControl extends Control
 
     foreach ($tmp = mcms::getImplementors('iFormControl') as $class) {
       if (mcms::class_exists($class)) {
-        if ('Control' != $class) {
+        if ('control' != $class) {
           $info = call_user_func(array($class, 'getInfo'));
           if (empty($info['hidden']))
             $types[$class] = $info['name'];
@@ -156,7 +156,7 @@ class FieldControl extends Control
     foreach ($types as $k => $v)
       $output[] = mcms::html('option', array(
         'value' => $k,
-        'selected' => (strtolower($k) == strtolower($current)) ? 'selected' : null,
+        'selected' => strcasecmp($k, $current) ? null : 'selected',
         ), $v);
 
     return join('', $output);
