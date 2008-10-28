@@ -90,6 +90,7 @@ class TagNode extends Node implements iContentType
     // разделами).
     foreach (Node::find(array('class' => 'tag', 'parent_id' => null)) as $node) {
       if ($mode == 'select') {
+        $node->loadChildren(null, true);
         foreach ($node->getChildren($mode, $options) as $k => $v)
           $result[$k] = $v;
        } else {
