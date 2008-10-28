@@ -59,6 +59,10 @@ class TagsWidget extends Widget implements iWidget
       'value' => 'config_illcache',
       'label' => t('Используется для формирования меню'),
       )));
+    $form->addControl(new BoolControl(array(
+      'value' => 'config_lowmemory',
+      'label' => t('Не подгружать файлы (экономит память)'),
+      )));
 
     return $form;
   }
@@ -77,6 +81,9 @@ class TagsWidget extends Widget implements iWidget
 
     if (!empty($options['root'])) {
       $root = Node::load($options['root']);
+
+      if ($this->lowmemory)
+        $root->loadChildren(null, true);
 
       $result['sections'] = $root->getChildren('nested');
       $result['path'] = array();
