@@ -1994,42 +1994,42 @@ class NodeBase
             break;
 
           case 'NodeLinkControl':
-            try {
-              if (empty($value)) {
-                $node = null;
-              } elseif (!empty($schema['fields'][$k]['dictionary'])) {
-                $node = Node::load(array(
-                  'class' => $schema['fields'][$k]['dictionary'],
-                  'name' => $value,
-                  'published' => 1,
-                  'deleted' => 0,
-                  ));
-              } elseif (!empty($schema['fields'][$k]['values'])) {
-                $parts = explode('.', $schema['fields'][$k]['values'], 2);
+            if (!empty($data['nodelink_remap'][$key]))
+              $v['values'] = $data['nodelink_remap'][$key];
+            elseif (!empty($v['dictionary']))
+              $v['values'] = $v['dictionary'] . '.name';
 
-                $filter = array(
-                  'class' => $parts[0],
-                  $parts[1] => $value,
-                  'published' => 1,
-                  'deleted' => 0,
-                  );
+            // TODO: проверить работу с выпадающими списками
 
-                $node = Node::find($filter, 1);
-
-                if (!empty($node))
-                  $node = array_shift($node);
-                elseif (is_numeric($value))
-                  $node = Node::load($value);
-              } else {
-                mcms::debug($schema['fields'][$k]);
-              }
-            } catch (ObjectNotFoundException $e) {
-              if (is_numeric($value))
-                $node = Node::load($value);
-            }
-
-            if (empty($node))
+            if (empty($value)) {
               $node = null;
+            } elseif (!empty($v['values'])) {
+              $parts = explode('.', $v['values'], 2);
+
+              $required = substr($parts[1], -1) == '!';
+
+              $filter = array(
+                'class' => $parts[0],
+                rtrim($parts[1], '!') => $value,
+                'published' => 1,
+                'deleted' => 0,
+                );
+
+              $node = Node::find($filter, 1);
+
+              if (!empty($node))
+                $node = array_shift($node);
+              /*
+              elseif (is_numeric($value))
+                $node = Node::load($value);
+              */
+              else
+                $node = null;
+
+              if (empty($node) and $required)
+                throw new ValidationException(t('Не заполнено поле «%field».',
+                  array('%field' => $v['label'])));
+            }
 
             $this->$k = $node;
             break;

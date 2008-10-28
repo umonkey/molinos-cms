@@ -40,8 +40,14 @@ class NodeLinkControl extends Control
 
   public function __construct(array $form)
   {
-    if (empty($form['values']) and !empty($form['dictionary']))
-      $form['values'] = $form['dictionary'] .'.name';
+    if (!empty($form['dictionary'])) {
+      if ('user' == $form['dictionary'])
+        $form['values'] = 'user.fullname';
+      else
+        $form['values'] = $form['dictionary'] . '.name';
+
+      unset($form['dictionary']);
+    }
 
     parent::__construct($form, array('value'));
   }
@@ -59,17 +65,23 @@ class NodeLinkControl extends Control
     if (null !== ($output = $this->getSelect(strval($this->getCurrentValue($data)))))
       return $this->wrapHTML($output);
 
+    $parts = explode('.', $this->values, 2);
+
     if (($value = $this->getCurrentValue($data)) instanceof Node)
-      $name = $value->name;
+      $name = $value->$parts[1];
     elseif (is_numeric($value))
-      $name = Node::load($value)->name;
+      $name = Node::load($value)->$parts[1];
     else
-      $name = '(связь нарушена)';
+      $name = '';
 
     $this->addClass('form-text');
 
-    if (!$this->readonly)
+    if (!$this->readonly) {
       $this->addClass('autocomplete');
+
+      mcms::extras('themes/all/jquery/plugins/jquery.suggest.js');
+      mcms::extras('themes/all/jquery/plugins/jquery.suggest.css');
+    }
 
     $output = mcms::html('input', array(
       'type' => 'text',
