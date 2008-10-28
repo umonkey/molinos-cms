@@ -474,6 +474,12 @@ class AdminListHandler
           $result[$k]['#link'] = '?q=admin/structure/tree/pages/'. $v['id'];
         else
           $result[$k]['#nolink'] = true;
+
+    case 'widgets':
+      foreach ($result as $k => $v)
+        if ($i = Widget::getInfo($v['classname']))
+          $result[$k]['classname'] = mb_strtolower($i['name']);
+      break;
     }
 
     return $result;
