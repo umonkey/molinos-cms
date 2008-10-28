@@ -280,6 +280,9 @@ class AdminUIModule implements iAdminUI, iRemoteCall
     $output = '<dl>';
 
     foreach ($types as $type) {
+      if (!empty($type->adminmodule) and !mcms::ismodule($type->adminmodule))
+        continue;
+
       $output .= '<dt>';
       $output .= mcms::html('a', array(
         'href' => "?q=admin&mode=create&type={$type->name}&destination=". urlencode($_GET['destination']),
