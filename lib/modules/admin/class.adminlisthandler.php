@@ -139,6 +139,7 @@ class AdminListHandler
       'q' => $this->ctx->get('search'),
       'type' => $this->types,
       'value' => 'search_term',
+      'dictlist' => $this->ctx->get('preset') == 'dictlist',
       )));
     return $form->getHTML(array());
   }

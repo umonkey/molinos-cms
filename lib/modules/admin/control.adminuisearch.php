@@ -54,7 +54,7 @@ class AdminUISearchControl extends Control
 
     $link = '?q=admin/content/create&type='. $type .'&destination=CURRENT';
 
-    if (!empty($_GET['preset']) and $_GET['preset'] == 'dictlist')
+    if ($this->dictlist)
       $link .= '&dictionary=1';
 
     $output = mcms::html('a', array(
