@@ -1573,7 +1573,7 @@ class mcms
     $method = 'rpc_'. $ctx->get('action', 'default');
 
     if (method_exists($class, $method))
-      return call_user_func($class, $method, $ctx);
+      return call_user_func(array($class, $method), $ctx);
 
     return false;
   }
