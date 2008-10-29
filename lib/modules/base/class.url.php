@@ -426,4 +426,17 @@ class url
 
     return $result;
   }
+
+  public static function host($url)
+  {
+    $u = new url($url);
+
+    if (null === ($host = $u->host))
+      $host = $_SERVER['HTTP_HOST'];
+
+    if (0 === strpos($host, 'www.'))
+      $host = substr($host, 4);
+
+    return $host;
+  }
 }
