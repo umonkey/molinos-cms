@@ -1,10 +1,5 @@
 <?php
 
-function render_dashboard($result)
-{
-  return '<div id=\'top_menu_controls\'>'. $result .'</div>';
-}
-
 function render_notifications()
 {
   if (!empty($_GET['created']) and !empty($_GET['type'])) {
@@ -131,7 +126,7 @@ function get_dba_link()
 
     <div id="all">
       <?php if (empty($_GET['picker'])): ?>
-      <?php print render_dashboard($dashboard); ?>
+      <div id='top_menu_controls'><?=$dashboard?></div>
   
       <div id="navbar">
         <div id="top_toolbar">
@@ -139,8 +134,8 @@ function get_dba_link()
             <?php print render_username(); ?>
             <a href="<?php print $base; ?>" title="Перейти на сайт"><img src="themes/admin/img/icon-home.png" alt="home" width="16" height="16" /></a>
             <?php print get_dba_link(); ?>
-            <a href="<?php print l('admin.rpc?action=reload&destination=CURRENT'); ?>&amp;reload=1&flush=1" title="Очистить кэш"><img src="themes/admin/img/icon-reload.png" alt="reload" width="16" height="16" /></a>
-            <a href="base.rpc?action=logout" id="lnk_exit" title="Выйти"><img src="themes/admin/img/icon-exit.png" alt="logout" width="16" height="16" /></a>
+            <a href="<?php print l('?q=admin.rpc&action=reload&destination=CURRENT'); ?>&amp;reload=1&flush=1" title="Очистить кэш"><img src="themes/admin/img/icon-reload.png" alt="reload" width="16" height="16" /></a>
+            <a href="?q=base.rpc&amp;action=logout" id="lnk_exit" title="Выйти"><img src="themes/admin/img/icon-exit.png" alt="logout" width="16" height="16" /></a>
           </div>
         </div><!-- id=top_toolbar -->
 
