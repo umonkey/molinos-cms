@@ -2383,7 +2383,7 @@ class NodeBase
       // FIXME: distinct надо убрать, но в Node::link* надо добавить
       // форсирование уникальности, т.к. в SQLite REPLACE INTO по
       // составным ключам, похоже, не работает.
-      $sql = "SELECT DISTINCT `tid`, `nid`, `key` "
+      $sql = "SELECT DISTINCT tid, nid, `key` AS _key "
         ."FROM `node__rel` WHERE `nid` IN (SELECT `id` FROM `node` WHERE "
         ."`deleted` = 0) AND `tid` "
         ."IN (". join(', ', array_keys($nodes)) .")";
@@ -2410,8 +2410,8 @@ class NodeBase
             foreach ($v as $link) {
               $extra = $extras[$link['nid']];
 
-              if (null !== $link['key'])
-                $nodes[$link['tid']]->data[$link['key']] = $extra;
+              if (null !== $link['_key'])
+                $nodes[$link['tid']]->data[$link['_key']] = $extra;
               elseif ('file' == $extra->class)
                 $nodes[$link['tid']]->files[] = $extra;
             }
