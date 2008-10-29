@@ -76,7 +76,7 @@ class AdminRPC implements iRemoteCall
       $url->setarg('search', trim(join(' ', $terms)));
       $url->setarg('page', null);
 
-      $next = strval($url);
+      $next = $url->string();
 
       break;
 
