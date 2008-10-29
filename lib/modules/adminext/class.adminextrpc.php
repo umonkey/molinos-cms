@@ -4,7 +4,7 @@ class AdminExtRPC implements iRemoteCall
 {
   public static function hookRemoteCall(Context $ctx)
   {
-    mcms::dispatch_rpc(__CLASS__, $ctx);
+    return mcms::dispatch_rpc(__CLASS__, $ctx);
   }
 
   public static function rpc_getlinks(Context $ctx)
@@ -12,8 +12,15 @@ class AdminExtRPC implements iRemoteCall
     $hide = mcms::modconf('adminext', 'hide', array());
     $etpl = mcms::modconf('adminext', 'edit_tpl');
 
-    if (false !== ($pos = strpos($url = $ctx->get('url'), '?')))
+    switch ($pos = strpos($url = $ctx->get('url'), '?')) {
+    case 0:
+      $url = substr($url, 1);
+      break;
+    case false:
+      break;
+    default:
       $url = substr($url, 0, $pos);
+    }
 
     if (preg_match('@(\d+)$@', $url, $m)) {
       $node = Node::load($m[1]);
