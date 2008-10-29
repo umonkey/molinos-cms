@@ -131,8 +131,7 @@ class mcms_sqlite_driver extends PDO_Singleton
       'RANDOM()',
       ), $newsql);
 
-    if ($sql != $newsql)
-      mcms::log('sqlite', $sql .' rewritten to: '. $newsql);
+    // if ($sql != $newsql) mcms::log('sqlite', $sql .' rewritten to: '. $newsql);
 
     return parent::prepare($newsql);
   }
