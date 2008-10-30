@@ -610,8 +610,15 @@ class DomainNode extends Node implements iContentType
       foreach ($result as $k => $v) {
         if (!array_key_exists($v, $data))
           unset($result[$k]);
-        else
-          $result[$k] = self::strip($data[$v]);
+        else {
+          $c = unserialize($data[$v]);
+
+          $result[$k] = self::strip($c['content']);
+
+          if (!empty($c['extras']))
+            foreach ($c['extras'] as $k => $v)
+              mcms::extras($k, $v);
+        }
       }
     }
 
@@ -629,18 +636,31 @@ class DomainNode extends Node implements iContentType
     // Данные для включения в кэш.
     $cache = array();
 
+    $extras = $oxtras = mcms::get_extras();
+
     foreach ($objects as $o) {
       $name = $o->getInstanceName();
 
       if (!array_key_exists($name, $result)) {
-        if ('' !== ($result[$name] = self::strip(strval($o->render())))) {
-          if (null !== ($ck = $o->getCacheKey()))
-            $cache[$ck] = $result[$name];
+        $result[$name] = self::strip(strval($o->render()));
+
+        if (count($e = mcms::get_extras()))
+          $extras += $e;
+
+        if ('' !== ($result[$name])) {
+          if (null !== ($ck = $o->getCacheKey())) {
+            $cache[$ck] = array(
+              'content' => $result[$name],
+              'extras' => $e,
+              );
+          }
         }
       }
     }
 
     $this->saveWidgetsToCache($ctx, $cache);
+
+    mcms::set_extras($extras);
   }
 
   /**
@@ -654,9 +674,8 @@ class DomainNode extends Node implements iContentType
       $db->beginTransaction();
 
       foreach ($data as $k => $v) {
-        if (is_string($v))
-          $db->exec("REPLACE INTO `node__cache` (`cid`, `data`) "
-            ."VALUES (?, ?)", array($k, $v));
+        $db->exec("REPLACE INTO `node__cache` (`cid`, `data`) "
+          ."VALUES (?, ?)", array($k, serialize($v)));
       }
 
       $db->commit();

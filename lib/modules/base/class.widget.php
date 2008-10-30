@@ -327,7 +327,7 @@ abstract class Widget implements iWidget
       $data['lang'] = $ctx->getLang();
 
       $output = bebop_render_object('widget', $data['instance'], $ctx->theme,
-          $data, get_class($this));
+        $data, get_class($this));
     }
 
     if (false === $output and array_key_exists('html', $data))
