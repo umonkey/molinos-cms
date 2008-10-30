@@ -60,6 +60,12 @@ class NodeBase
         $data['created'] = $data['updated'];
     }
 
+    // При создании пользователя этого не делаем, чтобы
+    // не войти в мёртвый цикл, т.к. ноды типа user создаются
+    // при чтении сессии.
+    if (empty($data['uid']) and $data['class'] != 'user')
+      $data['uid'] = mcms::user()->id;
+
     $this->data = $data;
   }
 
@@ -314,8 +320,11 @@ class NodeBase
     if (empty($this->created))
       $this->created = gmdate('Y-m-d H:i:s');
 
+    /*
+    // таки надо анонимные комментарии уметь оставлять
     if (empty($this->uid))
       $this->data['uid'] = mcms::session('uid');
+    */
 
     $this->dbWrite();
     $this->saveLinks();
