@@ -2506,8 +2506,10 @@ class NodeBase
       FileNode::unzip($fileinfo['tmp_name'], 'tmp/upload', $node ? $node->id : $node);
 
     else {
-      $fileinfo['parent_id'] = $node->id;
       $file = Node::create('file')->import($fileinfo)->save();
+
+      // Добавляем файл в текущую ноду, чтобы
+      // при её сохранении создалась связь.
 
       if (is_numeric($field))
         $node->files[] = $file;
