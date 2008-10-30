@@ -436,10 +436,12 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       'class' => 'fields-editor'
       ));
 
+    $schema = Node::create($this->name)->schema();
+
     $id = 1;
 
-    if (!empty($this->fields)) {
-      foreach ($this->fields as $k => $v) {
+    if (!empty($schema['fields'])) {
+      foreach ($schema['fields'] as $k => $v) {
         $field = new FieldControl(array(
           'id' => 'field'. $id++,
           'name' => $k,
