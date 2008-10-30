@@ -761,7 +761,7 @@
       'name' => 
       array (
         'en' => 'ID3 Tag Library',
-        'ru' => 'Доступ к тэгам файлов',
+        'ru' => 'Доступ к метаданным файлов (mp3, swf итд).',
       ),
       'docurl' => 'http://getid3.sourceforge.net/',
     ),
