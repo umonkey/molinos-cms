@@ -47,6 +47,11 @@ class TinyMceModule implements iModuleConfig, iPageHook
         ),
       'description' => t('При отключении пропадает также возможность изменять размер редактора мышью.'),
       )));
+    $tab->addControl(new TextAreaControl(array(
+      'value' => 'config_initializer',
+      'label' => t('Дополнительные инициализаторы'),
+      'description' => t('Например: content_css: mcms_path + "/tiny.css", theme_advanced_styles: "Слева=left,Справа=right"'),
+      )));
     $form->addControl($tab);
 
     $tab = new FieldSetControl(array(
@@ -138,6 +143,14 @@ class TinyMceModule implements iModuleConfig, iPageHook
   public static function add_extras()
   {
     $config = mcms::modconf('tinymce');
+
+    if (empty($config['initializer']))
+      $config['initializer'] = '';
+
+    $text = 'script:tinyMCE_initializer = {'
+      . $config['initializer']
+      . ' };';
+    mcms::extras($text);
 
     if (empty($config['gzip']))
       mcms::extras('lib/modules/tinymce/editor/tiny_mce.js', false);

@@ -1040,6 +1040,14 @@ class mcms
       'type' => 'text/javascript',
       ), 'var mcms_path = \''. $root .'\';') ."\n";
 
+    foreach ($extras as $k => $v) {
+      if (0 === strpos($k, 'script:')) {
+        $output .= mcms::html('script', array(
+          'type' => 'text/javascript',
+          ), substr($k, 7));
+      }
+    }
+
     // Проталкиваем jQuery на первое место.
     // FIXME: нужно более вменяемое решение.
     self::pop($extras, 'lib/modules/tinymce/editor/tiny_mce_gzip.js');
