@@ -1577,6 +1577,13 @@ class mcms
 
     return false;
   }
+
+  public static function format($text)
+  {
+    $lines = preg_split('/[\r\n]+/', $text);
+    $text = '<p>'. join('</p><p>', $lines) .'</p>';
+    return $text;
+  }
 };
 
 set_exception_handler('mcms::fatal');
