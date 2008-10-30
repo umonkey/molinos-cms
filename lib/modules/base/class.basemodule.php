@@ -40,7 +40,7 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
   public static function hookRemoteCall(Context $ctx)
   {
     $next = null;
-    $methods = array('login', 'logout', 'su', 'restore', 'openid');
+    $methods = array('login', 'logout', 'register', 'su', 'restore', 'openid');
 
     if (in_array($ctx->get('action'), $methods)) {
       $method = 'onRemote'. ucfirst($ctx->get('action'));
@@ -104,7 +104,7 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
         .'уже воспользовался.'));
     }
 
-    if ('POST' != $ctx->method())
+    if (!$ctx->method('post'))
       throw new ForbiddenException('Идентификация возможна только '
         .'методом POST.');
 
@@ -344,5 +344,78 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
    */
   public static function hookPostInstall()
   {
+  }
+
+  protected static function onRemoteRegister(Context $ctx)
+  {
+    if ($ctx->method('post')) {
+      $node = Node::create('user');
+      $schema = $node->schema();
+
+      $data = array();
+
+      foreach ($schema['fields'] as $k => $v) {
+        $data[$k] = $ctx->post($k);
+
+        if (empty($data[$k])) {
+          if (!empty($v['required']))
+            throw new ValidationException(t('Не заполнено поле %field',
+              array('%field' => $v['label'])));
+          unset($data[$k]);
+        }
+      }
+
+      foreach ($ctx->post as $k => $v)
+        if (0 === strpos($k, 'on_'))
+          $data['on'][substr($k, 3)] = $v;
+
+      $hash = mcms_encrypt(serialize($data));
+
+      $message = t('<p>%fullname, от тебя пришёл запрос на регистрацию '
+        . 'на сайте %site. Если этот запрос действительно исходит от тебя, '
+        . 'пройди по <a href=\'@url\'>этой ссылке</a>, чтобы завершить '
+        . 'процесс регистраци.</p>', array(
+          '%fullname' => $data['fullname'],
+          '%site' => url::host(),
+          '@url' => '?q=base.rpc&action=register&hash='. urlencode($hash),
+          ));
+
+      $subject = t('Регистрация на %site', array(
+        '%site' => url::host(),
+        ));
+
+      if (!BebopMimeMail::send(null, $data['name'], $subject, $message))
+        throw new RuntimeException(t('Не удалось отправить письмо на адрес %name', array(
+          '%name' => $data['name'],
+          )));
+
+      $ctx->redirect($ctx->get('destination'));
+    }
+
+    elseif (null !== ($hash = $ctx->get('hash'))) {
+      if (!is_array($data = unserialize(mcms_decrypt($hash))))
+        throw new RuntimeException(t('Не удалось расшифровать вашу просьбу, кто-то повредил ссылку.'));
+
+      $data['published'] = true;
+
+      $next = empty($data['on']['confirm'])
+        ? ''
+        : $data['on']['confirm'];
+
+      try {
+        $data['password'] = md5($data['password']);
+
+        $node = Node::create('user', $data);
+        unset($node->on);
+
+        $node->save();
+
+        User::authorize($node->name, null, true);
+      } catch (DuplicateException $e) {
+        throw new RuntimeException(t('Оказывается пользователь с таким адресом уже есть.'));
+      }
+
+      $ctx->redirect($next);
+    }
   }
 };
