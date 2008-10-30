@@ -98,6 +98,11 @@ class ListWidget extends Widget
       'label' => t('Не возвращать текущий документ'),
       'description' => t('Исключить из списка документ, который уже отображается на странице.'),
       )));
+    if (mcms::ismodule('comment'))
+      $form->addControl(new BoolControl(array(
+        'value' => 'config_count_comments',
+        'label' => t('Возвращать количество комментариев'),
+        )));
     $form->addControl(new BoolControl(array(
       'value' => 'config_pager',
       'label' => t('Использовать постраничную листалку'),
@@ -334,10 +339,31 @@ class ListWidget extends Widget
         );
     }
 
+    $this->countComments($result);
+
     $result['options'] = $options;
     $result['root'] = $this->ctx->section;
 
     return $result;
+  }
+
+  private function countComments(array &$result)
+  {
+    if ($this->count_comments) {
+      $ids = array();
+      foreach ($result['documents'] as $doc)
+        $ids[] = $doc['id'];
+
+      $data = mcms::db()->getResultsKV("id", "cnt", "SELECT r.tid AS id, COUNT(*) AS cnt FROM node__rel r INNER JOIN node n ON n.id = r.nid WHERE n.class = 'comment' AND n.published = 1 AND n.deleted = 0 AND r.tid IN (". join(', ', $ids) .") GROUP BY r.tid");
+
+      foreach ($result['documents'] as $k => $v) {
+        $count = array_key_exists($v['id'], $data)
+          ? $data[$v['id']]
+          : 0;
+
+        $result['documents'][$k]['_comments'] = $count;
+      }
+    }
   }
 
   /**
