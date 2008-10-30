@@ -2001,13 +2001,22 @@ class NodeBase
             elseif (!empty($v['dictionary']))
               $v['values'] = $v['dictionary'] . '.name';
 
-            // TODO: проверить работу с выпадающими списками
+            $parts = explode('.', $v['values'], 2);
 
             if (empty($value)) {
               $node = null;
+            } elseif (is_numeric($value) and empty($data['nodelink_remap'][$key])) {
+              // Обработка обычных выпадающих списков.
+              try {
+                $node = Node::load($f = array(
+                  'class' => $parts[0],
+                  'id' => $value,
+                  'deleted' => 0,
+                  ));
+              } catch (ObjectNotFoundException $e) {
+                $node = null;
+              }
             } elseif (!empty($v['values'])) {
-              $parts = explode('.', $v['values'], 2);
-
               $required = substr($parts[1], -1) == '!';
 
               $filter = array(
