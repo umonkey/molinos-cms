@@ -405,7 +405,7 @@ class mcms
 
   public static function invoke_module($module, $interface, $method, array &$args = array())
   {
-    $res = null;
+    $res = false;
 
     foreach (self::getImplementors($interface, $module) as $class)
       $res = call_user_func_array(array($class, $method), $args);
