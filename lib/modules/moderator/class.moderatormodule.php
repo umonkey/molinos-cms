@@ -131,8 +131,8 @@ class ModeratorModule implements iModuleConfig, iNodeHook
 
     foreach ($schema['fields'] as $k => $v) {
       if (isset($node->$k)) {
-        switch ($v['type']) {
-        case 'PasswordControl':
+        switch (strtolower($v['type'])) {
+        case 'passwordcontrol':
           $value = null;
         default:
           $value = $node->$k;

@@ -252,7 +252,7 @@ class NodeQueryBuilder
           if (empty($meta['indexed']) or $field == 'name')
             continue;
 
-          if (!in_array($meta['type'], array('TextLineControl', 'EmailControl')))
+          if (!in_array(strtolower($meta['type']), array('textlinecontrol', 'emailcontrol')))
             continue;
 
           $this->addTable('node__idx_'. $class);

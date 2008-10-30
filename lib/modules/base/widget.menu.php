@@ -46,7 +46,7 @@ class MenuWidget extends Widget implements iWidget
     $schema = Node::create('tag')->schema();
 
     foreach ($schema['fields'] as $k => $v)
-      if ($v['type'] == 'URLControl')
+      if (!strcasecmp($v['type'], 'URLControl'))
         $fields[$k] = $v['label'];
 
     asort($fields);

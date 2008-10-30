@@ -110,15 +110,15 @@ class Loader
                 $interfaces = array();
 
               if (!empty($m[4])) {
-                switch ($m[4]) {
-                case 'Control':
+                switch (strtolower($m[4])) {
+                case 'control':
                   $interfaces[] = 'iFormControl';
                   break;
-                case 'Widget':
+                case 'widget':
                   $interfaces[] = 'iWidget';
                   break;
-                case 'Node':
-                case 'NodeBase':
+                case 'node':
+                case 'nodebase':
                   $interfaces[] = 'iContentType';
                   break;
                 }

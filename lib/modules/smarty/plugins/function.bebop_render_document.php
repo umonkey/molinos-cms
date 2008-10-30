@@ -20,14 +20,14 @@ function smarty_function_bebop_render_document($params, &$smarty)
       continue;
     }
 
-    switch ($meta['type']) {
-      case 'TextAreaControl':
-      case 'TextHTMLControl':
+    switch (strtolower($meta['type'])) {
+      case 'textareacontrol':
+      case 'texthtmlcontrol':
         $output .= '<h4>'. $meta['label'] .'</h4>';
         $output .= $doc[$field];
         break;
 
-      case 'TextLineControl':
+      case 'textlinecontrol':
         $output .= "<div class='field-{$field}'>". $doc[$field] ."</div>";
         break;
     }

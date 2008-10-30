@@ -1946,8 +1946,8 @@ class NodeBase
       foreach ($schema['fields'] as $k => $v) {
         $value = null;
 
-        switch ($v['type']) {
-        case 'AttachmentControl':
+        switch (strtolower($v['type'])) {
+        case 'attachmentcontrol':
           if (($value = $this->$k) instanceof FileNode)
             $data['file_'. $k] = $value->getRaw();
           break;
@@ -2455,12 +2455,12 @@ class NodeBase
       else
         $value = $this->$k;
 
-      switch ($v['type']) {
-      case 'BoolControl':
+      switch (strtolower($v['type'])) {
+      case 'boolcontrol':
         $value = empty($value) ? 0 : 1;
         break;
-      case 'FloatControl':
-      case 'NumberControl':
+      case 'floatcontrol':
+      case 'numbercontrol':
         $value = floatval(str_replace(' ', '', $value));
         break;
       }
