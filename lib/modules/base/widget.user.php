@@ -139,6 +139,7 @@ class UserWidget extends Widget implements iWidget
       'user' => $user->getRaw(),
       'groups' => $user->getGroups(true),
       'form' => null,
+      'status' => $options['status'],
       );
 
     // Добавка для вошедших.
