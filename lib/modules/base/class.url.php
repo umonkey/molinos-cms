@@ -427,7 +427,7 @@ class url
     return $result;
   }
 
-  public static function host($url)
+  public static function host($url = null)
   {
     $u = new url($url);
 
