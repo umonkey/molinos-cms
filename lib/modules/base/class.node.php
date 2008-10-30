@@ -185,7 +185,8 @@ class Node extends NodeBase implements iContentType
 
     if (bebop_is_debugger())
       $links['dump'] = array(
-        'href' => '?q=nodeapi.rpc&action=dump&node='. $this->id,
+        'href' => '?q=nodeapi.rpc&action=dump&node='. $this->id
+          . '&rev='. $this->rid,
         'title' => 'Содержимое объекта',
         'icon' => 'dump',
         );
