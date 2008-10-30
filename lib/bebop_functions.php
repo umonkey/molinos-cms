@@ -203,6 +203,7 @@ function bebop_render_object($type, $name, $theme = null, $data = array(), $clas
 
   // Передаём шаблону путь к шкуре.
   $data['theme'] = $theme;
+  $data['prefix'] = 'themes/' . $theme;
 
   // Исправляем разделители пути (для Windows итд).
   foreach ($__options as $k => $v)
