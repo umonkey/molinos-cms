@@ -25,15 +25,16 @@ class CommentNode extends Node
 
   public function formProcess(array $data)
   {
-    $this->node = $data['comment_node'];
+    if (empty($this->node))
+      $this->node = $data['comment_node'];
 
     $res = parent::formProcess($data);
 
-    if (empty($data['comment_node']))
+    if (empty($this->node))
       throw new ValidationException(t('Не указан документ, '
         .'к которому добавлен комментарий.'));
     else
-      $this->linkAddParent($data['comment_node']);
+      $this->linkAddParent($this->node);
 
     return $res;
   }
@@ -71,5 +72,18 @@ class CommentNode extends Node
       return true;
 
     return parent::checkPermission($perm);
+  }
+
+  public function schema()
+  {
+    $schema = parent::schema();
+
+    $schema['fields']['uid'] = array(
+      'type' => 'NodeLinkControl',
+      'label' => t('Автор'),
+      'dictionary' => 'user',
+      );
+
+    return $schema;
   }
 };
