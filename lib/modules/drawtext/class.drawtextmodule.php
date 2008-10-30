@@ -148,18 +148,18 @@ class DrawTextModule implements iModuleConfig, iRemoteCall
   {
     $form = new Form(array());
 
-    $this->fonts = array();
+    $fonts = array();
 
     foreach (Node::find(array('class' => 'file', 'filetype' => 'application/x-font-ttf')) as $n)
-      $this->fonts[$n->id] = isset($n->name) ? $n->name : $n->filename;
+      $fonts[$n->id] = isset($n->name) ? $n->name : $n->filename;
 
     $form->addControl(new EnumControl(array(
       'value' => 'config_font',
       'label' => t('Шрифт по умолчанию'),
       'default' => t('(не использовать)'),
-      'options' => $this->fonts,
+      'options' => $fonts,
       'description' => t('Вы можете <a href=\'@url\'>загрузить новый шрифт</a> в файловый архив.', array(
-        '@url' => 'adminnode/create/?BebopNode.class=file&destination=CURRENT',
+        '@url' => '?q=admin/content/create&type=file&destination=CURRENT',
         )),
       )));
 
