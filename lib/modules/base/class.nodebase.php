@@ -112,6 +112,8 @@ class NodeBase
     foreach ($this->files as $k => $v)
       $tmp['files'][$k] = $v->getRaw();
 
+    $tmp['_name'] = $this->getName();
+
     return $tmp;
   }
 

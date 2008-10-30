@@ -214,4 +214,9 @@ class Node extends NodeBase implements iContentType
     else
       return $node;
   }
+
+  public function getName()
+  {
+    return $this->name;
+  }
 };

@@ -293,4 +293,9 @@ class User
       }
     } catch (ObjectNotFoundException $e) { }
   }
+
+  public function getName()
+  {
+    return $this->node->getName();
+  }
 }

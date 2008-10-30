@@ -266,4 +266,11 @@ class UserNode extends Node implements iContentType
 
     return $links;
   }
+
+  public function getName()
+  {
+    if ($name = $this->fullname)
+      return $name;
+    return $this->name;
+  }
 };
