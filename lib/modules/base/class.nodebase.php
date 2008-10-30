@@ -342,9 +342,9 @@ class NodeBase
     if (is_array($schema)) {
       if (array_key_exists('fields', $schema)) {
         foreach ($schema['fields'] as $field => $info) {
-          switch ($info['type']) {
-          case 'NodeLinkControl':
-          case 'AttachmentControl':
+          switch (strtolower($info['type'])) {
+          case 'nodelinkcontrol':
+          case 'attachmentcontrol':
             if (empty($this->data[$field]))
               $value = null;
             elseif (is_array($v = $this->data[$field]))
@@ -1662,7 +1662,7 @@ class NodeBase
         if ($k == 'fk' and $simple)
           continue;
 
-        if ($v['type'] != 'ArrayControl') {
+        if (strcasecmp($v['type'], 'ArrayControl')) {
           if ($k == 'title')
             $v['class'] = 'form-title';
           elseif ($k == 'name' and !array_key_exists('title', $schema['fields']))
@@ -1670,12 +1670,12 @@ class NodeBase
 
           $v['wrapper_id'] = "{$k}-ctl-wrapper";
 
-          if ($v['type'] == 'AttachmentControl') {
+          if (!strcasecmp($v['type'], 'AttachmentControl')) {
             $v = array_merge(array(
              'value'   => 'file_'. $k,
              'medium'  => true,
              'unzip'   => false, // не разрешаем распаковывать зипы, загружаемые в поля.
-             'archive' => true
+             'archive' => true,
             ), $v);
 
             if (!$simple) {
@@ -1989,11 +1989,11 @@ class NodeBase
           : null;
 
         if ($k != 'parent_id' and $k != 'fields' and $k != 'config') {
-          switch ($v['type']) {
-          case 'AttachmentControl':
+          switch (strtolower($v['type'])) {
+          case 'attachmentcontrol':
             break;
 
-          case 'NodeLinkControl':
+          case 'nodelinkcontrol':
             if (!empty($data['nodelink_remap'][$key]))
               $v['values'] = $data['nodelink_remap'][$key];
             elseif (!empty($v['dictionary']))
@@ -2034,12 +2034,12 @@ class NodeBase
             $this->$k = $node;
             break;
 
-          case 'NumberControl':
+          case 'numbercontrol':
             $value = str_replace(',', '.', $value);
             $this->$k = $value;
             break;
 
-          case 'PasswordControl':
+          case 'passwordcontrol':
             if (!empty($value)) {
               if (is_array($value) and ($value[0] != $value[1]))
                 throw new ValidationException($k);
