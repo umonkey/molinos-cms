@@ -96,7 +96,10 @@ class CommentFormWidget extends Widget
 
   public function onGet(array $options)
   {
-    return array('html' => parent::formRender('comment-new'));
+    return array(
+      'doc' => $this->ctx->document->getRaw(),
+      'html' => parent::formRender('comment-new'),
+      );
   }
 
   protected function getNewForm($strip = true)
