@@ -202,12 +202,19 @@ class RequestController
 
       $args = array($this->ctx);
 
-      $result = mcms::invoke_module($module, 'iRemoteCall', 'hookRemoteCall', $args);
+      try {
+        if (false === ($result = mcms::invoke_module($module, 'iRemoteCall', 'hookRemoteCall', $args)))
+          throw new RuntimeException(t('Обработчик RPC в модуле %module отсутствует.', array(
+            '%module' => $module,
+            )));
+      } catch (Exception $e) {
+        mcms::fatal($e);
+      }
 
       if ($this->ctx->method('post'))
         mcms::db()->commit();
 
-      if (false !== $result)
+      if (!empty($result))
         return $result;
 
       if (null !== ($next = $this->ctx->get('destination')))
