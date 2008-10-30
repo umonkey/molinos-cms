@@ -21,7 +21,7 @@ class SearchWidget extends Widget implements iWidget
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
 
-    $options['q'] = $ctx->get('q');
+    $options['q'] = $ctx->get('query');
     $options['page'] = $ctx->get('page', 1);
     $options['limit'] = $this->per_page;
     $options['#cache'] = false;
@@ -67,12 +67,18 @@ class SearchWidget extends Widget implements iWidget
     elseif (empty($this->gas_root))
       return "<!-- GAS disabled: result container not defined -->";
 
+    if (null === ($host = $this->gas_host))
+      $host = $_SERVER['HTTP_HOST'];
+
     return array(
       'mode' => 'gas',
       'apikey' => $config['gas_key'],
-      'hostname' => $_SERVER['HTTP_HOST'],
+      'hostname' => $host,
       'root' => $this->gas_root,
       'formctl' => $this->gas_ctl,
+      'onlyform' => (bool)strcasecmp($this->gas_page, trim($this->ctx->url()->path, '/')),
+      'resultpage' => $this->gas_page,
+      'query' => $options['q'],
       );
   }
 
@@ -271,6 +277,15 @@ class SearchWidget extends Widget implements iWidget
         'label' => t('Блок с результатами Google Ajax Search'),
         'class' => 'settings-gas',
         'description' => t('Введите id элемента, в который нужно помещать результаты поиска.  Обычно это — пустой div, скрытый по умолчанию.'),
+        )));
+      $form->addControl(new TextLineControl(array(
+        'value' => 'config_gas_page',
+        'label' => t('Страница с результатами поиска'),
+        )));
+      $form->addControl(new TextLineControl(array(
+        'value' => 'config_gas_host',
+        'label' => t('Искать в домене'),
+        'default' => $_SERVER['HTTP_HOST'],
         )));
       break;
     }

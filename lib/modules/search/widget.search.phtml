@@ -1,4 +1,10 @@
 <?php if ('gas' == $mode): ?>
+<?php if ($onlyform): ?>
+<form method="get" action="<?=$resultpage?>">
+<input class="formText" type="text" name="<?=$instance?>.query" />
+<input class="formSubmit" type="submit" value="Найти" />
+</form>
+<?php else: ?>
 <script src="http://www.google.com/jsapi?key=<?php print $apikey; ?>" type="text/javascript"></script>
 <script language="Javascript" type="text/javascript">
 //<![CDATA[
@@ -29,7 +35,7 @@ function OnLoad() {
     searchControl.draw(gctl);
 
     // Execute an inital search
-    // searchControl.execute("Google");
+    searchControl.execute("<?=$query?>");
   }
 }
 google.setOnLoadCallback(OnLoad);
@@ -41,4 +47,5 @@ google.setOnLoadCallback(OnLoad);
 <div id='<?php print $formctl; ?>'></div>
 <div id='<?php print $root; ?>'></div>
 </div>
+<?php endif; ?>
 <?php endif; ?>
