@@ -364,7 +364,7 @@ class Context
                 }
             }
 
-            $ctx->redirect('http://'. $dom->redirect);
+            $this->redirect('http://'. $dom->redirect);
           }
 
           return $dom;
