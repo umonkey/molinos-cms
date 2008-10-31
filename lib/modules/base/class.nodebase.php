@@ -63,7 +63,7 @@ class NodeBase
     // При создании пользователя этого не делаем, чтобы
     // не войти в мёртвый цикл, т.к. ноды типа user создаются
     // при чтении сессии.
-    if (empty($data['uid']) and $data['class'] != 'user')
+    if (empty($data['uid']) and $data['class'] != 'user' and $data['class'] != 'group')
       $data['uid'] = mcms::user()->id;
 
     $this->data = $data;
