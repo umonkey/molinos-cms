@@ -325,6 +325,9 @@ table.mcms.nodelist tr:hover td {background-color: #ecece9;}
 #center .control label.normal {
   font-weight: normal;
 }
+#center .control select {
+  display: block;
+}
 
 #center .control .form-text {
   width: 100%;
