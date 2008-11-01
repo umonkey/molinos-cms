@@ -1653,7 +1653,9 @@ class NodeBase
       if (mcms::user()->id != $this->id and !bebop_is_debugger())
         throw new ForbiddenException(t('У вас недостаточно прав для редактирования этого документа.'));
     } elseif (null === $this->id and !$this->checkPermission('c')) {
-      throw new ForbiddenException(t('У вас недостаточно прав для создания такого документа.'));
+      throw new ForbiddenException(t('У вас недостаточно прав для создания такого документа (%type).', array(
+        '%type' => $this->class,
+        )));
     }
 
     $tabs = array();
