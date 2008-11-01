@@ -117,8 +117,9 @@ class CommentFormWidget extends Widget
       else
         $skip = $this->hide_anon;
 
-      foreach ($skip as $k)
-        $form->replaceControl('node_content_'. $k, null);
+      if (is_array($skip))
+        foreach ($skip as $k)
+          $form->replaceControl('node_content_'. $k, null);
     }
 
     return $form;
