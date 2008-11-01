@@ -377,6 +377,10 @@ class NodeBase
         }
       }
     }
+
+    // Привязывание обычных файлов.
+    foreach ($this->files as $f)
+      $f->linkAddParent($this->id);
   }
 
   /**
