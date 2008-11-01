@@ -1846,6 +1846,7 @@ class NodeBase
             'unzip' => true,
             'remote' => true,
             'fetch' => true,
+            'archive' => true,
             )));
       }
 
@@ -1855,6 +1856,7 @@ class NodeBase
         'uploadtxt' => t('Загрузить'),
         'unzip' => true,
         'fetch' => true,
+        'archive' => true,
         )));
     }
 
