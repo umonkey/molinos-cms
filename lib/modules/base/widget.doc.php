@@ -189,8 +189,10 @@ class DocWidget extends Widget implements iWidget
       }
     }
 
+    /*
     if (array_key_exists('document', $result))
       bebop_on_json(array($result['document']));
+    */
 
     return $result;
   }
