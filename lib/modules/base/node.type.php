@@ -27,35 +27,39 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   {
     parent::__construct($data);
 
-    if (empty($this->data['id']) and empty($this->data['fields'])) {
-      $this->data['fields'] = array(
-        'name' => array(
-          'label' => 'Заголовок',
-          'type' => 'TextLineControl',
-          'required' => true,
-          'indexed' => true,
-          ),
-        'teaser' => array(
-          'label' => 'Вступление',
-          'type' => 'TextAreaControl',
-          'required' => false,
-          'description' => 'Краткое содержание, 1-2 предложения.  Выводится в списках документов, RSS итд.',
-          ),
-        'text' => array(
-          'label' => 'Текст',
-          'type' => 'TextHTMLControl',
-          'required' => true,
-          ),
-        'created' => array(
-          'label' => 'Дата добавления',
-          'type' => 'DateTimeControl',
-          'required' => false,
-          'indexed' => true,
-          ),
-        );
-    }
+    if (empty($this->data['id']) and empty($this->data['fields']))
+      $this->data['fields'] = $this->getBasicSchema();
 
     $this->oldname = $this->name;
+  }
+
+  private function getBasicSchema()
+  {
+    return array(
+      'name' => array(
+        'label' => 'Заголовок',
+        'type' => 'TextLineControl',
+        'required' => true,
+        'indexed' => true,
+        ),
+      'teaser' => array(
+        'label' => 'Вступление',
+        'type' => 'TextAreaControl',
+        'required' => false,
+        'description' => 'Краткое содержание, 1-2 предложения.  Выводится в списках документов, RSS итд.',
+        ),
+      'text' => array(
+        'label' => 'Текст',
+        'type' => 'TextHTMLControl',
+        'required' => true,
+        ),
+      'created' => array(
+        'label' => 'Дата добавления',
+        'type' => 'DateTimeControl',
+        'required' => false,
+        'indexed' => true,
+        ),
+      );
   }
 
   // Инсталляция типов документов.
@@ -436,7 +440,10 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       'class' => 'fields-editor'
       ));
 
-    $schema = Node::create($this->name)->schema();
+    if ($this->name)
+      $schema = Node::create($this->name)->schema();
+    else
+      $schema = array('fields' => $this->getBasicSchema());
 
     $id = 1;
 
