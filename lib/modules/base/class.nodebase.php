@@ -368,7 +368,7 @@ class NodeBase
               $value = null;
 
             if (null === $value)
-              $this->linkRemoveChild($field);
+              $this->linkRemoveChild(null, $field);
             else
               $this->linkAddChild($value, $field);
 
