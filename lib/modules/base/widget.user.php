@@ -49,7 +49,7 @@ class UserWidget extends Widget implements iWidget
     $form = parent::formGetConfig();
 
     $form->addControl(new SetControl(array(
-      'value' => 'config_groups',
+      'value' => 'config_newgroups',
       'label' => t('Группы для новых пользователей'),
       'options' => $groups,
       'description' => t('Укажите список групп, в которые будут добавлены пользователи, регистрирующиеся на сайте.'),
