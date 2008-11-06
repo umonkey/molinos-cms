@@ -79,6 +79,11 @@ class ListWidget extends Widget
       'label' => t('Включить документы из подразделов'),
       'description' => t('Если этот флаг установлен, будут возвращены не только документы из запрошенного раздела, но и из всех его подразделов.'),
       )));
+    $form->addControl(new BoolControl(array(
+      'value' => 'config_allowoverride',
+      'label' => t('Разрешить переопределение раздела'),
+      'description' => t('Для указания раздела используется параметр ?имя_виджета.section=id'),
+      )));
     $form->addControl(new TextLineControl(array(
       'value' => 'config_limit',
       'label' => t('Количество элементов на странице'),
@@ -171,6 +176,9 @@ class ListWidget extends Widget
       } elseif ('always' == $this->fallbackmode and !empty($this->fixed))
         $options['filter']['tags'] = array($this->fixed);
       elseif (null !== ($tmp = $ctx->section->id))
+        $options['filter']['tags'] = array($tmp);
+
+      if ($this->allowoverride and ($tmp = $ctx->get('section')))
         $options['filter']['tags'] = array($tmp);
 
       if ($this->skipcurrent)
