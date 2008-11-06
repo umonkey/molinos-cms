@@ -64,6 +64,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   public function duplicate($parent = null)
   {
     $this->name = preg_replace('/_[0-9]+$/', '', $this->name) .'_'. rand();
+    $this->oldname = null;
 
     parent::duplicate($parent);
 
