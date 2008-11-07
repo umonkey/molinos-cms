@@ -1979,10 +1979,10 @@ class NodeBase
 
     $schema = $this->schema();
 
-    foreach ($schema as $k => $v) {
-      if ($v->indexed) {
+    foreach ($schema->getIndexes() as $k) {
+      if ($schema[$k]->indexed) {
         $fields[] = $k;
-        $params[':' . $k] = $v->getIndexValue($this->$k);
+        $params[':' . $k] = $schema[$k]->getIndexValue($this->$k);
       }
     }
 
