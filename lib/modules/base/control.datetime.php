@@ -54,16 +54,15 @@ class DateTimeControl extends Control
     return 'DATETIME';
   }
 
-  public function set($value, Node &$node)
+  protected function validate($value)
   {
-    $this->validate($value);
+    if (is_numeric($value))
+      return;
 
     if (false === ($value = strtotime($value)))
       throw new RuntimeException(t('Неверный формат даты: %bad, требуется: %good', array(
         '%bad' => $value,
         '%good' => 'ГГГГ-ММ-ДД ЧЧ:ММ:СС',
         )));
-
-    $node->{$this->value} = $value;
   }
 };
