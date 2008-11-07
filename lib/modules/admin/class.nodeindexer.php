@@ -3,12 +3,12 @@
 
 class NodeIndexer
 {
-  public static function stats()
+  public static function stats($cache = true)
   {
     static $stat = null;
 
     if (null === $stat) {
-      if (false === ($stat = mcms::cache('nodeindexer:stats'))) {
+      if (!$cache or (false === ($stat = mcms::cache('nodeindexer:stats')))) {
         $stat = array(
           '_total' => 0,
           );
@@ -66,27 +66,40 @@ class NodeIndexer
 
   public static function run()
   {
-    $repeat = false;
+    if (null !== ($stat = self::stats(false))) {
+      $ctx = Context::last();
 
-    if (null !== ($stat = self::stats())) {
-      if ('_total' != ($class = array_pop(array_keys($stat)))) {
-        $ids = mcms::db()->getResultsV('id', "SELECT `n`.`id` FROM `node` `n` "
-          ."WHERE `n`.`deleted` = 0 AND `n`.`class` = ? AND NOT EXISTS "
-          ."(SELECT 1 FROM `node__idx_{$class}` `i` WHERE `i`.`id` = `n`.`id`) "
-          ."LIMIT 50", array($class));
+      if (null !== ($class = $ctx->get('class'))) {
+        if (!empty($stat[$class])) {
+          mcms::db()->beginTransaction();
 
-        $nodes = Node::find(array(
-          'id' => $ids,
-          '#recurse' => 1,
-          ));
+          $ids = mcms::db()->getResultsV('id', "SELECT `n`.`id` FROM `node` `n` "
+            ."WHERE `n`.`deleted` = 0 AND `n`.`class` = ? AND NOT EXISTS "
+            ."(SELECT 1 FROM `node__idx_{$class}` `i` WHERE `i`.`id` = `n`.`id`) "
+            ."LIMIT 10", array($class));
 
-        foreach ($nodes as $n)
-          $n->reindex();
+          while (!empty($ids)) {
+            $node = Node::load(array(
+              'id' => array_shift($ids),
+              '#recurse' => 1,
+              ));
 
-        $repeat = true;
+            $node->reindex();
+
+            $stat[$class]--;
+          }
+
+          mcms::db()->commit();
+        }
       }
-    }
 
-    return $repeat;
+      $class = array_pop(array_keys($stat));
+
+      $url = new url($ctx->url());
+      $url->setarg('class', $class);
+      $url->setarg('left', $stat[$class]);
+
+      $ctx->redirect($url->string());
+    }
   }
 }

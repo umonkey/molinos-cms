@@ -338,6 +338,11 @@ abstract class Control implements iFormControl
   {
     return false;
   }
+
+  public function getIndexValue($value)
+  {
+    return $value;
+  }
 };
 
 class ControlData

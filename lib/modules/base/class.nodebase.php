@@ -1974,38 +1974,16 @@ class NodeBase
    */
   public function reindex()
   {
-    return;
-
     $fields = array('id');
     $params = array(':id' => $this->id);
 
-    foreach ($this->schema() as $k => $v) {
-      if (!$v->indexed)
-        continue;
-      if (TypeNode::isReservedFieldName($k))
-        continue;
+    $schema = $this->schema();
 
-      if ('' === $this->$k)
-        $this->$k = null;
-
-      $fields[] = $k;
-
-      if ($this->$k instanceof Node)
-        $value = $this->$k->id;
-      else
-        $value = $this->$k;
-
-      switch (strtolower($v['type'])) {
-      case 'boolcontrol':
-        $value = empty($value) ? 0 : 1;
-        break;
-      case 'floatcontrol':
-      case 'numbercontrol':
-        $value = floatval(str_replace(' ', '', $value));
-        break;
+    foreach ($schema as $k => $v) {
+      if ($v->indexed) {
+        $fields[] = $k;
+        $params[':' . $k] = $v->getIndexValue($this->$k);
       }
-
-      $params[':' . $k] = $value;
     }
 
     if (count($fields) > 1) {
