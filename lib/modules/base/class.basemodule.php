@@ -52,7 +52,7 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
       ));
 
     if (null === $next)
-      $next = $ctx->get('destination', '/');
+      $next = $ctx->get('destination', '');
 
     $ctx->redirect($next);
   }
