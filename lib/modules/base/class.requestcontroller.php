@@ -83,6 +83,7 @@ class RequestController
   private function locatePage(Context $ctx)
   {
     $ids = $path = array();
+
     $domain = $ctx->locateDomain($ctx);
 
     // При обращении к главной странице экономим на подгрузке детей.

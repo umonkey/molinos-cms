@@ -157,6 +157,9 @@ class NodeBase
     if (!is_array($id))
       $id = array('id' => $id);
 
+    if (!empty($id['#cache']) and !empty($id['id']) and is_array($cached = mcms::cache('node:' . $id['id'])))
+      return Node::create($cached['class'], $cached);
+
     $data = self::find($id);
 
     if (empty($data))
@@ -167,6 +170,9 @@ class NodeBase
         ."более одного объекта. Условие: ". var_export($id, true));
 
     $node = array_shift($data);
+
+    if (!empty($id['#cache']))
+      mcms::cache('node:' . $node->id, $node->getRaw());
 
     return $node;
   }
@@ -221,8 +227,6 @@ class NodeBase
       $sql .= ' -- Node::find('. $query['id'] .')';
     else
       $sql .= ' -- Node::find()';
-
-    mcms::db()->log("--- Finding nodes ---");
 
     $data = self::dbRead($sql, $params, empty($query['#recurse'])
       ? 0 : intval($query['#recurse']));

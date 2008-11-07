@@ -400,6 +400,8 @@ class DomainNode extends Node implements iContentType
   {
     $objects = array();
 
+    mcms::profile('start', 'getWidgetObjects()');
+
     $widgets = Node::find(array(
       'class' => 'widget',
       'published' => true,
@@ -407,7 +409,7 @@ class DomainNode extends Node implements iContentType
       '#permcheck' => 'r',
       ));
 
-    $pick = ('widget' == $ctx->debug())
+    $pick = ($ctx->debug('widget') or $ctx->debug('profile'))
       ? $ctx->get('widget')
       : null;
 
@@ -431,6 +433,8 @@ class DomainNode extends Node implements iContentType
       }
     }
 
+    mcms::profile('stop', 'getWidgetObjects()');
+
     return $objects;
   }
 
@@ -451,6 +455,8 @@ class DomainNode extends Node implements iContentType
     if ($ctx->debug('widget'))
       return $result;
 
+    mcms::profile('start', 'getCachedWidgets()');
+
     foreach ($objects as $o) {
       $name = $o->getInstanceName();
 
@@ -460,11 +466,10 @@ class DomainNode extends Node implements iContentType
 
     if (!empty($result)) {
       foreach ($result as $k => $v) {
-        if (false === ($cached = mcms::cache('widget:' . $k)))
-          unset($result[$k]);
-        elseif (!is_array($c = unserialize($cached)))
+        if (!is_array($c = mcms::cache('widget:' . $v)))
           unset($result[$k]);
         else {
+          mcms::flog('cache', $v . ': read from cache');
           $result[$k] = self::strip($c['content']);
 
           if (!empty($c['extras']))
@@ -473,6 +478,8 @@ class DomainNode extends Node implements iContentType
         }
       }
     }
+
+    mcms::profile('stop', 'getCachedWidgets()');
 
     return $result;
   }
@@ -488,10 +495,14 @@ class DomainNode extends Node implements iContentType
     // Данные для включения в кэш.
     $cache = array();
 
+    mcms::profile('start', 'getNonCachedWidgets()');
+
     $extras = $oxtras = mcms::get_extras();
 
     foreach ($objects as $o) {
       $name = $o->getInstanceName();
+
+      mcms::profile('start', 'widget:' . $name);
 
       if (!array_key_exists($name, $result)) {
         $result[$name] = self::strip(strval($o->render()));
@@ -508,7 +519,11 @@ class DomainNode extends Node implements iContentType
           }
         }
       }
+
+      mcms::profile('stop', 'widget:' . $name);
     }
+
+    mcms::profile('stop', 'getNonCachedWidgets()');
 
     $this->saveWidgetsToCache($ctx, $cache);
 

@@ -1392,8 +1392,16 @@ class mcms
       }
     }
 
-    if ('profile' == $ctx->debug())
-      mcms::debug('Profiling.');
+    if ('profile' == $ctx->debug()) {
+      $message = "Profiling.\n\n";
+
+      $message .= sprintf("%-30s %-20s %7s\n", 'name', 'time', 'queries');
+
+      foreach (mcms::profile('get') as $k => $v)
+        $message .= sprintf("%-30s %-20s %7s\n", $k, $v['time'], $v['queries']);
+
+      mcms::debug($message);
+    }
 
     if (function_exists('memory_get_peak_usage'))
       $output .= sprintf('<!-- request time: %s sec, peak memory: %s. -->',
@@ -1596,6 +1604,31 @@ class mcms
     $lines = preg_split('/[\r\n]+/', $text);
     $text = '<p>'. join('</p><p>', $lines) .'</p>';
     return $text;
+  }
+
+  public static function profile($mode, $name = null)
+  {
+    static $data = array();
+
+    if (!bebop_is_debugger())
+      return;
+
+    switch ($mode) {
+    case 'get':
+      return $data;
+
+    case 'start':
+      $data[$name] = array(
+        'time' => microtime(true),
+        'queries' => mcms::db()->getLogSize(),
+        );
+      break;
+
+    case 'stop':
+      $data[$name]['time'] = microtime(true) - $data[$name]['time'];
+      $data[$name]['queries'] = mcms::db()->getLogSize() - $data[$name]['queries'];
+      break;
+    }
   }
 };
 

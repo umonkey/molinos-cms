@@ -23,6 +23,7 @@ class Context
   private $_url;
   private $_post;
   private $_files;
+  private $_profile = array();
 
   /**
    * Путь к инсталляции CMS относительно корня сайта.
@@ -174,7 +175,7 @@ class Context
     // Отсекание папки из абсолютных урлов.
     if ('/' == substr($result, 0, 1)) {
       $folder = $this->folder() .'/';
-      $result = substr($result, strlen($folder));
+      $result = strval(substr($result, strlen($folder)));
     }
 
     return $result;
@@ -298,12 +299,16 @@ class Context
     }
   }
 
-  public function debug()
+  public function debug($type = null)
   {
     if (!bebop_is_debugger())
       return false;
 
-    return $this->get('debug');
+    $result = $this->get('debug');
+
+    return (null === $type)
+      ? $result
+      : !strcasecmp($result, $type);
   }
 
   /**
@@ -339,6 +344,9 @@ class Context
       'class' => 'domain',
       'parent_id' => null,
       'published' => array(0, 1),
+      'deleted' => 0,
+      '#recurse' => 0,
+      '#files' => 0,
       ));
 
     if (empty($domains)) {
@@ -376,5 +384,13 @@ class Context
       $this->redirect($dom);
 
     return $dom;
+  }
+
+  public function profile($name = null, $time = null)
+  {
+    if (null === $name)
+      return $this->_profile;
+    else
+      $this->_profile[$name] = $time;
   }
 }

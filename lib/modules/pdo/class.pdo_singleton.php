@@ -10,6 +10,7 @@ class PDO_Singleton extends PDO
 
   private $prepared_queries = array();
   private $query_log = null;
+  private $log_size = 0;
 
   private $transaction = false;
 
@@ -93,8 +94,10 @@ class PDO_Singleton extends PDO
   {
     $sth = parent::prepare($sql);
 
-    if ($this->query_log !== null)
+    if ($this->query_log !== null) {
       $this->query_log[] = $sql;
+      $this->log_size++;
+    }
 
     return $sth;
   }
@@ -106,7 +109,7 @@ class PDO_Singleton extends PDO
 
     try {
       $sth = $this->prepare($sql);
-      $this->query_log[] = '-- params: '. var_export($params, true);
+      $this->query_log[] = "\n-- params: ". var_export($params, true);
       $sth->execute($params);
     } catch (PDOException $e) {
       if ('sqlite' == self::$dbtype) {
@@ -148,6 +151,8 @@ class PDO_Singleton extends PDO
         if (null === $time)
           $time = microtime(true);
         $string .= ' '. (microtime(true) - $time);
+      } else {
+        $this->log_size++;
       }
       $this->query_log[] = $string;
     }
@@ -262,14 +267,7 @@ class PDO_Singleton extends PDO
   // Возвращает количество запросов.
   public function getLogSize()
   {
-    $count = 0;
-
-    if (is_array($this->query_log))
-      foreach ($this->query_log as $entry)
-        if (substr($entry, 0, 2) !== '--')
-          $count++;
-
-    return $count;
+    return $this->log_size;
   }
 
   // Открываем транзакцию, запоминаем статус.

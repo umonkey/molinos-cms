@@ -319,9 +319,6 @@ class ListWidget extends Widget
       }
     }
 
-    if (empty($options['#cache']))
-      $filter['#cache'] = false;
-
     // Формируем список документов.
     foreach ($nodes = Node::find($filter, $options['limit'], $options['offset']) as $node) {
       $result['documents'][] = $node->getRaw();

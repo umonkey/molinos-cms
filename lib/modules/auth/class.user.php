@@ -23,11 +23,14 @@ class User
         $this->node = Node::load(array(
           'class' => 'user',
           'id' => $uid,
+          '#cache' => true,
           ));
       } catch (ObjectNotFoundException $e) {
         // Пользователя удалили — ничего страшного.
       }
     }
+
+    $this->groups[0] = t('Анонимные пользователи');
 
     // Если пользоватль не найден — делаем анонимным.
     if (null === $this->node) {
@@ -38,11 +41,25 @@ class User
 
     // Если найден — загрузим группы.
     else {
-      $this->groups = Node::find(array(
-        'class' => 'group',
-        'published' => 1,
-        'tagged' => array($this->node->id),
-        ));
+      if (!is_array($groups = mcms::cache("user:{$this->node->id}:groupnames"))) {
+        $groups = array();
+
+        $nodes = Node::find(array(
+          'class' => 'group',
+          'published' => 1,
+          'tagged' => array($this->node->id),
+          '#recurse' => 0,
+          '#files' => false,
+          '#raw' => true,
+          ));
+
+        foreach ($nodes as $k => $v)
+          $groups[$k] = $v['_name'];
+
+        mcms::cache("user:{$this->node->id}:groupnames", $groups);
+      }
+
+      $this->groups += $groups;
     }
   }
 
@@ -76,10 +93,13 @@ class User
   private function loadAccess()
   {
     if (null === $this->access) {
-      if (empty($this->id) or !count($this->getGroups()))
-        $result = $this->loadAnonAccess();
-      else
-        $result = $this->loadGroupAccess();
+      if (!is_array($result = mcms::cache("user:{$this->id}:access"))) {
+        if (empty($this->id) or !count($this->getGroups()))
+          $result = $this->loadAnonAccess();
+        else
+          $result = $this->loadGroupAccess();
+        mcms::cache("user:{$this->id}:access", $result);
+      }
 
       $this->access = $result;
     }
@@ -229,30 +249,7 @@ class User
 
   public function getGroups()
   {
-    static $result = null;
-
-    if (null === $result) {
-      $result = array();
-
-      $result[0] = t('Анонимные пользователи');
-
-      foreach ($this->groups as $g)
-        $result[$g->id] = $g->login;
-    }
-
-    return $result;
-  }
-
-  public function hasGroup($name)
-  {
-    if (bebop_skip_checks())
-      return true;
-
-    foreach ($this->groups as $g)
-      if ($name == $g->login)
-        return true;
-
-    return false;
+    return $this->groups;
   }
 
   /**
@@ -266,12 +263,6 @@ class User
     $i = array_intersect(array_keys($this->groups), $ids);
 
     return !empty($i);
-  }
-
-  public function checkGroup($name)
-  {
-    if (!$this->hasGroup($name) and !bebop_skip_checks())
-      throw new ForbiddenException();
   }
 
   public static function checkAutoLogin()
