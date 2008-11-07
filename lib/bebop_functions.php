@@ -414,6 +414,9 @@ function mcms_encrypt($input)
     $textkey = mcms::config('guid');
     $securekey = hash('sha256', $textkey, true);
 
+    if (!function_exists('mcrypt_create_iv'))
+      throw new RuntimeException(t('Function mcrypt_create_iv not found.'));
+
     $iv = mcrypt_create_iv(32);
 
     return rawurlencode(base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $securekey, $input, MCRYPT_MODE_ECB, $iv)));
