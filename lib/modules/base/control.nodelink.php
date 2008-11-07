@@ -57,7 +57,7 @@ class NodeLinkControl extends Control
     return 'int';
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     if (isset($this->hidden))
       return $this->getHidden($data);
@@ -109,21 +109,17 @@ class NodeLinkControl extends Control
   {
     if (count($parts = explode('.', $this->values, 2)) == 2) {
       if (Node::count($filter = array('class' => $parts[0], 'published' => 1, '#sort' => array('name' => 'asc'))) < self::limit) {
-        foreach (Node::find($filter) as $tmp) {
-          $name = $tmp->name;
-
-          if ($tmp->class == 'user' and !empty($tmp->fullname))
-            $name = $tmp->fullname;
-
-          $values[$tmp->id] = $name;
-        }
+        foreach ($z = Node::find($filter) as $tmp)
+          $values[$tmp->id] = $tmp->getName();
 
         asort($values);
 
         $options = '';
 
         if (!$this->required)
-          $options .= '<option></option>';
+          $options .= mcms::html('option', array(
+            'value' => '',
+            ), $this->default_label);
 
         foreach ($values as $id => $name) {
           $options .= mcms::html('option', array(
@@ -140,8 +136,67 @@ class NodeLinkControl extends Control
   }
 
   // Возвращает текущее значение поля.
-  private function getCurrentValue(array $data)
+  private function getCurrentValue($data)
   {
-    return array_key_exists($this->value, $data) ? $data[$this->value] : null;
+    return $data->{$this->value};
+  }
+
+  public function set($value, Node &$node)
+  {
+    $this->validate($value);
+
+    $node->{$this->value} = Node::load($value);
+
+    /*
+    if (!empty($data['nodelink_remap'][$key]))
+      $v['values'] = $data['nodelink_remap'][$key];
+    elseif (!empty($v['dictionary']))
+      $v['values'] = $v['dictionary'] . '.name';
+
+    $parts = explode('.', $v['values'], 2);
+
+    if (empty($value)) {
+      $node = null;
+    } elseif (is_numeric($value) and empty($data['nodelink_remap'][$key])) {
+      // Обработка обычных выпадающих списков.
+      try {
+        $node = Node::load($f = array(
+          'class' => $parts[0],
+          'id' => $value,
+          'deleted' => 0,
+          ));
+      } catch (ObjectNotFoundException $e) {
+        $node = null;
+      }
+    } elseif (!empty($v['values'])) {
+      $required = substr($parts[1], -1) == '!';
+
+      $filter = array(
+        'class' => $parts[0],
+        rtrim($parts[1], '!') => $value,
+        'published' => 1,
+        'deleted' => 0,
+        );
+
+      $node = Node::find($filter, 1);
+
+      if (!empty($node))
+        $node = array_shift($node);
+      else
+        $node = null;
+
+      if (empty($node) and $required)
+        throw new ValidationException(t('Не заполнено поле «%field».',
+          array('%field' => $v['label'])));
+    }
+
+    $this->$k = $node;
+    */
+  }
+
+  public function getLinkId($data)
+  {
+    if (null !== ($value = $data->{$this->value}))
+      return Node::_id($value);
   }
 };

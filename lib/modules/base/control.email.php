@@ -29,14 +29,10 @@ class EmailControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
-    if (!empty($data[$this->value]))
-      $value = $data[$this->value];
-    elseif (isset($this->default))
+    if (null === ($value = $data->{$this->value}))
       $value = $this->default;
-    else
-      $value = null;
 
     $output = mcms::html('input', array(
       'type' => 'text',

@@ -17,8 +17,6 @@
  */
 class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 {
-  private $oldfields = null;
-
   // Устанавливается при изменении внутреннего имени.  После сохранения все
   // документы этого типа обновляются.
   private $oldname = null;
@@ -27,61 +25,35 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   {
     parent::__construct($data);
 
-    if (empty($this->data['id']) and empty($this->data['fields']))
-      $this->data['fields'] = $this->getBasicSchema();
+    if (empty($this->data['id']) and empty($this->data['fields'])) {
+      $this->data['fields'] = array(
+        'name' => array(
+          'label' => 'Заголовок',
+          'type' => 'TextLineControl',
+          'required' => true,
+          'indexed' => true,
+          ),
+        'teaser' => array(
+          'label' => 'Вступление',
+          'type' => 'TextAreaControl',
+          'required' => false,
+          'description' => 'Краткое содержание, 1-2 предложения.  Выводится в списках документов, RSS итд.',
+          ),
+        'text' => array(
+          'label' => 'Текст',
+          'type' => 'TextHTMLControl',
+          'required' => true,
+          ),
+        'created' => array(
+          'label' => 'Дата добавления',
+          'type' => 'DateTimeControl',
+          'required' => false,
+          'indexed' => true,
+          ),
+        );
+    }
 
     $this->oldname = $this->name;
-  }
-
-  private function getBasicSchema()
-  {
-    return array(
-      'name' => array(
-        'label' => 'Заголовок',
-        'type' => 'TextLineControl',
-        'required' => true,
-        'indexed' => true,
-        ),
-      'teaser' => array(
-        'label' => 'Вступление',
-        'type' => 'TextAreaControl',
-        'required' => false,
-        'description' => 'Краткое содержание, 1-2 предложения.  Выводится в списках документов, RSS итд.',
-        ),
-      'text' => array(
-        'label' => 'Текст',
-        'type' => 'TextHTMLControl',
-        'required' => true,
-        ),
-      'created' => array(
-        'label' => 'Дата добавления',
-        'type' => 'DateTimeControl',
-        'required' => false,
-        'indexed' => true,
-        ),
-      );
-  }
-
-  // Инсталляция типов документов.
-  public static function install()
-  {
-    // Запрашиваем схему с перезагрузкой.
-    $schema = self::getSchema(null, true);
-
-    // Инсталлируем типы с доступной реализацией.  Для этого используем запрос
-    // схемы конкретного типа.
-    foreach (mcms::getImplementors('iContentType') as $class) {
-      if ('Node' == substr($class, -4) and strlen($type = strtolower(substr($class, 0, -4)))) {
-        if (0 == Node::count(array('class' => 'type', 'name' => $type))) {
-          $tmp = Node::create($type)->schema();
-          $tmp['published'] = true;
-          $tmp['name'] = $type;
-
-          $node = Node::create('type', $tmp);
-          $node->save();
-        }
-      }
-    }
   }
 
   public function save()
@@ -120,7 +92,6 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   public function duplicate($parent = null)
   {
     $this->name = preg_replace('/_[0-9]+$/', '', $this->name) .'_'. rand();
-    $this->oldname = null;
 
     parent::duplicate($parent);
 
@@ -171,18 +142,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   private function flush()
   {
-    self::getSchema(null, true);
-  }
-
-  public function __set($k, $v)
-  {
-    // Отслеживаем изменения в полях.
-    if ('fields' === $k) {
-      if (null === $this->oldfields)
-        $this->oldfields = $this->fields;
-    }
-
-    parent::__set($k, $v);
+    // FIXME: удалить
   }
 
   // Возвращает информацию о типе документа, включая поля.
@@ -225,78 +185,6 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       return false;
     unset($this->data['fields'][$name]);
     return true;
-  }
-
-  // Возвращает true, если указанный тип может содержать файлы.
-  public static function checkHasFiles($class)
-  {
-    $result = mcms::cache('types_with_files');
-
-    if (!is_array($result)) {
-      $result = array();
-
-      foreach (self::getSchema() as $name => $info) {
-        if (!empty($info['hasfiles']))
-          $result[] = $name;
-        else if (array_key_exists('fields', $info) and is_array($info['fields'])) {
-          foreach ($info['fields'] as $field) {
-            if (!strcasecmp($field['type'], 'attachmentcontrol')) {
-              $result[] = $name;
-              break;
-            }
-          }
-        }
-      }
-
-      mcms::cache('types_with_files', $result);
-    }
-
-    return in_array($class, $result);
-  }
-
-  // Возвращает актуальное описание схемы -- все классы, все поля.
-  public static function getSchema($name = null, $reload = false)
-  {
-    static $lock = false;
-
-    if (false !== $lock)
-      throw new RuntimeException('Рекурсия при вызове TypeNode::getSchema()!');
-
-    $lock = true;
-
-    if ($reload or (!is_array($result = mcms::pcache('schema')) or empty($result))) {
-      $result = array();
-
-      foreach (NodeBase::dbRead("SELECT `n`.`id` as `id`, `n`.`class` AS `class`, `n`.`rid` as `rid`, `r`.`name` as `name`, `r`.`data` as `data` FROM `node` `n` INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0") as $n)
-        $result[$n->name] = $n->getRaw();
-
-      mcms::pcache('schema', $result);
-    }
-
-    if ($name !== null and empty($result[$name])) {
-      if (null !== ($def = Node::create($name)->getDefaultSchema())) {
-        try {
-          $tmp = Node::create('type', $def);
-          $tmp->name = $name;
-          // $tmp->save();
-
-          $result[$name] = array_merge(array('id' => $tmp->id), $def);
-
-          mcms::pcache('schema', $result);
-        } catch (ValidationException $e) {
-        } catch (Exception $e) {
-          $lock = false;
-          throw $e;
-        }
-      }
-    }
-
-    $lock = false;
-
-    if (null !== $name)
-      return empty($result[$name]) ? null : $result[$name];
-
-    return $result;
   }
 
   public function recreateIdxTable($tblname)
@@ -359,33 +247,9 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   public function formGet($simple = true)
   {
-    $user = mcms::user();
+    $form = parent::formGet();
 
-    if (!mcms::user()->hasAccess('u', 'type'))
-      throw new ForbiddenException();
-
-    $form = parent::formGet($simple);
-
-    if (null !== ($tmp = $form->findControl('node_tags')))
-      $tmp->label = t('Документы этого типа можно помещать в разделы');
-
-    if (null !== ($tab = $this->formGetFields()))
-      $form->addControl($tab);
-
-    if (null !== ($tab = $this->formGetWidgets()))
-      $form->addControl($tab);
-
-    $form->title = (null === $this->id)
-      ? t('Добавление типа документа')
-      : t('Редактирование типа "%title"', array('%name' => $this->name, '%title' => $this->title));
-
-    if (null !== ($tmp = $this->getAccessTab()))
-      $form->addControl($tmp);
-
-    if ('tag' == $this->name) {
-      $form->hideControl('node_content_notags');
-      $form->hideControl('node_content_hasfiles');
-    }
+    $form->addControl($this->formGetFields());
 
     return $form;
   }
@@ -441,124 +305,57 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       'class' => 'fields-editor'
       ));
 
-    if ($this->name)
-      $schema = Node::create($this->name)->schema();
-    else
-      $schema = array('fields' => $this->getBasicSchema());
-
     $id = 1;
 
-    if (!empty($schema['fields'])) {
-      foreach ($schema['fields'] as $k => $v) {
-        $field = new FieldControl(array(
-          'id' => 'field'. $id++,
-          'name' => $k,
-          'value' => 'node_content_fields',
-          'label' => empty($v['label']) ? $k : $v['label'],
-         ));
-        $form->addControl($field);
-      }
+    if (null === ($name = $this->name))
+      $name = 'type';
+
+    foreach (Node::create($name)->schema() as $name => $field) {
+      $form->addControl(new FieldControl(array(
+        'id' => 'field' . $id++,
+        'name' => $name,
+        'value' => 'fields',
+        'label' => $field->label,
+        )));
     }
 
     $form->addControl(new FieldControl(array(
-      'id' => 'field'. $id++,
+      'id' => 'field' . $id++,
       'name' => null,
-      'value' => 'node_content_fields',
+      'value' => 'fields',
       )));
 
     return $form;
   }
 
-  private function formGetWidgets()
-  {
-    $options = array();
-
-    $filter = array(
-      'class' => 'widget',
-      '#sort' => array(
-        'name' => 'asc',
-        ),
-      );
-
-    foreach (Node::find($filter) as $w)
-      if (in_array($w->classname, array('DocWidget', 'ListWidget')))
-        $options[$w->id] = $w->title;
-
-    if (!empty($options)) {
-      $tab = new FieldSetControl(array(
-        'name' => 'widgets',
-        'label' => t('Виджеты'),
-        'intro' => t('Укажите виджеты, которые будут работать с документами этого типа.'),
-        'value' => 'tab_widgets',
-        ));
-
-      $tab->addControl(new SetControl(array(
-        'value' => 'node_type_widgets',
-        'label' => 'Обрабатываемые виджеты',
-        'options' => $options,
-        )));
-
-      return $tab;
-    }
-  }
-
-  public function formGetData()
-  {
-    $data = parent::formGetData();
-    $data['node_content_fields'] = $this->fields;
-    $data['node_type_widgets'] = $this->linkListChildren('widget', true);
-    $data['perm_own'] = $this->perm_own;
-
-    return $data;
-  }
-
   // Обрабатывает подключение виджетов и полей, остальное передаёт родителю.
   public function formProcess(array $data)
   {
-    $there_were_fields = !empty($this->fields);
+    $fields = array();
 
-    if (empty($this->id) and !empty($data['node_content_isdictionary'])) {
-      $this->data['isdictionary'] = true;
-      $this->data['published'] = true;
+    foreach ($data['fields'] as $f) {
+      if (!empty($f['name']) and empty($f['delete'])) {
+        $fields[$f['name']] = $f;
+        unset($fields[$f['name']]['name']);
+      }
     }
 
-    // Установка прав на собственные объекты.
-    if (!empty($data['perm_own_reset'])) {
-      if (empty($data['perm_own']))
-        $data['perm_own'] = array();
-      $this->data['perm_own'] = $data['perm_own'];
-    }
+    if (empty($fields))
+      throw new RuntimeException(t('Попытка сохранить тип документа без полей.'));
 
-    // @todo этот блок раньше был ПОД formProcess(), почему?  Были какие-то
-    // с ним проблемы, я не помню какие.  Надо проверить ещё раз, везде ли
-    // сейчас работает, и поправить, если надо.  И задокументировать! — hex, 12.05.08
-    $this->updateFields($data);
+    $this->fields = $fields;
 
-    // Обновляем базовые свойства, типа имени и описания.
-    parent::formProcess($data);
-
-    if ($there_were_fields and empty($this->fields)) {
-      mcms::db()->rollBack();
-      throw new InvalidArgumentException(t('Попытка очистить поля типа документа.'));
-    }
-
-    // FIXME: у нас из parent::formProcess и так уже вызывается
-    // TypeNode->save. Насколько необходим повторный вызов?
-    $this->save();
-
-    // Подключаем виджеты.
-    if (mcms::user()->hasAccess('u', 'widget'))
-      $this->linkSetChildren(array_key_exists('node_type_widgets', $data) ? $data['node_type_widgets'] : array(), 'widget');
+    return parent::formProcess($data);
   }
 
   protected function updateFields(array $data)
   {
     $fields = array();
 
-    if (empty($data['node_content_fields']) or !is_array($data['node_content_fields']))
+    if (empty($data['fields']) or !is_array($data['fields']))
       throw new ValidationException(t('Поля документа не заполнены.'));
 
-    foreach ($data['node_content_fields'] as $f) {
+    foreach ($data['fields'] as $f) {
       if (!empty($f['name']) and empty($f['delete'])) {
         if (strspn(mb_strtolower($f['name']), '0123456789abcdefghijklmnopqrstuvwxyz_') != strlen($f['name']))
           throw new ValidationException('Имя поля может содержать только цифры, буквы и прочерк.');
@@ -722,9 +519,9 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   {
     $result = array();
 
-    foreach (self::getSchema() as $k => $v)
-      if (null === $mode or mcms::user()->hasAccess('r', $k))
-        $result[$k] = empty($v['title']) ? $k : $v['title'];
+    foreach (Node::find(array('class' => 'type', 'deleted' => 0)) as $type)
+      if (null === $mode or mcms::user()->hasAccess('r', $type->name))
+        $result[$type->name] = empty($type->title) ? $type->name : $type->title;
 
     asort($result);
 
@@ -746,5 +543,43 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       $links['delete'] = null;
 
     return $links;
+  }
+
+  public function schema()
+  {
+    $schema = parent::schema();
+
+    // Устаревшие поля, которые нужно скрыть.
+    unset($schema['notags']);
+    unset($schema['hasfiles']);
+
+    if (empty($this->id) or $this->name != 'type')
+      $schema['isdictionary'] = new BoolControl(array(
+        'value' => 'isdictionary',
+        'label' => t('Тип является справочником'),
+        'volatile' => true,
+        ));
+
+    return $schema;
+  }
+
+  protected function getDefaultSchema()
+  {
+    return array(
+      'perms' => array(
+        'type' => 'AccessControl',
+        'label' => t('Права для групп'),
+        'group' => t('Доступ'),
+        'volatile' => true,
+        ),
+      );
+  }
+
+  public static function getList()
+  {
+    return Node::find(array(
+      'class' => 'type',
+      'deleted' => 0,
+      ));
   }
 };

@@ -70,7 +70,7 @@ class NodeApiModule implements iRemoteCall
         throw new PageNotFoundException(t('Нет такого поля у этого объекта.'));
 
       $tpl = $schema['fields'][$field];
-      $tpl['value'] = 'node_content_'. $field;
+      $tpl['value'] = $field;
       $tpl['nolabel'] = true;
 
       $form = new Form(array(
@@ -82,7 +82,7 @@ class NodeApiModule implements iRemoteCall
         'text' => 'OK',
         )));
 
-      die($form->getHTML($node->formGetData()));
+      die($form->getHTML($node));
 
     case 'revert':
       $info = mcms::db()->getResults("SELECT `v`.`nid` AS `id`, "
@@ -116,9 +116,10 @@ class NodeApiModule implements iRemoteCall
         'node' => $node->getRaw(),
         ));
 
-      if (!empty($_GET['a']))
-        $node = $node->getRaw();
-      mcms::debug($node);
+      mcms::debug(array(
+        'node' => $node,
+        'links' => $node->getActionLinks(),
+        ));
 
       throw new ForbiddenException();
 
@@ -179,13 +180,13 @@ class NodeApiModule implements iRemoteCall
         throw new BadRequestException(t('Этот запрос можно отправить '
           .'только методом POST.'));
 
-      $parent = $ctx->post('node_content_parent_id');
+      $parent = $ctx->post('parent_id');
 
       $node = Node::create($ctx->get('type'), array(
         'parent_id' => empty($parent) ? null : $parent,
         ));
 
-      $node->formProcess($ctx->post);
+      $node->formProcess($ctx->post)->save();
 
       if ($ctx->method('post'))
         if (!($next = $ctx->post('destination')))
@@ -201,7 +202,7 @@ class NodeApiModule implements iRemoteCall
         throw new BadRequestException(t('Этот запрос можно отправить '
           .'только методом POST.'));
       $node = Node::load($ctx->get('node'));
-      $node->formProcess($ctx->post);
+      $node->formProcess($ctx->post)->save();
       break;
 
     case 'undelete':

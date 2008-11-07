@@ -34,16 +34,12 @@ class TextAreaControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
-    if (null === $this->value or empty($data[$this->value]))
-      $content = null;
-    else {
-      if (is_array($content = $data[$this->value]))
-        $content = join("\n", $content);
-    }
+    if (is_array($content = $data->{$this->value}))
+      $content = join("\n", $content);
 
-    if (empty($this->content) and isset($this->default))
+    if (empty($content) and isset($this->default))
       $content = $this->default;
 
     $output = mcms::html('textarea', array(
@@ -55,5 +51,12 @@ class TextAreaControl extends Control
       ), $content);
 
     return $this->wrapHTML($output);
+  }
+
+  public function set($value, Node &$node)
+  {
+    $this->validate($value);
+
+    $node->{$this->value} = $value;
   }
 };

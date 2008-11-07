@@ -28,27 +28,46 @@ class SetControl extends Control
 
   public function __construct(array $form)
   {
-    self::makeOptionsFromValues($form);
-    parent::__construct($form, array('value', 'options'));
+    parent::__construct($form, array('value'));
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
-    if (!isset($this->options))
+    $options = $this->getOptions($data);
+
+    if (empty($options))
       return null;
 
-    $values = array();
+    $selected = $this->getSelected($data);
+    $enabled = $this->getEnabled($data);
+
     $content = $this->getLabel();
 
-    foreach ($this->options as $k => $v) {
+    foreach ($options as $k => $v) {
+      $disabled = ((null === $enabled) or !in_array($k, $enabled))
+        ? true
+        : false;
+
       $inner = mcms::html('input', array(
         'type' => 'checkbox',
         'value' => $k,
-        'name' => isset($this->value) ? $this->value .'[]' : null,
-        'checked' => !empty($data[$this->value]) and in_array($k, $data[$this->value]),
+        'name' => $this->value . '[]',
+        'checked' => in_array($k, $selected),
+        'disabled' => $disabled ? 'disabled' : null,
         ));
-      $content .= '<div class=\'form-checkbox\'>'. mcms::html('label', array('class' => 'normal'), $inner . $v) .'</div>';
+
+      $inner = mcms::html('label', array('class' => 'normal'), $inner . $v);
+
+      $content .= mcms::html('div', array(
+        'class' => 'form-checkbox' . ($disabled ? ' disabled' : ''),
+        ), $inner);
     }
+
+    $content .= mcms::html('input', array(
+      'type' => 'hidden',
+      'name' => $this->value . '[__reset]',
+      'value' => 1,
+      ));
 
     return $this->wrapHTML($content, false);
   }
@@ -74,5 +93,49 @@ class SetControl extends Control
     }
 
     parent::makeOptionsFromValues($form);
+  }
+
+  protected function getOptions($data)
+  {
+    if ($this->dictionary)
+      $options = Node::getSortedList($this->dictionary, $this->field ? $this->field : 'name');
+    else
+      $options = $this->options;
+
+    return $options;
+  }
+
+  protected function getSelected($data)
+  {
+    $f = $this->parents
+      ? 'linkListParents'
+      : 'linkListChildren';
+
+    if (!empty($this->dictionary) and $data instanceof Node)
+      return $data->$f($this->dictionary, true);
+    return $data->{$this->value};
+  }
+
+  public function set($value, Node &$node)
+  {
+    if (empty($value['__reset']))
+      $value = null;
+
+    else {
+      unset($value['__reset']);
+
+      if ($this->required and empty($value))
+        throw new ValidationException($this->label);
+    }
+
+    $f = $this->parents
+      ? 'linkSetParents'
+      : 'linkSetChildren';
+
+    if (!empty($this->dictionary)) {
+      $node->$f(array_unique((array)$value), $this->dictionary);
+    } else {
+      $node->{$this->value} = $value;
+    }
   }
 };

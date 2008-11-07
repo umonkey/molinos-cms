@@ -16,12 +16,12 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
     parent::__construct($form, array('columns'));
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     $output = '<table class=\'mcms nodelist\'>';
     $output .= $this->getTableHeader();
 
-    foreach ($data['nodes'] as $nid => $node) {
+    foreach ($data->nodes as $nid => $node) {
       $row = "<td class='selector'><input type='checkbox' name='nodes[]' value='{$nid}' /></td>";
 
       $parent = empty($node['parent_id']) ? null : $node['parent_id'];

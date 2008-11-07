@@ -30,9 +30,12 @@ class FieldSetControl extends Control
   public function __construct(array $form)
   {
     parent::__construct($form, array('label'));
+
+    if (empty($this->label))
+      $this->label = '?';
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     $content = self::getChildrenHTML($data);
 
@@ -49,13 +52,13 @@ class FieldSetControl extends Control
     }
   }
 
-  protected function getChildrenHTML(array $data)
+  protected function getChildrenHTML($node = null)
   {
     $output = '';
 
     if (null != $this->intro)
       $output .= '<div class=\'intro\'>'. $this->intro .'</div>';
 
-    return $output . parent::getChildrenHTML($data);
+    return $output . parent::getChildrenHTML($node);
   }
 };

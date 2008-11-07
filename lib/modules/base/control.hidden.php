@@ -32,14 +32,10 @@ class HiddenControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
-    if (isset($this->value) and array_key_exists($this->value, $data) and !is_array($data[$this->value]))
-      $value = $data[$this->value];
-    elseif (isset($this->default))
+    if (null === $node or (null === ($value = $node->{$this->value})))
       $value = $this->default;
-    else
-      $value = null;
 
     return mcms::html('input', array(
       'type' => 'hidden',

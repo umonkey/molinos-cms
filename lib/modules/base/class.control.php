@@ -119,12 +119,7 @@ abstract class Control implements iFormControl
     $this->form['class'][] = $class;
   }
 
-  public function validate(array $data)
-  {
-    return true;
-  }
-
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     mcms::debug("Missing getHTML() handler in ". get_class($this) ."!", $this, $data);
     return null;
@@ -214,7 +209,7 @@ abstract class Control implements iFormControl
       )));
   }
 
-  protected function getChildrenHTML(array $data)
+  protected function getChildrenHTML($data)
   {
     $fields = '';
     $hidden = '';
@@ -308,4 +303,61 @@ abstract class Control implements iFormControl
       unset($form['values']);
     }
   }
+
+  public function set($value, Node &$node)
+  {
+    $this->validate($value);
+
+    if ('' === $value or null === $value)
+      unset($node->{$this->value});
+    else
+      $node->{$this->value} = $value;
+  }
+
+  protected function validate($value)
+  {
+    if ($this->required and empty($value))
+      throw new ValidationException($this->label);
+  }
+
+  /**
+   * Преобразует массив в объект, пригодный для использования формами.
+   */
+  public static function data(array $data)
+  {
+    return new ControlData($data);
+  }
+
+  /**
+   * Возвращает идентификатор объекта для сохранения в виде ссылки.
+   * Если поле не поддерживает хранение в виде ссылки, нужно вернуть
+   * false, что и делает базовый обработчик.  Для очистки ссылки можно
+   * вернуть null.
+   */
+  public function getLinkId($data)
+  {
+    return false;
+  }
 };
+
+class ControlData
+{
+  private $data;
+
+  public function __construct(array $data)
+  {
+    $this->data = $data;
+  }
+
+  public function __get($key)
+  {
+    return $this->__isset($key)
+      ? $this->data[$key]
+      : null;
+  }
+
+  public function __isset($key)
+  {
+    return array_key_exists($key, $this->data);
+  }
+}

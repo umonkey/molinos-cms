@@ -237,9 +237,12 @@ class User
     if (null === $result) {
       $result = array();
 
+      $result[0] = t('Анонимные пользователи');
+
       foreach ($this->groups as $g)
         $result[$g->id] = $g->login;
     }
+
     return $result;
   }
 

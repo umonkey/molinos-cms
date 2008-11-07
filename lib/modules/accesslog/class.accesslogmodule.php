@@ -171,7 +171,7 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
     if ($user->hasAccess('u', 'user')) {
       $icons[] = array(
         'group' => 'statistics',
-        'href' => 'admin?module=accesslog',
+        'href' => '?q=admin&module=accesslog',
         'title' => t('Доступ к контенту'),
         'description' => t('Просмотр статистики доступа.'),
         );

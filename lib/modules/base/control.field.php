@@ -47,14 +47,17 @@ class FieldControl extends Control
       ), $output);
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     $id = $this->id;
 
-    if (null === $this->name or empty($data[$this->value][$this->name]))
+    if (!($data instanceof Node))
+      throw new InvalidArgumentException(t('FieldControl должен получать ноду.'));
+
+    if (null === $this->name or empty($data->{$this->value}[$this->name]))
       $data = array('label' => t('Новое поле'));
     else
-      $data = $data[$this->value][$this->name];
+      $data = $data->{$this->value}[$this->name];
 
     $body = $this->addProperty($data, 'name', 'Имя', mcms::html('input', array(
       'type' => 'text',
@@ -67,6 +70,12 @@ class FieldControl extends Control
       'value' => $this->isnull($data, 'label'),
       'class' => 'nextid',
       'name' => "{$this->value}[{$id}][label]",
+      )));
+    $body .= $this->addProperty($data, 'group', 'Группа', mcms::html('input', array(
+      'type' => 'text',
+      'value' => $this->isnull($data, 'group', t('Основные свойства')),
+      'class' => 'nextid',
+      'name' => "{$this->value}[{$id}][group]",
       )));
     $body .= $this->addProperty($data, 'description', 'Подсказка', mcms::html('textarea', array(
       'class' => 'nextid',
@@ -165,15 +174,10 @@ class FieldControl extends Control
   // FIXME: переделать так, чтобы отображались только справочники.
   private function getDictionaries($current = null)
   {
-    $options = array();
-
     if ((null !== $current) and (false !== strpos($current, '.')))
       $current = substr($current, 0, strpos($current, '.'));
 
-    foreach (TypeNode::getSchema() as $k => $v)
-      $options[$k] = empty($v['title']) ? $k : $v['title'];
-
-    asort($options);
+    $options = Node::getSortedList('type', 'title', 'name');
 
     $output = '';
 
@@ -182,11 +186,6 @@ class FieldControl extends Control
         'value' => $k,
         'selected' => ($k == $current) ? 'selected' : null,
         ), $v);
-
-    /*
-    if ($this->name == 'company')
-      mcms::debug($current, $options, $this);
-    */
 
     return $output;
   }

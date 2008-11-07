@@ -127,4 +127,18 @@ class TagNode extends Node implements iContentType
   {
     return Node::count(array('class' => 'tag', 'parent_id' => null, 'deleted' => 0));
   }
+
+  protected function getDefaultSchema()
+  {
+    return array(
+      'perms' => array(
+        'type' => 'AccessControl',
+        'label' => t('Права на раздел'),
+        'volatile' => true,
+        'group' => t('Доступ'),
+        'columns' => array('c'),
+        'description' => t('Указанные группы смогут добавлять документы в этот раздел.'),
+        ),
+      );
+  }
 };

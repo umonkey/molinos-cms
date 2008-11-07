@@ -49,28 +49,6 @@ class Node extends NodeBase implements iContentType
   }
 
   /**
-   * Возвращает данные для формы редактирования объекта.
-   *
-   * @return array данные для формы, включая массивы: node_access — описание
-   * доступа к объекту, reset_access — флаг сброса доступа, node_published —
-   * состояние публикации (FIXME: зачем?)
-   */
-  public function formGetData()
-  {
-    $user = mcms::user();
-
-    $data = parent::formGetData();
-
-    if ($user->hasAccess('u', 'user'))
-      $data['node_access'] = $this->getAccess();
-
-    $data['reset_access'] = 1;
-    $data['node_published'] = $this->published;
-
-    return $data;
-  }
-
-  /**
    * Обработка форм.
    *
    * Вызывается из nodeapi.rpc, в дополнение к родительским действиям
@@ -94,38 +72,6 @@ class Node extends NodeBase implements iContentType
     }
 
     return $res;
-  }
-
-  /**
-   * Возвращает базовое описание объекта.
-   *
-   * @return array структура объекта.  Используется как основа для всех
-   * добавляемых пользователем типов.
-   */
-  public function getDefaultSchema()
-  {
-    return array(
-      'title' => 'Без названия',
-      'lang' => 'ru',
-      'fields' => array(
-        'name' => array(
-          'label' => t('Заголовок'),
-          'type' => 'TextLineControl',
-          'required' => true,
-          ),
-        'created' => array(
-          'label' => t('Дата создания'),
-          'type' => 'DateTimeControl',
-          'required' => false,
-          ),
-        'uid' => array(
-          'label' => t('Автор'),
-          'type' => 'NodeLinkControl',
-          'required' => false,
-          'values' => 'user.name',
-          ),
-        ),
-      );
   }
 
   public function getActionLinks()
@@ -198,10 +144,32 @@ class Node extends NodeBase implements iContentType
   {
     $result = array();
 
-    foreach (Node::find(array('class' => $class)) as $n)
-      $result[$n->$key] = $n->$field;
+    // Вывод дерева страниц и разделов
+    if (in_array($class, array('tag', 'domain'))) {
+      $roots = Node::find(array(
+        'class' => $class,
+        'parent_id' => null,
+        ));
 
-    asort($result);
+      foreach ($roots as $root) {
+        foreach ($root->getChildren('flat') as $em)
+          $result[$em['id']] = str_repeat('&nbsp;', 2 * $em['depth']) . $em['name'];
+      }
+    }
+
+    // Вывод обычных списков
+    else {
+      foreach (Node::find(array('class' => $class, 'deleted' => 0)) as $n) {
+        $result[$n->$key] = ('name' == $field)
+          ? $n->getName()
+          : $n->$field;
+
+        if ('name' != $field)
+          $result[$n->$key] .= ' (' . $n->name . ')';
+      }
+
+      asort($result);
+    }
 
     return $result;
   }

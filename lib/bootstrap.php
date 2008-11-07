@@ -161,7 +161,7 @@ class Loader
       return $path;
   }
 
-  public static function autoload($className)
+  public static function getClassPath($className, $local = false)
   {
     static $map = null;
 
@@ -170,15 +170,25 @@ class Loader
 
     $k = strtolower($className);
 
-    if (array_key_exists($k, $map)) {
-      if (!file_exists($map[$k]))
-        throw new RuntimeException("{$className} is in a file which "
-          ."does not exist: {$map[$k]}");
-      elseif (!is_readable($map[$k]))
-        throw new RuntimeException("{$className} is in a file which "
-          ."is read-protected: {$map[$k]}");
+    if (!array_key_exists($k, $map))
+      return null;
 
-      include $map[$k];
+    return $local
+      ? self::localpath($map[$k])
+      : $map[$k];
+  }
+
+  public static function autoload($className)
+  {
+    if (null !== ($path = self::getClassPath($className))) {
+      if (!file_exists($path))
+        throw new RuntimeException("{$className} is in a file which "
+          ."does not exist: {$path}");
+      elseif (!is_readable($path))
+        throw new RuntimeException("{$className} is in a file which "
+          ."is read-protected: {$path}");
+
+      include $path;
     }
   }
 

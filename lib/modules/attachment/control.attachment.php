@@ -26,6 +26,9 @@ class AttachmentControl extends Control
 
   public function __construct(array $form)
   {
+    if (!array_key_exists('archive', $form))
+      $form['archive'] = true;
+
     parent::__construct($form, array('value'));
 
     $parts = array();
@@ -37,14 +40,13 @@ class AttachmentControl extends Control
       $this->description .= '<p>'. join(' ', $parts) .'</p>';
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
-    if (!empty($data[$this->value])) {
-      if (($dt = $data[$this->value]) instanceof Node)
-        $dt = $dt->getRaw();
-      elseif (is_numeric($dt))
-        $dt = Node::load($dt)->getRaw();
-    } else {
+    if (($dt = $data->{$this->value}) instanceof Node)
+      $dt = $dt->getRaw();
+    elseif (is_numeric($dt))
+      $dt = Node::load($dt)->getRaw();
+    elseif (empty($dt))
       $dt = array(
         'name' => null,
         'filetype' => null,
@@ -52,8 +54,40 @@ class AttachmentControl extends Control
         'created' => null,
         'filepath' => null,
         );
-    }
 
     return $this->wrapHTML($this->render($dt), false);
+  }
+
+  public function set($value, Node &$node)
+  {
+    $this->validate($value);
+
+    switch ($value['error']) {
+    case UPLOAD_ERR_OK:
+      $value = Node::create('file')->import($value);
+      break;
+    case UPLOAD_ERR_INI_SIZE:
+      throw new RuntimeException(t('Размер файла превышает установленное в системе ограничение (%size).',
+        array('%size' => ini_get('upload_max_filesize'))));
+    case UPLOAD_ERR_FORM_SIZE:
+      throw new RuntimeException(t('Размер файла превышает установленное в форме ограничение.'));
+    case UPLOAD_ERR_PARTIAL:
+      throw new RuntimeException(t('Файл получен не полностью.'));
+    case UPLOAD_ERR_NO_FILE:
+      $value = null;
+    }
+
+    $node->{$this->value} = $value;
+  }
+
+  public function getLinkId($data)
+  {
+    if (null !== ($value = $data->{$this->value})) {
+      if (empty($value->id))
+        $value->save();
+      $value = Node::_id($value);
+    }
+
+    return $value;
   }
 };

@@ -30,8 +30,8 @@ class CommentFormWidget extends Widget
     $fields = array();
     $schema = Node::create('comment')->schema();
 
-    foreach ($schema['fields'] as $k => $v)
-      $fields[$k] = $v['label'];
+    foreach ($schema as $k => $v)
+      $fields[$k] = $v->label . ' (' . $k . ')';
 
     $form->addControl(new BoolControl(array(
       'value' => 'config_moderated',
@@ -64,11 +64,10 @@ class CommentFormWidget extends Widget
   {
     $list = array();
 
-    foreach (TypeNode::getSchema() as $k => $v)
+    foreach (Node::getSortedList('type', 'title', 'name') as $k => $v) {
       if ('comment' != $k)
-        $list[$k] = $v['title'];
-
-    asort($list);
+        $list[$k] = $v;
+    }
 
     return $list;
   }
@@ -117,9 +116,8 @@ class CommentFormWidget extends Widget
       else
         $skip = $this->hide_anon;
 
-      if (is_array($skip))
-        foreach ($skip as $k)
-          $form->replaceControl('node_content_'. $k, null);
+      foreach ($skip as $k)
+        $form->replaceControl($k, null);
     }
 
     return $form;

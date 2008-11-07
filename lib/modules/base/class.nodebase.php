@@ -41,6 +41,8 @@ class NodeBase
   // Сюда складываем загруженные ноды.
   static private $cache = array();
 
+  private $_links = array();
+
   /**
    * Конструктор.
    *
@@ -348,39 +350,76 @@ class NodeBase
    */
   private function saveLinks()
   {
-    $schema = $this->schema();
-
-    if (is_array($schema)) {
-      if (array_key_exists('fields', $schema)) {
-        foreach ($schema['fields'] as $field => $info) {
-          switch (strtolower($info['type'])) {
-          case 'nodelinkcontrol':
-          case 'attachmentcontrol':
-            if (empty($this->data[$field]))
-              $value = null;
-            elseif (is_array($v = $this->data[$field]))
-              $value = $v['id'];
-            elseif ($v instanceof Node)
-              $value = $v->id;
-            elseif (is_string($v) or is_numeric($v))
-              $value = $v;
-            else
-              $value = null;
-
-            if (null === $value)
-              $this->linkRemoveChild(null, $field);
-            else
-              $this->linkAddChild($value, $field);
-
-            break;
-          }
-        }
+    foreach ($this->schema() as $field => $ctl) {
+      if (false !== ($value = $ctl->getLinkId($this))) {
+        if (null === $value)
+          $this->linkRemoveChild($field);
+        else
+          $this->linkAddChild($value, $field);
       }
     }
 
-    // Привязывание обычных файлов.
-    foreach ($this->files as $f)
-      $f->linkAddParent($this->id);
+    $this->flushLinks();
+  }
+
+  private function flushLinks()
+  {
+    $queries = array();
+
+    foreach ($this->_links as $link) {
+      $params = array();
+
+      switch ($link['action']) {
+      case 'delete':
+        if ($link['scope'] == 'children') {
+          $field = 'tid';
+          $other = 'nid';
+        } else {
+          $field = 'nid';
+          $other = 'tid';
+        }
+
+        $sql = "DELETE FROM node__rel WHERE {$field} = ?";
+        $params[] = $this->id;
+
+        if (null !== $link['class']) {
+          $sql .= " AND {$other} IN (SELECT id FROM node WHERE class = ?)";
+          $params[] = $link['class'];
+        }
+
+        break;
+
+      case 'add':
+        $sql = "INSERT INTO node__rel (tid, nid, key, `order`) VALUES (:tid, :nid, :key, :order)";
+
+        if (array_key_exists('child', $link)) {
+          $params[':tid'] = $this->id;
+          $params[':nid'] = $link['child'];
+        } else {
+          $params[':tid'] = $link['parent'];
+          $params[':nid'] = $this->id;
+        }
+
+        $params[':key'] = $link['key'];
+        $params[':order'] = self::getNextOrder($params[':tid']);
+
+        break;
+      }
+
+      $queries[] = array(
+        'sql' => $sql,
+        'params' => $params,
+        );
+    }
+
+    try {
+      foreach ($queries as $idx => $q)
+        mcms::db()->exec($q['sql'], $q['params']);
+    } catch (PDOException $e) {
+      mcms::debug($e->getMessage() . ' in query ' . $idx, $queries);
+    }
+
+    $this->_links = array();
   }
 
   /**
@@ -666,8 +705,11 @@ class NodeBase
    *
    * @return Node объект.
    */
-  public static function create($class, array $data = null)
+  public static function create($class, $data = null)
   {
+    if (!is_array($data) and !empty($data))
+      mcms::debug($data);
+
     if (!is_string($class))
       throw new InvalidArgumentException(t('Тип создаваемого объекта должен быть строкой, а не «%type».', array('%type' => gettype($class))));
 
@@ -1204,45 +1246,31 @@ class NodeBase
    *
    * @return Node $this
    */
-  public function linkSetParents(array $list, $class = null, array $available = null)
+  public function linkSetParents(array $list, $class, array $available = null)
   {
-    $pdo = mcms::db();
-    $xtra = '';
+    if (empty($class))
+      throw new InvalidArgumentException(t('Не указан тип для linkSetParents().'));
 
-    if (empty($this->id))
-      $this->save();
-
-    if (null !== $available)
-      $xtra = ' AND `tid` IN ('. join(', ', $available) .')';
-
-    if (null === $class)
-      $pdo->exec("DELETE FROM `node__rel` WHERE `nid` = :nid{$xtra} -- Node::linkSetParents({$this->id})",
-        array(':nid' => $this->id));
-    else
-      $pdo->exec("DELETE FROM `node__rel` WHERE `nid` = :nid AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = :class){$xtra} -- Node::linkSetParents({$this->id}, {$class})",
-        array(':nid' => $this->id, ':class' => $class));
+    $this->_links[] = array(
+      'action' => 'delete',
+      'scope' => 'parents',
+      'class' => $class,
+      );
 
     foreach ($list as $item) {
       if (is_array($item))
-        $params = array(
-          ':tid' => $item['id'],
-          ':nid' => $this->id,
-          ':key' => empty($item['key']) ? null : $item['key'],
-          ':order' => self::getNextOrder($item['id']),
+        $this->_links[] = array(
+          'action' => 'add',
+          'parent' => $item['id'],
+          'key' => empty($item['key']) ? null : $item['key'],
           );
       else
-        $params = array(
-          ':tid' => $item,
-          ':nid' => $this->id,
-          ':key' => null,
-          ':order' => self::getNextOrder($item),
+        $this->_links[] = array(
+          'action' => 'add',
+          'parent' => $item,
+          'key' => null,
           );
-
-      $pdo->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order) "
-        ."-- Node::linkSetParents({$this->id})", $params);
     }
-
-    mcms::flush();
 
     return $this;
   }
@@ -1263,43 +1291,31 @@ class NodeBase
    *
    * @return Node $this
    */
-  public function linkSetChildren(array $list, $class = null)
+  public function linkSetChildren(array $list, $class)
   {
-    $pdo = mcms::db();
+    if (empty($class))
+      throw new InvalidArgumentException(t('Не указан тип для linkSetChildren().'));
 
-    if (null === $class)
-      $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid -- Node::linkSetChildren({$this->id})",
-        array(':tid' => $this->id));
-    else
-      $pdo->exec("DELETE FROM `node__rel` WHERE `tid` = :tid "
-        ."AND `key` IS NULL AND `nid` IN (SELECT `id` FROM `node` "
-        ."WHERE `class` = :class) "
-        ."-- Node::linkSetChildren({$this->id}, {$class})",
-        array(':tid' => $this->id, ':class' => $class));
-
-    $order = self::getNextOrder($this->id);
+    $this->_links[] = array(
+      'action' => 'delete',
+      'scope' => 'children',
+      'class' => $class,
+      );
 
     foreach ($list as $item) {
       if (is_array($item))
-        $params = array(
-          ':tid' => $this->id,
-          ':nid' => $item['id'],
-          ':key' => empty($item['key']) ? null : $item['key'],
-          ':order' => $order++,
+        $this->_links[] = array(
+          'action' => 'add',
+          'child' => $item['id'],
+          'key' => empty($item['key']) ? null : $item['key'],
           );
       else
-        $params = array(
-          ':tid' => $this->id,
-          ':nid' => $item,
-          ':key' => null,
-          ':order' => $order++,
+        $this->_links[] = array(
+          'action' => 'add',
+          'child' => $item,
+          'key' => null,
           );
-
-      $pdo->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order) "
-        ."-- Node::linkSetChildren({$this->id})", $params);
     }
-
-    mcms::flush();
   }
 
   private static function getNextOrder($tid)
@@ -1653,338 +1669,61 @@ class NodeBase
       if (mcms::user()->id != $this->id and !bebop_is_debugger())
         throw new ForbiddenException(t('У вас недостаточно прав для редактирования этого документа.'));
     } elseif (null === $this->id and !$this->checkPermission('c')) {
-      throw new ForbiddenException(t('У вас недостаточно прав для создания такого документа (%type).', array(
-        '%type' => $this->class,
-        )));
+      throw new ForbiddenException(t('У вас недостаточно прав для создания такого документа.'));
     }
 
     $tabs = array();
-    $user = mcms::user();
 
-    // Формируем вкладку с содержимым документа.
-    $tabs['content'] = new FieldSetControl(array(
-      'name' => 'content',
-      'label' => t('Основные свойства'),
-      'value' => 'tab_general',
-      ));
+    foreach ($this->schema() as $name => $field) {
+      if (!($group = trim($field->group)))
+        $group = count($tabs)
+          ? array_shift(array_keys($tabs))
+          : 'Основные';
 
-    $schema = $this->schema();
+      if ($field instanceof AttachmentControl)
+        $group = 'Файлы';
 
-    $filefields = array();
-    if (!$simple and (null !== ($intro = $this->formGetIntro())))
-      $tabs['content']->addControl($intro);
+      if (!array_key_exists($group, $tabs))
+        $tabs[$group] = new FieldSetControl(array(
+          'name' => $group,
+          'label' => $group,
+          'tabable' => true,
+          ));
 
-    if (array_key_exists('fields', $schema) and is_array($schema['fields'])) {
-      foreach ($schema['fields'] as $k => $v) {
-        if ($k == 'fk' and $simple)
-          continue;
+      $field->value = $name;
 
-        if (strcasecmp($v['type'], 'ArrayControl')) {
-          if ($k == 'title')
-            $v['class'] = 'form-title';
-          elseif ($k == 'name' and !array_key_exists('title', $schema['fields']))
-            $v['class'] = 'form-title';
-
-          $v['wrapper_id'] = "{$k}-ctl-wrapper";
-
-          if (!strcasecmp($v['type'], 'AttachmentControl')) {
-            $v = array_merge(array(
-             'value'   => 'file_'. $k,
-             'medium'  => true,
-             'unzip'   => false, // не разрешаем распаковывать зипы, загружаемые в поля.
-             'archive' => true,
-            ), $v);
-
-            if (!$simple) {
-              $filefields[] = $v;
-              continue;
-            }
-          } else {
-            $v['value'] = 'node_content_'. $k;
-          }
-
-          $tmp = Control::make($v);
-
-          $tabs['content']->addControl($tmp);
-        }
-      }
+      $tabs[$group]->addControl($field);
     }
-
-    if (!$simple) {
-      if (empty($schema['notags']) and null !== ($tab = $this->formGetSections($schema)))
-        $tabs['sections'] = $tab;
-
-      if (null !== ($tab = $this->formGetFilesTab($filefields)))
-        $tabs['files'] = $tab;
-
-      if (null !== ($tab = $this->formGetRevTab()))
-        $tabs['history'] = $tab;
-    }
-
-    if ($simple) {
-      if (null === $this->id)
-        $title = trim($schema['title']);
-      else
-        $title = $this->name;
-    } elseif (!empty($schema['isdictionary']) and empty($this->id)) {
-      $title = t('Добавление в справочник «%name»', array('%name' => mb_strtolower($schema['title'])));
-    } else {
-      if (null === $this->id)
-        $title = t('Создание объекта типа "%type"', array('%type' => trim($schema['title'])));
-      else
-        $title = t('%name (редактирование)', array('%name' => empty($this->name) ? t('Безымянный документ') : trim($this->name)));
-    }
-
-    // Формируем окончательную форму.
-    $form = new Form(array(
-      'title' => $title,
-      'captcha' => $this->id ? false : true,
-      ));
-    $form->addControl(new HiddenControl(array('value' => 'node_content_id')));
-
-    if (null === $this->id) {
-      $form->addControl(new HiddenControl(
-        array('value' => 'node_content_class')));
-      $form->addControl(new HiddenControl(
-        array('value' => 'node_content_parent_id')));
-    }
-
-    if (!isset($this->id) and !empty($schema['isdictionary']))
-      $form->addControl(new BoolControl(array(
-        'value' => 'nodeapi_return',
-        'default' => 1,
-        'label' => t('Добавить ещё запись'),
-        )));
-
-    foreach ($tabs as $tab)
-      $form->addControl($tab);
-
-    if ($this->canPublish())
-      ;
-
-    $tmp = $form->addControl(new SubmitControl(array(
-      'text' => empty($schema['okbuttontext'])
-        ? t('Сохранить')
-        : $schema['okbuttontext'],
-      )));
-
-    if (empty($this->id) and !empty($schema['newdocformtitle']))
-      $form->title = $schema['newdocformtitle'];
 
     $next = empty($_GET['destination'])
       ? $_SERVER['REQUEST_URI']
       : $_GET['destination'];
 
-    if ($this->id)
-      $form->action = "?q=nodeapi.rpc&action=edit&node={$this->id}&destination=". urlencode($next);
-    else
-      $form->action = "?q=nodeapi.rpc&action=create&type={$this->class}&destination=". urlencode($next);
+    $form = new Form(array(
+      'action' => $this->id
+        ? "?q=nodeapi.rpc&action=edit&node={$this->id}&destination=". urlencode($next)
+        : "?q=nodeapi.rpc&action=create&type={$this->class}&destination=". urlencode($next),
+      'title' => $this->getName() . ' (' . $this->class . ')',
+      ));
+
+    foreach ($tabs as $tab)
+      $form->addControl($tab);
+
+    $form->addControl(new SubmitControl(array(
+      'text' => t('Сохранить'),
+      )));
+
+    if (mcms::user()->hasAccess('u', 'type')) {
+      if ($this->class != 'type' or $this->name != 'type') {
+        $type = Node::load(array(
+          'class' => 'type',
+          'name' => $this->class,
+          ));
+        $form->hlink = '<span>' . l('?q=admin/content/edit/' . $type->id . '&destination=CURRENT', 'схема') . '</span>';
+      }
+    }
 
     return $form;
-  }
-
-  private function formGetIntro()
-  {
-    $schema = $this->schema();
-
-    $description = empty($schema['description']) ? '' : '&nbsp; '. t('Его описание: %description.', array('%description' => rtrim($schema['description'], '.')));
-
-    $intro = array();
-
-    if (mcms::user()->hasAccess('u', 'type') and $this->class != 'type' and substr($_SERVER['REQUEST_URI'], 0, 7) == 'admin') {
-      if (empty($schema['isdictionary']))
-        $intro[] = t("Вы можете <a href='@typelink'>настроить этот тип</a>, добавив новые поля.", array(
-          '@typelink' => "?q=admin&mode=edit&id={$schema['id']}&destination=CURRENT",
-          ));
-      else
-        $intro[] = t("Вы можете <a href='@typelink'>настроить этот справочник</a>, добавив новые поля.", array(
-          '@typelink' => "?q=admin&mode=edit&id={$schema['id']}&destination=CURRENT",
-          ));
-    }
-
-    if (!empty($intro))
-      return new InfoControl(array(
-        'text' => '<p>'. join('</p><p>', $intro) .'</p>',
-        ));
-
-    return null;
-  }
-
-  private function formGetFilesTab($filefields)
-  {
-    $schema = $this->schema();
-
-    if (empty($schema['hasfiles']) and empty($filefields))
-      return null;
-
-    /*
-    // WTF?
-    mcms::extras('themes/admin/css/filetab.css');
-    mcms::extras('themes/admin/js/filetab.js');
-    */
-
-    $tab = new FieldSetControl(array(
-      'name' => 'files',
-      'label' => t('Файлы'),
-      'value' => 'tab_files',
-      ));
-
-    if (!empty($filefields) and is_array($filefields)) {
-      foreach ($filefields as $fname => $f) {
-        $tmp = Control::make($f);
-        $tmp->archive = true;
-        $tmp->fetch = true;
-        $tab->addControl($tmp);
-      }
-    }
-
-    if (empty($schema['nofiles'])) {
-      foreach ($this->files as $k => $v) {
-        if (is_numeric($k))
-          $tab->addControl(new AttachmentControl(array(
-            'extended' => true,
-            'value' => 'file_'. $v->id,
-            'uploadtxt' => t('Загрузить'),
-            'unzip' => true,
-            'remote' => true,
-            'fetch' => true,
-            'archive' => true,
-            )));
-      }
-
-      $tab->addControl(new AttachmentControl(array(
-        'extended' => true,
-        'value' => 'file_0',
-        'uploadtxt' => t('Загрузить'),
-        'unzip' => true,
-        'fetch' => true,
-        'archive' => true,
-        )));
-    }
-
-    return $tab;
-  }
-
-  private function formGetRevTab()
-  {
-    if (!mcms::user()->hasAccess('d', $this->type))
-      return;
-
-    $tab = new FieldSetControl(array(
-      'label' => 'История',
-      'name' => 'tab_history',
-      ));
-    $tab->addControl(new HistoryControl(array(
-      'value' => 'node_history',
-      'label' => 'История изменений',
-      'description' => 'Откат на более старую ревизию '
-        .'выполняется добавлением новой ревизии; текущие данные '
-        .'потеряны не будут.',
-      )));
-
-    return $tab;
-  }
-
-  private function getSectionsForThisType()
-  {
-    try {
-      $list = Node::load(array('class' => 'type', 'name' => $this->class))->linkListParents('tag', true);
-    } catch (ObjectNotFoundException $e) {
-      $list = array();
-    }
-
-    return $list;
-  }
-
-  private function formGetSections(array $schema)
-  {
-    $options = array();
-
-    if (!empty($schema['isdictionary']))
-      return;
-
-    if ('type' == $this->class) {
-      if (in_array($this->name, array('comment', 'file')))
-        return;
-      if (!empty($this->notags))
-        return;
-    }
-
-    switch (count($enabled = $this->getSectionsForThisType())) {
-    case 0:
-      break;
-    case 1:
-      return new HiddenControl(array(
-        'value' => 'reset_rel',
-        'default' => 1,
-        ));
-    default:
-      $options['enabled'] = $enabled;
-    }
-
-    $tab = new FieldSetControl(array(
-      'name' => 'sections',
-      'label' => t('Разделы'),
-      'value' => 'tab_sections',
-      ));
-    $tab->addControl(new HiddenControl(array(
-      'value' => 'reset_rel',
-      'default' => 1,
-      )));
-    $tab->addControl(new SetControl(array(
-      'value' => 'node_tags',
-      'label' => t('Поместить документ в разделы'),
-      'options' => TagNode::getTags('select', $options),
-      )));
-
-    return $tab;
-  }
-
-  /**
-   * Получение данных для формы.
-   *
-   * Работает в тесном сотрудничестве с formGet().
-   * @todo описать формат данных.
-   *
-   * @return array данные.
-   */
-  public function formGetData()
-  {
-    $schema = $this->schema();
-
-    $data = array(
-      'node_content_id' => $this->id,
-      'node_content_class' => $this->class,
-      'node_content_parent_id' => $this->parent_id,
-      'reset_rel' => 1,
-      );
-
-    if (array_key_exists('fields', $schema) and is_array($schema['fields']))
-      foreach ($schema['fields'] as $k => $v) {
-        $value = null;
-
-        switch (strtolower($v['type'])) {
-        case 'attachmentcontrol':
-          if (($value = $this->$k) instanceof FileNode)
-            $data['file_'. $k] = $value->getRaw();
-          break;
-
-        default:
-          $value = $this->$k;
-          $data['node_content_'. $k] = $value;
-        }
-      }
-
-    foreach ($this->files as $k => $v)
-      if (is_numeric($k))
-        $data['file_'. $v->id] = $v->getRaw();
-
-    if (empty($schema['notags']))
-      $data['node_tags'] = $this->linkListParents('tag', true);
-
-    $data['node_history'] = $this->getRevisions();
-
-    return $data;
   }
 
   /**
@@ -1999,123 +1738,15 @@ class NodeBase
    */
   public function formProcess(array $data)
   {
-    $schema = $this->schema();
+    foreach ($this->schema() as $name => $field) {
+      $value = array_key_exists($name, $data)
+        ? $data[$name]
+        : null;
 
-    if (array_key_exists('fields', $schema)) {
-      foreach ($schema['fields'] as $k => $v) {
-        $value = array_key_exists($key = 'node_content_'. $k, $data)
-          ? $data[$key]
-          : null;
-
-        if ($k != 'parent_id' and $k != 'fields' and $k != 'config') {
-          switch (strtolower($v['type'])) {
-          case 'attachmentcontrol':
-            break;
-
-          case 'nodelinkcontrol':
-            if (!empty($data['nodelink_remap'][$key]))
-              $v['values'] = $data['nodelink_remap'][$key];
-            elseif (!empty($v['dictionary']))
-              $v['values'] = $v['dictionary'] . '.name';
-
-            $parts = explode('.', $v['values'], 2);
-
-            if (empty($value)) {
-              $node = null;
-            } elseif (is_numeric($value) and empty($data['nodelink_remap'][$key])) {
-              // Обработка обычных выпадающих списков.
-              try {
-                $node = Node::load($f = array(
-                  'class' => $parts[0],
-                  'id' => $value,
-                  'deleted' => 0,
-                  ));
-              } catch (ObjectNotFoundException $e) {
-                $node = null;
-              }
-            } elseif (!empty($v['values'])) {
-              $required = substr($parts[1], -1) == '!';
-
-              $filter = array(
-                'class' => $parts[0],
-                rtrim($parts[1], '!') => $value,
-                'published' => 1,
-                'deleted' => 0,
-                );
-
-              $node = Node::find($filter, 1);
-
-              if (!empty($node))
-                $node = array_shift($node);
-              /*
-              elseif (is_numeric($value))
-                $node = Node::load($value);
-              */
-              else
-                $node = null;
-
-              if (empty($node) and $required)
-                throw new ValidationException(t('Не заполнено поле «%field».',
-                  array('%field' => $v['label'])));
-            }
-
-            $this->$k = $node;
-            break;
-
-          case 'numbercontrol':
-            $value = str_replace(',', '.', $value);
-            $this->$k = $value;
-            break;
-
-          case 'passwordcontrol':
-            if (!empty($value)) {
-              if (is_array($value) and ($value[0] != $value[1]))
-                throw new ValidationException($k);
-
-              $this->$k = $value[0];
-            }
-
-            break;
-
-          default:
-            $this->$k = $value;
-          }
-        }
-      }
+      $field->set($value, $this, $data);
     }
 
-    foreach ($data as $field => $fileinfo) {
-      if (0 !== strpos($field, 'file_'))
-        continue;
-
-      if (!is_array($fileinfo))
-        continue;
-
-      $field = substr($field, 5);
-
-      $this->addFile($field, $fileinfo, $this);
-    }
-
-    if (!empty($data['reset_rel'])) {
-      $sections = $this->getSectionsForThisType();
-
-      if (count($sections) == 1)
-        $data['node_tags'] = $sections;
-      elseif (empty($data['node_tags']) or !is_array($data['node_tags']))
-        $data['node_tags'] = array();
-
-      $this->linkSetParents($data['node_tags'], 'tag');
-    }
-
-    // Разделы не указаны — пытаемся прикрепить к первому попавшемуся разделу,
-    // в который можно помещать такие документы.
-    else {
-      $sections = Node::create('type', $schema)->getAllowedSections();
-      if (!empty($sections))
-        $this->linkAddParent(array_shift(array_keys($sections)));
-    }
-
-    $this->save();
+    return $this;
   }
 
   /**
@@ -2392,13 +2023,13 @@ class NodeBase
    */
   public function reindex()
   {
+    return;
+
     $fields = array('id');
     $params = array(':id' => $this->id);
 
-    $schema = $this->schema();
-
-    foreach ($schema['fields'] as $k => $v) {
-      if (empty($v['indexed']))
+    foreach ($this->schema() as $k => $v) {
+      if (!$v->indexed)
         continue;
       if (TypeNode::isReservedFieldName($k))
         continue;
@@ -2537,6 +2168,38 @@ class NodeBase
 
   public function schema()
   {
-    return TypeNode::getSchema($this->class);
+    $schema = Schema::load($this->class);
+
+    // Выбор родителя возможен только при создании.
+    if ($this->id)
+      unset($schema['parent_id']);
+
+    foreach ($this->getDefaultSchema() as $k => $v) {
+      if (!isset($schema[$k]) or !empty($v['volatile']) and class_exists($v['type'])) {
+        $class = $v['type'];
+        unset($v['type']);
+        $v['value'] = $k;
+
+        $schema[$k] = new $class($v);
+      }
+    }
+
+    return $schema;
+  }
+
+  protected function getDefaultSchema()
+  {
+    return array(
+      'name' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Заголовок'),
+        'required' => true,
+        ),
+      'created' => array(
+        'type' => 'DateTimeControl',
+        'label' => t('Дата добавления'),
+        'required' => false,
+        ),
+      );
   }
 };

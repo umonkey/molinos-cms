@@ -32,9 +32,10 @@ class TextHTMLControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
-    $content = (isset($this->value) and !empty($data[$this->value])) ? htmlspecialchars($data[$this->value]) : null;
+    if (null !== ($content = $data->{$this->value}))
+      $content = htmlspecialchars($content);
 
     if (mcms::ismodule('tinymce'))
       TinyMceModule::add_extras();
@@ -46,5 +47,12 @@ class TextHTMLControl extends Control
       ), $content);
 
     return $this->wrapHTML($output);
+  }
+
+  public function set($value, Node &$node)
+  {
+    $this->validate($value);
+
+    $node->{$this->value} = $value;
   }
 };

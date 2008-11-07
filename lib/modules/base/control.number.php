@@ -34,19 +34,31 @@ class NumberControl extends Control
     return 'DECIMAL(10,2)';
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     if (isset($this->hidden))
       return $this->getHidden($data);
+
+    if (null === ($value = $data->{$this->value}))
+      $value = $this->default;
 
     $output = mcms::html('input', array(
       'type' => 'text',
       'id' => $this->id,
       'class' => 'form-text form-number',
       'name' => $this->value,
-      'value' => empty($data[$this->value]) ? $this->default : $data[$this->value],
+      'value' => $value,
       ));
 
     return $this->wrapHTML($output);
+  }
+
+  public function set($value, Node &$node, array $data = array())
+  {
+    $this->validate($value);
+
+    $value = str_replace(',', '.', $value);
+
+    $node->{$this->value} = $value;
   }
 };

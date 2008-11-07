@@ -165,7 +165,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       // Логинимся в качестве рута.
       User::authorize(mcms::user()->name, null, true);
 
-      mcms::redirect("admin?module=exchange&preset=export&result=upgradeok");
+      mcms::redirect("?q=admin&module=exchange&preset=export&result=upgradeok");
     }
   }
 
@@ -400,7 +400,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
       $icons[] = array(
         'group' => 'structure',
-        'href' => 'admin?module=exchange',
+        'href' => '?q=admin&module=exchange',
         'title' => t('Бэкапы'),
         'description' => t('Бэкап и восстановление данных в формате XML.'),
         );

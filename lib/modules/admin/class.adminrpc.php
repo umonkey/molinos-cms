@@ -96,8 +96,6 @@ class AdminRPC implements iRemoteCall
     mcms::user()->checkAccess('u', 'moduleinfo');
 
     mcms::enableModules($ctx->post('selected', array()));
-
-    TypeNode::install();
   }
 
   private static function hookModConf(Context $ctx)
@@ -330,7 +328,7 @@ class AdminRPC implements iRemoteCall
     $form = $node->formGet(false);
     $form->addClass('tabbed');
 
-    return $form->getHTML($node->formGetData());
+    return $form->getHTML($node);
   }
 
   private static function onGetCreate(Context $ctx)
@@ -351,23 +349,21 @@ class AdminRPC implements iRemoteCall
         if (null !== ($tmp = $form->findControl('tab_general')))
           $tmp->intro = t('Вы создаёте первый справочник.  Вы сможете использовать его значения в качестве выпадающих списков (для этого надо будет добавить соответствующее поле в нужный <a href=\'@types\'>тип документа</a>).', array('@types' => 'admin/?cgroup=structure&mode=list&preset=schema'));
 
-        $form->hideControl('node_content_hasfiles');
-        $form->hideControl('node_content_notags');
         $form->hideControl('tab_sections');
         $form->hideControl('tab_widgets');
 
-        if (null !== ($ctl = $form->findControl('node_content_title')))
+        if (null !== ($ctl = $form->findControl('title')))
           $ctl->label = t('Название справочника');
-        if (null !== ($ctl = $form->findControl('node_content_name')))
+        if (null !== ($ctl = $form->findControl('name')))
           $ctl->label = t('Внутреннее имя справочника');
 
         $form->addControl(new HiddenControl(array(
-          'value' => 'node_content_isdictionary',
+          'value' => 'isdictionary',
           'default' => 1,
           )));
       }
 
-      return $form->getHTML($node->formGetData());
+      return $form->getHTML($node);
     }
 
     $types = Node::find(array(
@@ -463,7 +459,7 @@ class AdminRPC implements iRemoteCall
         'text' => t('Сохранить'),
         )));
 
-      return $form->getHTML($data);
+      return $form->getHTML(Control::data($data));
     }
 
     $tmp = new ModuleAdminUI();
@@ -529,16 +525,18 @@ class AdminRPC implements iRemoteCall
       'value' => 'search_type',
       'label' => 'Тип документа',
       'options' => TypeNode::getAccessible(),
+      'default_label' => t('(любой)'),
       )));
     $form->addControl(new NodeLinkControl(array(
       'value' => 'search_author',
       'label' => 'Автор',
       'values' => 'user.name',
+      'default_label' => t('(любой)'),
       )));
-    $form->addControl(new EnumControl(array(
+    $form->addControl(new SectionControl(array(
       'value' => 'search_tags',
       'label' => 'В разделе',
-      'options' => TagNode::getTags('select'),
+      'default_label' => t('(в любом)'),
       )));
     $form->addControl(new BoolControl(array(
       'value' => 'search_tags_recurse',

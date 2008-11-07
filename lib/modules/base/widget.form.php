@@ -18,14 +18,8 @@ class FormWidget extends Widget
 
   public static function formGetConfig()
   {
-    $types = array();
-
-    foreach (TypeNode::getSchema() as $k => $v)
-      $types[$k] = $v['title'];
-
-    asort($types);
-
-    $types = array('*' => 'Предлагать выбор') + $types;
+    $types = array('*' => 'Предлагать выбор')
+      + Node::getSortedList('type', 'title', 'name');
 
     $form = parent::formGetConfig();
 
@@ -238,7 +232,7 @@ class FormWidget extends Widget
         )));
 
       $form->addControl(new EnumRadioControl(array(
-        'value' => 'node_content_class',
+        'value' => 'class',
         'label' => t('Тип создаваемого документа'),
         'options' => $types,
         )));
@@ -275,7 +269,7 @@ class FormWidget extends Widget
 
       if (!empty($this->options['default'])) {
         foreach (array_keys($this->options['default']) as $k) {
-          $tmp = 'node_content_'. $k;
+          $tmp = $k;
 
           $form->replaceControl($tmp, new HiddenControl(array(
             'value' => $tmp,
@@ -306,7 +300,7 @@ class FormWidget extends Widget
   {
     if ($id == 'form-create-edit') {
       $node = Node::load($this->options['node']);
-      return $node->formGetData();
+      return $node;
     }
 
     elseif ($id == 'form-create') {
@@ -315,7 +309,7 @@ class FormWidget extends Widget
 
     elseif (substr($id, 0, 12) == 'form-create-') {
       $node = $this->getNode(substr($id, 12));
-      $data = $node->formGetData();
+      $data = $node;
     }
 
     $data['referer'] = empty($_SERVER['HTTP_REFERER']) ? null : $_SERVER['HTTP_REFERER'];

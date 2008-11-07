@@ -27,7 +27,7 @@ class AdminUIListControl extends Control
     return 'content';
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     $output = '';
 
@@ -37,13 +37,13 @@ class AdminUIListControl extends Control
       $this->selectors = null;
       $output .= "<script language='javascript'>var mcms_picker_id = '{$this->picker}';</script>";
     }
-    $preset  = empty($data['preset']) ? null : $data['preset'];
+    $preset  = $data->preset;
     $output .= '<table class=\'mcms nodelist\' border=\'0\'>';
     $output .= $this->getTableHeader($data);
 
     $odd = true;
 
-    foreach ($data['nodes'] as $node) {
+    foreach ($data->nodes as $node) {
       $classes = array();
 
       $classes[] = $odd ? 'odd' : 'even';
@@ -116,7 +116,7 @@ class AdminUIListControl extends Control
     return $output;
   }
 
-  private function getTableHeader(array $data)
+  private function getTableHeader($data)
   {
     $map = $this->getColumnTitles();
 
@@ -147,12 +147,16 @@ class AdminUIListControl extends Control
   {
     switch ($field) {
     case 'class':
-      $schema = Node::create($value)->schema();
+      $type = Node::load(array(
+        'class' => 'type',
+        'deleted' => 0,
+        'name' => $value,
+        ));
 
-      if (empty($schema['title']))
+      if (empty($type->title))
         return $value;
 
-      return mb_strtolower($schema['title']);
+      return mb_strtolower($type->title);
 
     case 'created':
     case 'updated':
@@ -347,11 +351,11 @@ class AdminUIListControl extends Control
    *
    * Список действий сохраняется в $this->_actions.
    */
-  private function getActionsHeader(array $data)
+  private function getActionsHeader($data)
   {
     $actions = array();
 
-    foreach ($data['nodes'] as $node) {
+    foreach ($data->nodes as $node) {
       if (!empty($node['_links'])) {
         foreach ($node['_links'] as $key => $val) {
           if (!in_array($key, $actions) and is_array($val))

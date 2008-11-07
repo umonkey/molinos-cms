@@ -29,7 +29,7 @@ class DateTimeControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     $output = '';
 
@@ -43,7 +43,7 @@ class DateTimeControl extends Control
       'id' => $this->id,
       'class' => 'form-text form-datetime',
       'name' => $this->value,
-      'value' => empty($data[$this->value]) ? null : $data[$this->value],
+      'value' => $data->{$this->value},
       ));
 
     return $this->wrapHTML($output);
@@ -52,5 +52,18 @@ class DateTimeControl extends Control
   public static function getSQL()
   {
     return 'DATETIME';
+  }
+
+  public function set($value, Node &$node)
+  {
+    $this->validate($value);
+
+    if (false === ($value = strtotime($value)))
+      throw new RuntimeException(t('Неверный формат даты: %bad, требуется: %good', array(
+        '%bad' => $value,
+        '%good' => 'ГГГГ-ММ-ДД ЧЧ:ММ:СС',
+        )));
+
+    $node->{$this->value} = $value;
   }
 };

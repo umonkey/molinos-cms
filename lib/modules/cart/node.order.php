@@ -41,15 +41,14 @@ class OrderNode extends Node implements iContentType
     }
   }
 
-  public function schema()
+  protected function getDefaultSchema()
   {
-    $result = parent::schema();
-
-    $result['fields']['orderdetails'] = array(
-      'label' => t('Содержимое заказа'),
-      'type' => 'OrderDetailsControl',
+    return array(
+      'orderdetails' => array(
+        'type' => 'OrderDetailsControl',
+        'label' => t('Содержимое заказа'),
+        'volatile' => true,
+        ),
       );
-
-    return $result;
   }
 }

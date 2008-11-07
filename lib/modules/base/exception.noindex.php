@@ -22,6 +22,9 @@ class NoIndexException extends UserErrorException
 {
   public function __construct($name)
   {
-    parent::__construct('Отсутствует индекс '. $name, 500, 'Отсутствует индекс', t('Выборка по полю %field невозможна: отсутствует индекс.', array('%field' => $name)));
+    parent::__construct('Отсутствует индекс по полю ' . $name . '.', 500,
+      'Отсутствует индекс',
+      t('Выборка по полю %field невозможна: отсутствует индекс.',
+       array('%field' => $name)));
   }
 };

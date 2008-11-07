@@ -49,7 +49,7 @@ class UserWidget extends Widget implements iWidget
     $form = parent::formGetConfig();
 
     $form->addControl(new SetControl(array(
-      'value' => 'config_newgroups',
+      'value' => 'config_groups',
       'label' => t('Группы для новых пользователей'),
       'options' => $groups,
       'description' => t('Укажите список групп, в которые будут добавлены пользователи, регистрирующиеся на сайте.'),
@@ -184,7 +184,7 @@ class UserWidget extends Widget implements iWidget
 
     return array(
       'mode' => 'register',
-      'form' => $node->formGet()->getHTML($node->formGetData()),
+      'form' => $node->formGet()->getHTML($node),
       );
   }
 
@@ -621,7 +621,7 @@ class UserWidget extends Widget implements iWidget
     case 'profile-edit-form':
       $uid = empty($_GET['profile_uid']) ? mcms::user()->id : $_GET['profile_uid'];
       $user = Node::load(array('class' => 'user', 'id' => $uid));
-      return $user->formGetData();
+      return $user;
 
     case 'user-register-form':
       return array();

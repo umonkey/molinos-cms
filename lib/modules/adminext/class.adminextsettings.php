@@ -7,14 +7,6 @@ class AdminExtSettings implements iModuleConfig
     $form = new Form(array());
 
     $form->addControl(new SetControl(array(
-      'value' => 'config_groups',
-      'label' => t('Разрешённые группы'),
-      'options' => Node::getSortedList('group'),
-      'description' => t('Доступ к выпадающему меню будет только '
-        .'у указанных групп.'),
-      )));
-
-    $form->addControl(new SetControl(array(
       'value' => 'config_hide',
       'label' => t('Скрыть действия'),
       'options' => array(
@@ -29,7 +21,7 @@ class AdminExtSettings implements iModuleConfig
     $form->addControl(new TextLineControl(array(
       'value' => 'config_edit_tpl',
       'label' => t('Шаблон ссылки на редактирование'),
-      'default' => 'admin/content/edit/$id?destination=CURRENT',
+      'default' => '?q=admin/content/edit/$id&destination=CURRENT',
       )));
 
     return $form;

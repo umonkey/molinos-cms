@@ -229,7 +229,7 @@ class AdminMenu implements iAdminMenu
 
     if (mcms::user()->hasAccess('u', 'type') and mcms::db()->fetch("SELECT COUNT(*) FROM `node__fallback`"))
       $icons[] = array(
-        'group' => 'content',
+        'group' => 'statistics',
         'title' => t('404'),
         'href' => '?q=admin/content/list/404',
         );

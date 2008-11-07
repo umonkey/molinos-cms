@@ -31,54 +31,47 @@ class MessageNode extends Node
   public function getDefaultSchema()
   {
     return array(
-      'name' => 'message',
-      'title' => t('Сообщение'),
-      'description' => t('Используется для обмена сообщениями между пользователями, а также для доставки внутренних уведомлений.'),
-      'lang' => 'ru',
-      'adminmodule' => 'msg',
-      'fields' => array(
-        'uid' => array(
-          'label' => t('Отправитель'),
-          'type' => 'NodeLinkControl',
-          'required' => true,
-          'values' => 'user.name',
-          ),
-        're' => array(
-          'label' => t('Получатель'),
-          'type' => 'NodeLinkControl',
-          'required' => true,
-          'values' => 'user.name',
-          'indexed' => true,
-          ),
-        'name' => array(
-          'label' => ('Заголовок'),
-          'type' => 'TextLineControl',
-          'required' => true,
-          ),
-        'created' => array(
-          'label' => t('Дата отправления'),
-          'type' => 'DateTimeControl',
-          'required' => true,
-          ),
-        'sent' => array(
-          'label' => t('Отправлено по почте'),
-          'type' => 'BoolControl',
-          'required' => false,
-          'indexed' => true,
-          ),
-        'received' => array(
-          'label' => t('Дата прочтения'),
-          'type' => 'DateTimeControl',
-          'required' => false,
-          'indexed' => true,
-          ),
-        'text' => array(
-          'label' => t('Текст'),
-          'type' => 'TextHTMLControl',
-          'required' => true,
-          ),
+      'uid' => array(
+        'label' => t('Отправитель'),
+        'type' => 'NodeLinkControl',
+        'required' => true,
+        'values' => 'user.fullname',
         ),
-      );
+      're' => array(
+        'label' => t('Получатель'),
+        'type' => 'NodeLinkControl',
+        'required' => true,
+        'values' => 'user.fullname',
+        'indexed' => true,
+        ),
+      'name' => array(
+        'label' => ('Заголовок'),
+        'type' => 'TextLineControl',
+        'required' => true,
+        ),
+      'created' => array(
+        'label' => t('Дата отправления'),
+        'type' => 'DateTimeControl',
+        'required' => true,
+        ),
+      'sent' => array(
+        'label' => t('Отправлено по почте'),
+        'type' => 'BoolControl',
+        'required' => false,
+        'indexed' => true,
+        ),
+      'received' => array(
+        'label' => t('Дата прочтения'),
+        'type' => 'DateTimeControl',
+        'required' => false,
+        'indexed' => true,
+        ),
+      'text' => array(
+        'label' => t('Текст'),
+        'type' => 'TextHTMLControl',
+        'required' => true,
+        ),
+      ),
   }
 
   // Доступ к сообщению имеют только отправитель и получатель.

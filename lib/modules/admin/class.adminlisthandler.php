@@ -61,8 +61,7 @@ class AdminListHandler
     if (empty($data) and count($this->types) == 1 and null === $this->ctx->get('search')) {
       // Добавление справочника.
       if ('dictlist' == $this->ctx->get('preset'))
-        mcms::redirect("?q=admin&mode=create&cgroup={$_GET['cgroup']}&dictionary=1&welcome=1&type={$this->types[0]}&destination=CURRENT");
-      // mcms::redirect("?q=admin&mode=create&cgroup={$_GET['cgroup']}&type={$this->types[0]}&destination=CURRENT");
+        $this->ctx->redirect("?q=admin&mode=create&cgroup={$_GET['cgroup']}&dictionary=1&welcome=1&type={$this->types[0]}&destination=CURRENT");
     }
 
     $output = '<h2>'. $this->title .'</h2>';
@@ -100,11 +99,11 @@ class AdminListHandler
         'value' => '__pager',
         )));
 
-      $output .= $form->getHTML(array(
+      $output .= $form->getHTML(Control::data(array(
         'nodes' => $data,
         'preset' => $preset,
         '__pager' => $this->getPager(),
-        ));
+        )));
     }
 
     elseif (null !== $this->ctx->get('search')) {
@@ -141,7 +140,7 @@ class AdminListHandler
       'value' => 'search_term',
       'dictlist' => $this->ctx->get('preset') == 'dictlist',
       )));
-    return $form->getHTML(array());
+    return $form->getHTML(null);
   }
 
   private function getPager()

@@ -42,27 +42,21 @@ class CommentNode extends Node
   public function getDefaultSchema()
   {
     return array(
-      'name' => 'comment',
-      'title' => t('Комментарий'),
-      'lang' => 'ru',
-      'adminmodule' => 'comment',
-      'notags' => 1,
-      'fields' => array(
-        'name' => array(
-          'label' => 'Заголовок',
-          'type' => 'TextLineControl',
-          'description' => 'Отображается в списках документов как в административном интерфейсе, так и на самом сайте.',
-          'required' => '1',
-          ),
-        'author' => array(
-          'label' => 'Автор',
-          'type' => 'TextLineControl',
-          ),
-        'text' => array(
-          'label' => 'Текст',
-          'type' => 'TextHTMLControl',
-          ),
-      ),
+      'name' => array(
+        'label' => t('Заголовок'),
+        'type' => 'TextLineControl',
+        'description' => t('Отображается в списках документов как в административном интерфейсе, так и на самом сайте.'),
+        'required' => true,
+        ),
+      'uid' => array(
+        'type' => 'NodeLinkControl',
+        'label' => t('Автор'),
+        'dictionary' => 'user',
+        ),
+      'text' => array(
+        'type' => 'TextHTMLControl',
+        'label' => t('Текст'),
+        ),
     );
   }
 
@@ -72,18 +66,5 @@ class CommentNode extends Node
       return true;
 
     return parent::checkPermission($perm);
-  }
-
-  public function schema()
-  {
-    $schema = parent::schema();
-
-    $schema['fields']['uid'] = array(
-      'type' => 'NodeLinkControl',
-      'label' => t('Автор'),
-      'dictionary' => 'user',
-      );
-
-    return $schema;
   }
 };

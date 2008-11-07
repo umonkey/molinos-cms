@@ -26,66 +26,62 @@ class RssfeedNode extends Node
   public function getDefaultSchema()
   {
     return array(
-      'name' => 'rssfeed',
-      'title' => t('Исходящая RSS лента'),
-      'description' => t('Описание RSS ленты, формируемой сайтом.'),
-      'adminmodule' => 'rss',
-      'lang' => 'ru',
-      'fields' => array(
-        'name' => array(
-          'label' => 'Имя ленты',
-          'type' => 'TextLineControl',
-          'required' => true,
+      'name' => array(
+        'label' => t('Имя ленты'),
+        'type' => 'TextLineControl',
+        'required' => true,
+        ),
+      'title' => array(
+        'label' => t('Видимый заголовок'),
+        'type' => 'TextLineControl',
+        'required' => true,
+        ),
+      'description' => array(
+        'label' => t('Описание'),
+        'type' => 'TextAreaControl',
+        'required' => true,
+        ),
+      'limit' => array(
+        'label' => t('Количество элементов'),
+        'type' => 'NumberControl',
+        'required' => true,
+        'default' => 10,
+        ),
+      'link' => array(
+        'label' => t('Ссылка на HTML версию'),
+        'type' => 'URLControl',
+        'required' => true,
+        'default' => 'http://HOSTNAME/',
+        'description' => t('Ссылка на раздел сайта, в котором пользователи могут увидеть этот материал.  Можно использовать ключевое слово HOSTNAME: оно будет заменено на адрес сервера.'),
+        ),
+      'language' => array(
+        'label' => t('Язык'),
+        'type' => 'EnumControl',
+        'required' => true,
+        'default' => 'ru',
+        'values' => array(
+          'ru' => 'Русский',
+          'en' => 'Английский',
           ),
-        'title' => array(
-          'label' => 'Видимый заголовок',
-          'type' => 'TextLineControl',
-          'required' => true,
-          ),
-        'description' => array(
-          'label' => t('Описание'),
-          'type' => 'TextAreaControl',
-          'required' => true,
-          ),
-        'limit' => array(
-          'label' => t('Количество элементов'),
-          'type' => 'NumberControl',
-          'required' => true,
-          'default' => 10,
-          ),
-        'link' => array(
-          'label' => t('Ссылка на HTML версию'),
-          'type' => 'URLControl',
-          'required' => true,
-          'default' => 'http://HOSTNAME/',
-          'description' => t('Ссылка на раздел сайта, в котором пользователи могут увидеть этот материал.  Можно использовать ключевое слово HOSTNAME: оно будет заменено на адрес сервера.'),
-          ),
-        'language' => array(
-          'label' => t('Язык'),
-          'type' => 'EnumControl',
-          'required' => true,
-          'default' => 'ru',
-          'values' => "ru = Русский\nen = Английский",
-          ),
-        'sort' => array(
-          'label' => t('Сортировка записей'),
-          'type' => 'TextLineControl',
-          'required' => true,
-          'default' => '-id',
-          ),
-        'types' => array(
-          'label' => t('Типы документов'),
-          'type' => 'TextLineControl',
-          'required' => true,
-          'description' => t('Список внутренних имён типов документов, разделённый пробелами, например: "news article story".'),
-          ),
-        'contentfields' => array(
-          'label' => t('Поля с содержимым'),
-          'type' => 'TextLineControl',
-          'required' => false,
-          'description' => t('Имя одного или нескольких полей (через запятую), содержимое которых следует использовать в качестве текста записи.  Несколько значений обычно следует вводить только в том случае, если лента содержит документы разных типов, и поля с текстовым содержимым называются по-разному.  Если это поле не заполнять, записи будут отдаваться без текста (только заголовки).'),
-          'default' => 'text, body, teaser',
-          ),
+        ),
+      'sort' => array(
+        'label' => t('Сортировка записей'),
+        'type' => 'TextLineControl',
+        'required' => true,
+        'default' => '-id',
+        ),
+      'types' => array(
+        'label' => t('Типы документов'),
+        'type' => 'TextLineControl',
+        'required' => true,
+        'description' => t('Список внутренних имён типов документов, разделённый пробелами, например: "news article story".'),
+        ),
+      'contentfields' => array(
+        'label' => t('Поля с содержимым'),
+        'type' => 'TextLineControl',
+        'required' => false,
+        'description' => t('Имя одного или нескольких полей (через запятую), содержимое которых следует использовать в качестве текста записи.  Несколько значений обычно следует вводить только в том случае, если лента содержит документы разных типов, и поля с текстовым содержимым называются по-разному.  Если это поле не заполнять, записи будут отдаваться без текста (только заголовки).'),
+        'default' => 'text, body, teaser',
         ),
       );
   }

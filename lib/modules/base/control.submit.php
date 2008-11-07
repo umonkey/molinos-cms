@@ -27,7 +27,7 @@ class SubmitControl extends Control
       );
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     $output = '';
 

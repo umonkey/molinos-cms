@@ -33,7 +33,7 @@ class InfoControl extends Control
     parent::__construct($form, array('text'));
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     $text = $this->text;
 

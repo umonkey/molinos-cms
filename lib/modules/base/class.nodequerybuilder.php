@@ -248,11 +248,11 @@ class NodeQueryBuilder
       foreach ((array)$this->query['class'] as $class) {
         $schema = Node::create($class)->schema();
 
-        foreach ($schema['fields'] as $field => $meta) {
-          if (empty($meta['indexed']) or $field == 'name')
+        foreach ($schema as $field => $meta) {
+          if (empty($meta->indexed) or $field == 'name')
             continue;
 
-          if (!in_array(strtolower($meta['type']), array('textlinecontrol', 'emailcontrol')))
+          if (!in_array(strtolower(get_class($meta)), array('textlinecontrol', 'emailcontrol')))
             continue;
 
           $this->addTable('node__idx_'. $class);
@@ -442,21 +442,39 @@ class NodeQueryBuilder
 
   private function addPermissionCheck()
   {
-    if (!empty($this->query['#permcheck']) and !mcms::config('bypass_permcheck')) {
-      $filter = mcms::user()->getAccess('r');
+    if (!empty($this->query['#permcheck'])) {
+      if (true === ($mode = $this->query['#permcheck']))
+        $mode = 'class';
 
-      if (array_key_exists('class', $this->query))
-        $tmp = (array)$this->query['class'];
-      else
-        $tmp = array();
+      switch ($mode) {
+      case 'class':
+        $filter = mcms::user()->getAccess('r');
 
-      if (!empty($this->query['class']))
-        $this->query['class'] = array_intersect($tmp, $filter);
-      else
-        $this->query['class'] = $filter;
+        if (array_key_exists('class', $this->query))
+          $tmp = (array)$this->query['class'];
+        else
+          $tmp = array();
 
-      if (empty($this->query['class']))
-        $this->query['class'] = null;
+        if (!empty($this->query['class']))
+          $this->query['class'] = array_intersect($tmp, $filter);
+        else
+          $this->query['class'] = $filter;
+
+        if (empty($this->query['class']))
+          $this->query['class'] = null;
+
+        break;
+
+      case 'c':
+      case 'r':
+      case 'u':
+      case 'd':
+      case 'p':
+        $this->where[] = "`node`.`id` IN (SELECT nid FROM node__access WHERE {$mode} = 1 AND uid IN (" . join(', ', array_keys(mcms::user()->getGroups())) . "))";
+        break;
+      }
+
+      // mcms::debug($this);
     }
   }
 
@@ -579,9 +597,7 @@ class NodeQueryBuilder
         if (array_key_exists('class', $this->query)) {
           $class = is_array($this->query['class']) ? $this->query['class'][0] : $this->query['class'];
 
-          $schema = Node::create($class)->schema();
-
-          if (!empty($schema['fields'][$field]['indexed'])) {
+          if (Node::create($class)->schema()->hasIndex($field)) {
             $this->addTable('node__idx_'. $class);
             $mask = "`node__idx_{$class}`.`{$field}`";
           }
@@ -602,9 +618,7 @@ class NodeQueryBuilder
     if (null !== $mask)
       return ($negate ? '-' : '') . $mask;
 
-    mcms::debug('No index: '. $field .', query follows.', $this->query);
-
-    throw new NoIndexException($field);
+    throw new NoIndexException($class . '.' . $field);
   }
 
   // Добавляет таблицу в список участвующих в запросе.

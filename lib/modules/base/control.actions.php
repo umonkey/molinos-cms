@@ -33,7 +33,7 @@ class ActionsControl extends Control
     parent::__construct($form, array('value', 'options'));
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     $options = '';
 

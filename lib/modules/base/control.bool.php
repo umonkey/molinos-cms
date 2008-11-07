@@ -29,15 +29,11 @@ class BoolControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
-    if (isset($this->hidden))
-      return $this->getHidden($data);
-
-    if (array_key_exists($this->value, $data))
-      $checked = empty($data[$this->value]) ? null : 'checked';
-    else
-      $checked = empty($this->default) ? null : 'checked';
+    $checked = empty($data->{$this->value})
+      ? null
+      : 'checked';
 
     $output = mcms::html('input', array(
       'type' => 'checkbox',
@@ -58,5 +54,10 @@ class BoolControl extends Control
   public static function getSQL()
   {
     return 'tinyint(1)';
+  }
+
+  public function set($value, Node &$node)
+  {
+    $node->{$this->value} = !empty($value);
   }
 };

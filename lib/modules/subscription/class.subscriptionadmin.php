@@ -10,7 +10,7 @@ class SubscriptionAdmin implements iAdminMenu
     if ($user->hasAccess('u', 'user'))
       $icons[] = array(
         'group' => 'content',
-        'href' => 'admin?module=subscription',
+        'href' => '?q=admin&module=subscription',
         'title' => t('Рассылка'),
         'description' => t('Управление подпиской на новости.'),
         );

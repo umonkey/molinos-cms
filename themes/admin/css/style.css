@@ -611,6 +611,10 @@ table.nodelist td.icon .icon-locate {
   background-image: url(../img/icon-www.png);
 }
 
+table.nodelist td.icon .icon-download {
+  background-image: url(../img/icon-download.png);
+}
+
 table.nodelist td.icon .icon-sudo {
   background-image: url(../img/icon-sudo.gif);
 }
@@ -649,4 +653,8 @@ table.nodelist td.icon .icon-clone {
 
 table.nodelist td.icon .icon-link {
   background-image: url(../img/icon-link.png);
+}
+
+#center .control .disabled {
+  color: gray;
 }

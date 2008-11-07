@@ -313,7 +313,7 @@ class FileNode extends Node implements iContentType
       $ftpfiles = self::listFilesOnFTP();
 
       $form->addControl(new HiddenControl(array(
-        'value' => 'node_content_class',
+        'value' => 'class',
         )));
 
       $form->addControl(new AttachmentControl(array(
@@ -338,6 +338,7 @@ class FileNode extends Node implements iContentType
       $form->addControl(new AttachmentControl(array(
         'value' => '__file_node_update',
         'label' => t('Заменить файл'),
+        'archive' => false,
         )));
     }
 
@@ -379,10 +380,10 @@ class FileNode extends Node implements iContentType
       $this->save();
 
       foreach (array('filename', 'filetype', 'filepath', 'filesize') as $k)
-        $data['node_content_'. $k] = $this->$k;
+        $data[$k] = $this->$k;
 
-      if (empty($data['node_content_name']))
-        $data['node_content_name'] = $this->filename;
+      if (empty($data['name']))
+        $data['name'] = $this->filename;
 
       unset($data['__file_node_update']);
     }
@@ -485,55 +486,50 @@ class FileNode extends Node implements iContentType
    * структура не обнаружена (хранится в виде ноды с типом "type" и
    * именем "file").
    */
-  public function getDefaultSchema()
+  protected function getDefaultFields()
   {
     return array(
-      'title' => 'Файл',
-      'description' => 'Используется для наполнения файлового архива.',
-      'notags' => true,
-      'fields' => array (
-        'name' => array (
-          'label' => 'Название файла',
-          'type' => 'TextLineControl',
-          'description' => 'Человеческое название файла, например: &laquo;Финансовый отчёт за 2007-й год&raquo;',
-          'required' => true,
-          ),
-        'filename' => array (
-          'label' => 'Оригинальное имя',
-          'type' => 'TextLineControl',
-          'description' => 'Имя, которое было у файла, когда пользователь добавлял его на сайт.  Под этим же именем файл будет сохранён, если пользователь попытается его сохранить.  Рекомендуется использовать только латинский алфавит: Internet Explorer некорректно обрабатывает кириллицу в именах файлов при скачивании файлов.',
-          'required' => true,
-          'indexed' => true,
-          ),
-        'filetype' => array (
-          'label' => 'Тип MIME',
-          'type' => 'TextLineControl',
-          'description' => 'Используется для определения способов обработки файла.  Проставляется автоматически при закачке.',
-          'required' => true,
-          'indexed' => true,
-          ),
-        'filesize' => array (
-          'label' => 'Размер в байтах',
-          'type' => 'NumberControl',
-          'required' => true,
-          'indexed' => true,
-          ),
-        'filepath' => array (
-          'label' => 'Локальный путь к файлу',
-          'type' => 'TextLineControl',
-          'required' => true,
-          'indexed' => true,
-          ),
-        'width' => array (
-          'label' => 'Ширина',
-          'type' => 'NumberControl',
-          'description' => 'Проставляется только для картинок и SWF объектов.',
-          ),
-        'height' => array (
-          'label' => 'Высота',
-          'type' => 'NumberControl',
-          'description' => 'Проставляется только для картинок и SWF объектов.',
-          ),
+      'name' => array (
+        'label' => t('Название файла'),
+        'type' => 'TextLineControl',
+        'description' => t('Человеческое название файла, например: «Финансовый отчёт за 2007-й год»'),
+        'required' => true,
+        ),
+      'filename' => array (
+        'label' => t('Оригинальное имя'),
+        'type' => 'TextLineControl',
+        'description' => t('Имя, которое было у файла, когда пользователь добавлял его на сайт.  Под этим же именем файл будет сохранён, если пользователь попытается его сохранить.  Рекомендуется использовать только латинский алфавит: Internet Explorer некорректно обрабатывает кириллицу в именах файлов при скачивании файлов.'),
+        'required' => true,
+        'indexed' => true,
+        ),
+      'filetype' => array (
+        'label' => t('Тип MIME'),
+        'type' => 'TextLineControl',
+        'description' => t('Используется для определения способов обработки файла.  Проставляется автоматически при закачке.'),
+        'required' => true,
+        'indexed' => true,
+        ),
+      'filesize' => array (
+        'label' => t('Размер в байтах'),
+        'type' => 'NumberControl',
+        'required' => true,
+        'indexed' => true,
+        ),
+      'filepath' => array (
+        'label' => t('Локальный путь к файлу'),
+        'type' => 'TextLineControl',
+        'required' => true,
+        'indexed' => true,
+        ),
+      'width' => array (
+        'label' => t('Ширина'),
+        'type' => 'NumberControl',
+        'description' => t('Проставляется только для картинок и SWF объектов.'),
+        ),
+      'height' => array (
+        'label' => t('Высота'),
+        'type' => 'NumberControl',
+        'description' => t('Проставляется только для картинок и SWF объектов.'),
         ),
       );
   }
@@ -563,12 +559,29 @@ class FileNode extends Node implements iContentType
   public function getRaw()
   {
     $result = parent::getRaw();
-
-    if (!empty($_GET['__cleanurls']))
-      $result['_url'] = 'attachment/'. $this->id .'/'. urlencode($this->filename);
-    else
-      $result['_url'] = '?q=attachment/'. $this->id .'/'. urlencode($this->filename);
-
+    $result['_url'] = $this->_url;
     return $result;
+  }
+
+  public function getActionLinks()
+  {
+    $list = parent::getActionLinks();
+
+    if (array_key_exists('locate', $list)) {
+      $list['locate']['href'] = $this->_url;
+      $list['locate']['icon'] = 'download';
+      $list['locate']['title'] = t('Скачать');
+    }
+
+    return $list;
+  }
+
+  public function __get($key)
+  {
+    if ('_url' == $key)
+      return empty($_GET['__cleanurls'])
+        ? '?q=attachment/'. $this->id .'/'. urlencode($this->filename)
+        : 'attachment/'. $this->id .'/'. urlencode($this->filename);
+    return parent::__get($key);
   }
 };

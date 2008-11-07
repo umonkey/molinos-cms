@@ -41,17 +41,7 @@ interface iFormControl
   /**
    * Возвращает HTML код элемента.
    */
-  public function getHTML(array $data);
-
-  /**
-   * Проверка введённых пользователем данных.
-   *
-   * В случае ошибки кидает ValidationException.
-   *
-   * @return void
-   * @param array $data содержимое полученной от пользователя формы.
-   */
-  public function validate(array $data);
+  public function getHTML($data);
 
   /**
    * Добавление дочернего контрола.

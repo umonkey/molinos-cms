@@ -6,9 +6,10 @@ class CartSettings implements iModuleConfig
   {
     $types = array();
 
-    foreach (TypeNode::getSchema() as $type => $schema)
-      if (!empty($schema['fields']['price']))
-        $types[$schema['id']] = $schema['title'];
+    foreach (TypeNode::getList() as $type) {
+      $schema = $type->schema();
+      if (isset($schema['price']))
+        $types[$type->id] = $type->title;
 
     asort($types);
 
@@ -116,11 +117,12 @@ class CartSettings implements iModuleConfig
     $productid = null;
 
     // ЧАСТЬ ВТОРАЯ: товар.
-    foreach (TypeNode::getSchema() as $type => $typeinfo) {
-      if (!empty($typeinfo['fields']['price']))
+    foreach (TypeNode::getList() as $type) {
+      $schema = $type->schema();
+      if (isset($schema['price']))
         $products++;
-      if ($type == 'product')
-        $productid = $typeinfo['id'];
+      if ($type->name == 'product')
+        $productid = $type->id;
     }
 
     if (0 == $products) {

@@ -178,11 +178,9 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
     $result = array();
     $skip = self::get_hard_skip_types();
 
-    foreach (TypeNode::getSchema() as $k => $v)
+    foreach (Node::getSortedList('type', 'title', 'name') as $k => $v)
       if (!in_array($k, $skip))
-        $result[$k] = $v['title'];
-
-    asort($result);
+        $result[$k] = $v;
 
     return $result;
   }

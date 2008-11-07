@@ -215,7 +215,7 @@ class DocWidget extends Widget implements iWidget
     $form = $node->formGet(false);
     $form->addClass('tabbed');
 
-    return $form->getHTML($node->formGetData());
+    return $form->getHTML($node);
   }
 
   private function getDocument()

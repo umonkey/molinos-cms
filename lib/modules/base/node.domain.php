@@ -187,20 +187,15 @@ class DomainNode extends Node implements iContentType
     $form = parent::formGet($simple);
     $user = mcms::user();
 
-    $form->hideControl('node_content_redirect');
+    $form->hideControl('redirect');
 
     if ($this->parent_id)
-      $form->hideControl('node_content_robots');
+      $form->hideControl('robots');
 
     if (empty($this->parent_id))
       $form->title = $this->id ? t('Свойства домена') : t('Добавление домена');
     else
       $form->title = $this->id ? t('Свойства страницы') : t('Добавление страницы');
-
-    if ($user->hasAccess('u', 'widget') and !$simple) {
-      if (null !== ($tab = $this->formGetWidgets()))
-        $form->addControl($tab);
-    }
 
     $this->fixThemes($form);
 
@@ -221,25 +216,15 @@ class DomainNode extends Node implements iContentType
       ));
 
     $form->addControl(new TextLineControl(array(
-      'value' => 'node_content_name',
+      'value' => 'name',
       'label' => t('Доменное имя'),
       'default' => 'www.'. $target,
       )));
 
     $form->addControl(new TextLineControl(array(
-      'value' => 'node_content_redirect',
+      'value' => 'redirect',
       'label' => t('Перенаправлять на'),
       'default' => $target,
-      )));
-
-    $form->addControl(new EnumControl(array(
-      'value' => 'node_content_defaultsection',
-      'label' => t('Раздел по умолчанию'),
-      'description' => t('При указании раздела перенаправление '
-        .'выполняться не будет. Страница будет открываться по '
-        .'введённому адресу, но будет использоваться домен, '
-        .'на который настроено перенаправление. Базовый раздел '
-        .'этого домена будет подменён.'),
       )));
 
     $form->addControl(new SubmitControl());
@@ -247,73 +232,12 @@ class DomainNode extends Node implements iContentType
     return $form;
   }
 
-  private function formGetWidgets()
-  {
-    $options = array();
-
-    foreach (Node::find(array('class' => 'widget', '#sort' => array('name' => 'ASC'))) as $w) {
-      $name = t('%title (<a href=\'@edit\'>изменить</a>)', array(
-        '%title' => $w->title,
-        '@edit' => "?q=admin&mode=edit&cgroup=structure&id={$w->id}&destination=CURRENT",
-        ));
-
-      $options[$w->id] = $name;
-    }
-
-    asort($options);
-
-    $tab = new FieldSetControl(array(
-      'name' => 'widgets',
-      'label' => t('Виджеты'),
-      ));
-    $tab->addControl(new SetControl(array(
-      'value' => 'node_domain_widgets',
-      'label' => 'Задействованные виджеты',
-      'description' => t("Вы можете также <a href='@link'>создать новый виджет</a>.",
-        array('@link' => 'admin/node/create/?BebopNode.class=widget&destination=CURRENT#widgets')),
-      'options' => $options,
-      )));
-
-    return $tab;
-  }
-
-  public function formGetData()
-  {
-    $data = parent::formGetData();
-
-    if (null === $this->id) {
-      $data['node_content_language'] = 'ru';
-      $data['node_content_content_type'] = 'text/html';
-      $data['node_content_http_code'] = 200;
-      $data['node_content_html_charset'] = 'utf-8';
-      $data['node_content_params'] = 'sec+doc';
-      $data['page_type'] = 'domain';
-      $data['node_content_robots'] = "User-agent: *\n"
-        ."Disallow: /lib\n"
-        ."Disallow: /themes";
-    }
-
-    $data['node_content_defaultsection:options'] = TagNode::getTags('select');
-    $data['node_content_params:options'] = array(
-      '' => '(без параметров)',
-      'sec' => '/раздел',
-      'sec+doc' => '/раздел/документ',
-      'doc' => '/документ',
-      );
-
-    $data['node_domain_widgets'] = $this->linkListChildren('widget', true);
-
-    return $data;
-  }
-
   public function formProcess(array $data)
   {
     $isnew = (null === $this->id);
 
-    self::checkSchema();
-
     if ($data['page_type'] == 'domain')
-      $data['node_content_parent_id'] = null;
+      $data['parent_id'] = null;
 
     parent::formProcess($data);
 
@@ -367,79 +291,10 @@ class DomainNode extends Node implements iContentType
     }
   }
 
-  public function getDefaultSchema()
-  {
-    return array(
-      'title' => 'Типовая страница',
-      'notags' => true,
-      'fields' => array(
-        'name' => array(
-          'label' => 'Имя',
-          'type' => 'TextLineControl',
-          'required' => true,
-          ),
-        'title' => array(
-          'label' => 'Заголовок',
-          'type' => 'TextLineControl',
-          'required' => true,
-          ),
-        'parent_id' => array(
-          'label' => 'Родительский объект',
-          'type' => 'EnumControl',
-          ),
-        'aliases' => array(
-          'label' => 'Алиасы',
-          'type' => 'TextAreaControl',
-          'description' => 'Список дополнительных адресов, по которым доступен этот домен.',
-          ),
-        'language' => array(
-          'label' => 'Язык',
-          'type' => 'EnumControl',
-          'description' => 'Язык для этой страницы, используется только шаблонами.',
-          'options' => array(
-            'ru' => 'русский',
-            'en' => 'английский',
-            'de' => 'немецкий',
-            ),
-          'required' => true,
-          ),
-        'theme' => array(
-          'label' => 'Шкура',
-          'type' => 'EnumControl',
-          'description' => 'Имя папки с шаблонами для этой страницы.',
-          ),
-        'content_type' => array(
-          'label' => 'Тип контента',
-          'type' => 'EnumControl',
-          'required' => true,
-          'options' => array(
-            'text/html' => 'HTML',
-            'text/xml' => 'XML',
-            ),
-          ),
-        'params' => array(
-          'label' => 'Разметка параметров',
-          'type' => 'EnumControl',
-          'required' => true,
-          'options' => array(
-            '' => 'без параметров',
-            'sec+doc' => '/раздел/документ/',
-            'sec' => '/раздел/',
-            'doc' => '/документ/',
-            ),
-          ),
-        'defaultsection' => array(
-          'label' => 'Основной раздел',
-          'type' => 'EnumControl',
-          ),
-        ),
-      );
-  }
-
   // Формирует выпадающий список с именами доступных шкур.
   private function fixThemes(Form &$form)
   {
-    if (null !== ($tmp = $form->findControl('node_content_theme'))) {
+    if (null !== ($tmp = $form->findControl('theme'))) {
       $dirs = array();
 
       foreach (glob(MCMS_ROOT .'/themes/'.'*', GLOB_ONLYDIR) as $dir) {
@@ -549,6 +404,7 @@ class DomainNode extends Node implements iContentType
       'class' => 'widget',
       'published' => true,
       'tags' => $this->id,
+      '#permcheck' => 'r',
       ));
 
     $pick = ('widget' == $ctx->debug())
@@ -709,30 +565,101 @@ class DomainNode extends Node implements iContentType
     return $links;
   }
 
-  /**
-   * Проверка структуры типа domain.
-   *
-   * При отсутствии нужных полей они добавляются.
-   */
-  private static function checkSchema()
+  public function schema()
   {
-    $type = Node::load(array(
-      'class' => 'type',
-      'name' => 'domain',
-      ));
+    $schema = parent::schema();
 
-    $save = false;
+    // Устаревшие поля
+    if ($this->id)
+      unset($schema['parent_id']);
+    unset($schema['aliases']);
 
-    if (!array_key_exists('redirect', $type->getFields())) {
-      $type->fieldSet('redirect', array(
-        'label' => t('Перенаправлять на'),
+    return $schema;
+  }
+
+  protected function getDefaultSchema()
+  {
+    return array(
+      'name' => array(
         'type' => 'TextLineControl',
-        'required' => false,
-        ));
-      $save = true;
-    }
-
-    if ($save)
-      $type->save();
+        'label' => t('Имя домена'),
+        'required' => true,
+        ),
+      'title' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Заголовок'),
+        ),
+      'parent_id' => array(
+        'type' => 'EnumControl',
+        'label' => t('Родительский объект'),
+        'volatile' => true,
+        ),
+      'language' => array(
+        'type' => 'EnumControl',
+        'label' => t('Язык'),
+        'description' => t('Язык для этой страницы, используется только шаблонами.'),
+        'required' => true,
+        'volatile' => true,
+        'options' => array(
+          'ru' => t('русский'),
+          'en' => t('английский'),
+          'de' => t('немецкий'),
+          ),
+        ),
+      'theme' => array(
+        'type' => 'EnumControl',
+        'label' => t('Шкура'),
+        'description' => t('Имя папки с шаблонами для этой страницы.'),
+        'volatile' => true,
+        ),
+      'content_type' => array(
+        'type' => 'EnumControl',
+        'label' => 'Тип контента',
+        'required' => true,
+        'volatile' => true,
+        'options' => array(
+          'text/html' => 'HTML',
+          'text/xml' => 'XML',
+          ),
+        ),
+      'params' => array(
+        'type' => 'EnumControl',
+        'label' => 'Разметка параметров',
+        'required' => true,
+        'volatile' => true,
+        'options' => array(
+          '' => 'без параметров',
+          'sec+doc' => '/раздел/документ/',
+          'sec' => '/раздел/',
+          'doc' => '/документ/',
+          ),
+        ),
+      'widgets' => array(
+        'type' => 'SetControl',
+        'label' => t('Виджеты'),
+        'dictionary' => 'widget',
+        'field' => 'title',
+        'group' => t('Виджеты'),
+        'volatile' => true,
+        ),
+      'http_code' => array(
+        'type' => 'EnumControl',
+        'label' => t('HTTP код'),
+        'default' => 200,
+        'required' => true,
+        'volatile' => true,
+        'options' => array(
+          200 => '200 OK',
+          403 => '403 Forbidden',
+          404 => '404 Not Found',
+          500 => '500 Internal Server Error',
+          ),
+        ),
+      'defaultsection' => array(
+        'type' => 'SectionControl',
+        'label' => t('Основной раздел'),
+        'volatile' => true,
+        ),
+      );
   }
 };

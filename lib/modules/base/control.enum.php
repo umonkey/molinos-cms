@@ -26,6 +26,9 @@ class EnumControl extends Control
 
   public function __construct(array $form)
   {
+    if (empty($form['default_label']))
+      $form['default_label'] = t('(не выбрано)');
+
     parent::makeOptionsFromValues($form);
     parent::__construct($form, array('value'));
   }
@@ -35,33 +38,25 @@ class EnumControl extends Control
     return 'VARCHAR(255)';
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     $options = '';
 
-    // Позволяем передавать набор значений через массив данных.
-    if (empty($this->options) and !empty($data[$key = $this->value .':options']) and is_array($data[$key]))
-      $this->options = $data[$key];
-
-    // Если поле необязательно или дефолтного значения нет в списке допустимых -- добавляем пустое значение в начало.
-    if (!empty($this->options) and (!isset($this->required) or (null !== $this->default and !array_key_exists($this->default, $this->options)))) {
+    if (!$this->required)
       $options .= mcms::html('option', array(
         'value' => '',
-        ), $this->default);
+        ), $this->default_label);
+
+    $selected = $this->getSelected($data);
+    $enabled = $this->getEnabled($data);
+
+    foreach ($this->getData($data) as $k => $v) {
+      $options .= mcms::html('option', array(
+        'value' => $k,
+        'selected' => in_array($k, $selected) ? 'selected' : null,
+        'disabled' => (null === $enabled or in_array($k, $enabled)) ? null : 'disabled',
+        ), $v);
     }
-
-    if (empty($data[$this->value]))
-      $current = (empty($this->options) or !array_key_exists($this->default, $this->options)) ? null : $this->default;
-    else
-      $current = $data[$this->value];
-
-    if (is_array($this->options))
-      foreach ($this->options as $k => $v) {
-        $options .= mcms::html('option', array(
-          'value' => $k,
-          'selected' => ($current == $k) ? 'selected' : null,
-          ), $v);
-      }
 
     if (empty($options))
       return '';
@@ -72,5 +67,31 @@ class EnumControl extends Control
       ), $options);
 
     return $this->wrapHTML($output);
+  }
+
+  protected function getData($data)
+  {
+    if (!is_array($result = $this->options))
+      $result = array();
+
+    return $result;
+  }
+
+  protected function getEnabled($data)
+  {
+    return null;
+  }
+
+  protected function getSelected($data)
+  {
+    if ($value = $data->{$this->value})
+      return array($value);
+
+    return array();
+  }
+
+  public function set($value, Node &$node)
+  {
+    mcms::debug($value, $node);
   }
 };

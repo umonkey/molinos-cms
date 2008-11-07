@@ -28,7 +28,7 @@ class TableControl extends Control
       );
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     mcms::debug($this, $data);
   }

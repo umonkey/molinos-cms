@@ -109,143 +109,6 @@ class UserNode extends Node implements iContentType
     return false;
   }
 
-  // РАБОТА С ФОРМАМИ.
-
-  /**
-   * Возвращает форму для редактирования профиля.
-   *
-   * @param bool $simple true, если форма не должна содержать расширенную
-   * информацию (историю изменений, список групп итд).
-   *
-   * @return Form описание формы.
-   */
-  public function formGet($simple = true)
-  {
-    $form = parent::formGet($simple);
-
-    if (!$simple and (null !== ($tab = $this->formGetGroups())))
-      $form->addControl($tab);
-
-    $form->title = t('Пользователь %name', array('%name' => $this->name));
-
-    if ($this->id) {
-      $tmp = $form->findControl('node_content_name');
-
-      if ('cms-bugs@molinos.ru' == $this->name) {
-        $tmp->description = t('Замените это на свой почтовый адрес или OpenID, если он у вас есть.');
-        $form->title = t('Встроенный администратор');
-      } elseif (false === strstr($this->name, '@') and false !== strstr($this->name, '.')) {
-        if ($tmp)
-          $tmp->label = 'OpenID';
-        $form->hideControl('node_content_password');
-      } else {
-        if ($tmp)
-          $tmp->label = 'Email';
-        $form->hideControl('node_content_email');
-      }
-    }
-
-    return $form;
-  }
-
-  private function formGetGroups()
-  {
-    $options = array();
-
-    foreach (Node::find(array('class' => 'group', '#sort' => array('name' => 'asc'))) as $g)
-      $options[$g->id] = $g->name;
-
-    $tab = new FieldSetControl(array(
-      'name' => 'groups',
-      'label' => t('Членство в группах'),
-      ));
-    $tab->addControl(new HiddenControl(array(
-      'value' => 'reset_groups',
-      'default' => true,
-      )));
-    $tab->addControl(new SetControl(array(
-      'value' => 'node_user_groups',
-      'label' => t('Группы, в которых состоит пользователь'),
-      'options' => $options,
-      )));
-
-    return $tab;
-  }
-
-  /**
-   * Возвращает данные для формы.
-   *
-   * @return array данные для формы.  К полученным от родителя данным
-   * добавляется список групп, к которым можно прикрепить пользователя.
-   */
-  public function formGetData()
-  {
-    $data = parent::formGetData();
-
-    $data['node_user_groups'] = $this->linkListParents('group', true);
-
-    return $data;
-  }
-
-  /**
-   * Обработка форм.
-   *
-   * В дополнение к родительским действиям занимается привязкой пользователя к
-   * группам.
-   *
-   * @param array $data полученные от пользователя данные.
-   *
-   * @return void
-   */
-  public function formProcess(array $data)
-  {
-    $this->data['published'] = true;
-
-    $new = empty($this->id);
-
-    parent::formProcess($data);
-
-    if (mcms::user()->hasAccess('u', 'group') and !empty($data['reset_groups']))
-      $this->linkSetParents(empty($data['node_user_groups']) ? array() : $data['node_user_groups'], 'group');
-
-    // Прозрачная идентификация при создании пользователя.
-    if ($new and !mcms::user()->id)
-      User::authorize($this->name, null, true);
-  }
-
-  /**
-   * Возвращает базовую структуру профиля.
-   *
-   * @see TypeNode::getSchema()
-   *
-   * return array структура типа документа.  Используется если в БД не найдена.
-   */
-  public function getDefaultSchema()
-  {
-    return array(
-      'title' => 'Профиль пользователя',
-      'adminmodule' => 'admin', // запрещаем выводить в списке контента
-      'notags' => true,
-      'fields' => array(
-        'name' => array(
-          'type' => 'EmailControl',
-          'label' => 'Email или OpenID',
-          'required' => true,
-          ),
-        'fullname' => array(
-          'type' => 'TextLineControl',
-          'label' => 'Полное имя',
-          'description' => 'Используется в подписях к комментариям, при отправке почтовых сообщений и т.д.',
-          ),
-        'password' => array(
-          'type' => 'PasswordControl',
-          'label' => 'Пароль',
-          'required' => true,
-          ),
-        ),
-      );
-  }
-
   public function getActionLinks()
   {
     $links = parent::getActionLinks();
@@ -271,6 +134,36 @@ class UserNode extends Node implements iContentType
   {
     if ($name = $this->fullname)
       return $name;
+    if (0 === strpos($this->name, 'http://'))
+      return rtrim(substr($this->name, 7), '/');
     return $this->name;
+  }
+
+  protected function getDefaultSchema()
+  {
+    return array(
+      'name' => array(
+        'type' => 'EmailControl',
+        'label' => t('Email или OpenID'),
+        'required' => true,
+        ),
+      'fullname' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Полное имя'),
+        'description' => 'Используется в подписях к комментариям, при отправке почтовых сообщений и т.д.',
+        ),
+      'password' => array(
+        'type' => 'PasswordControl',
+        'label' => t('Пароль'),
+        ),
+      'groups' => array(
+        'type' => 'SetControl',
+        'label' => t('Состоит в группах'),
+        'group' => t('Доступ'),
+        'dictionary' => 'group',
+        'volatile' => true,
+        'parents' => true,
+        ),
+      );
   }
 };

@@ -43,14 +43,22 @@ class Form extends Control
    *
    * @return string HTML-код формы.
    */
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     $output = '';
+
+    if (is_array($data))
+      $data = Control::data($data);
 
     if (isset($this->title)) {
       if (!in_array($header = $this->header, array('h2', 'h3', 'h4', 'h5')))
         $header = 'h2';
-      $output = "<{$header}><span>". mcms_plain($this->title) ."</span></{$header}>";
+      $output = "<{$header}><span>". mcms_plain($this->title) ."</span>";
+
+      if ($this->hlink)
+        $output .= ' ' . $this->hlink;
+
+      $output .= "</{$header}>";
     }
 
     if (null != $this->intro)

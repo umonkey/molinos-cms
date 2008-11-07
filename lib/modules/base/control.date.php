@@ -29,7 +29,7 @@ class DateControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     $output = mcms::html('input', array(
       'type' => 'text', // 'date', // пользоваться этим в опере невозможно

@@ -34,26 +34,33 @@ class TextLineControl extends Control
     return 'VARCHAR(255)';
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
-    if (isset($this->hidden))
-      return $this->getHidden($data);
-
     if (null === $this->class)
       $this->class = 'form-text';
     else
       $this->class = array_merge(array('form-text'), (array)$this->class);
+
+    if (null === ($value = $data->{$this->value}))
+      $value = $this->default;
 
     $output = mcms::html('input', array(
       'type' => 'text',
       'id' => $this->id,
       'class' => $this->class,
       'name' => $this->value,
-      'value' => empty($data[$this->value]) ? $this->default : $data[$this->value],
+      'value' => $value,
       'readonly' => $this->readonly ? 'readonly' : null,
       'maxlength' => 255,
       ));
 
     return $this->wrapHTML($output);
+  }
+
+  public function set($value, Node &$node)
+  {
+    $this->validate($value);
+
+    $node->{$this->value} = $value;
   }
 };

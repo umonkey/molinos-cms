@@ -48,58 +48,6 @@ class WidgetNode extends Node implements iContentType
   }
 
   /**
-   * Возвращает базовое описание виджета.
-   *
-   * @see TypeNode::getSchema()
-   *
-   * @return array базовая структура типа документа. Используется если не
-   * найдена в БД.
-   */
-  public function getDefaultSchema()
-  {
-    return array(
-      'name' => 'widget',
-      'title' => t('Виджет'),
-      'description' => t('Блоки, из которых строятся страницы.'),
-      'lang' => 'ru',
-      'adminmodule' => 'admin',
-      'fields' => array(
-        'name' => array(
-          'label' => 'Внутреннее имя',
-          'type' => 'TextLineControl',
-          'description' => 'Используется для идентификации виджета внутри шаблонов, а также для поиска шаблонов для виджета.',
-          'default' => '',
-          'values' => '',
-          'required' => '1',
-          ),
-        'title' => array(
-          'label' => 'Название',
-          'type' => 'TextLineControl',
-          'description' => 'Человеческое название виджета.',
-          'default' => '',
-          'values' => '',
-          'required' => '1',
-          ),
-        'description' => array(
-          'label' => 'Описание',
-          'type' => 'TextAreaControl',
-          'description' => 'Краткое описание выполняемых виджетом функций и особенностей его работы.',
-          'default' => '',
-          'values' => '',
-          ),
-        'classname' => array(
-          'label' => 'Используемый класс',
-          'type' => 'TextLineControl',
-          'description' => '',
-          'default' => '',
-          'values' => '',
-          'required' => '1',
-          ),
-        ),
-      );
-  }
-
-  /**
    * Клонирование виджета.
    *
    * Добавляет к имени клонируемого объекта немного мусора, для уникальности.
@@ -130,39 +78,29 @@ class WidgetNode extends Node implements iContentType
   public function formGet($simple = true)
   {
     if (null === $this->id) {
-      $classes = array();
-
-      foreach (mcms::getImplementors('iWidget') as $classname) {
-        if ($classname != 'widget' and substr($classname, -11) != 'adminwidget') {
-          $info = Widget::getInfo($classname);
-          if (empty($info['hidden']) and !empty($info['name']))
-            $classes[$classname] = $info['name'];
-        }
-      }
-
-      asort($classes);
+      $classes = self::listWidgets();
 
       $form = new Form(array(
         'title' => t('Добавление виджета'),
         ));
       $form->addControl(new HiddenControl(array(
-        'value' => 'node_content_class',
+        'value' => 'class',
         )));
       $form->addControl(new TextLineControl(array(
-        'value' => 'node_content_name',
+        'value' => 'name',
         'label' => t('Внутреннее имя'),
         'description' => t('Может содержать только цифры, латинские буквы и символ подчёркивания.'),
         'required' => true,
         'class' => 'form-title',
         )));
       $form->addControl(new TextLineControl(array(
-        'value' => 'node_content_title',
+        'value' => 'title',
         'label' => t('Видимое название'),
         'description' => t('Может содержать произвольный текст.&nbsp; Иногда используется не только в админке, но и на сайте.'),
         'required' => true,
         )));
       $form->addControl(new EnumControl(array(
-        'value' => 'node_content_classname',
+        'value' => 'classname',
         'label' => t('Тип'),
         'required' => true,
         'options' => $classes,
@@ -185,66 +123,16 @@ class WidgetNode extends Node implements iContentType
 
       $form->addClass($this->classname .'-config');
 
-      $tab = new FieldSetControl(array(
-        'name' => 'pages',
-        'label' => t('Страницы'),
-        ));
-      $tab->addControl(new SetControl(array(
-        'value' => 'widget_pages',
-        'label' => t('Виджет работает на страницах'),
-        'options' => DomainNode::getFlatSiteMap('select'),
-        )));
-      $form->addControl($tab);
-
-      $tab = $form->addControl(new FieldSetControl(array(
-        'name' => 'access',
-        'label' => t('Доступ'),
-        )));
-      $tab->addControl(new SetControl(array(
-        'value' => 'config_groups',
-        'label' => t('Виджет доступен группам'),
-        'options' => Node::getSortedList('group'),
-        )));
-
-      if (null !== ($tmp = $form->findControl('node_content_classname'))) {
+      if (null !== ($tmp = $form->findControl('classname'))) {
         $tmp->label = 'Тип';
         $tmp->readonly = true;
         $tmp->required = false;
       }
 
-      $form->hideControl('node_content_config');
+      $form->hideControl('config');
     }
 
     return $form;
-  }
-
-  /**
-   * Возвращает данные для формы.
-   *
-   * @return array данные для формы, включают настройки виджета и привязку к
-   * страницам.
-   */
-  public function formGetData()
-  {
-    $data = parent::formGetData();
-
-    if (array_key_exists('node_content_config', $data))
-      unset($data['node_content_config']);
-
-    if (!empty($this->config) and is_array($this->config))
-      foreach ($this->config as $k => $v)
-        $data['config_'. $k] = $v;
-
-    $data['config_types'] = $this->linkListParents('type', true);
-
-    if (mcms::class_exists($this->classname)) {
-      $w = new $this->classname($this);
-      $w->formHookConfigData($data);
-    }
-
-    $data['widget_pages'] = $this->linkListParents('domain', true);
-
-    return $data;
   }
 
   /**
@@ -275,24 +163,7 @@ class WidgetNode extends Node implements iContentType
       $w->formHookConfigSaved();
     }
 
-    if ($isnew) {
-      $data['node_access'] = array(
-        'Visitors' => array('r'),
-        'Developers' => array('r', 'u', 'd'),
-        );
-    } else {
-      $list = (empty($data['config_types']) or !is_array($data['config_types']))
-        ? array() : $data['config_types'];
-      $this->linkSetParents($list, 'type');
-    }
-
     $next = parent::formProcess($data);
-
-    if (empty($data['widget_pages']))
-      $data['widget_pages'] = array();
-
-    $this->linkSetParents($data['widget_pages'], 'domain',
-      array_keys(DomainNode::getFlatSiteMap('select')));
 
     if ($isnew) {
       $next = "?q=admin&mode=edit&cgroup=structure&id={$this->id}"
@@ -303,5 +174,64 @@ class WidgetNode extends Node implements iContentType
     } else {
       mcms::redirect("admin");
     }
+  }
+
+  protected static function listWidgets()
+  {
+    $classes = array();
+
+    foreach (mcms::getImplementors('iWidget') as $classname) {
+      if ($classname != 'widget' and substr($classname, -11) != 'adminwidget') {
+        $info = Widget::getInfo($classname);
+        if (empty($info['hidden']) and !empty($info['name']))
+          $classes[$classname] = $info['name'];
+      }
+    }
+
+    asort($classes);
+
+    return $classes;
+  }
+
+  protected function getDefaultSchema()
+  {
+    return array(
+      'name' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Внутреннее имя'),
+        'description' => t('Используется для идентификации виджета внутри шаблонов, а также для поиска шаблонов для виджета.'),
+        'required' => true,
+        ),
+      'title' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Название'),
+        'description' => t('Человеческое название виджета.'),
+        'required' => true,
+        ),
+      'description' => array(
+        'label' => t('Описание'),
+        'type' => 'TextAreaControl',
+        'description' => t('Краткое описание выполняемых виджетом функций и особенностей его работы.'),
+        ),
+      'classname' => array(
+        'label' => t('Используемый класс'),
+        'type' => 'TextLineControl',
+        'required' => true,
+        ),
+      'pages' => array(
+        'type' => 'SetControl',
+        'label' => t('Виджет работает на страницах'),
+        'group' => t('Страницы'),
+        'volatile' => true,
+        'dictionary' => 'domain',
+        'required' => false,
+        'parents' => true,
+        ),
+      'perms' => array(
+        'type' => 'AccessControl',
+        'label' => t('Виджет доступен группам'),
+        'group' => t('Доступ'),
+        ),
+      );
   }
 };

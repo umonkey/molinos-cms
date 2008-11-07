@@ -34,7 +34,7 @@ class HistoryControl extends Control
     parent::__construct($form);
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     if (empty($data[$this->value]))
       return;

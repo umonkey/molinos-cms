@@ -109,14 +109,14 @@ class AdminTreeHandler
 
       // Удаляем отсутствующие колонки.
       foreach ($this->columns as $k => $v) {
-        if (empty($schema['fields'][$v]))
+        if (!isset($schema[$v]))
           unset($this->columns[$k]);
       }
 
       // Формируем описания колонок.
-      foreach ($schema['fields'] as $k => $v) {
+      foreach ($schema as $k => $v) {
         if (!array_key_exists($k, $this->columntitles))
-          $this->columntitles[$k] = $v['label'];
+          $this->columntitles[$k] = $v->label;
       }
     }
   }
