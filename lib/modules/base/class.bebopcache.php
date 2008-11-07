@@ -37,7 +37,7 @@ class BebopCache
           ),
         );
 
-      $config = mcms::config('cache');
+      $config = mcms::config('cache', array());
 
       foreach ($map as $k => $v) {
         if (array_key_exists($k, $config) and empty($config[$k]))

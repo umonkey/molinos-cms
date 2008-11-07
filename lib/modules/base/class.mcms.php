@@ -398,7 +398,8 @@ class mcms
     $res = array();
 
     foreach (self::getImplementors($interface) as $class)
-      $res[] = call_user_func_array(array($class, $method), $args);
+      if (class_exists($class))
+        $res[] = call_user_func_array(array($class, $method), $args);
 
     return $res;
   }
