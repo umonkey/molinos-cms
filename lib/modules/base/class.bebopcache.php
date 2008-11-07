@@ -37,7 +37,12 @@ class BebopCache
           ),
         );
 
+      $config = mcms::config('cache');
+
       foreach ($map as $k => $v) {
+        if (array_key_exists($k, $config) and empty($config[$k]))
+          continue;
+
         if ($v['exists']) {
           mcms::flog('cache', 'using ' . str_replace('_provider', '', $v['class']));
           self::$instance = new $v['class']();
@@ -94,12 +99,12 @@ class XCache_provider extends BebopCache
 {
   public function __get($key)
   {
-    return xcache_get($this->prefix . $key);
+    return unserialize(xcache_get($this->prefix . $key));
   }
 
   public function __set($key, $value)
   {
-    return xcache_set($this->prefix . $key, $value);
+    return xcache_set($this->prefix . $key, serialize($value));
   }
 
   public function __isset($key)
@@ -177,6 +182,8 @@ class FileCache_provider extends BebopCache
 
   public function __get($key)
   {
+    if (!self::__isset($key))
+      return false;
     return $this->storage[$this->prefix . $key];
   }
 
