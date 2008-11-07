@@ -59,8 +59,12 @@ class Session
         mcms::cache($cid, $tmp);
       }
 
-      if (!empty($tmp) and is_array($arr = unserialize($tmp)))
-        $this->data = $arr;
+      if (!empty($tmp)) {
+        if (is_string($tmp))
+          $tmp = unserialize($tmp);
+        if (is_array($tmp))
+          $this->data = $tmp;
+      }
     }
 
     $this->_hash = $this->hash();
