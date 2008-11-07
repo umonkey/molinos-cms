@@ -658,3 +658,8 @@ table.nodelist td.icon .icon-link {
 #center .control .disabled {
   color: gray;
 }
+
+#desktop fieldset p.important {
+  background: transparent url(../img/warning.png) no-repeat top left;
+  padding-left: 20px;
+}

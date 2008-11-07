@@ -39,11 +39,11 @@ class AdminStatus implements iAdminMenu
     if (null !== ($stat = NodeIndexer::stats()))
       $icons[] = array(
         'group' => 'status',
-        'message' => t('!count объектов нуждаются в индексации.  '
+        'message' => t('<p class="important">!count объектов нуждаются в индексации.  '
           .'Они будут проиндексирвоаны при выполнении планировщика, '
           .'или вы можете <a href=\'@url\'>проиндексировать их вручную</a>.  '
           .'Пока индексация не будет завершена, сортировка и выборка '
-          .'будут работать некорректно.', array(
+          .'будут работать некорректно.</p>', array(
             '!count' => $stat['_total'],
             '@url' => '?q=admin.rpc&action=reindex',
             )),
