@@ -42,7 +42,7 @@ class EnumRadioControl extends Control
     if (null === $selected) {
       if (null !== $this->default and array_key_exists($this->default, $this->options))
         $selected = $this->default;
-      else {
+      elseif ($this->required) {
         $tmp = array_keys($this->options);
         $selected = $tmp[0];
       }
