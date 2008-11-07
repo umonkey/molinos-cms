@@ -35,9 +35,9 @@ class EnumRadioControl extends Control
     return 'VARCHAR(255)';
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
-    $selected = empty($data[$this->value]) ? null : $data[$this->value];
+    $selected = $data->{$this->value};
 
     if (null === $selected) {
       if (null !== $this->default and array_key_exists($this->default, $this->options))

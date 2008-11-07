@@ -57,4 +57,25 @@ class Schema extends ArrayObject
       return false;
     return (bool)$this[$name]->indexed;
   }
+
+  /**
+   * Проверка наличия созданных вручную индексов.
+   * Стандартные индексы (name, uid итд) не учитываются.
+   */
+  public function hasIndexes()
+  {
+    return count($this->getIndexes()) > 0;
+  }
+
+  /**
+   * Возвращает имена полей, по которым созданы индексы.
+   */
+  public function getIndexes()
+  {
+    $result = array();
+    foreach ($this as $k => $v)
+      if ($v->indexed and !in_array($k, array('name', 'uid', 'created', 'updated')))
+        $result[] = $k;
+    return $result;
+  }
 }

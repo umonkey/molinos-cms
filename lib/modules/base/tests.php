@@ -96,11 +96,11 @@ class BaseModuleTests extends PHPUnit_Framework_TestCase
   public function testCreateType()
   {
     $post=array (
-      'node_content_name' => 'testtype',
-      'node_content_title' => 'testtype',
-      'node_content_description' => '123',
+      'name' => 'testtype',
+      'title' => 'testtype',
+      'description' => '123',
       'reset_rel' => '1',
-      'node_content_fields' =>
+      'fields' =>
       array (
         'field1' =>
         array (
@@ -172,9 +172,9 @@ class BaseModuleTests extends PHPUnit_Framework_TestCase
         ),
       ),
       'reset_access' => '1',
-      'node_content_id' => '',
-      'node_content_class' => 'type',
-      'node_content_parent_id' => '',
+      'id' => '',
+      'class' => 'type',
+      'parent_id' => '',
     );
 
     $node = Node::create('type', null);
@@ -233,101 +233,6 @@ class BaseModuleTests extends PHPUnit_Framework_TestCase
       $ndata[$k] = $nodedata[$k];
 
     $this->assertEquals($post, $ndata);
-  }
-
-  public function testSetAccess()
-  {
-    $node = Node::find(array('class'=>'group','name'=>'Администраторы'));
-    $node = array_pop($node);
-    $this->assertTrue(!empty($node));
-
-    $perms = array (
-      'type' =>
-      array (
-        0 => 'c',
-        1 => 'r',
-        2 => 'u',
-        3 => 'd',
-        4 => 'p',
-      ),
-      'file' =>
-      array (
-        0 => 'c',
-        1 => 'r',
-        2 => 'u',
-        3 => 'd',
-        4 => 'p',
-        ),
-      'tag' =>
-      array (
-        0 => 'c',
-        1 => 'r',
-        2 => 'u',
-        3 => 'd',
-        4 => 'p',
-      ),
-      'group' =>
-      array (
-        0 => 'r',
-      ),
-      'domain' =>
-      array (
-        0 => 'r',
-      ),
-      'article' =>
-      array (
-        0 => 'c',
-        1 => 'r',
-        2 => 'u',
-        3 => 'd',
-        4 => 'p',
-      ),
-      'testtype' =>
-      array (
-        0 => 'c',
-        1 => 'r',
-        2 => 'u',
-        3 => 'd',
-        4 => 'p',
-      ),
-    );
-
-    //переведём массив в том формат, в котором мы получаем права из GroupNode::formGetData()
-    //чтобы потом можно было сделать сравнение в assertEquals
-    $bdperms = array();
-    foreach($perms as $k=>$v) {
-      $cp = $v;
-      $nv = array();
-      $nv['c'] = in_array('c', $v) ? 1 : 0;
-      $nv['r'] = in_array('r', $v) ? 1 : 0;
-      $nv['u'] = in_array('u', $v) ? 1 : 0;
-      $nv['d'] = in_array('d', $v) ? 1 : 0;
-      $nv['p'] = in_array('p', $v) ? 1 : 0;
-      $bdperms[$k] = $nv;
-    }
-
-    $post = array (
-      'node_content_name' => 'Администраторы',
-      'node_content_description' => 'Могут работать с контентом.',
-      'reset_group_perm' => '1',
-      'perm' => $perms,
-    );
-
-    $post = array (
-      'name' => 'Администраторы',
-      'description' => 'Могут работать с контентом.',
-      'reset_group_perm' => '1',
-      'perm' => $perms,
-    );
-    $node->formProcess($post);
-
-    //проверка правильности установки прав
-    $node = Node::load(array('id' => $node->id,'#recurse' => true));
-    $this->assertTrue(!empty($node));
-
-    $formdata = $node->formGetData();
-    $perm = $formdata['perm'];
-    $this->assertEquals($bdperms, $perm);
   }
 
   public function testCreateTag()

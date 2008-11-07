@@ -19,9 +19,6 @@ class AdminRPC implements iRemoteCall
       foreach (glob($tmpdir .'/mcms-fetch.*') as $tmp)
         unlink($tmp);
 
-      DBCache::getInstance()->flush(false);
-      DBCache::getInstance()->flush(true);
-
       mcms::flush();
       mcms::flush(mcms::FLUSH_NOW);
       break;
@@ -336,6 +333,7 @@ class AdminRPC implements iRemoteCall
     if (null !== $ctx->get('type')) {
       $node = Node::create($type = $ctx->get('type'), array(
         'parent_id' => $ctx->get('parent'),
+        'isdictionary' => $ctx->get('dictionary'),
         ));
 
       $form = $node->formGet(false);
@@ -344,8 +342,6 @@ class AdminRPC implements iRemoteCall
       $form->action = "?q=nodeapi.rpc&action=create&type={$type}&destination=". urlencode($_GET['destination']);
 
       if ($ctx->get('dictionary')) {
-        $form->title = t('Добавление справочника');
-
         if (null !== ($tmp = $form->findControl('tab_general')))
           $tmp->intro = t('Вы создаёте первый справочник.  Вы сможете использовать его значения в качестве выпадающих списков (для этого надо будет добавить соответствующее поле в нужный <a href=\'@types\'>тип документа</a>).', array('@types' => 'admin/?cgroup=structure&mode=list&preset=schema'));
 
@@ -597,7 +593,6 @@ class AdminRPC implements iRemoteCall
     $data['base'] = mcms::path();
 
     $output = bebop_render_object('page', 'admin', 'admin', $data);
-    $output .= sprintf('<!-- request time: %s sec. -->', microtime(true) - MCMS_START_TIME);
 
     return $output;
   }

@@ -11,7 +11,7 @@ class SectionControl extends EnumControl implements iFormControl
 
   public function __construct(array $form)
   {
-    $form['indexed'] = true;
+    $form['indexed'] = false;
     $form['default_label'] = t('(не выбран)');
 
     parent::__construct($form, array('value'));

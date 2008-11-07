@@ -38,9 +38,6 @@ class NodeBase
    */
   public $files = array();
 
-  // Сюда складываем загруженные ноды.
-  static private $cache = array();
-
   private $_links = array();
 
   /**
@@ -140,38 +137,6 @@ class NodeBase
     return strval($this->id);
   }
 
-  // Достаёт объект из кэша.
-  private static function getCached($id)
-  {
-    $result = null;
-
-    if (null !== ($mode = mcms::config('cache_documents'))) {
-      if ($mode != 'local') {
-        $key = 'node:'. $id;
-        $result = mcms::cache($key);
-      } elseif ($mode == 'local') {
-        $result = array_key_exists($id, self::$cache)
-          ? self::$cache[$id]
-          : null;
-      }
-    }
-
-    return (is_array($result) or is_object($result)) ? $result : null;
-  }
-
-  // Кладёт в кэш.
-  private static function setCached($id, $data)
-  {
-    if (null !== ($mode = mcms::config('cache_documents'))) {
-      if ($mode != 'local') {
-        $key = 'node:'. $id;
-        mcms::cache($key, $data);
-      } elseif ($mode == 'local') {
-        self::$cache[$id] = $data;
-      }
-    }
-  }
-
   // Читаем объект.
   /**
    * Загрузка объекта из БД.
@@ -203,8 +168,6 @@ class NodeBase
 
     $node = array_shift($data);
 
-    self::setCached($node->id, $node);
-
     return $node;
   }
 
@@ -213,8 +176,8 @@ class NodeBase
    *
    * @param $query Условие в формате NodeQueryBuilder.  Может содержать
    * дополнительные ключи: #raw — возвращать массивы вместо объектов класса
-   * Node; #cache — кэшировать запросы (по умолчанию включено); #recurse —
-   * уровень рекурсии при подгрузке объектов по ссылкам (по умолчанию: 1).
+   * Node; #recurse — уровень рекурсии при подгрузке объектов по
+   * ссылкам (по умолчанию: 1).
    *
    * @param integer $limit Ограничение на количество объектов.
    *
@@ -229,14 +192,6 @@ class NodeBase
 
     if (!array_key_exists('#recurse', $query))
       $query['#recurse'] = 1;
-    if (!array_key_exists('#cache', $query))
-      $query['#cache'] = true;
-
-    $cacheid = 'node:find:'. md5(serialize($query));
-
-    if (true or empty($_GET['nocache']) or !bebop_is_debugger())
-      if (is_array($data = mcms::cache($cacheid)))
-        return $data;
 
     $sql = null;
     $params = array();
@@ -275,9 +230,6 @@ class NodeBase
     if (!empty($query['#raw']))
       foreach ($data as $k => $v)
         $data[$k] = $v->getRaw();
-
-    if (!array_key_exists('#cache', $query) or !empty($query['#cache']))
-      mcms::cache($cacheid, $data);
 
     return $data;
   }
@@ -845,7 +797,6 @@ class NodeBase
           ),
         '#recurse' => $bare ? 0 : 1,
         '#files' => $bare ? 0 : 1,
-        '#cache' => false,
         ));
 
       // Превращаем плоский список в дерево.
@@ -1006,19 +957,15 @@ class NodeBase
     if (null === $tmp)
       return null;
 
-    if (false === ($nodes = mcms::cache($ck = 'NodeBase:getParents:'. $tmp))) {
-      $sql = "SELECT `parent`.`id` as `id`, `parent`.`parent_id` as `parent_id`, "
-        ."`parent`.`class` as `class`, `rev`.`name` as `name`, "
-        ."`rev`.`data` as `data` "
-        ."FROM `node` AS `self`, `node` AS `parent`, `node__rev` AS `rev` "
-        ."WHERE `self`.`left` BETWEEN `parent`.`left` "
-        ."AND `parent`.`right` AND `self`.`id` = {$tmp} AND `rev`.`rid` = `parent`.`rid` "
-        ."ORDER BY `parent`.`left` -- NodeBase::getParents({$tmp})";
+    $sql = "SELECT `parent`.`id` as `id`, `parent`.`parent_id` as `parent_id`, "
+      ."`parent`.`class` as `class`, `rev`.`name` as `name`, "
+      ."`rev`.`data` as `data` "
+      ."FROM `node` AS `self`, `node` AS `parent`, `node__rev` AS `rev` "
+      ."WHERE `self`.`left` BETWEEN `parent`.`left` "
+      ."AND `parent`.`right` AND `self`.`id` = {$tmp} AND `rev`.`rid` = `parent`.`rid` "
+      ."ORDER BY `parent`.`left` -- NodeBase::getParents({$tmp})";
 
-      $nodes = self::dbRead($sql);
-
-      mcms::cache($ck, $nodes);
-    }
+    $nodes = self::dbRead($sql);
 
     if (!$current and array_key_exists($this->id, $nodes))
       unset($nodes[$this->id]);

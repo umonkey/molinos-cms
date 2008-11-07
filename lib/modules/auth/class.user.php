@@ -23,7 +23,6 @@ class User
         $this->node = Node::load(array(
           'class' => 'user',
           'id' => $uid,
-          '#cache' => true,
           ));
       } catch (ObjectNotFoundException $e) {
         // Пользователя удалили — ничего страшного.
@@ -43,7 +42,6 @@ class User
         'class' => 'group',
         'published' => 1,
         'tagged' => array($this->node->id),
-        '#cache' => true,
         ));
     }
   }
@@ -185,7 +183,6 @@ class User
           $node = Node::load($f = array(
             'class' => 'user',
             'name' => $args[0],
-            '#cache' => false,
             ));
         } catch (ObjectNotFoundException $e) {
           throw new ForbiddenException(t('Пользователь %name не '

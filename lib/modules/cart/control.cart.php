@@ -16,7 +16,7 @@ class CartControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     if (empty($data[$this->value]))
       return null;

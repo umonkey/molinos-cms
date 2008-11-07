@@ -368,7 +368,6 @@ class AdminListHandler
     }
 
     $filter['#permcheck'] = true;
-    $filter['#cache'] = false;
 
     if ('pages' == $this->preset)
       $filter['parent_id'] = null;

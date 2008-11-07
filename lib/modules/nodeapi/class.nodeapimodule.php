@@ -103,7 +103,6 @@ class NodeApiModule implements iRemoteCall
       $filter = array(
         'id' => $nid,
         'deleted' => array(0),
-        '#cache' => false,
         '#recurse' => empty($_GET['bare']) ? 1 : 0,
         );
 

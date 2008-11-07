@@ -19,7 +19,7 @@ class SubscriptionScheduler implements iScheduler
     }
 
     // Обрабатываем активных пользователей.
-    foreach (Node::find(array('class' => 'subscription', '#cache' => false)) as $user) {
+    foreach (Node::find(array('class' => 'subscription')) as $user) {
       $olast = $last = intval($user->last);
 
       // Получаем список разделов, на которые распространяется подписка.
@@ -37,7 +37,6 @@ class SubscriptionScheduler implements iScheduler
         'tags' => array_keys($tags),
         'id' => array('>'. $last),
         '#sort' => 'id',
-        '#cache' => false,
         ));
 
       // mcms::debug($user, $last, $nodes);

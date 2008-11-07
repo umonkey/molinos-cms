@@ -16,7 +16,7 @@ class AdminUINodeActionsControl extends Control
     parent::__construct($form);
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     if (!count($actions = $this->filterActions()))
       return null;

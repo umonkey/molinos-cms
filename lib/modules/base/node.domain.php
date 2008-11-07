@@ -459,16 +459,12 @@ class DomainNode extends Node implements iContentType
     }
 
     if (!empty($result)) {
-      $data = mcms::db()->getResultsKV('cid', 'data',
-        "SELECT `cid`, `data` FROM `node__cache` "
-        ."WHERE `cid` IN ('". join("', '", $result) ."')");
-
       foreach ($result as $k => $v) {
-        if (!array_key_exists($v, $data))
+        if (false === ($cached = mcms::cache('widget:' . $k)))
+          unset($result[$k]);
+        elseif (!is_array($c = unserialize($cached)))
           unset($result[$k]);
         else {
-          $c = unserialize($data[$v]);
-
           $result[$k] = self::strip($c['content']);
 
           if (!empty($c['extras']))
@@ -524,18 +520,9 @@ class DomainNode extends Node implements iContentType
    */
   private function saveWidgetsToCache(Context $ctx, array $data)
   {
-    if (!empty($data)) {
-      $db = mcms::db();
-
-      $db->beginTransaction();
-
-      foreach ($data as $k => $v) {
-        $db->exec("REPLACE INTO `node__cache` (`cid`, `data`) "
-          ."VALUES (?, ?)", array($k, serialize($v)));
-      }
-
-      $db->commit();
-    }
+    if (!empty($data))
+      foreach ($data as $k => $v)
+        mcms::cache('widget:' . $k, $v);
   }
 
   private static function strip($data)

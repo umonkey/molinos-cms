@@ -82,9 +82,6 @@ class AdminStatus implements iAdminMenu
       self::count($parts, 'SELECT COUNT(*) FROM `node__rev` WHERE `rid` NOT IN (SELECT `rid` FROM `node`)', 
         'архивных: !count');
 
-      self::count($parts, 'SELECT COUNT(*) FROM `node__cache`',
-        'кэш: !count');
-
       self::count($parts, 'SELECT COUNT(*) FROM `node__session`',
         'сессий: !count');
 

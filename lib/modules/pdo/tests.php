@@ -249,7 +249,6 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
     $tables = array(
       'node',
       'node__access',
-      'node__cache',
       'node__log',
       'node__rel',
       'node__rev',

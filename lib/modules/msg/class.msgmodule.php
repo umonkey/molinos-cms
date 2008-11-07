@@ -40,7 +40,6 @@ class MsgModule implements iRemoteCall
       $filter = array(
         'class' => 'message',
         're' => mcms::user()->id,
-        '#cache' => false,
         );
 
       $ids = join(', ', array_keys(Node::find($filter)));

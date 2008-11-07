@@ -141,7 +141,6 @@ class AdminTreeHandler
     $filter = array(
       'class' => $this->type,
       'parent_id' => $this->ctx->get('subid'),
-      '#cache' => false,
       '#recurse' => 0,
       '#files' => 0,
       '#deleted' => 0,

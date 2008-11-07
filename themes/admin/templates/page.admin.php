@@ -49,16 +49,7 @@ function get_version_info()
   if (count($tmp = explode(':', mcms::config('dsn'))))
     $version .= $tmp[0];
 
-  if (null !== ($tmp = BebopCache::getInstance())) {
-    switch (get_class($tmp)) {
-    case 'APC_Cache':
-      $version .= '+APC';
-      break;
-    case 'MemCacheD_Cache':
-      $version .= '+memcache';
-      break;
-    }
-  }
+  $version .= '+' . str_replace('_provider', '', get_class(BebopCache::getInstance()));
 
   $version .= '+'. ini_get('memory_limit') .')';
 

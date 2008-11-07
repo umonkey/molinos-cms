@@ -16,7 +16,7 @@ class AdminUISearchControl extends Control
     parent::__construct($form);
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     $output = $this->getLeftPart();
     return mcms::html('div', array('class' => 'tb_1'), $output);

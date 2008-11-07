@@ -251,6 +251,11 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     $form->addControl($this->formGetFields());
 
+    if (!$this->id)
+      $form->title = $this->isdictionary
+        ? t('Новый справочник')
+        : t('Новый тип документа');
+
     return $form;
   }
 
@@ -311,12 +316,13 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       $name = 'type';
 
     foreach (Node::create($name)->schema() as $name => $field) {
-      $form->addControl(new FieldControl(array(
-        'id' => 'field' . $id++,
-        'name' => $name,
-        'value' => 'fields',
-        'label' => $field->label,
-        )));
+      if (!$field->volatile)
+        $form->addControl(new FieldControl(array(
+          'id' => 'field' . $id++,
+          'name' => $name,
+          'value' => 'fields',
+          'label' => $field->label,
+          )));
     }
 
     $form->addControl(new FieldControl(array(

@@ -194,22 +194,6 @@ class Installer
        $t->commit();
     }
 
-    $t = new TableInfo('node__cache');
-    if (!$t->exists()) {
-      $t->columnSet('cid', array(
-        'type' => 'char(32)',
-        'required' => true,
-        ));
-      $t->columnSet('lang', array(
-        'type' => 'char(2)',
-        'required' => true,
-        ));
-      $t->columnSet('data', array(
-        'type' => 'mediumblob',
-        ));
-      $t->commit();
-    }
-
     $t = new TableInfo('node__seq');
     if (!$t->exists()) {
       $t->columnSet('id', array(

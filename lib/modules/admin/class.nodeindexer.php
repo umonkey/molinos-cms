@@ -8,43 +8,34 @@ class NodeIndexer
     static $stat = null;
 
     if (null === $stat) {
-      $stat = array(
-        '_total' => 0,
-        );
+      if (false === ($stat = mcms::cache('nodeindexer:stats'))) {
+        $stat = array(
+          '_total' => 0,
+          );
 
-      mcms::db()->log('-- node indexer starts --');
+        mcms::db()->log('-- node indexer starts --');
 
-      $types = Node::find(array(
-        'class' => 'type',
-        'deleted' => 0,
-        ));
+        $types = mcms::db()->getResultsV("name", "SELECT v.name AS name FROM node__rev v "
+          . "INNER JOIN node n ON n.rid = v.rid WHERE n.class = 'type' AND n.deleted = 0");
 
-      foreach ($types as $meta) {
-        $type = $meta->name;
-        $indexed = false;
-        $reserved = TypeNode::getReservedNames();
-
-        $schema = Node::create($meta->name)->schema();
-
-        foreach ($schema['fields'] as $k => $v) {
-          if (!empty($v['indexed']) and !in_array($k, $reserved)) {
-            $indexed = true;
-            break;
-          }
+        foreach ($types as $type) {
+          $schema = Node::create($type)->schema();
+          if ($schema->hasIndexes())
+            self::countTable($type, $stat, $schema);
         }
 
-        if ($indexed) {
-          self::countTable($type, $stat, $schema);
-        }
+        mcms::cache('nodeindexer:stats', $stat);
       }
     }
 
     return empty($stat['_total']) ? null : $stat;
   }
 
-  private static function countTable($type, array &$stat, array $schema)
+  private static function countTable($type, array &$stat, Schema $schema)
   {
     $table = 'node__idx_'. $type;
+
+    mcms::flog('indexer', $type . ': counting, indexes: ' . join(', ', $schema->getIndexes()) . '.');
 
     try {
       $sql = "SELECT COUNT(*) FROM `node` `n` "
@@ -69,6 +60,8 @@ class NodeIndexer
         throw $e;
       }
     }
+
+    mcms::flog('indexer', sprintf('%s: %d nodes not indexed.', $type, $stat[$type]));
   }
 
   public static function run()

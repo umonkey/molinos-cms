@@ -342,8 +342,6 @@ class Context
       ));
 
     if (empty($domains)) {
-      $filter['#cache'] = false;
-
       if (!count($domains = Node::find($filter)))
         throw new NotInstalledException('domain');
     }

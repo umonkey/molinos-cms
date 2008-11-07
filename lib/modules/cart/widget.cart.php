@@ -156,7 +156,7 @@ class CartWidget extends Widget
       break;
 
     case 'cart-confirm':
-      $data['node_content_orderdetails'] = CartRPC::getCartContent();
+      $data['orderdetails'] = CartRPC::getCartContent();
       break;
     }
 

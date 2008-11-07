@@ -25,7 +25,7 @@ class OrderDetailsControl extends Control
       );
   }
 
-  public function getHTML(array $data)
+  public function getHTML($data)
   {
     if (empty($data[$this->value]))
       return;
