@@ -370,14 +370,16 @@ class AdminRPC implements iRemoteCall
     $output = '<dl>';
 
     foreach ($types as $type) {
-      $output .= '<dt>';
-      $output .= mcms::html('a', array(
-        'href' => "?q=admin&mode=create&type={$type->name}&destination=". urlencode($_GET['destination']),
-        ), $type->title);
-      $output .= '</dt>';
+      if (mcms::user()->hasAccess('c', $type->name)) {
+        $output .= '<dt>';
+        $output .= mcms::html('a', array(
+          'href' => "?q=admin&mode=create&type={$type->name}&destination=". urlencode($_GET['destination']),
+          ), $type->title);
+        $output .= '</dt>';
 
-      if (isset($type->description))
-        $output .= '<dd>'. $type->description .'</dd>';
+        if (isset($type->description))
+          $output .= '<dd>'. $type->description .'</dd>';
+      }
     }
 
     $output .= '</dl>';
