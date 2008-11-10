@@ -135,7 +135,7 @@ class FieldControl extends Control
 
     return $this->wrapHTML(mcms::html('div', array(
       'id' => $this->name ? "field-{$this->name}-editor" : null,
-      'class' => 'fprop '. $this->isnull($data, 'type', 'TypeTextControl'),
+      'class' => 'fprop '. strtolower($this->isnull($data, 'type', 'TypeTextControl')),
       ), $output), false);
   }
 
