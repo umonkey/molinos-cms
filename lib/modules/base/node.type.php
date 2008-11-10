@@ -578,6 +578,13 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
         'group' => t('Доступ'),
         'volatile' => true,
         ),
+      'tags' => array(
+        'type' => 'SectionsControl',
+        'label' => t('Документы этого типа можно помещать в разделы'),
+        'group' => t('Разделы'),
+        'dictionary' => 'tag',
+        'volatile' => true,
+        ),
       );
   }
 
