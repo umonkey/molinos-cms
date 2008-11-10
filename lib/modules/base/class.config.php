@@ -201,9 +201,18 @@ class Config
     {
       $output = '';
 
-      foreach ($data as $k => $v)
-        if (!empty($v) and !is_array($v))
-          $output .= sprintf("%s = %s\n", $k, $v);
+      foreach ($data as $k => $v) {
+        if (is_array($v))
+          $value = join(', ', $v);
+        elseif (0 === $v)
+          $value = '0';
+        elseif (empty($v))
+          $value = 'off';
+        else
+          $value = $v;
+
+        $output .= sprintf("%s = %s\n", $k, $value);
+      }
 
       return $output;
     }
