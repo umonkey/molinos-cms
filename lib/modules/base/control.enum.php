@@ -89,9 +89,4 @@ class EnumControl extends Control
 
     return array();
   }
-
-  public function set($value, Node &$node)
-  {
-    mcms::debug($value, $node);
-  }
 };
