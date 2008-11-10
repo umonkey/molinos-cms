@@ -10,7 +10,7 @@ mcms.forms.crud = {};
  * Управляет состоянием чекбоксов.
  * Все чекбоксы в колонке включаются (если есть выключенные) или выключаются (если всё включено).
  */
-mcms.forms.crud.recheck = function($inputs){
+mcms.forms.crud.recheck = function($inputs) {
 	// если не все чекбоксы отмечены - отмечаем 
 	if ($inputs.filter(':checked').length != $inputs.length){
 		$inputs.attr('checked', 'checked');
@@ -71,7 +71,7 @@ $(document).ready(function () {
 	------------------------------------------------------------------------------------------------------------------- */
 	/* клик по CRUDP */
 	$('.control.access-wrapper th').click(function(){
-		mcms.forms.crud.recheck($(this).parents('table:eq(0)').find('input[value="'+$(this).text().toLowerCase()+'"]') );
+		mcms.forms.crud.recheck($(this).parents('table:eq(0)').find('input[name *= "[' + $(this).text().toLowerCase() + ']"]') );
 	});
 	
 	/* клик по названию группы */
