@@ -227,6 +227,13 @@ class DomainNode extends Node implements iContentType
       'default' => $target,
       )));
 
+    $form->addControl(new SectionControl(array(
+      'value' => 'defaultsection',
+      'label' => t('Изменить основной раздел на'),
+      'default_label' => t('(не изменять)'),
+      'store' => true,
+      )));
+
     $form->addControl(new SubmitControl());
 
     return $form;

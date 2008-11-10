@@ -12,7 +12,9 @@ class SectionControl extends EnumControl implements iFormControl
   public function __construct(array $form)
   {
     $form['indexed'] = false;
-    $form['default_label'] = t('(не выбран)');
+
+    if (!array_key_exists('default_label', $form))
+      $form['default_label'] = t('(не выбран)');
 
     parent::__construct($form, array('value'));
   }
@@ -26,12 +28,17 @@ class SectionControl extends EnumControl implements iFormControl
   {
     $this->validate($value);
 
-    $node->linkAddParent($value, $this->value);
+    if (!$this->store)
+      $node->linkAddParent($value, $this->value);
+
     $node->{$this->value} = $value;
   }
 
   protected function getSelected($data)
   {
+    if ($this->store)
+      return array($data->{$this->value});
+
     if (null === ($links = $data->linkListParents('tag', true)))
       return array();
 

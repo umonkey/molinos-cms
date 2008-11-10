@@ -287,7 +287,9 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if (null === ($name = $this->name))
       $name = 'type';
 
-    foreach ($s = Node::create($name)->schema() as $name => $field) {
+    $schema = Node::create($name)->schema();
+
+    foreach ($schema as $name => $field) {
       if (!$field->volatile)
         $form->addControl(new FieldControl(array(
           'id' => 'field' . $id++,

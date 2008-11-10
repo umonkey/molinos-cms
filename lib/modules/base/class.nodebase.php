@@ -1691,7 +1691,9 @@ class NodeBase
    */
   public function formProcess(array $data)
   {
-    foreach ($this->schema() as $name => $field) {
+    $schema = $this->schema();
+
+    foreach ($schema as $name => $field) {
       $value = array_key_exists($name, $data)
         ? $data[$name]
         : null;
