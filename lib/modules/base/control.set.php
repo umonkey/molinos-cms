@@ -44,7 +44,7 @@ class SetControl extends Control
     $content = $this->getLabel();
 
     foreach ($options as $k => $v) {
-      $disabled = ((null === $enabled) or !in_array($k, $enabled))
+      $disabled = ((null !== $enabled) and !in_array($k, $enabled))
         ? true
         : false;
 
