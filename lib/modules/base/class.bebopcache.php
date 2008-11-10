@@ -89,9 +89,15 @@ class BebopCache
   private function setPrefix($increment = false)
   {
     $this->prefix = null;
-    $serial = intval($this->__serial)
-      + ($increment ? 1 : 0);
+
+    $serial = intval($this->__serial);
+
+    if ($increment)
+      $this->__serial = ++$serial;
+
     $this->prefix = 'mcms:' . crc32(__FILE__) . ':' . $serial . ':';
+
+    mcms::flog('cache', 'prefix: ' . $this->prefix);
   }
 }
 
