@@ -239,7 +239,13 @@ class DomainNode extends Node implements iContentType
     if ($data['page_type'] == 'domain')
       $data['parent_id'] = null;
 
-    parent::formProcess($data);
+    // Специальная обработка редиректов, которые не укладываются в схему.
+    if (!empty($data['redirect'])) {
+      $this->name = $data['name'];
+      $this->redirect = $data['redirect'];
+    } else {
+      parent::formProcess($data);
+    }
 
     // Если это — новый домен, редиректим на его редактирование.
     if ($isnew and empty($this->parent_id)) {
@@ -278,8 +284,6 @@ class DomainNode extends Node implements iContentType
           'published' => true,
           ))->save();
       }
-
-      return "admin/node/{$this->id}/edit/?destination=". urlencode($_GET['destination']);
     }
 
     // Объект уже существовал, сохраняем дополнительные свойства.
@@ -289,6 +293,8 @@ class DomainNode extends Node implements iContentType
       if ($user->hasAccess('u', 'domain'))
         $this->linkSetChildren(empty($data['node_domain_widgets']) ? array() : $data['node_domain_widgets'], 'widget');
     }
+
+    return $this;
   }
 
   // Формирует выпадающий список с именами доступных шкур.
@@ -590,6 +596,7 @@ class DomainNode extends Node implements iContentType
       'title' => array(
         'type' => 'TextLineControl',
         'label' => t('Заголовок'),
+        'required' => false,
         ),
       'parent_id' => array(
         'type' => 'EnumControl',
