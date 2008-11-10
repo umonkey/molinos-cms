@@ -95,6 +95,13 @@ class GroupNode extends Node implements iContentType
         'label' => t('Доступ к типам документов'),
         'dictionary' => 'type',
         ),
+      'tagperms' => array(
+        'type' => 'AccessRevControl',
+        'group' => t('Доступ'),
+        'label' => t('Доступ к разделам'),
+        'dictionary' => 'tag',
+        'columns' => array('c'),
+        ),
       );
   }
 }
