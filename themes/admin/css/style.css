@@ -663,3 +663,7 @@ table.nodelist td.icon .icon-link {
   background: transparent url(../img/warning.png) no-repeat top left;
   padding-left: 20px;
 }
+
+#center .access-wrapper td {
+  white-space: nowrap;
+}
