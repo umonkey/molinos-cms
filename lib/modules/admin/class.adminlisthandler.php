@@ -262,6 +262,7 @@ class AdminListHandler
         $this->addlink = '?q=admin/structure/create&type=domain'
           .'&destination=CURRENT';
         $this->sort = array('name');
+        $this->limit = null;
         break;
       }
     }
