@@ -1664,14 +1664,12 @@ class NodeBase
       'text' => t('Сохранить'),
       )));
 
-    if (mcms::user()->hasAccess('u', 'type')) {
-      if ($this->class != 'type' or $this->name != 'type') {
-        $type = Node::load(array(
-          'class' => 'type',
-          'name' => $this->class,
-          ));
-        $form->hlink = '<span>' . l('?q=admin/content/edit/' . $type->id . '&destination=CURRENT', 'схема') . '</span>';
-      }
+    if (mcms::user()->hasAccess('u', 'type') and $this->class != 'type') {
+      $type = Node::load(array(
+        'class' => 'type',
+        'name' => $this->class,
+        ));
+      $form->hlink = '<span>' . l('?q=admin/content/edit/' . $type->id . '&destination=CURRENT', 'схема') . '</span>';
     }
 
     return $form;
