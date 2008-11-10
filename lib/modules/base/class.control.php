@@ -254,7 +254,7 @@ abstract class Control implements iFormControl
 
     $classes = array(
       'control',
-      mb_strtolower(str_replace('Control', '', get_class($this))) .'-wrapper',
+      $this->getWrapperClass(),
       );
 
     if (in_array('hidden', (array)$this->class))
@@ -342,6 +342,11 @@ abstract class Control implements iFormControl
   public function getIndexValue($value)
   {
     return $value;
+  }
+
+  protected function getWrapperClass()
+  {
+    return mb_strtolower(str_replace('Control', '', get_class($this))) .'-wrapper';
   }
 };
 

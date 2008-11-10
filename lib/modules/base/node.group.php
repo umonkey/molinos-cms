@@ -89,6 +89,12 @@ class GroupNode extends Node implements iContentType
         'dictionary' => 'user',
         'group' => t('Участники'),
         ),
+      'typerms' => array(
+        'type' => 'AccessRevControl',
+        'group' => t('Доступ'),
+        'label' => t('Доступ к типам документов'),
+        'dictionary' => 'type',
+        ),
       );
   }
 }
