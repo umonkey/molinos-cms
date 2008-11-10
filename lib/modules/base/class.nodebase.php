@@ -278,6 +278,10 @@ class NodeBase
     if (empty($this->created))
       $this->created = gmdate('Y-m-d H:i:s');
 
+    // FIXME: вынести детей из data в отдельную переменную.
+    if (isset($this->data['children']))
+      unset($this->data['children']);
+
     /*
     // таки надо анонимные комментарии уметь оставлять
     if (empty($this->uid))
