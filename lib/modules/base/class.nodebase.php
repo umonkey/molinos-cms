@@ -2101,7 +2101,12 @@ class NodeBase
     if ($this->id)
       unset($schema['parent_id']);
 
+    $hasfields = count($schema);
+
     foreach ($this->getDefaultSchema() as $k => $v) {
+      if (!empty($v['recommended']) and $hasfields)
+        continue;
+
       if (!isset($schema[$k]) or !empty($v['volatile']) and class_exists($v['type'])) {
         $class = $v['type'];
         unset($v['type']);
@@ -2126,6 +2131,7 @@ class NodeBase
         'type' => 'DateTimeControl',
         'label' => t('Дата добавления'),
         'required' => false,
+        'recommended' => true,
         ),
       );
   }

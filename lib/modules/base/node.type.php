@@ -25,34 +25,6 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   {
     parent::__construct($data);
 
-    if (empty($this->data['id']) and empty($this->data['fields'])) {
-      $this->data['fields'] = array(
-        'name' => array(
-          'label' => 'Заголовок',
-          'type' => 'TextLineControl',
-          'required' => true,
-          'indexed' => true,
-          ),
-        'teaser' => array(
-          'label' => 'Вступление',
-          'type' => 'TextAreaControl',
-          'required' => false,
-          'description' => 'Краткое содержание, 1-2 предложения.  Выводится в списках документов, RSS итд.',
-          ),
-        'text' => array(
-          'label' => 'Текст',
-          'type' => 'TextHTMLControl',
-          'required' => true,
-          ),
-        'created' => array(
-          'label' => 'Дата добавления',
-          'type' => 'DateTimeControl',
-          'required' => false,
-          'indexed' => true,
-          ),
-        );
-    }
-
     $this->oldname = $this->name;
   }
 
@@ -315,7 +287,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if (null === ($name = $this->name))
       $name = 'type';
 
-    foreach (Node::create($name)->schema() as $name => $field) {
+    foreach ($s = Node::create($name)->schema() as $name => $field) {
       if (!$field->volatile)
         $form->addControl(new FieldControl(array(
           'id' => 'field' . $id++,
