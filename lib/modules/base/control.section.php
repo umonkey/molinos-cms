@@ -46,6 +46,8 @@ class SectionControl extends EnumControl implements iFormControl
       'class' => 'tag',
       'deleted' => 0,
       '#permcheck' => 'c',
+      '#recurse' => 0,
+      '#files' => 0,
       ));
 
     return array_keys($tags);
