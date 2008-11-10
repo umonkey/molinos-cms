@@ -113,7 +113,12 @@ class SetControl extends Control
 
     if (!empty($this->dictionary) and $data instanceof Node)
       return $data->$f($this->dictionary, true);
-    return $data->{$this->value};
+    return (array)$data->{$this->value};
+  }
+
+  protected function getEnabled($data)
+  {
+    return null;
   }
 
   public function set($value, Node &$node)
