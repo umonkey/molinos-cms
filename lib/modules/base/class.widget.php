@@ -446,10 +446,10 @@ abstract class Widget implements iWidget
       throw new InvalidArgumentException(t("Значение, полученное от метода formGet(%id) виджета %class не является формой.", array('%id' => $id, '%class' => get_class($this))));
 
     $form->addControl(new HiddenControl(array('value' => 'form_id')));
-    $data['form_id'] = $id;
+    $data->form_id = $id;
 
     $form->addControl(new HiddenControl(array('value' => 'form_handler')));
-    $data['form_handler'] = $this->getInstanceName();
+    $data->form_handler = $this->getInstanceName();
 
     if (null === ($form->findControl('destination')))
       $form->addControl(new HiddenControl(array(

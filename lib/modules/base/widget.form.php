@@ -312,7 +312,7 @@ class FormWidget extends Widget
       $data = $node;
     }
 
-    $data['referer'] = empty($_SERVER['HTTP_REFERER']) ? null : $_SERVER['HTTP_REFERER'];
+    $data->referer = empty($_SERVER['HTTP_REFERER']) ? null : $_SERVER['HTTP_REFERER'];
 
     return $data;
   }
