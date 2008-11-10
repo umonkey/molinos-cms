@@ -2139,6 +2139,12 @@ class NodeBase
         'required' => false,
         'recommended' => true,
         ),
+      'section' => array(
+        'type' => 'SectionControl',
+        'label' => t('Раздел'),
+        'required' => true,
+        'recommended' => true,
+        ),
       );
   }
 };
