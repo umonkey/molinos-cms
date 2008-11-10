@@ -9,7 +9,7 @@ class BebopCache
   protected $ttl = null;
   protected $prefix = null;
 
-  private function __construct()
+  protected function __construct()
   {
     $this->ttl = 3600;
     $this->setPrefix();
@@ -148,11 +148,11 @@ class MemCache_provider extends BebopCache
 
   public function __construct()
   {
-    parent::__construct();
-
     $host = mcms::config('cache_memcache_host', 'localhost');
-    $this->cache = new Memcache();
-    $this->cache->pconnect($host);
+    $this->host = new Memcache();
+    $this->host->pconnect($host);
+
+    parent::__construct();
   }
 
   public function __get($key)
