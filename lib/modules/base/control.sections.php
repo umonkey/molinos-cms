@@ -26,13 +26,7 @@ class SectionsControl extends SetControl implements iFormControl
 
   protected function getEnabled($data)
   {
-    $tags = Node::find(array(
-      'class' => 'tag',
-      'deleted' => 0,
-      '#permcheck' => 'c',
-      ));
-
-    return array_keys($tags);
+    return Node::create($data->class)->getEnabledSections();
   }
 
   public function set($value, Node &$node)

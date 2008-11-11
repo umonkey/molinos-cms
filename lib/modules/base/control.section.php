@@ -49,14 +49,6 @@ class SectionControl extends EnumControl implements iFormControl
 
   protected function getEnabled($data)
   {
-    $tags = Node::find(array(
-      'class' => 'tag',
-      'deleted' => 0,
-      '#permcheck' => 'c',
-      '#recurse' => 0,
-      '#files' => 0,
-      ));
-
-    return array_keys($tags);
+    return Node::create($data->class)->getEnabledSections();
   }
 }
