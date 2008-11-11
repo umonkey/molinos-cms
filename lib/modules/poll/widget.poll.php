@@ -52,8 +52,14 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
     if (null === ($poll = $this->getCurrentPoll()))
       return null;
 
-    if (!$this->checkUserVoted())
-      return parent::formRender('vote-form');
+    if (!$this->checkUserVoted()) {
+      return array(
+        'mode' => 'form',
+        'node' => $poll->getRaw(),
+        'schema' => $poll->schema(),
+        'form' => parent::formRender('vote-form'),
+        );
+    }
 
     else {
       $options = array(
@@ -68,6 +74,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
 
       return array(
         'title' => $poll->name,
+        'mode' => 'results',
         'options' => $options,
         );
     }
@@ -97,6 +104,10 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
         $form->addControl(new SubmitControl(array(
           'text' => t('Проголосовать'),
           )));
+
+        $form->action = '?q=poll.rpc&action=vote'
+          . '&nid=' . $node->id
+          . '&destination=CURRENT';
       }
 
       break;
