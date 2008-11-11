@@ -1085,6 +1085,8 @@ class NodeBase
 
   private function linkAdd($tid, $nid, $key)
   {
+    mcms::debug('DEPRECATED!', $tid, $nid, $key);
+
     if (null !== $key)
       mcms::db()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
         ."AND `key` = ?", array($tid, $key));
@@ -1103,6 +1105,8 @@ class NodeBase
 
   private function linkBreak($tid, $nid, $key)
   {
+    mcms::debug('DEPRECATED!', $tid, $nid, $key);
+
     if (null !== $nid)
       mcms::db()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
         ."AND `nid` = ?", array($tid, $nid));
@@ -1135,9 +1139,11 @@ class NodeBase
    */
   public function linkAddParent($parent_id, $key = null)
   {
-    if (null === $this->id)
-      $this->save();
-    return $this->linkAdd($parent_id, $this->id, $key);
+    $this->_links[] = array(
+      'action' => 'add',
+      'parent' => $parent_id,
+      'key' => $key,
+      );
   }
 
   /**
@@ -1154,9 +1160,11 @@ class NodeBase
    */
   public function linkAddChild($child_id, $key = null)
   {
-    if (null === $this->id)
-      $this->save();
-    return $this->linkAdd($this->id, $child_id, $key);
+    $this->_links[] = array(
+      'action' => 'add',
+      'child' => $child_id,
+      'key' => $key,
+      );
   }
 
   /**
