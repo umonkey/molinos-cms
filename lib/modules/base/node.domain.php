@@ -293,14 +293,6 @@ class DomainNode extends Node implements iContentType
       }
     }
 
-    // Объект уже существовал, сохраняем дополнительные свойства.
-    else {
-      $user = mcms::user();
-
-      if ($user->hasAccess('u', 'domain'))
-        $this->linkSetChildren(empty($data['node_domain_widgets']) ? array() : $data['node_domain_widgets'], 'widget');
-    }
-
     return $this;
   }
 
