@@ -90,7 +90,7 @@ class RequestController
     if (null !== $ctx->query()) {
       $domain->loadChildren();
 
-      if (false !== $ctx->query())
+      if ('' !== $ctx->query())
         $ids = explode('/', trim($ctx->query(), '/'));
       else
         $ids = array();
