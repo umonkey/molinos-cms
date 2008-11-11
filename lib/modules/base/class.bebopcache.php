@@ -21,19 +21,15 @@ class BebopCache
       $map = array(
         'xcache' => array(
           'class' => 'XCache_provider',
-          'exists' => function_exists('xcache_set'),
           ),
         'memcache' => array(
           'class' => 'MemCache_provider',
-          'exists' => class_exists('Memcache', false),
           ),
         'apc' => array(
           'class' => 'APC_provider',
-          'exists' => function_exists('apc_store'),
           ),
         'local' => array(
           'class' => 'FileCache_provider',
-          'exists' => true,
           ),
         );
 
@@ -43,7 +39,7 @@ class BebopCache
         if (array_key_exists($k, $config) and empty($config[$k]))
           continue;
 
-        if ($v['exists']) {
+        if (call_user_func(array($v['class'], 'isAvailable'))) {
           mcms::flog('cache', 'using ' . str_replace('_provider', '', $v['class']));
           self::$instance = new $v['class']();
           break;
@@ -103,6 +99,15 @@ class BebopCache
 
 class XCache_provider extends BebopCache
 {
+  public static function isAvailable()
+  {
+    if (!function_exists('xcache_set'))
+      return false;
+    if (!ini_get('xcache.var_size'))
+      return false;
+    return true;
+  }
+
   public function __get($key)
   {
     return unserialize(xcache_get($this->prefix . $key));
@@ -126,6 +131,11 @@ class XCache_provider extends BebopCache
 
 class APC_provider extends BebopCache
 {
+  public static function isAvailable()
+  {
+    return function_exists('apc_store');
+  }
+
   public function __get($key)
   {
     return apc_fetch($this->prefix . $key);
@@ -151,6 +161,11 @@ class MemCache_provider extends BebopCache
 {
   private $host;
   private $flags = MEMCACHE_COMPRESSED;
+
+  public static function isAvailable()
+  {
+    return class_exists('Memcache', false);
+  }
 
   public function __construct()
   {
@@ -185,6 +200,11 @@ class MemCache_provider extends BebopCache
 class FileCache_provider extends BebopCache
 {
   private $storage = array();
+
+  public static function isAvailable()
+  {
+    return true;
+  }
 
   public function __get($key)
   {
