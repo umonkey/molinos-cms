@@ -42,7 +42,7 @@ class SearchWidget extends Widget implements iWidget
   protected function onGetMg(array $options)
   {
     $result = array(
-      'form' => parent::formRender('search-form', array()),
+      'form' => parent::formRender('search-form'),
       );
 
     if (!empty($options['q'])) {

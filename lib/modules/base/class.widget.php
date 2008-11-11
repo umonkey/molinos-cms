@@ -418,16 +418,13 @@ abstract class Widget implements iWidget
     if (null === $data)
       $data = $this->formGetData($id);
 
+    if (is_array($data))
+      $data = Control::data($data);
+
     $form->id = $id;
 
     if (!($form instanceof Form))
       throw new InvalidArgumentException(t("Значение, полученное от метода formGet(%id) виджета %class не является формой.", array('%id' => $id, '%class' => get_class($this))));
-
-    $form->addControl(new HiddenControl(array('value' => 'form_id')));
-    $data->form_id = $id;
-
-    $form->addControl(new HiddenControl(array('value' => 'form_handler')));
-    $data->form_handler = $this->getInstanceName();
 
     if (null === ($form->findControl('destination')))
       $form->addControl(new HiddenControl(array(
