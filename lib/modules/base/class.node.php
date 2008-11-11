@@ -188,4 +188,23 @@ class Node extends NodeBase implements iContentType
   {
     return $this->name;
   }
+
+  /**
+   * Получение инеднтификаторов разделов, в которые можно поместить документ.
+   */
+  public function getEnabledSections()
+  {
+    $allowed = mcms::db()->getResultsV("id", "SELECT id FROM node WHERE class = 'tag' AND deleted = 0 AND id IN "
+      . "(SELECT tid FROM node__rel WHERE nid IN "
+      . "(SELECT n.id FROM node n INNER JOIN node__rev v ON v.rid = n.rid "
+      . "WHERE n.deleted = 0 AND n.class = 'type' AND v.name = ?))",
+      array($this->class));
+
+    $permitted = mcms::user()->getPermittedSections();
+
+    if (null === $allowed or null === $permitted)
+      return array();
+
+    return array_intersect($allowed, $permitted);
+  }
 };
