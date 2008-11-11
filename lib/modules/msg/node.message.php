@@ -71,7 +71,7 @@ class MessageNode extends Node
         'type' => 'TextHTMLControl',
         'required' => true,
         ),
-      ),
+      );
   }
 
   // Доступ к сообщению имеют только отправитель и получатель.
