@@ -112,6 +112,11 @@ class WidgetNode extends Node implements iContentType
       $form = parent::formGet($simple);
       $form->title = t('Редактирование виджета "%name"', array('%name' => $this->name));
 
+      // FIXME: переписать работу с настройками виджетов!
+      if (!empty($this->config))
+        foreach ($this->config as $k => $v)
+          $this->{'config_' . $k} = $v;
+
       if (mcms::class_exists($this->classname))
         if (null !== ($tab = call_user_func(array($this->classname, 'formGetConfig'), $this))) {
           $tab->intro = t('Подробную информацию о настройке этого виджета можно <a href=\'@link\'>найти в документации</a>.', array(
@@ -153,8 +158,11 @@ class WidgetNode extends Node implements iContentType
     $config = array();
 
     foreach ($data as $k => $v)
-      if (substr($k, 0, 7) == 'config_' and $k != 'config_types')
+      if (substr($k, 0, 7) == 'config_') {
+        if ($k == 'config_types')
+          unset($v['__reset']);
         $config[substr($k, 7)] = $v;
+      }
 
     $this->config = $config;
 
@@ -163,7 +171,7 @@ class WidgetNode extends Node implements iContentType
       $w->formHookConfigSaved();
     }
 
-    $next = parent::formProcess($data);
+    /* $next = */ parent::formProcess($data)->save();
 
     if ($isnew) {
       $next = "?q=admin&mode=edit&cgroup=structure&id={$this->id}"
@@ -233,5 +241,15 @@ class WidgetNode extends Node implements iContentType
         'group' => t('Доступ'),
         ),
       );
+  }
+
+  public function schema()
+  {
+    $schema = parent::schema();
+
+    if (isset($schema['config']))
+      unset($schema['config']);
+
+    return $schema;
   }
 };
