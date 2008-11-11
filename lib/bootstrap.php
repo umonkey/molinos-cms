@@ -1,7 +1,7 @@
 <?php
 
 // Текущая версия.
-define('MCMS_VERSION', '8.05.6194');
+define('MCMS_VERSION', '8.05.6195');
 
 // Начало обработки запроса, для замеров производительности.
 define('MCMS_START_TIME', microtime(true));
