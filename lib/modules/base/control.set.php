@@ -41,26 +41,39 @@ class SetControl extends Control
     $selected = $this->getSelected($data);
     $enabled = $this->getEnabled($data);
 
-    $content = $this->getLabel();
+    // Если ни одна опция не разрешена — не выводим контрол.
+    if ($enabled !== null and empty($enabled))
+      return null;
 
-    foreach ($options as $k => $v) {
-      $disabled = ((null !== $enabled) and !in_array($k, $enabled))
-        ? true
-        : false;
-
-      $inner = mcms::html('input', array(
-        'type' => 'checkbox',
-        'value' => $k,
+    // Если доступен только один раздел — выводим скрытый контрол.
+    if ($enabled !== null and count($enabled) == 1) {
+      $content = mcms::html('input', array(
+        'type' => 'hidden',
         'name' => $this->value . '[]',
-        'checked' => in_array($k, $selected),
-        'disabled' => $disabled ? 'disabled' : null,
+        'value' => array_shift($enabled),
         ));
+    } else {
+      $content = $this->getLabel();
 
-      $inner = mcms::html('label', array('class' => 'normal'), $inner . $v);
+      foreach ($options as $k => $v) {
+        $disabled = ((null !== $enabled) and !in_array($k, $enabled))
+          ? true
+          : false;
 
-      $content .= mcms::html('div', array(
-        'class' => 'form-checkbox' . ($disabled ? ' disabled' : ''),
-        ), $inner);
+        $inner = mcms::html('input', array(
+          'type' => 'checkbox',
+          'value' => $k,
+          'name' => $this->value . '[]',
+          'checked' => in_array($k, $selected),
+          'disabled' => $disabled ? 'disabled' : null,
+          ));
+
+        $inner = mcms::html('label', array('class' => 'normal'), $inner . $v);
+
+        $content .= mcms::html('div', array(
+          'class' => 'form-checkbox' . ($disabled ? ' disabled' : ''),
+          ), $inner);
+      }
     }
 
     $content .= mcms::html('input', array(
