@@ -41,97 +41,82 @@ class ListWidget extends Widget
    *
    * @return Form вкладка с настройками виджета.
    */
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
-    $types = array();
-
-    foreach (Node::find(array('class' => 'type')) as $type)
-      // if (!in_array($type->name, TypeNode::getInternal()))
-        $types[$type->id] = $type->title;
-
     $tags = array(
-      '' => t('Текущего (из пути или свойств страницы)'),
       'root' => t('Основного для страницы (или домена)'),
       );
 
     foreach (TagNode::getTags('select') as $k => $v)
       $tags[$k] = $v;
 
-    $form = parent::formGetConfig();
-
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_fixed',
-      'label' => t('Показывать документы из раздела'),
-      'options' => $tags,
-      'description' => t('В большинстве случаев нужен текущий раздел. Фиксированный используется только если список работает в отрыве от контекста запроса, например -- всегда показывает баннеры из фиксированного раздела.'),
-      'required' => true,
-      )));
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_fallbackmode',
-      'label' => t('Режим использования фиксированного раздела'),
-      'options' => array(
-        'always' => t('Всегда'),
-        'empty' => t('Если в запрошенном ничего не найдено'),
+    $schema = array(
+      'fixed' => array(
+        'type' => 'EnumControl',
+        'label' => t('Показывать документы из раздела'),
+        'options' => $tags,
+        'description' => t('В большинстве случаев нужен текущий раздел. Фиксированный используется только если список работает в отрыве от контекста запроса, например -- всегда показывает баннеры из фиксированного раздела.'),
+        'required' => false,
+        'default_label' => t('Текущего (из пути или свойств страницы)'),
         ),
-      )));
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_recurse',
-      'label' => t('Включить документы из подразделов'),
-      'description' => t('Если этот флаг установлен, будут возвращены не только документы из запрошенного раздела, но и из всех его подразделов.'),
-      )));
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_limit',
-      'label' => t('Количество элементов на странице'),
-      )));
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_onlyiflast',
-      'label' => t('Возвращать список только если не запрошен документ'),
-      'description' => t('Если этот флаг установлен, и в адресной строке после идентификатора раздела есть ещё какое-нибудь значение, виджет ничего не вернёт (при просмотре конкретного документа список обычно не нужен).'),
-      )));
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_onlyathome',
-      'label' => t('Возвращать список только на главной странице'),
-      'description' => t('Если этот флаг установлен, список документов будет возвращён только если страница запрошена по своему основному адресу, без дополнительных параметров.&nbsp; Например, если виджет прикреплен к главной странице, а запрошена страница /xyz/, ничего возвращено не будет.'),
-      )));
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_skipcurrent',
-      'label' => t('Не возвращать текущий документ'),
-      'description' => t('Исключить из списка документ, который уже отображается на странице.'),
-      )));
-    if (mcms::ismodule('comment'))
-      $form->addControl(new BoolControl(array(
-        'value' => 'config_count_comments',
+      'fallbackmode' => array(
+        'type' => 'EnumControl',
+        'label' => t('Режим использования фиксированного раздела'),
+        'options' => array(
+          'always' => t('Всегда'),
+          'empty' => t('Если в запрошенном ничего не найдено'),
+          ),
+        ),
+      'recurse' => array(
+        'type' => 'BoolControl',
+        'label' => t('Включить документы из подразделов'),
+        'description' => t('Если этот флаг установлен, будут возвращены не только документы из запрошенного раздела, но и из всех его подразделов.'),
+        ),
+      'limit' => array(
+        'type' => 'NumberControl',
+        'label' => t('Количество элементов на странице'),
+        ),
+      'onlyiflast' => array(
+        'type' => 'BoolControl',
+        'label' => t('Возвращать список только если не запрошен документ'),
+        'description' => t('Если этот флаг установлен, и в адресной строке после идентификатора раздела есть ещё какое-нибудь значение, виджет ничего не вернёт (при просмотре конкретного документа список обычно не нужен).'),
+        ),
+      'onlyathome' => array(
+        'type' => 'BoolControl',
+        'label' => t('Возвращать список только на главной странице'),
+        'description' => t('Если этот флаг установлен, список документов будет возвращён только если страница запрошена по своему основному адресу, без дополнительных параметров.&nbsp; Например, если виджет прикреплен к главной странице, а запрошена страница /xyz/, ничего возвращено не будет.'),
+        ),
+      'skipcurrent' => array(
+        'type' => 'BoolControl',
+        'label' => t('Не возвращать текущий документ'),
+        'description' => t('Исключить из списка документ, который уже отображается на странице.'),
+        ),
+      'count_comments' => array(
+        'type' => 'BoolControl',
         'label' => t('Возвращать количество комментариев'),
-        )));
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_pager',
-      'label' => t('Использовать постраничную листалку'),
-      'description' => t('Если эта опция выключена, массив $pager возвращаться не будет, и параметр .page=N обрабатываться не будет.'),
-      )));
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_sort',
-      'label' => t('Сортировка'),
-      'description' => t('Правило сортировки описывается как список полей, разделённых пробелами. Обратная сортировка задаётся префиксом "-" перед именем поля.'),
-      )));
-    $form->addControl(new SetControl(array(
-      'value' => 'config_types',
-      'label' => t('Типы документов'),
-      'options' => $types,
-      )));
+        'ifmodule' => 'comment',
+        ),
+      'pager' => array(
+        'type' => 'BoolControl',
+        'label' => t('Использовать постраничную листалку'),
+        'description' => t('Если эта опция выключена, массив $pager возвращаться не будет, и параметр .page=N обрабатываться не будет.'),
+        ),
+      'sort' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Сортировка'),
+        'description' => t('Правило сортировки описывается как список полей, разделённых пробелами. Обратная сортировка задаётся префиксом "-" перед именем поля.'),
+        ),
+      'types' => array(
+        'type' => 'SetControl',
+        'label' => t('Возвращать документы следующих типов'),
+        'dictionary' => 'type',
+        'field' => 'title',
+        'parents' => true,
+        'group' => t('Типы'),
+        ),
+      );
 
-    return $form;
-  }
-
-  /**
-   * Непонятно что.
-   *
-   * @todo выяснить.
-   *
-   * @return void
-   */
-  public function formHookConfigData(array &$data)
-  {
-    $data['config_types'] = $this->me->linkListParents('type', true);
+    return $schema;
   }
 
   /**

@@ -16,28 +16,25 @@ class RatingWidget extends Widget implements iNodeHook
       );
   }
 
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
-    $form = parent::formGetConfig();
-
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_anonymous',
-      'label' => t('Разрешить анонимное голосование'),
-      'description' => t('По умолчанию анонимные пользователи не могут голосовать, им будет предложено залогиниться или зарегистрироваться.&nbsp; Вы можете принудительно разрешить им голосовать.'),
-      )));
-
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_mode',
-      'label' => t('Форма для голосования'),
-      'options' => array(
-        '' => t('отсутствует'),
-        'check' => t('да / нет'),
-        'rate' => '1...5',
+    return array(
+      'anonymous' => array(
+        'type' => 'BoolControl',
+        'label' => t('Разрешить анонимное голосование'),
+        'description' => t('По умолчанию анонимные пользователи не могут голосовать, им будет предложено залогиниться или зарегистрироваться.&nbsp; Вы можете принудительно разрешить им голосовать.'),
         ),
+      'mode' => array(
+        'type' => 'EnumControl',
+        'label' => t('Форма для голосования'),
+        'options' => array(
+          '' => t('отсутствует'),
+          'check' => t('да / нет'),
+          'rate' => '1...5',
+          ),
         'required' => true,
-      )));
-
-    return $form;
+        ),
+      );
   }
 
   // Препроцессор параметров.

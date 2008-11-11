@@ -38,18 +38,16 @@ class TitleWidget extends Widget
       );
   }
 
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
-    $form = parent::formGetConfig();
-
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_showpath',
-      'label' => t('Возвращать путь к текущему разделу'),
-      'description' => t('Добавляет лишний запрос, незначительно сказывается '
-        .'на производительности.'),
-      )));
-
-    return $form;
+    return array(
+      'showpath' => array(
+        'type' => 'BoolControl',
+        'label' => t('Возвращать путь к текущему разделу'),
+        'description' => t('Добавляет лишний запрос, незначительно сказывается '
+          .'на производительности.'),
+        ),
+      );
   }
 
   /**

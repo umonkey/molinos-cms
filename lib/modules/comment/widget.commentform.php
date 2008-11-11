@@ -23,41 +23,35 @@ class CommentFormWidget extends Widget
       );
   }
 
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
-    $form = parent::formGetConfig();
-
     $fields = array();
     $schema = Node::create('comment')->schema();
-
     foreach ($schema as $k => $v)
       $fields[$k] = $v->label . ' (' . $k . ')';
 
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_moderated',
-      'label' => t('Премодерация'),
-      'description' => t('Комментарии будут сохраняться, но на сайте они будут отображаться только после одобрения модератором.'),
-      )));
-
-    $form->addControl(new SetControl(array(
-      'value' => 'config_allowed_types',
-      'label' => t('Комментируемые документы'),
-      'options' => self::getTypes(),
-      )));
-
-    $form->addControl(new SetControl(array(
-      'value' => 'config_hide_anon',
-      'label' => t('Скрыть от анонимных'),
-      'options' => $fields,
-      )));
-
-    $form->addControl(new SetControl(array(
-      'value' => 'config_hide_user',
-      'label' => t('Скрыть от зарегистрированных'),
-      'options' => $fields,
-      )));
-
-    return $form;
+    return array(
+      'moderated' => array(
+        'type' => 'BoolControl',
+        'label' => t('Премодерация'),
+        'description' => t('Комментарии будут сохраняться, но на сайте они будут отображаться только после одобрения модератором.'),
+        ),
+      'allowed_types' => array(
+        'type' => 'SetControl',
+        'label' => t('Комментируемые документы'),
+        'options' => self::getTypes(),
+        ),
+      'hide_anon' => array(
+        'type' => 'SetControl',
+        'label' => t('Скрыть от анонимных'),
+        'options' => $fields,
+        ),
+      'hide_user' => array(
+        'type' => 'SetControl',
+        'label' => t('Скрыть от зарегистрированных'),
+        'options' => $fields,
+        ),
+      );
   }
 
   private static function getTypes()
@@ -197,10 +191,5 @@ class CommentFormWidget extends Widget
           mcms::mail(null, $user, t('Новый комментарий на %site', array('%site' => $_SERVER['HTTP_HOST'])), $message, null, $headers);
       }
     }
-  }
-
-  public function formHookConfigSaved()
-  {
-    CommentWidget::checkTypes();
   }
 };

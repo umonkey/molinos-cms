@@ -60,12 +60,8 @@ class CartSettings implements iModuleConfig
   {
   }
 
-  public function formHookConfigSaved()
-  {
-    $this->installTypes();
-  }
-
   // Проверяет типы документов, инсталлирует новые.
+  // FIXME: перетащить куда-нибудь.
   private function installTypes()
   {
     // ЧАСТЬ ПЕРВАЯ: заказ.

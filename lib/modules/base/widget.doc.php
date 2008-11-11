@@ -48,34 +48,30 @@ class DocWidget extends Widget implements iWidget
    *
    * @return Form описание формы.
    */
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
-    $form = parent::formGetConfig();
-
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_mode',
-      'label' => t('Режим работы'),
-      'required' => true,
-      'options' => array(
-        'view' => t('Просмотр'),
-        'edit' => t('Редактирование'),
+    return array(
+      'mode' => array(
+        'type' => 'EnumControl',
+        'label' => t('Режим работы'),
+        'required' => true,
+        'options' => array(
+          'view' => t('Просмотр'),
+          'edit' => t('Редактирование'),
+          ),
         ),
-      )));
-
-    $form->addControl(new NumberControl(array(
-      'value' => 'config_fixed',
-      'label' => t('Фиксированный документ'),
-      'description' => t("Документ с указанным здесь кодом будет возвращён "
-        ."если из адреса запрошенной страницы достать код документа "
-        ."не удалось (он не указан или так настроена страница)."),
-      )));
-
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_showneighbors',
-      'label' => t('Возвращать информацию о соседях'),
-      )));
-
-    return $form;
+      'fixed' => array(
+        'type' => 'NumberControl',
+        'label' => t('Фиксированный документ'),
+        'description' => t("Документ с указанным здесь кодом будет возвращён "
+          ."если из адреса запрошенной страницы достать код документа "
+          ."не удалось (он не указан или так настроена страница)."),
+        ),
+      'showneighbors' => array(
+        'type' => 'BoolControl',
+        'label' => t('Возвращать информацию о соседях'),
+        ),
+      );
   }
 
   /**

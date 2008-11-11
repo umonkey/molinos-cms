@@ -39,10 +39,9 @@ class MenuWidget extends Widget implements iWidget
    *
    * @return Form вкладка для настройки виджета.
    */
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
     $fields = array();
-
     $schema = Node::create('tag')->schema();
 
     foreach ($schema['fields'] as $k => $v)
@@ -60,53 +59,46 @@ class MenuWidget extends Widget implements iWidget
     foreach (TagNode::getTags('select') as $k => $v)
       $tags[$k] = $v;
 
-    $form = parent::formGetConfig();
-
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_fixed',
-      'label' => t('Всегда возвращать раздел'),
-      'description' => t("По умолчанию виджет возвращает информацию о текущем разделе.&nbsp; Вы можете настроить его на фиксированный раздел.&nbsp; Подсветка текущего раздела при этом сохранится."),
-      'options' => $tags,
-      'default' => t('Текущий (его подразделы)'),
-      )));
-
-    $form->addControl(new NumberControl(array(
-      'value' => 'config_depth',
-      'label' => t('Глубина'),
-      'description' => t("Меню будет содержать столько уровней вложенности."),
-      )));
-
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_prefix',
-      'label' => t('Префикс для ссылок'),
-      'description' => t('Обычно это поле оставляют пустым, и ссылки в меню получаются относительными (относительно значения тэга &lt;base/&gt;, например).&nbsp; Если вам нужно сделать так, чтобы ссылки всгда были относительными для корня сайта &mdash; введите здесь &laquo;/&raquo;.&nbsp; Можно использовать и что-нибудь более оригинальное.'),
-      )));
-
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_hidecurrent',
-      'label' => t('Убирать ссылку с текущего элемента'),
-      'description' => t('Все классы проставляются для элементов li и ul, поэтому на стилизацию меню эта настройка не влияет, но повышает рейтинг сайта в глазах педантичных критиков.'),
-      )));
-
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_external',
-      'label' => t('Предпочитать ссылку из поля'),
-      'options' => $fields,
-      'default' => t('(не предпочитать)'),
-      )));
-
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_header',
-      'label' => t('Заголовок меню'),
-      'options' => array(
-        'h2' => t('Имя виджета, H2'),
-        'h3' => t('Имя виджета, H3'),
-        'h4' => t('Имя виджета, H4'),
+    return array(
+      'fixed' => array(
+        'type' => 'EnumControl',
+        'label' => t('Всегда возвращать раздел'),
+        'description' => t("По умолчанию виджет возвращает информацию о текущем разделе.&nbsp; Вы можете настроить его на фиксированный раздел.&nbsp; Подсветка текущего раздела при этом сохранится."),
+        'options' => $tags,
+        'default' => t('Текущий (его подразделы)'),
         ),
-      'default' => t('Не выводить'),
-      )));
-
-    return $form;
+      'depth' => array(
+        'type' => 'NumberControl',
+        'label' => t('Глубина'),
+        'description' => t("Меню будет содержать столько уровней вложенности."),
+        ),
+      'prefix' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Префикс для ссылок'),
+        'description' => t('Обычно это поле оставляют пустым, и ссылки в меню получаются относительными (относительно значения тэга &lt;base/&gt;, например).&nbsp; Если вам нужно сделать так, чтобы ссылки всгда были относительными для корня сайта &mdash; введите здесь &laquo;/&raquo;.&nbsp; Можно использовать и что-нибудь более оригинальное.'),
+        ),
+      'hidecurrent' => array(
+        'type' => 'BoolControl',
+        'label' => t('Убирать ссылку с текущего элемента'),
+        'description' => t('Все классы проставляются для элементов li и ul, поэтому на стилизацию меню эта настройка не влияет, но повышает рейтинг сайта в глазах педантичных критиков.'),
+        ),
+      'external' => array(
+        'type' => 'EnumControl',
+        'label' => t('Предпочитать ссылку из поля'),
+        'options' => $fields,
+        'default_label' => t('(не предпочитать)'),
+        ),
+      'header' => array(
+        'type' => 'EnumControl',
+        'label' => t('Заголовок меню'),
+        'options' => array(
+          'h2' => t('Имя виджета, H2'),
+          'h3' => t('Имя виджета, H3'),
+          'h4' => t('Имя виджета, H4'),
+          ),
+        'default_label' => t('(не выводить)'),
+        ),
+      );
   }
 
   /**

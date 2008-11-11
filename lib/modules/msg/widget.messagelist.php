@@ -11,30 +11,27 @@ class MessageListWidget extends Widget
       );
   }
 
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
-    $form = parent::formGetConfig();
-
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_mode',
-      'label' => t('Тип сообщений'),
-      'required' => true,
-      'options' => array(
-        '' => t('по запросу'),
-        'inbox' => t('входящие'),
-        'sent' => t('исходящие'),
+    return array(
+      'mode' => array(
+        'type' => 'EnumControl',
+        'label' => t('Тип сообщений'),
+        'required' => true,
+        'options' => array(
+          '' => t('по запросу'),
+          'inbox' => t('входящие'),
+          'sent' => t('исходящие'),
+          ),
+        'description' => t('В режиме «по запросу» режимом по умолчанию являются «входящие», переключение на «исходящие» осуществляется параметром ?виджет.mode=sent.'),
         ),
-      'description' => t('В режиме «по запросу» режимом по умолчанию являются «входящие», переключение на «исходящие» осуществляется параметром ?виджет.mode=sent.'),
-      )));
-
-    $form->addControl(new NumberControl(array(
-      'value' => 'config_limit',
-      'label' => t('Количество сообщений'),
-      'required' => true,
-      'default' => 5,
-      )));
-
-    return $form;
+      'limit' => array(
+        'type' => 'NumberControl',
+        'label' => t('Количество сообщений'),
+        'required' => true,
+        'default' => 5,
+        ),
+      );
   }
 
   protected function getRequestOptions(Context $ctx)

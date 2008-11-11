@@ -101,35 +101,13 @@ abstract class Widget implements iWidget
   }
 
   /**
-   * Заглушка, интерфейс требует.
-   */
-  public function formHookConfigData(array &$data)
-  {
-  }
-
-  /**
-   * Заглушка, интерфейс требует.
-   */
-  public function formHookConfigSaved()
-  {
-  }
-
-  /**
    * Получение формы для настройки виджета.
-   *
-   * Базовая реализация возвращает пустой FieldSet, в который можно добавлять
-   * другие компоненты.
    *
    * @return Control описание формы.
    */
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
-    $form = new FieldSetControl(array(
-      'name' => 'config',
-      'label' => t('Настройка'),
-      ));
-
-    return $form;
+    return array();
   }
 
   public function setContext(Context $ctx)

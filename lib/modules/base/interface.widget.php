@@ -29,32 +29,9 @@ interface iWidget
   /**
    * Получение формы для настройки виджета.
    *
-   * @return Control Описание формы или NULL, если настройки не нужны.  Форма
-   * обычно начинается с группового компонента FieldSet (базовая реализация
-   * Widget::formGetConfig() возвращает пустой FieldSet).
+   * @return array Массив с описанием полей.
    */
-  public static function formGetConfig();
-
-  /**
-   * Получение конфигурации виджета.
-   *
-   * @todo выяснить, что к чему.  Устранить?
-   *
-   * @return void
-   */
-  public function formHookConfigData(array &$data);
-
-  /**
-   * Обработка сохранения настроек виджета.
-   *
-   * Использовался в основном для создания необходимых виджету таблиц и типов
-   * документов, сейчас для этого есть другие средства.
-   *
-   * @todo устранить.
-   *
-   * @return void
-   */
-  public function formHookConfigSaved();
+  public static function getConfigOptions();
 
   /**
    * Получение кода формы.

@@ -16,26 +16,14 @@ class BlogWidget extends Widget
       );
   }
 
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
-    $form = parent::formGetConfig();
-
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_limit',
-      'label' => t('Количество записей на странице'),
-      )));
-
-    return $form;
-  }
-
-  public function formHookConfigData(array &$data)
-  {
-    // $data['xyz'] = 123;
-  }
-
-  public function formHookConfigSaved()
-  {
-    $this->installTypes();
+    return array(
+      'limit' => array(
+        'type' => 'NumberControl',
+        'label' => t('Количество записей на странице'),
+        ),
+      );
   }
 
   // Препроцессор параметров.
@@ -92,6 +80,7 @@ class BlogWidget extends Widget
     return $result;
   }
 
+  // FIXME: перетащить куда-нибудь, сейчас не используется.
   private function installTypes()
   {
     if (!Node::count(array('class' => 'type', 'name' => 'blog'))) {

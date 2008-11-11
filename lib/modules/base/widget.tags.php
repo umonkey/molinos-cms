@@ -38,33 +38,31 @@ class TagsWidget extends Widget implements iWidget
    *
    * @return Form вкладка для настройки виджета.
    */
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
-    $form = parent::formGetConfig();
-
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_fixed',
-      'label' => t('Раздел по умолчанию'),
-      'description' => t('Здесь можно выбрать раздел, который будет использован, если из адреса текущего запроса вытащить код раздела не удалось.'),
-      'options' => array('page' => 'Из настроек страницы')
-        + TagNode::getTags('select'),
-      'default' => t('не используется'),
-      )));
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_forcefixed',
-      'label' => t('Всегда использовать этот раздел'),
-      'description' => t('Всегда возвращать информацию о выбранном разделе, независимо от того, в каком разделе находится посетитель.'),
-      )));
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_illcache',
-      'label' => t('Используется для формирования меню'),
-      )));
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_lowmemory',
-      'label' => t('Не подгружать файлы (экономит память)'),
-      )));
-
-    return $form;
+    return array(
+      'fixed' => array(
+        'type' => 'EnumControl',
+        'label' => t('Раздел по умолчанию'),
+        'description' => t('Здесь можно выбрать раздел, который будет использован, если из адреса текущего запроса вытащить код раздела не удалось.'),
+        'options' => array('page' => 'Из настроек страницы')
+          + TagNode::getTags('select'),
+        'default' => t('не используется'),
+        ),
+      'forcefixed' => array(
+        'type' => 'BoolControl',
+        'label' => t('Всегда использовать этот раздел'),
+        'description' => t('Всегда возвращать информацию о выбранном разделе, независимо от того, в каком разделе находится посетитель.'),
+        ),
+      'illcache' => array(
+        'type' => 'BoolControl',
+        'label' => t('Используется для формирования меню'),
+        ),
+      'lowmemory' => array(
+        'type' => 'BoolControl',
+        'label' => t('Не подгружать файлы (экономит память)'),
+        ),
+      );
   }
 
   /**

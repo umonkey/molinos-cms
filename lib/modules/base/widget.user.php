@@ -39,45 +39,40 @@ class UserWidget extends Widget implements iWidget
    *
    * @return Form вкладка с настройками виджета.
    */
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
     $groups = array();
 
     foreach (Node::find(array('class' => 'group')) as $node)
       $groups[$node->id] = $node->name;
     
-    $form = parent::formGetConfig();
-
-    $form->addControl(new SetControl(array(
-      'value' => 'config_groups',
-      'label' => t('Группы для новых пользователей'),
-      'options' => $groups,
-      'description' => t('Укажите список групп, в которые будут добавлены пользователи, регистрирующиеся на сайте.'),
-      )));
-
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_submittext',
-      'label' => t('Текст для кнопки входа'),
-      )));
-
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_header',
-      'label' => t('Формат заголовка'),
-      'default' => t('Без заголовка'),
-      'options' => array(
-        'h2' => t('H2'),
-        'h3' => t('H3'),
+    return array(
+      'groups' => array(
+        'type' => 'SetControl',
+        'label' => t('Группы для новых пользователей'),
+        'options' => $groups,
+        'description' => t('Укажите список групп, в которые будут добавлены пользователи, регистрирующиеся на сайте.'),
         ),
-      )));
-
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_page',
-      'label' => t('Отправлять запросы на страницу'),
-      'default' => t('Оставаться на текущей'),
-      'options' => DomainNode::getFlatSiteMap('select'),
-      )));
-
-    return $form;
+      'submittext' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Текст для кнопки входа'),
+        ),
+      'header' => array(
+        'type' => 'EnumControl',
+        'label' => t('Формат заголовка'),
+        'default_label' => t('(без заголовка)'),
+        'options' => array(
+          'h2' => t('H2'),
+          'h3' => t('H3'),
+          ),
+        ),
+      'page' => array(
+        'type' => 'EnumControl',
+        'label' => t('Отправлять запросы на страницу'),
+        'default' => t('Оставаться на текущей'),
+        'options' => DomainNode::getFlatSiteMap('select'),
+        ),
+      );
   }
 
   /**

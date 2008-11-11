@@ -14,6 +14,7 @@ class CommentWidget extends Widget
     parent::__construct($node);
   }
 
+  // FIXME: перетащить куда-нибудь.
   public static function checkTypes()
   {
     if (!Node::count(array('class' => 'type', 'name' => 'comment'))) {
@@ -58,40 +59,27 @@ class CommentWidget extends Widget
       );
   }
 
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
-    $form = parent::formGetConfig();
-
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_startwith',
-      'label' => t('По умолчанию показывать'),
-      'required' => true,
-      'options' => array(
-        'first' => t('Первую страницу'),
-        'last' => t('Последнюю страницу'),
-        'form' => t('Форму добавления комментария'),
-        'nothing' => t('Ссылку на отдельную страницу с комментариями'),
+    return array(
+      'startwith' => array(
+        'type' => 'EnumControl',
+        'label' => t('По умолчанию показывать'),
+        'required' => true,
+        'options' => array(
+          'first' => t('Первую страницу'),
+          'last' => t('Последнюю страницу'),
+          'form' => t('Форму добавления комментария'),
+          'nothing' => t('Ссылку на отдельную страницу с комментариями'),
+          ),
         ),
-      )));
-
-    $form->addControl(new NumberControl(array(
-      'value' => 'config_perpage',
-      'label' => t('Комментариев на странице'),
-      'required' => true,
-      'default' => 10,
-      )));
-
-    return $form;
-  }
-
-  public function formHookConfigData(array &$data)
-  {
-    // $data['xyz'] = 123;
-  }
-
-  public function formHookConfigSaved()
-  {
-    self::checkTypes();
+      'perpage' => array(
+        'type' => 'NumberControl',
+        'label' => t('Комментариев на странице'),
+        'required' => true,
+        'default' => 10,
+        ),
+      );
   }
 
   // Препроцессор параметров.

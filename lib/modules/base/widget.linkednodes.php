@@ -41,41 +41,36 @@ class LinkedNodesWidget extends Widget
    *
    * @return Form вкладка с настройками виджета.
    */
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
     $types = Node::getSortedList('type', 'title', 'name');
 
-    $form = parent::formGetConfig();
-
-    $form->addControl(new SetControl(array(
-      'value' => 'config_hosts',
-      'label' => t('Возвращать только для'),
-      'options' => $types,
-      )));
-
-    $form->addControl(new SetControl(array(
-      'value' => 'config_classes',
-      'label' => t('Возвращать только следующие типы'),
-      'options' => $types,
-      )));
-
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_field',
-      'label' => t('Привязка к полю'),
-      )));
-
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_sort',
-      'label' => t('Сортировка'),
-      'options' => array(
-        'name' => t('По имени'),
-        'created' => t('По дате добавления (сначала старые)'),
-        '-created' => t('По дате добавления (сначала новые)'),
-        '-id' => t('По идентификатору'),
+    return array(
+      'hosts' => array(
+        'type' => 'SetControl',
+        'label' => t('Возвращать только для'),
+        'options' => $types,
         ),
-      )));
-
-    return $form;
+      'classes' => array(
+        'type' => 'SetControl',
+        'label' => t('Возвращать только следующие типы'),
+        'options' => $types,
+        ),
+      'field' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Привязка к полю'),
+        ),
+      'sort' => array(
+        'type' => 'EnumControl',
+        'label' => t('Сортировка'),
+        'options' => array(
+          'name' => t('По имени'),
+          'created' => t('По дате добавления (сначала старые)'),
+          '-created' => t('По дате добавления (сначала новые)'),
+          '-id' => t('По идентификатору'),
+          ),
+        ),
+      );
   }
 
   /**

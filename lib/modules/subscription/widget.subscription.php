@@ -16,17 +16,15 @@ class SubscriptionWidget extends Widget
       );
   }
 
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
-    $form = parent::formGetConfig();
-
-    $form->addControl(new SetControl(array(
-      'value' => 'config_sections',
-      'label' => t('Поместить документ в разделы'),
-      'options' => TagNode::getTags('select'),
-      )));
-
-    return $form;
+    return array(
+      'sections' => array(
+        'type' => 'SetControl',
+        'label' => t('Поместить документ в разделы'),
+        'options' => TagNode::getTags('select'),
+        ),
+      );
   }
 
   // Препроцессор параметров.

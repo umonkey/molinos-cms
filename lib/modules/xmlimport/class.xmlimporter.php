@@ -16,17 +16,15 @@ class XmlImporter extends Widget
       );
   }
 
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
-    $form = parent::formGetConfig();
-
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_url',
-      'label' => t('Адрес потока'),
-      'description' => t('Укажите адрес URI, по которому доступен поток XML-данных.'),
-      )));
-
-    return $form;
+    return array(
+      'url' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Адрес потока'),
+        'description' => t('Укажите адрес URI, по которому доступен поток XML-данных.'),
+        ),
+      );
   }
 
   // Препроцессор параметров.

@@ -34,18 +34,16 @@ class TodoListWidget extends Widget
       );
   }
 
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
-    $form = parent::formGetConfig();
-
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_linktpl',
-      'label' => t('Шаблон ссылки'),
-      'default' => 'node/$nid',
-      'required' => true,
-      )));
-
-    return $form;
+    return array(
+      'linktpl' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Шаблон ссылки'),
+        'default' => 'node/$nid',
+        'required' => true,
+        ),
+      );
   }
 
   protected function getRequestOptions(Context $ctx)

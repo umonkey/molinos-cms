@@ -239,58 +239,57 @@ class SearchWidget extends Widget implements iWidget
     }
   }
 
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
+    $schema = array();
     $config = mcms::modconf('search');
-
-    $form = parent::formGetConfig();
 
     switch ($config['engine']) {
     case 'mg':
-      $form->addControl(new TextLineControl(array(
-        'value' => 'config_action',
+      $schema['action'] = array(
+        'type' => 'TextLineControl',
         'label' => t('Страница с результатами поиска'),
         'description' => t('По умолчанию поиск производится на текущей странице.&nbsp; Если нужно при поиске перебрасывать пользователя на другую страницу, например &mdash; /search/, введите её имя здесь.'),
         'class' => 'settings-mg',
-        )));
-      $form->addControl(new NumberControl(array(
-        'value' => 'config_per_page',
+        );
+      $schema['per_page'] = array(
+        'type' => 'NumberControl',
         'label' => t('Количество результатов на странице'),
         'class' => 'settings-mg',
-        )));
-      $form->addControl(new TextLineControl(array(
-        'value' => 'config_btngo',
+        );
+      $schema['btngo'] = array(
+        'type' => 'TextLineControl',
         'label' => t('Текст кнопки поиска'),
         'class' => 'settings-mg',
-        )));
+        );
       break;
 
     case 'gas':
-      $form->addControl(new TextLineControl(array(
-        'value' => 'config_gas_ctl',
+      $schema['gas_ctl'] = array(
+        'type' => 'TextLineControl',
         'label' => t('Блок с формой поиска'),
         'class' => 'settings-gas',
         'description' => t('Введите id элемента, в который нужно помещать форму поиска.'),
-        )));
-      $form->addControl(new TextLineControl(array(
-        'value' => 'config_gas_root',
+        );
+      $schema['gas_root'] = array(
+        'type' => 'TextLineControl',
         'label' => t('Блок с результатами Google Ajax Search'),
         'class' => 'settings-gas',
         'description' => t('Введите id элемента, в который нужно помещать результаты поиска.  Обычно это — пустой div, скрытый по умолчанию.'),
-        )));
-      $form->addControl(new TextLineControl(array(
-        'value' => 'config_gas_page',
+        );
+      $schema['gas_page'] = array(
+        'type' => 'TextLineControl',
         'label' => t('Страница с результатами поиска'),
-        )));
-      $form->addControl(new TextLineControl(array(
-        'value' => 'config_gas_host',
+        );
+      $schema['gas_host'] = array(
+        'type' => 'TextLineControl',
         'label' => t('Искать в домене'),
         'default' => $_SERVER['HTTP_HOST'],
-        )));
+        );
       break;
     }
 
-    return $form;
+    return $schema;
   }
 
   private static function getNodeUrl(Node $node)

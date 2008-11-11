@@ -41,7 +41,7 @@ class ArchiveWidget extends Widget implements iWidget
    *
    * @return Form вкладка формы, используется для настройки виджета.
    */
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
     $widgets = array();
 
@@ -49,26 +49,22 @@ class ArchiveWidget extends Widget implements iWidget
       if (!strcasecmp('ListWidget', $w->classname))
         $widgets[$w->name] = $w->title;
 
-    $form = parent::formGetConfig();
-
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_host',
-      'label' => t('Привязать к виджету'),
-      'description' => t('Выберите список документов, который будет параметризован этим виджетом.&nbsp; Ссылки, которые формирует навигатор по архиву, будут содержать параметры не для него самого, а для виджета, с которым он связан.'),
-      'options' => $widgets,
-      )));
-
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_reverse_years',
-      'label' => t('Список годов в обратном порядке'),
-      )));
-
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_reverse_months',
-      'label' => t('Список месяцев в обратном порядке'),
-      )));
-
-    return $form;
+    return array(
+      'host' => array(
+        'type' => 'EnumControl',
+        'label' => t('Привязать к виджету'),
+        'description' => t('Выберите список документов, который будет параметризован этим виджетом.&nbsp; Ссылки, которые формирует навигатор по архиву, будут содержать параметры не для него самого, а для виджета, с которым он связан.'),
+        'options' => $widgets,
+        ),
+      'reverse_years' => array(
+        'type' => 'BoolControl',
+        'label' => t('Список годов в обратном порядке'),
+        ),
+      'reverse_months' => array(
+        'type' => 'BoolControl',
+        'label' => t('Список месяцев в обратном порядке'),
+        ),
+      );
   }
 
   /**

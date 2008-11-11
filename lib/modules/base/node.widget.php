@@ -65,77 +65,17 @@ class WidgetNode extends Node implements iContentType
   /**
    * Возвращает форму для редактирования виджета.
    *
-   * При формировании списка доступных типов виджетов используются классы,
-   * реализующие интерфейс iWidget.
-   *
-   * @see iWidget
-   *
-   * @param bool $simple true, если форма не должна содержать дополнительные
-   * вкладки (историю изменений, файлы итд).
+   * К стандартной форме добавляется класс с типом виджета.
    *
    * @return Form описание формы.
    */
   public function formGet($simple = true)
   {
-    if (null === $this->id) {
-      $classes = self::listWidgets();
+    $form = parent::formGet($simple);
+    $form->addClass($this->classname .'-config');
 
-      $form = new Form(array(
-        'title' => t('Добавление виджета'),
-        ));
-      $form->addControl(new HiddenControl(array(
-        'value' => 'class',
-        )));
-      $form->addControl(new TextLineControl(array(
-        'value' => 'name',
-        'label' => t('Внутреннее имя'),
-        'description' => t('Может содержать только цифры, латинские буквы и символ подчёркивания.'),
-        'required' => true,
-        'class' => 'form-title',
-        )));
-      $form->addControl(new TextLineControl(array(
-        'value' => 'title',
-        'label' => t('Видимое название'),
-        'description' => t('Может содержать произвольный текст.&nbsp; Иногда используется не только в админке, но и на сайте.'),
-        'required' => true,
-        )));
-      $form->addControl(new EnumControl(array(
-        'value' => 'classname',
-        'label' => t('Тип'),
-        'required' => true,
-        'options' => $classes,
-        )));
-      $form->addControl(new SubmitControl(array(
-        'text' => t('Создать'),
-        )));
-    } else {
-      $form = parent::formGet($simple);
-      $form->title = t('Редактирование виджета "%name"', array('%name' => $this->name));
-
-      // FIXME: переписать работу с настройками виджетов!
-      if (!empty($this->config))
-        foreach ($this->config as $k => $v)
-          $this->{'config_' . $k} = $v;
-
-      if (mcms::class_exists($this->classname))
-        if (null !== ($tab = call_user_func(array($this->classname, 'formGetConfig'), $this))) {
-          $tab->intro = t('Подробную информацию о настройке этого виджета можно <a href=\'@link\'>найти в документации</a>.', array(
-            '@link' => 'http://code.google.com/p/molinos-cms/wiki/'. $this->classname,
-            ));
-
-          $form->addControl($tab);
-        }
-
-      $form->addClass($this->classname .'-config');
-
-      if (null !== ($tmp = $form->findControl('classname'))) {
-        $tmp->label = 'Тип';
-        $tmp->readonly = true;
-        $tmp->required = false;
-      }
-
-      $form->hideControl('config');
-    }
+    foreach ((array)$this->config as $k => $v)
+      $this->{'config_' . $k} = $v;
 
     return $form;
   }
@@ -155,33 +95,24 @@ class WidgetNode extends Node implements iContentType
   {
     $isnew = (null === $this->id);
 
+    parent::formProcess($data);
+
     $config = array();
 
-    foreach ($data as $k => $v)
-      if (substr($k, 0, 7) == 'config_') {
-        if ($k == 'config_types')
-          unset($v['__reset']);
-        $config[substr($k, 7)] = $v;
+    foreach ($this->data as $k => $v) {
+      if (0 === strpos($k, 'config_')) {
+        if (!empty($v))
+          $config[substr($k, 7)] = $v;
+        unset($this->data[$k]);
       }
-
-    $this->config = $config;
-
-    if (mcms::class_exists($this->classname)) {
-      $w = new $this->classname($this);
-      $w->formHookConfigSaved();
     }
 
-    /* $next = */ parent::formProcess($data)->save();
+    if (!empty($config))
+      $this->data['config'] = $config;
+    elseif (array_key_exists('config', $this->data))
+      unset($this->data['config']);
 
-    if ($isnew) {
-      $next = "?q=admin&mode=edit&cgroup=structure&id={$this->id}"
-        ."&destination=". urlencode($_GET['destination']);
-      mcms::redirect($next);
-    } else if (!empty($_GET['destination'])) {
-      mcms::redirect($_GET['destination']);
-    } else {
-      mcms::redirect("admin");
-    }
+    return $this;
   }
 
   protected static function listWidgets()
@@ -203,7 +134,7 @@ class WidgetNode extends Node implements iContentType
 
   protected function getDefaultSchema()
   {
-    return array(
+    $schema = array(
       'name' => array(
         'type' => 'TextLineControl',
         'label' => t('Внутреннее имя'),
@@ -223,8 +154,10 @@ class WidgetNode extends Node implements iContentType
         ),
       'classname' => array(
         'label' => t('Используемый класс'),
-        'type' => 'TextLineControl',
+        'type' => 'EnumControl',
         'required' => true,
+        'volatile' => true,
+        'options' => self::listWidgets(),
         ),
       'pages' => array(
         'type' => 'SetControl',
@@ -239,16 +172,25 @@ class WidgetNode extends Node implements iContentType
         'type' => 'AccessControl',
         'label' => t('Виджет доступен группам'),
         'group' => t('Доступ'),
+        'volatile' => true,
         ),
       );
-  }
 
-  public function schema()
-  {
-    $schema = parent::schema();
+    // Добавляем настройки виджета.
+    if (!empty($this->classname) and class_exists($this->classname)) {
+      $result = call_user_func(array($this->classname, 'getConfigOptions'));
 
-    if (isset($schema['config']))
-      unset($schema['config']);
+      if (is_array($result))
+        foreach ($result as $k => $v) {
+          $v['value'] = 'config_' . $k;
+          $v['volatile'] = true;
+          if (!array_key_exists('group', $v))
+            $v['group'] = t('Настройки');
+          if (array_key_exists('ifmodule', $v) and !mcms::ismodule($v['ifmodule']))
+            continue;
+          $schema[$v['value']] = $v;
+        }
+    }
 
     return $schema;
   }

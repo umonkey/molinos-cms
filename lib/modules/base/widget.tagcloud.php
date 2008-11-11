@@ -42,7 +42,7 @@ class TagCloudWidget extends Widget implements iWidget
    *
    * @return Form вкладка с настройками виджета.
    */
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
     $types = array();
 
@@ -50,21 +50,18 @@ class TagCloudWidget extends Widget implements iWidget
       if (!in_array($type->name, TypeNode::getInternal()))
         $types[$type->name] = $type->title;
 
-    $form = parent::formGetConfig();
-
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_linktpl',
-      'label' => t('Шаблон ссылки'),
-      'default' => 'section/$id',
-      )));
-
-    $form->addControl(new SetControl(array(
-      'value' => 'config_classes',
-      'label' => t('Типы документов'),
-      'options' => $types,
-      )));
-
-    return $form;
+    return array(
+      'linktpl' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Шаблон ссылки'),
+        'default' => 'section/$id',
+        ),
+      'classes' => array(
+        'type' => 'SetControl',
+        'label' => t('Типы документов'),
+        'options' => $types,
+        ),
+      );
   }
 
   /**

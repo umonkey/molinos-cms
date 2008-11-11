@@ -16,19 +16,17 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
       );
   }
 
-  public static function formGetConfig()
+  public static function getConfigOptions()
   {
-    $form = parent::formGetConfig();
-
-    $form->addControl(new EnumControl(array(
-      'value' => 'config_fixed',
-      'label' => t('Показывать последний опрос из раздела'),
-      'options' => TagNode::getTags('select'),
-      'default' => t('Текущего (из пути или свойств страницы)'),
-      'required' => true,
-      )));
-
-    return $form;
+    return array(
+      'fixed' => array(
+        'type' => 'EnumControl',
+        'label' => t('Показывать последний опрос из раздела'),
+        'options' => TagNode::getTags('select'),
+        'default' => t('Текущего (из пути или свойств страницы)'),
+        'required' => true,
+        ),
+      );
   }
 
   // Препроцессор параметров.
