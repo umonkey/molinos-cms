@@ -289,4 +289,14 @@ class User
   {
     return $this->node->getName();
   }
+
+  /**
+   * Получение списка разделов, доступных пользователю.
+   */
+  public function getPermittedSections()
+  {
+    $uids = join(", ", array_keys($this->getGroups()));
+    $list = mcms::db()->getResultsV("nid", "SELECT nid FROM node__access WHERE uid IN ({$uids}) AND c = 1 AND nid IN (SELECT id FROM node WHERE class = 'tag' AND deleted = 0)");
+    return $list;
+  }
 }
