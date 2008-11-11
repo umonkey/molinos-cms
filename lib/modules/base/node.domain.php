@@ -234,6 +234,12 @@ class DomainNode extends Node implements iContentType
       'store' => true,
       )));
 
+    $form->addControl(new EmailControl(array(
+      'value' => 'moderatoremail',
+      'label' => t('Адреса модераторов'),
+      'description' => t('Список адресов (через запятую), на которые отправляются сообщения о создании документов пользователями, у которых нет прав на публикацию документов. Если не заполнено — используются адреса, указанные в основном домене.'),
+      )));
+
     $form->addControl(new SubmitControl());
 
     return $form;
@@ -248,8 +254,10 @@ class DomainNode extends Node implements iContentType
 
     // Специальная обработка редиректов, которые не укладываются в схему.
     if (!empty($data['redirect'])) {
-      $this->name = $data['name'];
-      $this->redirect = $data['redirect'];
+      foreach (array('name', 'redirect', 'moderatoremail') as $k)
+        $this->$k = array_key_exists($k, $data)
+          ? $data[$k]
+          : null;
     } else {
       parent::formProcess($data);
     }
@@ -633,10 +641,10 @@ class DomainNode extends Node implements iContentType
       'params' => array(
         'type' => 'EnumControl',
         'label' => 'Разметка параметров',
-        'required' => true,
+        'required' => false,
         'volatile' => true,
+        'default_label' => t('(без параметров)'),
         'options' => array(
-          '' => 'без параметров',
           'sec+doc' => '/раздел/документ/',
           'sec' => '/раздел/',
           'doc' => '/документ/',
@@ -667,6 +675,12 @@ class DomainNode extends Node implements iContentType
         'type' => 'SectionControl',
         'label' => t('Основной раздел'),
         'volatile' => true,
+        ),
+      'moderatoremail' => array(
+        'type' => 'EmailControl',
+        'label' => t('Адрес модератора'),
+        'volatile' => true,
+        'description' => t('Список адресов (через запятую), на которые отправляются сообщения о создании документов пользователями, у которых нет прав на публикацию документов.'),
         ),
       );
   }

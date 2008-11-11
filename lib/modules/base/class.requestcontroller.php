@@ -86,6 +86,8 @@ class RequestController
 
     $domain = $ctx->locateDomain($ctx);
 
+    $ctx->moderatoremail = $domain->moderatoremail;
+
     // При обращении к главной странице экономим на подгрузке детей.
     if (null !== $ctx->query()) {
       $domain->loadChildren();

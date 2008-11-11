@@ -168,6 +168,9 @@ class ModeratorModule implements iModuleConfig, iNodeHook
       }
     }
 
+    // Добавляем в список адреса, указанные в свойствах домена.
+    $list += preg_split('/, */', Context::last()->moderatoremail);
+
     return array_unique($list);
   }
 };

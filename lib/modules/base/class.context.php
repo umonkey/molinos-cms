@@ -274,6 +274,7 @@ class Context
         $this->_args[$key] = Node::load($this->_args[$key]);
       return $this->_args[$key];
     case 'theme':
+    case 'moderatoremail':
       if (!array_key_exists($key, $this->_args))
         throw new InvalidArgumentException(t('Свойство %name не определено'
           .' в этом контексте.', array('%name' => $key)));
@@ -287,6 +288,7 @@ class Context
     case 'section':
     case 'document':
     case 'theme':
+    case 'moderatoremail':
     case 'root': // основной раздел
       if (array_key_exists($key, $this->_args))
         throw new InvalidArgumentException(t('Свойство %name уже определено'
@@ -365,7 +367,9 @@ class Context
             if (!empty($dom->defaultsection)) {
               foreach ($domains as $dom2)
                 if ($dom2->name == $dom->redirect) {
-                  $dom2->defaultsection = $dom->defaultsection;
+                  foreach (array('defaultsection', 'moderatoremail') as $k)
+                    if (!empty($dom->$k))
+                      $dom2->$k = $dom->$k;
                   return $dom2;
                 }
             }
