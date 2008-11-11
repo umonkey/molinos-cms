@@ -173,6 +173,7 @@ class WidgetNode extends Node implements iContentType
         'label' => t('Виджет доступен группам'),
         'group' => t('Доступ'),
         'volatile' => true,
+        'columns' => array('r'),
         ),
       );
 
