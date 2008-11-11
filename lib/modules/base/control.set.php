@@ -125,7 +125,7 @@ class SetControl extends Control
       : 'linkListChildren';
 
     if (!empty($this->dictionary) and $data instanceof Node)
-      return $data->$f($this->dictionary, true);
+      return (array)$data->$f($this->dictionary, true);
     return (array)$data->{$this->value};
   }
 
@@ -141,9 +141,7 @@ class SetControl extends Control
 
     else {
       unset($value['__reset']);
-
-      if ($this->required and empty($value))
-        throw new ValidationException($this->label);
+      $this->validate($value);
     }
 
     $f = $this->parents
