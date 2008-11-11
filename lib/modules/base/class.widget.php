@@ -432,7 +432,7 @@ abstract class Widget implements iWidget
    *
    * @return Control описание формы или NULL, если формы с таким id нет.
    */
-  protected function formRender($id, array $data = null)
+  protected function formRender($id, $data = null)
   {
     if (null === ($form = $this->formGet($id)))
       return null;
