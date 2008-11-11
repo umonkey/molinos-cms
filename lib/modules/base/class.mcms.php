@@ -1409,6 +1409,17 @@ class mcms
         microtime(true) - MCMS_START_TIME,
         self::filesize(memory_get_peak_usage()));
 
+    $output = str_replace(
+      array(
+        '$request_time',
+        '$peak_memory',
+        ),
+      array(
+        microtime(true) - MCMS_START_TIME,
+        self::filesize(memory_get_peak_usage()),
+        ),
+      $output);
+
     mcms::fixurls($output, true);
   }
 
