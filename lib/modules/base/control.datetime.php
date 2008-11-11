@@ -56,9 +56,6 @@ class DateTimeControl extends Control
 
   protected function validate($value)
   {
-    if (is_numeric($value))
-      return;
-
     if (false === ($value = strtotime($value)))
       throw new RuntimeException(t('Неверный формат даты: %bad, требуется: %good', array(
         '%bad' => $value,
