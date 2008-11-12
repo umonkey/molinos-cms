@@ -200,11 +200,11 @@ class Node extends NodeBase implements iContentType
       . "WHERE n.deleted = 0 AND n.class = 'type' AND v.name = ?))",
       array($this->class));
 
-    $permitted = mcms::user()->getPermittedSections();
-
-    if (null === $allowed or null === $permitted)
+    if (null === ($permitted = mcms::user()->getPermittedSections()))
       return array();
 
-    return array_intersect($allowed, $permitted);
+    return (null === $allowed)
+      ? array_unique($permitted)
+      : array_intersect($allowed, $permitted);
   }
 };
