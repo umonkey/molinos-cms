@@ -313,7 +313,7 @@ class NodeBase
     foreach ($this->schema() as $field => $ctl) {
       if (false !== ($value = $ctl->getLinkId($this))) {
         if (null === $value)
-          $this->linkRemoveChild($field);
+          $this->linkRemoveChild(null, $field);
         else
           $this->linkAddChild($value, $field);
       }
@@ -345,6 +345,32 @@ class NodeBase
         if (null !== $link['class']) {
           $sql .= " AND {$other} IN (SELECT id FROM node WHERE class = ?)";
           $params[] = $link['class'];
+        }
+
+        break;
+
+      case 'remove':
+        $sql = "DELETE FROM `node__rel` WHERE";
+
+        if (array_key_exists('child', $link)) {
+          $f1 = 'tid';
+          $f2 = 'nid';
+          $f2v = $link['child'];
+        } else {
+          $f1 = 'nid';
+          $f2 = 'tid';
+          $f2v = $link['parent'];
+        }
+
+        $sql .= " `{$f1}` = ?";
+        $params[] = $this->id;
+
+        if (!empty($link['key'])) {
+          $sql .= " AND `key` = ?";
+          $params[] = $link['key'];
+        } else {
+          $sql .= " AND `{$f2}` = ?";
+          $params[] = $f2v;
         }
 
         break;
@@ -1177,7 +1203,16 @@ class NodeBase
    */
   public function linkRemoveParent($parent_id)
   {
-    return $this->linkBreak($parent_id, $this->id);
+    if ($parent_id !== null and !is_numeric($parent_id))
+      throw new InvalidArgumentException(t('Параметр parent_id для linkRemoveParent должен быть числом.'));
+
+    $this->_links[] = array(
+      'action' => 'remove',
+      'parent' => $parent_id,
+      'key' => $key,
+      );
+
+    return $this;
   }
 
   /**
@@ -1190,7 +1225,16 @@ class NodeBase
    */
   public function linkRemoveChild($child_id = null, $key = null)
   {
-    return $this->linkBreak($this->id, $child_id, $key);
+    if ($child_id !== null and !is_numeric($child_id))
+      throw new InvalidArgumentException(t('Параметр child_id для linkRemoveChild должен быть числом.'));
+
+    $this->_links[] = array(
+      'action' => 'remove',
+      'child' => $child_id,
+      'key' => $key,
+      );
+
+    return $this;
   }
 
   /**
@@ -1279,6 +1323,8 @@ class NodeBase
           'key' => null,
           );
     }
+
+    return $this;
   }
 
   private static function getNextOrder($tid)
