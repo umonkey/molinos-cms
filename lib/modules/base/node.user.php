@@ -141,7 +141,7 @@ class UserNode extends Node implements iContentType
 
   protected function getDefaultSchema()
   {
-    return array(
+    $result = array(
       'name' => array(
         'type' => 'EmailControl',
         'label' => t('Email или OpenID'),
@@ -165,5 +165,10 @@ class UserNode extends Node implements iContentType
         'parents' => true,
         ),
       );
+
+    if (!mcms::user()->hasAccess('u', 'user'))
+      unset($result['groups']);
+
+    return $result;
   }
 };
