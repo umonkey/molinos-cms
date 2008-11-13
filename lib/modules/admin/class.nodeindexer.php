@@ -95,11 +95,11 @@ class NodeIndexer
 
       $class = array_pop(array_keys($stat));
 
-      $url = new url($ctx->url());
-      $url->setarg('class', $class);
-      $url->setarg('left', $stat[$class]);
+      $url = '?q=admin.rpc&action=reindex'
+        . '&class=' . $class
+        . '&left=' . $stat[$class];
 
-      $ctx->redirect($url->string());
+      $ctx->redirect($url);
     }
   }
 }
