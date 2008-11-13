@@ -341,6 +341,12 @@ class AdminRPC implements iRemoteCall
       $form->addClass("node-{$type}-create-form");
       $form->action = "?q=nodeapi.rpc&action=create&type={$type}&destination=". urlencode($_GET['destination']);
 
+      if ($node->parent_id)
+        $form->addControl(new HiddenControl(array(
+          'value' => 'parent_id',
+          'default' => $node->parent_id,
+          )));
+
       if ($ctx->get('dictionary')) {
         if (null !== ($tmp = $form->findControl('tab_general')))
           $tmp->intro = t('Вы создаёте первый справочник.  Вы сможете использовать его значения в качестве выпадающих списков (для этого надо будет добавить соответствующее поле в нужный <a href=\'@types\'>тип документа</a>).', array('@types' => 'admin/?cgroup=structure&mode=list&preset=schema'));
