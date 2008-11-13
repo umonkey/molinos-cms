@@ -298,7 +298,7 @@ function bebop_get_file_type($filename, $realname = null)
   }
 
   elseif (function_exists('finfo_open')) {
-    if (false !== ($r = finfo_open(FILEINFO_MIME))) {
+    if (false !== ($r = @finfo_open(FILEINFO_MIME))) {
       $result = finfo_file($r, $filename);
       $result = str_replace(strrchr($result, ';'), '', $result);
       finfo_close($r);
