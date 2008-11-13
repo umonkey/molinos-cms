@@ -90,7 +90,7 @@ class RequestController
 
     // При обращении к главной странице экономим на подгрузке детей.
     if (null !== $ctx->query()) {
-      $domain->loadChildren();
+      $domain->loadChildren('domain', true);
 
       if ('' !== $ctx->query())
         $ids = explode('/', trim($ctx->query(), '/'));
