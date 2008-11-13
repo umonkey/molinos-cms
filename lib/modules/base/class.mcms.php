@@ -1062,7 +1062,7 @@ class mcms
     self::pop($extras, 'themes/all/jquery/jquery.min.js');
     self::pop($extras, 'themes/all/jquery/jquery.js');
 
-    $compress = (mcms::ismodule('compressor') and empty($_GET['nocompress']));
+    $compress = (class_exists('CompressorModule') and empty($_GET['nocompress']));
 
     $js = $css = '';
 
