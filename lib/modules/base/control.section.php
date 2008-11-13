@@ -49,6 +49,8 @@ class SectionControl extends EnumControl implements iFormControl
 
   protected function getEnabled($data)
   {
+    if ('domain' == $data->class)
+      return null;
     return Node::create($data->class)->getEnabledSections();
   }
 }
