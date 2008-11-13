@@ -36,7 +36,7 @@ class SectionControl extends EnumControl implements iFormControl
 
   protected function getSelected($data)
   {
-    if ($this->store)
+    if ($this->store or !($data instanceof Node))
       return array($data->{$this->value});
 
     if (null === ($links = $data->linkListParents('tag', true)))
@@ -50,6 +50,8 @@ class SectionControl extends EnumControl implements iFormControl
   protected function getEnabled($data)
   {
     if ('domain' == $data->class)
+      return null;
+    if (!($data instanceof Node))
       return null;
     return Node::create($data->class)->getEnabledSections();
   }
