@@ -101,6 +101,11 @@ class ListWidget extends Widget
         'label' => t('Использовать постраничную листалку'),
         'description' => t('Если эта опция выключена, массив $pager возвращаться не будет, и параметр .page=N обрабатываться не будет.'),
         ),
+      'allowoverride' => array(
+        'type' => 'BoolControl',
+        'label' => t('Разрешить переопределять раздел'),
+        'description' => t('При включении можно будет использовать ?виджет.section=123 для изменения раздела, с которым работает виджет.'),
+        ),
       'sort' => array(
         'type' => 'TextLineControl',
         'label' => t('Сортировка'),
@@ -157,6 +162,9 @@ class ListWidget extends Widget
         $options['filter']['tags'] = array($this->fixed);
       elseif (null !== ($tmp = $ctx->section->id))
         $options['filter']['tags'] = array($tmp);
+
+      if ($this->allowoverride and ($o = $ctx->get('section')))
+        $options['filter']['tags'] = array($o);
 
       if ($this->skipcurrent)
         $options['current_document'] = $ctx->document->id;
