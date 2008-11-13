@@ -27,11 +27,11 @@ class OrderDetailsControl extends Control
 
   public function getHTML($data)
   {
-    if (empty($data[$this->value]))
+    if (empty($data->{$this->value}))
       return;
 
     $html = $this->getLabel();
-    $html .= $this->renderContent($data[$this->value]);
+    $html .= $this->renderContent($data->{$this->value});
 
     return $this->wrapHTML($html, false, true);
   }
