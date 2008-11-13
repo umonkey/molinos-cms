@@ -29,6 +29,9 @@ class AttachmentControl extends Control
     if (!array_key_exists('archive', $form))
       $form['archive'] = true;
 
+    if (!array_key_exists('fetch', $form))
+      $form['fetch'] = true;
+
     parent::__construct($form, array('value'));
 
     $parts = array();
