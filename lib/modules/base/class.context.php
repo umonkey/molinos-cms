@@ -397,4 +397,14 @@ class Context
     else
       $this->_profile[$name] = $time;
   }
+
+  public function gonext()
+  {
+    if (null !== ($next = $this->get('destination')))
+      $this->redirect($next);
+    elseif (null !== ($next = $this->post('destination')))
+      $this->redirect($next);
+
+    throw new RuntimeException(t('Не указан адрес для дальнейшего перехода (?destination=).'));
+  }
 }
