@@ -7,7 +7,15 @@ function smarty_function_node($params, &$smarty)
     ? $params['default']
     : null;
 
-  if (array_key_exists('link', $params)) {
+  if (array_key_exists('load', $params)) {
+    if (empty($params['assign']))
+      throw new SmartyException(t('Не указан параметр assign для {node load=...}'));
+
+    $result = Node::load($params['load'])->getRaw();
+    $smarty->assign($params['assign'], $result);
+  }
+
+  elseif (array_key_exists('link', $params)) {
     if ($params['link'] instanceof Node)
       $node = $params['link']->getRaw();
     else
