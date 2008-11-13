@@ -1518,8 +1518,10 @@ class mcms
       $nothing = ''; // 'Для просмотра этого ролика нужен Flash.';
 
     if (strtolower(substr($url, -4)) == '.mp3') {
+      $furl = urlencode($url);
       $link['type'] = 'audio/mpeg';
       $link['is_audio'] = true;
+      $link['embed'] = "<object type='application/x-shockwave-flash' data='themes/all/flash/player.swf?file={$furl}&amp;showdigits=true&amp;autostart=false&amp;repeat=false&amp;shuffle=false&amp;width=350&amp;height=20&amp;showdownload=false&amp;displayheight=0' width='350' height='20'><param name='movie' value='themes/all/flash/player.swf?file={$furl}&amp;showdigits=true&amp;autostart=false&amp;repeat=false&amp;shuffle=false&amp;width=350&amp;height=20&amp;showdownload=false&amp;displayheight=0' /><param name='wmode' value='transparent' /></object>";
     } elseif (preg_match('%^http://vimeo.com/([0-9]+)%', $url, $m1)) {
       $link['type'] = 'video/x-flv';
       $link['embed'] = '<object width="'. $options['width'] .'" height="'. $options['height'] .'">'
