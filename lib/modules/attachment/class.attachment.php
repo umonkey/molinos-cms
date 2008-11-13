@@ -12,6 +12,7 @@ class Attachment
   private $node = null;
   private $guid = null;
   private $ctx = null;
+  private $fid = null;
 
   public function __construct(Context $ctx)
   {
@@ -45,18 +46,7 @@ class Attachment
     }
 
     $this->ctx = $ctx;
-
-    try {
-      $this->node = Node::load(array(
-        'class' => 'file',
-        'id' => $fid,
-        ));
-    } catch (ObjectNotFoundException $e) {
-      $this->sendError(404, 'file not found.');
-    }
-
-    if (!empty($this->filename) and $this->filename != $this->node->filename)
-      $this->sendError(404, 'file "'. $this->filename .'" not found.');
+    $this->fid = $fid;
 
     $this->parseOptions($m[4]);
   }
@@ -93,6 +83,21 @@ class Attachment
     }
   }
 
+  private function loadNode()
+  {
+    try {
+      $this->node = Node::load(array(
+        'class' => 'file',
+        'id' => $this->fid,
+        ));
+    } catch (ObjectNotFoundException $e) {
+      $this->sendError(404, 'file not found.');
+    }
+
+    if (!empty($this->filename) and $this->filename != $this->node->filename)
+      $this->sendError(404, 'file "'. $this->filename .'" not found.');
+  }
+
   private function sendError($code, $more = null)
   {
     if (ob_get_length())
@@ -123,12 +128,35 @@ class Attachment
   }
 
   /**
+   * Выдача объекта из кэша.
+   */
+  protected function sendFromCache()
+  {
+    if (null !== $this->node)
+      throw new RuntimeException(t('File cache misbehavior: node loaded.'));
+
+    if (!file_exists($guid = $this->getGuid()))
+      return false;
+
+    if (!file_exists($type = $guid . '.type'))
+      return false;
+
+    return $this->sendRawFile($guid, file_get_contents($type));
+  }
+
+  /**
    * Выдача файла клиенту.
    */
   public function sendFile()
   {
+    if ($this->sendFromCache())
+      die();
+
+    $this->loadNode();
+
     if (!$this->sendImage())
       $this->sendDownload();
+
     die();
   }
 
@@ -159,12 +187,16 @@ class Attachment
 
       if (!is_array($tmp = $this->resizeImage($img)))
         $this->sendError(500, 'failed to resize the image.');
-      else
+      else {
         file_put_contents($guid, $tmp['data']);
+        file_put_contents($guid . '.type', $this->node->filetype);
+      }
     }
 
-    header('Content-Type: '. $this->node->filetype);
-    header('Content-Length: '. filesize($guid));
+    header('Content-Type: ' . $this->node->filetype);
+    header('Content-Length: ' . filesize($guid));
+    header('Expires: ' . date('r', time() + ($seconds = 60*60*24)));
+    header('Cache-Control: max-age=' . $seconds);
 
     die(fpassthru(fopen($guid, 'rb')));
   }
@@ -309,20 +341,8 @@ class Attachment
    */
   private function getGuid()
   {
-    if (0 !== strpos($this->node->filetype, 'image/'))
-      return null;
-
-    $args = join(',', array(
-      $this->node->id,
-      $this->node->rid,
-      $this->nw,
-      $this->nh,
-      join('+', array_keys($this->options)),
-      $this->node->filename,
-      ));
-
     $guid = mcms::mkdir(mcms::config('tmpdir') .'/images')
-      .'/file-'. md5($args) . strrchr($this->node->filename, '.');
+      . '/' . md5($this->ctx->query()) . '.attcache';
 
     return $guid;
   }
@@ -367,5 +387,18 @@ class Attachment
     }
 
     return false;
+  }
+
+  protected function sendRawFile($fileName, $fileType)
+  {
+    $seconds = 2592000;
+
+    header('Content-Type: ' . $fileType);
+    header('Content-Length: ' . filesize($fileName));
+    header('Expires: ' . date('r', time() + $seconds));
+    header('Cache-Control: max-age=' . $seconds);
+    header('ETag: "' . md5($fileName) . '"');
+
+    die(fpassthru(fopen($fileName, 'rb')));
   }
 };
