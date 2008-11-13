@@ -5,7 +5,10 @@ class Schema extends ArrayObject
   public function __construct(array $fields = array())
   {
     foreach ($fields as $k => $v)
-      $fields[$k] = $this->rebuild($v, $k);
+      if (null !== ($ctl = $this->rebuild($v, $k)))
+        $fields[$k] = $ctl;
+      else
+        unset($fields[$k]);
 
     return parent::__construct($fields);
   }
@@ -26,7 +29,7 @@ class Schema extends ArrayObject
 
     elseif (is_array($value)) {
       if (!class_exists($class = $value['type']))
-        $class = 'Control';
+        return null;
 
       return new $class($value + array('value' => $key));
     }
