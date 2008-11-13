@@ -59,12 +59,6 @@ class NodeBase
         $data['created'] = $data['updated'];
     }
 
-    // При создании пользователя этого не делаем, чтобы
-    // не войти в мёртвый цикл, т.к. ноды типа user создаются
-    // при чтении сессии.
-    if (empty($data['uid']) and $data['class'] != 'user' and $data['class'] != 'group')
-      $data['uid'] = mcms::user()->id;
-
     $this->data = $data;
   }
 
@@ -277,6 +271,9 @@ class NodeBase
 
     if (empty($this->created))
       $this->created = gmdate('Y-m-d H:i:s');
+
+    if (empty($this->data['uid']) and $this->data['class'] != 'user' and $this->data['class'] != 'group')
+      $this->data['uid'] = mcms::user()->id;
 
     // FIXME: вынести детей из data в отдельную переменную.
     if (isset($this->data['children']))
