@@ -77,7 +77,12 @@ class AttachmentControl extends Control
     case UPLOAD_ERR_PARTIAL:
       throw new RuntimeException(t('Файл получен не полностью.'));
     case UPLOAD_ERR_NO_FILE:
-      $value = null;
+      if (!empty($value['id']))
+        $value = Node::load($value['id']);
+      elseif (!empty($value['url']))
+        $value = FileNode::fromURL($value['url']);
+      else
+        $value = null;
     }
 
     $node->{$this->value} = $value;

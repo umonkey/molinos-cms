@@ -584,4 +584,17 @@ class FileNode extends Node implements iContentType
         : 'attachment/'. $this->id .'/'. urlencode($this->filename);
     return parent::__get($key);
   }
+
+  public static function fromURL($url)
+  {
+    $node = Node::create('file');
+
+    $node = $node->import($i = array(
+      'tmp_name' => mcms_fetch_file($url, false),
+      'name' => basename($url),
+      'type' => bebop_get_file_type(basename($url)),
+      ), false);
+
+    return $node;
+  }
 };
