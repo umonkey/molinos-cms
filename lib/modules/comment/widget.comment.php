@@ -62,6 +62,15 @@ class CommentWidget extends Widget
   public static function getConfigOptions()
   {
     return array(
+      'mode' => array(
+        'type' => 'EnumControl',
+        'label' => t('Режим работы'),
+        'required' => true,
+        'options' => array(
+          'linked' => t('Комментарии к текущему объекту'),
+          'last' => t('Последние комментарии'),
+          ),
+        ),
       'startwith' => array(
         'type' => 'EnumControl',
         'label' => t('По умолчанию показывать'),
@@ -90,7 +99,11 @@ class CommentWidget extends Widget
 
     $options['status'] = $ctx->get('status');
 
-    switch ($options['action'] = $ctx->get('action', 'list')) {
+    $options['mode'] = $this->mode;
+    if (empty($options['mode']))
+      $options['mode'] = 'list';
+
+    switch ($options['mode']) {
     case 'list':
       switch ($this->startwith) {
       case 'last':
@@ -118,6 +131,9 @@ class CommentWidget extends Widget
 
       $options['page'] = $ctx->get('page', $options['default']);
       break;
+
+    case 'last':
+      break;
     }
 
     return $options;
@@ -141,7 +157,7 @@ class CommentWidget extends Widget
   // Обработка GET запросов.
   public function onGet(array $options)
   {
-    return $this->dispatch(array($options['action']), $options);
+    return $this->dispatch(array($options['mode']), $options);
   }
 
   protected function onGetList(array $options)
@@ -171,13 +187,14 @@ class CommentWidget extends Widget
     return $result;
   }
 
-  protected function onGetTracker(array $options)
+  protected function onGetLast(array $options)
   {
     $result = array();
-    $filter = array('class' => 'comment', '#sort' => array('id' => 'desc'));
-
-    if (!empty($options['doc']) and is_numeric($options['doc']))
-      $filter['tags'] = array($options['doc']);
+    $filter = array(
+      'class' => 'comment',
+      'published' => 1,
+      '#sort' => '-id',
+      );
 
     if (($count = Node::count($filter)) > $this->perpage)
       $result['pager'] = $this->getPager($count, $options['page'], $this->perpage);
@@ -210,15 +227,26 @@ class CommentWidget extends Widget
   {
     $uids = array();
 
-    foreach ($nodes as $k => $v)
-      if (null !== $v->uid)
+    foreach ($nodes as $k => $v) {
+      if (null !== $v->uid and !is_object($v->uid))
         $uids[] = $v->uid;
+      if (null !== $v->node)
+        $uids[] = $v->node;
+    }
 
-    $users = Node::find(array('class' => 'user', 'id' => array_unique($uids)));
+    if (empty($uids))
+      $users = array();
+    else
+      $users = Node::find(array(
+        'id' => array_unique($uids),
+        '#recurse' => 0,
+        ));
 
     foreach ($nodes as $k => $v) {
-      if (null !== $v->uid and array_key_exists($v->uid, $users))
-        $v->name = $users[$v->uid]->name;
+      if (null !== $v->uid and !is_object($v->uid) and array_key_exists($v->uid, $users))
+        $v->uid = $users[$v->uid];
+      if (null !== $v->node and array_key_exists($v->node, $users))
+        $v->node = $users[$v->node];
       $nodes[$k] = $v->getRaw();
     }
 
