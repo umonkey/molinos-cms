@@ -203,7 +203,8 @@ class ArchiveWidget extends Widget implements iWidget
     foreach (mcms::db()->getResultsKV("year", "count", $sql) as $k => $v) {
       if (!empty($k)) {
         $url->setarg($this->host .'.year', $k);
-        $result[$k] = $url->string();
+        $url->setarg($this->host .'.page', null);
+        $result[$k] = strval($url);
       }
     }
 
@@ -245,6 +246,7 @@ class ArchiveWidget extends Widget implements iWidget
     // FIXME: publishing
     foreach (mcms::db()->getResultsKV("month", "count", $sql, array(':year' => $options['year'])) as $k => $v) {
       $url['args'][$this->host]['month'] = $k;
+      $url['args'][$this->host]['page'] = null;
       $result[$k] = bebop_combine_url($url);
     }
 
@@ -317,6 +319,7 @@ class ArchiveWidget extends Widget implements iWidget
           $result .= $day;
         else {
           $url['args'][$instance]['day'] = $day;
+          $url['args'][$instance]['page'] = null;
           $result .= "<a href='". bebop_combine_url($url) ."'>{$day}</a>";
         }
 
