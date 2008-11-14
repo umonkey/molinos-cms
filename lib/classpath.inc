@@ -5,48 +5,14 @@
     array (
       'classes' => 
       array (
-        0 => 'AccessLogListHandler',
-        1 => 'AccessLogModule',
-        2 => 'AccessLogRPC',
-        3 => 'DBSchema_node__astat',
       ),
       'interfaces' => 
       array (
-        0 => 'iAdminMenu',
-        1 => 'iModuleConfig',
-        2 => 'iRequestHook',
-        3 => 'iAdminUI',
-        4 => 'iWidget',
-        5 => 'iRemoteCall',
       ),
       'implementors' => 
       array (
-        'iAdminMenu' => 
-        array (
-          0 => 'AccessLogModule',
-        ),
-        'iModuleConfig' => 
-        array (
-          0 => 'AccessLogModule',
-        ),
-        'iRequestHook' => 
-        array (
-          0 => 'AccessLogModule',
-        ),
-        'iAdminUI' => 
-        array (
-          0 => 'AccessLogModule',
-        ),
-        'iWidget' => 
-        array (
-          0 => 'AccessLogModule',
-        ),
-        'iRemoteCall' => 
-        array (
-          0 => 'AccessLogRPC',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Statistics',
       'version' => '8.02.4782',
       'name' => 
@@ -110,32 +76,14 @@
     array (
       'classes' => 
       array (
-        0 => 'AdminExtReqHook',
-        1 => 'AdminExtRPC',
-        2 => 'AdminExtSettings',
       ),
       'interfaces' => 
       array (
-        0 => 'iRequestHook',
-        1 => 'iRemoteCall',
-        2 => 'iModuleConfig',
       ),
       'implementors' => 
       array (
-        'iRequestHook' => 
-        array (
-          0 => 'AdminExtReqHook',
-        ),
-        'iRemoteCall' => 
-        array (
-          0 => 'AdminExtRPC',
-        ),
-        'iModuleConfig' => 
-        array (
-          0 => 'AdminExtSettings',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Interactive',
       'version' => '8.05.6192',
       'name' => 
@@ -202,20 +150,14 @@
     array (
       'classes' => 
       array (
-        0 => 'AutocompleteModule',
       ),
       'interfaces' => 
       array (
-        0 => 'iRemoteCall',
       ),
       'implementors' => 
       array (
-        'iRemoteCall' => 
-        array (
-          0 => 'AutocompleteModule',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
       'name' => 
@@ -424,20 +366,14 @@
     array (
       'classes' => 
       array (
-        0 => 'BlogWidget',
       ),
       'interfaces' => 
       array (
-        0 => 'iWidget',
       ),
       'implementors' => 
       array (
-        'iWidget' => 
-        array (
-          0 => 'BlogWidget',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
       'name' => 
@@ -451,20 +387,14 @@
     array (
       'classes' => 
       array (
-        0 => 'CaptchaModule',
       ),
       'interfaces' => 
       array (
-        0 => 'iRemoteCall',
       ),
       'implementors' => 
       array (
-        'iRemoteCall' => 
-        array (
-          0 => 'CaptchaModule',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'version' => '8.5',
       'name' => 
@@ -477,47 +407,14 @@
     array (
       'classes' => 
       array (
-        0 => 'CartRPC',
-        1 => 'CartSettings',
-        2 => 'CartControl',
-        3 => 'OrderDetailsControl',
-        4 => 'OrderNode',
-        5 => 'CartWidget',
       ),
       'interfaces' => 
       array (
-        0 => 'iRemoteCall',
-        1 => 'iModuleConfig',
-        2 => 'iFormControl',
-        3 => 'iContentType',
-        4 => 'iWidget',
       ),
       'implementors' => 
       array (
-        'iRemoteCall' => 
-        array (
-          0 => 'CartRPC',
-        ),
-        'iModuleConfig' => 
-        array (
-          0 => 'CartSettings',
-        ),
-        'iFormControl' => 
-        array (
-          0 => 'CartControl',
-          1 => 'OrderDetailsControl',
-        ),
-        'iContentType' => 
-        array (
-          0 => 'OrderNode',
-          1 => 'OrderNode',
-        ),
-        'iWidget' => 
-        array (
-          0 => 'CartWidget',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
       'name' => 
@@ -531,51 +428,14 @@
     array (
       'classes' => 
       array (
-        0 => 'CommentListHandler',
-        1 => 'CommentNodeHook',
-        2 => 'CommentRPC',
-        3 => 'CommentNode',
-        4 => 'CommentWidget',
-        5 => 'CommentFormWidget',
       ),
       'interfaces' => 
       array (
-        0 => 'iAdminUI',
-        1 => 'iAdminMenu',
-        2 => 'iNodeHook',
-        3 => 'iRemoteCall',
-        4 => 'iContentType',
-        5 => 'iWidget',
       ),
       'implementors' => 
       array (
-        'iAdminUI' => 
-        array (
-          0 => 'CommentListHandler',
-        ),
-        'iAdminMenu' => 
-        array (
-          0 => 'CommentListHandler',
-        ),
-        'iNodeHook' => 
-        array (
-          0 => 'CommentNodeHook',
-        ),
-        'iRemoteCall' => 
-        array (
-          0 => 'CommentRPC',
-        ),
-        'iContentType' => 
-        array (
-          0 => 'CommentNode',
-        ),
-        'iWidget' => 
-        array (
-          0 => 'CommentWidget',
-          1 => 'CommentFormWidget',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Interactive',
       'version' => '8.02.4782',
       'name' => 
@@ -660,25 +520,14 @@
     array (
       'classes' => 
       array (
-        0 => 'DrawTextModule',
       ),
       'interfaces' => 
       array (
-        0 => 'iModuleConfig',
-        1 => 'iRemoteCall',
       ),
       'implementors' => 
       array (
-        'iModuleConfig' => 
-        array (
-          0 => 'DrawTextModule',
-        ),
-        'iRemoteCall' => 
-        array (
-          0 => 'DrawTextModule',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
       'name' => 
@@ -728,7 +577,6 @@
     array (
       'classes' => 
       array (
-        0 => 'ID3Tools',
       ),
       'interfaces' => 
       array (
@@ -736,7 +584,7 @@
       'implementors' => 
       array (
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'name' => 
       array (
@@ -749,25 +597,14 @@
     array (
       'classes' => 
       array (
-        0 => 'GoogleAnalyticsModule',
       ),
       'interfaces' => 
       array (
-        0 => 'iModuleConfig',
-        1 => 'iPageHook',
       ),
       'implementors' => 
       array (
-        'iModuleConfig' => 
-        array (
-          0 => 'GoogleAnalyticsModule',
-        ),
-        'iPageHook' => 
-        array (
-          0 => 'GoogleAnalyticsModule',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Statistics',
       'version' => '8.02.4782',
       'name' => 
@@ -835,25 +672,14 @@
     array (
       'classes' => 
       array (
-        0 => 'MaintenanceModule',
       ),
       'interfaces' => 
       array (
-        0 => 'iModuleConfig',
-        1 => 'iRequestHook',
       ),
       'implementors' => 
       array (
-        'iModuleConfig' => 
-        array (
-          0 => 'MaintenanceModule',
-        ),
-        'iRequestHook' => 
-        array (
-          0 => 'MaintenanceModule',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
       'name' => 
@@ -897,25 +723,14 @@
     array (
       'classes' => 
       array (
-        0 => 'ModeratorModule',
       ),
       'interfaces' => 
       array (
-        0 => 'iModuleConfig',
-        1 => 'iNodeHook',
       ),
       'implementors' => 
       array (
-        'iModuleConfig' => 
-        array (
-          0 => 'ModeratorModule',
-        ),
-        'iNodeHook' => 
-        array (
-          0 => 'ModeratorModule',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
       'name' => 
@@ -929,32 +744,14 @@
     array (
       'classes' => 
       array (
-        0 => 'MsgModule',
-        1 => 'MessageNode',
-        2 => 'MessageListWidget',
       ),
       'interfaces' => 
       array (
-        0 => 'iRemoteCall',
-        1 => 'iContentType',
-        2 => 'iWidget',
       ),
       'implementors' => 
       array (
-        'iRemoteCall' => 
-        array (
-          0 => 'MsgModule',
-        ),
-        'iContentType' => 
-        array (
-          0 => 'MessageNode',
-        ),
-        'iWidget' => 
-        array (
-          0 => 'MessageListWidget',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'name' => 
       array (
@@ -1063,25 +860,14 @@
     array (
       'classes' => 
       array (
-        0 => 'XspfModule',
       ),
       'interfaces' => 
       array (
-        0 => 'iRemoteCall',
-        1 => 'iModuleConfig',
       ),
       'implementors' => 
       array (
-        'iRemoteCall' => 
-        array (
-          0 => 'XspfModule',
-        ),
-        'iModuleConfig' => 
-        array (
-          0 => 'XspfModule',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
       'name' => 
@@ -1095,38 +881,14 @@
     array (
       'classes' => 
       array (
-        0 => 'PollRPC',
-        1 => 'PollNode',
-        2 => 'PollWidget',
       ),
       'interfaces' => 
       array (
-        0 => 'iRemoteCall',
-        1 => 'iContentType',
-        2 => 'iModuleConfig',
-        3 => 'iWidget',
       ),
       'implementors' => 
       array (
-        'iRemoteCall' => 
-        array (
-          0 => 'PollRPC',
-        ),
-        'iContentType' => 
-        array (
-          0 => 'PollNode',
-          1 => 'PollNode',
-        ),
-        'iModuleConfig' => 
-        array (
-          0 => 'PollWidget',
-        ),
-        'iWidget' => 
-        array (
-          0 => 'PollWidget',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Interactive',
       'version' => '8.02.4782',
       'name' => 
@@ -1140,25 +902,14 @@
     array (
       'classes' => 
       array (
-        0 => 'RatingWidget',
       ),
       'interfaces' => 
       array (
-        0 => 'iNodeHook',
-        1 => 'iWidget',
       ),
       'implementors' => 
       array (
-        'iNodeHook' => 
-        array (
-          0 => 'RatingWidget',
-        ),
-        'iWidget' => 
-        array (
-          0 => 'RatingWidget',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Interactive',
       'version' => '8.02.4782',
       'name' => 
@@ -1172,25 +923,14 @@
     array (
       'classes' => 
       array (
-        0 => 'RobotsModule',
       ),
       'interfaces' => 
       array (
-        0 => 'iModuleConfig',
-        1 => 'iRequestHook',
       ),
       'implementors' => 
       array (
-        'iModuleConfig' => 
-        array (
-          0 => 'RobotsModule',
-        ),
-        'iRequestHook' => 
-        array (
-          0 => 'RobotsModule',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
       'name' => 
@@ -1204,37 +944,14 @@
     array (
       'classes' => 
       array (
-        0 => 'RSSListHandler',
-        1 => 'RSSModule',
-        2 => 'RssfeedNode',
       ),
       'interfaces' => 
       array (
-        0 => 'iRemoteCall',
-        1 => 'iAdminMenu',
-        2 => 'iAdminUI',
-        3 => 'iContentType',
       ),
       'implementors' => 
       array (
-        'iRemoteCall' => 
-        array (
-          0 => 'RSSModule',
-        ),
-        'iAdminMenu' => 
-        array (
-          0 => 'RSSModule',
-        ),
-        'iAdminUI' => 
-        array (
-          0 => 'RSSModule',
-        ),
-        'iContentType' => 
-        array (
-          0 => 'RssfeedNode',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'name' => 
       array (
@@ -1246,40 +963,14 @@
     array (
       'classes' => 
       array (
-        0 => 'DBSchema_node__searchindex',
-        1 => 'SearchConfig',
-        2 => 'SearchIndexer',
-        3 => 'SearchScheduler',
-        4 => 'SearchWidget',
       ),
       'interfaces' => 
       array (
-        0 => 'iModuleConfig',
-        1 => 'iNodeHook',
-        2 => 'iScheduler',
-        3 => 'iWidget',
       ),
       'implementors' => 
       array (
-        'iModuleConfig' => 
-        array (
-          0 => 'SearchConfig',
-        ),
-        'iNodeHook' => 
-        array (
-          0 => 'SearchIndexer',
-        ),
-        'iScheduler' => 
-        array (
-          0 => 'SearchScheduler',
-        ),
-        'iWidget' => 
-        array (
-          0 => 'SearchWidget',
-          1 => 'SearchWidget',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Interactive',
       'version' => '8.02.4782',
       'name' => 
@@ -1293,30 +984,14 @@
     array (
       'classes' => 
       array (
-        0 => 'Sitemap',
       ),
       'interfaces' => 
       array (
-        0 => 'iModuleConfig',
-        1 => 'iRemoteCall',
-        2 => 'iNodeHook',
       ),
       'implementors' => 
       array (
-        'iModuleConfig' => 
-        array (
-          0 => 'Sitemap',
-        ),
-        'iRemoteCall' => 
-        array (
-          0 => 'Sitemap',
-        ),
-        'iNodeHook' => 
-        array (
-          0 => 'Sitemap',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'name' => 
       array (
@@ -1329,8 +1004,6 @@
     array (
       'classes' => 
       array (
-        0 => 'BebopSmarty',
-        1 => 'SmartyException',
       ),
       'interfaces' => 
       array (
@@ -1338,7 +1011,7 @@
       'implementors' => 
       array (
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
       'name' => 
@@ -1352,52 +1025,14 @@
     array (
       'classes' => 
       array (
-        0 => 'SubscriptionAdmin',
-        1 => 'SubscriptionAdminList',
-        2 => 'SubscriptionConfig',
-        3 => 'SubscriptionRPC',
-        4 => 'SubscriptionScheduler',
-        5 => 'SubscriptionWidget',
-        6 => 'SubscriptionAdminWidget',
       ),
       'interfaces' => 
       array (
-        0 => 'iAdminMenu',
-        1 => 'iAdminUI',
-        2 => 'iModuleConfig',
-        3 => 'iRemoteCall',
-        4 => 'iScheduler',
-        5 => 'iWidget',
       ),
       'implementors' => 
       array (
-        'iAdminMenu' => 
-        array (
-          0 => 'SubscriptionAdmin',
-        ),
-        'iAdminUI' => 
-        array (
-          0 => 'SubscriptionAdminList',
-        ),
-        'iModuleConfig' => 
-        array (
-          0 => 'SubscriptionConfig',
-        ),
-        'iRemoteCall' => 
-        array (
-          0 => 'SubscriptionRPC',
-        ),
-        'iScheduler' => 
-        array (
-          0 => 'SubscriptionScheduler',
-        ),
-        'iWidget' => 
-        array (
-          0 => 'SubscriptionWidget',
-          1 => 'SubscriptionAdminWidget',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Interactive',
       'version' => '8.02.4782',
       'name' => 
@@ -1410,26 +1045,14 @@
     array (
       'classes' => 
       array (
-        0 => 'SyslogListHandler',
-        1 => 'SysLogModule',
       ),
       'interfaces' => 
       array (
-        0 => 'iAdminUI',
-        1 => 'iAdminMenu',
       ),
       'implementors' => 
       array (
-        'iAdminUI' => 
-        array (
-          0 => 'SysLogModule',
-        ),
-        'iAdminMenu' => 
-        array (
-          0 => 'SysLogModule',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Statistics',
       'version' => '8.02.4782',
       'name' => 
@@ -1475,32 +1098,14 @@
     array (
       'classes' => 
       array (
-        0 => 'TodoRPC',
-        1 => 'TodoNode',
-        2 => 'TodoListWidget',
       ),
       'interfaces' => 
       array (
-        0 => 'iRemoteCall',
-        1 => 'iContentType',
-        2 => 'iWidget',
       ),
       'implementors' => 
       array (
-        'iRemoteCall' => 
-        array (
-          0 => 'TodoRPC',
-        ),
-        'iContentType' => 
-        array (
-          0 => 'TodoNode',
-        ),
-        'iWidget' => 
-        array (
-          0 => 'TodoListWidget',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'name' => 
       array (
@@ -1554,20 +1159,14 @@
     array (
       'classes' => 
       array (
-        0 => 'XmlImporter',
       ),
       'interfaces' => 
       array (
-        0 => 'iWidget',
       ),
       'implementors' => 
       array (
-        'iWidget' => 
-        array (
-          0 => 'XmlImporter',
-        ),
       ),
-      'enabled' => true,
+      'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
       'name' => 
@@ -1580,14 +1179,8 @@
   'classes' => 
   array (
     'accesscontrol' => 'lib/modules/base/control.access.php',
-    'accessloglisthandler' => 'lib/modules/accesslog/class.accessloglisthandler.php',
-    'accesslogmodule' => 'lib/modules/accesslog/class.accesslogmodule.php',
-    'accesslogrpc' => 'lib/modules/accesslog/class.accesslogrpc.php',
     'accessrevcontrol' => 'lib/modules/base/control.accessrev.php',
     'actionscontrol' => 'lib/modules/base/control.actions.php',
-    'adminextreqhook' => 'lib/modules/adminext/class.adminextreqhook.php',
-    'adminextrpc' => 'lib/modules/adminext/class.adminextrpc.php',
-    'adminextsettings' => 'lib/modules/adminext/class.adminextsettings.php',
     'adminlisthandler' => 'lib/modules/admin/class.adminlisthandler.php',
     'adminmenu' => 'lib/modules/admin/class.adminmenu.php',
     'adminrpc' => 'lib/modules/admin/class.adminrpc.php',
@@ -1601,27 +1194,13 @@
     'attachment' => 'lib/modules/attachment/class.attachment.php',
     'attachmentcontrol' => 'lib/modules/attachment/control.attachment.php',
     'attachmentmodule' => 'lib/modules/attachment/class.attachmentmodule.php',
-    'autocompletemodule' => 'lib/modules/autocomplete/class.autocompletemodule.php',
     'badrequestexception' => 'lib/modules/base/exception.badrequest.php',
     'basecron' => 'lib/modules/base/class.basecron.php',
     'basemodule' => 'lib/modules/base/class.basemodule.php',
     'bebopcache' => 'lib/modules/base/class.bebopcache.php',
     'bebopmimemail' => 'lib/modules/mimemail/class.bebopmimemail.php',
-    'bebopsmarty' => 'lib/modules/smarty/class.bebopsmarty.php',
-    'blogwidget' => 'lib/modules/blog/widget.blog.php',
     'boolcontrol' => 'lib/modules/base/control.bool.php',
     'calendar' => 'lib/modules/base/class.calendar.php',
-    'captchamodule' => 'lib/modules/captcha/class.captchamodule.php',
-    'cartcontrol' => 'lib/modules/cart/control.cart.php',
-    'cartrpc' => 'lib/modules/cart/class.cartrpc.php',
-    'cartsettings' => 'lib/modules/cart/class.cartsettings.php',
-    'cartwidget' => 'lib/modules/cart/widget.cart.php',
-    'commentformwidget' => 'lib/modules/comment/widget.commentform.php',
-    'commentlisthandler' => 'lib/modules/comment/class.commentlisthandler.php',
-    'commentnode' => 'lib/modules/comment/node.comment.php',
-    'commentnodehook' => 'lib/modules/comment/class.commentnodehook.php',
-    'commentrpc' => 'lib/modules/comment/class.commentrpc.php',
-    'commentwidget' => 'lib/modules/comment/widget.comment.php',
     'compressormodule' => 'lib/modules/compressor/class.compressormodule.php',
     'compressorsettings' => 'lib/modules/compressor/class.compressorsettings.php',
     'config' => 'lib/modules/base/class.config.php',
@@ -1633,18 +1212,15 @@
     'datetimecontrol' => 'lib/modules/base/control.datetime.php',
     'dbschema_node' => 'lib/modules/pdo/class.dbschema_node.php',
     'dbschema_node__access' => 'lib/modules/pdo/class.dbschema_node__access.php',
-    'dbschema_node__astat' => 'lib/modules/accesslog/class.dbschema_node__astat.php',
     'dbschema_node__fallback' => 'lib/modules/pdo/class.dbschema_node__fallback.php',
     'dbschema_node__log' => 'lib/modules/pdo/class.dbschema_node__log.php',
     'dbschema_node__poll' => 'lib/modules/pdo/class.dbschema_node__poll.php',
     'dbschema_node__rel' => 'lib/modules/pdo/class.dbschema_node__rel.php',
     'dbschema_node__rev' => 'lib/modules/pdo/class.dbschema_node__rev.php',
-    'dbschema_node__searchindex' => 'lib/modules/search/class.dbschema_node__searchindex.php',
     'dbschema_node__seq' => 'lib/modules/pdo/class.dbschema_node__seq.php',
     'dbschema_node__session' => 'lib/modules/pdo/class.dbschema_node__session.php',
     'docwidget' => 'lib/modules/base/widget.doc.php',
     'domainnode' => 'lib/modules/base/node.domain.php',
-    'drawtextmodule' => 'lib/modules/drawtext/class.drawtextmodule.php',
     'duplicateexception' => 'lib/modules/base/exception.duplicate.php',
     'emailcontrol' => 'lib/modules/base/control.email.php',
     'enumcontrol' => 'lib/modules/base/control.enum.php',
@@ -1657,7 +1233,6 @@
     'forbiddenexception' => 'lib/modules/base/exception.forbidden.php',
     'form' => 'lib/modules/base/class.form.php',
     'formwidget' => 'lib/modules/base/widget.form.php',
-    'googleanalyticsmodule' => 'lib/modules/googleanalytics/class.googleanalyticsmodule.php',
     'groupnode' => 'lib/modules/base/node.group.php',
     'hiddencontrol' => 'lib/modules/base/control.hidden.php',
     'historycontrol' => 'lib/modules/base/control.history.php',
@@ -1665,7 +1240,6 @@
     'iadminmenu' => 'lib/modules/base/interface.adminmenu.php',
     'iadminui' => 'lib/modules/admin/interface.adminui.php',
     'icontenttype' => 'lib/modules/base/interface.contenttype.php',
-    'id3tools' => 'lib/modules/getid3/class.id3tools.php',
     'iformcontrol' => 'lib/modules/base/interface.formcontrol.php',
     'imageedit' => 'lib/modules/imgtoolkit/class.imageedit.php',
     'imagemagick' => 'lib/modules/imgtoolkit/class.imagemagick.php',
@@ -1684,17 +1258,12 @@
     'listwidget' => 'lib/modules/base/widget.list.php',
     'mail_mimepart' => 'lib/modules/mimemail/class.mail_mimepart.php',
     'mail_rfc822' => 'lib/modules/mimemail/class.mail_rfc822.php',
-    'maintenancemodule' => 'lib/modules/maintenance/class.maintenancemodule.php',
     'mcms' => 'lib/modules/base/class.mcms.php',
     'mcms_mysql_driver' => 'lib/modules/pdo/class.mcms_mysql_driver.php',
     'mcms_sqlite_driver' => 'lib/modules/pdo/class.mcms_sqlite_driver.php',
     'mcmspdoexception' => 'lib/modules/pdo/exception.mcmspdo.php',
     'menuwidget' => 'lib/modules/base/widget.menu.php',
-    'messagelistwidget' => 'lib/modules/msg/widget.messagelist.php',
-    'messagenode' => 'lib/modules/msg/node.message.php',
-    'moderatormodule' => 'lib/modules/moderator/class.moderatormodule.php',
     'moduleadminui' => 'lib/modules/admin/class.moduleadminui.php',
-    'msgmodule' => 'lib/modules/msg/class.msgmodule.php',
     'node' => 'lib/modules/base/class.node.php',
     'nodeapimodule' => 'lib/modules/nodeapi/class.nodeapimodule.php',
     'nodebase' => 'lib/modules/base/class.nodebase.php',
@@ -1708,45 +1277,20 @@
     'objectnotfoundexception' => 'lib/modules/base/exception.objectnotfound.php',
     'openidmodule' => 'lib/modules/openid/class.openidmodule.php',
     'openidsettings' => 'lib/modules/openid/class.openidsettings.php',
-    'orderdetailscontrol' => 'lib/modules/cart/control.orderdetails.php',
-    'ordernode' => 'lib/modules/cart/node.order.php',
     'pagenotfoundexception' => 'lib/modules/base/exception.pagenotfound.php',
     'pagercontrol' => 'lib/modules/base/control.pager.php',
     'passwordcontrol' => 'lib/modules/base/control.password.php',
     'pdo_singleton' => 'lib/modules/pdo/class.pdo_singleton.php',
-    'pollnode' => 'lib/modules/poll/node.poll.php',
-    'pollrpc' => 'lib/modules/poll/class.pollrpc.php',
-    'pollwidget' => 'lib/modules/poll/widget.poll.php',
-    'ratingwidget' => 'lib/modules/rating/widget.rating.php',
     'readonlydatabaseexception' => 'lib/modules/pdo/exception.readonlydatabase.php',
     'requestcontroller' => 'lib/modules/base/class.requestcontroller.php',
     'resetcontrol' => 'lib/modules/base/control.reset.php',
-    'robotsmodule' => 'lib/modules/robots/class.robotsmodule.php',
-    'rssfeednode' => 'lib/modules/rss/node.rssfeed.php',
-    'rsslisthandler' => 'lib/modules/rss/class.rsslisthandler.php',
-    'rssmodule' => 'lib/modules/rss/class.rssmodule.php',
     'schema' => 'lib/modules/base/class.schema.php',
-    'searchconfig' => 'lib/modules/search/class.searchconfig.php',
-    'searchindexer' => 'lib/modules/search/class.searchindexer.php',
-    'searchscheduler' => 'lib/modules/search/class.searchscheduler.php',
-    'searchwidget' => 'lib/modules/search/widget.search.php',
     'sectioncontrol' => 'lib/modules/base/control.section.php',
     'sectionscontrol' => 'lib/modules/base/control.sections.php',
     'session' => 'lib/modules/base/class.session.php',
     'setcontrol' => 'lib/modules/base/control.set.php',
-    'sitemap' => 'lib/modules/sitemap/class.sitemap.php',
-    'smartyexception' => 'lib/modules/smarty/exception.smarty.php',
     'smtp' => 'lib/modules/mimemail/class.smtp.php',
     'submitcontrol' => 'lib/modules/base/control.submit.php',
-    'subscriptionadmin' => 'lib/modules/subscription/class.subscriptionadmin.php',
-    'subscriptionadminlist' => 'lib/modules/subscription/class.subscriptionadminlist.php',
-    'subscriptionadminwidget' => 'lib/modules/subscription/widget.subscriptionadmin.php',
-    'subscriptionconfig' => 'lib/modules/subscription/class.subscriptionconfig.php',
-    'subscriptionrpc' => 'lib/modules/subscription/class.subscriptionrpc.php',
-    'subscriptionscheduler' => 'lib/modules/subscription/class.subscriptionscheduler.php',
-    'subscriptionwidget' => 'lib/modules/subscription/widget.subscription.php',
-    'sysloglisthandler' => 'lib/modules/syslog/class.sysloglisthandler.php',
-    'syslogmodule' => 'lib/modules/syslog/class.syslogmodule.php',
     'tablecontrol' => 'lib/modules/base/control.table.php',
     'tableinfo' => 'lib/modules/pdo/class.tableinfo.php',
     'tablemanager' => 'lib/modules/pdo/class.tablemanager.php',
@@ -1759,9 +1303,6 @@
     'textlinecontrol' => 'lib/modules/base/control.textline.php',
     'tinymcemodule' => 'lib/modules/tinymce/class.tinymcemodule.php',
     'titlewidget' => 'lib/modules/base/widget.title.php',
-    'todolistwidget' => 'lib/modules/todo/widget.todolist.php',
-    'todonode' => 'lib/modules/todo/node.todo.php',
-    'todorpc' => 'lib/modules/todo/class.todorpc.php',
     'typenode' => 'lib/modules/base/node.type.php',
     'unauthorizedexception' => 'lib/modules/base/exception.unauthorized.php',
     'updatemenu' => 'lib/modules/update/class.updatemenu.php',
@@ -1777,50 +1318,32 @@
     'widget' => 'lib/modules/base/class.widget.php',
     'widgethaltedexception' => 'lib/modules/base/exception.widgethalted.php',
     'widgetnode' => 'lib/modules/base/node.widget.php',
-    'xmlimporter' => 'lib/modules/xmlimport/class.xmlimporter.php',
-    'xspfmodule' => 'lib/modules/playlist/class.xspfmodule.php',
   ),
   'interfaces' => 
   array (
     'iadminmenu' => 
     array (
-      0 => 'accesslogmodule',
-      1 => 'adminmenu',
-      2 => 'adminstatus',
-      3 => 'commentlisthandler',
-      4 => 'cronmenu',
-      5 => 'exchangemodule',
-      6 => 'rssmodule',
-      7 => 'subscriptionadmin',
-      8 => 'syslogmodule',
-      9 => 'updatemenu',
+      0 => 'adminmenu',
+      1 => 'adminstatus',
+      2 => 'cronmenu',
+      3 => 'exchangemodule',
+      4 => 'updatemenu',
     ),
     'iadminui' => 
     array (
-      0 => 'accesslogmodule',
-      1 => 'commentlisthandler',
-      2 => 'exchangemodule',
-      3 => 'rssmodule',
-      4 => 'subscriptionadminlist',
-      5 => 'syslogmodule',
-      6 => 'updater',
+      0 => 'exchangemodule',
+      1 => 'updater',
     ),
     'icontenttype' => 
     array (
-      0 => 'commentnode',
-      1 => 'domainnode',
-      2 => 'filenode',
-      3 => 'groupnode',
-      4 => 'messagenode',
-      5 => 'node',
-      6 => 'ordernode',
-      7 => 'pollnode',
-      8 => 'rssfeednode',
-      9 => 'tagnode',
-      10 => 'todonode',
-      11 => 'typenode',
-      12 => 'usernode',
-      13 => 'widgetnode',
+      0 => 'domainnode',
+      1 => 'filenode',
+      2 => 'groupnode',
+      3 => 'node',
+      4 => 'tagnode',
+      5 => 'typenode',
+      6 => 'usernode',
+      7 => 'widgetnode',
     ),
     'iformcontrol' => 
     array (
@@ -1833,150 +1356,89 @@
       6 => 'adminuitreecontrol',
       7 => 'attachmentcontrol',
       8 => 'boolcontrol',
-      9 => 'cartcontrol',
-      10 => 'control',
-      11 => 'datecontrol',
-      12 => 'datetimecontrol',
-      13 => 'emailcontrol',
-      14 => 'enumcontrol',
-      15 => 'enumradiocontrol',
-      16 => 'fieldcontrol',
-      17 => 'fieldsetcontrol',
-      18 => 'floatcontrol',
-      19 => 'form',
-      20 => 'hiddencontrol',
-      21 => 'historycontrol',
-      22 => 'infocontrol',
-      23 => 'nodelinkcontrol',
-      24 => 'numbercontrol',
-      25 => 'orderdetailscontrol',
-      26 => 'pagercontrol',
-      27 => 'passwordcontrol',
-      28 => 'resetcontrol',
-      29 => 'sectioncontrol',
-      30 => 'sectionscontrol',
-      31 => 'setcontrol',
-      32 => 'submitcontrol',
-      33 => 'tablecontrol',
-      34 => 'textareacontrol',
-      35 => 'texthtmlcontrol',
-      36 => 'textlinecontrol',
-      37 => 'urlcontrol',
+      9 => 'control',
+      10 => 'datecontrol',
+      11 => 'datetimecontrol',
+      12 => 'emailcontrol',
+      13 => 'enumcontrol',
+      14 => 'enumradiocontrol',
+      15 => 'fieldcontrol',
+      16 => 'fieldsetcontrol',
+      17 => 'floatcontrol',
+      18 => 'form',
+      19 => 'hiddencontrol',
+      20 => 'historycontrol',
+      21 => 'infocontrol',
+      22 => 'nodelinkcontrol',
+      23 => 'numbercontrol',
+      24 => 'pagercontrol',
+      25 => 'passwordcontrol',
+      26 => 'resetcontrol',
+      27 => 'sectioncontrol',
+      28 => 'sectionscontrol',
+      29 => 'setcontrol',
+      30 => 'submitcontrol',
+      31 => 'tablecontrol',
+      32 => 'textareacontrol',
+      33 => 'texthtmlcontrol',
+      34 => 'textlinecontrol',
+      35 => 'urlcontrol',
     ),
     'imoduleconfig' => 
     array (
-      0 => 'accesslogmodule',
-      1 => 'adminextsettings',
-      2 => 'basemodule',
-      3 => 'bebopmimemail',
-      4 => 'cartsettings',
-      5 => 'compressorsettings',
-      6 => 'cronmodule',
-      7 => 'drawtextmodule',
-      8 => 'googleanalyticsmodule',
-      9 => 'maintenancemodule',
-      10 => 'moderatormodule',
-      11 => 'openidsettings',
-      12 => 'pollwidget',
-      13 => 'robotsmodule',
-      14 => 'searchconfig',
-      15 => 'sitemap',
-      16 => 'subscriptionconfig',
-      17 => 'tinymcemodule',
-      18 => 'typenode',
-      19 => 'xspfmodule',
+      0 => 'basemodule',
+      1 => 'bebopmimemail',
+      2 => 'compressorsettings',
+      3 => 'cronmodule',
+      4 => 'openidsettings',
+      5 => 'tinymcemodule',
+      6 => 'typenode',
     ),
     'inodehook' => 
     array (
       0 => 'basemodule',
-      1 => 'commentnodehook',
-      2 => 'moderatormodule',
-      3 => 'ratingwidget',
-      4 => 'searchindexer',
-      5 => 'sitemap',
     ),
     'ipagehook' => 
     array (
-      0 => 'googleanalyticsmodule',
-      1 => 'tinymcemodule',
+      0 => 'tinymcemodule',
     ),
     'iremotecall' => 
     array (
-      0 => 'accesslogrpc',
-      1 => 'adminextrpc',
-      2 => 'adminrpc',
-      3 => 'attachmentmodule',
-      4 => 'autocompletemodule',
-      5 => 'basemodule',
-      6 => 'captchamodule',
-      7 => 'cartrpc',
-      8 => 'commentrpc',
-      9 => 'compressormodule',
-      10 => 'cronmodule',
-      11 => 'drawtextmodule',
-      12 => 'exchangemodule',
-      13 => 'imageedit',
-      14 => 'installmodule',
-      15 => 'msgmodule',
-      16 => 'nodeapimodule',
-      17 => 'openidmodule',
-      18 => 'pollrpc',
-      19 => 'rssmodule',
-      20 => 'sitemap',
-      21 => 'subscriptionrpc',
-      22 => 'todorpc',
-      23 => 'updater',
-      24 => 'xspfmodule',
-    ),
-    'irequesthook' => 
-    array (
-      0 => 'accesslogmodule',
-      1 => 'adminextreqhook',
-      2 => 'maintenancemodule',
-      3 => 'robotsmodule',
+      0 => 'adminrpc',
+      1 => 'attachmentmodule',
+      2 => 'basemodule',
+      3 => 'compressormodule',
+      4 => 'cronmodule',
+      5 => 'exchangemodule',
+      6 => 'imageedit',
+      7 => 'installmodule',
+      8 => 'nodeapimodule',
+      9 => 'openidmodule',
+      10 => 'updater',
     ),
     'ischeduler' => 
     array (
       0 => 'basecron',
-      1 => 'searchscheduler',
-      2 => 'subscriptionscheduler',
-      3 => 'typenode',
-      4 => 'updatescheduler',
+      1 => 'typenode',
+      2 => 'updatescheduler',
     ),
     'iwidget' => 
     array (
-      0 => 'accesslogmodule',
-      1 => 'archivewidget',
-      2 => 'blogwidget',
-      3 => 'cartwidget',
-      4 => 'commentformwidget',
-      5 => 'commentwidget',
-      6 => 'docwidget',
-      7 => 'formwidget',
-      8 => 'linkednodeswidget',
-      9 => 'listwidget',
-      10 => 'menuwidget',
-      11 => 'messagelistwidget',
-      12 => 'pollwidget',
-      13 => 'ratingwidget',
-      14 => 'searchwidget',
-      15 => 'subscriptionadminwidget',
-      16 => 'subscriptionwidget',
-      17 => 'tagcloudwidget',
-      18 => 'tagswidget',
-      19 => 'titlewidget',
-      20 => 'todolistwidget',
-      21 => 'userwidget',
-      22 => 'widget',
-      23 => 'xmlimporter',
+      0 => 'archivewidget',
+      1 => 'docwidget',
+      2 => 'formwidget',
+      3 => 'linkednodeswidget',
+      4 => 'listwidget',
+      5 => 'menuwidget',
+      6 => 'tagcloudwidget',
+      7 => 'tagswidget',
+      8 => 'titlewidget',
+      9 => 'userwidget',
+      10 => 'widget',
     ),
   ),
   'rclasses' => 
   array (
-    'accessloglisthandler' => 'accesslog',
-    'accesslogmodule' => 'accesslog',
-    'accesslogrpc' => 'accesslog',
-    'dbschema_node__astat' => 'accesslog',
     'adminlisthandler' => 'admin',
     'adminmenu' => 'admin',
     'adminrpc' => 'admin',
@@ -1989,14 +1451,10 @@
     'adminuisearchcontrol' => 'admin',
     'adminuitreecontrol' => 'admin',
     'iadminui' => 'admin',
-    'adminextreqhook' => 'adminext',
-    'adminextrpc' => 'adminext',
-    'adminextsettings' => 'adminext',
     'attachment' => 'attachment',
     'attachmentmodule' => 'attachment',
     'attachmentcontrol' => 'attachment',
     'user' => 'auth',
-    'autocompletemodule' => 'autocomplete',
     'basecron' => 'base',
     'basemodule' => 'base',
     'bebopcache' => 'base',
@@ -2083,42 +1541,20 @@
     'tagswidget' => 'base',
     'titlewidget' => 'base',
     'userwidget' => 'base',
-    'blogwidget' => 'blog',
-    'captchamodule' => 'captcha',
-    'cartrpc' => 'cart',
-    'cartsettings' => 'cart',
-    'cartcontrol' => 'cart',
-    'orderdetailscontrol' => 'cart',
-    'ordernode' => 'cart',
-    'cartwidget' => 'cart',
-    'commentlisthandler' => 'comment',
-    'commentnodehook' => 'comment',
-    'commentrpc' => 'comment',
-    'commentnode' => 'comment',
-    'commentwidget' => 'comment',
-    'commentformwidget' => 'comment',
     'compressormodule' => 'compressor',
     'compressorsettings' => 'compressor',
     'cronmenu' => 'cron',
     'cronmodule' => 'cron',
-    'drawtextmodule' => 'drawtext',
     'exchangemodule' => 'exchange',
-    'id3tools' => 'getid3',
-    'googleanalyticsmodule' => 'googleanalytics',
     'imageedit' => 'imgtoolkit',
     'imagemagick' => 'imgtoolkit',
     'imagemagickgd' => 'imgtoolkit',
     'installmodule' => 'install',
-    'maintenancemodule' => 'maintenance',
     'bebopmimemail' => 'mimemail',
     'htmlmimemail' => 'mimemail',
     'mail_mimepart' => 'mimemail',
     'mail_rfc822' => 'mimemail',
     'smtp' => 'mimemail',
-    'moderatormodule' => 'moderator',
-    'msgmodule' => 'msg',
-    'messagenode' => 'msg',
-    'messagelistwidget' => 'msg',
     'nodeapimodule' => 'nodeapi',
     'openidmodule' => 'openid',
     'openidsettings' => 'openid',
@@ -2139,39 +1575,9 @@
     'mcmspdoexception' => 'pdo',
     'readonlydatabaseexception' => 'pdo',
     'tablenotfoundexception' => 'pdo',
-    'xspfmodule' => 'playlist',
-    'pollrpc' => 'poll',
-    'pollnode' => 'poll',
-    'pollwidget' => 'poll',
-    'ratingwidget' => 'rating',
-    'robotsmodule' => 'robots',
-    'rsslisthandler' => 'rss',
-    'rssmodule' => 'rss',
-    'rssfeednode' => 'rss',
-    'dbschema_node__searchindex' => 'search',
-    'searchconfig' => 'search',
-    'searchindexer' => 'search',
-    'searchscheduler' => 'search',
-    'searchwidget' => 'search',
-    'sitemap' => 'sitemap',
-    'bebopsmarty' => 'smarty',
-    'smartyexception' => 'smarty',
-    'subscriptionadmin' => 'subscription',
-    'subscriptionadminlist' => 'subscription',
-    'subscriptionconfig' => 'subscription',
-    'subscriptionrpc' => 'subscription',
-    'subscriptionscheduler' => 'subscription',
-    'subscriptionwidget' => 'subscription',
-    'subscriptionadminwidget' => 'subscription',
-    'sysloglisthandler' => 'syslog',
-    'syslogmodule' => 'syslog',
     'tinymcemodule' => 'tinymce',
-    'todorpc' => 'todo',
-    'todonode' => 'todo',
-    'todolistwidget' => 'todo',
     'updatemenu' => 'update',
     'updater' => 'update',
     'updatescheduler' => 'update',
-    'xmlimporter' => 'xmlimport',
   ),
 );
