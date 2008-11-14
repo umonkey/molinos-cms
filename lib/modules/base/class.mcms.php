@@ -1475,7 +1475,7 @@ class mcms
   public static function fixurls($content, $send = false)
   {
     // Замена "грязных" ссылок на "чистые".
-    if (!empty($_GET['__cleanurls'])) {
+    if (!empty($_GET['__cleanurls']) and strlen($content) < 500000) {
       $re = '@(?:href|src|action)=(?:"([^"]+)"|\'([^\']+)\')@';
 
       if (preg_match_all($re, $content, $m)) {
