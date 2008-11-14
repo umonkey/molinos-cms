@@ -223,6 +223,7 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
 
       $back->setarg('remind', null);
       $back->setarg('remind_address', null);
+      $backstr = $back->string();
 
       $html = t("<p>Вы попросили напомнить ваш пароль для сайта %site. "
         ."Восстановить старый пароль мы не можем, и менять его не стали, "
@@ -234,7 +235,7 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
           '%site' => $_SERVER['HTTP_HOST'],
           '@url' => $link = l("?q=base.rpc&action=login&email={$email}"
             ."&otp={$node->otp}"
-            ."&destination={$back}"),
+            ."&destination={$backstr}"),
           ));
 
       BebopMimeMail::send(null, $node->name, 'Восстановление пароля', $html);
