@@ -154,10 +154,9 @@ class WidgetNode extends Node implements iContentType
         ),
       'classname' => array(
         'label' => t('Используемый класс'),
-        'type' => 'EnumControl',
+        'type' => 'TextLineControl',
         'required' => true,
         'volatile' => true,
-        'options' => self::listWidgets(),
         ),
       'pages' => array(
         'type' => 'SetControl',
@@ -191,6 +190,11 @@ class WidgetNode extends Node implements iContentType
             continue;
           $schema[$v['value']] = $v;
         }
+    }
+
+    if (!$this->id) {
+      $schema['classname']['type'] = 'EnumControl';
+      $schema['classname']['options'] = self::listWidgets();
     }
 
     return $schema;
