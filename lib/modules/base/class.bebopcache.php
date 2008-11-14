@@ -40,7 +40,7 @@ class BebopCache
           continue;
 
         if (call_user_func(array($v['class'], 'isAvailable'))) {
-          mcms::flog('cache', 'using ' . str_replace('_provider', '', $v['class']));
+          // mcms::flog('cache', 'using ' . str_replace('_provider', '', $v['class']));
           self::$instance = new $v['class']();
           break;
         }
@@ -76,7 +76,7 @@ class BebopCache
       $this->_flush = true;
 
     elseif ($this->_flush) {
-      mcms::flog('cache', 'flush');
+      // mcms::flog('cache', 'flush');
       $this->setPrefix(true);
       $this->_flush = false;
     }
@@ -93,7 +93,7 @@ class BebopCache
 
     $this->prefix = 'mcms:' . crc32(__FILE__) . ':' . $serial . ':';
 
-    mcms::flog('cache', 'prefix: ' . $this->prefix);
+    // mcms::flog('cache', 'prefix: ' . $this->prefix);
   }
 }
 

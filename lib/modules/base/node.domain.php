@@ -482,7 +482,6 @@ class DomainNode extends Node implements iContentType
         if (!is_array($c = mcms::cache('widget:' . $v)))
           unset($result[$k]);
         else {
-          mcms::flog('cache', $v . ': read from cache');
           $result[$k] = self::strip($c['content']);
 
           if (!empty($c['extras']))
