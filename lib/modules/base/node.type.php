@@ -515,6 +515,19 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     return array();
   }
 
+  /**
+   * Возвращает список разделов, в которые можно помещать документ.
+   *
+   * Базовая реализация проверяет права, однако TypeNode — особый
+   * случай, и привязка к разделам здесь — определение привязки
+   * для документов этого типа, поэтому нужно разрешить работу
+   * со _всеми_ разделами, что мы и делаем, возвращая NULL.
+   */
+  public function getEnabledSections()
+  {
+    return null;
+  }
+
   public function getActionLinks()
   {
     $links = parent::getActionLinks();
