@@ -408,8 +408,10 @@ class mcms
   {
     $res = false;
 
-    foreach (self::getImplementors($interface, $module) as $class)
-      $res = call_user_func_array(array($class, $method), $args);
+    foreach (self::getImplementors($interface, $module) as $class) {
+      if (class_exists($class))
+        $res = call_user_func_array(array($class, $method), $args);
+    }
 
     return $res;
   }
