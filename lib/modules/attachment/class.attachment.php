@@ -342,7 +342,7 @@ class Attachment
   private function getGuid()
   {
     $guid = mcms::mkdir(mcms::config('tmpdir') .'/images')
-      . '/' . md5($this->ctx->query()) . '.attcache';
+      . '/' . md5($this->ctx->url()->string()) . '.attcache';
 
     return $guid;
   }
