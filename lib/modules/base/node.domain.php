@@ -254,7 +254,7 @@ class DomainNode extends Node implements iContentType
 
     // Специальная обработка редиректов, которые не укладываются в схему.
     if (!empty($data['redirect'])) {
-      foreach (array('name', 'redirect', 'moderatoremail') as $k)
+      foreach (array('name', 'redirect', 'moderatoremail', 'defaultsection') as $k)
         $this->$k = array_key_exists($k, $data)
           ? $data[$k]
           : null;
