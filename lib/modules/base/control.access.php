@@ -97,7 +97,7 @@ class AccessControl extends Control
     $result = array();
     $names = Node::getSortedList('group');
 
-    $names[0] = t('Анонимные пользователи');
+    $names[0] = t('Все посетители');
 
     if (!empty($names)) {
       $rows = mcms::db()->getResultsK("uid", "SELECT uid, c, r, u, d, p FROM node__access WHERE nid = ?", array($data->id));
