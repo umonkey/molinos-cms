@@ -1,5 +1,5 @@
 <?php if ($c->label): ?>
-<label><span><?php print $c->label; ?>:</span></label>
+<label<?php if ($c->required) print ' class="required"';?>><span><?php print $c->label; ?>:<?php if ($c->required) print '<span class="required">*</span>'; ?></span></label>
 <?php endif; ?>
 <div class='attachment-control local<?php
 if ($c->unzip)
