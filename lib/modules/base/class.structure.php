@@ -169,12 +169,13 @@ class Structure
    */
   public function findPage($domain, $path)
   {
-    $domain = $this->findDomain($domain);
+    if (null === ($domain = $this->findDomain($domain)))
+      return false;
 
     $path = '/' . rtrim($path, '/');
     $args = array();
 
-    $match = '';
+    $match = '/';
 
     foreach ($this->domains[$domain] as $page => $meta) {
       if (strlen($page) > strlen($match)) {
@@ -236,7 +237,27 @@ class Structure
     if (array_key_exists($host, $this->aliases))
       return $this->aliases[$host]['target'];
 
-    return $host;
+    if (array_key_exists($host, $this->domains))
+      return $host;
+
+    if (!empty($this->domains))
+      return array_shift(array_keys($this->domains));
+
+    return null;
+  }
+
+  /**
+   * Возвращает информацию об указанных виджетах.
+   */
+  public function findWidgets(array $names)
+  {
+    $result = array();
+
+    foreach ($names as $name)
+      if (array_key_exists($name, $this->widgets))
+        $result[$name] = $this->widgets[$name];
+
+    return $result;
   }
 
   /**
@@ -265,7 +286,7 @@ class Structure
         'class' => $v['class'],
         );
 
-      $result .= "    <widget " . mcms::htmlattrs($attrs) . ">\n";
+      $result .= "    <widget" . mcms::htmlattrs($attrs) . ">\n";
 
       if (!empty($v['config'])) {
         foreach ($v['config'] as $k => $v) {
