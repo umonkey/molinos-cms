@@ -9,6 +9,8 @@ define('MCMS_START_TIME', microtime(true));
 define('MCMS_LIB', dirname(realpath(__FILE__)));
 define('MCMS_ROOT', dirname(MCMS_LIB));
 
+chdir(MCMS_ROOT);
+
 class Loader
 {
   public static function rebuild($local = false)
