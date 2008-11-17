@@ -40,31 +40,45 @@ class EnumControl extends Control
 
   public function getHTML($data)
   {
-    $options = '';
-
-    if (!$this->required)
-      $options .= mcms::html('option', array(
-        'value' => '',
-        ), $this->default_label);
+    $options = $this->getData($data);
 
     $selected = $this->getSelected($data);
     $enabled = $this->getEnabled($data);
 
+    if (is_array($enabled) and count($enabled) == 1) {
+      $id = array_shift(array_values($enabled));
+
+      if (array_key_exists($id, $options)) {
+        return mcms::html('input', array(
+          'type' => 'hidden',
+          'name' => $this->value,
+          'value' => $id,
+          ));
+      }
+    }
+
+    $output = '';
+
+    if (!$this->required)
+      $output .= mcms::html('option', array(
+        'value' => '',
+        ), $this->default_label);
+
     foreach ($this->getData($data) as $k => $v) {
-      $options .= mcms::html('option', array(
+      $output .= mcms::html('option', array(
         'value' => $k,
         'selected' => in_array($k, $selected) ? 'selected' : null,
         'disabled' => (null === $enabled or in_array($k, $enabled)) ? null : 'disabled',
         ), $v);
     }
 
-    if (empty($options))
+    if (empty($output))
       return '';
 
     $output = mcms::html('select', array(
       'id' => $this->id,
       'name' => $this->value,
-      ), $options);
+      ), $output);
 
     return $this->wrapHTML($output);
   }
