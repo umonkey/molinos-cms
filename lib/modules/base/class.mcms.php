@@ -1308,9 +1308,10 @@ class mcms
     }
   }
 
-  private static function getSignature()
+  public static function getSignature(Context $ctx = null)
   {
-    $ctx = new Context();
+    if (null === $ctx)
+      $ctx = new Context();
 
     $at = mcms::html('a', array(
       'href' => $ctx->url()->getBase($ctx),
