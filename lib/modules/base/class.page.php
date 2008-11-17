@@ -36,6 +36,15 @@ class Page
       'widgets' => $widgets,
       ));
 
+    $result = str_replace(
+      array(
+        '$execution_time',
+        ),
+      array(
+        microtime(true) - MCMS_START_TIME,
+        ),
+      $result);
+
     $result = array(
       'headers' => array(
         'Content-Type: text/html; charset=utf-8',
