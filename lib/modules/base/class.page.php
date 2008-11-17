@@ -17,6 +17,12 @@ class Page
     if (!empty($data['args']['doc']))
       $ctx->document = $data['args']['doc'];
 
+    if (!empty($data['page']['defaultsection']))
+      $ctx->root = $data['page']['defaultsection'];
+
+    if (!isset($ctx->section) and isset($ctx->root))
+      $ctx->section = $ctx->root;
+
     // Устанавливаем шкуру.
     if (!empty($data['page']['theme']))
       $ctx->theme = $data['page']['theme'];
