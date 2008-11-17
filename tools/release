@@ -14,4 +14,4 @@ php -f tools/rebuild_modmap.php
 
 echo "Preparing Molinos CMS v$MCMS_VERSION"
 
-zip -9rq molinos-cms-$MCMS_VERSION.zip .htaccess.dist *.php conf doc lib themes
+zip -9rq molinos-cms-$MCMS_VERSION.zip .htaccess.dist *.php conf/*.dist doc lib themes
