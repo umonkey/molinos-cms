@@ -44,14 +44,18 @@ class Updater implements iAdminUI, iRemoteCall
   {
     switch ($ctx->get('action')) {
     case 'update':
-      self::download();
+      self::download($ctx);
+
+    case 'rebuild':
+      Loader::rebuild();
+      $ctx->redirect('admin');
 
     default:
       throw new BadRequestException();
     }
   }
 
-  private static function download()
+  private static function download(Context $ctx)
   {
     $url = mcms::version(mcms::VERSION_AVAILABLE_URL);
 
@@ -64,7 +68,7 @@ class Updater implements iAdminUI, iRemoteCall
 
     self::unpack($tmpname);
 
-    mcms::redirect('admin');
+    $ctx->redirect('?q=update.rpc&action=rebuild');
   }
 
   private static function download_raw($url)
