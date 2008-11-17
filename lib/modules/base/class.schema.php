@@ -42,13 +42,17 @@ class Schema extends ArrayObject
     $schema = mcms::cache($key = 'schema:fields:' . $class);
 
     if (!is_array($schema)) {
-      $node = Node::load(array(
-        'class' => 'type',
-        'deleted' => 0,
-        'name' => $class,
-        ));
+      try {
+        $node = Node::load(array(
+          'class' => 'type',
+          'deleted' => 0,
+          'name' => $class,
+          ));
 
-      mcms::cache($key, $schema = $node->fields);
+        mcms::cache($key, $schema = $node->fields);
+      } catch (ObjectNotFoundException $e) {
+        $schema = array();
+      }
     }
 
     return new Schema($schema);
