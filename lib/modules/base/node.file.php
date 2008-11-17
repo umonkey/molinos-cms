@@ -370,28 +370,12 @@ class FileNode extends Node implements iContentType
    */
   public function formProcess(array $data)
   {
-    if (null === $this->id) {
-      parent::addFile('tmp', $d = $data['file_0'], $this);
-      return;
-    }
-
-    elseif (!empty($data['__file_node_update']) and empty($data['__file_node_update']['error'])) {
-      $this->import($data['__file_node_update']);
-      $this->save();
-
-      foreach (array('filename', 'filetype', 'filepath', 'filesize') as $k)
-        $data[$k] = $this->$k;
-
-      if (empty($data['name']))
-        $data['name'] = $this->filename;
-
-      unset($data['__file_node_update']);
-    }
-
-    // ЗАЧЕМ??
-    // $this->nosave = true;
-
     parent::formProcess($data);
+
+    if (!empty($data['__file_node_update']) and empty($data['__file_node_update']['error']))
+      $this->import($data['__file_node_update']);
+
+    return $this;
   }
 
   // РАБОТА С FTP.
