@@ -130,7 +130,8 @@ class Updater implements iAdminUI, iRemoteCall
         fclose($out);
 
         // Проставим нормальные права.
-        chmod($path, 0664);
+        if (file_exists($path))
+          chmod($path, 0664);
 
         // Удалим старую копию.
         if (file_exists($path .'.old'))
