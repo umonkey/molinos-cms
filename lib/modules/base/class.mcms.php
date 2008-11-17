@@ -1346,7 +1346,7 @@ class mcms
     }
 
     // Информация о ходе выполнения запроса.
-    $output = str_replace(
+    $result['content'] = str_replace(
       array(
         '$request_time',
         '$peak_memory',
@@ -1355,7 +1355,7 @@ class mcms
         microtime(true) - MCMS_START_TIME,
         self::filesize(memory_get_peak_usage()),
         ),
-      $output);
+      $result['content']);
 
     if ($ctx->debug('profile')) {
       $message = "Profiling.\n\n";
