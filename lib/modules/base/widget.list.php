@@ -141,6 +141,9 @@ class ListWidget extends Widget
     $options['picker'] = $ctx->get('picker');
     $options['limit'] = $ctx->get('limit', $this->limit);
 
+    if (!empty($this->types))
+      $options['classes'] = array_intersect($this->types, mcms::user()->getAccess('r'));
+
     if (!is_array($options['filter'] = $ctx->get('filter')))
       $options['filter'] = array();
 
