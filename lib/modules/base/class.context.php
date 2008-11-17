@@ -301,6 +301,16 @@ class Context
     }
   }
 
+  private function __isset($key)
+  {
+    switch ($key) {
+    case 'section':
+    case 'document':
+    case 'root':
+      return array_key_exists($key, $this->_args);
+    }
+  }
+
   public function debug($type = null)
   {
     if (!bebop_is_debugger())
