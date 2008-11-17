@@ -12,13 +12,9 @@ class UpdateScheduler implements iScheduler
 
     try {
       if ($filename = mcms_fetch_file($url, false)) {
-        printf("got %s\n", $filename);
-
         $tmp = mcms::config('tmpdir') .'/update.txt';
 
         file_put_contents($tmp, $a .','. $tmp);
-
-        printf("  saved %s\n", $t);
       }
     } catch (RuntimeException $e) {
       printf("error downloading an update: %s\n", $e->getMessage());

@@ -13,10 +13,8 @@ class SubscriptionScheduler implements iScheduler
 
     $types = mcms::modconf('subscription', 'types', array());
 
-    if (empty($types)) {
-      printf("  subscription: no types.\n");
+    if (empty($types))
       return;
-    }
 
     // Обрабатываем активных пользователей.
     foreach (Node::find(array('class' => 'subscription')) as $user) {
