@@ -30,13 +30,16 @@ class Page
       'widgets' => $widgets,
       ));
 
-    return array(
+    $result = array(
       'headers' => array(
         'Content-Type: text/html; charset=utf-8',
         'Content-Length: ' . strlen($result),
         ),
       'content' => $result,
       );
+
+    if ($ctx->debug('page'))
+      mcms::debug($data, $widgets, $result);
 
     return $result;
   }
