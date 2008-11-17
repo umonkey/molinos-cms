@@ -111,6 +111,9 @@ class Config
         case 'filename':
           $res = basename($this->path);
           break;
+        case 'fullpath':
+          $res = $this->path;
+          break;
         }
       }
 
