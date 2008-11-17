@@ -3,11 +3,6 @@
 
 class RatingWidget extends Widget implements iNodeHook
 {
-  public function __construct(Node $node)
-  {
-    parent::__construct($node);
-  }
-
   public static function getWidgetInfo()
   {
     return array(

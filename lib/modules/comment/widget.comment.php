@@ -3,15 +3,15 @@
 
 class CommentWidget extends Widget
 {
-  public function __construct(Node $node)
+  public function __construct($name, array $data)
   {
-    if (empty($node->config))
-      $node->config = array(
+    if (!array_key_exists('params', $data))
+      $data['params'] = array(
         'perpage' => 10,
         'startwith' => 'last',
         );
 
-    parent::__construct($node);
+    parent::__construct($name, $data);
   }
 
   // FIXME: перетащить куда-нибудь.

@@ -158,7 +158,7 @@ class ListWidget extends Widget
       if ('root' == $this->fixed) {
         if ($ctx->root->id)
           $options['filter']['tags'] = array($ctx->root->id);
-      } elseif ('always' == $this->fallbackmode and !empty($this->fixed))
+      } elseif ('always' == $this->fallbackmode and $this->fixed)
         $options['filter']['tags'] = array($this->fixed);
       elseif (null !== ($tmp = $ctx->section->id))
         $options['filter']['tags'] = array($tmp);
@@ -264,11 +264,11 @@ class ListWidget extends Widget
    */
   protected function onGetList(array $options)
   {
-    if (($filter = $this->queryGet()) === null)
-      return null;
+    if (($filter = $this->queryGet($options)) === null)
+      return "<!-- widget {$this->name} halted: no query. -->";
 
     if (empty($filter['tags']))
-      return null;
+      return "<!-- widget {$this->name} halted: no tags. -->";
 
     $result = array(
       'path' => array(),
@@ -445,7 +445,9 @@ class ListWidget extends Widget
    */
   public function queryGet(array $options = null)
   {
-    $query = array();
+    $query = array(
+      'class' => array(),
+      );
 
     if (null === $options)
       $options = $this->options;
@@ -461,9 +463,10 @@ class ListWidget extends Widget
 
       if (!empty($options['classes']) and is_array($options['classes']))
         $query['class'] = $options['classes'];
-      elseif (empty($query['class']) and empty($query['-class']))
-        foreach (Node::find(array('class' => 'type', 'id' => $this->me->linkListParents('type', true))) as $type)
-          $query['class'][] = $type->name;
+      elseif (empty($query['class']) and empty($query['-class'])) {
+        if (is_array($types = $this->types))
+          $query['class'] += $types;
+      }
 
       if (!array_key_exists('published', $query))
         $query['published'] = 1;

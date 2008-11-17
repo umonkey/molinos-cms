@@ -92,20 +92,7 @@ class mcms
       }
     }
 
-    foreach ($parts as $k => $v) {
-      if (!empty($v)) {
-        if (is_array($v))
-          if ($k == 'class')
-            $v = join(' ', $v);
-          else {
-            $v = null;
-          }
-
-        $output .= ' '.$k.'=\''. mcms_plain($v, false) .'\'';
-      } elseif ($k == 'value') {
-        $output .= " value=''";
-      }
-    }
+    $output .= self::htmlattrs($parts);
 
     if (null === $content and !in_array($name, array('a', 'script', 'div', 'textarea', 'span'))) {
       $output .= ' />';
@@ -114,6 +101,28 @@ class mcms
     }
 
     return $output;
+  }
+
+  public static function htmlattrs(array $attrs)
+  {
+    $result = '';
+
+    foreach ($attrs as $k => $v) {
+      if (!empty($v)) {
+        if (is_array($v))
+          if ($k == 'class')
+            $v = join(' ', $v);
+          else {
+            $v = null;
+          }
+
+        $result .= ' '.$k.'=\''. mcms_plain($v, false) .'\'';
+      } elseif ($k == 'value') {
+        $result .= " value=''";
+      }
+    }
+
+    return $result;
   }
 
   public static function parse_html($text)
@@ -1309,19 +1318,51 @@ class mcms
 
   public static function run(Context $ctx = null)
   {
+    // Проверка готовности окружения.
     self::check();
 
-    // Определение текущего урла.
-    if (!empty($_GET['__cleanurls'])) {
-      $parts = explode('?', $_SERVER['REQUEST_URI']);
-      $url = $parts[0] .'?'. $_SERVER['QUERY_STRING'];
-    } else {
-      $url = $_SERVER['REQUEST_URI'];
+    if (null === $ctx)
+      $ctx = new Context(array('url' => '?' . $_SERVER['QUERY_STRING']));
+
+    $s = Structure::getInstance();
+
+    try {
+      if (false === ($result = Page::render($ctx, $ctx->host(), $ctx->query())))
+        throw new PageNotFoundException();
+    } catch (UserException $e) {
+      // TODO: fallback
+      $result = Page::render($ctx, $ctx->host(), 'errors/' . $e->getCode());
     }
 
-    if (null === $ctx)
-      $ctx = new Context(array('url' => $url));
+    // Информация о ходе выполнения запроса.
+    $output = str_replace(
+      array(
+        '$request_time',
+        '$peak_memory',
+        ),
+      array(
+        microtime(true) - MCMS_START_TIME,
+        self::filesize(memory_get_peak_usage()),
+        ),
+      $output);
 
+    if ($ctx->debug('profile')) {
+      $message = "Profiling.\n\n";
+
+      $message .= sprintf("%-30s %-20s %7s\n", 'name', 'time', 'queries');
+
+      foreach (mcms::profile('get') as $k => $v)
+        $message .= sprintf("%-30s %-20s %7s\n", $k, $v['time'], $v['queries']);
+
+      mcms::debug($message);
+    }
+
+    foreach ($result['headers'] as $h)
+      header($h);
+
+    die(self::fixurls($result['content'], false));
+
+    /*
     try {
       $req = new RequestController($ctx);
       $output = $req->run();
@@ -1388,34 +1429,8 @@ class mcms
       }
     }
 
-    if ('profile' == $ctx->debug()) {
-      $message = "Profiling.\n\n";
-
-      $message .= sprintf("%-30s %-20s %7s\n", 'name', 'time', 'queries');
-
-      foreach (mcms::profile('get') as $k => $v)
-        $message .= sprintf("%-30s %-20s %7s\n", $k, $v['time'], $v['queries']);
-
-      mcms::debug($message);
-    }
-
-    if (function_exists('memory_get_peak_usage'))
-      $output .= sprintf('<!-- request time: %s sec, peak memory: %s. -->',
-        microtime(true) - MCMS_START_TIME,
-        self::filesize(memory_get_peak_usage()));
-
-    $output = str_replace(
-      array(
-        '$request_time',
-        '$peak_memory',
-        ),
-      array(
-        microtime(true) - MCMS_START_TIME,
-        self::filesize(memory_get_peak_usage()),
-        ),
-      $output);
-
     mcms::fixurls($output, true);
+    */
   }
 
   public static function getHttpStatusMessage($code)

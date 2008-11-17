@@ -5,14 +5,14 @@ class CommentFormWidget extends Widget
 {
   protected $newcomment = null;
 
-  public function __construct(Node $node)
+  public function __construct($name, array $data)
   {
-    if (empty($node->config))
-      $node->config = array(
+    if (!array_key_exists('params', $data))
+      $data['params'] = array(
         'moderate' => true,
         );
 
-    parent::__construct($node);
+    parent::__construct($name, $data);
   }
 
   public static function getWidgetInfo()

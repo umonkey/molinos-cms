@@ -127,9 +127,11 @@ class url
   public function __get($key)
   {
     switch ($key) {
+    case 'host':
+      if (null === $this->host)
+        return $_SERVER['HTTP_HOST'];
     case 'path':
     case 'scheme':
-    case 'host':
     case 'path':
     case 'args':
     case 'fragment':

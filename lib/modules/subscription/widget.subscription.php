@@ -3,11 +3,6 @@
 
 class SubscriptionWidget extends Widget
 {
-  public function __construct(Node $node)
-  {
-    parent::__construct($node);
-  }
-
   public static function getWidgetInfo()
   {
     return array(

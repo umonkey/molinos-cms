@@ -3,11 +3,6 @@
 
 class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
 {
-  public function __construct(Node $node)
-  {
-    parent::__construct($node);
-  }
-
   public static function getWidgetInfo()
   {
     return array(

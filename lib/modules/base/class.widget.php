@@ -20,50 +20,29 @@
 abstract class Widget implements iWidget
 {
   /**
-   * Информация о виджете, ключи: name, title, description.
+   * Имя виджета (инстанса).
    */
-  protected $info = array();
+  protected $name;
 
   /**
-   * Карта параметров.  Используется большинством виджетов с несложной
-   * валидацией параметров (для более сложной нужен собственный обработчик
-   * метода getViewOptions()).  Формат: имя_параметра => array(значение =>
-   * array(имена дополнительных параметров)).
+   * Параметры виджета.
    */
-  protected $arguments = array();
+  private $config;
 
   /**
-   * Информация о виджете.
+   * Контекст для рендеринга.
    */
-  protected $me = null;
-
-  /**
-   * Информация о пользователе.
-   *
-   * FIXME: оно кому-нибудь нужно?
-   */
-  protected $user = null;
-
-  /**
-   * Сохраняем контекст, в котором работает виджет.
-   */
-  protected $ctx = null;
-
-  /**
-   * Сюда складываются опции после парсинга.
-   */
-  protected $options = array();
+  protected $ctx;
 
   /**
    * Базовая инициализация, ничего не делает.
    */
-  public function __construct(Node $node)
+  public function __construct($name, array $data)
   {
-    $this->me = $node;
-    $this->user = mcms::user();
-
-    if (null === $this->me->config)
-      $this->me->config = array();
+    $this->name = $name;
+    $this->config = array_key_exists('params', $data)
+      ? $data['params']
+      : array();
   }
 
   /**
@@ -73,17 +52,7 @@ abstract class Widget implements iWidget
    */
   public function getInstanceName()
   {
-    return $this->me->name;
-  }
-
-  /**
-   * Возвращает имя виджета.
-   *
-   * @return string имя класса, реализующего виджет.
-   */
-  public function getClassName()
-  {
-    return $this->me->classname;
+    return $this->name;
   }
 
   /**
@@ -139,12 +108,9 @@ abstract class Widget implements iWidget
       throw new WidgetHaltedException();
 
     $options = array();
-    $options['groups'] = array_keys($this->user->getGroups());
     $options['__cleanurls'] = !empty($_GET['__cleanurls']);
     $options['#cache'] = true;
     $options['#instance'] = $this->getInstanceName();
-
-    sort($options['groups']);
 
     $this->ctx = $ctx;
 
@@ -282,20 +248,50 @@ abstract class Widget implements iWidget
   /**
    * Шаблонизация виджета.
    *
-   * @param DomainNode $page страница, в контексте которой происходит вызов.
-   *
-   * @param array $args данные для шаблона.
-   *
-   * @param string $class Имя класса виджета, для обнаружения базового шаблона.
-   * Имя шаблона = имя файла, в котором находится класс, расширение заменяется
-   * на ".phtml".
-   *
    * @return string результат работы шаблона или NULL.
    */
-  public final function render()
+  public final function render(Context $ctx)
   {
-    $ctx = $this->ctx;
+    try {
+      $options = $this->getRequestOptions($ctx);
 
+      if (array_key_exists('#cache', $options) and empty($options['#cache']))
+        $ckey = null;
+      elseif ($ctx->get('nocache') and bebop_is_debugger())
+        $ckey = null;
+      else
+        $ckey = 'widget:' . $this->name . ':' . md5(serialize($options));
+
+      if (null !== $ckey and false !== ($cached = mcms::cache($ckey)))
+        return $cached;
+
+      $this->ctx = $ctx->forWidget($this->name);
+
+      if (null === ($data = $this->onGet($options)))
+        $result = "<!-- widget {$this->name} halted. -->";
+      elseif (!is_array($data)) {
+        $result = $data;
+        $data = array();
+      }
+      elseif (is_array($data)) {
+        $data['instance'] = $this->name;
+        $data['lang'] = $ctx->getLang();
+
+        $result = bebop_render_object('widget', $this->name, $ctx->theme, $data, get_class($this));
+      }
+
+      if ($ctx->debug('widget'))
+        $this->debug((array)$data, $result);
+
+      if (null !== $ckey)
+        mcms::cache($ckey, $result);
+    } catch (WidgetHaltedException $e) {
+      return false;
+    }
+
+    return $result;
+
+    /*
     mcms::db()->log('-- widget: '. $this->getInstanceName() .' --');
 
     if (!is_array($data = $this->onGet($this->options))) {
@@ -343,6 +339,12 @@ abstract class Widget implements iWidget
     }
 
     return $output;
+    */
+  }
+
+  private function debug(array $data, $result)
+  {
+    mcms::debug($data, $result);
   }
 
   /**
@@ -354,9 +356,9 @@ abstract class Widget implements iWidget
    */
   public function __get($key)
   {
-    if (is_array($this->me->config) and array_key_exists($key, $this->me->config))
-      return $this->me->config[$key];
-    return null;
+    return array_key_exists($key, $this->config)
+      ? $this->config[$key]
+      : null;
   }
 
   /**
@@ -384,7 +386,7 @@ abstract class Widget implements iWidget
    */
   public function __isset($key)
   {
-    return is_array($this->me->config) and array_key_exists($key, $this->me->config);
+    return array_key_exists($key, $this->config);
   }
 
   /**
