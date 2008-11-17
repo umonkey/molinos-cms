@@ -151,7 +151,7 @@ class DocWidget extends Widget implements iWidget
       'schema' => array(),
       );
 
-    if (null !== ($node = $this->getDocument())) {
+    if (null !== ($node = $this->getDocument($options))) {
       if (in_array($node->class, array('tag', 'config')))
         throw new PageNotFoundException();
 
@@ -214,15 +214,15 @@ class DocWidget extends Widget implements iWidget
     return $form->getHTML($node);
   }
 
-  private function getDocument()
+  private function getDocument(array $options)
   {
-    if ($this->options['root'] instanceof Node)
-      return $this->options['root']->id
-        ? $this->options['root']
+    if ($options['root'] instanceof Node)
+      return $options['root']->id
+        ? $options['root']
         : null;
 
-    elseif (!empty($this->options['root']))
-      return Node::load($this->options['root']);
+    elseif (!empty($options['root']))
+      return Node::load($options['root']);
 
     return null;
   }
