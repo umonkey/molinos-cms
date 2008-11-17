@@ -1324,6 +1324,11 @@ class mcms
     if (null === $ctx)
       $ctx = new Context(array('url' => '?' . $_SERVER['QUERY_STRING']));
 
+    if ($ctx->get('flush') and bebop_is_debugger()) {
+      mcms::flush();
+      mcms::flush(mcms::FLUSH_NOW);
+    }
+
     $s = Structure::getInstance();
 
     try {
