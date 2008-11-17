@@ -204,7 +204,7 @@ class ArchiveWidget extends Widget implements iWidget
       if (!empty($k)) {
         $url->setarg($this->host .'.year', $k);
         $url->setarg($this->host .'.page', null);
-        $result[$k] = strval($url);
+        $result[$k] = $url->string();
       }
     }
 
