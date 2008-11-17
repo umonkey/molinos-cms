@@ -178,6 +178,17 @@ class Structure
     $content = "<?php // This is an automatically generated file.\n"
       . "return " . var_export($data, true) . ";\n";
 
+    $filename = $this->getFileName();
+
+    if (file_exists($filename) and !is_writable($filename)) {
+      if (is_writable(dirname($filename)))
+        unlink($filename);
+      else
+        throw new RuntimeException(t('Изменение структуры невозможно: файл %file защищён от записи.', array(
+          '%file' => basename($filename),
+          )));
+    }
+
     if (!file_put_contents($this->getFileName(), $content))
       throw new RuntimeException(t('Не удалось сохранить структуру системы в файл.'));
   }
