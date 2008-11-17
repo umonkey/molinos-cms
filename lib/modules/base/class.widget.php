@@ -281,7 +281,7 @@ abstract class Widget implements iWidget
       }
 
       if ($ctx->debug('widget'))
-        $this->debug((array)$data, $result);
+        $this->debug($options, (array)$data, $result);
 
       if (null !== $ckey)
         mcms::cache($ckey, $result);
@@ -342,9 +342,17 @@ abstract class Widget implements iWidget
     */
   }
 
-  private function debug(array $data, $result)
+  private function debug(array $options, array $data, $result)
   {
-    mcms::debug($data, $result);
+    $dump = array(
+      'instance' => $this->name,
+      'config' => $this->config,
+      'options' => $options,
+      'input' => $data,
+      'output' => $result,
+      );
+
+    mcms::debug($dump);
   }
 
   /**
