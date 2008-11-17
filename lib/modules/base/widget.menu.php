@@ -215,7 +215,7 @@ class MenuWidget extends Widget implements iWidget
         if (null !== $this->external and !empty($child->{$this->external}))
           $link = $child->{$this->external};
         else
-          $link = $this->prefix . $child->id;
+          $link = '?q=' . $this->prefix . $child->id;
 
         $a['href'] = str_replace('$tid', $child->id, $link);
 
