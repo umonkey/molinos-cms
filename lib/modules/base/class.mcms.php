@@ -807,21 +807,12 @@ class mcms
 
   public static function version($mode = mcms::VERSION_CURRENT)
   {
-    static $version = null;
-
-    if (null === $version) {
-      if (is_readable($fname = 'lib/version.info'))
-        $version = trim(file_get_contents($fname));
-      else
-        $version = 'unknown.trunk';
-    }
-
     switch ($mode) {
     case self::VERSION_CURRENT:
-      return $version;
+      return MCMS_VERSION;
 
     case self::VERSION_RELEASE:
-      return substr($version, 0, - strlen(strrchr($version, '.')));
+      return substr(MCMS_VERSION, 0, - strlen(strrchr(MCMS_VERSION, '.')));
 
     case self::VERSION_AVAILABLE:
       $release = self::version(self::VERSION_RELEASE);
@@ -830,13 +821,13 @@ class mcms
       if (preg_match($re = "@http://molinos-cms\.googlecode\.com/files/molinos-cms-({$release}\.[0-9]+)\.zip@", $content, $m))
         return $m[1];
       else
-        return $version;
+        return MCMS_VERSION;
 
     case self::VERSION_AVAILABLE_URL:
       return 'http://molinos-cms.googlecode.com/files/molinos-cms-'. self::version(self::VERSION_AVAILABLE) .'.zip';
     }
 
-    return $version;
+    return MCMS_VERSION;
   }
 
   public static function backtrace($stack = null)
