@@ -220,6 +220,9 @@ class Loader
   {
     return array(
       'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'base' . DIRECTORY_SEPARATOR . 'class.requestcontroller.php',
+      'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR . 'class.adminuimodule.php',
+      'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'pdo' . DIRECTORY_SEPARATOR . 'class.dbschema_node__cache.php',
+      'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'base' . DIRECTORY_SEPARATOR . 'control.attachment.php',
       );
   }
 }
