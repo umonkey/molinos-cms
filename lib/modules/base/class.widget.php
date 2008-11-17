@@ -252,6 +252,8 @@ abstract class Widget implements iWidget
    */
   public final function render(Context $ctx)
   {
+    $extras = mcms::get_extras();
+
     try {
       if (!is_array($options = $this->getRequestOptions($ctx)))
         return "<!-- widget {$this->name} halted. -->";
@@ -263,8 +265,10 @@ abstract class Widget implements iWidget
       else
         $ckey = 'widget:' . $this->name . ':' . md5(serialize($options));
 
-      if (null !== $ckey and false !== ($cached = mcms::cache($ckey)))
-        return $cached;
+      if (null !== $ckey and is_array($cached = mcms::cache($ckey))) {
+        mcms::add_extras($cached['extras']);
+        return $cached['content'];
+      }
 
       $this->ctx = $ctx->forWidget($this->name);
 
@@ -287,8 +291,16 @@ abstract class Widget implements iWidget
       if ($ctx->debug('widget'))
         $this->debug($options, (array)$data, $result);
 
-      if (null !== $ckey)
-        mcms::cache($ckey, $result);
+      if (null !== $ckey) {
+        $e = mcms::get_extras();
+
+        mcms::cache($ckey, array(
+          'content' => $result,
+          'extras' => $e,
+          ));
+
+        mcms::add_extras($e);
+      }
     } catch (WidgetHaltedException $e) {
       return false;
     }

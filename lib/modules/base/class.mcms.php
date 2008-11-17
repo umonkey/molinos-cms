@@ -1026,6 +1026,12 @@ class mcms
     return self::$extras = $extras;
   }
 
+  public static function add_extras(array $extras)
+  {
+    foreach ($extras as $k => $v)
+      self::$extras[$k] = $v;
+  }
+
   // FIXME: оптимизировать!
   private static function pop(array &$a, $e)
   {
