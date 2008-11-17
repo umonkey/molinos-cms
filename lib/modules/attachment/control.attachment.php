@@ -82,7 +82,7 @@ class AttachmentControl extends Control
       elseif (!empty($value['url']))
         $value = FileNode::fromURL($value['url']);
       else
-        $value = null;
+        $value = $node->{$this->value};
     }
 
     $node->{$this->value} = $value;
