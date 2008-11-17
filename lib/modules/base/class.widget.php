@@ -253,7 +253,8 @@ abstract class Widget implements iWidget
   public final function render(Context $ctx)
   {
     try {
-      $options = $this->getRequestOptions($ctx);
+      if (!is_array($options = $this->getRequestOptions($ctx)))
+        return "<!-- widget {$this->name} halted. -->";
 
       if (array_key_exists('#cache', $options) and empty($options['#cache']))
         $ckey = null;
