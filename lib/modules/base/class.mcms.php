@@ -1362,8 +1362,9 @@ class mcms
       mcms::debug($message);
     }
 
-    foreach ($result['headers'] as $h)
-      header($h);
+    if (!empty($result['headers']))
+      foreach ($result['headers'] as $h)
+        header($h);
 
     die(self::fixurls($result['content'], false));
 
