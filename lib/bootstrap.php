@@ -45,6 +45,8 @@ class Loader
       '*',
       'module.info')));
 
+    $exclude = self::exclude();
+
     foreach ($modules as $modinfo) {
       $path = dirname($modinfo);
       $modname = basename($path);
@@ -71,6 +73,9 @@ class Loader
       if ($modok) {
         // Составляем список доступных классов.
         foreach (glob($path . DIRECTORY_SEPARATOR . '*.php') as $classpath) {
+          if (in_array($classpath, $exclude))
+            continue;
+
           $parts = explode('.', basename($classpath), 3);
 
           if (count($parts) != 3 or $parts[2] != 'php')
@@ -209,6 +214,13 @@ class Loader
     return (null === $part)
       ? $map
       : $map[$part];
+  }
+
+  private static function exclude()
+  {
+    return array(
+      'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'base' . DIRECTORY_SEPARATOR . 'class.requestcontroller.php',
+      );
   }
 }
 
