@@ -56,7 +56,7 @@ class Form extends Control
       $output = "<{$header}><span>". mcms_plain($this->title) ."</span>";
 
       if ($this->hlink)
-        $output .= ' ' . $this->hlink;
+        $output .= '&nbsp;' . $this->hlink;
 
       $output .= "</{$header}>";
     }
