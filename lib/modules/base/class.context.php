@@ -271,7 +271,10 @@ class Context
       if (!array_key_exists($key, $this->_args))
         return Node::create('dummy');
       elseif (is_numeric($this->_args[$key]))
-        $this->_args[$key] = Node::load($this->_args[$key]);
+        $this->_args[$key] = Node::load(array(
+          'id' => $this->_args[$key],
+          '#cache' => true,
+          ));
       return $this->_args[$key];
     case 'theme':
     case 'moderatoremail':
