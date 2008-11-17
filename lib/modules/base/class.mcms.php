@@ -655,6 +655,8 @@ class mcms
     $tmp = Config::getInstance();
     $tmp->set('modules', join(',', $list), 'runtime');
     $tmp->write();
+
+    Loader::rebuild();
   }
 
   // Проверяет, существует ли указанный класс.  В отличие от базовой
