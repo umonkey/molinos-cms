@@ -1660,6 +1660,25 @@ class mcms
       break;
     }
   }
+
+  public static function writeFile($filename, $content)
+  {
+    if (file_exists($filename)) {
+      if (!is_writable($filename)) {
+        if (is_writable(dirname($filename)))
+          unlink($filename);
+        else
+          throw new RuntimeException(t('Изменение файла %file невозможно: он защищён от записи.', array(
+            '%file' => basename($filename),
+            )));
+      }
+    }
+
+    if (!@file_put_contents($filename, $content))
+      throw new RuntimeException(t('Не удалось записать файл %file.', array(
+        '%file' => basename($filename),
+        )));
+  }
 };
 
 set_exception_handler('mcms::fatal');
