@@ -33,14 +33,24 @@ class StructureMA
         'class' => $node->classname,
         );
 
-      if (!empty($node->config))
-        $result[$node->name]['config'] = $node->config;
+      if (!empty($node->config)) {
+        $config = $node->config;
+
+        foreach ($config as $k => $v)
+          if (empty($v))
+            unset($config[$k]);
+
+        $result[$node->name]['config'] = $config;
+      }
 
       $types = mcms::db()->getResultsV("name", "SELECT v.name FROM node__rev v INNER JOIN node n ON n.rid = v.rid INNER JOIN node__rel r ON r.tid = n.id WHERE r.nid = ? AND n.class = 'type'", array($node->id));
       if (!empty($types))
         $result[$node->name]['config']['types'] = $types;
 
       $groups = mcms::db()->getResultsV("uid", "SELECT uid FROM node__access WHERE nid = ? AND r = 1", array($node->id));
+
+      if (null === $groups)
+        $groups = array(0);
 
       foreach ($groups as $gid)
         $result[$node->name]['access'][] = intval($gid);

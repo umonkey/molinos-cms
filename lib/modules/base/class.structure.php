@@ -35,133 +35,32 @@ class Structure
 
   private function load()
   {
-    if (null !== ($xml = $this->getXML())) {
-      $this->parseWidgets($xml);
-      $this->parseAliases($xml);
-      $this->parsePages($xml);
-    } else {
+    if (!file_exists($file = $this->getFileName())) {
       $ma = new StructureMA();
 
-      if (is_array($data = $ma->import())) {
-        foreach (array('widgets', 'aliases', 'domains') as $k)
-          if (array_key_exists($k, $data))
-            $this->$k = $data[$k];
+      foreach ($ma->import() as $k => $v)
+        $this->$k = $v;
 
-        $this->save();
-      } else {
-        throw new RuntimeException(t('Не удалось прочитать структуру сайта из XML файла.'));
-      }
+      $this->save();
     }
-  }
 
-  private function parseWidgets(SimpleXMLElement $xml)
-  {
-    foreach ($xml->xpath('/config/widgets/widget') as $em) {
-      $w = array();
+    else {
+      $data = include($file);
 
-      // Basic attributes.
-      foreach ($em->attributes() as $k => $v)
-        $w[$k] = strval($v);
+      if (!is_array($data))
+        throw new RuntimeException(t('Считанная из файла структура системы содержит мусор.'));
 
-      // Parameters.
-      foreach ($em->xpath('param') as $p) {
-        $a = $p->attributes();
-
-        $name = strval($a['name']);
-
-        if ('list' == strval($a['type']))
-          $value = explode(',', strval($a['value']));
-        else
-          $value = strval($a['value']);
-
-        $w['params'][$name] = is_numeric($value)
-          ? intval($value)
-          : $value;
-      }
-
-      // Access.
-      foreach ($em->xpath('access') as $p) {
-        $a = $p->attributes();
-        $w['groups'][] = intval($a['gid']);
-      }
-
-      $k = $w['name'];
-      unset($w['name']);
-
-      $this->widgets[$k] = $w;
-    }
-  }
-
-  private function parseAliases(SimpleXMLElement $xml)
-  {
-    foreach ($xml->xpath('/config/aliases/alias') as $alias) {
-      $a = array();
-
-      foreach ($alias->attributes() as $k => $v)
-        $a[strval($k)] = strval($v);
-
-      $source = $a['source'];
-      unset($a['source']);
-
-      $this->aliases[$source] = $a;
-    }
-  }
-
-  private function parsePages(SimpleXMLElement $xml)
-  {
-    foreach ($xml->xpath('/config/domains/domain') as $domain) {
-      $dname = $this->getElementAttributes($domain, 'name');
-
-      foreach ($domain->xpath('page') as $page) {
-        $p = $this->getElementAttributes($page);
-
-        foreach ($page->xpath('region') as $region) {
-          $rname = $this->getElementAttributes($region, 'name');
-
-          foreach ($region->xpath('widget') as $widget)
-            $p['widgets'][$rname][] = $this->getElementAttributes($widget, 'name');
-        }
-
-        $pname = $p['name'];
-        unset($p['name']);
-
-        $this->domains[$dname][$pname] = $p;
-      }
+      foreach ($data as $k => $v)
+        $this->$k = $v;
     }
   }
 
   /**
-   * Возвращает либо все атрибуты элемента в виде массива, либо один конкретный.
+   * Возвращает имя файла, содержащего конфигурацию в PHP.
    */
-  private function getElementAttributes(SimpleXMLElement $em, $key = null)
+  protected function getFileName()
   {
-    $a = array();
-
-    foreach ($em->attributes() as $k => $v)
-      $a[strval($k)] = strval($v);
-
-    return (null === $key)
-      ? $a
-      : $a[$key];
-  }
-
-  /**
-   * Возвращает SimpleXMLElement, содержащий конфигурацию из XML файла.
-   */
-  private function getXML()
-  {
-    if (file_exists($path = $this->getXMLName()))
-      return new SimpleXMLElement(file_get_contents($path));
-
-    return null;
-  }
-
-  /**
-   * Возвращает имя файла, содержащего конфигурацию в XML.
-   */
-  protected function getXMLName()
-  {
-    return substr(mcms::config('fullpath'), 0, -4) . '.xml';
+    return substr(mcms::config('fullpath'), 0, -4) . '.structure';
   }
 
   /**
@@ -261,107 +160,20 @@ class Structure
   }
 
   /**
-   * Запись структуры в XML файл.
+   * Запись структуры в файл.
    */
   public function save()
   {
-    $result = "<?xml version='1.0' encoding='utf-8'?>\n";
-    $result .= "<config>\n";
-    $result .= $this->dumpWidgets();
-    $result .= $this->dumpAliases();
-    $result .= $this->dumpDomains();
-    $result .= "</config>\n";
+    $data = array(
+      'widgets' => $this->widgets,
+      'aliases' => $this->aliases,
+      'domains' => $this->domains,
+      );
 
-    file_put_contents($this->getXMLName(), $result);
-  }
+    $content = "<?php // This is an automatically generated file.\n"
+      . "return " . var_export($data, true) . ";\n";
 
-  private function dumpWidgets()
-  {
-    $result = "  <widgets>\n";
-
-    foreach ($this->widgets as $k => $v) {
-      $attrs = array(
-        'name' => $k,
-        'title' => $v['title'],
-        'class' => $v['class'],
-        );
-
-      $result .= "    <widget" . mcms::htmlattrs($attrs) . ">\n";
-
-      if (!empty($v['config'])) {
-        foreach ($v['config'] as $k => $v) {
-          if (!empty($v)) {
-            $a = array(
-              'name' => $k,
-              'value' => $v,
-              );
-
-            if (is_array($v)) {
-              $a['value'] = join(',', $v);
-              $a['type'] = 'list';
-            }
-
-            $result .= "      " . mcms::html('param', $a) . "\n";
-          }
-        }
-      }
-
-      $result .= "    </widget>\n";
-    }
-
-    $result .= "  </widgets>\n";
-
-    return $result;
-  }
-
-  private function dumpAliases()
-  {
-    $result = "  <aliases>\n";
-
-    foreach ($this->aliases as $k => $v) {
-      $v = array('source' => $k) + $v;
-      $result .= "    " . mcms::html('alias', $v) . "\n";
-    }
-
-    $result .= "  </aliases>\n";
-
-    return $result;
-  }
-
-  private function dumpDomains()
-  {
-    $result = "  <domains>\n";
-
-    foreach ($this->domains as $domain => $pages) {
-      $result .= "    <domain" . mcms::htmlattrs(array(
-        'name' => $domain,
-        )) . ">\n";
-
-      foreach ($pages as $name => $data) {
-        $a = array('name' => $name) + $data;
-        unset($a['widgets']);
-
-        $result .= "      <page" . mcms::htmlattrs($a) . ">\n";
-
-        if (!empty($data['widgets'])) {
-          foreach ($data['widgets'] as $region => $widgets) {
-            $result .= "        <region" . mcms::htmlattrs(array('name' => $region)) . ">\n";
-
-            foreach ($widgets as $w)
-              $result .= "          " . mcms::html('widget', array('name' => $w)) . "\n";
-
-            $result .= "        </region>\n";
-          }
-        }
-
-        $result .= "      </page>\n";
-      }
-
-      $result .= "    </domain>\n";
-    }
-
-    $result .= "  </domains>\n";
-
-    return $result;
+    if (!file_put_contents($this->getFileName(), $content))
+      throw new RuntimeException(t('Не удалось сохранить структуру системы в файл.'));
   }
 }
