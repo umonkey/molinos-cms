@@ -1719,13 +1719,16 @@ class NodeBase
       'text' => t('Сохранить'),
       )));
 
-    if (mcms::user()->hasAccess('u', 'type') and $this->class != 'type') {
-      $type = Node::load(array(
-        'class' => 'type',
-        'name' => $this->class,
-        ));
+    $type = Node::load(array(
+      'class' => 'type',
+      'name' => $this->class,
+      ));
+
+    if (mcms::user()->hasAccess('u', 'type') and $this->class != 'type')
       $form->hlink = '<span>' . l('?q=admin/content/edit/' . $type->id . '&destination=CURRENT', 'схема') . '</span>';
-    }
+
+    if (!$this->id)
+      $form->title = $type->title;
 
     return $form;
   }
