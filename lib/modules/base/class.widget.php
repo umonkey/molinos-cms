@@ -288,7 +288,7 @@ abstract class Widget implements iWidget
           $result = $data['html'];
       }
 
-      if ($ctx->debug('widget'))
+      if ($ctx->debug('widget') and $ctx->get('widget') == $this->name)
         $this->debug($options, (array)$data, $result);
 
       if (null !== $ckey) {
