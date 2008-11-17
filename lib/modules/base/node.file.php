@@ -372,8 +372,15 @@ class FileNode extends Node implements iContentType
   {
     parent::formProcess($data);
 
-    if (!empty($data['__file_node_update']) and empty($data['__file_node_update']['error']))
+    if (!empty($data['__file_node_update']) and empty($data['__file_node_update']['error'])) {
+      $oldid = $this->id;
       $this->import($data['__file_node_update']);
+
+      if ($this->id != $oldid)
+        throw new RuntimeException(t('Такой файл в системе <a href="@url">уже есть</a>.', array(
+          '@url' => '?q=admin/content/edit/' . $this->id . '?destination=admin/content/list/files',
+          )));
+    }
 
     return $this;
   }
