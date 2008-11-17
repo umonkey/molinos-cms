@@ -40,6 +40,8 @@ function upgrade_8_05_6197()
 
 upgrade_8_05_6197();
 
+Loader::rebuild();
+
 if (class_exists('mcms'))
   mcms::redirect('?q=admin');
 
