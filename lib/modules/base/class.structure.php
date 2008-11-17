@@ -35,24 +35,29 @@ class Structure
 
   private function load()
   {
-    if (!file_exists($file = $this->getFileName())) {
-      $ma = new StructureMA();
+    if (!file_exists($file = $this->getFileName()))
+      $this->rebuild();
 
-      foreach ($ma->import() as $k => $v)
-        $this->$k = $v;
+    $data = include($file);
 
-      $this->save();
-    }
+    if (!is_array($data))
+      throw new RuntimeException(t('Считанная из файла структура системы содержит мусор.'));
 
-    else {
-      $data = include($file);
+    foreach ($data as $k => $v)
+      $this->$k = $v;
+  }
 
-      if (!is_array($data))
-        throw new RuntimeException(t('Считанная из файла структура системы содержит мусор.'));
+  /**
+   * Пересоздание структуры сайта.
+   */
+  public function rebuild()
+  {
+    $ma = new StructureMA();
 
-      foreach ($data as $k => $v)
-        $this->$k = $v;
-    }
+    foreach ($ma->import() as $k => $v)
+      $this->$k = $v;
+
+    $this->save();
   }
 
   /**
