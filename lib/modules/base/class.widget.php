@@ -40,8 +40,8 @@ abstract class Widget implements iWidget
   public function __construct($name, array $data)
   {
     $this->name = $name;
-    $this->config = array_key_exists('params', $data)
-      ? $data['params']
+    $this->config = array_key_exists('config', $data)
+      ? $data['config']
       : array();
   }
 
