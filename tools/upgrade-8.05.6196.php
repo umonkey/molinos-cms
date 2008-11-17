@@ -39,3 +39,9 @@ function upgrade_8_05_6197()
 }
 
 upgrade_8_05_6197();
+
+if (class_exists('mcms'))
+  mcms::redirect('?q=admin');
+
+header('Content-Type: text/plain; charset=utf-8');
+die('OK, now go to ?q=admin');
