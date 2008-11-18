@@ -29,6 +29,9 @@ class EnumControl extends Control
     if (empty($form['default_label']))
       $form['default_label'] = t('(не выбрано)');
 
+    if (empty($form['prepend']))
+      $form['prepend'] = array();
+
     parent::makeOptionsFromValues($form);
     parent::__construct($form, array('value'));
   }
@@ -40,45 +43,33 @@ class EnumControl extends Control
 
   public function getHTML($data)
   {
-    $options = $this->getData($data);
+    $options = '';
+
+    if (!$this->required)
+      $options .= mcms::html('option', array(
+        'value' => '',
+        ), $this->default_label);
 
     $selected = $this->getSelected($data);
     $enabled = $this->getEnabled($data);
 
-    if (is_array($enabled) and count($enabled) == 1) {
-      $id = array_shift(array_values($enabled));
+    $list = $this->prepend + $this->getData($data);
 
-      if (array_key_exists($id, $options)) {
-        return mcms::html('input', array(
-          'type' => 'hidden',
-          'name' => $this->value,
-          'value' => $id,
-          ));
-      }
-    }
-
-    $output = '';
-
-    if (!$this->required)
-      $output .= mcms::html('option', array(
-        'value' => '',
-        ), $this->default_label);
-
-    foreach ($this->getData($data) as $k => $v) {
-      $output .= mcms::html('option', array(
+    foreach ($list as $k => $v) {
+      $options .= mcms::html('option', array(
         'value' => $k,
         'selected' => in_array($k, $selected) ? 'selected' : null,
         'disabled' => (null === $enabled or in_array($k, $enabled)) ? null : 'disabled',
         ), $v);
     }
 
-    if (empty($output))
+    if (empty($options))
       return '';
 
     $output = mcms::html('select', array(
       'id' => $this->id,
       'name' => $this->value,
-      ), $output);
+      ), $options);
 
     return $this->wrapHTML($output);
   }
