@@ -328,7 +328,7 @@ class AdminListHandler
       $filter['class'] = array();
       $itypes = TypeNode::getInternal();
 
-      foreach (Node::find(array('class' => 'type')) as $n) {
+      foreach (Node::find(array('class' => 'type', '#recurse' => 0)) as $n) {
         if (empty($n->isdictionary) and (empty($n->adminmodule) or !mcms::ismodule($n->adminmodule)) and !in_array($n->name, $itypes))
           $filter['class'][] = $n->name;
       }
