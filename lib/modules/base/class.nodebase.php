@@ -1711,7 +1711,7 @@ class NodeBase
       'action' => $this->id
         ? "?q=nodeapi.rpc&action=edit&node={$this->id}&destination=". urlencode($next)
         : "?q=nodeapi.rpc&action=create&type={$this->class}&destination=". urlencode($next),
-      'title' => $this->getName() . ' (' . $this->class . ')',
+      'title' => $this->getFormTitle(),
       ));
 
     foreach ($tabs as $tab)
@@ -1729,10 +1729,17 @@ class NodeBase
     if (mcms::user()->hasAccess('u', 'type') and $this->class != 'type')
       $form->hlink = '<span>' . l('?q=admin/content/edit/' . $type->id . '&destination=CURRENT', 'схема') . '</span>';
 
-    if (!$this->id)
-      $form->title = $type->title;
-
     return $form;
+  }
+
+  /**
+   * Возвращает заголовок формы редактирования объекта.
+   */
+  public function getFormTitle()
+  {
+    return $this->id
+      ? $this->getName() . ' (' . $this->class . ')'
+      : t('Добавление нового документа (%type)', array('%type' => $this->class));
   }
 
   /**

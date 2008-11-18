@@ -192,14 +192,21 @@ class DomainNode extends Node implements iContentType
     if ($this->parent_id)
       $form->hideControl('robots');
 
-    if (empty($this->parent_id))
-      $form->title = $this->id ? t('Свойства домена') : t('Добавление домена');
-    else
-      $form->title = $this->id ? t('Свойства страницы') : t('Добавление страницы');
-
     $this->fixThemes($form);
 
     return $form;
+  }
+
+  public function getFormTitle()
+  {
+    if (!$this->id)
+      return $this->parent_id
+        ? t('Добавление новой страницы')
+        : t('Добавление нового домена');
+
+    return $this->parent_id
+      ? t('Настройка страницы «%name»', array('%name' => $this->name))
+      : t('Настройка домена «%name»', array('%name' => $this->name));
   }
 
   private function formGetAlias()

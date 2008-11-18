@@ -51,4 +51,11 @@ class OrderNode extends Node implements iContentType
         ),
       );
   }
+
+  public function getFormTitle()
+  {
+    return $this->id
+      ? t('Информация о заказе от %email', array('%email' => $this->email))
+      : t('Добавление нового заказа');
+  }
 }

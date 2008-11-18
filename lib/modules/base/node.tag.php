@@ -106,26 +106,11 @@ class TagNode extends Node implements iContentType
     return $result;
   }
 
-  /**
-   * Возвращает форму для редактирования раздела.
-   *
-   * Единственное изменение, вносимое в полученную от родителя форму —
-   * человеческий заголовок.
-   *
-   * @param bool $simple определяет, нужно ли возвращать дополнительные вкладки
-   * (историю изменений, файлы итд).
-   *
-   * @return Form описание формы.
-   */
-  public function formGet($simple = true)
+  public function getFormTitle()
   {
-    $form = parent::formGet($simple);
-
-    $form->title = (null === $this->id)
-      ? t('Добавление нового раздела')
-      : t('Редактирование раздела "%name"', array('%name' => $this->name));
-
-    return $form;
+    return $this->id
+      ? t('Редактирование раздела «%name»', array('%name' => $this->name))
+      : t('Добавление нового раздела');
   }
 
   private static function haveRoot()

@@ -171,4 +171,11 @@ class UserNode extends Node implements iContentType
 
     return $result;
   }
+
+  public function getFormTitle()
+  {
+    return $this->id
+      ? t('Профиль пользователя «%name»', array('%name' => $this->getName()))
+      : t('Добавление нового пользователя');
+  }
 };

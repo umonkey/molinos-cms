@@ -224,12 +224,19 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     $form->addControl($this->formGetFields());
 
-    if (!$this->id)
-      $form->title = $this->isdictionary
-        ? t('Новый справочник')
-        : t('Новый тип документа');
-
     return $form;
+  }
+
+  public function getFormTitle()
+  {
+    if ($this->isdictionary)
+      return $this->id
+        ? t('Свойства справочника «%name»', array('%name' => $this->name))
+        : t('Добавление нового справочника');
+
+    return $this->id
+      ? t('Настройка типа «%name»', array('%name' => $this->name))
+      : t('Добавление нового типа документа');
   }
 
   private function getAccessTab()

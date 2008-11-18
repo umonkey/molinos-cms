@@ -11,16 +11,11 @@ class CommentNode extends Node
     return parent::save();
   }
 
-  public function formGet($simple = false)
+  public function getFormTitle()
   {
-    $form = parent::formGet($simple);
-
-    if ($this->id)
-      $form->title = t('Редактирование комментария');
-    else
-      $form->title = t('Добавление комментария');
-
-    return $form;
+    return $this->id
+      ? t('Редактирование комментария')
+      : t('Добавление комментария');
   }
 
   public function formProcess(array $data)

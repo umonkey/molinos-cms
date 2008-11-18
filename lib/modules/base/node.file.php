@@ -348,11 +348,14 @@ class FileNode extends Node implements iContentType
       )));
     */
 
-    $form->title = (null === $this->id)
-      ? t('Добавление нового файла')
-      : t('Редактирование файла %name', array('%name' => $this->filename));
-
     return $form;
+  }
+
+  public function getFormTitle()
+  {
+    return $this->id
+      ? t('Редактирование файла «%name»', array('%name' => $this->filename))
+      : t('Добавление нового файла');
   }
 
   /**

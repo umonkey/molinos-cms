@@ -49,26 +49,11 @@ class GroupNode extends Node implements iContentType
     return parent::duplicate();
   }
 
-  /**
-   * Возвращает форму для редактирования группы.
-   *
-   * Добавляет в форму вкладки со списком пользователей и типов документов, к
-   * которым у группы есть доступ.  Динамически меняет заголовок формы (делая
-   * его читабельным).
-   *
-   * @return Form полученная от родителя форма с парой новых вкладок.
-   *
-   * @param bool $simple передаётся родителю, локально не используется.
-   */
-  public function formGet($simple = true)
+  public function getFormTitle()
   {
-    $form = parent::formGet($simple);
-
-    $form->title = (null === $this->id)
-      ? t('Добавление новой группы')
-      : t('Редактирование группы %name', array('%name' => $this->name));
-
-    return $form;
+    return $this->id
+      ? t('Редактирование группы «%name»', array('%name' => $this->name))
+      : t('Добавление новой группы');
   }
 
   protected function getDefaultSchema()

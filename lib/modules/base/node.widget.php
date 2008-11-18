@@ -80,6 +80,13 @@ class WidgetNode extends Node implements iContentType
     return $form;
   }
 
+  public function getFormTitle()
+  {
+    return $this->id
+      ? t('Настройка виджета «%name»', array('%name' => $this->name))
+      : t('Добавление нового виджета');
+  }
+
   /**
    * Обработчик форм.
    *
