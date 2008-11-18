@@ -85,6 +85,9 @@ class TagNode extends Node implements iContentType
   {
     $result = array();
 
+    if (is_array($cached = mcms::cache($ckey = 'tags:' . $mode)))
+      return $cached;
+
     // Загружаем все корневые разделы (в нормальных условиях такой должен быть один,
     // но на случае ошибок в БД мы всё таки даём возможность работать с ошибочными
     // разделами).
@@ -97,6 +100,8 @@ class TagNode extends Node implements iContentType
         $result = array_merge($result, $node->getChildren($mode, $options));
        }
     }
+
+    mcms::cache($ckey, $result);
 
     return $result;
   }
