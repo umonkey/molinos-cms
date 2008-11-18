@@ -42,6 +42,9 @@ class ImageMagickGD
 
     public function open($path, $mimetype = null)
     {
+        if (!file_exists($path))
+          return false;
+
         if ($mimetype === null)
           $this->mime = self::getFileType($path);
         else
