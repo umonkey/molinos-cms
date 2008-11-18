@@ -15,7 +15,7 @@ class Loader
 {
   public static function rebuild($local = false)
   {
-    $map = self::scan($local, preg_split('/,\s*/', mcms::config('runtime_modules')));
+    $map = self::scan($local, mcms::config('runtime.modules'));
 
     $path = MCMS_LIB . DIRECTORY_SEPARATOR . ($local
       ? 'classpath.local.inc'
@@ -223,6 +223,12 @@ class Loader
       'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR . 'class.adminuimodule.php',
       'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'pdo' . DIRECTORY_SEPARATOR . 'class.dbschema_node__cache.php',
       'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'base' . DIRECTORY_SEPARATOR . 'control.attachment.php',
+      'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'class.apc_cache.php',
+      'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'class.bebopcache.php',
+      'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'class.dbcache.php',
+      'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'class.local_cache.php',
+      'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'class.memcached_cache.php',
+      'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'interface.bebopcacheengine.php',
       );
   }
 }

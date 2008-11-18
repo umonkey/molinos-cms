@@ -9,7 +9,7 @@ class BebopMimeMail implements iModuleConfig
       throw new InvalidArgumentException(t('Получатель сообщения не указан.'));
 
     if (empty($from))
-      if (($from = mcms::config('mail_from')) === null)
+      if (($from = mcms::config('mail.from')) === null)
         $from = "Molinos.CMS <no-reply@{$_SERVER['HTTP_HOST']}>";
 
     if (strstr($body, '<html>') === false)
@@ -20,10 +20,10 @@ class BebopMimeMail implements iModuleConfig
 
     mcms::log('mail', t('to=%to, subject=%subject', array('%to' => join(',', $to), '%subject' => $subject)));
 
-    $transport = (null == mcms::config('mail_server', null)) ? 'mail' : 'smtp';
+    $transport = (null == mcms::config('mail.server', null)) ? 'mail' : 'smtp';
     $mail = new htmlMimeMail();
 
-    $mail->setSMTPParams(mcms::config('mail_server'));
+    $mail->setSMTPParams(mcms::config('mail.server'));
 
     $mail->setFrom($from);
     $mail->setSubject($subject);
@@ -55,7 +55,7 @@ class BebopMimeMail implements iModuleConfig
     $form->addControl(new EmailControl(array(
       'value' => 'config_from',
       'label' => t('Адрес отправителя'),
-      'default' => mcms::config('mail_from'),
+      'default' => mcms::config('mail.from'),
       )));
 
     return $form;

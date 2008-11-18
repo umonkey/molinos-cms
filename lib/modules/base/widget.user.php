@@ -226,7 +226,7 @@ class UserWidget extends Widget implements iWidget
     mcms::flush();
 
     // Сообщаем администратору.
-    if (null !== ($to = mcms::config('modules_user_notifications'))) {
+    if (null !== ($to = mcms::config('module.user.notifications'))) {
       BebopMimeMail::send(null, $to, "Новый пользователь на сайте {$_SERVER['HTTP_HOST']}",
         "<p>На сайте {$_SERVER['HTTP_HOST']} только что успешно завершил регистрацию новый пользователь: {$node->name}.</p>");
     }

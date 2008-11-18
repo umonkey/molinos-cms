@@ -1,0 +1,22 @@
+<?php return array (
+  'mail.from' => 'no-reply@molinos.ru',
+  'mail.server' => 'localhost',
+  'backtracerecipients' => 
+  array (
+    0 => 'cms-bugs@molinos.ru',
+  ),
+  'filestorage' => 'storage',
+  'ftpfolder' => 'ftp',
+  'tmpdir' => 'tmp',
+  'file.cache.ttl' => '3600',
+  'db.default' => 'sqlite:conf/default.db',
+  'debuggers' =>
+  array(
+    0 => '127.0.0.1',
+    ),
+  'runtime.modules' => 
+  array (
+    4 => 'compressor',
+    8 => 'tinymce',
+  ),
+);

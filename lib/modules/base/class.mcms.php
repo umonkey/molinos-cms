@@ -376,7 +376,7 @@ class mcms
     }
 
     if (null === $enabled)
-      $enabled = explode(',', mcms::config('runtime_modules'));
+      $enabled = mcms::config('runtime.modules');
 
     return in_array($name, $enabled);
   }
@@ -662,7 +662,7 @@ class mcms
   public static function enableModules(array $list)
   {
     $tmp = Config::getInstance();
-    $tmp->set('modules', join(',', $list), 'runtime');
+    $tmp->set('runtime.modules', $list);
     $tmp->write();
 
     Loader::rebuild();
@@ -1380,7 +1380,7 @@ class mcms
       $req = new RequestController($ctx);
       $output = $req->run();
     } catch (UserErrorException $e) {
-      if (mcms::config('debug_errors'))
+      if (mcms::config('debug.errors'))
         mcms::fatal($e);
 
       if ('errors' == $ctx->debug())

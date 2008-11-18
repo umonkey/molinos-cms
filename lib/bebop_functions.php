@@ -320,7 +320,7 @@ function mcms_fetch_file($url, $content = true, $cache = true)
 {
   $outfile = mcms::config('tmpdir') . "/mcms-fetch.". md5($url);
 
-  $ttl = mcms::config('file_cache_ttl', 3600);
+  $ttl = mcms::config('file.cache.ttl', 3600);
 
   if (file_exists($outfile) and (!$cache or ((time() - $ttl) > @filectime($outfile))))
     if (is_writable(dirname($outfile)))
@@ -411,6 +411,7 @@ function mcms_url(array $options = null)
 
 function mcms_encrypt($input)
 {
+  if (function_exists('mcrypt_create_iv')) {
     $textkey = mcms::config('guid');
     $securekey = hash('sha256', $textkey, true);
 
@@ -419,15 +420,24 @@ function mcms_encrypt($input)
 
     $iv = mcrypt_create_iv(32);
 
-    return rawurlencode(base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $securekey, $input, MCRYPT_MODE_ECB, $iv)));
+    $input = mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $securekey, $input, MCRYPT_MODE_ECB, $iv);
+  }
+
+  return rawurlencode(base64_encode($input));
 }
 
 function mcms_decrypt($input)
 {
+  $input = base64_decode(rawurldecode($input));
+
+  if (function_exists('mcrypt_create_iv')) {
     $textkey = mcms::config('guid');
     $securekey = hash('sha256', $textkey, true);
 
     $iv = mcrypt_create_iv(32);
 
-    return trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $securekey, base64_decode(rawurldecode($input)), MCRYPT_MODE_ECB, $iv));
+    $input = mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $securekey, $input, MCRYPT_MODE_ECB, $iv);
+  }
+
+  return $input;
 }

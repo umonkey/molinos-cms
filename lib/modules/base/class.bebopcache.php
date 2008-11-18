@@ -172,7 +172,7 @@ class MemCache_provider extends BebopCache
 
   public function __construct()
   {
-    $host = mcms::config('cache_memcache_host', 'localhost');
+    $host = mcms::config('cache.memcache.host', 'localhost');
     $this->host = new Memcache();
     $this->host->pconnect($host);
 

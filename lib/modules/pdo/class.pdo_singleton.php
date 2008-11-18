@@ -67,17 +67,11 @@ class PDO_Singleton extends PDO
   // Возвращает параметры подключения к нужной БД.
   private static function getConfig($name)
   {
-    if (is_array($conf = mcms::config('db')) and array_key_exists($name, $conf))
-      return $conf[$name];
+    if (!($config = mcms::config('db.' . $name)))
+      throw new RuntimeException(t('Соединение %name не настроено.',
+        array('%name' => $name)));
 
-    if ('default' == $name and is_string($conf = mcms::config('db')))
-      return $conf;
-
-    if ('default' == $name)
-      throw new NotInstalledException('dsn');
-
-    throw new RuntimeException(t('Соединение %name не настроено.',
-      array('%name' => $name)));
+    return $config;
   }
 
   public static function disconnect()

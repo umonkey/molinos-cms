@@ -22,7 +22,7 @@ class BebopSmarty extends Smarty
 
         $this->caching = false;
 
-        if (null !== ($tmp = mcms::config('smarty_cache_lifetime')))
+        if (null !== ($tmp = mcms::config('smarty.cache.lifetime')))
             $this->cache_lifetime = $tmp;
 
         if ($with_debug and self::debug())

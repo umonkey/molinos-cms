@@ -1,238 +1,181 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
-// some changes.
 
 class Config
 {
-    private static $instance = null;
-    private $data = null;
-    private $path = null;
-    private $isok = false;
+  private static $instance = null;
+  private $data = null;
+  private $path = null;
+  private $isok = false;
 
-    private function __construct()
-    {
+  private function __construct()
+  {
+    $this->path = $this->findFile();
+  }
+
+  static public function getInstance()
+  {
+    if (self::$instance === null)
+      self::$instance = new Config();
+    return self::$instance;
+  }
+
+  private function readData()
+  {
+    if (!is_readable($this->path)) {
+      $this->data = array();
     }
 
-    static public function getInstance(User $user = null)
-    {
-        if (self::$instance === null)
-            self::$instance = new Config();
-        return self::$instance;
-    }
+    elseif (substr($this->path, -4) == '.ini') {
+      $this->data = array();
 
-    private function getFileName()
-    {
-      if ($this->path !== null and 'default.php' != basename($this->path))
-        return $this->path;
-
-      $prefix = MCMS_ROOT . DIRECTORY_SEPARATOR .'conf'. DIRECTORY_SEPARATOR;
-
-      $result = array();
-
-      // Строим полный путь к файлу.
-      for ($parts = explode('.', $_SERVER['HTTP_HOST']); !empty($parts); $result[] = array_pop($parts));
-
-      // Перебираем возможные варианты, отсекая по одному элементу.
-      while (!empty($result)) {
-        if (is_readable($this->path = $prefix . join('.', $result) .'.ini'))
-          return $this->path;
-        array_pop($result);
-      }
-
-      // Дошли до самого конца: пытаемся открыть дефолтный файл.
-      if (is_readable($this->path = $prefix .'default.ini'))
-        return $this->path;
-
-      // Дефолтный не найден, пытаемся использовать демо.
-      if (in_array('sqlite', PDO::getAvailableDrivers())) {
-        if (is_readable($this->path = $prefix .'default.ini.dist')) {
-          // Копируем пример в нормальный конфиг.
-          if (is_writable(dirname($this->path))) {
-            copy($this->path, $tmp = $prefix .'default.ini');
-            $this->path = $tmp;
-          } else {
-            $this->path = null;
-          }
-
-          return $this->path;
+      foreach (parse_ini_file($this->path, true) as $k => $v) {
+        if (!is_array($v))
+          $this->data[str_replace('_', '.', $k)] = $v;
+        else foreach ($v as $sk => $sv) {
+          $this->data[str_replace('_', '.', $k . '.' . $sk)] = $sv;
         }
       }
 
-      return $this->path;
-    }
-
-    private function readData()
-    {
-      $file = $this->getFileName();
-
-      if (!is_readable($file)) {
-        $this->data = array();
-      }
-      elseif (substr($file, -4) == '.ini') {
-        $this->data = parse_ini_file($file, true);
-        $this->isok = true;
-      }
-      else {
-        require_once($file);
-        $this->data = $config;
-        $this->isok = true;
-      }
-
-      $this->data['cleanurls'] = !empty($_GET['__cleanurls']);
-    }
-
-    private function __isset($varname)
-    {
-      return null !== $this->__get($varname);
-    }
-
-    private function __get($varname)
-    {
-      if ($this->data === null)
-        $this->readData();
-
-      $res = null;
-
-      if (array_key_exists($varname, $this->data))
-        $res = $this->data[$varname];
-      elseif (count($tmp = explode('_', $varname, 2)) == 2) {
-        if (!empty($this->data[$tmp[0]][$tmp[1]]))
-          $res = $this->data[$tmp[0]][$tmp[1]];
-      }
-
-      if (null === $res) {
-        switch ($varname) {
-        case 'tmpdir':
-          $res = 'tmp';
-          break;
-        case 'filestorage':
-          $res = 'storage';
-          break;
-        case 'filename':
-          $res = basename($this->path);
-          break;
-        case 'fullpath':
-          $res = $this->path;
-          break;
-        }
-      }
-
-      return $res;
-    }
-
-    private function __set($varname, $value)
-    {
-      throw new InvalidArgumentException(t('Для изменения конфигурации используется метод set().'));
-    }
-
-    private function __unset($varname)
-    {
-      throw new InvalidArgumentException('Configuration is read only.');
-    }
-
-    public function isok()
-    {
-      return $this->isok;
-    }
-
-    public function reload()
-    {
-      if (empty($this->data))
-        $this->readData();
-    }
-
-    public function set($key, $value, $section = null)
-    {
-      if (empty($key))
-        throw new InvalidArgumentException(t('Не указано имя параметра.'));
-
-      if ($this->data === null)
-        $this->readData();
-
-      if (null != $section) {
-        if (array_key_exists($section, $this->data) and is_array($this->data[$section]))
-          $this->data[$section][$key] = $value;
-        else
-          $this->data[$section] = array($key => $value);
-      } else
-        $this->data[$key] = $value;
-    }
-
-    public function write()
-    {
-      $output =
-        "; vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2 ft=dosini:\n"
-        .";\n"
-        ."; Do not edit this file by hand, hex said something bad might happen.\n"
-        ."; Written by Molinos.CMS v". mcms::version() ."\n"
-        ."\n";
-
-      // Сначала надо выгрузить все "простые" параметры, чтобы они не попали в какую-нибудь секцию.
+      // Заменяем "off", который парсится в "", на bool.
       foreach ($this->data as $k => $v)
-        if (!is_array($v) && !empty($v) and 'cleanurls' != $k)
-          $output .= "{$k} = {$v}\n";
+        if ('' === $v)
+          $this->data[$k] = false;
 
-      foreach ($this->data as $k => $v) {
-        // Массив в параметрах есть — теперь пишем секцию.
-        if (is_array($v)) {
-          $str = $this->dumpSection($v);
-          if (!empty($str))
-            $output .= "\n[{$k}]\n" . $str;
-        }
-      }
-
-      if (!strlen($path = $this->getFileName()))
-        throw new RuntimeException(t('Конфигурационный файл не определён.'));
-
-      if (!file_exists($path))
-        mcms::mkdir(dirname($path), 'Не удалось создать папку для конфигурационных файлов (%path).');
-
-      if (!is_writable(dirname($path)))
-        throw new RuntimeException(t('Конфигурационный файл закрыт для записи (%path).', array('%path' => $path)));
-
-      $this->backup($path);
-
-      if (!file_put_contents($path, $output))
-        // А такое вообще может быть?
-        throw new RuntimeException(t("Не удалось сохранить конфигурационный файл в {$this->path}."));
-
-      // FIXME: если файл существует, и не наш — получаем нотис.
-      // chmod($path, 0660);
-    }
-
-    private function dumpSection(array $data)
-    {
-      $output = '';
-
-      foreach ($data as $k => $v) {
-        if (is_array($v))
-          $value = join(', ', $v);
-        elseif (0 === $v)
-          $value = '0';
-        elseif (empty($v))
-          $value = 'off';
+      // Разворачиваем известные массивы.
+      foreach (array('backtracerecipients', 'runtime.modules') as $k)
+        if (array_key_exists($k, $this->data))
+          $this->data[$k] = preg_split('/,\s*/', $this->data[$k], -1, PREG_SPLIT_NO_EMPTY);
         else
-          $value = $v;
+          $this->data[$k] = array();
 
-        $output .= sprintf("%s = %s\n", $k, $value);
-      }
-
-      return $output;
+      $this->isok = true;
     }
 
-    private function backup($path)
-    {
-      $backup = $path .'.lkg';
-
-      if (file_exists($backup))
-        unlink($backup);
-
-      if (file_exists($path))
-        copy($path, $backup);
+    else {
+      $this->data = require_once $this->path;
+      $this->isok = true;
     }
 
-    public function isWritable()
-    {
-      return is_writable($this->getFileName());
+    $this->data['cleanurls'] = !empty($_GET['__cleanurls']);
+  }
+
+  private function findFile()
+  {
+    $options = array();
+
+    for ($parts = array_reverse(explode('.', $_SERVER['HTTP_HOST'])); !empty($parts); array_pop($parts)) {
+      $path = 'conf' . DIRECTORY_SEPARATOR . join('.', $parts);
+      $options[] = $path . '.config.php';
+      $options[] = $path . '.ini';
     }
+
+    $options[] = 'conf' . DIRECTORY_SEPARATOR . 'default.config.php';
+    $options[] = 'conf' . DIRECTORY_SEPARATOR . 'default.ini';
+
+    foreach ($options as $path)
+      if (file_exists($path) and is_readable($path))
+        return $path;
+
+    // Ничего не найдено, пытаемся использовать фабричный конфиг.
+    if (file_exists($src = 'conf' . DIRECTORY_SEPARATOR . 'default.config.php.dist'))
+      if (copy($src, $dst = 'conf' . DIRECTORY_SEPARATOR . 'default.config.php'))
+        return $dst;
+
+    throw new RuntimeException(t('Не удалось найти конфигурационный файл.'));
+  }
+
+  private function __isset($varname)
+  {
+    return null !== $this->__get($varname);
+  }
+
+  private function __get($varname)
+  {
+    if (null === $this->data)
+      $this->readData();
+
+    switch ($varname) {
+    case 'tmpdir':
+      $res = 'tmp';
+      break;
+    case 'filestorage':
+      $res = 'storage';
+      break;
+    case 'filename':
+      $res = basename($this->path);
+      break;
+    case 'fullpath':
+      $res = $this->path;
+      break;
+    default:
+      $res = array_key_exists($varname, $this->data)
+        ? $this->data[$varname]
+        : null;
+    }
+
+    if (null === $res)
+      mcms::flog('config', $varname . ': not found.');
+
+    return $res;
+  }
+
+  private function __set($varname, $value)
+  {
+    if (empty($varname))
+      throw new InvalidArgumentException(t('Не указано имя параметра.'));
+
+    if (null === $this->data)
+      $this->readData();
+
+    $this->data[$varname] = $value;
+  }
+
+  private function __unset($varname)
+  {
+    if (null === $this->data)
+      $this->readData();
+
+    if (array_key_exists($varname, $this->data))
+      unset($this->data[$varname]);
+  }
+
+  public function isok()
+  {
+    return $this->isok;
+  }
+
+  public function reload()
+  {
+    if (empty($this->data))
+      $this->readData();
+  }
+
+  public function set($varname, $value, $section = null)
+  {
+    if (null !== $section)
+      $varname = $section . '.' . $varname;
+    return $this->__set($varname, $value);
+  }
+
+  public function write()
+  {
+    if (strrchr($this->path, '.') == '.ini')
+      $this->path = substr($this->path, 0, -4) . '.config.php';
+
+    // Запись в новый файл.
+    $content = "<?php return " . var_export($this->data, true) . ";\n";
+    mcms::writeFile($this->path, $content);
+
+    // Удаление старых файлов.
+    if (file_exists($old = substr($this->path, 0, -11) . '.ini')) {
+      mcms::flog('config', $old . ': removing (deprecated).');
+      unlink($old);
+    }
+  }
+
+  public function isWritable()
+  {
+    return is_writable($this->path);
+  }
 }

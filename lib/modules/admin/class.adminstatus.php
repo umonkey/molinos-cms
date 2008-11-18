@@ -90,7 +90,7 @@ class AdminStatus implements iAdminMenu
           '%size' => mcms::filesize(mcms::db()->getDbName()),
           ));
 
-      if ($tmp = mcms::config('runtime_modules')) {
+      if ($tmp = mcms::config('runtime.modules')) {
         $parts[] = t('<a href=\'@url\'>модулей</a>:&nbsp;%count', array(
           '%count' => count(explode(',', $tmp)),
           '@url' => '?q=admin/structure/modules',
