@@ -72,14 +72,8 @@ class ModeratorModule implements iModuleConfig, iNodeHook
     if (in_array($node->class, array('domain', 'widget', 'user', 'group')))
       return;
 
-    $schema = $node->schema();
-
-    // Несуществующий тип, вроде moduleinfo.
-    if (empty($schema['id']))
-      return;
-
     // Пользователь сам себе публикатор.
-    if (mcms::user()->hasAccess('p',$node->class))
+    if (mcms::user()->hasAccess('p', $node->class))
       return;
 
     switch ($op) {
@@ -129,23 +123,23 @@ class ModeratorModule implements iModuleConfig, iNodeHook
 
     $schema = $node->schema();
 
-    foreach ($schema['fields'] as $k => $v) {
+    foreach ($schema as $k => $v) {
       if (isset($node->$k)) {
-        switch (strtolower($v['type'])) {
-        case 'passwordcontrol':
+        if ($v instanceof PasswordControl)
           $value = null;
-        default:
+        else
           $value = $node->$k;
-        }
 
         if (null !== $value) {
-          $body .= '<dt>'. mcms_plain(isset($v['label']) ? $v['label'] : $k) .':</dt>';
+          $body .= '<dt>'. mcms_plain($v->label) .':</dt>';
           $body .= '<dd>'. mcms_plain($value) .'</dd>';
         }
       }
     }
 
     $body .= '</dl>';
+
+    $body .= '<p>' . l('?q=admin/content/edit/' . $node->id . '&destination=admin', t('Открыть в админке')) . '</p>';
 
     return $body;
   }
@@ -169,7 +163,9 @@ class ModeratorModule implements iModuleConfig, iNodeHook
     }
 
     // Добавляем в список адреса, указанные в свойствах домена.
-    $list += preg_split('/, */', Context::last()->moderatoremail);
+    if ($ctx = Context::last())
+      if (isset($ctx->moderatoremail))
+        $list += preg_split('/, */', $ctx->moderatoremail);
 
     return array_unique($list);
   }
