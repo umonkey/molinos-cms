@@ -6,14 +6,13 @@ class SubscriptionAdminList extends AdminListHandler implements iAdminUI
   {
     $this->types = array('subscription');
     $this->title = t('Управление рассылкой');
-    $this->columns = array('id', 'class', 'name', 'created');
+    $this->columns = array('name', 'last', 'created');
     $this->actions = array('publish', 'unpublish', 'delete');
 
     $this->columntitles = array(
-      'name' => t('Имя ленты'),
-      'title' => t('Заголовок'),
-      'uid' => t('Создатель'),
-      'created' => t('Дата добавления'),
+      'name' => t('Почтовый адрес'),
+      'last' => t('Последняя новость'),
+      'created' => t('Дата подписки'),
       );
   }
 
