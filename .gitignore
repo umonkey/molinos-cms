@@ -1,7 +1,3 @@
-conf/*.db
-conf/*.ini
-conf/*.ini.lkg
-doc/ChangeLog.*
 storage/
 tmp/
 .htaccess
