@@ -1506,6 +1506,7 @@ class NodeBase
     if (empty($_SERVER['HTTP_HOST']))
       return true;
 
+    /*
     if (strval($this->uid) == mcms::user()->id) {
       $schema = $this->schema();
 
@@ -1513,6 +1514,7 @@ class NodeBase
         if (in_array($perm, $schema['perm_own']))
           return true;
     }
+    */
 
     return mcms::user()->hasAccess($perm, $this->class);
   }
