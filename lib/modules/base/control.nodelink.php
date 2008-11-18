@@ -145,7 +145,10 @@ class NodeLinkControl extends Control
   {
     $this->validate($value);
 
-    $node->{$this->value} = Node::load($value);
+    if (empty($value))
+      $node->{$this->value} = null;
+    else
+      $node->{$this->value} = Node::load($value);
 
     /*
     if (!empty($data['nodelink_remap'][$key]))
