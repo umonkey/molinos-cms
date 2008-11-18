@@ -169,15 +169,10 @@ class Structure
    */
   public function save()
   {
-    $data = array(
+    mcms::writeFile($this->getFileName(), array(
       'widgets' => $this->widgets,
       'aliases' => $this->aliases,
       'domains' => $this->domains,
-      );
-
-    $content = "<?php // This is an automatically generated file.\n"
-      . "return " . var_export($data, true) . ";\n";
-
-    mcms::writeFile($this->getFileName(), $content);
+      ));
   }
 }

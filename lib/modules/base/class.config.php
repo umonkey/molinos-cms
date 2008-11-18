@@ -164,8 +164,7 @@ class Config
       $this->path = substr($this->path, 0, -4) . '.config.php';
 
     // Запись в новый файл.
-    $content = "<?php return " . var_export($this->data, true) . ";\n";
-    mcms::writeFile($this->path, $content);
+    mcms::writeFile($this->path, $this->data);
 
     // Удаление старых файлов.
     if (file_exists($old = substr($this->path, 0, -11) . '.ini')) {

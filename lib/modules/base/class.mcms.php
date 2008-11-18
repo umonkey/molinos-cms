@@ -1670,6 +1670,20 @@ class mcms
 
   public static function writeFile($filename, $content)
   {
+    if (is_array($content)) {
+      $content = "<?php // This is a generated file.\n"
+        . "return " . var_export($content, true)
+        . ";\n";
+
+      // Удаляем числовые ключи из массивов: они, как правило,
+      // присвоены автоматически, но усложняют ручное изменение
+      // файла.
+      $content = preg_replace('/\d+ => /', '', $content);
+
+      // Заставляем массивы открываться на одной строке.
+      $content = preg_replace('/ =>\s+array \(/', ' => array (', $content);
+    }
+
     if (file_exists($filename)) {
       if (!is_writable($filename)) {
         if (is_writable(dirname($filename)))
