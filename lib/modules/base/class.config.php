@@ -178,4 +178,9 @@ class Config
   {
     return is_writable($this->path);
   }
+
+  public function getBaseName()
+  {
+    return preg_replace('/\.(ini|config\.php)$/', '', $this->path);
+  }
 }

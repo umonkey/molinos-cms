@@ -65,7 +65,7 @@ class Structure
    */
   protected function getFileName()
   {
-    return substr(mcms::config('fullpath'), 0, -4) . '.structure.php';
+    return Config::getInstance()->getBaseName() . '.structure.php';
   }
 
   /**
