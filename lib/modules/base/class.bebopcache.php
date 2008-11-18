@@ -45,6 +45,9 @@ class BebopCache
           break;
         }
       }
+
+      if (null === self::$instance)
+        throw new RuntimeException(t('Недоступен ни один провайдер кэша. Проверьте права на файловую систему (tmp/cache).'));
     }
 
     return self::$instance;
@@ -199,39 +202,48 @@ class MemCache_provider extends BebopCache
 
 class FileCache_provider extends BebopCache
 {
-  private $storage = array();
+  private static $path = null;
 
   public static function isAvailable()
   {
+    if (!(self::$path = mcms::mkdir(mcms::config('tmpdir') . DIRECTORY_SEPARATOR . 'cache')))
+      return false;
     return true;
   }
 
   public function __get($key)
   {
-    if (!self::__isset($key))
+    if (!$this->__isset($key))
       return false;
-    return $this->storage[$this->prefix . $key];
+    return unserialize(file_get_contents($this->getKeyPath($key)));
   }
 
   public function __set($key, $value)
   {
-    $this->storage[$this->prefix . $key] = $value;
+    file_put_contents($this->getKeyPath($key), serialize($value));
   }
 
   public function __isset($key)
   {
-    return array_key_exists($this->prefix . $key, $this->storage);
+    return file_exists($this->getKeyPath($key));
   }
 
   public function __unset($key)
   {
-    unset($this->storage[$this->prefix . $key]);
+    if ($this->__isset($key))
+      unlink($this->getKeyPath($key));
   }
 
   public function flush($now = false)
   {
     if ($now)
-      $this->storage = array();
+      foreach (glob(self::$path . DIRECTORY_SEPARATOR . '*') as $file)
+        unlink($file);
     return parent::flush($now);
+  }
+
+  private function getKeyPath($key)
+  {
+    return self::$path . DIRECTORY_SEPARATOR . md5($this->prefix . $key);
   }
 }
