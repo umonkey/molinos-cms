@@ -43,21 +43,17 @@ class ListWidget extends Widget
    */
   public static function getConfigOptions()
   {
-    $tags = array(
-      'root' => t('Основного для страницы (или домена)'),
-      );
-
-    foreach (TagNode::getTags('select') as $k => $v)
-      $tags[$k] = $v;
-
     $schema = array(
       'fixed' => array(
-        'type' => 'EnumControl',
+        'type' => 'SectionControl',
         'label' => t('Показывать документы из раздела'),
-        'options' => $tags,
+        'prepend' => array(
+          'root' => t('Основного для страницы (или домена)'),
+          ),
         'description' => t('В большинстве случаев нужен текущий раздел. Фиксированный используется только если список работает в отрыве от контекста запроса, например -- всегда показывает баннеры из фиксированного раздела.'),
         'required' => false,
         'default_label' => t('Текущего (из пути или свойств страницы)'),
+        'store' => true,
         ),
       'fallbackmode' => array(
         'type' => 'EnumControl',
