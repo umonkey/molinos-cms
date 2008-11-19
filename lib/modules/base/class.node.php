@@ -64,13 +64,6 @@ class Node extends NodeBase implements iContentType
 
     $res = parent::formProcess($data);
 
-    $user = mcms::user();
-
-    if (!empty($data['reset_access'])) {
-      if ($user->hasAccess('u', 'user'))
-        $this->setAccess(empty($data['node_access']) ? array() : $data['node_access']);
-    }
-
     return $res;
   }
 
