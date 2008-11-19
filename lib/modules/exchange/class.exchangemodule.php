@@ -247,7 +247,6 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     $Nodes = array();
     $curnode = array();
     $larr = array();
-    $newid = array();
 
     mcms::flog('exchange', 'importing nodes');
 
@@ -259,32 +258,30 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
       foreach ($node as $attr => $val) {
         if (false === ($obj = unserialize(urldecode($val))))
-          throw new RuntimeException('Unable to unserialize: '. $val);
+          mcms::flog('exchange', 'unable to unserialize: ' . $val);
+          // throw new RuntimeException('Unable to unserialize: '. $val);
         $curnode[$attr] = $obj;
       }
 
-      $oldid = $curnode['id'];
+      if (empty($curnode['id']))
+        throw new RuntimeException(t('Отсутствует id объекта.'));
+      else
+        $curnode['__want_id'] = $curnode['id'];
 
       foreach (array('id', 'rid', 'left', 'right', '_name') as $k)
         if (array_key_exists($k, $curnode))
           unset($curnode[$k]);
 
-      // Восстанавливаем родителей.
-      if (!empty($curnode['parent_id'])) {
-        if (array_key_exists($curnode['parent_id'], $newid))
-          $curnode['parent_id'] = $newid[$curnode['parent_id']];
-        else {
-          mcms::flog('import', sprintf('node %d(%s) lost its parent_id',
-            $curnode['class'], $oldid));
-          $curnode['parent_id'] = null;
-        }
+      try {
+        $SiteNode = Node::create(strval($node['class']), $curnode);
+        $SiteNode->save();
+
+        mcms::flog('exchange', "imported a {$node['class']} node, id={$SiteNode->id}, name={$SiteNode->name}");
+      } catch (Exception $e) {
+        mcms::flog('exchange', $e);
       }
 
-      $SiteNode = Node::create(strval($node['class']), $curnode);
-      $SiteNode->save();
-
       $curid = $SiteNode->id;
-      $newid[$oldid] = $curid; // ставим соответствие между старым id и новым
     }
 
     mcms::flog('exchange', 'importing relations');
@@ -298,10 +295,8 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $n = $at['nid'];
       $t = $at['tid'];
 
-      if (array_key_exists($n, $newid))
-        $nid = $newid[$n];
-      if (array_key_exists($t, $newid))
-        $tid = $newid[$t];
+      $nid = $n;
+      $tid = $t;
 
       if (!empty($nid) and !empty($tid)) {
         $key = null;
@@ -334,11 +329,8 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $nd = $at['nid'];
       $ud = empty($at['uid']) ? 0 : $at['uid'];
 
-      if (array_key_exists($nd, $newid))
-        $nid = $newid[$nd];
-
-      if (!empty($ud) and array_key_exists($ud, $newid))
-        $uid = $newid[$ud];
+      $nid = $nd;
+      $uid = $ud;
 
       if (!empty($nid)) {
         $c = empty($at['c']) ? 0 : 1;
