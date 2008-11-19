@@ -33,10 +33,10 @@ class BebopCache
           ),
         );
 
-      $config = mcms::config('cache', array());
+      $disabled = mcms::config('cache.disable', array());
 
       foreach ($map as $k => $v) {
-        if (array_key_exists($k, $config) and empty($config[$k]))
+        if (in_array($k, $disabled))
           continue;
 
         if (call_user_func(array($v['class'], 'isAvailable'))) {
