@@ -318,6 +318,10 @@ abstract class Control implements iFormControl
   {
     if ($this->required and empty($value))
       throw new ValidationException($this->label);
+
+    if (!empty($value) and !empty($this->re))
+      if (!preg_match($this->re, $value))
+        throw new ValidationException($this->label);
   }
 
   /**
