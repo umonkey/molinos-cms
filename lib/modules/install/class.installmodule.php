@@ -192,7 +192,7 @@ class InstallerNode extends Node
       'filestorage' => array(
         'group' => t('Файлы'),
         'type' => 'TextLineControl',
-        'label' => t('Папка для загружаемых файлов'),
+        'label' => t('Папка для файлов, загружаемых через браузер'),
         'default' => 'storage',
         'required' => true,
         ),
@@ -200,12 +200,14 @@ class InstallerNode extends Node
         'group' => t('Файлы'),
         'type' => 'TextLineControl',
         'label' => t('Папка для файлов, загружаемых по FTP'),
+        'description' => t('Доступ к этой папке по протоколу FTP нужно настраивать отдельно, CMS сделать это не в состоянии.'),
         'default' => 'storage' . DIRECTORY_SEPARATOR .'ftp',
         ),
       'tmpdir' => array(
         'group' => t('Файлы'),
         'type' => 'TextLineControl',
         'label' => t('Папка для временных файлов'),
+        'description' => t('Желательно сделать так, чтоб эта папка была недоступна извне'),
         'default' => 'tmp',
         'required' => true,
         ),
@@ -228,7 +230,8 @@ class InstallerNode extends Node
         'group' => t('Почта'),
         'type' => 'EmailControl',
         'label' => t('Получатели сообщений об ошибках'),
-        'default' => 'cms-bugs@molinos_ru',
+        'description' => t('Сообщения об ошибках в коде CMS отправляются на эти адреса в момент обнаружения.'),
+        'default' => 'cms-bugs@molinos.ru',
         ),
 
       'db_type' => array(
@@ -281,6 +284,13 @@ class InstallerNode extends Node
     default:
       return false;
     }
+  }
+
+  public function formGet()
+  {
+    $form = parent::formGet();
+    $form->addClass('tabbed');
+    return $form;
   }
 
   public function formProcess(array $data)

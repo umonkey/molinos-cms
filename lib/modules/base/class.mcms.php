@@ -1323,12 +1323,16 @@ class mcms
     $sig = '<em>Molinos CMS ' . l($link, 'v' . mcms::version());
 
     if ($full) {
-      $sig .= ' [' . mcms::db()->getDbType();
+      $options = array();
 
-      $sig .= '+' . str_replace('_provider', '', get_class(BebopCache::getInstance()));
-      $sig .= '+'. ini_get('memory_limit');
+      if (count($parts = explode(':', mcms::config('db.default'))))
+        if (in_array($parts[0], PDO_Singleton::listDrivers()))
+          $options[] = $parts[0];
 
-      $sig .= ']';
+      $options[] = str_replace('_provider', '', get_class(BebopCache::getInstance()));
+      $options[] = ini_get('memory_limit');
+
+      $sig .= ' [' . join('+', $options) . ']';
     }
 
     $sig .= ' at '. $at .'</em>';

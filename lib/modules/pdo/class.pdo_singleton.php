@@ -47,11 +47,14 @@ class PDO_Singleton extends PDO
         throw new RuntimeException(t('Соединение %name настроено неверно.',
           array('%name' => $name)));
 
-      if (!in_array($conf['scheme'], PDO::getAvailableDrivers())) {
+      if (!in_array($conf['scheme'], self::listDrivers())) {
+        throw new NotInstalledException('db');
+        /*
         throw new RuntimeException(t('Указанный в настройках драйвер PDO '
           .'(%name) недоступен. Вероятно конфигурация сервера изменилась '
           .'после установки CMS, или кто-то руками копался в '
           .'конфигурационном файле.', array('%name' => $conf['scheme'])));
+        */
       }
 
       if (!class_exists($driver = 'mcms_'. $conf['scheme'] .'_driver'))

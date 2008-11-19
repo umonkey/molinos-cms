@@ -3,9 +3,18 @@
 mcms::extras('themes/admin/css/bebop.css', false);
 mcms::extras('themes/admin/css/style.css', false);
 mcms::extras('themes/admin/css/colors-green.css', false);
-mcms::extras('themes/all/jquery/jquery.js', false);
-mcms::extras('themes/all/jquery/plugins/jquery.mcms.tabber.js', false);
-mcms::extras('themes/admin/js/bebop.js', false);
+
+mcms::extras('themes/all/jquery/jquery.js');
+mcms::extras('themes/all/jquery/ui/ui.core.js');
+mcms::extras('themes/all/jquery/ui/ui.sortable.js');
+mcms::extras('themes/all/jquery/plugins/jquery.suggest.js');
+mcms::extras('themes/all/jquery/plugins/jquery.suggest.css');
+mcms::extras('themes/all/jquery/plugins/jquery.ifixpng.js');
+mcms::extras('themes/all/jquery/plugins/jquery.mcms.tabber.js');
+mcms::extras('themes/all/jquery/plugins/jquery.dimensions.js');
+mcms::extras('themes/all/jquery/plugins/jquery.bgiframe.js');
+mcms::extras('themes/admin/js/bebop.js');
+
 mcms::extras('themes/admin/js/installer.js', false);
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -54,9 +63,8 @@ mcms::extras('themes/admin/js/installer.js', false);
 
     <div id="footer">
       <div class="signature">
-        <hr/><?=mcms::getSignature()?>
+        <hr/><?=mcms::getSignature(null, true)?>
       </div>
     </div>
-    <div class='jqmw hidden' id='defaultPopup'></div>
   </body>
 </html>
