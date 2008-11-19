@@ -1805,7 +1805,7 @@ class NodeBase
     // Вытаскиваем данные, которые идут в поля таблиц.
     $node = $this->dbWriteExtract($extra, array(
       'id', 'lang', 'parent_id', 'class', 'left', 'right',
-      'uid', 'created', 'published', 'deleted'));
+      'uid', 'created', 'published', 'deleted', '__want_id'));
     $node_rev = $this->dbWriteExtract($extra, array('name'));
 
     if (empty($node['created']))
@@ -1819,7 +1819,10 @@ class NodeBase
 
     // Создание новой ноды.
     if (empty($node['id'])) {
-      $node_id = $this->dbGetNextId();
+      if (!empty($node['__want_id']))
+        $node_id = $node['__want_id'];
+      else
+        $node_id = $this->dbGetNextId();
 
       mcms::db()->exec($sql = "INSERT INTO `node` (`id`, `lang`, `parent_id`, `class`, `left`, `right`, `uid`, `created`, `updated`, `published`, `deleted`) VALUES (:id, :lang, :parent_id, :class, :left, :right, :uid, :created, :updated, :published, :deleted)", $params = array(
         'id' => $node_id,
