@@ -1705,6 +1705,11 @@ class mcms
         '%file' => basename($filename),
         )));
   }
+
+  public static function mkpath(array $elements)
+  {
+    return join(DIRECTORY_SEPARATOR, $elements);
+  }
 };
 
 set_exception_handler('mcms::fatal');
