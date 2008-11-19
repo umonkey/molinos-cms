@@ -1462,6 +1462,9 @@ class mcms
 
   public static function matchip($value, $ips)
   {
+    if (is_array($ips))
+      $ips = join(',', $ips);
+
     $re = preg_replace(
       array('@,\s*@', '@\.@', '@\*@', '@\?@'),
       array('|', '\.', '.*', '.'),
