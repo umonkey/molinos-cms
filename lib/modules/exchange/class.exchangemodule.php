@@ -249,7 +249,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     $larr = array();
     $newid = array();
 
-    mcms::log('exchange', 'importing nodes');
+    mcms::flog('exchange', 'importing nodes');
 
     foreach ($xml->nodes->node as $node) {
       $curnode = array();
@@ -265,7 +265,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
       $oldid = $curnode['id'];
 
-      foreach (array('id', 'rid', 'left', 'right') as $k)
+      foreach (array('id', 'rid', 'left', 'right', '_name') as $k)
         if (array_key_exists($k, $curnode))
           unset($curnode[$k]);
 
@@ -274,7 +274,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
         if (array_key_exists($curnode['parent_id'], $newid))
           $curnode['parent_id'] = $newid[$curnode['parent_id']];
         else {
-          mcms::log('import', sprintf('node %d(%s) lost its parent_id',
+          mcms::flog('import', sprintf('node %d(%s) lost its parent_id',
             $curnode['class'], $oldid));
           $curnode['parent_id'] = null;
         }
@@ -287,7 +287,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $newid[$oldid] = $curid; // ставим соответствие между старым id и новым
     }
 
-    mcms::log('exchange', 'importing relations');
+    mcms::flog('exchange', 'importing relations');
 
     $at = array();
     // внесём записи в `node__rel`
@@ -323,7 +323,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     }
 
     // Внесём записи в `node__access`
-    mcms::log('exchange', 'importing access');
+    mcms::flog('exchange', 'importing access');
 
     foreach ($xml->accessrights->access as $acc) {
       $at = array();
