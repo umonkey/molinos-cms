@@ -1310,7 +1310,7 @@ class mcms
     }
   }
 
-  public static function getSignature(Context $ctx = null)
+  public static function getSignature(Context $ctx = null, $full = false)
   {
     if (null === $ctx)
       $ctx = new Context();
@@ -1319,8 +1319,19 @@ class mcms
       'href' => $ctx->url()->getBase($ctx),
       ), $ctx->host() . $ctx->folder());
 
-    $sig = '<em>Molinos CMS v'. mcms::version()
-      .' at '. $at .'</em>';
+    $link = 'http://code.google.com/p/molinos-cms/wiki/ChangeLog_' . str_replace('.', '_', mcms::version());
+    $sig = '<em>Molinos CMS ' . l($link, 'v' . mcms::version());
+
+    if ($full) {
+      $sig .= ' [' . mcms::db()->getDbType();
+
+      $sig .= '+' . str_replace('_provider', '', get_class(BebopCache::getInstance()));
+      $sig .= '+'. ini_get('memory_limit');
+
+      $sig .= ']';
+    }
+
+    $sig .= ' at '. $at .'</em>';
 
     return $sig;
   }

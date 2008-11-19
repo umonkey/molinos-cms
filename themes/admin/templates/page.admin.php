@@ -40,22 +40,6 @@ function render_username()
     ));
 }
 
-function get_version_info()
-{
-  $version = preg_replace('/^(\d+)\.(\d+)\.(\d+)$/', '<a href=\'http://code.google.com/p/molinos-cms/wiki/ChangeLog_\1\2\'>\1.\2.\3</a>', mcms::version());
-
-  $version .= ' ('. mcms::db()->getDbType();
-
-  if (count($tmp = explode(':', mcms::config('dsn'))))
-    $version .= $tmp[0];
-
-  $version .= '+' . str_replace('_provider', '', get_class(BebopCache::getInstance()));
-
-  $version .= '+'. ini_get('memory_limit') .')';
-
-  return $version;
-}
-
 function get_dba_link()
 {
   if ('MySQL' != mcms::db()->getDbType())
@@ -153,8 +137,9 @@ function get_dba_link()
 
     <?php if (empty($_GET['picker'])): ?>
     <div id="footer">
-      <img src="themes/admin/img/siteimage/logo_molinos_btm.png" alt="Molinos.Ru" align="middle" />
-      <span>Версия <?php print get_version_info(); ?></span>
+      <div class="signature">
+        <hr/><?=mcms::getSignature(null, true);?>
+      </div>
     </div>
     <?php endif; ?>
   </body>

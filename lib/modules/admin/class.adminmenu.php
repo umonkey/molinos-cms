@@ -126,7 +126,6 @@ class AdminMenu implements iAdminMenu
         'group' => 'content',
         'href' => '?q=admin/content/tree/taxonomy',
         'title' => t('Разделы'),
-        'message' => t('Управление разделами'),
         'description' => t('Управление разделами сайта.'),
         'weight' => -1,
         );
@@ -136,11 +135,6 @@ class AdminMenu implements iAdminMenu
         'group' => 'structure',
         'href' => '?q=admin/structure/list/schema',
         'title' => t('Типы документов'),
-        'message' => t('<a href=\'@url1\'>Типы документов</a>, <a
-          href=\'@url2\'>справочники</a>', array(
-            '@url1' => '?q=admin/structure/list/schema',
-            '@url2' => '?q=admin/structure/list/dictlist',
-            )),
         );
 
     if (count($user->getAccess('u'))) {
@@ -148,7 +142,6 @@ class AdminMenu implements iAdminMenu
         'group' => 'content',
         'href' => '?q=admin/content/list&columns=name,class,uid,created',
         'title' => t('Документы'),
-        'message' => t('Список всех документов'),
         'description' => t('Поиск, редактирование, добавление документов.'),
         );
       $icons[] = array(
@@ -171,14 +164,12 @@ class AdminMenu implements iAdminMenu
         'group' => 'structure',
         'href' => '?q=admin/structure/list/pages',
         'title' => t('Домены'),
-        'message' => t('Домены и страницы'),
         'description' => t('Управление доменами, страницами и виджетами.'),
         );
       $icons[] = array(
         'group' => 'structure',
         'href' => '?q=admin/structure/list/widgets',
         'title' => t('Виджеты'),
-        'message' => t('Виджеты'),
         );
     }
 
@@ -187,7 +178,6 @@ class AdminMenu implements iAdminMenu
         'group' => 'structure',
         'href' => '?q=admin/structure/modules',
         'title' => t('Модули'),
-        'message' => t('Модули'),
         );
     }
 
@@ -196,7 +186,6 @@ class AdminMenu implements iAdminMenu
         'group' => 'access',
         'href' => '?q=admin/access/list/users',
         'title' => t('Пользователи'),
-        'message' => t('Пользователи'),
         'description' => t('Управление профилями пользователей.'),
         );
     if ($user->hasAccess('u', 'group'))
@@ -204,7 +193,6 @@ class AdminMenu implements iAdminMenu
         'group' => 'access',
         'href' => '?q=admin/access/list/groups',
         'title' => t('Группы'),
-        'message' => t('Группы пользователей'),
         'description' => t('Управление группами пользователей.'),
         );
 
@@ -213,7 +201,6 @@ class AdminMenu implements iAdminMenu
         'group' => 'content',
         'href' => '?q=admin/content/list/files',
         'title' => t('Файлы'),
-        'message' => t('Файловый архив'),
         'description' => t('Просмотр, редактирование и добавление файлов.'),
         );
 
@@ -222,7 +209,6 @@ class AdminMenu implements iAdminMenu
         'group' => 'content',
         'href' => '?q=admin/content/list/trash',
         'title' => t('Корзина'),
-        'message' => t('Удалённые объекты'),
         'description' => t('Просмотр и восстановление удалённых файлов.'),
         'weight' => 10,
         );
