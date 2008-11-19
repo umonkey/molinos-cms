@@ -5,35 +5,75 @@ class InstallModule implements iRemoteCall
 {
   public static function hookRemoteCall(Context $ctx)
   {
-    if (self::checkInstalled())
-      throw new RuntimeException(t('Molinos CMS уже установлена.'));
-
-    $result = '';
-
     try {
-      switch ($_SERVER['REQUEST_METHOD']) {
-      case 'GET':
-        $data = self::onGet($ctx);
-        break;
-      case 'POST':
-        $data = self::onPost($ctx);
-        break;
-      default:
-        header('Content-Type: text/plain; charset=utf-8');
-        die('Sorry, what?');
-      }
+      if (false === ($output = mcms::dispatch_rpc(__CLASS__, $ctx)))
+        $output = self::onGet($ctx);
     } catch (Exception $e) {
-      $data = array(
-        'title' => 'Ошибка',
-        'form' => '<p>'. $e->getMessage() .'</p>',
-        );
+      mcms::fatal($e);
+      $output = mcms::render(__CLASS__, array(
+        'mode' => 'error',
+        'message' => $e->getMessage(),
+        ));
     }
 
-    $output = bebop_render_object("system", "installer", "admin", $data);
+    if (is_array($output))
+      $output = mcms::render(__CLASS__, $output);
 
-    header('Content-Type: text/html; charset=utf-8');
-    header('Content-Length: '. strlen($output));
-    die($output);
+    if (false === $output)
+      mcms::fatal(t('Не удалось обработать запрос.'));
+
+    mcms::fixurls($output, true);
+  }
+
+  /**
+   * Обработка отсутствия БД.
+   */
+  public static function rpc_db(Context $ctx)
+  {
+    if ('sqlite:conf/default.db' == mcms::config('db.default')) {
+      // Позволяем отключить драйвер в конфиге.
+      if (in_array('sqlite', PDO_Singleton::listDrivers())) {
+        if (file_exists($dist = 'conf' . DIRECTORY_SEPARATOR . 'default.db.dist')) {
+          if (copy($dist, substr($dist, 0, -5))) {
+            $ctx->gonext();
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  public static function rpc_install(Context $ctx)
+  {
+    $node = new InstallerNode();
+    $node->formProcess($ctx->post);
+
+    ExchangeModule::import(mcms::mkpath(array('lib', 'modules', 'exchange', 'profiles', $node->template)), true);
+
+    $ctx->redirect('?q=admin');
+  }
+
+  protected static function onGet(Context $ctx)
+  {
+    if (!$ctx->method('get'))
+      mcms::fatal('oops.');
+
+    if (self::checkInstalled()) {
+      mcms::fatal(t('Система уже установлена, см. <a href="@url1">сайт</a> или <a href="@url2">админку</a>.', array(
+        '@url1' => '.',
+        '@url2' => '?q=admin',
+        )));
+    }
+
+    mcms::check();
+
+    $node = new InstallerNode();
+
+    return array(
+      'mode' => 'form',
+      'form' => $node->formGet()->getHTML($node),
+      );
   }
 
   private static function checkInstalled()
@@ -45,123 +85,6 @@ class InstallModule implements iRemoteCall
     } catch (Exception $e) { }
 
     return false;
-  }
-
-  public static function onGet(Context $ctx)
-  {
-    self::checkEnvironment();
-
-    // Параметры подключения к БД
-    $conf = array(
-      'host' => 'localhost',
-      'user' => '',
-      'pass' => '',
-      'path' => '',
-      );
-
-    if ($tmp = mcms::config('db') and !emtpy($tmp['default']))
-      $conf = parse_url($tmp['default']);
-
-    if (null !== ($tmp = $ctx->get('result')))
-      return self::getResult($tmp);
-
-    $form = new Form(array(
-      'title' => t('Инсталляция Molinos CMS'),
-      'description' => t("Вам нужно последовательно заполнить все поля во всех вкладках."),
-      ));
-
-    $form->addClass('tabbed');
-
-    $tab = new FieldSetControl(array(
-      'name' => 'site',
-      'label' => t('Сайт'),
-      ));
-    if (!empty($_GET['msg']) and $_GET['msg'] == 'notable')
-      $tab->addControl(new InfoControl(array(
-        'text' => t('Вы были перенаправлены на страницу инсталляции, т.к. некоторые жизненно важные таблицы не были обнаружены в базе данных.  Скорее всего Molinos.CMS не установлена.'),
-        )));
-    $tab->addControl(new TextLineControl(array(
-      'value' => 'config[backtracerecipient]',
-      'label' => t('Ваш почтовый адрес'),
-      'description' => t('На этот адрес будут приходить сообщения об ошибках, также он будет использоваться для входа в административный интерфейс.'),
-      )));
-    $form->addControl($tab);
-
-    $tab = new FieldSetControl(array(
-      'name' => 'mysql',
-      'label' => t('База данных'),
-      ));
-    $tab->addControl(new EnumControl(array(
-      'value' => 'db[type]',
-      'label' => t('Тип базы данных'),
-      'required' => true,
-      'options' => self::listDrivers(),
-      'id' => 'dbtype',
-      )));
-    $tab->addControl(new TextLineControl(array(
-      'value' => 'db[name]',
-      'default' => ltrim($conf['path'],'/'),
-      'label' => t('Имя базы данных'),
-      'description' => t("Перед инсталляцией база данных будет очищена от существующих данных, сделайте резервную копию!"),
-      )));
-    $tab->addControl(new TextLineControl(array(
-      'value' => 'db[host]',
-      'default' => $conf['host'],
-      'label' => t('Адрес сервер'),
-      'wrapper_id' => 'db-server',
-      )));
-    $tab->addControl(new TextLineControl(array(
-      'value' => 'db[user]',
-      'default' => $conf['user'],
-      'label' => t('Имя пользователя'),
-      'wrapper_id' => 'db-user',
-      )));
-    $tab->addControl(new PasswordControl(array(
-      'value' => 'db[pass]',
-      'default' => $conf['pass'],
-      'label' => t('Пароль этого пользователя'),
-      'wrapper_id' => 'db-password',
-      )));
-    $form->addControl($tab);
-
-    $tab = new FieldSetControl(array(
-      'name' => 'profiles',
-      'label' => t('Заготовка')
-      ));
-
-    $tab->addControl(new EnumControl(array(
-      'value' => 'profile',
-      'label' => t('Базовое наполнение'),
-      'required' => true,
-      'options' => self::getProfiles(),
-      )));
-
-    $form->addControl($tab);
-
-    $tab = new FieldSetControl(array(
-      'name' => 'confirm',
-      'label' => t('Подтверждение'),
-      ));
-    $tab->addControl(new BoolControl(array(
-      'value' => 'confirm',
-      'label' => t('Я подтверждаю свои намерения'),
-      )));
-    $tab->addControl(new SubmitControl(array(
-      'text' => t('Поехали!'),
-      )));
-    $form->addControl($tab);
-
-    $data = array(
-      'db[host]' => 'localhost',
-      'config[backtracerecipient]' => 'cms-bugs@molinos.ru',
-      'config[debuggers]' => $_SERVER['REMOTE_ADDR'] .', 127.0.0.1',
-      'config[mail_from]' => "Molinos.CMS <no-reply@cms.molinos.ru>",
-      'config[mail_server]' => 'localhost',
-      );
-
-    return  array(
-      'form' => $form->getHTML($data),
-      );
   }
 
   public static function onPost(Context $ctx)
@@ -242,13 +165,158 @@ class InstallModule implements iRemoteCall
 
     return '<h2>'. $titles[$mode] .'</h2><p>'. $messages[$mode] .'</p>';
   }
+}
 
-  private static function listDrivers()
+/**
+ * Фиктивная нода, используется для построения формы инсталлера.
+ */
+class InstallerNode extends Node
+{
+  public function __construct()
+  {
+    return parent::__construct(array());
+  }
+
+  public function schema()
+  {
+    return new Schema(array(
+      'debuggers' => array(
+        'group' => t('Управление'),
+        'type' => 'ListControl',
+        'label' => t('Адреса разработчиков сайта'),
+        'default' => '127.0.0.1, ' . $_SERVER['REMOTE_ADDR'],
+        'required' => true,
+        'description' => t('Пользователям с этих адресов будут доступны отладочные функции.'),
+        ),
+
+      'filestorage' => array(
+        'group' => t('Файлы'),
+        'type' => 'TextLineControl',
+        'label' => t('Папка для загружаемых файлов'),
+        'default' => 'storage',
+        'required' => true,
+        ),
+      'ftpfolder' => array(
+        'group' => t('Файлы'),
+        'type' => 'TextLineControl',
+        'label' => t('Папка для файлов, загружаемых по FTP'),
+        'default' => 'storage' . DIRECTORY_SEPARATOR .'ftp',
+        ),
+      'tmpdir' => array(
+        'group' => t('Файлы'),
+        'type' => 'TextLineControl',
+        'label' => t('Папка для временных файлов'),
+        'default' => 'tmp',
+        'required' => true,
+        ),
+
+      'mail_server' => array(
+        'group' => t('Почта'),
+        'type' => 'TextLineControl',
+        'label' => t('Адрес почтового сервера'),
+        'default' => 'localhost',
+        'required' => true,
+        ),
+      'mail_from' => array(
+        'group' => t('Почта'),
+        'type' => 'EmailControl',
+        'label' => t('Отправитель сообщений'),
+        'default' => 'no-reply@' . $_SERVER['HTTP_HOST'],
+        'required' => true,
+        ),
+      'backtracerecipients' => array(
+        'group' => t('Почта'),
+        'type' => 'EmailControl',
+        'label' => t('Получатели сообщений об ошибках'),
+        'default' => 'cms-bugs@molinos_ru',
+        ),
+
+      'db_type' => array(
+        'group' => t('База данных'),
+        'type' => 'EnumControl',
+        'label' => t('Тип базы данных'),
+        'required' => true,
+        'options' => $this->listDrivers(),
+        ),
+      'db_name' => array(
+        'group' => t('База данных'),
+        'type' => 'TextLineControl',
+        'label' => t('Имя базы данных'),
+        'description' => t('Перед инсталляцией база данных будет очищена от существующих данных, сделайте резервную копию!'),
+        ),
+      'db_host' => array(
+        'group' => t('База данных'),
+        'type' => 'TextLineControl',
+        'label' => t('Адрес сервера'),
+        'default' => 'localhost',
+        ),
+      'db_username' => array(
+        'group' => t('База данных'),
+        'type' => 'TextLineControl',
+        'label' => t('Имя пользователя'),
+        ),
+      'db_password' => array(
+        'group' => t('База данных'),
+        'type' => 'PasswordControl',
+        'label' => t('Пароль этого пользователя'),
+        ),
+
+      'template' => array(
+        'group' => t('Заготовка'),
+        'type' => 'EnumControl',
+        'label' => t('Базовое наполнение'),
+        'required' => true,
+        'options' => $this->listProfiles(),
+        're' => '/^[a-z0-9]+\.xml$/',
+        ),
+      ));
+  }
+
+  public function checkPermission($mode)
+  {
+    switch ($mode) {
+    case 'c':
+    case 'u':
+      return true;
+    default:
+      return false;
+    }
+  }
+
+  public function formProcess(array $data)
+  {
+    parent::formProcess($data);
+
+    $this->writeConfig();
+
+    return $this;
+  }
+
+  public function getFormTitle()
+  {
+    return t('Установка Molinos CMS');
+  }
+
+  public function getFormSubmitText()
+  {
+    return t('Начать установку');
+  }
+
+  public function getFormAction()
+  {
+    $next = empty($_GET['destination'])
+      ? '?q=admin'
+      : $_GET['destination'];
+
+    return '?q=install.rpc&action=install&destination=' . urlencode($next) . '&debug=errors';
+  }
+
+  private function listDrivers()
   {
     $options = array();
 
     if (class_exists('PDO', false)) {
-      foreach (PDO::getAvailableDrivers() as $el) {
+      foreach (PDO_Singleton::listDrivers() as $el) {
         $title = null;
 
         switch ($el) {
@@ -279,7 +347,7 @@ class InstallModule implements iRemoteCall
     return $options;
   }
 
-  private static function getProfiles()
+  private function listProfiles()
   {
     $options = array();
 
@@ -289,67 +357,38 @@ class InstallModule implements iRemoteCall
     return $options;
   }
 
-  private static function checkEnvironment()
+  private function writeConfig()
   {
-    $errors = array();
+    $data = array();
 
-    if (file_exists('conf/default.ini') and !is_writable('conf/default.ini'))
-      $errors[] = t('Конфигурационный файл (conf/default.ini) закрыт для записи, инсталляция невозможна.');
-
-    elseif (!file_exists('conf/default.ini') and !is_writable('conf'))
-      $errors[] = t('Каталог с конфигурационными файлами (conf) закрыт для записи, инсталляция невозможна.');
-
-    if (!empty($errors))
-      throw new RuntimeException(join(';', $errors));
-  }
-
-  public static function writeConfig(array $data, $olddsn = null)
-  {
-    if (!empty($data['db']['pass']) and $data['db']['pass'][0] != $data['db']['pass'][1])
-      throw new InvalidArgumentException(t('Пароль для подключения к БД введён некорректно.'));
-    else
-      $data['db']['pass'] = $data['db']['pass'][0];
-
-    if (empty($data['confirm']))
-      throw new InvalidArgumentException("Вы не подтвердили свои намерения.");
-
-    $config = BebopConfig::getInstance();
-
-    if ($olddsn)
-      $config->set('default_backup', $olddsn, 'db');
-
-    switch ($data['db']['type']) {
+    switch ($this->db_type) {
     case 'sqlite':
-      if (empty($data['db']['name']))
-        $data['db']['name'] = 'default.db';
-      elseif (substr($data['db']['name'], -3) != '.db')
-        $data['db']['name'] .= '.db';
-      $config->set('default', 'sqlite:conf/'. $data['db']['name'], 'db');
+      $data['db.default'] = 'sqlite:' . $this->db_name;
       break;
-
-    case 'mysql':
-      $config->set('default', sprintf('mysql://%s:%s@%s/%s', $data['db']['user'], $data['db']['pass'], $data['db']['host'], $data['db']['name']), 'db');
-      break;
+    default:
+      $data['db.default'] = $this->db_type . '://';
+      if ($this->db_username) {
+        $data['db.default'] .= $this->db_username;
+        if ($this->db_password)
+          $data['db.default'] .= ':' . $this->db_password;
+        $data['db.default'] .= '@';
+      }
+      $data['db.default'] .= $this->db_host;
+      if ($this->db_name)
+        $data['db.default'] .= '/' . $this->db_name;
     }
 
-    foreach (self::getDefaults() as $k => $v) {
-      $value = array_key_exists($k, $data['config']) ? $data['config'][$k] : $v;
-      $config->set($k, $value);
-    }
+    foreach (array('mail_server', 'mail_from', 'debuggers') as $k)
+      $data[str_replace('_', '.', $k)] = $this->$k;
+
+    $config = Config::getInstance();
+
+    foreach ($data as $k => $v)
+      $config->$k = $v;
 
     $config->write();
-  }
 
-  private static function getDefaults()
-  {
-    return array(
-      'mail_from' => 'no-reply@cms.molinos.ru',
-      'mail_server' => 'localhost',
-      'backtracerecipients' => 'cms-bugs@molinos.ru',
-      'debuggers' => '127.0.0.1',
-      'filestorage' => 'storage',
-      'tmpdir' => 'tmp',
-      'file_cache_ttl' => 3600,
-      );
+    mcms::flush();
+    mcms::flush(mcms::FLUSH_NOW);
   }
 }

@@ -1,3 +1,18 @@
+// работает как алерт если нет консоли, иначе перенаправляет данные в нее
+log = (function() {
+	var handler;
+	if (window.console && console.firebug) {
+		handler = function(e) {
+			console.log(e);
+		};
+	} else {
+		handler = function(e) {
+			alert(e);
+		};
+	}
+	return handler;
+})();
+
 // namespace
 var mcms = {};
 
@@ -6,46 +21,42 @@ var mcms = {};
 mcms.forms = {};
 // работа с формой доступа
 mcms.forms.crud = {};
-/**
- * Управляет состоянием чекбоксов.
- * Все чекбоксы в колонке включаются (если есть выключенные) или выключаются (если всё включено).
- */
-mcms.forms.crud.recheck = function($inputs) {
-	// если не все чекбоксы отмечены - отмечаем 
-	if ($inputs.filter(':checked').length != $inputs.length){
+// все чекбоксы в колонке включаются (если есть выключенные) или выключаются (если всё включено).
+mcms.forms.crud.recheck = function($inputs){
+	if ($inputs.filter(':checked').length != $inputs.length) {
 		$inputs.attr('checked', 'checked');
-	}
-	// иначе - снимаем галку
-	else {
+	} else {
 		$inputs.removeAttr('checked');
 	}
 }
-/* ---------------------------------------------------------------------------------------------------------------- */	
+/* ---------------------------------------------------------------------------------------------------------------- */
 
-/**
- * Специфические действия для IE6
- */
-if ($.browser.msie && $.browser.version < 7 ){
+/* Специфические действия для IE6
+------------------------------------------------------------------------------------------------------------------- */
+if ($.browser.msie && $.browser.version < 7 ) {
+	mcms.ie = {};
+	// фиксирование ширины документа на 1000px (min-width)
+	mcms.ie.controlBodyWidth = function() {
+	 	if ($(window).width() < 1000) {
+			document.body.style.width = '1000px';
+		} else {
+			document.body.style.width = 'auto';
+		}
+	 }
+	 
 	// действия при готовности DOM
-	 $(function(){
+	 $(function() {
 	 	// корректирует ширину эл-та body (min-width)
-	 	controlBodyWidth();
+	 	mcms.ie.controlBodyWidth();
 	 });
 	 
 	 // действия при ресайзе окна
-	$(window).resize(function(){
+	$(window).resize(function() {
 	 	// корректирует ширину эл-та body (min-width)
-	 	controlBodyWidth();
+	 	mcms.ie.controlBodyWidth();
 	 });
-	 
-	 /**
-	  * Фиксирование ширины документа на 1000px (min-width)
- 	  * @todo было бы неплохо делать это без JS, пример как это можно сделать - http://www.cssplay.co.uk/boxes/width2.html
-	  */
-	 function controlBodyWidth(){
-	 	($(window).width() < 1000) ?  $('body').css('width', '1000px') : $('body').css('width', '100%');
-	 };
 }
+/* ---------------------------------------------------------------------------------------------------------------- */	
 
 /**
  * Действия при готовности DOM
@@ -53,25 +64,25 @@ if ($.browser.msie && $.browser.version < 7 ){
 $(document).ready(function () {
 	// Превращение филдсетов в табы
 	if ($('form.tabbed').length != 0) {
-    $('.tabbed').tabber({
-      active: 0,
-      selectors: {
-        tab: 'fieldset.tabable',
-        header: '>legend'
-      },
-      classes: {
-        tab: 'tab-content',
-        controls: 'ftabber-tabs',
-        container: 'ftabber-form'
-      }
-    });
+		$('.tabbed').tabber({
+			active: 0,
+			selectors: {
+				tab: 'fieldset.tabable',
+				header: '>legend'
+			},
+			classes: {
+				tab: 'tab-content',
+				controls: 'ftabber-tabs',
+				container: 'ftabber-form'
+			}
+		});
 	}
 	
-	/* Действия при клике на заголовки таблицы прав доступа
+	/* CRUDP
 	------------------------------------------------------------------------------------------------------------------- */
 	/* клик по CRUDP */
 	$('.control.access-wrapper th').click(function(){
-		mcms.forms.crud.recheck($(this).parents('table:eq(0)').find('input[name *= "[' + $(this).text().toLowerCase() + ']"]') );
+		mcms.forms.crud.recheck($(this).parents('table:eq(0)').find('input[value="'+$(this).text().toLowerCase()+'"]') );
 	});
 	
 	/* клик по названию группы */
@@ -86,6 +97,8 @@ $(document).ready(function () {
 	$('.control.access-wrapper tr td:first-child').bind('selectstart', function() { return false; });
 	/* ---------------------------------------------------------------------------------------------------------------- */	
 	
+	
+	
 	var win = window.opener ? window.opener : window.dialogArguments, c;
   	if (win) { tinyMCE = win.tinyMCE; }
 		
@@ -99,21 +112,6 @@ $(document).ready(function () {
 		$(this).parent().parent().parent().find("tr").toggleClass("current");
 	});
 
-  $('form.node-domain-create-form input.form-radio').change(function () {
-    if ($(this).attr('value') == 'domain') {
-      $('#domain-aliases-wrapper').removeClass('hidden');
-      $('#domain-parent-wrapper').addClass('hidden');
-    } else {
-      $('#domain-aliases-wrapper').addClass('hidden');
-      $('#domain-parent-wrapper').removeClass('hidden');
-    }
-  });
-  $('#domain-parent-wrapper').addClass('hidden');
-
-  // Скрываем выбор раздела по умолчанию.
-  $('form.node-domain-edit-form #control-node-params-wrapper select').change(bebop_fix_domain_defaultsection);
-  bebop_fix_domain_defaultsection();
-
   $('form.node-file-create-form input[name="__file_mode"]').change(function () { bebop_fix_file_mode_selection($(this).val()); });
   bebop_fix_file_mode_selection('local');
 
@@ -122,45 +120,6 @@ $(document).ready(function () {
 
     $('.control-FieldControl-wrapper table').addClass('hidden');
     $('#field-'+ field +'-editor table').removeClass('hidden');
-
-    return false;
-  });
-
-  // обработчик формы выхода
-  $('#user-logout-form').submit(function () {
-    $.ajax({
-      type: "POST",
-      url: $(this).attr('action'),
-      data: $(this).serialize(),
-      dataType: "json",
-
-      success: function (data) {
-        if (data.status = 'ok') {
-          $('#center').html(data.message);
-          $('#top_menu').hide('slow');
-          $('#left_sidebar').hide('slow');
-          $('#user-profile').hide('slow');
-          $('#top_toolbar .greeting').hide('slow');
-        }
-      }
-    });
-
-    return false;
-  });
-
-  $('#center .ctrl_filter').click(function () {
-    $.ajax({
-      type: "GET",
-      url: $(this).attr('href') + '?widget=BebopContentFilterSettings',
-
-      success: function (data) {
-        $('#widget-BebopContentList').after(data);
-        $('#form-content-filter-wrapper').hide();
-
-        $('#widget-BebopContentList').hide();
-        $('#form-content-filter-wrapper').show();
-      }
-    });
 
     return false;
   });
@@ -222,37 +181,6 @@ function fix_backup_mode()
   $('form#mod_exchange .control-PasswordControl-wrapper').css('display', mode == 'upgradetoMySQL' ? 'block' : 'none');
 }
 
-/**
- * Вспомогательные функции
- */
-
-
-	
-/**
- * Карусель в осн. навигации: цепляем действия на контролы
- * @param {Object} carousel
- */
-function bebop_dashboard_init(carousel){
-	// ссылка на все контролы
-	var $carouselControls = $('.carousel-control a');
-	// действия при клике
-	$carouselControls.click(function(){
-		// ссылка на контрол, по которому кликнули
-		var $$ = $(this);
-		// убираем класс со всех контролов
-		$carouselControls.removeClass('active');
-		// добавляем класс к контролу, по которому кликнули
-		$$.addClass('active');
-		// убираем классы со всех элементов карусели
-		carousel.container.find('li').removeClass('choosen');
-		// добавляем класс группе элементов карусели, сопоставленных этому контролу
-		carousel.container.find('li.group-' + parseInt($carouselControls.index(this) + 1)).addClass('choosen');
-		// вращаем карусель
-		carousel.scroll(jQuery.jcarousel.intval($$.attr('href').replace('#', '') ) );
-		return false;
-	});
-}
-
 function bebop_fix_file_mode_selection(sel)
 {
   var map = { local: "Attachment", remote: "URL", ftp: "Set" };
@@ -263,18 +191,6 @@ function bebop_fix_file_mode_selection(sel)
       $(id).show();
     else
       $(id).hide();
-  }
-}
-
-function bebop_fix_domain_defaultsection()
-{
-  switch ($('form.node-domain-edit-form #control-node-params-wrapper select').attr('value')) {
-  case 'sec':
-  case 'sec+doc':
-    $('form.node-domain-edit-form #control-node-defaultsection-wrapper').removeClass('hidden');
-    break;
-  default:
-    $('form.node-domain-edit-form #control-node-defaultsection-wrapper').addClass('hidden');
   }
 }
 
@@ -325,13 +241,3 @@ function bebop_selected_action(action)
     $('form#nodelist-form').submit();
   }
 }
-
-/**
- * Функция предназначена для отладки. Shortcut console.log'a.
- * Записывает в консоль Firebug'a передаваемые в нее данные. 
- * 
- * @param {String} str - строка/массив для отображения в консоли
- */
-function log(str) {
-	window.console && window.console.log(str);
-};

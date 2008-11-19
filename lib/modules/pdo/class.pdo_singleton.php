@@ -67,9 +67,10 @@ class PDO_Singleton extends PDO
   // Возвращает параметры подключения к нужной БД.
   private static function getConfig($name)
   {
-    if (!($config = mcms::config('db.' . $name)))
+    if (!($config = mcms::config('db.' . $name))) {
       throw new RuntimeException(t('Соединение %name не настроено.',
         array('%name' => $name)));
+    }
 
     return $config;
   }
@@ -313,5 +314,12 @@ class PDO_Singleton extends PDO
       '(INSERT\s+INTO|REPLACE|UPDATE|DELETE)',
       strtoupper($sql)
       );
+  }
+
+  public static function listDrivers()
+  {
+    return array_diff(
+      PDO::getAvailableDrivers(),
+      mcms::config('runtime.db.drivers.disable', array()));
   }
 }

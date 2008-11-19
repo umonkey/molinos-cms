@@ -239,6 +239,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $xmlstr = $source;
     }
 
+    mcms::db()->clearDB();
     mcms::db()->beginTransaction();
 
     $xml = new SimpleXMLElement($xmlstr);
@@ -312,7 +313,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
         if (array_key_exists('key', $v))
           $key = $attr['key'];
 
-        mcms::db()->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order)",          array(
+        mcms::db()->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order)", array(
           ':tid' => $tid,
           ':nid' => $nid,
           ':key' => $key,

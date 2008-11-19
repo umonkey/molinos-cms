@@ -21,7 +21,7 @@
 </node>
 <node id='8' class='user' created='2008-04-07 12:15:43' updated='2008-06-03 15:17:17' lang='ru' published='1' name='cms-bugs@molinos.ru' fullname='Разработчик'>
 </node>
-<node id='9' class='domain' created='2008-04-07 12:15:46' updated='2008-06-25 12:17:33' lang='ru' published='1' name='localhost' title='Molinos.CMS' language='ru' content_type='text/html' defaultsection='10' params='sec'>
+<node id='9' class='domain' created='2008-04-07 12:15:46' updated='2008-06-25 12:17:33' lang='ru' published='1' name='localhost' title='Molinos.CMS' language='ru' content_type='text/html' defaultsection='10' params='sec' theme='example'>
 <aliases><![CDATA[a:1:{i:0;s:0:"";}]]></aliases>
 </node>
 <node id='10' class='tag' uid='18' created='2008-04-07 12:58:18' updated='2008-06-03 15:17:17' lang='ru' published='1' name='Основной раздел' description='Это — начало структуры вашего сайта.  Все подразделы добавляются сюда.'>
@@ -52,7 +52,7 @@
 <node id='20' class='widget' created='2008-06-25 12:10:23' updated='2008-06-25 12:11:29' lang='ru' published='1' name='doc' title='Просмотр объекта' classname='DocWidget'>
 <config><![CDATA[a:2:{s:4:"mode";s:4:"view";s:5:"fixed";s:0:"";}]]></config>
 </node>
-<node id='21' class='domain' parent_id='9' created='2008-06-25 12:11:39' updated='2008-06-25 12:12:04' lang='ru' published='1' name='node' language='ru' content_type='text/html' params='doc' title='Просмотр объекта'>
+<node id='21' class='domain' parent_id='9' created='2008-06-25 12:11:39' updated='2008-06-25 12:12:04' lang='ru' published='1' name='node' language='ru' content_type='text/html' params='doc' title='Просмотр объекта' theme='example'>
 <aliases><![CDATA[a:1:{i:0;s:0:"";}]]></aliases>
 </node>
 <node id='22' class='widget' created='2008-06-25 12:12:20' updated='2008-06-25 12:12:44' lang='ru' published='1' name='list' title='Список документов' classname='ListWidget'>

@@ -373,7 +373,7 @@ class NodeBase
         break;
 
       case 'add':
-        $sql = "INSERT INTO node__rel (tid, nid, key, `order`) VALUES (:tid, :nid, :key, :order)";
+        $sql = "INSERT INTO node__rel (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order)";
 
         if (array_key_exists('child', $link)) {
           $params[':tid'] = $this->id;
@@ -1703,14 +1703,8 @@ class NodeBase
       $tabs[$group]->addControl($field);
     }
 
-    $next = empty($_GET['destination'])
-      ? $_SERVER['REQUEST_URI']
-      : $_GET['destination'];
-
     $form = new Form(array(
-      'action' => $this->id
-        ? "?q=nodeapi.rpc&action=edit&node={$this->id}&destination=". urlencode($next)
-        : "?q=nodeapi.rpc&action=create&type={$this->class}&destination=". urlencode($next),
+      'action' => $this->getFormAction(),
       'title' => $this->getFormTitle(),
       ));
 
@@ -1718,16 +1712,19 @@ class NodeBase
       $form->addControl($tab);
 
     $form->addControl(new SubmitControl(array(
-      'text' => t('Сохранить'),
+      'text' => $this->getFormSubmitText(),
       )));
 
-    $type = Node::load(array(
-      'class' => 'type',
-      'name' => $this->class,
-      ));
+    if (mcms::user()->id and mcms::user()->hasAccess('u', 'type') and $this->class != 'type') {
+      try {
+        $type = Node::load(array(
+          'class' => 'type',
+          'name' => $this->class,
+          ));
 
-    if (mcms::user()->hasAccess('u', 'type') and $this->class != 'type')
-      $form->hlink = '<span>' . l('?q=admin/content/edit/' . $type->id . '&destination=CURRENT', 'схема') . '</span>';
+        $form->hlink = '<span>' . l('?q=admin/content/edit/' . $type->id . '&destination=CURRENT', 'схема') . '</span>';
+      } catch (Exception $e) { }
+    }
 
     return $form;
   }
@@ -1740,6 +1737,22 @@ class NodeBase
     return $this->id
       ? $this->getName() . ' (' . $this->class . ')'
       : t('Добавление нового документа (%type)', array('%type' => $this->class));
+  }
+
+  public function getFormSubmitText()
+  {
+    return t('Сохранить');
+  }
+
+  public function getFormAction()
+  {
+    $next = empty($_GET['destination'])
+      ? $_SERVER['REQUEST_URI']
+      : $_GET['destination'];
+
+    return $this->id
+      ? "?q=nodeapi.rpc&action=edit&node={$this->id}&destination=". urlencode($next)
+      : "?q=nodeapi.rpc&action=create&type={$this->class}&destination=". urlencode($next);
   }
 
   /**

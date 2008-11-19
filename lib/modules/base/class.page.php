@@ -110,8 +110,11 @@ class Page
     if ('.rpc' == substr($query, -4)) {
       $module = substr($query, 0, -4);
 
-      if ($ctx->method('post'))
-        mcms::db()->beginTransaction();
+      if ($ctx->method('post')) {
+        try {
+          // mcms::db()->beginTransaction();
+        } catch (RuntimeException $e) { }
+      }
 
       $args = array($ctx);
 
@@ -124,8 +127,11 @@ class Page
         mcms::fatal($e);
       }
 
-      if ($ctx->method('post'))
-        mcms::db()->commit();
+      if ($ctx->method('post')) {
+        try {
+          // mcms::db()->commit();
+        } catch (RuntimeException $e) { }
+      }
 
       if (!empty($result))
         return array('content' => $result);

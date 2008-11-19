@@ -147,6 +147,11 @@ class MenuWidget extends Widget implements iWidget
       $root = Node::load($options['root']);
     }
 
+    if (!($root instanceof TagNode))
+      throw new RuntimeException(t('MenuWidget получил «%class», а не раздел.', array(
+        '%class' => $root->class,
+        )));
+
     // Определяем путь к текущему разделу.
     if (null === $this->ctx->section->id)
       $path = array();

@@ -54,9 +54,13 @@ class Session
 
     if ($this->id = $this->getSessionId()) {
       if (false === ($tmp = mcms::cache($cid = 'session:'. $this->id))) {
-        $tmp = mcms::db()->getResult("SELECT `data` FROM node__session "
-          ."WHERE `sid` = ?", array($this->id));
-        mcms::cache($cid, $tmp);
+        try {
+          $tmp = mcms::db()->getResult("SELECT `data` FROM node__session "
+            ."WHERE `sid` = ?", array($this->id));
+          mcms::cache($cid, $tmp);
+        } catch (NotInstalledException $e) {
+          $tmp = null;
+        }
       }
 
       if (!empty($tmp)) {
