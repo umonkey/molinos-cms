@@ -20,7 +20,7 @@ class AdminMenu implements iAdminMenu
     if (null === ($key = $this->getCacheKey()))
       return null;
 
-    return mcms::config($key, $value);
+    return mcms::cache($key, $value);
   }
 
   private static function getGroupName($name)
