@@ -562,6 +562,8 @@ class mcms
 
   public static function flog($op, $message)
   {
+    if ($message instanceof Exception)
+      $message = get_class($message) . ': ' . $message->getMessage();
     error_log("[{$op}] {$message}", 0);
   }
 
