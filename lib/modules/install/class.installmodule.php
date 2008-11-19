@@ -51,6 +51,9 @@ class InstallModule implements iRemoteCall
 
     ExchangeModule::import(mcms::mkpath(array('lib', 'modules', 'exchange', 'profiles', $node->template)), true);
 
+    $s = new Structure();
+    $s->rebuild();
+
     $ctx->redirect('?q=admin');
   }
 
