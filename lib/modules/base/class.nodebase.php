@@ -711,8 +711,9 @@ class NodeBase
       $data['lang'] = 'ru';
 
     // Не проверяем пользователей, чтобы не войти в вечный цикл.
-    if (empty($data['id']) and 'user' !== $class)
-      $data['published'] = mcms::user()->hasAccess('p', $data['class']);
+    if (!array_key_exists('published', $data))
+      if (empty($data['id']) and 'user' !== $class)
+        $data['published'] = mcms::user()->hasAccess('p', $data['class']);
 
     return new $host($data);
   }
