@@ -1338,11 +1338,12 @@ class mcms
       mcms::flush(mcms::FLUSH_NOW);
     }
 
-    $s = Structure::getInstance();
-
     try {
       if (false === ($result = Page::render($ctx, $ctx->host(), $ctx->query())))
         throw new PageNotFoundException();
+    } catch (NotInstalledException $e) {
+      $ctx->redirect('?q=install.rpc&action=' . $e->get_type()
+        . '&destination=CURRENT');
     } catch (UserException $e) {
       // TODO: fallback
       $result = Page::render($ctx, $ctx->host(), 'errors/' . $e->getCode());
