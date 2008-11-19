@@ -17,6 +17,7 @@ class Structure
 {
   private static $instance = null;
 
+  private $loaded = false;
   protected $widgets = array();
   protected $aliases = array();
   protected $domains = array();
@@ -30,7 +31,7 @@ class Structure
 
   public function __construct()
   {
-    $this->load();
+    // $this->load();
   }
 
   private function load()
@@ -45,6 +46,8 @@ class Structure
 
     foreach ($data as $k => $v)
       $this->$k = $v;
+
+    $this->loaded = true;
   }
 
   /**
@@ -56,6 +59,8 @@ class Structure
 
     foreach ($ma->import() as $k => $v)
       $this->$k = $v;
+
+    $this->loaded = true;
 
     $this->save();
   }
@@ -73,6 +78,9 @@ class Structure
    */
   public function findPage($domain, $path)
   {
+    if (!$this->loaded)
+      $this->load();
+
     if (null === ($domain = $this->findDomain($domain)))
       return false;
 
@@ -156,6 +164,9 @@ class Structure
    */
   public function findWidgets(array $names)
   {
+    if (!$this->loaded)
+      $this->load();
+
     $result = array();
 
     foreach ($names as $name)
@@ -170,10 +181,17 @@ class Structure
    */
   public function save()
   {
-    mcms::writeFile($this->getFileName(), array(
-      'widgets' => $this->widgets,
-      'aliases' => $this->aliases,
-      'domains' => $this->domains,
-      ));
+    if ($this->loaded)
+      mcms::writeFile($this->getFileName(), array(
+        'widgets' => $this->widgets,
+        'aliases' => $this->aliases,
+        'domains' => $this->domains,
+        ));
+  }
+
+  public function drop()
+  {
+    if (file_exists($file = $this->getFileName()))
+      unlink($file);
   }
 }
