@@ -22,9 +22,8 @@ class Config
 
   private function readData()
   {
-    if (!is_readable($this->path)) {
+    if (!is_readable($this->path))
       $this->data = array();
-    }
 
     elseif (substr($this->path, -4) == '.ini') {
       $this->data = array();
@@ -53,11 +52,9 @@ class Config
     }
 
     else {
-      $this->data = require_once $this->path;
+      $this->data = include $this->path;
       $this->isok = true;
     }
-
-    $this->data['cleanurls'] = !empty($_GET['__cleanurls']);
   }
 
   private function findFile()
@@ -162,6 +159,8 @@ class Config
   {
     if (strrchr($this->path, '.') == '.ini')
       $this->path = substr($this->path, 0, -4) . '.config.php';
+
+    ksort($this->data);
 
     // Запись в новый файл.
     mcms::writeFile($this->path, $this->data);
