@@ -120,7 +120,7 @@ class MenuWidget extends Widget implements iWidget
     elseif (is_numeric($this->fixed))
       $options['root'] = $this->fixed;
     else
-      $options['root'] = $ctx->section->id;
+      $options['root'] = $ctx->section;
 
     $options['current'] = $ctx->section;
     $options['document'] = $ctx->document;
@@ -143,6 +143,8 @@ class MenuWidget extends Widget implements iWidget
     // Загружаем текущий (или корневой) раздел.
     if (empty($options['root'])) {
       $root = $toplevel = Node::load(array('class' => 'tag', 'parent_id' => null));
+    } elseif ($options['root'] instanceof Node) {
+      $root = $options['root'];
     } else {
       $root = Node::load($options['root']);
     }
@@ -159,11 +161,11 @@ class MenuWidget extends Widget implements iWidget
       $path = array();
 
     // Загружаем детей.
-    $root->loadChildren();
+    $root->loadChildren(null, true);
 
     if (!self::countChildren($root) and ('anything' == $this->fixed)) {
       $root = Node::load($root->parent_id);
-      $root->loadChildren();
+      $root->loadChildren(null, true);
     }
 
     if ($this->ctx->section->id)

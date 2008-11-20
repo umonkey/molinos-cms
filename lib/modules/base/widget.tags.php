@@ -78,12 +78,14 @@ class TagsWidget extends Widget implements iWidget
     $result = array();
 
     if (!empty($options['root'])) {
-      $root = Node::load($options['root']);
+      if (is_numeric($root = $options['root']))
+        $root = Node::load($root);
 
       if ($this->lowmemory)
         $root->loadChildren(null, true);
 
       $result['sections'] = $root->getChildren('nested');
+
       $result['path'] = array();
       $result['dynamic'] = $options['dynamic'];
 
@@ -122,9 +124,9 @@ class TagsWidget extends Widget implements iWidget
 
     if ($this->forcefixed) {
       if ('page' == ($options['root'] = $this->fixed))
-        $options['root'] = $this->ctx->root->id;
+        $options['root'] = $this->ctx->root;
     } else {
-      $options['root'] = $ctx->section->id;
+      $options['root'] = $ctx->section;
     }
 
     $options['dynamic'] = ($ctx->section->id !== null);
