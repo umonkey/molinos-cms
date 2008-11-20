@@ -320,9 +320,7 @@ class AdminListHandler
     if (null !== $this->published)
       $filter['published'] = $this->published;
 
-    if ($this->deleted)
-      ;
-    elseif (null !== $this->types)
+    if (null !== $this->types)
       $filter['class'] = $this->types;
     else {
       $filter['class'] = array();
@@ -332,6 +330,8 @@ class AdminListHandler
         if (empty($n->isdictionary) and (empty($n->adminmodule) or !mcms::ismodule($n->adminmodule)) and !in_array($n->name, $itypes))
           $filter['class'][] = $n->name;
       }
+
+      $filter['class'] = self::filterImmutable($filter['class']);
 
       if (empty($filter['class']))
         $filter['class'][] = null;
@@ -498,5 +498,15 @@ class AdminListHandler
     }
 
     return $this->pgcount;
+  }
+
+  protected function filterImmutable(array $types)
+  {
+    return array_intersect($types,
+      mcms::user()->getAccess('c'),
+      mcms::user()->getAccess('u'),
+      mcms::user()->getAccess('d'),
+      mcms::user()->getAccess('p')
+      );
   }
 };
