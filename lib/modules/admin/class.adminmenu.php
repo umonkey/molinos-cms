@@ -144,11 +144,12 @@ class AdminMenu implements iAdminMenu
         'title' => t('Документы'),
         'description' => t('Поиск, редактирование, добавление документов.'),
         );
-      $icons[] = array(
-        'group' => 'content',
-        'href' => '?q=admin/content/list/dictlist',
-        'title' => t('Справочники'),
-        );
+      if ($user->hasAccess('c', 'type'))
+        $icons[] = array(
+          'group' => 'content',
+          'href' => '?q=admin/content/list/dictlist',
+          'title' => t('Справочники'),
+          );
       if (Node::count(array('published' => 0, '-class' => TypeNode::getInternal())))
         $icons[] = array(
           'group' => 'content',
