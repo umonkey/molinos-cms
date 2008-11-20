@@ -154,7 +154,6 @@ class AdminMenu implements iAdminMenu
           'group' => 'content',
           'href' => '?q=admin/content/list/drafts',
           'title' => t('В модерации'),
-          'message' => t('Очередь модерации'),
           'description' => t('Поиск, редактирование, добавление документов.'),
           );
     }
