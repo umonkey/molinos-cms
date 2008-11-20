@@ -439,14 +439,6 @@ class Context
     return $dom;
   }
 
-  public function profile($name = null, $time = null)
-  {
-    if (null === $name)
-      return $this->_profile;
-    else
-      $this->_profile[$name] = $time;
-  }
-
   public function gonext()
   {
     if (null !== ($next = $this->get('destination')))
@@ -460,5 +452,58 @@ class Context
   public function canDebug()
   {
     return $this->_debug;
+  }
+
+  public function profile()
+  {
+    if (!$this->debug('profile'))
+      return;
+
+    $output = '<html><head>'
+      . '<title>Molinos CMS Profiler</title>'
+      . '</head>'
+      . '<body><h1>Molinos CMS Profiler</h1>';
+
+    $output .= '<p>Request: ' . mcms_plain($this->url()->string()) . '</p>';
+
+    if ($widgets = mcms::profile('get')) {
+      $output .= "<table class='profile' border='1' cellspacing='0' cellpadding='2'>";
+
+      foreach ($widgets as $name => $v) {
+        $link = '?q=' . $this->query() . '&widget=' . $name
+          . '&debug=profile&nocache=' . $this->get('nocache');
+
+        $output .= '<tr>';
+        $output .= mcms::html('td', array('align' => 'left'), l($link, $name));
+        $output .= mcms::html('td', array('align' => 'left'), $v['time']);
+        $output .= mcms::html('td', array('align' => 'right'), $v['queries']);
+        $output .= '</tr>';
+      }
+
+      $output .= '</table>';
+    }
+
+    $output .= $this->getSqlLogHTML();
+
+    $output .= '</body></html>';
+
+    header('Content-Type: text/html; charset=utf-8');
+    header('Content-Length: ' . strlen($output));
+    die($output);
+  }
+
+  private function getSqlLogHTML()
+  {
+    if (!isset($this->db))
+      return;
+
+    if (null === ($log = $this->db->getLog()))
+      return;
+
+    $log = '<ol><li>' . join('</li><li>', $log) . '</li></ol>';
+
+    $log = preg_replace('/[\r\n]+\s+/', '<br/>', $log);
+
+    return $log;
   }
 }

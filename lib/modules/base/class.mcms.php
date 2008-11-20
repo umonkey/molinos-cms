@@ -1390,6 +1390,9 @@ class mcms
         ),
       $result['content']);
 
+    $ctx->profile();
+
+    /*
     if ($ctx->debug('profile')) {
       $message = "Profiling.\n\n";
 
@@ -1400,6 +1403,7 @@ class mcms
 
       mcms::debug($message);
     }
+    */
 
     if (!empty($result['headers']))
       foreach ($result['headers'] as $h)
