@@ -1352,7 +1352,7 @@ class mcms
       $ctx = new Context(array('url' => '?' . $_SERVER['QUERY_STRING']));
 
     try {
-      $cxt->db = mcms::config('db.default');
+      $ctx->db = mcms::config('db.default');
     } catch (Exception $e) {
       $ctx->redirect('?q=install.rpc&action=db&destination=CURRENT');
     }
