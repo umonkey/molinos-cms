@@ -393,6 +393,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
   {
     $icons = array();
 
+    if (mcms::user()->hasAccess('d', 'type'))
       $icons[] = array(
         'group' => 'structure',
         'href' => '?q=admin&module=exchange',
