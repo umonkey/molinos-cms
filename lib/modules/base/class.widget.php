@@ -111,6 +111,7 @@ abstract class Widget implements iWidget
     $options['__cleanurls'] = !empty($_GET['__cleanurls']);
     $options['#cache'] = true;
     $options['#instance'] = $this->getInstanceName();
+    $options['theme'] = $ctx->theme;
 
     $this->ctx = $ctx;
 
