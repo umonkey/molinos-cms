@@ -49,6 +49,12 @@ class AdminStatus implements iAdminMenu
             )),
         );
 
+    if (null !== ($message = self::checkAccessRights()))
+      $icons[] = array(
+        'group' => 'status',
+        'message' => $message,
+        );
+
     if (null !== ($counts = self::getCounts()))
       $icons[] = array(
         'group' => 'status',
@@ -111,6 +117,22 @@ class AdminStatus implements iAdminMenu
 
       $parts[] = t(str_replace(' ', '&nbsp;', $text), array(
         '!count' => $count,
+        ));
+    }
+  }
+
+  private static function checkAccessRights()
+  {
+    $types = mcms::db()->getResultsKV("id", "name", "SELECT n.id, v.name FROM node n INNER JOIN node__rev v ON v.rid = n.rid WHERE n.class = 'type' AND n.deleted = 0 AND n.id IN (SELECT nid FROM node__access WHERE uid = 0 AND (u = 1 OR d = 1 OR p = 1))");
+
+    if (!empty($types)) {
+      $list = array();
+
+      foreach ($types as $id => $name)
+        $list[] = l('?q=admin/structure/edit/' . $id . '&destination=CURRENT', $name);
+
+      return t('<p class="important">Нарушение безопасности: документы типов !list могут быть изменены анонимно.</p>', array(
+        '!list' => join(', ', $list),
         ));
     }
   }
