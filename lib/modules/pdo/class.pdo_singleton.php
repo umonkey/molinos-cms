@@ -43,40 +43,31 @@ class PDO_Singleton extends PDO
 
   public static function getInstance($name, $reload = false)
   {
-    if (!array_key_exists($name, self::$instances) or $reload) {
-      if (false === ($conf = parse_url(self::getConfig($name))) or empty($conf['scheme']))
-        throw new RuntimeException(t('Соединение %name настроено неверно.',
-          array('%name' => $name)));
-
-      if (!in_array($conf['scheme'], self::listDrivers())) {
-        throw new NotInstalledException('db');
-        /*
-        throw new RuntimeException(t('Указанный в настройках драйвер PDO '
-          .'(%name) недоступен. Вероятно конфигурация сервера изменилась '
-          .'после установки CMS, или кто-то руками копался в '
-          .'конфигурационном файле.', array('%name' => $conf['scheme'])));
-        */
-      }
-
-      if (!class_exists($driver = 'mcms_'. $conf['scheme'] .'_driver'))
-        throw new RuntimeException(t('Драйвер для доступа к БД типа "%name" '
-          .'отсутствует.', array('%name' => $conf['scheme'])));
-
-      self::$instances[$name] = new $driver($conf);
-    }
+    if (!array_key_exists($name, self::$instances) or $reload)
+      self::$instances[$name] = self::connect(mcms::config('db.' . $name));
 
     return self::$instances[$name];
   }
 
-  // Возвращает параметры подключения к нужной БД.
-  private static function getConfig($name)
+  /**
+   * Подключение к БД.
+   */
+  public static function connect($dsn)
   {
-    if (!($config = mcms::config('db.' . $name))) {
-      throw new RuntimeException(t('Соединение %name не настроено.',
-        array('%name' => $name)));
-    }
+    if (false === ($conf = parse_url($dsn)) or empty($conf['scheme']))
+      throw new InvalidArgumentException(t('Неверные параметры подключения к БД.'));
 
-    return $config;
+    if (!in_array($conf['scheme'], self::listDrivers()))
+      throw new InvalidArgumentException(t('Драйвер для подключения к %scheme отсутствует.', array(
+        '%scheme' => $conf['scheme'],
+        )));
+
+    if (!class_exists($driver = 'mcms_'. $conf['scheme'] .'_driver'))
+      throw new InvalidArgumentException(t('Molinos CMS не поддерживает работу с БД типа %name.', array(
+        '%name' => $conf['scheme'],
+        )));
+
+    return new $driver($conf);
   }
 
   public static function disconnect()
