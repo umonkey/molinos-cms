@@ -323,6 +323,7 @@ class Context
       if (null !== $this->_db)
         throw new RuntimeException(t('Соединение с БД уже активно.'));
       $this->_db = PDO_Singleton::connect($value);
+      break;
 
     default:
       throw new InvalidArgumentException(t('Неизвестное свойство '
@@ -372,6 +373,7 @@ class Context
       $url['args']['widget'] = $this->get('widget');
 
     $ctx = new Context($this->_args);
+    $ctx->_db = $this->_db;
     $ctx->_url = new url($url);
 
     return $ctx;
