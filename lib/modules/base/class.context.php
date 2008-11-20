@@ -467,20 +467,32 @@ class Context
     $output .= '<p>Request: ' . mcms_plain($this->url()->string()) . '</p>';
 
     if ($widgets = mcms::profile('get')) {
-      $output .= "<table class='profile' border='1' cellspacing='0' cellpadding='2'>";
+      $s = new Structure();
+      $output .= "<table class='profile' border='1' cellspacing='0' cellpadding='2'>"
+        . '<tr><th>Виджет</th><th>Класс</th><th>Время</th><th>SQL</th></tr>';
+
+      $totaltime = 0;
+      $totalsql = 0;
 
       foreach ($widgets as $name => $v) {
+        $w = array_shift($s->findWidgets(array($name)));
+
         $link = '?q=' . $this->query() . '&widget=' . $name
           . '&debug=profile&nocache=' . $this->get('nocache');
 
         $output .= '<tr>';
         $output .= mcms::html('td', array('align' => 'left'), l($link, $name));
+        $output .= mcms::html('td', $w ? l('http://code.google.com/p/molinos-cms/wiki/' . $w['class'], $w['class']) : null);
         $output .= mcms::html('td', array('align' => 'left'), $v['time']);
         $output .= mcms::html('td', array('align' => 'right'), $v['queries']);
         $output .= '</tr>';
+
+        $totaltime += $v['time'];
+        $totalsql += $v['queries'];
       }
 
-      $output .= '</table>';
+      $output .= "<tr><th colspan='2'>&nbsp;</th><th align='left'>{$totaltime}</th><th align='right'>{$totalsql}</th></tr>"
+        . '</table>';
     }
 
     $output .= $this->getSqlLogHTML();
