@@ -88,7 +88,9 @@ class Structure
     $args = array();
 
     $match = '/';
-    $args = explode('/', trim($path, '/'));
+    $args = trim($path, '/')
+      ? explode('/', trim($path, '/'))
+      : array();
 
     foreach ($this->domains[$domain] as $page => $meta) {
       if (strlen($page) > strlen($match)) {
