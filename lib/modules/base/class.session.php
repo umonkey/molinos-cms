@@ -55,9 +55,11 @@ class Session
     if ($this->id = $this->getSessionId()) {
       if (false === ($tmp = mcms::cache($cid = 'session:'. $this->id))) {
         try {
-          $tmp = mcms::db()->getResult("SELECT `data` FROM node__session "
+          $tmp = Context::last()->db->getResult("SELECT `data` FROM node__session "
             ."WHERE `sid` = ?", array($this->id));
           mcms::cache($cid, $tmp);
+        } catch (NotConnectedException $e) {
+          $tmp = null;
         } catch (NotInstalledException $e) {
           $tmp = null;
         }
@@ -109,15 +111,17 @@ class Session
       throw new RuntimExeption(t('Session is being saved '
         .'without having been loaded.'));
 
+    $db = Context::last()->db;
+
     if ($this->hash() != $this->_hash) {
       if (null === $this->id)
         $this->id = $this->getsessionId();
 
-      mcms::db()->exec("DELETE FROM node__session WHERE `sid` = ?",
+      $db->exec("DELETE FROM node__session WHERE `sid` = ?",
         array($this->id));
 
       if (!empty($this->data)) {
-        mcms::db()->exec("INSERT INTO node__session (`created`, `sid`, `data`) "
+        $db->exec("INSERT INTO node__session (`created`, `sid`, `data`) "
           ."VALUES (UTC_TIMESTAMP(), ?, ?)",
           array($this->id, serialize($this->data)));
         mcms::cache('session:'. $this->id, serialize($this->data));

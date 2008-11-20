@@ -55,15 +55,15 @@ class PDO_Singleton extends PDO
   public static function connect($dsn)
   {
     if (false === ($conf = parse_url($dsn)) or empty($conf['scheme']))
-      throw new InvalidArgumentException(t('Неверные параметры подключения к БД.'));
+      throw new NotConnectedException(t('Неверные параметры подключения к БД.'));
 
     if (!in_array($conf['scheme'], self::listDrivers()))
-      throw new InvalidArgumentException(t('Драйвер для подключения к %scheme отсутствует.', array(
+      throw new NotConnectedException(t('Драйвер для подключения к %scheme отсутствует.', array(
         '%scheme' => $conf['scheme'],
         )));
 
     if (!class_exists($driver = 'mcms_'. $conf['scheme'] .'_driver'))
-      throw new InvalidArgumentException(t('Molinos CMS не поддерживает работу с БД типа %name.', array(
+      throw new NotConnectedException(t('Molinos CMS не поддерживает работу с БД типа %name.', array(
         '%name' => $conf['scheme'],
         )));
 
@@ -269,7 +269,7 @@ class PDO_Singleton extends PDO
       $this->log('-- transaction: begin --');
       // mcms::flog('pdo', 'transaction begins');
     } elseif (!$reentrant) {
-      throw new InvalidArgumentException("transaction is already running");
+      // throw new InvalidArgumentException("transaction is already running");
     }
   }
 

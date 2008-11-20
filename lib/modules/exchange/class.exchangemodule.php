@@ -211,7 +211,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     $str .= "</nodes>\n";
     $str .= "<links>\n";
 
-    $arr = mcms::db()->getResults("SELECT `tid`, `nid`, `key`, `order` FROM `node__rel` ORDER BY `tid`, `order`");
+    $arr = Contex::last()->db->getResults("SELECT `tid`, `nid`, `key`, `order` FROM `node__rel` ORDER BY `tid`, `order`");
 
     foreach ($arr as $el)
       $str .= mcms::html('link', $el) ."\n";
@@ -219,7 +219,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     $str .= "</links>\n";
     $str .= "<accessrights>\n";
 
-    $arr = mcms::db()->getResults("SELECT `nid`, `uid`, `c`, `r`, `u`, `d`, `p` FROM `node__access` ORDER BY `nid`");
+    $arr = Context::last()->db->getResults("SELECT `nid`, `uid`, `c`, `r`, `u`, `d`, `p` FROM `node__access` ORDER BY `nid`");
 
     foreach ($arr as $el)
       $str .= mcms::html('access', $el) ."\n";
@@ -239,8 +239,10 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $xmlstr = $source;
     }
 
-    mcms::db()->clearDB();
-    mcms::db()->beginTransaction();
+    $db = Context::last()->db;
+
+    $db->clearDB();
+    $db->beginTransaction();
 
     $xml = new SimpleXMLElement($xmlstr);
 
@@ -308,7 +310,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
         if (array_key_exists('key', $v))
           $key = $attr['key'];
 
-        mcms::db()->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order)", array(
+        $db->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order)", array(
           ':tid' => $tid,
           ':nid' => $nid,
           ':key' => $key,
@@ -339,7 +341,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
         $d = empty($at['d']) ? 0 : 1;
         $p = empty($at['p']) ? 0 : 1;
 
-        mcms::db()->exec("INSERT INTO `node__access`(`nid`, `uid`, `c`, `r`, `u`, `d`, `p`) VALUES (:nid, :uid, :c, :r, :u, :d, :p)", array(
+        $db->exec("INSERT INTO `node__access`(`nid`, `uid`, `c`, `r`, `u`, `d`, `p`) VALUES (:nid, :uid, :c, :r, :u, :d, :p)", array(
           ':nid' => $nid,
           ':uid' => empty($uid) ? 0 : $uid,
           ':c' => $c,
@@ -432,7 +434,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
        'import' => t('Восстановление'),
        );
 
-    if (mcms::db()->getDbType() == 'SQLite')
+    if (Context::last()->db->getDbType() == 'SQLite')
       $options['upgradetoMySQL'] = t('Перенести данные в MySQL');
 
     $form->addControl(new EnumRadioControl(array(
@@ -460,7 +462,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       'value' => 'impprofile'
       )));
 
-    if (mcms::db()->getDbType() == 'SQLite') {
+    if (Context::last()->db->getDbType() == 'SQLite') {
       $form->addControl(new TextLineControl(array(
         'value' => 'db[name]',
         'label' => t('Имя базы данных'),

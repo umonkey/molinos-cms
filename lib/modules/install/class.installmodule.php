@@ -48,6 +48,7 @@ class InstallModule implements iRemoteCall
   {
     $node = new InstallerNode();
     $node->formProcess($ctx->post);
+    $node->writeConfig($ctx);
 
     ExchangeModule::import(mcms::mkpath(array('lib', 'modules', 'exchange', 'profiles', $node->template)), true);
 
@@ -217,15 +218,6 @@ class InstallerNode extends Node
     return $form;
   }
 
-  public function formProcess(array $data)
-  {
-    parent::formProcess($data);
-
-    $this->writeConfig();
-
-    return $this;
-  }
-
   public function getFormTitle()
   {
     return t('Установка Molinos CMS');
@@ -291,7 +283,7 @@ class InstallerNode extends Node
     return $options;
   }
 
-  private function writeConfig()
+  public function writeConfig(Context $ctx)
   {
     $data = array();
 
@@ -321,6 +313,8 @@ class InstallerNode extends Node
       $config->$k = $v;
 
     $config->write();
+
+    $ctx->db = $data['db.default'];
 
     mcms::flush();
     mcms::flush(mcms::FLUSH_NOW);

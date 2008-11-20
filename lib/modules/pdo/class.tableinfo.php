@@ -12,7 +12,9 @@ class TableInfo
 
     public function __construct($name)
     {
-      self::$dbname = mcms::db()->getDbName();
+      $this->db = Context::last()->db;
+
+      self::$dbname = $this->db->getDbName();
 
       $this->name = $name;
 
@@ -24,7 +26,7 @@ class TableInfo
     // Получение информации о таблице.
     protected function scan($name)
     {
-      $this->oldcolumns = $this->columns = mcms::db()->getTableInfo($name);
+      $this->oldcolumns = $this->columns = $this->db->getTableInfo($name);
 
       if (!is_array($this->columns)){
          $this->isnew = true;
@@ -112,8 +114,8 @@ class TableInfo
     public function columnDel($colname)
     {
       if ($this->columnExists($colname)) {
-        if (mcms::db()->getDbType()=='MySQL') { //для SQLite поля удаляются в функции recreateTable
-            mcms::db()->dropColumn($this->name, $colname);
+        if ($this->db->getDbType()=='MySQL') { //для SQLite поля удаляются в функции recreateTable
+            $this->db->dropColumn($this->name, $colname);
         }
         unset($this->columns[$colname]);
       }
@@ -133,7 +135,7 @@ class TableInfo
     // Форматирует код для изменения структуры таблицы.
     public function addSql($name, array $spec, $modify)
     {
-      list($sql, $ix) = mcms::db()->addSql($name, $spec, $modify, $this->isnew);
+      list($sql, $ix) = $this->db->addSql($name, $spec, $modify, $this->isnew);
 
       $this->alter[] = $sql;
 
@@ -145,14 +147,14 @@ class TableInfo
     {
       $tblname = $this->name;
 
-      if ((mcms::db()->getDbType() == 'SQLite') && !$this->isnew) {
+      if (($this->db->getDbType() == 'SQLite') && !$this->isnew) {
         // Для существующих в SQLite таблиц в случе их модификации убиваем их и создаём с новыми полями,
         // старые значения при этом сохраняются
-        mcms::db()->recreateTable($tblname, $this->columns, $this->oldcolumns);
+        $this->db->recreateTable($tblname, $this->columns, $this->oldcolumns);
       }
       else {
         if ((null !== ($sql = $this->getSql()))) {
-          mcms::db()->exec($sql);
+          $this->db->exec($sql);
         }
 
         for ($i = 0; $i < count($this->index); $i++) {
@@ -160,14 +162,14 @@ class TableInfo
 
           if (empty($this->cur_indexes[$el])) {
             $sql = " CREATE INDEX `IDX_{$tblname}_{$el}` on `{$tblname}` (`{$el}`)";
-            mcms::db()->exec($sql);
+            $this->db->exec($sql);
           }
         }
       }
 
       $this->index = $this->alter = array();
 
-      mcms::db()->commit();
+      $this->db->commit();
     }
 
     public function getSql()
@@ -175,7 +177,7 @@ class TableInfo
       if (empty($this->alter))
         return null;
 
-      $sql = mcms::db()->getSql($this->name, $this->alter, $this->isnew);
+      $sql = $this->db->getSql($this->name, $this->alter, $this->isnew);
 
       return trim($sql);
     }
@@ -188,6 +190,6 @@ class TableInfo
       if (in_array($this->name, array('node', 'node__rel', 'node__rev')))
         throw new RuntimeException(t('Попытка удалить жизненно важную таблицу.'));
 
-      mcms::db()->exec("DROP TABLE `{$this->name}`");
+      $this->db->exec("DROP TABLE `{$this->name}`");
     }
 };

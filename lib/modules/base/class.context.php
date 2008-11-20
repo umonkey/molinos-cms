@@ -221,6 +221,11 @@ class Context
     $url1 = new url($url);
     $next = $url1->getAbsolute($this);
 
+    try {
+      if (isset($this->db))
+        $this->db->commit();
+    } catch (NotConnectedException $e) { }
+
     mcms::redirect($next, $status);
   }
 
@@ -300,7 +305,9 @@ class Context
     case 'db':
       if (null === $this->_db)
         // Тип исключения не менять, многие на него ориентируются.
-        throw new InvalidArgumentException(t('Соединение с БД не установлено.'));
+        throw new NotConnectedException();
+      elseif (is_string($this->_db))
+        $this->_db = PDO_Singleton::connect($this->_db);
       return $this->_db;
     }
   }
@@ -320,9 +327,9 @@ class Context
       break;
 
     case 'db':
-      if (null !== $this->_db)
-        throw new RuntimeException(t('Соединение с БД уже активно.'));
-      $this->_db = PDO_Singleton::connect($value);
+      if (!is_string($value))
+        throw new InvalidArgumentException(t('Параметры подключения должны быть строкой.'));
+      $this->_db = $value;
       break;
 
     default:

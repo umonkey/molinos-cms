@@ -458,12 +458,7 @@ class mcms
     if (!in_array($status, array('301', '302', '303', '307')))
       throw new Exception("Статус перенаправления {$status} не определён в стандарте HTTP/1.1");
 
-    try {
-      if (($ctx = Context::last()) and isset($ctx->db))
-        $ctx->db->commit();
-      mcms::flush(mcms::FLUSH_NOW);
-    } catch (NotInstalledException $e) {
-    }
+    mcms::flush(mcms::FLUSH_NOW);
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST')
       $status = 303;
@@ -1351,11 +1346,7 @@ class mcms
     if (null === $ctx)
       $ctx = new Context(array('url' => '?' . $_SERVER['QUERY_STRING']));
 
-    try {
-      $ctx->db = mcms::config('db.default');
-    } catch (Exception $e) {
-      $ctx->redirect('?q=install.rpc&action=db&destination=CURRENT');
-    }
+    $ctx->db = mcms::config('db.default');
 
     if ($ctx->get('flush') and $ctx->canDebug()) {
       mcms::flush();
@@ -1365,7 +1356,13 @@ class mcms
     try {
       if (false === ($result = Page::render($ctx, $ctx->host(), $ctx->query())))
         throw new PageNotFoundException();
+    } catch (NotConnectedException $e) {
+      if ('install.rpc' == $ctx->query())
+        mcms::fatal($e);
+      $ctx->redirect('?q=install.rpc&action=db&destination=CURRENT');
     } catch (NotInstalledException $e) {
+      if ('install.rpc' == $ctx->query())
+        mcms::fatal($e);
       $ctx->redirect('?q=install.rpc&action=' . $e->get_type()
         . '&destination=CURRENT');
     } catch (UserException $e) {

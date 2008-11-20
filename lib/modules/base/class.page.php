@@ -110,22 +110,24 @@ class Page
     if ('.rpc' == substr($query, -4)) {
       $module = substr($query, 0, -4);
 
-      if ($ctx->method('post') and isset($ctx->db))
-        $ctx->db->beginTransaction();
+      if ($ctx->method('post') and isset($ctx->db)) {
+        try {
+          $ctx->db->beginTransaction();
+        } catch (NotConnectedException $e) { }
+      }
 
       $args = array($ctx);
 
-      try {
-        if (false === ($result = mcms::invoke_module($module, 'iRemoteCall', 'hookRemoteCall', $args)))
-          throw new RuntimeException(t('Обработчик RPC в модуле %module отсутствует.', array(
-            '%module' => $module,
-            )));
-      } catch (Exception $e) {
-        mcms::fatal($e);
-      }
+      if (false === ($result = mcms::invoke_module($module, 'iRemoteCall', 'hookRemoteCall', $args)))
+        throw new RuntimeException(t('Обработчик RPC в модуле %module отсутствует.', array(
+          '%module' => $module,
+          )));
 
-      if ($ctx->method('post') and isset($ctx->db))
-        $ctx->db->commit();
+      if ($ctx->method('post') and isset($ctx->db)) {
+        try {
+          $ctx->db->commit();
+        } catch (NotConnectedException $e) { }
+      }
 
       if (!empty($result))
         return array('content' => $result);
