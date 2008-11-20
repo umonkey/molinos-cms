@@ -134,6 +134,12 @@ class TagsWidget extends Widget implements iWidget
     if ($this->illcache)
       $options['anchor'] = $ctx->section->id;
 
+    if (!empty($options['root']) and !is_numeric($options['root']) and !is_object($options['root']))
+      throw new InvalidArgumentException(t('Вместо кода раздела в виджет %name пришёл какой-то мусор: %trash.', array(
+        '%name' => $this->name,
+        '%trash' => $options['root'],
+        )));
+
     return $options;
   }
 };
