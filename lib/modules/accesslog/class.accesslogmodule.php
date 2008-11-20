@@ -89,7 +89,7 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
     case 'system-event-log-list':
       $data = array();
 
-      $pdo = mcms::db();
+      $pdo = $this->ctx->db;
 
       $params = array();
       $where = $this->getFilter($params);

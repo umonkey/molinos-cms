@@ -28,11 +28,11 @@ class AdminRPC implements iRemoteCall
 
       if ('update' == $ctx->get('mode')) {
         if (null !== ($src = $ctx->post('src')) and null !== ($dst = $ctx->post('dst'))) {
-          mcms::db()->exec("UPDATE `node__fallback` SET `new` = ? "
+          $ctx->db->exec("UPDATE `node__fallback` SET `new` = ? "
             ."WHERE `old` = ?", array($dst, $src));
         }
       } elseif ('delete' == $ctx->get('mode')) {
-        mcms::db()->exec("DELETE FROM `node__fallback` WHERE `old` = ?",
+        $ctx->db->exec("DELETE FROM `node__fallback` WHERE `old` = ?",
           array($ctx->get('src')));
       }
 
@@ -63,7 +63,7 @@ class AdminRPC implements iRemoteCall
 
       if ($tmp = $ctx->post('search_tags')) {
         if ($ctx->post('search_tags_recurse')) {
-          if (is_array($ids = mcms::db()->getResultsV('id', 'SELECT `n`.`id` FROM `node` `n`, `node` `parent` WHERE `n`.`class` = \'tag\' AND `n`.`deleted` = 0 AND `parent`.`id` = :tid AND `n`.`left` >= `parent`.`left` AND `n`.`right` <= `parent`.`right`', array(':tid' => $tmp))))
+          if (is_array($ids = $ctx->db->getResultsV('id', 'SELECT `n`.`id` FROM `node` `n`, `node` `parent` WHERE `n`.`class` = \'tag\' AND `n`.`deleted` = 0 AND `parent`.`id` = :tid AND `n`.`left` >= `parent`.`left` AND `n`.`right` <= `parent`.`right`', array(':tid' => $tmp))))
             $tmp = join(',', $ids);
         }
         $terms[] = 'tags:'. $tmp;
@@ -285,7 +285,7 @@ class AdminRPC implements iRemoteCall
   {
     // Отдельный вывод редактора ошибок 404.
     if ('404' == $ctx->get('preset') and null !== ($src = $ctx->get('subid'))) {
-      $dst = mcms::db()->fetch("SELECT `new` FROM `node__fallback` "
+      $dst = $ctx->db->fetch("SELECT `new` FROM `node__fallback` "
         ."WHERE `old` = ?", array($src));
 
       $form = new Form(array(

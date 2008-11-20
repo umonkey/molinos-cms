@@ -65,9 +65,9 @@ class RatingWidget extends Widget implements iNodeHook
   protected function onGetStatus(array $options)
   {
     $result = array(
-      'average' => mcms::db()->getResult("SELECT AVG(`rate`) FROM `node__rating` WHERE `nid` = :nid AND `rate` <> 0", array(':nid' => $this->options['node'])),
-      'count' => mcms::db()->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `rate` <> 0", array(':nid' => $this->options['node'])),
-      'user' => mcms::db()->getResult("SELECT `rate` FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(':nid' => $this->options['node'], ':uid' => mcms::user()->id)),
+      'average' => $this->ctx->db->getResult("SELECT AVG(`rate`) FROM `node__rating` WHERE `nid` = :nid AND `rate` <> 0", array(':nid' => $this->options['node'])),
+      'count' => $this->ctx->db->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `rate` <> 0", array(':nid' => $this->options['node'])),
+      'user' => $this->ctx->db->getResult("SELECT `rate` FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(':nid' => $this->options['node'], ':uid' => mcms::user()->id)),
       );
 
     bebop_on_json($result);
@@ -80,7 +80,7 @@ class RatingWidget extends Widget implements iNodeHook
   {
     $result = array();
 
-    $pdo = mcms::db();
+    $pdo = $this->ctx->db;
     $user = mcms::user();
 
     // Статистика по текущему документу.
@@ -105,7 +105,7 @@ class RatingWidget extends Widget implements iNodeHook
     if ($this->checkUserHasVote())
       throw new ForbiddenException(t("Вы уже голосовали за этот документ."));
 
-    $pdo = mcms::db();
+    $pdo = $this->ctx->db;
 
     $params = array(
       ':nid' => $this->ctx->document->id,
@@ -197,9 +197,9 @@ class RatingWidget extends Widget implements iNodeHook
 
     // Анонимных пользователей считаем по IP, зарегистрированных -- по идентификатору.
     if ($this->user->id == 0)
-      $status = 0 != mcms::db()->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = 0 AND `ip` = :ip", array(':nid' => $this->ctx->document->id, ':ip' => $_SERVER['REMOTE_ADDR']));
+      $status = 0 != $this->ctx->db->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = 0 AND `ip` = :ip", array(':nid' => $this->ctx->document->id, ':ip' => $_SERVER['REMOTE_ADDR']));
     else
-      $status = 0 != mcms::db()->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(':nid' => $this->ctx->document->id, ':uid' => $this->user->id));
+      $status = 0 != $this->ctx->db->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(':nid' => $this->ctx->document->id, ':uid' => $this->user->id));
 
     // Сохраняем в сессии для последующего быстрого доступа.
 
@@ -219,7 +219,7 @@ class RatingWidget extends Widget implements iNodeHook
 
   private function voteCast()
   {
-    $db = mcms::db();
+    $db = $this->ctx->db;
 
     $db->exec("DELETE FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(
       ':nid' => $this->options['node'],

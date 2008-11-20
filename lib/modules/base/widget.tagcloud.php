@@ -99,7 +99,7 @@ class TagCloudWidget extends Widget implements iWidget
       return null;
     $types = "'". join("', '", $options['types']) ."'";
 
-    $data = mcms::db()->getResults($sql = 'SELECT n.id AS id, v.name AS name, '
+    $data = $this->ctx->db->getResults($sql = 'SELECT n.id AS id, v.name AS name, '
       .'COUNT(*) AS cnt '
       .'FROM node n INNER JOIN node__rev v ON v.rid = n.rid '
       .'INNER JOIN node__rel r ON r.tid = n.id '

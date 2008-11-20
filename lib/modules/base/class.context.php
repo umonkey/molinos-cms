@@ -299,6 +299,7 @@ class Context
 
     case 'db':
       if (null === $this->_db)
+        // Тип исключения не менять, многие на него ориентируются.
         throw new InvalidArgumentException(t('Соединение с БД не установлено.'));
       return $this->_db;
     }

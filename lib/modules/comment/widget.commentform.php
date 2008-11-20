@@ -146,7 +146,7 @@ class CommentFormWidget extends Widget
         $me = null;
 
       try {
-        $uids = mcms::db()->getResultsV("uid", "SELECT DISTINCT `uid` FROM `node__rating` WHERE `nid` = :nid AND `rate` > 0 AND `uid` > 0 AND `uid` <> :uid", array(
+        $uids = $this->ctx->db->getResultsV("uid", "SELECT DISTINCT `uid` FROM `node__rating` WHERE `nid` = :nid AND `rate` > 0 AND `uid` > 0 AND `uid` <> :uid", array(
           ':nid' => $this->options['doc'],
           ':uid' => $me ? $me->id : -1,
           ));

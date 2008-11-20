@@ -1,7 +1,7 @@
 <?php
 
 // Текущая версия.
-define('MCMS_VERSION', '8.05.6197');
+define('MCMS_VERSION', '8.05.6196.5');
 
 // Начало обработки запроса, для замеров производительности.
 define('MCMS_START_TIME', microtime(true));
@@ -229,6 +229,7 @@ class Loader
       'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'class.local_cache.php',
       'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'class.memcached_cache.php',
       'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'interface.bebopcacheengine.php',
+      'lib' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . 'subscription' . DIRECTORY_SEPARATOR . 'widget.subscriptionadmin.php',
       );
   }
 }

@@ -389,7 +389,9 @@ class mcms
 
   public static function db($name = 'default')
   {
-    return PDO_Singleton::getInstance($name);
+    if (null === ($ctx = Context::last()))
+      throw new RuntimeException(t('Обращение к БД вне контекста.'));
+    return $ctx->db;
   }
 
   public static function user()
@@ -457,7 +459,8 @@ class mcms
       throw new Exception("Статус перенаправления {$status} не определён в стандарте HTTP/1.1");
 
     try {
-      mcms::db()->commit();
+      if (($ctx = Context::last()) and isset($ctx->db))
+        $ctx->db->commit();
       mcms::flush(mcms::FLUSH_NOW);
     } catch (NotInstalledException $e) {
     }
@@ -531,7 +534,7 @@ class mcms
             self::filesize(memory_get_peak_usage()));
 
         try {
-          if (null !== ($log = mcms::db()->getLog())) {
+          if (isset($ctx->db) and null !== ($log = $ctx->db->getLog())) {
             $idx = 1;
             printf("\n--- SQL log ---\n");
 
@@ -922,10 +925,8 @@ class mcms
   public static function shutdown_handler()
   {
     try {
-      /*
-      if (class_exists('PDO_Singleton', false))
-        mcms::db()->rollback();
-      */
+      if (($ctx = Context::last()) and isset($ctx->db))
+        $ctx->db->rollback();
     } catch (Exception $e) { }
 
     if (null !== ($e = error_get_last()) and ($e['type'] & (E_ERROR|E_RECOVERABLE_ERROR))) {
@@ -1350,6 +1351,12 @@ class mcms
     if (null === $ctx)
       $ctx = new Context(array('url' => '?' . $_SERVER['QUERY_STRING']));
 
+    try {
+      $cxt->db = mcms::config('db.default');
+    } catch (Exception $e) {
+      $ctx->redirect('?q=install.rpc&action=db&destination=CURRENT');
+    }
+
     if ($ctx->get('flush') and $ctx->canDebug()) {
       mcms::flush();
       mcms::flush(mcms::FLUSH_NOW);
@@ -1410,14 +1417,14 @@ class mcms
         // Ошибка 404 — пытаемся использовать подстановку.
         if (404 == $e->getCode()) {
           try {
-            $new = mcms::db()->getResults("SELECT * FROM `node__fallback` "
+            $new = $ctx->db->getResults("SELECT * FROM `node__fallback` "
               ."WHERE old = ?", array($ctx->query()));
 
             if (!empty($new[0]['new']))
               $ctx->redirect($new[0]['new'], 302);
 
             if (empty($new))
-              mcms::db()->exec("INSERT INTO `node__fallback` "
+              $ctx->db->exec("INSERT INTO `node__fallback` "
                 ."(`old`, `new`, `ref`) VALUES (?, ?, ?)",
                 array($ctx->query(), null, $_SERVER['HTTP_REFERER']));
           } catch (Exception $e2) { }
@@ -1680,13 +1687,13 @@ class mcms
     case 'start':
       $data[$name] = array(
         'time' => microtime(true),
-        'queries' => mcms::db()->getLogSize(),
+        'queries' => $ctx->db->getLogSize(),
         );
       break;
 
     case 'stop':
       $data[$name]['time'] = microtime(true) - $data[$name]['time'];
-      $data[$name]['queries'] = mcms::db()->getLogSize() - $data[$name]['queries'];
+      $data[$name]['queries'] = $ctx->db->getLogSize() - $data[$name]['queries'];
       break;
     }
   }

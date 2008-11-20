@@ -37,7 +37,7 @@ class mcms_mysql_driver extends PDO_Singleton
     $columns = array();
 
     try {
-      $data = mcms::db()->getResults("DESCRIBE `{$name}`");
+      $data = $this->getResults("DESCRIBE `{$name}`");
 
       foreach ($data as $c) {
         $columns[$c['Field']] = array(

@@ -149,7 +149,7 @@ class CommentWidget extends Widget
       ."AND `n`.`deleted` = 0 AND `n`.`class` = 'comment' "
       ."ORDER BY `n`.`id` ASC LIMIT {$offset}, {$this->perpage}";
 
-    $cids = mcms::db()->getResultsV("id", $sql, array(':id' => $nid));
+    $cids = $this->ctx->db->getResultsV("id", $sql, array(':id' => $nid));
 
     return $cids;
   }
@@ -164,7 +164,7 @@ class CommentWidget extends Widget
   {
     $result = array();
 
-    $pdo = mcms::db();
+    $pdo = $this->ctx->db;
 
     $total = $pdo->getResult("SELECT COUNT(*) FROM `node` `n` "
       ."INNER JOIN `node__rel` `r` ON `r`.`nid` = `n`.`id` "
@@ -209,7 +209,7 @@ class CommentWidget extends Widget
       $parents = array();
       $cids = join(', ', array_keys($result['comments']));
 
-      $map = mcms::db()->getResultsKV("nid", "tid", "SELECT `r`.`nid` as `nid`, `r`.`tid` as `tid` FROM `node__rel` `r` WHERE `r`.`nid` IN ({$cids})");
+      $map = $this->ctx->db->getResultsKV("nid", "tid", "SELECT `r`.`nid` as `nid`, `r`.`tid` as `tid` FROM `node__rel` `r` WHERE `r`.`nid` IN ({$cids})");
 
       $nodes = Node::find(array('id' => array_unique($map)));
 

@@ -74,7 +74,7 @@ class TodoListWidget extends Widget
       'linktpl' => $this->linktpl,
       );
 
-    $list = $this->getList();
+    $list = $this->getList($this->ctx);
 
     foreach ($list as $node) {
       $tmp = $node->getRaw();
@@ -99,7 +99,7 @@ class TodoListWidget extends Widget
     return $result;
   }
 
-  private function getList()
+  private function getList(Context $ctx)
   {
     $filter = array(
       'class' => 'todo',
@@ -111,7 +111,7 @@ class TodoListWidget extends Widget
 
     if (!empty($this->options['rel'])) {
       $rel = $this->options['rel'];
-      $filter['id'] = mcms::db()->getResultsV("id", "SELECT n.id AS `id` "
+      $filter['id'] = $ctx->db->getResultsV("id", "SELECT n.id AS `id` "
         ."FROM node n "
         ."WHERE n.class = 'todo' AND n.id IN "
         ."(SELECT tid FROM node__rel WHERE nid = ? "

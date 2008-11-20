@@ -85,14 +85,14 @@ class NodeApiModule implements iRemoteCall
       die($form->getHTML($node));
 
     case 'revert':
-      $info = mcms::db()->getResults("SELECT `v`.`nid` AS `id`, "
+      $info = $ctx->db->getResults("SELECT `v`.`nid` AS `id`, "
         ."`n`.`class` AS `class` FROM `node__rev` `v` "
         ."INNER JOIN `node` `n` ON `n`.`id` = `v`.`nid` "
         ."WHERE `v`.`rid` = ?", array($rid = $ctx->get('rid')));
 
       if (!empty($info)) {
         mcms::user()->checkAccess('u', $info[0]['class']);
-        mcms::db()->exec("UPDATE `node` SET `rid` = ? WHERE `id` = ?",
+        $ctx->db->exec("UPDATE `node` SET `rid` = ? WHERE `id` = ?",
           array($rid, $info[0]['id']));
         mcms::flush();
       }
@@ -226,14 +226,14 @@ class NodeApiModule implements iRemoteCall
 
     case 'raise':
       if (null === $ctx->get('section')) {
-        $tmp = new NodeMover(mcms::db());
+        $tmp = new NodeMover($ctx->db);
         $tmp->moveUp($nid);
       }
       break;
 
     case 'sink':
       if (null === $ctx->get('section')) {
-        $tmp = new NodeMover(mcms::db());
+        $tmp = new NodeMover($ctx->db);
         $tmp->moveDown($nid);
       }
       break;

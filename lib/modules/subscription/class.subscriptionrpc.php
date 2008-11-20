@@ -71,7 +71,7 @@ class SubscriptionRPC implements iRemoteCall
 
       // Номер последней ноды нужен для того, чтобы не отправлять
       // новому подписчику уже существующие новости.
-      $last = mcms::db()->getResult("SELECT MAX(`id`) FROM `node`");
+      $last = $ctx->db->getResult("SELECT MAX(`id`) FROM `node`");
 
       try {
         $node = Node::load(array(

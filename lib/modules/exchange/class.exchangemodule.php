@@ -107,7 +107,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
          mcms::redirect("admin?mode=exchange&preset=export&result=badfiletype");
       }
 
-      mcms::db()->clearDB();
+      $ctx->db->clearDB();
 
       //Installer::CreateTables();
 
@@ -144,12 +144,12 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
       // Конфигурацию нужно сначала записать в файл, иначе при получении
       // инстанса PDO будет возвращаться старый коннектор.
-      $olddsn = mcms::db()->getConfig('default');
+      $olddsn = $ctx->db->getConfig('default');
 
       $xmlstr = self::export('Mysql-upgrade', 'Профиль для апгрейда до MySQL');
 
       // функция очистки базы делает также её бэкап
-      mcms::db()->clearDB();
+      $ctx->db->clearDB();
 
       // запишем конфиг новым dsn
       InstallModule::writeConfig($data, $olddsn);
@@ -159,7 +159,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
       // Перед импортом нужно очистить целевую базу данных,
       // чтобы не получить исключение о дубликатах.
-      mcms::db()->clearDB();
+      $ctx->db->clearDB();
       self::import($xmlstr);
 
       // Логинимся в качестве рута.

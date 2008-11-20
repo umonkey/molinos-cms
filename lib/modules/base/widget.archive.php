@@ -200,7 +200,7 @@ class ArchiveWidget extends Widget implements iWidget
       $sql .= ' DESC';
 
     // FIXME: publishing
-    foreach (mcms::db()->getResultsKV("year", "count", $sql) as $k => $v) {
+    foreach ($this->ctx->db->getResultsKV("year", "count", $sql) as $k => $v) {
       if (!empty($k)) {
         $url->setarg($this->host .'.year', $k);
         $url->setarg($this->host .'.page', null);
@@ -244,7 +244,7 @@ class ArchiveWidget extends Widget implements iWidget
       $sql .= ' DESC';
 
     // FIXME: publishing
-    foreach (mcms::db()->getResultsKV("month", "count", $sql, array(':year' => $options['year'])) as $k => $v) {
+    foreach ($this->ctx->db->getResultsKV("month", "count", $sql, array(':year' => $options['year'])) as $k => $v) {
       $url['args'][$this->host]['month'] = $k;
       $url['args'][$this->host]['page'] = null;
       $result[$k] = bebop_combine_url($url);
@@ -276,7 +276,7 @@ class ArchiveWidget extends Widget implements iWidget
 
     // Список задействованных дней.
     // FIXME: publishing
-    $days = mcms::db()->getResultsKV("day", "count", $sql, array(':year' => $year, ':month' => $month));
+    $days = $this->ctx->db->getResultsKV("day", "count", $sql, array(':year' => $year, ':month' => $month));
 
     // Список месяцев.
     $months = array('Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь');

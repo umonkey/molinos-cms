@@ -12,7 +12,7 @@ class AccessLogRPC implements iRemoteCall
     if (null === ($node = $ctx->get('node')))
       throw new RuntimeException(t('Usage: accesslog.rpc?action=stat&node=id'));
 
-    $data = mcms::db()->getResults('SELECT * FROM `node__astat` WHERE `nid` = ?',
+    $data = $ctx->db->getResults('SELECT * FROM `node__astat` WHERE `nid` = ?',
       array($node));
 
     $id = 1;

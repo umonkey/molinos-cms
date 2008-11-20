@@ -15,7 +15,7 @@ class AccessLogListHandler extends AdminListHandler
   {
     $offset = ($this->page - 1) * $this->limit;
 
-    $data = mcms::db()->getResults("SELECT * FROM `node__astat` ORDER BY `id` DESC LIMIT {$offset}, {$this->limit}");
+    $data = $this->ctx->db->getResults("SELECT * FROM `node__astat` ORDER BY `id` DESC LIMIT {$offset}, {$this->limit}");
 
     return $data;
   }

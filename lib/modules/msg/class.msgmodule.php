@@ -45,7 +45,7 @@ class MsgModule implements iRemoteCall
       $ids = join(', ', array_keys(Node::find($filter)));
 
       if (!empty($ids)) {
-        mcms::db()->exec("DELETE FROM `node` WHERE `id` IN ({$ids})");
+        $ctx->db->exec("DELETE FROM `node` WHERE `id` IN ({$ids})");
         mcms::flush();
       }
 

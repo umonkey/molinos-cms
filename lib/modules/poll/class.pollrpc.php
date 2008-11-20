@@ -9,7 +9,7 @@ class PollRPC implements iRemoteCall
       if (!$ctx->get('nid'))
         throw new InvalidArgumentException(t('Не указан номер опроса (GET-параметр nid).'));
 
-      mcms::db()->exec("INSERT INTO `node__poll` (`nid`, `uid`, `ip`, `option`) VALUES (:nid, :uid, :ip, :option)", array(
+      $ctx->db->exec("INSERT INTO `node__poll` (`nid`, `uid`, `ip`, `option`) VALUES (:nid, :uid, :ip, :option)", array(
         ':nid' => $ctx->get('nid'),
         ':uid' => mcms::user()->id,
         ':ip' => $_SERVER['REMOTE_ADDR'],

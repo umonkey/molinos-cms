@@ -384,7 +384,7 @@ class AdminListHandler
       $limit = $this->ctx->get('limit', 10);
       $offset = $limit * $this->ctx->get('page') - $limit;
 
-      foreach (mcms::db()->getResults("SELECT * FROM `node__fallback` ORDER BY `old` LIMIT {$offset}, {$limit}") as $row) {
+      foreach ($this->ctx->db->getResults("SELECT * FROM `node__fallback` ORDER BY `old` LIMIT {$offset}, {$limit}") as $row) {
         $row['_links'] = array(
           'edit' => array(
             'href' => '?q=admin/content/edit/404'
@@ -489,8 +489,7 @@ class AdminListHandler
     if (null === $this->pgcount) {
       switch ($this->preset) {
       case '404':
-        $this->pgcount = mcms::db()
-          ->fetch("SELECT COUNT(*) FROM `node__fallback`");
+        $this->pgcount = $this->ctx->db->fetch("SELECT COUNT(*) FROM `node__fallback`");
         break;
       default:
         $filter = $this->getNodeFilter();

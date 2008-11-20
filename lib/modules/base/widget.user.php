@@ -202,7 +202,7 @@ class UserWidget extends Widget implements iWidget
    */
   protected function onGetConfirm(array $options)
   {
-    $pdo = mcms::db();
+    $pdo = $this->ctx->db;
 
     // Найдём неутверждённого пользователя с совпадающим хэшем.
     $uid = $pdo->getResult("SELECT `id` FROM `node_user` "

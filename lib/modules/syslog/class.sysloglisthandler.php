@@ -23,8 +23,8 @@ class SyslogListHandler extends AdminListHandler
 
     $sql = "SELECT `timestamp`, `nid`, `uid`, `username`, `ip`, `operation`, `message` FROM `node__log` ORDER BY `lid` DESC LIMIT {$offset}, {$this->limit}";
 
-    $data = mcms::db()->getResults($sql);
-    $this->pgcount = mcms::db()->getResult("SELECT COUNT(*) FROM `node__log`") * 1;
+    $data = $this->ctx->db->getResults($sql);
+    $this->pgcount = $this->ctx->db->getResult("SELECT COUNT(*) FROM `node__log`") * 1;
 
     return $data;
   }

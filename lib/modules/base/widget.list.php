@@ -343,7 +343,7 @@ class ListWidget extends Widget
       foreach ($result['documents'] as $doc)
         $ids[] = $doc['id'];
 
-      $data = mcms::db()->getResultsKV("id", "cnt", "SELECT r.tid AS id, COUNT(*) AS cnt FROM node__rel r INNER JOIN node n ON n.id = r.nid WHERE n.class = 'comment' AND n.published = 1 AND n.deleted = 0 AND r.tid IN (". join(', ', $ids) .") GROUP BY r.tid");
+      $data = $this->ctx->db->getResultsKV("id", "cnt", "SELECT r.tid AS id, COUNT(*) AS cnt FROM node__rel r INNER JOIN node n ON n.id = r.nid WHERE n.class = 'comment' AND n.published = 1 AND n.deleted = 0 AND r.tid IN (". join(', ', $ids) .") GROUP BY r.tid");
 
       foreach ($result['documents'] as $k => $v) {
         $count = array_key_exists($v['id'], $data)
@@ -378,7 +378,7 @@ class ListWidget extends Widget
 
   private function getNodePerms(array $nodes, $op)
   {
-    return mcms::db()->getResultsKV("nid", "nid", "SELECT `nid` FROM `node__access` WHERE `nid` IN ({$op}CHECK) AND `nid` IN (". join(", ", $nodes) .")");
+    return $this->ctx->db->getResultsKV("nid", "nid", "SELECT `nid` FROM `node__access` WHERE `nid` IN ({$op}CHECK) AND `nid` IN (". join(", ", $nodes) .")");
   }
 
   private function getTagList($root, $recurse)
@@ -389,7 +389,7 @@ class ListWidget extends Widget
     if (!$recurse)
       return array($root);
 
-    $tags = mcms::db()->getResultsV("id", "SELECT `n`.`id` as `id` FROM `node` `n`, `node` `t` "
+    $tags = $this->ctx->db->getResultsV("id", "SELECT `n`.`id` as `id` FROM `node` `n`, `node` `t` "
       ."WHERE `t`.`id` = :tid AND `n`.`left` >= `t`.`left` AND `n`.`right` <= `t`.`right` "
       ."AND `n`.`deleted` = 0 AND `n`.`published` = 1 "
       ."ORDER BY `n`.`left` -- ListWidget::getTagList()", array(':tid' => $root));
@@ -511,7 +511,7 @@ class ListWidget extends Widget
     if (!$this->recurse)
       return array($root);
 
-    $tags = mcms::db()->getResultsV("id", "SELECT `n`.`id` as `id` FROM `node` `n`, `node` `t` "
+    $tags = $this->ctx->db->getResultsV("id", "SELECT `n`.`id` as `id` FROM `node` `n`, `node` `t` "
       ."WHERE `t`.`id` = :root AND `n`.`left` >= `t`.`left` AND `n`.`right` <= `t`.`right` "
       ."AND `n`.`deleted` = 0 AND `n`.`published` = 1 "
       ."ORDER BY `n`.`left` -- ListWidget::getTagList()", array(':root' => $root));

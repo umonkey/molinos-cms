@@ -71,9 +71,9 @@ class NodeIndexer
 
       if (null !== ($class = $ctx->get('class'))) {
         if (!empty($stat[$class])) {
-          mcms::db()->beginTransaction();
+          $ctx->db->beginTransaction();
 
-          $ids = mcms::db()->getResultsV('id', "SELECT `n`.`id` FROM `node` `n` "
+          $ids = $ctx->db->getResultsV('id', "SELECT `n`.`id` FROM `node` `n` "
             ."WHERE `n`.`deleted` = 0 AND `n`.`class` = ? AND NOT EXISTS "
             ."(SELECT 1 FROM `node__idx_{$class}` `i` WHERE `i`.`id` = `n`.`id`) "
             ."LIMIT 10", array($class));
@@ -89,7 +89,7 @@ class NodeIndexer
             $stat[$class]--;
           }
 
-          mcms::db()->commit();
+          $ctx->db->commit();
         }
       }
 

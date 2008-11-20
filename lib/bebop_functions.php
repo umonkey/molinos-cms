@@ -111,7 +111,11 @@ function bebop_is_json()
 function bebop_on_json(array $result)
 {
   if (bebop_is_json()) {
-    mcms::db()->commit();
+    try {
+      if ($ctx = Context::last())
+        $ctx->db->commit();
+    } catch (InvalidArgumentException $e) { }
+
     mcms::flush(mcms::FLUSH_NOW);
 
     setlocale(LC_ALL, "en_US.UTF-8");
