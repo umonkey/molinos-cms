@@ -95,6 +95,7 @@ class Structure
         // Точное совпадение.
         if ($path == $page) {
           $match = $page;
+          $args = array();
           break;
         }
 
@@ -131,6 +132,12 @@ class Structure
     // Параметров в урле больше, чем должно быть => мусор => 404.
     if (count($path_args) > count($keys))
       return false;
+
+    foreach ($path_args as $arg)
+      if (!is_numeric($args))
+        throw new RuntimeException(t('Ошибка парсинга пути: дополнительные параметры должны быть числовыми, получено: "%value".', array(
+          '%value' => $arg,
+          )));
 
     $result = array();
 
