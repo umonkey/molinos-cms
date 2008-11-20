@@ -375,6 +375,8 @@ class Context
     if ('widget' == ($url['args']['debug'] = $this->debug()))
       $url['args']['widget'] = $this->get('widget');
 
+    $url['args']['q'] = $this->query();
+
     $ctx = new Context($this->_args);
     $ctx->_db = $this->_db;
     $ctx->_url = new url($url);
