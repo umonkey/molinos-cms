@@ -41,6 +41,8 @@ class SetControl extends Control
     $selected = $this->getSelected($data);
     $enabled = $this->getEnabled($data);
 
+    $options = $this->filterOptions($options, $enabled, $selected);
+
     // Если ни одна опция не разрешена — не выводим контрол.
     if ($enabled !== null and empty($enabled))
       return null;
@@ -132,6 +134,11 @@ class SetControl extends Control
   protected function getEnabled($data)
   {
     return null;
+  }
+
+  protected function filterOptions(array $options, $enabled, $selected)
+  {
+    return $options;
   }
 
   public function set($value, Node &$node)
