@@ -50,8 +50,16 @@ class EnumControl extends Control
         'value' => '',
         ), $this->default_label);
 
-    $selected = $this->getSelected($data);
     $enabled = $this->getEnabled($data);
+
+    if (is_array($enabled) and count($enabled) == 1)
+      return mcms::html('input', array(
+        'type' => 'hidden',
+        'name' => $this->value,
+        'value' => array_shift($enabled),
+        ));
+
+    $selected = $this->getSelected($data);
 
     $list = $this->prepend + $this->getData($data);
 
