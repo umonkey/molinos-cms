@@ -29,6 +29,7 @@ class StructureMA
       )) as $node)
     {
       $result[$node->name] = array(
+        'id' => $node->id,
         'title' => $node->title,
         'class' => $node->classname,
         );
