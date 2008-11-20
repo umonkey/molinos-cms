@@ -144,12 +144,9 @@ class UserWidget extends Widget implements iWidget
 
     // Добавка для невошедших.
     else {
-      $url = new url();
-      $url->path = $this->ctx->url()->path;
-      $url->setarg($this->getInstanceName() .'.action', 'register');
-
       $result['mode'] = 'login';
-      $result['register_link'] = $url->string();
+      $result['register_link'] = '?q=' . $this->ctx->query()
+        . "&{$this->name}.action=register";
     }
 
     return $result;
@@ -327,8 +324,10 @@ class UserWidget extends Widget implements iWidget
 
   private function getLoginForm(array $options)
   {
-    $url = new url();
-    $url->setarg($this->me->name .'.action', 'register');
+    $url = new url($this->ctx->url());
+    $url->setarg($this->name .'.action', 'register');
+
+    mcms::debug($url);
 
     $output = parent::formRender('user-login-form');
     $output .= t("<p class='profileRegisterLink'><a href='@url'>"
