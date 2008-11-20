@@ -257,8 +257,10 @@ abstract class Widget implements iWidget
     try {
       $this->ctx = $ctx->forWidget($this->name);
 
-      if (!is_array($options = $this->getRequestOptions($this->ctx)))
+      if (!is_array($options = $this->getRequestOptions($this->ctx))) {
+        $this->debug(array(), array(), $options);
         return "<!-- widget {$this->name} halted. -->";
+      }
 
       if (array_key_exists('#cache', $options) and empty($options['#cache']))
         $ckey = null;
@@ -269,6 +271,7 @@ abstract class Widget implements iWidget
 
       if (null !== $ckey and is_array($cached = mcms::cache($ckey))) {
         mcms::add_extras($cached['extras']);
+        $this->debug($options, (array)$data, $result);
         return $cached['content'];
       }
 
@@ -288,8 +291,7 @@ abstract class Widget implements iWidget
           $result = $data['html'];
       }
 
-      if ($ctx->debug('widget') and $ctx->get('widget') == $this->name)
-        $this->debug($options, (array)$data, $result);
+      $this->debug($options, (array)$data, $result);
 
       if (null !== $ckey) {
         $e = mcms::get_extras();
@@ -360,6 +362,9 @@ abstract class Widget implements iWidget
 
   private function debug(array $options, array $data, $result)
   {
+    if (!$this->ctx->debug('widget') or $this->name != $this->ctx->get('widget'))
+      return;
+
     $dump = array(
       'instance' => $this->name,
       'config' => $this->config,
