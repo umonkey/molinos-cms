@@ -28,10 +28,10 @@ class SectionControl extends EnumControl implements iFormControl
   {
     $this->validate($value);
 
-    if (!$this->store)
-      $node->linkAddParent($value, $this->value);
-
-    $node->{$this->value} = $value;
+    if ($this->store)
+      $node->{$this->value} = $value;
+    else
+      $node->linkSetParents(array($value), 'tag', $this->getEnabled($node));
   }
 
   protected function getSelected($data)
