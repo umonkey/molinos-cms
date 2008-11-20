@@ -1,6 +1,6 @@
 #!/bin/sh
 
-MCMS_VERSION=$(grep "define('MCMS_VERSION'" < lib/bootstrap.php | sed -e s'@[^0-9.]*@@g')
+MCMS_VERSION=$(grep "define('MCMS_VERSION'" < lib/bootstrap.php | sed -e s"@define('MCMS_VERSION', '\|');@@g")
 
 if [ -z "$MCMS_VERSION" ]; then
     echo "Unable to find version number in lib/bootstrap.php"
