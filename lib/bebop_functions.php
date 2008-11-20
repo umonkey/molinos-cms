@@ -65,33 +65,6 @@ function l($url, $title = null, array $options = null, $absolute = false)
   return mcms::html('a', $options, $title);
 }
 
-// Формирует дерево из связки по parent_id.
-function bebop_make_tree($data, $id, $parent_id, $children = 'children')
-{
-  // Здесь будем хранить ссылки на все элементы списка.
-  $map = array();
-
-  // Здесь будет идентификатор корневого объекта.
-  $root = null;
-
-  // Перебираем все данные.
-  foreach ($data as $k => $row) {
-    // Запоминаем корень.
-    if ($root === null)
-      $root = intval($row[$id]);
-
-    // Родитель есть, добавляем к нему.
-    if (array_key_exists($row[$parent_id], $map))
-        $map[$row[$parent_id]][$children][] = &$data[$k];
-
-    // Добавляем все элементы в список.
-    $map[$row[$id]] = &$data[$k];
-  }
-
-  // Возвращаем результат.
-  return (array)@$map[$root];
-}
-
 function t($message, array $argv = array())
 {
   /*
