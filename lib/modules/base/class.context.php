@@ -503,6 +503,8 @@ class Context
 
     $output .= $this->getSqlLogHTML();
 
+    $output .= '<hr/>' . mcms::getSignature($this, true);
+
     $output .= '</body></html>';
 
     header('Content-Type: text/html; charset=utf-8');
