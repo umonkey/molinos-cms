@@ -509,4 +509,28 @@ abstract class Widget implements iWidget
 
     return !empty($diff);
   }
+
+  /**
+   * Возвращает конкретный виджет.
+   */
+  public static function get($name)
+  {
+    $s = new Structure();
+
+    if (!count($list = $s->findWidgets(array($name))))
+      throw new InvalidArgumentException(t('Виджета %name не существует.', array(
+        '%name' => $name,
+        )));
+
+    $name = array_shift(array_keys($list));
+    $info = array_shift($list);
+
+    if (!class_exists($info['class']))
+      throw new RuntimeException(t('Виджет %name использует неизвестный класс %class.', array(
+        '%name' => $name,
+        '%class' => $info['class'],
+        )));
+
+    return new $info['class']($name, $info);
+  }
 };

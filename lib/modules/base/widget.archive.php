@@ -132,7 +132,7 @@ class ArchiveWidget extends Widget implements iWidget
 
     // Вытаскиваем параметризацию родительского объекта.
     try {
-      $tmp = new ListWidget($host);
+      $tmp = Widget::get($this->host);
       $tmpoptions = $tmp->getRequestOptions($this->ctx);
 
       $query = $tmp->queryGet($tmpoptions);
