@@ -15,16 +15,11 @@ class Loader
 {
   public static function rebuild($local = false)
   {
-    $map = self::scan($local, mcms::config('runtime.modules'));
-
     $path = MCMS_LIB . DIRECTORY_SEPARATOR . ($local
       ? 'classpath.local.inc'
       : 'classpath.inc');
 
-    $data = '<?php return ' . var_export($map, true) .';';
-
-    file_put_contents($path, $data)
-      or mcms::fatal('Could not update classpath.inc');
+    mcms::writeFile($path, self::scan($local, mcms::config('runtime.modules')));
   }
 
   private static function scan($local = false, $enabled_modules = null)
@@ -50,6 +45,11 @@ class Loader
     foreach ($modules as $modinfo) {
       $path = dirname($modinfo);
       $modname = basename($path);
+
+      if (!is_readable($modinfo)) {
+        mcms::flog('bootstrap', $modinfo . ': not readable.');
+        continue;
+      }
 
       $result['modules'][$modname] = array(
         'classes' => array(),
