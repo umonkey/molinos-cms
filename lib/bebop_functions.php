@@ -1,13 +1,6 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-function bebop_skip_checks()
-{
-  if ($_SERVER['SCRIPT_NAME'] == '/install.php')
-    return true;
-  return false;
-}
-
 // Разбивает текущий запрос на составляющие.
 function bebop_split_url($url = null)
 {
