@@ -14,6 +14,13 @@ class SubscriptionConfig implements iModuleConfig
       'options' => TypeNode::getAccessible(null),
       )));
 
+    $form->addControl(new SectionsControl(array(
+      'value' => 'config_sections',
+      'label' => t('Рассылать новости из разделов'),
+      'group' => t('Разделы'),
+      'store' => true,
+      )));
+
     return $form;
   }
 
