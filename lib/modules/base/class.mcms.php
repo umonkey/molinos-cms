@@ -1625,6 +1625,7 @@ class mcms
       $link['is_video'] = true;
       $link['host'] = 'YouTube';
       $link['vid'] = $m1[2];
+      $link['thumbnail'] = 'http://img.youtube.com/vi/' . $m1[2] . '/2.jpg';
     } elseif (preg_match('%^http://vids\.myspace\.com/index.cfm\?fuseaction=[^&]+\&(?:amp;){0,1}videoID=([0-9]+)%i', $url, $m1)) {
       $link['type'] = 'video/x-flv';
       $link['embed'] = '<embed src="http://lads.myspace.com/videos/vplayer.swf" flashvars="m='.$m1[1].'&type=video" type="application/x-shockwave-flash" width="'.$options['width'].'" height="'.$options['height'].'"></embed>';
@@ -1650,6 +1651,9 @@ class mcms
       $link['host'] = 'RuTube';
       $link['vid'] = $m[2];
     }
+
+    if (!empty($link['is_video']) and empty($link['thumbnail']))
+      $link['thumbnail'] = 'lib/modules/base/video.png';
 
     return empty($link) ? null : $link;
   }
@@ -1743,6 +1747,10 @@ class mcms
   public static function mkpath(array $elements)
   {
     return join(DIRECTORY_SEPARATOR, $elements);
+  }
+
+  public static function renderPager(array $pager)
+  {
   }
 };
 
