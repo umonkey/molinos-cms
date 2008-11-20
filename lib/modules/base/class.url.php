@@ -63,7 +63,7 @@ class url
    *
    * @return string Урл в строковой форме.
    */
-  public function string()
+  public function string($special = false)
   {
     if ('mailto' == $this->scheme)
       return 'mailto:'. urlencode($this->path);
@@ -88,7 +88,7 @@ class url
     if (!empty($this->path) and (!$this->islocal or is_readable($this->path)))
       $result .= $this->path;
 
-    $result .= $this->getArgsAsString();
+    $result .= $this->getArgsAsString($special);
 
     if (!empty($this->fragment))
       $result .= '#'. $this->fragment;
@@ -305,7 +305,7 @@ class url
    * @return string Строка с параметрами, включая начальный "?".  В качестве
    * разделителя используется "&" — может понадобиться экранирование.
    */
-  public function getArgsAsString()
+  public function getArgsAsString($special = false)
   {
     $result = '';
 
@@ -319,7 +319,9 @@ class url
     }
 
     if (!empty($args)) {
-      $forbidden = array('nocache', 'widget', '__cleanurls');
+      $forbidden = $special
+        ? array()
+        : array('nocache', 'widget', '__cleanurls');
 
       $pairs = array();
 
