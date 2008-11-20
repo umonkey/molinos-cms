@@ -260,6 +260,7 @@ abstract class Widget implements iWidget
 
       if (!is_array($options = $this->getRequestOptions($this->ctx))) {
         $this->debug(array(), array(), $options);
+        mcms::add_extras($extras);
         return "<!-- widget {$this->name} halted. -->";
       }
 
@@ -271,6 +272,7 @@ abstract class Widget implements iWidget
         $ckey = 'widget:' . $this->name . ':' . md5(serialize($options));
 
       if (null !== $ckey and is_array($cached = mcms::cache($ckey))) {
+        mcms::add_extras($extras);
         mcms::add_extras($cached['extras']);
         $this->debug($options, (array)$data, $result);
         return $cached['content'];
@@ -305,9 +307,11 @@ abstract class Widget implements iWidget
         mcms::add_extras($e);
       }
     } catch (WidgetHaltedException $e) {
+      mcms::add_extras($extras);
       return false;
     }
 
+    mcms::add_extras($extras);
     return $result;
 
     /*
