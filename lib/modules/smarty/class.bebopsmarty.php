@@ -25,10 +25,12 @@ class BebopSmarty extends Smarty
         if (null !== ($tmp = mcms::config('smarty.cache.lifetime')))
             $this->cache_lifetime = $tmp;
 
+        /*
         if ($with_debug and self::debug())
             $this->debugging = true;
         else
             $this->debugging = false;
+        */
     }
 
     public function trigger_error($error_msg, $error_type = E_USER_WARNING)
@@ -54,16 +56,5 @@ class BebopSmarty extends Smarty
         } else {
             return file_get_contents($filename);
         }
-    }
-
-    public static function debug()
-    {
-        if (empty($_GET['debug']))
-            return false;
-        if ($_GET['debug'] != 'smarty')
-            return false;
-        if (!bebop_is_debugger())
-            return false;
-        return true;
     }
 }

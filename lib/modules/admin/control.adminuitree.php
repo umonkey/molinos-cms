@@ -99,8 +99,9 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
 
   private function getDebugLink(array $node)
   {
-    if (bebop_is_debugger() and !empty($node['id']))
-      return $this->getIcon('lib/modules/admin/img/debug.gif', "?q=nodeapi.rpc&action=dump&node={$node['id']}", t('Поднять'));
+    if (($ctx = Context::last()) and $ctx->canDebug())
+      if (!empty($node['id']))
+        return $this->getIcon('lib/modules/admin/img/debug.gif', "?q=nodeapi.rpc&action=dump&node={$node['id']}", t('Поднять'));
   }
 
   private function getRaiseLink(array $node)

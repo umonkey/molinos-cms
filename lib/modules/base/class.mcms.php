@@ -490,7 +490,7 @@ class mcms
   // Отладочные функции.
   public static function debug()
   {
-    if (bebop_is_debugger()) {
+    if (($ctx = Context::last()) and $ctx->canDebug()) {
       if (ob_get_length())
         ob_end_clean();
 
@@ -749,7 +749,7 @@ class mcms
       }
     }
 
-    if (!bebop_is_debugger())
+    if (!(($ctx = Context::last()) and $ctx->canDebug()))
       $backtrace = null;
 
     bebop_on_json(array(
@@ -897,7 +897,7 @@ class mcms
     if (ob_get_length())
       ob_end_clean();
 
-    if (bebop_is_debugger()) {
+    if (($ctx = Context::last()) and $ctx->canDebug()) {
       $output = "\nError {$errno}: {$errstr}.\n";
       $output .= sprintf("File: %s at line %d.\n", ltrim(str_replace(MCMS_ROOT, '', $errfile), '/'), $errline);
       $output .= "\nDon't panic.  You see this message because you're listed as a debugger.\n";
@@ -955,7 +955,7 @@ class mcms
 
         print "Случилось что-то страшное.  Администрация сервера поставлена в известность, скоро всё должно снова заработать.\n";
 
-        if (bebop_is_debugger())
+        if (($ctx = Context::last()) and $ctx->canDebug())
           printf("\n--- 8< --- Отладочная информация --- 8< ---\n\n"
             ."Код ошибки: %s\n"
             ."   Локация: %s(%s)\n"
@@ -1350,7 +1350,7 @@ class mcms
     if (null === $ctx)
       $ctx = new Context(array('url' => '?' . $_SERVER['QUERY_STRING']));
 
-    if ($ctx->get('flush') and bebop_is_debugger()) {
+    if ($ctx->get('flush') and $ctx->canDebug()) {
       mcms::flush();
       mcms::flush(mcms::FLUSH_NOW);
     }
@@ -1670,7 +1670,7 @@ class mcms
   {
     static $data = array();
 
-    if (!bebop_is_debugger())
+    if (!(($ctx = Context::last()) and $ctx->canDebug()))
       return;
 
     switch ($mode) {

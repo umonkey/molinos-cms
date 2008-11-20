@@ -25,12 +25,16 @@ class TableNotFoundException extends Exception
 
   public function getQuery()
   {
-    return bebop_is_debugger() ? $this->sql : null;
+    return (($ctx = Context::last()) and $ctx->canDebug())
+      ? $this->sql
+      : null;
   }
 
   public function getParams()
   {
-    return bebop_is_debugger() ? $this->params : null;
+    return (($ctx = Context::last()) and $ctx->canDebug())
+      ? $this->params
+      : null;
   }
 
   public function getTableName()

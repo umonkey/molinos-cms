@@ -167,7 +167,7 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
    */
   protected static function onRemoteSu(Context $ctx)
   {
-    if (!bebop_is_debugger())
+    if (!$ctx->canDebug())
       throw new ForbiddenException(t('У вас нет прав доступа к sudo'));
 
     if (null === ($uid = $ctx->get('uid'))) {

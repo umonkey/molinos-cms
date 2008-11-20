@@ -122,7 +122,7 @@ class Node extends NodeBase implements iContentType
           'icon' => 'locate',
           );
 
-    if (bebop_is_debugger())
+    if (($ctx = Context::last()) and $ctx->canDebug())
       $links['dump'] = array(
         'href' => '?q=nodeapi.rpc&action=dump&node='. $this->id
           . '&rev='. $this->rid,

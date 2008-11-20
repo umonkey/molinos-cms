@@ -260,7 +260,7 @@ abstract class Widget implements iWidget
 
       if (array_key_exists('#cache', $options) and empty($options['#cache']))
         $ckey = null;
-      elseif ($ctx->get('nocache') and bebop_is_debugger())
+      elseif ($ctx->get('nocache') and $ctx->canDebug())
         $ckey = null;
       else
         $ckey = 'widget:' . $this->name . ':' . md5(serialize($options));

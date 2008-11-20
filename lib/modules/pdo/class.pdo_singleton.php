@@ -23,8 +23,9 @@ class PDO_Singleton extends PDO
     if (version_compare(PHP_VERSION, "5.1.3", ">="))
       $this->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
-    if (bebop_is_debugger() and !empty($_GET['debug']) and $_GET['debug'] == 'profile')
-      $this->query_log = array();
+    if (($ctx = Context::last()) and $ctx->canDebug())
+      if (!empty($_GET['debug']) and $_GET['debug'] == 'profile')
+        $this->query_log = array();
   }
 
   public function getDbType()

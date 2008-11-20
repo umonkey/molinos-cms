@@ -433,7 +433,7 @@ class AdminListHandler
       $tmp = array();
 
       foreach ($result as $k => $v) {
-        if (!bebop_is_debugger() and in_array($v['name'], $itypes) or !empty($v['isdictionary']))
+        if (!$this->ctx->canDebug() and in_array($v['name'], $itypes) or !empty($v['isdictionary']))
           unset($result[$k]);
 
         if (!empty($v['adminmodule']) and !mcms::ismodule($v['adminmodule']))
@@ -448,7 +448,7 @@ class AdminListHandler
 
       foreach ($result as $v) {
         if (in_array($v['name'], $itypes)) {
-          $v['_protected'] = !bebop_is_debugger();
+          $v['_protected'] = !$this->ctx->canDebug();
           $v['published'] = false;
           $tmp[] = $v;
         }

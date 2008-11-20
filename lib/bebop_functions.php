@@ -1,28 +1,6 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-// Проверяет, является ли пользователь отладчиком.
-function bebop_is_debugger()
-{
-  static $skip = false;
-
-  if ($skip === false) {
-    if (empty($_SERVER['REQUEST_METHOD']))
-      $skip = false;
-
-    else {
-      $tmp = mcms::config('debuggers');
-
-      if (empty($tmp))
-        $skip = false;
-      elseif (!mcms::matchip($_SERVER['REMOTE_ADDR'], $tmp))
-        $skip = true;
-    }
-  }
-
-  return !$skip;
-}
-
 function bebop_skip_checks()
 {
   if ($_SERVER['SCRIPT_NAME'] == '/install.php')

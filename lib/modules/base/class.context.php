@@ -46,6 +46,11 @@ class Context
   private static $_last = null;
 
   /**
+   * Может ли текущий пользователь видеть отладочную информацию?
+   */
+  private $_debug;
+
+  /**
    * Создание простого контекста.
    *
    * @param $args ключ url содержит текущий URL, post и files — сырые данные.
@@ -59,6 +64,9 @@ class Context
       'post' => $_POST,
       'files' => $_FILES,
       ), $args);
+
+    $this->_debug = ($tmp = mcms::config('debuggers'))
+      and mcms::matchip($_SERVER['REMOTE_ADDR'], $tmp);
 
     self::$_last = $this;
   }
@@ -316,7 +324,7 @@ class Context
 
   public function debug($type = null)
   {
-    if (!bebop_is_debugger())
+    if (!$this->canDebug())
       return false;
 
     $result = $this->get('debug');
@@ -419,5 +427,10 @@ class Context
       $this->redirect($next);
 
     throw new RuntimeException(t('Не указан адрес для дальнейшего перехода (?destination=).'));
+  }
+
+  public function canDebug()
+  {
+    return $this->_debug;
   }
 }

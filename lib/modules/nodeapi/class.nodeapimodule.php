@@ -106,7 +106,7 @@ class NodeApiModule implements iRemoteCall
         '#recurse' => empty($_GET['bare']) ? 1 : 0,
         );
 
-      if (bebop_is_debugger())
+      if ($ctx->canDebug())
         $filter['deleted'][] = 1;
 
       $node = Node::load($filter);

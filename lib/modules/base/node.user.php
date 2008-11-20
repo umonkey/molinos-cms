@@ -113,7 +113,7 @@ class UserNode extends Node implements iContentType
   {
     $links = parent::getActionLinks();
 
-    if (bebop_is_debugger() and mcms::user()->id != $this->id and $this->published)
+    if (mcms::user()->id != $this->id and $this->published and mcms::user()->hasAccess('u', 'user'))
       $links['sudo'] = array(
         'href' => '?q=base.rpc&action=su&uid='. $this->id
           .'&destination=CURRENT',

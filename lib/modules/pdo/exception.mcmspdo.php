@@ -11,7 +11,7 @@ class McmsPDOException extends PDOException
     $this->params = $params;
     $this->message = $e->getMessage();
 
-    if (bebop_is_debugger())
+    if (($ctx = Context::last()) and $ctx->canDebug())
       $this->message .= '; SQL: '. $sql;
   }
 };
