@@ -24,6 +24,12 @@ class AdminExtSettings implements iModuleConfig
       'default' => '?q=admin/content/edit/$id&destination=CURRENT',
       )));
 
+    $form->addControl(new SetControl(array(
+      'value' => 'config_groups',
+      'label' => t('Команды доступны группам'),
+      'dictionary' => 'group',
+      )));
+
     return $form;
   }
 
