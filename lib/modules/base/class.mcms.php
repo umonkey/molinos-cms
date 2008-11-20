@@ -1751,6 +1751,17 @@ class mcms
 
   public static function renderPager(array $pager)
   {
+    $output = '<ul class=\'pager\'>';
+
+    foreach ($pager['list'] as $page => $link)
+      $output .= mcms::html('li', mcms::html('a', array(
+        'href' => $link,
+        'class' => $link ? '' : 'active',
+        ), $page));
+
+    $output .= '</ul>';
+
+    return $output;
   }
 };
 
