@@ -1,1188 +1,955 @@
-<?php return array (
-  'modules' => 
-  array (
-    'accesslog' => 
-    array (
-      'classes' => 
-      array (
+<?php // This is a generated file.
+return array (
+  'modules' => array (
+    'accesslog' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Statistics',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Content Access Statistics.',
         'ru' => 'Статистика доступа к контенту.',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_accesslog',
     ),
-    'admin' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'AdminListHandler',
-        1 => 'AdminMenu',
-        2 => 'AdminRPC',
-        3 => 'AdminStatus',
-        4 => 'AdminTreeHandler',
-        5 => 'ModuleAdminUI',
-        6 => 'NodeIndexer',
-        7 => 'AdminUIListControl',
-        8 => 'AdminUINodeActionsControl',
-        9 => 'AdminUISearchControl',
-        10 => 'AdminUITreeControl',
+    'admin' => array (
+      'classes' => array (
+        'AdminListHandler',
+        'AdminMenu',
+        'AdminRPC',
+        'AdminStatus',
+        'AdminTreeHandler',
+        'ModuleAdminUI',
+        'NodeIndexer',
+        'AdminUIListControl',
+        'AdminUINodeActionsControl',
+        'AdminUISearchControl',
+        'AdminUITreeControl',
       ),
-      'interfaces' => 
-      array (
-        0 => 'iAdminMenu',
-        1 => 'iRemoteCall',
-        2 => 'iFormControl',
+      'interfaces' => array (
+        'iAdminMenu',
+        'iRemoteCall',
+        'iFormControl',
       ),
-      'implementors' => 
-      array (
-        'iAdminMenu' => 
-        array (
-          0 => 'AdminMenu',
-          1 => 'AdminStatus',
+      'implementors' => array (
+        'iAdminMenu' => array (
+          'AdminMenu',
+          'AdminStatus',
         ),
-        'iRemoteCall' => 
-        array (
-          0 => 'AdminRPC',
+        'iRemoteCall' => array (
+          'AdminRPC',
         ),
-        'iFormControl' => 
-        array (
-          0 => 'AdminUIListControl',
-          1 => 'AdminUINodeActionsControl',
-          2 => 'AdminUISearchControl',
-          3 => 'AdminUITreeControl',
+        'iFormControl' => array (
+          'AdminUIListControl',
+          'AdminUINodeActionsControl',
+          'AdminUISearchControl',
+          'AdminUITreeControl',
         ),
       ),
       'enabled' => true,
       'group' => 'Core',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Molinos.CMS Administragive UI',
         'ru' => 'Интерфейс администрирования Molinos.CMS',
       ),
     ),
-    'adminext' => 
-    array (
-      'classes' => 
-      array (
+    'adminext' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Interactive',
       'version' => '8.05.6192',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Administrative Extensions',
         'ru' => 'Административные расширения',
       ),
     ),
-    'attachment' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'Attachment',
-        1 => 'AttachmentModule',
-        2 => 'AttachmentControl',
+    'attachment' => array (
+      'classes' => array (
+        'Attachment',
+        'AttachmentModule',
+        'AttachmentControl',
       ),
-      'interfaces' => 
-      array (
-        0 => 'iRemoteCall',
-        1 => 'iFormControl',
+      'interfaces' => array (
+        'iRemoteCall',
+        'iFormControl',
       ),
-      'implementors' => 
-      array (
-        'iRemoteCall' => 
-        array (
-          0 => 'AttachmentModule',
+      'implementors' => array (
+        'iRemoteCall' => array (
+          'AttachmentModule',
         ),
-        'iFormControl' => 
-        array (
-          0 => 'AttachmentControl',
+        'iFormControl' => array (
+          'AttachmentControl',
         ),
       ),
       'enabled' => true,
       'group' => 'Core',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'File Download Service',
         'ru' => 'Доступ к файловому архиву',
       ),
     ),
-    'auth' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'User',
+    'auth' => array (
+      'classes' => array (
+        'User',
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => true,
       'group' => 'Core',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Authentication Subsystem',
         'ru' => 'Система авторизации',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_auth',
     ),
-    'autocomplete' => 
-    array (
-      'classes' => 
-      array (
+    'autocomplete' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'File/Node Autocomplete',
         'ru' => 'Автоматический подбор файлов и документов',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_autocomplete',
     ),
-    'base' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'BaseCron',
-        1 => 'BaseModule',
-        2 => 'BebopCache',
-        3 => 'Calendar',
-        4 => 'Config',
-        5 => 'Context',
-        6 => 'Control',
-        7 => 'Form',
-        8 => 'Installer',
-        9 => 'mcms',
-        10 => 'Node',
-        11 => 'NodeBase',
-        12 => 'NodeMover',
-        13 => 'NodeQueryBuilder',
-        14 => 'Page',
-        15 => 'Schema',
-        16 => 'Session',
-        17 => 'Structure',
-        18 => 'StructureMA',
-        19 => 'url',
-        20 => 'Widget',
-        21 => 'AccessControl',
-        22 => 'AccessRevControl',
-        23 => 'ActionsControl',
-        24 => 'BoolControl',
-        25 => 'DateControl',
-        26 => 'DateTimeControl',
-        27 => 'EmailControl',
-        28 => 'EnumControl',
-        29 => 'EnumRadioControl',
-        30 => 'FieldControl',
-        31 => 'FieldSetControl',
-        32 => 'FloatControl',
-        33 => 'HiddenControl',
-        34 => 'HistoryControl',
-        35 => 'InfoControl',
-        36 => 'ListControl',
-        37 => 'NodeLinkControl',
-        38 => 'NumberControl',
-        39 => 'PagerControl',
-        40 => 'PasswordControl',
-        41 => 'ResetControl',
-        42 => 'SectionControl',
-        43 => 'SectionsControl',
-        44 => 'SetControl',
-        45 => 'SubmitControl',
-        46 => 'TableControl',
-        47 => 'TextAreaControl',
-        48 => 'TextHTMLControl',
-        49 => 'TextLineControl',
-        50 => 'URLControl',
-        51 => 'BadRequestException',
-        52 => 'DuplicateException',
-        53 => 'ForbiddenException',
-        54 => 'NoIndexException',
-        55 => 'NotConnectedException',
-        56 => 'NotInstalledException',
-        57 => 'ObjectNotFoundException',
-        58 => 'PageNotFoundException',
-        59 => 'UnauthorizedException',
-        60 => 'UserErrorException',
-        61 => 'ValidationException',
-        62 => 'WidgetHaltedException',
-        63 => 'DomainNode',
-        64 => 'FileNode',
-        65 => 'GroupNode',
-        66 => 'TagNode',
-        67 => 'TypeNode',
-        68 => 'UserNode',
-        69 => 'WidgetNode',
-        70 => 'ArchiveWidget',
-        71 => 'DocWidget',
-        72 => 'FormWidget',
-        73 => 'LinkedNodesWidget',
-        74 => 'ListWidget',
-        75 => 'MenuWidget',
-        76 => 'TagCloudWidget',
-        77 => 'TagsWidget',
-        78 => 'TitleWidget',
-        79 => 'UserWidget',
+    'base' => array (
+      'classes' => array (
+        'BaseCron',
+        'BaseModule',
+        'BebopCache',
+        'Calendar',
+        'Config',
+        'Context',
+        'Control',
+        'Form',
+        'Installer',
+        'mcms',
+        'Node',
+        'NodeBase',
+        'NodeMover',
+        'NodeQueryBuilder',
+        'Page',
+        'Schema',
+        'Session',
+        'Structure',
+        'StructureMA',
+        'url',
+        'Widget',
+        'AccessControl',
+        'AccessRevControl',
+        'ActionsControl',
+        'BoolControl',
+        'DateControl',
+        'DateTimeControl',
+        'EmailControl',
+        'EnumControl',
+        'EnumRadioControl',
+        'FieldControl',
+        'FieldSetControl',
+        'FloatControl',
+        'HiddenControl',
+        'HistoryControl',
+        'InfoControl',
+        'ListControl',
+        'NodeLinkControl',
+        'NumberControl',
+        'PagerControl',
+        'PasswordControl',
+        'ResetControl',
+        'SectionControl',
+        'SectionsControl',
+        'SetControl',
+        'SubmitControl',
+        'TableControl',
+        'TextAreaControl',
+        'TextHTMLControl',
+        'TextLineControl',
+        'URLControl',
+        'BadRequestException',
+        'DuplicateException',
+        'ForbiddenException',
+        'NoIndexException',
+        'NotConnectedException',
+        'NotInstalledException',
+        'ObjectNotFoundException',
+        'PageNotFoundException',
+        'UnauthorizedException',
+        'UserErrorException',
+        'ValidationException',
+        'WidgetHaltedException',
+        'DomainNode',
+        'FileNode',
+        'GroupNode',
+        'TagNode',
+        'TypeNode',
+        'UserNode',
+        'WidgetNode',
+        'ArchiveWidget',
+        'DocWidget',
+        'FormWidget',
+        'LinkedNodesWidget',
+        'ListWidget',
+        'MenuWidget',
+        'TagCloudWidget',
+        'TagsWidget',
+        'TitleWidget',
+        'UserWidget',
       ),
-      'interfaces' => 
-      array (
-        0 => 'iScheduler',
-        1 => 'iRemoteCall',
-        2 => 'iModuleConfig',
-        3 => 'iNodeHook',
-        4 => 'iFormControl',
-        5 => 'iContentType',
-        6 => 'iWidget',
+      'interfaces' => array (
+        'iScheduler',
+        'iRemoteCall',
+        'iModuleConfig',
+        'iNodeHook',
+        'iFormControl',
+        'iContentType',
+        'iWidget',
       ),
-      'implementors' => 
-      array (
-        'iScheduler' => 
-        array (
-          0 => 'BaseCron',
-          1 => 'TypeNode',
+      'implementors' => array (
+        'iScheduler' => array (
+          'BaseCron',
+          'TypeNode',
         ),
-        'iRemoteCall' => 
-        array (
-          0 => 'BaseModule',
+        'iRemoteCall' => array (
+          'BaseModule',
         ),
-        'iModuleConfig' => 
-        array (
-          0 => 'BaseModule',
-          1 => 'TypeNode',
+        'iModuleConfig' => array (
+          'BaseModule',
+          'TypeNode',
         ),
-        'iNodeHook' => 
-        array (
-          0 => 'BaseModule',
+        'iNodeHook' => array (
+          'BaseModule',
         ),
-        'iFormControl' => 
-        array (
-          0 => 'Control',
-          1 => 'Form',
-          2 => 'AccessControl',
-          3 => 'AccessRevControl',
-          4 => 'ActionsControl',
-          5 => 'BoolControl',
-          6 => 'DateControl',
-          7 => 'DateTimeControl',
-          8 => 'EmailControl',
-          9 => 'EnumControl',
-          10 => 'EnumRadioControl',
-          11 => 'FieldControl',
-          12 => 'FieldSetControl',
-          13 => 'FloatControl',
-          14 => 'HiddenControl',
-          15 => 'HistoryControl',
-          16 => 'InfoControl',
-          17 => 'ListControl',
-          18 => 'NodeLinkControl',
-          19 => 'NumberControl',
-          20 => 'PagerControl',
-          21 => 'PasswordControl',
-          22 => 'ResetControl',
-          23 => 'SectionControl',
-          24 => 'SectionsControl',
-          25 => 'SetControl',
-          26 => 'SubmitControl',
-          27 => 'TableControl',
-          28 => 'TextAreaControl',
-          29 => 'TextHTMLControl',
-          30 => 'TextLineControl',
-          31 => 'URLControl',
+        'iFormControl' => array (
+          'Control',
+          'Form',
+          'AccessControl',
+          'AccessRevControl',
+          'ActionsControl',
+          'BoolControl',
+          'DateControl',
+          'DateTimeControl',
+          'EmailControl',
+          'EnumControl',
+          'EnumRadioControl',
+          'FieldControl',
+          'FieldSetControl',
+          'FloatControl',
+          'HiddenControl',
+          'HistoryControl',
+          'InfoControl',
+          'ListControl',
+          'NodeLinkControl',
+          'NumberControl',
+          'PagerControl',
+          'PasswordControl',
+          'ResetControl',
+          'SectionControl',
+          'SectionsControl',
+          'SetControl',
+          'SubmitControl',
+          'TableControl',
+          'TextAreaControl',
+          'TextHTMLControl',
+          'TextLineControl',
+          'URLControl',
         ),
-        'iContentType' => 
-        array (
-          0 => 'Node',
-          1 => 'Node',
-          2 => 'DomainNode',
-          3 => 'DomainNode',
-          4 => 'FileNode',
-          5 => 'FileNode',
-          6 => 'GroupNode',
-          7 => 'GroupNode',
-          8 => 'TagNode',
-          9 => 'TagNode',
-          10 => 'TypeNode',
-          11 => 'TypeNode',
-          12 => 'UserNode',
-          13 => 'UserNode',
-          14 => 'WidgetNode',
-          15 => 'WidgetNode',
+        'iContentType' => array (
+          'Node',
+          'Node',
+          'DomainNode',
+          'DomainNode',
+          'FileNode',
+          'FileNode',
+          'GroupNode',
+          'GroupNode',
+          'TagNode',
+          'TagNode',
+          'TypeNode',
+          'TypeNode',
+          'UserNode',
+          'UserNode',
+          'WidgetNode',
+          'WidgetNode',
         ),
-        'iWidget' => 
-        array (
-          0 => 'Widget',
-          1 => 'ArchiveWidget',
-          2 => 'ArchiveWidget',
-          3 => 'DocWidget',
-          4 => 'DocWidget',
-          5 => 'FormWidget',
-          6 => 'LinkedNodesWidget',
-          7 => 'ListWidget',
-          8 => 'MenuWidget',
-          9 => 'MenuWidget',
-          10 => 'TagCloudWidget',
-          11 => 'TagCloudWidget',
-          12 => 'TagsWidget',
-          13 => 'TagsWidget',
-          14 => 'TitleWidget',
-          15 => 'UserWidget',
-          16 => 'UserWidget',
+        'iWidget' => array (
+          'Widget',
+          'ArchiveWidget',
+          'ArchiveWidget',
+          'DocWidget',
+          'DocWidget',
+          'FormWidget',
+          'LinkedNodesWidget',
+          'ListWidget',
+          'MenuWidget',
+          'MenuWidget',
+          'TagCloudWidget',
+          'TagCloudWidget',
+          'TagsWidget',
+          'TagsWidget',
+          'TitleWidget',
+          'UserWidget',
+          'UserWidget',
         ),
       ),
       'enabled' => true,
       'group' => 'Core',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Molinos.CMS Base',
         'ru' => 'Базовые классы Molinos.CMS',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_base',
     ),
-    'blog' => 
-    array (
-      'classes' => 
-      array (
+    'blog' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'User Blogs',
         'ru' => 'Блоги пользователей',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_blog',
     ),
-    'captcha' => 
-    array (
-      'classes' => 
-      array (
+    'captcha' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
       'version' => '8.5',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Captcha module',
         'ru' => 'Предотвращение автоматизированного заполнения форм.',
       ),
     ),
-    'cart' => 
-    array (
-      'classes' => 
-      array (
+    'cart' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Simple Shopping Cart',
         'ru' => 'Простая корзина для заказов',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_cart',
     ),
-    'comment' => 
-    array (
-      'classes' => 
-      array (
+    'comment' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Interactive',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Basic Comment Support',
         'ru' => 'Базовая поддержка комментариев',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_comment',
     ),
-    'compressor' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'CompressorModule',
-        1 => 'CompressorSettings',
+    'compressor' => array (
+      'classes' => array (
+        'CompressorModule',
+        'CompressorSettings',
       ),
-      'interfaces' => 
-      array (
-        0 => 'iRemoteCall',
-        1 => 'iModuleConfig',
+      'interfaces' => array (
+        'iRemoteCall',
+        'iModuleConfig',
       ),
-      'implementors' => 
-      array (
-        'iRemoteCall' => 
-        array (
-          0 => 'CompressorModule',
+      'implementors' => array (
+        'iRemoteCall' => array (
+          'CompressorModule',
         ),
-        'iModuleConfig' => 
-        array (
-          0 => 'CompressorSettings',
+        'iModuleConfig' => array (
+          'CompressorSettings',
         ),
       ),
       'enabled' => true,
       'group' => 'Service',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Extras Compressor (JS, CSS, HTML)',
         'ru' => 'Компрессор JS, CSS и HTML',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_compressor',
     ),
-    'cron' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'CronMenu',
-        1 => 'CronModule',
+    'cron' => array (
+      'classes' => array (
+        'CronMenu',
+        'CronModule',
       ),
-      'interfaces' => 
-      array (
-        0 => 'iAdminMenu',
-        1 => 'iModuleConfig',
-        2 => 'iRemoteCall',
+      'interfaces' => array (
+        'iAdminMenu',
+        'iModuleConfig',
+        'iRemoteCall',
       ),
-      'implementors' => 
-      array (
-        'iAdminMenu' => 
-        array (
-          0 => 'CronMenu',
+      'implementors' => array (
+        'iAdminMenu' => array (
+          'CronMenu',
         ),
-        'iModuleConfig' => 
-        array (
-          0 => 'CronModule',
+        'iModuleConfig' => array (
+          'CronModule',
         ),
-        'iRemoteCall' => 
-        array (
-          0 => 'CronModule',
+        'iRemoteCall' => array (
+          'CronModule',
         ),
       ),
       'enabled' => true,
       'group' => 'Core',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Task Scheduling',
         'ru' => 'Выполнение периодических задач',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_cron',
     ),
-    'drawtext' => 
-    array (
-      'classes' => 
-      array (
+    'drawtext' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Text Rasterization Module',
         'ru' => 'Растеризация текста',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_drawtext',
     ),
-    'exchange' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'ExchangeModule',
+    'exchange' => array (
+      'classes' => array (
+        'ExchangeModule',
       ),
-      'interfaces' => 
-      array (
-        0 => 'iRemoteCall',
-        1 => 'iAdminMenu',
-        2 => 'iAdminUI',
+      'interfaces' => array (
+        'iRemoteCall',
+        'iAdminMenu',
+        'iAdminUI',
       ),
-      'implementors' => 
-      array (
-        'iRemoteCall' => 
-        array (
-          0 => 'ExchangeModule',
+      'implementors' => array (
+        'iRemoteCall' => array (
+          'ExchangeModule',
         ),
-        'iAdminMenu' => 
-        array (
-          0 => 'ExchangeModule',
+        'iAdminMenu' => array (
+          'ExchangeModule',
         ),
-        'iAdminUI' => 
-        array (
-          0 => 'ExchangeModule',
+        'iAdminUI' => array (
+          'ExchangeModule',
         ),
       ),
       'enabled' => true,
       'group' => 'Core',
       'version' => '1.0',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Database Import and Export',
         'ru' => 'Импорт и экспорт сайта',
       ),
     ),
-    'getid3' => 
-    array (
-      'classes' => 
-      array (
+    'getid3' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'ID3 Tag Library',
         'ru' => 'Доступ к метаданным файлов (mp3, swf итд).',
       ),
       'docurl' => 'http://getid3.sourceforge.net/',
     ),
-    'googleanalytics' => 
-    array (
-      'classes' => 
-      array (
+    'googleanalytics' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Statistics',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Google Analytics',
         'ru' => 'Google Analytics',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_googleanalytics',
     ),
-    'imgtoolkit' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'ImageEdit',
-        1 => 'ImageMagick',
-        2 => 'ImageMagickGD',
+    'imgtoolkit' => array (
+      'classes' => array (
+        'ImageEdit',
+        'ImageMagick',
+        'ImageMagickGD',
       ),
-      'interfaces' => 
-      array (
-        0 => 'iRemoteCall',
+      'interfaces' => array (
+        'iRemoteCall',
       ),
-      'implementors' => 
-      array (
-        'iRemoteCall' => 
-        array (
-          0 => 'ImageEdit',
+      'implementors' => array (
+        'iRemoteCall' => array (
+          'ImageEdit',
         ),
       ),
       'enabled' => true,
       'group' => 'Core',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Image Processing',
         'ru' => 'Обработка изображений',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_imgtoolkit',
     ),
-    'install' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'InstallModule',
+    'install' => array (
+      'classes' => array (
+        'InstallModule',
       ),
-      'interfaces' => 
-      array (
-        0 => 'iRemoteCall',
+      'interfaces' => array (
+        'iRemoteCall',
       ),
-      'implementors' => 
-      array (
-        'iRemoteCall' => 
-        array (
-          0 => 'InstallModule',
+      'implementors' => array (
+        'iRemoteCall' => array (
+          'InstallModule',
         ),
       ),
       'enabled' => true,
       'group' => 'Core',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Molinos.CMS Installer',
         'ru' => 'Установщик Molinos.CMS',
       ),
     ),
-    'maintenance' => 
-    array (
-      'classes' => 
-      array (
+    'maintenance' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Disables the Web Site for Maintenance',
         'ru' => 'Отключение сайта для технических работ',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_maintenance',
     ),
-    'mimemail' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'BebopMimeMail',
-        1 => 'htmlMimeMail',
-        2 => 'Mail_mimePart',
-        3 => 'Mail_RFC822',
-        4 => 'smtp{',
+    'mimemail' => array (
+      'classes' => array (
+        'BebopMimeMail',
+        'htmlMimeMail',
+        'Mail_mimePart',
+        'Mail_RFC822',
+        'smtp{',
       ),
-      'interfaces' => 
-      array (
-        0 => 'iModuleConfig',
+      'interfaces' => array (
+        'iModuleConfig',
       ),
-      'implementors' => 
-      array (
-        'iModuleConfig' => 
-        array (
-          0 => 'BebopMimeMail',
+      'implementors' => array (
+        'iModuleConfig' => array (
+          'BebopMimeMail',
         ),
       ),
       'enabled' => true,
       'group' => 'Core',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'HTML Mail Sender',
         'ru' => 'Отправка почты в HTML',
       ),
     ),
-    'moderator' => 
-    array (
-      'classes' => 
-      array (
+    'moderator' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Moderation Queue',
         'ru' => 'Очередь модерирования',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_moderator',
     ),
-    'msg' => 
-    array (
-      'classes' => 
-      array (
+    'msg' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Internal Messaging Subsystem',
         'ru' => 'Система внутренних сообщений',
       ),
     ),
-    'nodeapi' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'NodeApiModule',
+    'nodeapi' => array (
+      'classes' => array (
+        'NodeApiModule',
       ),
-      'interfaces' => 
-      array (
-        0 => 'iRemoteCall',
+      'interfaces' => array (
+        'iRemoteCall',
       ),
-      'implementors' => 
-      array (
-        'iRemoteCall' => 
-        array (
-          0 => 'NodeApiModule',
+      'implementors' => array (
+        'iRemoteCall' => array (
+          'NodeApiModule',
         ),
       ),
       'enabled' => true,
       'group' => 'Core',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Node API',
         'ru' => 'API для работы с документами',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_nodeapi',
     ),
-    'openid' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'OpenIdModule',
-        1 => 'OpenIdSettings',
+    'openid' => array (
+      'classes' => array (
+        'OpenIdModule',
+        'OpenIdSettings',
       ),
-      'interfaces' => 
-      array (
-        0 => 'iRemoteCall',
-        1 => 'iModuleConfig',
+      'interfaces' => array (
+        'iRemoteCall',
+        'iModuleConfig',
       ),
-      'implementors' => 
-      array (
-        'iRemoteCall' => 
-        array (
-          0 => 'OpenIdModule',
+      'implementors' => array (
+        'iRemoteCall' => array (
+          'OpenIdModule',
         ),
-        'iModuleConfig' => 
-        array (
-          0 => 'OpenIdSettings',
+        'iModuleConfig' => array (
+          'OpenIdSettings',
         ),
       ),
       'enabled' => true,
       'group' => 'Core',
       'version' => '1.0',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'OpenID',
         'ru' => 'работа с OpenID',
       ),
     ),
-    'pdo' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'DBSchema_node',
-        1 => 'DBSchema_node__access',
-        2 => 'DBSchema_node__fallback',
-        3 => 'DBSchema_node__log',
-        4 => 'DBSchema_node__poll',
-        5 => 'DBSchema_node__rel',
-        6 => 'DBSchema_node__rev',
-        7 => 'DBSchema_node__seq',
-        8 => 'DBSchema_node__session',
-        9 => 'mcms_mysql_driver',
-        10 => 'mcms_sqlite_driver',
-        11 => 'PDO_Singleton',
-        12 => 'TableInfo',
-        13 => 'TableManager',
-        14 => 'McmsPDOException',
-        15 => 'ReadOnlyDatabaseException',
-        16 => 'TableNotFoundException',
+    'pdo' => array (
+      'classes' => array (
+        'DBSchema_node',
+        'DBSchema_node__access',
+        'DBSchema_node__fallback',
+        'DBSchema_node__log',
+        'DBSchema_node__poll',
+        'DBSchema_node__rel',
+        'DBSchema_node__rev',
+        'DBSchema_node__seq',
+        'DBSchema_node__session',
+        'mcms_mysql_driver',
+        'mcms_sqlite_driver',
+        'PDO_Singleton',
+        'TableInfo',
+        'TableManager',
+        'McmsPDOException',
+        'ReadOnlyDatabaseException',
+        'TableNotFoundException',
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => true,
       'group' => 'Core',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'DB Access',
         'ru' => 'Доступ к БД',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_pdo',
     ),
-    'playlist' => 
-    array (
-      'classes' => 
-      array (
+    'playlist' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'XSPF Playlist Generator',
         'ru' => 'Генератор XSPF плэйлистов',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_playlist',
     ),
-    'poll' => 
-    array (
-      'classes' => 
-      array (
+    'poll' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Interactive',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Content Poll',
         'ru' => 'Опрос пользователей',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_poll',
     ),
-    'rating' => 
-    array (
-      'classes' => 
-      array (
+    'rating' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Interactive',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Content Rating',
         'ru' => 'Оценка документов',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_rating',
     ),
-    'robots' => 
-    array (
-      'classes' => 
-      array (
+    'robots' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Control over Web Crawlers',
         'ru' => 'Управление веб-роботами',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_robots',
     ),
-    'rss' => 
-    array (
-      'classes' => 
-      array (
+    'rss' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'RSS Exporter',
         'ru' => 'Экспорт RSS',
       ),
     ),
-    'search' => 
-    array (
-      'classes' => 
-      array (
+    'search' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Interactive',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Site-Wide Search',
         'ru' => 'Поиск по сайту',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_search',
     ),
-    'sitemap' => 
-    array (
-      'classes' => 
-      array (
+    'sitemap' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Sitemap',
         'ru' => 'Sitemap',
       ),
       'docurl' => 'http://www.sitemaps.org/ru/protocol.php',
     ),
-    'smarty' => 
-    array (
-      'classes' => 
-      array (
+    'smarty' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Smarty Template Engine',
         'ru' => 'Поддержка шаблонов на Smarty',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_smarty',
     ),
-    'subscription' => 
-    array (
-      'classes' => 
-      array (
+    'subscription' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Interactive',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Email Subscription',
         'ru' => 'Рассылка новостей по почте',
       ),
     ),
-    'syslog' => 
-    array (
-      'classes' => 
-      array (
+    'syslog' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Statistics',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'System Log',
         'ru' => 'Системный журнал',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_syslog',
     ),
-    'tinymce' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'TinyMceModule',
+    'tinymce' => array (
+      'classes' => array (
+        'TinyMceModule',
       ),
-      'interfaces' => 
-      array (
-        0 => 'iModuleConfig',
-        1 => 'iPageHook',
+      'interfaces' => array (
+        'iModuleConfig',
+        'iPageHook',
       ),
-      'implementors' => 
-      array (
-        'iModuleConfig' => 
-        array (
-          0 => 'TinyMceModule',
+      'implementors' => array (
+        'iModuleConfig' => array (
+          'TinyMceModule',
         ),
-        'iPageHook' => 
-        array (
-          0 => 'TinyMceModule',
+        'iPageHook' => array (
+          'TinyMceModule',
         ),
       ),
       'enabled' => true,
       'group' => 'Service',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Internal WYSIWYG Editor',
         'ru' => 'Текстовый редактор TinyMCE',
       ),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_tinymce',
     ),
-    'todo' => 
-    array (
-      'classes' => 
-      array (
+    'todo' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Todo Manager',
         'ru' => 'Управление задачами',
       ),
     ),
-    'update' => 
-    array (
-      'classes' => 
-      array (
-        0 => 'UpdateMenu',
-        1 => 'Updater',
-        2 => 'UpdateScheduler',
+    'update' => array (
+      'classes' => array (
+        'UpdateMenu',
+        'Updater',
+        'UpdateScheduler',
       ),
-      'interfaces' => 
-      array (
-        0 => 'iAdminMenu',
-        1 => 'iAdminUI',
-        2 => 'iRemoteCall',
-        3 => 'iScheduler',
+      'interfaces' => array (
+        'iAdminMenu',
+        'iAdminUI',
+        'iRemoteCall',
+        'iScheduler',
       ),
-      'implementors' => 
-      array (
-        'iAdminMenu' => 
-        array (
-          0 => 'UpdateMenu',
+      'implementors' => array (
+        'iAdminMenu' => array (
+          'UpdateMenu',
         ),
-        'iAdminUI' => 
-        array (
-          0 => 'Updater',
+        'iAdminUI' => array (
+          'Updater',
         ),
-        'iRemoteCall' => 
-        array (
-          0 => 'Updater',
+        'iRemoteCall' => array (
+          'Updater',
         ),
-        'iScheduler' => 
-        array (
-          0 => 'UpdateScheduler',
+        'iScheduler' => array (
+          'UpdateScheduler',
         ),
       ),
       'enabled' => true,
       'group' => 'Core',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'Automatic Updates',
         'ru' => 'Автоматическое обновление',
       ),
     ),
-    'xmlimport' => 
-    array (
-      'classes' => 
-      array (
+    'xmlimport' => array (
+      'classes' => array (
       ),
-      'interfaces' => 
-      array (
+      'interfaces' => array (
       ),
-      'implementors' => 
-      array (
+      'implementors' => array (
       ),
       'enabled' => false,
       'group' => 'Service',
       'version' => '8.02.4782',
-      'name' => 
-      array (
+      'name' => array (
         'en' => 'XmlImporter Widget',
         'ru' => 'Виджет XmlImporter',
       ),
     ),
   ),
-  'classes' => 
-  array (
+  'classes' => array (
     'accesscontrol' => 'lib/modules/base/control.access.php',
     'accessrevcontrol' => 'lib/modules/base/control.accessrev.php',
     'actionscontrol' => 'lib/modules/base/control.actions.php',
@@ -1328,127 +1095,115 @@
     'widgethaltedexception' => 'lib/modules/base/exception.widgethalted.php',
     'widgetnode' => 'lib/modules/base/node.widget.php',
   ),
-  'interfaces' => 
-  array (
-    'iadminmenu' => 
-    array (
-      0 => 'adminmenu',
-      1 => 'adminstatus',
-      2 => 'cronmenu',
-      3 => 'exchangemodule',
-      4 => 'updatemenu',
+  'interfaces' => array (
+    'iadminmenu' => array (
+      'adminmenu',
+      'adminstatus',
+      'cronmenu',
+      'exchangemodule',
+      'updatemenu',
     ),
-    'iadminui' => 
-    array (
-      0 => 'exchangemodule',
-      1 => 'updater',
+    'iadminui' => array (
+      'exchangemodule',
+      'updater',
     ),
-    'icontenttype' => 
-    array (
-      0 => 'domainnode',
-      1 => 'filenode',
-      2 => 'groupnode',
-      3 => 'node',
-      4 => 'tagnode',
-      5 => 'typenode',
-      6 => 'usernode',
-      7 => 'widgetnode',
+    'icontenttype' => array (
+      'domainnode',
+      'filenode',
+      'groupnode',
+      'node',
+      'tagnode',
+      'typenode',
+      'usernode',
+      'widgetnode',
     ),
-    'iformcontrol' => 
-    array (
-      0 => 'accesscontrol',
-      1 => 'accessrevcontrol',
-      2 => 'actionscontrol',
-      3 => 'adminuilistcontrol',
-      4 => 'adminuinodeactionscontrol',
-      5 => 'adminuisearchcontrol',
-      6 => 'adminuitreecontrol',
-      7 => 'attachmentcontrol',
-      8 => 'boolcontrol',
-      9 => 'control',
-      10 => 'datecontrol',
-      11 => 'datetimecontrol',
-      12 => 'emailcontrol',
-      13 => 'enumcontrol',
-      14 => 'enumradiocontrol',
-      15 => 'fieldcontrol',
-      16 => 'fieldsetcontrol',
-      17 => 'floatcontrol',
-      18 => 'form',
-      19 => 'hiddencontrol',
-      20 => 'historycontrol',
-      21 => 'infocontrol',
-      22 => 'listcontrol',
-      23 => 'nodelinkcontrol',
-      24 => 'numbercontrol',
-      25 => 'pagercontrol',
-      26 => 'passwordcontrol',
-      27 => 'resetcontrol',
-      28 => 'sectioncontrol',
-      29 => 'sectionscontrol',
-      30 => 'setcontrol',
-      31 => 'submitcontrol',
-      32 => 'tablecontrol',
-      33 => 'textareacontrol',
-      34 => 'texthtmlcontrol',
-      35 => 'textlinecontrol',
-      36 => 'urlcontrol',
+    'iformcontrol' => array (
+      'accesscontrol',
+      'accessrevcontrol',
+      'actionscontrol',
+      'adminuilistcontrol',
+      'adminuinodeactionscontrol',
+      'adminuisearchcontrol',
+      'adminuitreecontrol',
+      'attachmentcontrol',
+      'boolcontrol',
+      'control',
+      'datecontrol',
+      'datetimecontrol',
+      'emailcontrol',
+      'enumcontrol',
+      'enumradiocontrol',
+      'fieldcontrol',
+      'fieldsetcontrol',
+      'floatcontrol',
+      'form',
+      'hiddencontrol',
+      'historycontrol',
+      'infocontrol',
+      'listcontrol',
+      'nodelinkcontrol',
+      'numbercontrol',
+      'pagercontrol',
+      'passwordcontrol',
+      'resetcontrol',
+      'sectioncontrol',
+      'sectionscontrol',
+      'setcontrol',
+      'submitcontrol',
+      'tablecontrol',
+      'textareacontrol',
+      'texthtmlcontrol',
+      'textlinecontrol',
+      'urlcontrol',
     ),
-    'imoduleconfig' => 
-    array (
-      0 => 'basemodule',
-      1 => 'bebopmimemail',
-      2 => 'compressorsettings',
-      3 => 'cronmodule',
-      4 => 'openidsettings',
-      5 => 'tinymcemodule',
-      6 => 'typenode',
+    'imoduleconfig' => array (
+      'basemodule',
+      'bebopmimemail',
+      'compressorsettings',
+      'cronmodule',
+      'openidsettings',
+      'tinymcemodule',
+      'typenode',
     ),
-    'inodehook' => 
-    array (
-      0 => 'basemodule',
+    'inodehook' => array (
+      'basemodule',
     ),
-    'ipagehook' => 
-    array (
-      0 => 'tinymcemodule',
+    'ipagehook' => array (
+      'tinymcemodule',
     ),
-    'iremotecall' => 
-    array (
-      0 => 'adminrpc',
-      1 => 'attachmentmodule',
-      2 => 'basemodule',
-      3 => 'compressormodule',
-      4 => 'cronmodule',
-      5 => 'exchangemodule',
-      6 => 'imageedit',
-      7 => 'installmodule',
-      8 => 'nodeapimodule',
-      9 => 'openidmodule',
-      10 => 'updater',
+    'iremotecall' => array (
+      'adminrpc',
+      'attachmentmodule',
+      'basemodule',
+      'compressormodule',
+      'cronmodule',
+      'exchangemodule',
+      'imageedit',
+      'installmodule',
+      'nodeapimodule',
+      'openidmodule',
+      'updater',
     ),
-    'ischeduler' => 
-    array (
-      0 => 'basecron',
-      1 => 'typenode',
-      2 => 'updatescheduler',
+    'ischeduler' => array (
+      'basecron',
+      'typenode',
+      'updatescheduler',
     ),
-    'iwidget' => 
-    array (
-      0 => 'archivewidget',
-      1 => 'docwidget',
-      2 => 'formwidget',
-      3 => 'linkednodeswidget',
-      4 => 'listwidget',
-      5 => 'menuwidget',
-      6 => 'tagcloudwidget',
-      7 => 'tagswidget',
-      8 => 'titlewidget',
-      9 => 'userwidget',
-      10 => 'widget',
+    'iwidget' => array (
+      'archivewidget',
+      'docwidget',
+      'formwidget',
+      'linkednodeswidget',
+      'listwidget',
+      'menuwidget',
+      'tagcloudwidget',
+      'tagswidget',
+      'titlewidget',
+      'userwidget',
+      'widget',
     ),
   ),
-  'rclasses' => 
-  array (
+  'rclasses' => array (
     'adminlisthandler' => 'admin',
     'adminmenu' => 'admin',
     'adminrpc' => 'admin',
