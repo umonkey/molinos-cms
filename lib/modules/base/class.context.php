@@ -73,7 +73,8 @@ class Context
     $this->_debug = ($tmp = mcms::config('debuggers'))
       and mcms::matchip($_SERVER['REMOTE_ADDR'], $tmp);
 
-    self::$_last = $this;
+    if (null === self::$_last)
+      self::$_last = $this;
   }
 
   public static function last()
@@ -220,11 +221,6 @@ class Context
   {
     $url1 = new url($url);
     $next = $url1->getAbsolute($this);
-
-    try {
-      if (isset($this->db))
-        $this->db->commit();
-    } catch (NotConnectedException $e) { }
 
     mcms::redirect($next, $status);
   }

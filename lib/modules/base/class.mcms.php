@@ -463,6 +463,14 @@ class mcms
     if ($_SERVER['REQUEST_METHOD'] == 'POST')
       $status = 303;
 
+    if ($ctx = Context::last()) {
+      if (isset($ctx->db)) {
+        try {
+          $ctx->db->commit();
+        } catch (NotConnectedException $e) { }
+      }
+    }
+
     $url = new url($path);
     $target = mcms::fixurl($url->getAbsolute());
 
