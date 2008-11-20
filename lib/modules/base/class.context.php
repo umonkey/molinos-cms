@@ -487,7 +487,7 @@ class Context
         $output .= '<tr>';
         $output .= mcms::html('td', array('align' => 'left'), l($plink, $name));
         $output .= mcms::html('td', $w ? l('http://code.google.com/p/molinos-cms/wiki/' . $w['class'], $w['class']) : null);
-        $output .= mcms::html('td', l('?q=admin/content/edit/' . $w['id'] . '&destination=CURRENT', 'настройки'));
+        $output .= mcms::html('td', $w['id'] ? l('?q=admin/content/edit/' . $w['id'] . '&destination=CURRENT', 'настройки') : null);
         $output .= mcms::html('td', l($dlink, 'debug'));
         $output .= mcms::html('td', array('align' => 'left'), $v['time']);
         $output .= mcms::html('td', array('align' => 'right'), $v['queries']);
