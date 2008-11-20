@@ -18,7 +18,9 @@ class SectionsControl extends SetControl implements iFormControl
 
   protected function getSelected($data)
   {
-    if (null === ($links = $data->linkListParents('tag', true)))
+    if ($this->store)
+      return (array)$data->{$this->value};
+    elseif (null === ($links = $data->linkListParents('tag', true)))
       return array();
 
     return $links;
@@ -26,7 +28,10 @@ class SectionsControl extends SetControl implements iFormControl
 
   protected function getEnabled($data)
   {
-    return Node::create($data->class)->getEnabledSections();
+    if ($data instanceof Node)
+      return Node::create($data->class)->getEnabledSections();
+    else
+      return null;
   }
 
   public function set($value, Node &$node)
