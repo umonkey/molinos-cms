@@ -51,6 +51,11 @@ class Context
   private $_debug;
 
   /**
+   * Интерфейс к БД.
+   */
+  private $_db = null;
+
+  /**
    * Создание простого контекста.
    *
    * @param $args ключ url содержит текущий URL, post и files — сырые данные.
@@ -284,12 +289,18 @@ class Context
           '#cache' => true,
           ));
       return $this->_args[$key];
+
     case 'theme':
     case 'moderatoremail':
       if (!array_key_exists($key, $this->_args))
         throw new InvalidArgumentException(t('Свойство %name не определено'
           .' в этом контексте.', array('%name' => $key)));
       return $this->_args[$key];
+
+    case 'db':
+      if (null === $this->_db)
+        throw new InvalidArgumentException(t('Соединение с БД не установлено.'));
+      return $this->_db;
     }
   }
 
@@ -306,6 +317,12 @@ class Context
           .' в этом контексте.', array('%name' => $key)));
       $this->_args[$key] = $value;
       break;
+
+    case 'db':
+      if (null !== $this->_db)
+        throw new RuntimeException(t('Соединение с БД уже активно.'));
+      $this->_db = PDO_Singleton::connect($value);
+
     default:
       throw new InvalidArgumentException(t('Неизвестное свойство '
         .'контекста: %name.', array('%name' => $key)));
@@ -319,6 +336,9 @@ class Context
     case 'document':
     case 'root':
       return array_key_exists($key, $this->_args);
+
+    case 'db':
+      return $this->_db !== null;
     }
   }
 
