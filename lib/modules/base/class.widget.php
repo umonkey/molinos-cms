@@ -255,7 +255,9 @@ abstract class Widget implements iWidget
     $extras = mcms::get_extras();
 
     try {
-      if (!is_array($options = $this->getRequestOptions($ctx)))
+      $this->ctx = $ctx->forWidget($this->name);
+
+      if (!is_array($options = $this->getRequestOptions($this->ctx)))
         return "<!-- widget {$this->name} halted. -->";
 
       if (array_key_exists('#cache', $options) and empty($options['#cache']))
@@ -269,8 +271,6 @@ abstract class Widget implements iWidget
         mcms::add_extras($cached['extras']);
         return $cached['content'];
       }
-
-      $this->ctx = $ctx->forWidget($this->name);
 
       if (null === ($data = $this->onGet($options)))
         $result = "<!-- widget {$this->name} halted. -->";
