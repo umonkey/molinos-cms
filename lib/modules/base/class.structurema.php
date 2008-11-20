@@ -85,11 +85,10 @@ class StructureMA
     }
   }
 
-  private function addPage($domain, DomainNode $page, $prefix = '/')
+  private function addPage($domain, DomainNode $page, $name = '/')
   {
-    $name = ($page->name == $domain) ? '' : $page->name;
-
     $data = array(
+      'published' => $page->published,
       );
 
     foreach (array('title', 'http_code', 'theme', 'lang', 'html_charset', 'params', 'defaultsection') as $k) {
@@ -105,10 +104,10 @@ class StructureMA
     foreach ($widgets as $node)
       $data['widgets']['default'][] = $node->name;
 
-    $this->domains[$domain][$prefix . $name] = $data;
+    $this->domains[$domain][$name] = $data;
 
     if (is_array($page->children))
       foreach ($page->children as $child)
-        $this->addPage($domain, $child, $prefix . $name);
+        $this->addPage($domain, $child, rtrim($name, '/') . '/' . $child->name);
   }
 }

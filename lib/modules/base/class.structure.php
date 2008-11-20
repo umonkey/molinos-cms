@@ -118,6 +118,9 @@ class Structure
       'args' => $args,
       );
 
+    if (empty($result['page']['published']))
+      return false;
+
     if (false === ($result['args'] = $this->findPageParameters($result['page'], $args)))
       return false;
 
@@ -136,7 +139,7 @@ class Structure
       return false;
 
     foreach ($path_args as $arg)
-      if (!is_numeric($args))
+      if (!is_numeric($arg))
         throw new RuntimeException(t('Ошибка парсинга пути: дополнительные параметры должны быть числовыми, получено: "%value".', array(
           '%value' => $arg,
           )));
