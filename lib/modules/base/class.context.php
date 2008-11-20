@@ -465,7 +465,7 @@ class Context
       . '</head>'
       . '<body><h1>Molinos CMS Profiler</h1>';
 
-    $output .= '<p>Request: http://' . $this->host() . '/' . mcms_plain($this->url()->string(true)) . '</p>';
+    $output .= '<p>Request: http://' . $this->host() . mcms::path() . '/' . mcms_plain($this->url()->string(true)) . '</p>';
 
     if ($widgets = mcms::profile('get')) {
       $s = new Structure();
