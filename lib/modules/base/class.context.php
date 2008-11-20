@@ -461,6 +461,7 @@ class Context
 
     $output = '<html><head>'
       . '<title>Molinos CMS Profiler</title>'
+      . '<style type=\'text/css\'>td, th { padding: 2px 6px; border: solid 1px #aaa; } table { border-collapse: collapse; border: solid 2px gray; }</style>'
       . '</head>'
       . '<body><h1>Molinos CMS Profiler</h1>';
 
@@ -468,8 +469,8 @@ class Context
 
     if ($widgets = mcms::profile('get')) {
       $s = new Structure();
-      $output .= "<table class='profile' border='1' cellspacing='0' cellpadding='2'>"
-        . '<tr><th>Виджет</th><th>Класс</th><th>Время</th><th>SQL</th></tr>';
+      $output .= "<table class='profile'>"
+        . '<tr><th colspan=\'4\'>Виджет</th><th>Время</th><th>SQL</th></tr>';
 
       $totaltime = 0;
       $totalsql = 0;
@@ -477,12 +478,17 @@ class Context
       foreach ($widgets as $name => $v) {
         $w = array_shift($s->findWidgets(array($name)));
 
-        $link = '?q=' . $this->query() . '&widget=' . $name
+        $plink = '?q=' . $this->query() . '&widget=' . $name
           . '&debug=profile&nocache=' . $this->get('nocache');
 
+        $dlink = '?q=' . $this->query() . '&widget=' . $name
+          . '&debug=widget&nocache=' . $this->get('nocache');
+
         $output .= '<tr>';
-        $output .= mcms::html('td', array('align' => 'left'), l($link, $name));
+        $output .= mcms::html('td', array('align' => 'left'), l($plink, $name));
         $output .= mcms::html('td', $w ? l('http://code.google.com/p/molinos-cms/wiki/' . $w['class'], $w['class']) : null);
+        $output .= mcms::html('td', l('?q=admin/content/edit/' . $w['id'] . '&destination=CURRENT', 'настройки'));
+        $output .= mcms::html('td', l($dlink, 'debug'));
         $output .= mcms::html('td', array('align' => 'left'), $v['time']);
         $output .= mcms::html('td', array('align' => 'right'), $v['queries']);
         $output .= '</tr>';
@@ -491,7 +497,7 @@ class Context
         $totalsql += $v['queries'];
       }
 
-      $output .= "<tr><th colspan='2'>&nbsp;</th><th align='left'>{$totaltime}</th><th align='right'>{$totalsql}</th></tr>"
+      $output .= "<tr><th colspan='4'>&nbsp;</th><th align='left'>{$totaltime}</th><th align='right'>{$totalsql}</th></tr>"
         . '</table>';
     }
 
