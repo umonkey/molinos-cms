@@ -140,9 +140,7 @@ class Structure
 
     foreach ($path_args as $arg)
       if (!is_numeric($arg))
-        throw new RuntimeException(t('Ошибка парсинга пути: дополнительные параметры должны быть числовыми, получено: "%value".', array(
-          '%value' => $arg,
-          )));
+        throw new PageNotFoundException();
 
     $result = array();
 
