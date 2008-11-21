@@ -562,6 +562,8 @@ class NodeBase
     // Даём другим модулям возможность обработать событие (например, mod_moderator).
     mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'unpublish'));
 
+    mcms::flush();
+
     return $this;
   }
 
