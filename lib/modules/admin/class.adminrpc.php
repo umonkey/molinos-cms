@@ -336,6 +336,10 @@ class AdminRPC implements iRemoteCall
         'isdictionary' => $ctx->get('dictionary'),
         ));
 
+      if ($nodeargs = $ctx->get('node'))
+        foreach ($nodeargs as $k => $v)
+          $node->$k = $v;
+
       $form = $node->formGet(false);
       $form->addClass('tabbed');
       $form->addClass("node-{$type}-create-form");
