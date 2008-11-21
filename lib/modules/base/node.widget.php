@@ -97,6 +97,16 @@ class WidgetNode extends Node implements iContentType
   {
     $isnew = (null === $this->id);
 
+    // Шаг 1: выбор типа.
+    if ($isnew and !empty($data['from']) and !empty($data['classname'])) {
+      $url = new url($data['from']);
+      $url->setarg('node.classname', $data['classname']);
+      Context::last()->redirect($url->string());
+    }
+
+    if (!empty($data['classname']))
+      $this->classname = $data['classname'];
+
     parent::formProcess($data);
 
     $config = array();
@@ -142,28 +152,32 @@ class WidgetNode extends Node implements iContentType
         'label' => t('Внутреннее имя'),
         'description' => t('Используется для идентификации виджета внутри шаблонов, а также для поиска шаблонов для виджета.'),
         'required' => true,
+        're' => '/^[a-z0-9_]+$/',
+        'volatile' => true,
         ),
       'title' => array(
         'type' => 'TextLineControl',
         'label' => t('Название'),
         'description' => t('Человеческое название виджета.'),
-        'required' => true,
+        'volatile' => true,
         ),
       'description' => array(
         'label' => t('Описание'),
         'type' => 'TextAreaControl',
         'description' => t('Краткое описание выполняемых виджетом функций и особенностей его работы.'),
+        'volatile' => true,
         ),
       'classname' => array(
         'label' => t('Используемый класс'),
         'type' => 'TextLineControl',
+        'description' => t('Не рекоммендуется изменять это значение, если вы не представляете, чем это грозит.'),
         'required' => true,
         'volatile' => true,
         ),
       'pages' => array(
         'type' => 'SetControl',
         'label' => t('Виджет работает на страницах'),
-        'group' => t('Страницы'),
+        'group' => t('Доступ'),
         'volatile' => true,
         'dictionary' => 'domain',
         'required' => false,
@@ -194,11 +208,35 @@ class WidgetNode extends Node implements iContentType
         }
     }
 
-    if (!$this->id) {
-      $schema['classname']['type'] = 'EnumControl';
-      $schema['classname']['options'] = self::listWidgets();
-    }
-
     return $schema;
+  }
+
+  /**
+   * Для новых виджетов возвращается урезанная схема, из одного поля (выбор типа виджета).
+   */
+  public function schema()
+  {
+    if ($this->id or $this->classname)
+      return parent::schema();
+
+    return new Schema(array(
+      'classname' => array(
+        'type' => 'EnumRadioControl',
+        'label' => t('Тип виджета'),
+        'options' => self::listWidgets(),
+        'required' => true,
+        ),
+      'from' => array(
+        'type' => 'HiddenControl',
+        'default' => Context::last()->url()->string(),
+        ),
+      ));
+  }
+
+  public function getFormSubmitText()
+  {
+    return $this->id
+      ? parent::getFormSubmitText()
+      : t('Продолжить');
   }
 };
