@@ -71,7 +71,7 @@ class SearchWidget extends Widget implements iWidget
       'hostname' => $host,
       'root' => $this->gas_root,
       'formctl' => $this->gas_ctl,
-      'onlyform' => (bool)strcasecmp($this->gas_page, trim($this->ctx->url()->path, '/')),
+      'onlyform' => (bool)strcasecmp($this->gas_page, trim($this->ctx->query(), '/')),
       'resultpage' => $this->gas_page,
       'query' => $options['q'],
       );
