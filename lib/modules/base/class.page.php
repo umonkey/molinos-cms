@@ -32,8 +32,11 @@ class Page
       ? self::renderWidgets($ctx, $data['page']['widgets'])
       : array();
 
-    $result = bebop_render_object('page', $data['name'], $ctx->theme, array(
+    $result = bebop_render_object('page', $data['name'], $ctx->theme, $data = array(
       'widgets' => $widgets,
+      'page' => $data['name'],
+      'section' => $ctx->section ? $ctx->section->getRaw() : null,
+      'root' => $ctx->root ? $ctx->root->getRaw() : null,
       ));
 
     $result = str_replace(
