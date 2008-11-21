@@ -72,6 +72,8 @@ class AccessControl extends Control
       'value' => 1,
       ));
 
+    $output .= $this->getOwnPermissions($data);
+
     $output = $this->wrapHTML($output, false);
 
     if ($data->right - $data->left > 1) {
@@ -88,6 +90,52 @@ class AccessControl extends Control
         ), t('Это приведёт к сбросу ранее установленных прав на вложенные объекты.'));
       $output .= '</div>';
     }
+
+    return $output;
+  }
+
+  protected function getOwnPermissions($data)
+  {
+    if (!($data instanceof TypeNode))
+      return;
+
+    $own = is_array($data->perm_own)
+      ? $data->perm_own
+      : array();
+
+    $output = mcms::html('legend', 'Права на собственные объекты');
+
+    $output .= mcms::html('input', array(
+      'type' => 'hidden',
+      'name' => $this->value . '[own][__reset]',
+      'value' => 1,
+      ));
+
+    $ctl = mcms::html('input', array(
+      'type' => 'checkbox',
+      'name' => $this->value . '[own][]',
+      'value' => 'u',
+      'checked' => in_array('u', $own) ? 'checked' : null,
+      ));
+    $output .= mcms::html('label', $ctl . 'Изменение');
+
+    $ctl = mcms::html('input', array(
+      'type' => 'checkbox',
+      'name' => $this->value . '[own][]',
+      'value' => 'd',
+      'checked' => in_array('d', $own) ? 'checked' : null,
+      ));
+    $output .= mcms::html('label', $ctl . 'Удаление');
+
+    $ctl = mcms::html('input', array(
+      'type' => 'checkbox',
+      'name' => $this->value . '[own][]',
+      'value' => 'p',
+      'checked' => in_array('p', $own) ? 'checked' : null,
+      ));
+    $output .= mcms::html('label', $ctl . 'Публикация');
+
+    $output = mcms::html('fieldset', $output);
 
     return $output;
   }
@@ -145,6 +193,18 @@ class AccessControl extends Control
       return;
 
     unset($value['__reset']);
+
+    // Изменение прав на собственные объекты.
+    if (array_key_exists('own', $value)) {
+      $own = $value['own'];
+      unset($value['own']);
+
+      if (!empty($own['__reset'])) {
+        unset($own['__reset']);
+
+        $node->perm_own = $own;
+      }
+    }
 
     $ids = array();
     if (empty($value['__recurse'])) {
