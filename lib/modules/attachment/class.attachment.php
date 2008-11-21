@@ -24,6 +24,8 @@ class Attachment
           $this->nw = $parts[0];
         if (!empty($parts[1]))
           $this->nh = $parts[1];
+        if (!empty($parts[2]))
+          $this->parseOptions($parts[2]);
 
         // TODO: cdw, другие опции
       }
@@ -38,6 +40,9 @@ class Attachment
       $this->nh = empty($m[3]) ? null : $m[3];
       $this->filename = empty($m[5]) ? null : $m[5];
 
+      if (!empty($m[4]))
+        $this->parseOptions($m[4]);
+
       $fid = $m[1];
     }
     
@@ -47,8 +52,6 @@ class Attachment
 
     $this->ctx = $ctx;
     $this->fid = $fid;
-
-    $this->parseOptions($m[4]);
   }
 
   private function parseOptions($opt)
