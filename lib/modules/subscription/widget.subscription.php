@@ -17,9 +17,6 @@ class SubscriptionWidget extends Widget
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
 
-    $options['sections'] = empty($this->sections)
-      ? array() : $this->sections;
-
     $options['#cache'] = false;
 
     return $options;
@@ -34,7 +31,7 @@ class SubscriptionWidget extends Widget
       'title' => $this->me->title,
       'description' => $this->me->description,
       'sections' => $sections,
-      'enabled' => $this->options['sections'],
+      'enabled' => array_keys($sections),
       );
 
     if (false !== strpos($e = mcms::user()->name, '@'))
