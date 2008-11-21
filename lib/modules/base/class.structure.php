@@ -103,8 +103,17 @@ class Structure
 
         if (0 === strpos($path, $page)) {
           if ('/' == substr($path, strlen($page), 1)) {
-            $match = $page;
             $args = explode('/', trim(substr($path, strlen($page) + 1), '/'));
+
+            // У страницы нет параметров, однако в запросе они есть — не то.
+            if (empty($meta['params']) and !empty($args))
+              continue;
+
+            // У страницы меньше параметров, чем есть в запросе — не то.
+            if (count(explode('+', $meta['params'])) > count($args))
+              continue;
+
+            $match = $page;
           }
         }
       }
