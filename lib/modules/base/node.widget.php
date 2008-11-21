@@ -37,11 +37,6 @@ class WidgetNode extends Node implements iContentType
 
     $this->name = trim($this->name);
 
-    if (!empty($_SERVER['HTTP_HOST']) and (empty($this->name) or strspn(mb_strtolower($this->name), "abcdefghijklmnopqrstuvwxyz0123456789_") != strlen($this->name)))
-      throw new ValidationException('name', "Имя виджета может содержать "
-        ."только буквы латинского алфавита и арабские цифры.&nbsp; "
-        ."Пожалуйста, переименуйте виджет.");
-
     parent::checkUnique('name', t("Виджет с таким именем уже существует."));
 
     return parent::save();
