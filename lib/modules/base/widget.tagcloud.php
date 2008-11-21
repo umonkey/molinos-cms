@@ -73,9 +73,8 @@ class TagCloudWidget extends Widget implements iWidget
    */
   protected function getRequestOptions(Context $ctx)
   {
-    $options = array(
-      'types' => $this->classes,
-      );
+    $options = parent::getRequestOptions($ctx);
+    $options['types'] = $this->classes;
 
     return $options;
   }
