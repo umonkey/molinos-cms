@@ -30,7 +30,7 @@ class MenuWidget extends Widget implements iWidget
   {
     return array(
       'name' => 'Меню',
-      'description' => 'Возвращает информацию о разделах в виде ненумерованного списка.',
+      'description' => 'Выводит информацию о разделах в виде ненумерованного списка.',
       );
   }
 
