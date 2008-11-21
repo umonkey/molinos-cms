@@ -1507,15 +1507,17 @@ class NodeBase
     if (empty($_SERVER['HTTP_HOST']))
       return true;
 
-    /*
-    if (strval($this->uid) == mcms::user()->id) {
-      $schema = $this->schema();
+    if ($this->uid == mcms::user()->id) {
+      $type = Node::load(array(
+        'class' => 'type',
+        'name' => $this->class,
+        '#cache' => true,
+        ));
 
-      if (!empty($schema['perm_own']) and is_array($schema['perm_own']))
-        if (in_array($perm, $schema['perm_own']))
+      if (is_array($own = $type->own))
+        if (in_array($perm, $own))
           return true;
     }
-    */
 
     return mcms::user()->hasAccess($perm, $this->class);
   }
