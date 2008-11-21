@@ -1380,8 +1380,21 @@ class mcms
     }
     
     catch (UserErrorException $e) {
-      if (false === ($result = Page::render($ctx, $ctx->host(), 'errors/' . $e->getCode())))
-        throw new PageNotFoundException();
+      try {
+        $result = Page::render($ctx, $ctx->host(), 'errors/' . $e->getCode());
+      } catch (Exception $e2) {
+        mcms::fatal(new Exception(t('При обработке вашего запроса возникла ошибка: %code, «%message». Кроме того, обработчик этой ошибки (errors/%code) отсутствует или он тоже отработал с ошибкой, вебмастеру следует с этим разобраться.', array(
+          '%code' => $e->getCode(),
+          '%message' => rtrim($e->getMessage(), '.'),
+          ))));
+      }
+
+      if (false === $result) {
+        $e = new PageNotFoundException(t('Запрошенная вами страница не найдена. Кроме того, обработчик ошибки (errors/%code) также не найден.', array(
+          '%code' => $e->getCode(),
+          )));
+        mcms::fatal($e);
+      }
     }
 
     catch (Exception $e) {

@@ -2,7 +2,7 @@
 
 class Page
 {
-  public static function render(Context $ctx, $domain, $query)
+  public static function render(Context $ctx, $domain, $query, $debug = false)
   {
     if ($rpc = self::checkRPC($ctx, $query))
       return $rpc;
@@ -10,6 +10,9 @@ class Page
     // Находим страницу в структуре.
     if (false === ($data = Structure::getInstance()->findPage($domain, $query)))
       return false;
+
+    if ($debug)
+      mcms::debug($data);
 
     // Устанавливаем распарсенные коды раздела и документа.
     if (!empty($data['args']['sec']))
