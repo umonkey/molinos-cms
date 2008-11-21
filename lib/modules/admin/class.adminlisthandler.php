@@ -502,11 +502,15 @@ class AdminListHandler
 
   protected function filterImmutable(array $types)
   {
-    return array_intersect($types,
-      mcms::user()->getAccess('c'),
-      mcms::user()->getAccess('u'),
-      mcms::user()->getAccess('d'),
-      mcms::user()->getAccess('p')
+    $user = mcms::user();
+
+    $result = array_intersect($types,
+      $user->getAccess('c') +
+      $user->getAccess('u') +
+      $user->getAccess('d') +
+      $user->getAccess('p')
       );
+
+    return $result;
   }
 };
