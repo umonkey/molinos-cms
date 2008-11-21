@@ -1364,18 +1364,28 @@ class mcms
     try {
       if (false === ($result = Page::render($ctx, $ctx->host(), $ctx->query())))
         throw new PageNotFoundException();
-    } catch (NotConnectedException $e) {
+    }
+
+    catch (NotConnectedException $e) {
       if ('install.rpc' == $ctx->query())
         mcms::fatal($e);
       $ctx->redirect('?q=install.rpc&action=db&destination=CURRENT');
-    } catch (NotInstalledException $e) {
+    }
+    
+    catch (NotInstalledException $e) {
       if ('install.rpc' == $ctx->query())
         mcms::fatal($e);
       $ctx->redirect('?q=install.rpc&action=' . $e->get_type()
         . '&destination=CURRENT');
-    } catch (UserException $e) {
-      // TODO: fallback
-      $result = Page::render($ctx, $ctx->host(), 'errors/' . $e->getCode());
+    }
+    
+    catch (UserErrorException $e) {
+      if (false === ($result = Page::render($ctx, $ctx->host(), 'errors/' . $e->getCode())))
+        throw new PageNotFoundException();
+    }
+
+    catch (Exception $e) {
+      mcms::fatal($e);
     }
 
     // Информация о ходе выполнения запроса.
