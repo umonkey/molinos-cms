@@ -96,9 +96,6 @@ class Config
     case 'tmpdir':
       $res = 'tmp';
       break;
-    case 'filestorage':
-      $res = 'storage';
-      break;
     case 'filename':
       $res = basename($this->path);
       break;
