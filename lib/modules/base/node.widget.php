@@ -224,6 +224,7 @@ class WidgetNode extends Node implements iContentType
         'type' => 'EnumRadioControl',
         'label' => t('Тип виджета'),
         'options' => self::listWidgets(),
+        'description' => t('Виджеты — это блоки, из которых формируются страницы, фрагменты приложения. Каждый виджет выполняет одну конкретную функцию. Выберите, какой виджет вы хотите создать.'),
         'required' => true,
         ),
       'from' => array(
