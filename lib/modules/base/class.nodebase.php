@@ -1709,8 +1709,12 @@ class NodeBase
       'title' => $this->getFormTitle(),
       ));
 
-    foreach ($tabs as $tab)
-      $form->addControl($tab);
+    if (count($tabs) > 1)
+      foreach ($tabs as $tab)
+        $form->addControl($tab);
+    else
+      foreach (array_shift($tabs)->getChildren() as $ctl)
+        $form->addControl($ctl);
 
     $form->addControl(new SubmitControl(array(
       'text' => $this->getFormSubmitText(),
