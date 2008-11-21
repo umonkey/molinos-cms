@@ -453,6 +453,7 @@ class DomainNode extends Node implements iContentType
         'type' => 'SectionControl',
         'label' => t('Основной раздел'),
         'volatile' => true,
+        'store' => true,
         ),
       'moderatoremail' => array(
         'type' => 'EmailControl',
