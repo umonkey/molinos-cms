@@ -372,6 +372,8 @@ abstract class Widget implements iWidget
 
     $dump = array(
       'instance' => $this->name,
+      'class_name' => get_class($this),
+      'class_path' => Loader::getClassPath(get_class($this)),
       'config' => $this->config,
       'options' => $options,
       'input' => $data,
