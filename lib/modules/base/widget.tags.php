@@ -91,8 +91,9 @@ class TagsWidget extends Widget implements iWidget
 
       self::tagsFilterPublished($result['sections']);
 
-      foreach ($root->getParents() as $node)
-        $result['path'][] = $node->getRaw();
+      if ($root->id)
+        foreach ($root->getParents() as $node)
+          $result['path'][] = $node->getRaw();
     }
 
     return $result;
