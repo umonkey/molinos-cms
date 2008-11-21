@@ -137,6 +137,10 @@ class AccessControl extends Control
 
   public function set($value, Node &$node)
   {
+    // FIXME!!!
+    if (!$node->id)
+      $node->save();
+
     if (empty($value['__reset']))
       return;
 
