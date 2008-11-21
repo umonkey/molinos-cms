@@ -137,7 +137,7 @@ class AdminMenu implements iAdminMenu
         'title' => t('Типы документов'),
         );
 
-    if (count($user->getAccess('u'))) {
+    if (count($user->getAccess('u') + $user->getAccess('c'))) {
       $icons[] = array(
         'group' => 'content',
         'href' => '?q=admin/content/list&columns=name,class,uid,created',
