@@ -11,17 +11,6 @@ class SubscriptionWidget extends Widget
       );
   }
 
-  public static function getConfigOptions()
-  {
-    return array(
-      'sections' => array(
-        'type' => 'SetControl',
-        'label' => t('Поместить документ в разделы'),
-        'options' => TagNode::getTags('select'),
-        ),
-      );
-  }
-
   // Препроцессор параметров.
   protected function getRequestOptions(Context $ctx)
   {
