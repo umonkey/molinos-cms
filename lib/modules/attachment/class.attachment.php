@@ -290,7 +290,7 @@ class Attachment
       header($item);
 
     if ('GET' == $_SERVER['REQUEST_METHOD']) {
-      if (!$range_from and mcms::ismodule('accesslog'))
+      if (!$range_from and class_exists('AccessLogModule'))
         AccessLogModule::logNode($this->node->id);
 
       $f = fopen($this->getSourceFile(), 'rb')
@@ -352,7 +352,16 @@ class Attachment
 
   private function getSourceFile()
   {
-    return mcms::config('filestorage') .'/'. $this->node->filepath;
+    $result = mcms::config('filestorage') .'/'. $this->node->filepath;
+
+    if (!file_exists($result)) {
+      mcms::flog('attachment', "{$this->node->filename} ({$result}) is missing.");
+      throw new PageNotFoundException(t('Файл %name не найден в файловом архиве.', array(
+        '%name' => $this->node->filename,
+        )));
+    }
+
+    return $result;
   }
 
   /**
