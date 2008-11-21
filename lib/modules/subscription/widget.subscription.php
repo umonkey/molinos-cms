@@ -38,11 +38,13 @@ class SubscriptionWidget extends Widget
 
   public function onGet(array $options)
   {
+    $sections = array_intersect_key(TagNode::getTags('select'),
+      array_flip(Node::create('subscription')->getEnabledSections()));
+
     $result = array(
       'title' => $this->me->title,
       'description' => $this->me->description,
-      'sections' => TagNode::getTags('select',
-        array('enabled' => $this->options['sections'])),
+      'sections' => $sections,
       'enabled' => $this->options['sections'],
       );
 
