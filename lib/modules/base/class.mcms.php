@@ -1380,6 +1380,9 @@ class mcms
     }
     
     catch (UserErrorException $e) {
+      if ($ctx->debug('errors'))
+        mcms::fatal($e);
+
       try {
         $result = Page::render($ctx, $ctx->host(), 'errors/' . $e->getCode());
       } catch (Exception $e2) {
