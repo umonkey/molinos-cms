@@ -595,7 +595,7 @@ class AdminRPC implements iRemoteCall
       }
     }
 
-    if (!count(mcms::user()->getAccess('u')))
+    if (!count(mcms::user()->getAccess('u') + mcms::user()->getAccess('c')))
       throw new ForbiddenException(t('У вас нет доступа '
         .'к администрированию сайта.'));
   }
