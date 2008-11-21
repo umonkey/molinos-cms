@@ -1509,17 +1509,9 @@ class NodeBase
     if (empty($_SERVER['HTTP_HOST']))
       return true;
 
-    if ($this->uid == mcms::user()->id) {
-      $type = Node::load(array(
-        'class' => 'type',
-        'name' => $this->class,
-        '#cache' => true,
-        ));
-
-      if (is_array($own = $type->perm_own))
-        if (in_array($perm, $own))
-          return true;
-    }
+    if ($this->uid == mcms::user()->id)
+      if (in_array($perm, Structure::getInstance()->getOwnDocAccess($this->class)))
+        return true;
 
     return mcms::user()->hasAccess($perm, $this->class);
   }

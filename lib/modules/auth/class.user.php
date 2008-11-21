@@ -92,50 +92,10 @@ class User
   // Загружаем информацию о правах.
   private function loadAccess()
   {
-    if (null === $this->access) {
-      if (!is_array($result = mcms::cache("user:{$this->id}:access"))) {
-        if (empty($this->id) or !count($this->getGroups()))
-          $result = $this->loadAnonAccess();
-        else
-          $result = $this->loadGroupAccess();
-        mcms::cache("user:{$this->id}:access", $result);
-      }
-
-      $this->access = $result;
-    }
+    if (null === $this->access)
+      $this->access = Structure::getInstance()->getGroupAccess(array_keys($this->getGroups()));
 
     return $this->access;
-  }
-
-  private function loadAnonAccess()
-  {
-    $sql = "SELECT `v`.`name` AS `name`, "
-      ."MAX(`a`.`c`) AS `c`, MAX(`a`.`r`) AS `r`, MAX(`a`.`u`) AS `u`, "
-      ."MAX(`a`.`d`) AS `d`, MAX(`a`.`p`) AS `p` "
-      ."FROM `node` `n` "
-      ."INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
-      ."INNER JOIN `node__access` `a` ON `a`.`nid` = `n`.`id` "
-      ."WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0 "
-      ."AND `a`.`uid` = 0 GROUP BY `v`.`name`";
-
-    return $this->loadRawAccess($sql);
-  }
-
-  private function loadGroupAccess()
-  {
-    $keys = array_keys($this->getGroups());
-    sort($keys);
-
-    $sql = "SELECT `v`.`name` AS `name`, "
-      ."MAX(`a`.`c`) AS `c`, MAX(`a`.`r`) AS `r`, MAX(`a`.`u`) AS `u`, "
-      ."MAX(`a`.`d`) AS `d`, MAX(`a`.`p`) AS `p` "
-      ."FROM `node` `n` "
-      ."INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
-      ."INNER JOIN `node__access` `a` ON `a`.`nid` = `n`.`id` "
-      ."WHERE `n`.`class` = 'type' AND `n`.`deleted` = 0 "
-      ."AND `a`.`uid` IN (". join(', ', $keys) .") GROUP BY `v`.`name`";
-
-    return $this->loadRawAccess($sql);
   }
 
   // Выполняет запрос, парсит результат в пригодный вид.

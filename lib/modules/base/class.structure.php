@@ -21,6 +21,7 @@ class Structure
   protected $widgets = array();
   protected $aliases = array();
   protected $domains = array();
+  protected $access = array();
 
   public static function getInstance()
   {
@@ -196,6 +197,41 @@ class Structure
   }
 
   /**
+   * Возвращает суммарные права для набора прав.
+   */
+  public function getGroupAccess(array $groups)
+  {
+    $result = empty($this->access['groups']['anonymous'])
+      ? array()
+      : $this->access['groups']['anonymous'];
+
+    foreach ($groups as $gid) {
+      if ($gid) {
+        if (array_key_exists($gid = 'group:' . $gid, $this->access['groups'])) {
+          foreach ($this->access['groups'][$gid] as $mode => $types)
+            if (array_key_exists($mode, $result))
+              $result[$mode] = array_unique($result[$mode] + $types);
+            else
+              $result[$mode] = $types;
+        }
+      }
+    }
+
+    return $result;
+  }
+
+  /**
+   * Возвращает права на собственные объекты нужного типа.
+   */
+  public function getOwnDocAccess($type)
+  {
+    if (empty($this->access['types'][$type]))
+      return array();
+    else
+      return $this->access['types'][$type];
+  }
+
+  /**
    * Запись структуры в файл.
    */
   public function save()
@@ -205,6 +241,7 @@ class Structure
         'widgets' => $this->widgets,
         'aliases' => $this->aliases,
         'domains' => $this->domains,
+        'access' => $this->access,
         ));
   }
 

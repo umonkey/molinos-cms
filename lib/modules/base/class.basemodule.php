@@ -334,8 +334,9 @@ class BaseModule implements iRemoteCall, iModuleConfig, iNodeHook
     }
 
     // Обновление структуры сайта.
-    if (in_array($node->class, array('domain', 'widget'))) {
+    if (in_array($node->class, array('domain', 'widget', 'group', 'type'))) {
       $s = new Structure();
+      // rebuild() был бы лучше, но он вызывает рекурсию при импорте.
       $s->drop(); // rebuild();
     }
   }
