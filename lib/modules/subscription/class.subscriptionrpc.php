@@ -91,7 +91,7 @@ class SubscriptionRPC implements iRemoteCall
 
       if (!empty($data['sections'])) {
         $node->save();
-        $node->linkSetParents(array_keys($data['sections']));
+        $node->linkSetParents(array_keys($data['sections']), 'tag');
       } elseif (!empty($node->id)) {
         $node->delete();
         $status = t('Подписка удалена.');
