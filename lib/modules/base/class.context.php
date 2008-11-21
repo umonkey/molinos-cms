@@ -302,6 +302,10 @@ class Context
       if (null === $this->_db)
         // Тип исключения не менять, многие на него ориентируются.
         throw new NotConnectedException();
+      elseif (!class_exists('PDO_Singleton'))
+        // Нужно только для подавления ошибки в автозагрузке классов,
+        // которая иногда почему-то не срабатывает.
+        throw new RuntimeException(t('Отсутствует общий драйвер доступа к БД.'));
       elseif (is_string($this->_db))
         $this->_db = PDO_Singleton::connect($this->_db);
       return $this->_db;
