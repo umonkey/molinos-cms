@@ -209,6 +209,11 @@ abstract class Control implements iFormControl
       )));
   }
 
+  public function getChildren()
+  {
+    return $this->children;
+  }
+
   protected function getChildrenHTML($data)
   {
     $fields = '';
@@ -321,7 +326,7 @@ abstract class Control implements iFormControl
 
     if (!empty($value) and !empty($this->re))
       if (!preg_match($this->re, $value))
-        throw new ValidationException($this->label);
+        throw new ValidationException($this->label, t('Вы неверно заполнили поле «%field».', array('%field' => mb_strtolower($this->label))));
   }
 
   /**
