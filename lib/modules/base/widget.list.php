@@ -283,12 +283,12 @@ class ListWidget extends Widget
         $result['path'][] = $node->getRaw();
     }
 
-    if (empty($this->options['filter']['tags']))
+    if (empty($options['filter']['tags']))
       $result['section'] = null;
     else {
       $node = array_values(Node::find(array(
         'class' => 'tag',
-        'id' => $this->options['filter']['tags'][0],
+        'id' => $options['filter']['tags'][0],
         )));
       if (empty($node))
         throw new PageNotFoundException(t('Запрошенный раздел не найден.'));
@@ -448,10 +448,7 @@ class ListWidget extends Widget
       'class' => array(),
       );
 
-    if (null === $options)
-      $options = $this->options;
-
-    if (!empty($this->options['special']))
+    if (!empty($options['special']))
       $query['#special'] = $options['special'];
 
     else {
