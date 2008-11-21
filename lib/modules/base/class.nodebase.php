@@ -1514,7 +1514,7 @@ class NodeBase
         '#cache' => true,
         ));
 
-      if (is_array($own = $type->own))
+      if (is_array($own = $type->perm_own))
         if (in_array($perm, $own))
           return true;
     }
