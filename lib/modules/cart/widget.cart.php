@@ -81,8 +81,10 @@ class CartWidget extends Widget
       throw new ForbiddenException(t('Вы не можете оформить заказ, '
         .'т.к. ваша корзина пуста.'));
 
+    $node = Node::create('order');
+
     $result['mode'] = 'confirm';
-    $result['form'] = parent::formRender('cart-confirm');
+    $result['form'] = $node->formGet()->getHTML($node);
 
     return $result;
   }
@@ -131,11 +133,6 @@ class CartWidget extends Widget
           ),
         )));
       break;
-
-    case 'cart-confirm':
-      $node = Node::create('order');
-      $form = $node->formGet(true);
-      break;
     }
 
     return $form;
@@ -148,10 +145,6 @@ class CartWidget extends Widget
     switch ($id) {
     case 'cart-details':
       $data['cart'] = CartRPC::getCartContent();
-      break;
-
-    case 'cart-confirm':
-      $data['orderdetails'] = CartRPC::getCartContent();
       break;
     }
 
