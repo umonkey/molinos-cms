@@ -84,13 +84,12 @@ class CartRPC implements iRemoteCall
       }
     }
 
-    if (count($result) > 1)
-      $result['total'] = array(
-        'name' => t('Итого'),
-        'qty' => $sumqty,
-        'price' => null,
-        'sum' => $total,
-        );
+    $result['total'] = array(
+      'name' => t('Итого'),
+      'qty' => $sumqty,
+      'price' => null,
+      'sum' => $total,
+      );
 
     mcms::session('cart', $cart);
     return $result;
