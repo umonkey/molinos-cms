@@ -165,8 +165,9 @@ class ListWidget extends Widget
       if ($this->allowoverride and ($o = $ctx->get('section')))
         $options['filter']['tags'] = array($o);
 
-      if ($this->skipcurrent)
-        $options['current_document'] = $ctx->document->id;
+      $options['document'] = $ctx->document
+        ? $ctx->document->getRaw()
+        : array();
 
       if (is_array($tmp = $ctx->get('classes')))
         $options['filter']['class'] = array_unique($tmp);
@@ -274,6 +275,7 @@ class ListWidget extends Widget
       'section' => array(),
       'documents' => array(),
       'schema' => array(),
+      'document' => $options['document'],
       );
 
     // Возращаем путь к текущему корню.
