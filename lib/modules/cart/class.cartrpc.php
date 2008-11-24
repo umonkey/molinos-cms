@@ -35,10 +35,11 @@ class CartRPC implements iRemoteCall
 
         $result[] = array(
           'id' => $node->id,
-          'name' => $node->name,
+          'name' => $node->getName(),
           'qty' => $qty,
           'price' => $node->price,
           'sum' => $node->price * $qty,
+          'details' => $node->getRaw(),
           );
       }
 
