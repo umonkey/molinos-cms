@@ -157,7 +157,7 @@ class WidgetNode extends Node implements iContentType
         'label' => t('Внутреннее имя'),
         'description' => t('Используется для идентификации виджета внутри шаблонов, а также для поиска шаблонов для виджета.'),
         'required' => true,
-        're' => '/^[a-z0-9_]+$/',
+        're' => '/^[a-z0-9_]+$/i',
         'volatile' => true,
         ),
       'title' => array(
