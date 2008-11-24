@@ -201,6 +201,9 @@ class Structure
    */
   public function getGroupAccess(array $groups)
   {
+    if (!$this->loaded)
+      $this->load();
+
     $result = empty($this->access['groups']['anonymous'])
       ? array()
       : $this->access['groups']['anonymous'];
