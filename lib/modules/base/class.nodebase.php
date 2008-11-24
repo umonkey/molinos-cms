@@ -383,7 +383,12 @@ class NodeBase
           $params[':nid'] = $this->id;
         }
 
-        $params[':key'] = $link['key'];
+        if ($params[':key'] = $link['key'])
+          $queries[] = array(
+            'sql' => 'DELETE FROM `node__rel` WHERE `tid` = ? AND `key` = ?',
+            'params' => array($this->id, $params[':key']),
+            );
+
         $params[':order'] = self::getNextOrder($params[':tid']);
 
         break;
