@@ -53,12 +53,12 @@ class Form extends Control
     if (isset($this->title)) {
       if (!in_array($header = $this->header, array('h2', 'h3', 'h4', 'h5')))
         $header = 'h2';
-      $output = "<{$header}><span>". mcms_plain($this->title) ."</span>";
 
-      if ($this->hlink)
-        $output .= '&nbsp;' . $this->hlink;
+      $title = mcms::html('span', $this->title);
 
-      $output .= "</{$header}>";
+      $output .= mcms::html($header, array(
+        'class' => 'form-header',
+        ), $title);
     }
 
     if (null != $this->intro)
