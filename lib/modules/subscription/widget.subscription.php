@@ -18,6 +18,7 @@ class SubscriptionWidget extends Widget
       return $options;
 
     $options['#cache'] = false;
+    $options['section'] = $ctx->section;
 
     return $options;
   }
@@ -32,6 +33,9 @@ class SubscriptionWidget extends Widget
       'description' => $this->me->description,
       'sections' => $sections,
       'enabled' => array_keys($sections),
+      'section' => empty($options['section'])
+        ? array()
+        : $options['section']->getRaw(),
       );
 
     if (false !== strpos($e = mcms::user()->name, '@'))
