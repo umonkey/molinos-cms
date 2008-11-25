@@ -11,7 +11,7 @@ class Redirect extends Response
 
     $this->url = $url;
 
-    parent::__construct($code, 'Please go to ' . $url . '.', 'text/plain');
+    parent::__construct('Please go to ' . $url . '.', 'text/plain', $code);
   }
 
   public function send()

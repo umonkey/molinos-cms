@@ -6,7 +6,7 @@ class Response
   private $type;
   private $content;
 
-  public function __construct($code, $content = null, $type = 'text/html')
+  public function __construct($content, $type = 'text/html', $code = 200)
   {
     $this->code = $code;
     $this->type = $type;
