@@ -222,7 +222,8 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   {
     $form = parent::formGet();
 
-    $form->addControl($this->formGetFields());
+    if (null !== ($tmp = $this->formGetFields()))
+      $form->addControl($tmp);
 
     return $form;
   }
@@ -284,11 +285,19 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   private function formGetFields()
   {
+    if (in_array($this->name, array('file')))
+      return null;
+
     $form = new FieldSetControl(array(
       'name' => 'fields',
       'label' => t('Поля'),
       'class' => 'fields-editor'
       ));
+
+    $form->addControl(new HiddenControl(array(
+      'value' => '__reset_fields',
+      'default' => 1,
+      )));
 
     $id = 1;
 
@@ -319,19 +328,21 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   // Обрабатывает подключение виджетов и полей, остальное передаёт родителю.
   public function formProcess(array $data)
   {
-    $fields = array();
+    if (!empty($data['__reset_fields'])) {
+      $fields = array();
 
-    foreach ($data['fields'] as $f) {
-      if (!empty($f['name']) and empty($f['delete'])) {
-        $fields[$f['name']] = $f;
-        unset($fields[$f['name']]['name']);
+      foreach ($data['fields'] as $f) {
+        if (!empty($f['name']) and empty($f['delete'])) {
+          $fields[$f['name']] = $f;
+          unset($fields[$f['name']]['name']);
+        }
       }
+
+      if (empty($fields))
+        throw new RuntimeException(t('Попытка сохранить тип документа без полей.'));
+
+      $this->fields = $fields;
     }
-
-    if (empty($fields))
-      throw new RuntimeException(t('Попытка сохранить тип документа без полей.'));
-
-    $this->fields = $fields;
 
     return parent::formProcess($data);
   }
