@@ -139,6 +139,17 @@ class UserNode extends Node implements iContentType
     return $this->name;
   }
 
+  public function getEmail()
+  {
+    if (false !== strpos($this->name, '@'))
+      return $this->name;
+
+    if (false !== strpos($this->email, '@'))
+      return $this->email;
+
+    throw new RuntimeException(t('У объекта отсутствует поле email.'));
+  }
+
   protected function getDefaultSchema()
   {
     $result = array(
@@ -177,5 +188,21 @@ class UserNode extends Node implements iContentType
     return $this->id
       ? t('Профиль пользователя «%name»', array('%name' => $this->getName()))
       : t('Добавление нового пользователя');
+  }
+
+  /**
+   * Возвращает адрес обработчика формы.
+   *
+   * Если пользователь создаётся анонимно — это регистрация,
+   * обрабатываем её с помощью base.rpc.
+   */
+  public function getFormAction()
+  {
+    if (!$this->id and !mcms::user()->id) {
+      $next = Context::last()->get('destination', '');
+      return '?q=base.rpc&action=register&destination=' . urlencode($next);
+    }
+
+    return parent::getFormAction();
   }
 };
