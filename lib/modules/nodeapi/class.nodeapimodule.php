@@ -10,6 +10,9 @@ class NodeApiModule implements iRemoteCall
     else
       $next = self::doSingleAction($ctx);
 
+    if ($next instanceof Response)
+      return $next;
+
     if (null === $next) {
       if ('POST' == $_SERVER['REQUEST_METHOD'] and $ctx->post('nodeapi_return'))
         $next = $_SERVER['HTTP_REFERER'];
