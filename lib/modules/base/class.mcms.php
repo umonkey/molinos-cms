@@ -800,9 +800,8 @@ class mcms
       $output .= "--- backtrace ---\n";
       $output .= mcms::backtrace();
 
-      header('Content-Type: text/plain; charset=utf-8');
-      header('Content-Length: '. strlen($output));
-      die($output);
+      $r = new Response($output, 'text/plain', 500);
+      $r->send();
     }
   }
 
@@ -835,20 +834,18 @@ class mcms
         if (ob_get_length())
           ob_end_clean();
 
-        header('HTTP/1.1 500 Internal Server Error');
-        header('Content-Type: text/plain; charset=utf-8');
-
-        print "Случилось что-то страшное.  Администрация сервера поставлена в известность, скоро всё должно снова заработать.\n";
+        $output = "Случилось что-то страшное.  Администрация сервера поставлена в известность, скоро всё должно снова заработать.\n";
 
         if (($ctx = Context::last()) and $ctx->canDebug())
-          printf("\n--- 8< --- Отладочная информация --- 8< ---\n\n"
+          $output .= sprintf("\n--- 8< --- Отладочная информация --- 8< ---\n\n"
             ."Код ошибки: %s\n"
             ."   Локация: %s(%s)\n"
             ." Сообщение: %s\n"
             ."    Версия: %s\n",
             $e['type'], ltrim(str_replace(MCMS_ROOT, '', $e['file']), '/'), $e['line'], $e['message'], mcms::version());
 
-        die();
+        $r = new Response($output, 'text/plain', 500);
+        $r->send();
       }
     }
   }
@@ -1190,10 +1187,8 @@ class mcms
       $output .= '<p>'. t('Свяжитесь с администратором вашего хостинга для исправления этих проблем.&nbsp; <a href=\'http://code.google.com/p/molinos-cms/\'>Molinos.CMS</a> на данный момент не может работать.') .'</p>';
       $output .= "</body></html>";
 
-      header('HTTP/1.1 500 Security Error');
-      header('Content-Type: text/html; charset=utf-8');
-      header('Content-Length: '. strlen($output));
-      die($output);
+      $r = new Response($output, 'text/html', 500);
+      $r->send();
     }
   }
 
@@ -1299,87 +1294,7 @@ class mcms
 
     $ctx->profile();
 
-    /*
-    if ($ctx->debug('profile')) {
-      $message = "Profiling.\n\n";
-
-      $message .= sprintf("%-30s %-20s %7s\n", 'name', 'time', 'queries');
-
-      foreach (mcms::profile('get') as $k => $v)
-        $message .= sprintf("%-30s %-20s %7s\n", $k, $v['time'], $v['queries']);
-
-      mcms::debug($message);
-    }
-    */
-
-    if (!empty($result['headers']))
-      foreach ($result['headers'] as $h)
-        header($h);
-
-    /*
-    try {
-      $req = new RequestController($ctx);
-      $output = $req->run();
-    } catch (UserErrorException $e) {
-      if (mcms::config('debug.errors'))
-        mcms::fatal($e);
-
-      if ('errors' == $ctx->debug())
-        mcms::fatal($e);
-
-      if ($e->getCode()) {
-        // Ошибка 404 — пытаемся использовать подстановку.
-        if (404 == $e->getCode()) {
-          try {
-            $new = $ctx->db->getResults("SELECT * FROM `node__fallback` "
-              ."WHERE old = ?", array($ctx->query()));
-
-            if (!empty($new[0]['new']))
-              $ctx->redirect($new[0]['new'], 302);
-
-            if (empty($new))
-              $ctx->db->exec("INSERT INTO `node__fallback` "
-                ."(`old`, `new`, `ref`) VALUES (?, ?, ?)",
-                array($ctx->query(), null, $_SERVER['HTTP_REFERER']));
-          } catch (Exception $e2) { }
-        }
-
-        // Пытаемся вывести страницу /$статус
-        try {
-          $req = new RequestController($c2 = new Context(array(
-            'url' => $ctx->url()->getBase($ctx) . 'errors/'. $e->getCode(),
-            )));
-          $output = $req->run();
-        } catch (PageNotFoundException $e2) {
-          $output = null;
-        }
-
-        if (empty($output)) {
-          $url = new url($ctx->url()->getBase($ctx)
-              .'?q=admin&mode=tree&preset=pages&cgroup=structure');
-
-          $extra = ($e->getCode() == 401)
-            ? t('<p>Вы можете авторизоваться <a href=\'@url\'>здесь</a>.</p>',
-              array('@url' => '?q=admin&destination=CURRENT'))
-            : null;
-
-          mcms::fatal(t('<p>При обработке запроса возникла ошибка '
-            .'%code:<br/><strong>%name</strong>.</p>%extra'
-            .'<p><em>PS: этот обработчик ошибок можно '
-            .'заменить на произвольный, <a href="@url">создав '
-            .'страницу</a> «errors/%code» в корне сайта.</em></p>',
-            array(
-              '%code' => $e->getCode(),
-              '%name' => trim($e->getMessage(), '.'),
-              '%extra' => $extra,
-              '@url' => $url->string(),
-              )));
-        }
-      } else {
-        throw $e;
-      }
-    }
-    */
+    // TODO: вернуть работу с node__fallback.
   }
 
   public static function matchip($value, $ips)
