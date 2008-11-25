@@ -131,5 +131,6 @@ function render_username()
       </div>
     </div>
     <?php endif; ?>
+  <!-- запрос обработан за $request_time сек, использовано $peak_memory памяти. -->
   </body>
 </html>
