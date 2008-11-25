@@ -155,7 +155,7 @@ abstract class Control implements iFormControl
   {
     $class = $ctl['type'];
 
-    if (mcms::class_exists($class))
+    if (class_exists($class))
       return new $class($ctl);
 
     mcms::debug("Missing control class: {$class}", $ctl);

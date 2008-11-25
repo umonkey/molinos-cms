@@ -151,7 +151,7 @@ class FieldControl extends Control
     $types = $output = array();
 
     foreach ($tmp = mcms::getImplementors('iFormControl') as $class) {
-      if (mcms::class_exists($class)) {
+      if (class_exists($class)) {
         if ('control' != $class) {
           $info = call_user_func(array($class, 'getInfo'));
           if (empty($info['hidden']))

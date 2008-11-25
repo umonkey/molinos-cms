@@ -703,7 +703,7 @@ class NodeBase
     if (!is_string($class))
       throw new InvalidArgumentException(t('Тип создаваемого объекта должен быть строкой, а не «%type».', array('%type' => gettype($class))));
 
-    if (!mcms::class_exists($host = ucfirst(strtolower($class)) .'Node'))
+    if (!class_exists($host = ucfirst(strtolower($class)) .'Node'))
       $host = 'Node';
 
     if (!is_array($data))
