@@ -33,26 +33,21 @@ class MsgModule implements iRemoteCall
 
   public static function hookRemoteCall(Context $ctx)
   {
-    $next = null;
+    return mcms::dispatch_rpc(__CLASS__, $ctx);
+  }
 
-    switch ($ctx->get('action')) {
-    case 'purge':
-      $filter = array(
-        'class' => 'message',
-        're' => mcms::user()->id,
-        );
+  public static function rpc_purge(Context $ctx)
+  {
+    $filter = array(
+      'class' => 'message',
+      're' => mcms::user()->id,
+      );
 
-      $ids = join(', ', array_keys(Node::find($filter)));
+    $ids = join(', ', array_keys(Node::find($filter)));
 
-      if (!empty($ids)) {
-        $ctx->db->exec("DELETE FROM `node` WHERE `id` IN ({$ids})");
-        mcms::flush();
-      }
-
-      $next = $ctx->get('destination');
-      break;
+    if (!empty($ids)) {
+      $ctx->db->exec("DELETE FROM `node` WHERE `id` IN ({$ids})");
+      mcms::flush();
     }
-
-    mcms::redirect($next);
   }
 }

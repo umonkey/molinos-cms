@@ -179,10 +179,10 @@ class AdminRPC implements iRemoteCall
 
   private static function onGetInternal(Context $ctx)
   {
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-      $url = bebop_split_url();
-      $url['args']['search'] = empty($_POST['search']) ? null : $_POST['search'];
-      mcms::redirect($url);
+    if ($ctx->method('post')) {
+      $url = new url($ctx->url());
+      $url->setarg('search', $ctx->post('search'));
+      return new Redirect($url->string());
     }
 
     switch ($mode = $ctx->get('mode', 'status')) {
@@ -191,7 +191,6 @@ class AdminRPC implements iRemoteCall
     case 'tree':
     case 'edit':
     case 'create':
-    case 'logout':
     case 'status':
     case 'modules':
     case 'drafts':
@@ -397,12 +396,6 @@ class AdminRPC implements iRemoteCall
     return '<h2>Какой документ вы хотите создать?</h2>'. $output;
   }
 
-  private static function onGetLogout(Context $ctx)
-  {
-    User::authorize();
-    mcms::redirect($_GET['destination']);
-  }
-
   private static function onGetStatus(Context $ctx)
   {
     $m = new AdminMenu();
@@ -427,7 +420,9 @@ class AdminRPC implements iRemoteCall
         } else {
           $url = new url();
           $url->setarg('noautologin', null);
-          mcms::redirect(strval($url));
+
+          $r = new Redirect($url->string());
+          $r->send():
         }
       } catch (ObjectNotFoundException $e) { }
     }

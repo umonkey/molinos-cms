@@ -169,7 +169,9 @@ class UserWidget extends Widget implements iWidget
     if ($this->user->id) {
       $url = new url();
       $url->setarg($this->getInstanceName() .'.action', 'edit');
-      mcms::redirect($url->string());
+
+      $r = new Redirect($url->string());
+      $r->send();
     }
 
     $node = Node::create('user');
@@ -178,65 +180,6 @@ class UserWidget extends Widget implements iWidget
       'mode' => 'register',
       'form' => $node->formGet()->getHTML($node),
       );
-  }
-
-  /**
-   * Обработчик подтверждения регистрации.
-   *
-   * Сюда пользователи попадают только по ссылке из письма, которое они получают
-   * при попытке зарегистрироваться.  После обработки запроса пользователь
-   * перебрасывается на этот же урл, но с параметром status=activated.
-   *
-   * При успешной активации нового пользователя администратор получает
-   * уведомление об этом по почте (список адресов указывается в конфигурационном
-   * файле, в параметре modules_user_notifications).
-   *
-   * @todo вынести это из конфига в настройки модуля или виджета.
-   *
-   * @param array $options параметры виджета.
-   *
-   * @return void
-   */
-  protected function onGetConfirm(array $options)
-  {
-    $pdo = $this->ctx->db;
-
-    // Найдём неутверждённого пользователя с совпадающим хэшем.
-    $uid = $pdo->getResult("SELECT `id` FROM `node_user` "
-      ."WHERE MD5(CONCAT(`id`, ':', `email`)) = :hash",
-      array(':hash' => $options['hash']));
-
-    // Загрузим профиль.  Если его нет -- нарвёмся на исключение.
-    $node = Node::load($uid);
-
-    // Загрузим группу Visitors -- она определяет активацию.
-    $visitors = Node::load(array('class' => 'group', 'login' => 'Visitors'));
-
-    // Проверим, не активирован ли уже пользователь.
-    if (in_array($visitors->id, $node->linkListParents('group', true)))
-      throw new BadRequestException("Эта учётная запись уже "
-        ."была активирована.");
-
-    // Включаем.
-    $node->linkAddParent($visitors->id);
-
-    mcms::flush();
-
-    // Сообщаем администратору.
-    if (null !== ($to = mcms::config('module.user.notifications'))) {
-      BebopMimeMail::send(null, $to, "Новый пользователь на сайте {$_SERVER['HTTP_HOST']}",
-        "<p>На сайте {$_SERVER['HTTP_HOST']} только что успешно завершил регистрацию новый пользователь: {$node->name}.</p>");
-    }
-
-    // Идентифицируем пользователя.
-    mcms::auth($node->login, null, true);
-
-    // Перекидываем на текущую страницу, но без восстановления.
-    $url = bebop_split_url();
-    $url['args'][$this->me->name] = array(
-      'status' => 'activated',
-      );
-    exit(mcms::redirect(bebop_combine_url($url, false)));
   }
 
   /**
@@ -288,38 +231,6 @@ class UserWidget extends Widget implements iWidget
     }
 
     return array('form' => $output);
-  }
-
-  /**
-   * Обработчик выход.
-   *
-   * При успешном выходе происходит перенаправление на адрес, указанный в
-   * GET-параметре destination (если там пусто — на адрес текущей страницы, из
-   * которого удаляются все параметры текущего виджета).
-   *
-   * При запросах от XMLHttpRequest возвращается JSON объект с параметром
-   * status=ok.
-   *
-   * @param array $options параметры виджета.
-   *
-   * @return void
-   */
-  protected function onGetLogout(array $options)
-  {
-    mcms::auth();
-
-    if (!empty($_GET['destination']))
-      $url = $_GET['destination'];
-    else {
-      $url = bebop_split_url();
-      $url['args'][$this->getInstanceName()] = null;
-    }
-
-    bebop_on_json(array(
-      'status' => 'ok',
-      ));
-
-    mcms::redirect($url);
   }
 
   private function getLoginForm(array $options)

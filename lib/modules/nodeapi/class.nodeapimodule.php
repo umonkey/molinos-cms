@@ -17,7 +17,7 @@ class NodeApiModule implements iRemoteCall
         $next = '/';
     }
 
-    mcms::redirect($next);
+    return new Redirect($next);
   }
 
   private static function doMassAction(Context $ctx)
@@ -130,7 +130,7 @@ class NodeApiModule implements iRemoteCall
       else
         $link = '?q=node/ID';
 
-      mcms::redirect(str_replace('ID', $node->id, $link));
+      return new Redirect(str_replace('ID', $node->id, $link));
 
     case 'reindex':
       $node = Node::load(array('id' => $nid, '#recurse' => 1));
@@ -193,8 +193,7 @@ class NodeApiModule implements iRemoteCall
       else
         $next = $ctx->get('destination', '/');
 
-      mcms::redirect(self::fixredir($next, $node));
-      break;
+      return new Redirect(self::fixredir($next, $node));
 
     case 'edit':
       if (!$ctx->method('post'))

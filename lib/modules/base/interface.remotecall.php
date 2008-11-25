@@ -26,9 +26,8 @@ interface iRemoteCall
    *
    * @param Context $ctx описание контекста.
    *
-   * @return void При успешной обработке обработчик должен выполнить
-   * перенаправление (mcms::redirect(...)).  Если обработчик вернулся, вызов
-   * считается необработанным и пользователь получает ошибку 404.
+   * @return Response результат работы или Redirect. Если ничего не вернулось,
+   * редиректит происходит на адрес, указанный в параметре destination.
    */
   public static function hookRemoteCall(Context $ctx);
 };

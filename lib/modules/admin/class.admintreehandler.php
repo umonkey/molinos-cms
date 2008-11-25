@@ -60,11 +60,13 @@ class AdminTreeHandler
     case 'pages':
       $data = self::getNodeTree();
 
-      if (empty($data))
-        mcms::redirect("?q=admin&mode=create"
+      if (empty($data)) {
+        $r = new Redirect("?q=admin&mode=create"
           ."&parent=". $this->ctx->get('subid')
           ."&type={$this->type}"
           ."&destination=CURRENT");
+        $r->send();
+      }
 
       return $data;
     default:

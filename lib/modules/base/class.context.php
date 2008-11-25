@@ -213,8 +213,7 @@ class Context
    * Перенаправление в контексте CMS.
    *
    * Позволяет перенаправлять используя относительные урлы (относительно папки,
-   * в которой установлена CMS); mcms::redirect() не принимает относительные
-   * адреса.
+   * в которой установлена CMS).
    *
    * @param mixed $url текст ссылки, массив или объект url.
    * @return void
@@ -224,7 +223,8 @@ class Context
     $url1 = new url($url);
     $next = $url1->getAbsolute($this);
 
-    mcms::redirect($next, $status);
+    $r = new Redirect($next, $status);
+    $r->send();
   }
 
   /**

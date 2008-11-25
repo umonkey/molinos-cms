@@ -95,7 +95,9 @@ class OpenIdModule implements iRemoteCall
     if (!($auth_request = $consumer->begin($openid))) {
       mcms::fatal(t('Не удалось соединиться с провайдером OpenID, '
         .'попробуйте повторить попытку позже.'));
-      mcms::redirect("?q=base.rpc&action=logout");
+
+      $r = new Redirect('?q=base.rpc&action=logout');
+      $r->send();
     }
 
     $sreg_request = Auth_OpenID_SRegRequest::build(
@@ -126,7 +128,8 @@ class OpenIdModule implements iRemoteCall
         mcms::log('openid', "Could not redirect to server: " . $redirect_url->message);
       } else {
         // Send redirect.
-        mcms::redirect($redirect_url);
+        $r = new Redirect($redirect_url);
+        $r->send();
       }
     } else {
       // Generate form markup and render it.

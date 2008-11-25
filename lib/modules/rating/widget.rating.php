@@ -126,15 +126,7 @@ class RatingWidget extends Widget implements iNodeHook
       'status' => 'ok',
       ));
 
-    // Редиректим простых пользователей обратно.
-    $url = bebop_split_url();
-    $url['args'][$this->getInstanceName()] = null;
-
-    $destination = empty($url['args']['destination'])
-      ? bebop_combine_url($url)
-      : $url['args']['destination'];
-
-    exit(mcms::redirect($destination));
+    return $this->ctx->getRedirect();
   }
 
   protected function onGetRate(array $options)
@@ -150,7 +142,9 @@ class RatingWidget extends Widget implements iNodeHook
 
     $url = bebop_split_url();
     $url['args'][$this->getInstanceName()] = null;
-    mcms::redirect($url);
+
+    $r = new Redirect($url);
+    $r->send();
   }
 
   // Формирование формы со статистикой.

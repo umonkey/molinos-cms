@@ -101,7 +101,5 @@ class TodoRPC implements iRemoteCall
 
       break;
     }
-
-    mcms::redirect($ctx->get('destination', '/'));
   }
 };

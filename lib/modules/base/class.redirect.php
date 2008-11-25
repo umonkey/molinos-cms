@@ -19,12 +19,13 @@ class Redirect extends Response
         '@url' => $url,
         ));
 
+    $this->headers[] = 'Location: ' . $this->url;
+
     parent::__construct($message, 'text/html', $code);
   }
 
-  public function send()
+  protected function addHeaders()
   {
     header('Location: ' . $this->url);
-    parent::send();
   }
 }

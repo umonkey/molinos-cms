@@ -15,10 +15,29 @@ class Response
 
   public function send()
   {
-    header('HTTP/1.1 ' . $this->code . ' ' . $this->getResponseTitle());
-    header('Content-Type: ' . $this->type . '; charset=utf-8');
+    if ($this->isJSON()) {
+      header('HTTP/1.1 200 OK');
+      header('Content-Type: application/x-json');
+
+      setlocale(LC_ALL, "en_US.UTF-8");
+
+      $content = json_encode(array(
+        'code' => $this->code,
+        'type' => $this->type,
+        'content' => $this->content,
+        ));
+    } else {
+      header('HTTP/1.1 ' . $this->code . ' ' . $this->getResponseTitle());
+      header('Content-Type: ' . $this->type . '; charset=utf-8');
+
+      $this->addHeaders();
+
+      $content = $this->content;
+    }
+
     header(sprintf('Content-Length: %u', null === $this->content ? 0 : strlen($this->content)));
-    die($this->content);
+
+    die($content);
   }
 
   private function getResponseTitle()
@@ -47,5 +66,14 @@ class Response
     default:
       return 'Unknown Response';
     }
+  }
+
+  protected function addHeaders()
+  {
+  }
+
+  private function isJSON()
+  {
+    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest';
   }
 }
