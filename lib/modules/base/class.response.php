@@ -71,12 +71,16 @@ class Response
       return 'Not Modified';
     case 307:
       return 'Temporary Redirect';
+    case 400:
+      return 'Bad Request';
     case 401:
       return 'Not Authorized';
     case 403:
       return 'Forbidden';
     case 404:
       return 'Not Found';
+    case 415:
+      return 'Bad Media Type';
     case 500:
       return 'Internal Server Error';
     default:
