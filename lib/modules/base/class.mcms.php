@@ -1699,8 +1699,11 @@ class mcms
   {
     $method = 'rpc_'. $ctx->get('action', 'default');
 
-    if (method_exists($class, $method))
-      return call_user_func(array($class, $method), $ctx);
+    if (method_exists($class, $method)) {
+      if (null === ($result = call_user_func(array($class, $method), $ctx)))
+        $result = $ctx->getRedirect();
+      return $result;
+    }
 
     return false;
   }
