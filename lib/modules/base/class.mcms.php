@@ -271,45 +271,6 @@ class mcms
     return $result;
   }
 
-  public static function pcache()
-  {
-    if (!count($args = func_get_args()))
-      throw new InvalidArgumentException(t('Количество параметров для mcms::pcace() должно быть 1 или 2.'));
-
-    $cache = BebopCache::getInstance();
-
-    $key = '.pcache.'. $args[0];
-    $fname = mcms::config('tmpdir') .'/'. $key
-      .md5(MCMS_ROOT .','.  $_SERVER['HTTP_HOST']);
-
-    switch (count($args)) {
-    case 1:
-      if (false !== ($tmp = $cache->$key))
-        return $tmp;
-
-      elseif (file_exists($fname) and false !== ($tmp = unserialize(file_get_contents($fname))))
-        return $tmp;
-
-      return false;
-
-    case 2:
-      if (null === $args[1]) {
-        if (file_exists($fname))
-          unlink($fname);
-        unset($cache->$key);
-      } else {
-        if (is_writable(dirname($fname))) {
-          if (file_exists($fname))
-            unlink($fname);
-          file_put_contents($fname, serialize($args[1]));
-        }
-        $cache->$key = $args[1];
-      }
-
-      return $args[1];
-    }
-  }
-
   public static function config($key, $default = null)
   {
     if (!class_exists('Config'))
