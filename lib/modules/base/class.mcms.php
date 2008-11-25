@@ -533,15 +533,6 @@ class mcms
     error_log("[{$op}] {$message}", 0);
   }
 
-  public static function url($text, $url)
-  {
-    if (!is_array($url))
-      $url = bebop_split_url($url);
-    return mcms::html('a', array(
-      'href' => bebop_combine_url($url, false),
-      ), $text);
-  }
-
   public static function report(Exception $e)
   {
     if (null === ($recipient = mcms::config('backtracerecipient')))
