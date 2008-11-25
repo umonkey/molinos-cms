@@ -1447,18 +1447,6 @@ class mcms
     */
   }
 
-  public static function getHttpStatusMessage($code)
-  {
-    $map = array(
-      404 => 'Not Found',
-      );
-
-    if (!array_key_exists($code, $map))
-      return 'Unknown Error';
-    else
-      return $map[$code];
-  }
-
   public static function matchip($value, $ips)
   {
     if (is_array($ips))
