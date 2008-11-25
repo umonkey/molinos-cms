@@ -243,6 +243,14 @@ class Context
       return !strcasecmp($value, $check);
   }
 
+  public function checkMethod($method)
+  {
+    if (!$this->method($method))
+      throw new RuntimeException(t('Такие запросы следует отправлять методом %method.', array(
+        '%method' => $method,
+        )));
+  }
+
   /**
    * Возвращает имя текущего хоста.
    */
@@ -441,6 +449,23 @@ class Context
       $this->redirect($dom);
 
     return $dom;
+  }
+
+  public function getRedirect($default = null)
+  {
+    if (null !== ($next = $this->get('destination')))
+      ;
+    elseif (null !== ($next = $this->post('destination')))
+      ;
+    else
+      $next = $default;
+
+    if (null === $next)
+      throw new RuntimeException(t('Не удалось получить адрес перенаправления: он должен быть указан в параметре destination.'));
+
+    $url = new url($next);
+
+    return new Redirect($url->getAbsolute($this));
   }
 
   public function gonext()
