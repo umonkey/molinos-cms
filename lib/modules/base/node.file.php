@@ -181,6 +181,8 @@ class FileNode extends Node implements iContentType
     $intname = md5_file($file['tmp_name']);
     $this->filepath = substr($intname, 0, 1) .'/'. substr($intname, 1, 1) .'/'. $intname;
 
+    $existing = null;
+
     // Находим существующий файл.
     try {
       $node = Node::find(array(
@@ -195,11 +197,23 @@ class FileNode extends Node implements iContentType
       if (!file_exists($storage .'/'. $this->filepath))
         throw new ObjectNotFoundException();
 
-      $this->data = array_shift($node)->data;
+      $existing = array_shift($node)->data;
     }
 
-    // Файл не найден, создаём новый.
+    // Теоретически это должно возникать только при добавлении
+    // нового файла в архив, когда мы возвращаем укороченную
+    // форму.
+    catch (NoIndexException $e) {
+    }
+
     catch (ObjectNotFoundException $e) {
+    }
+
+    if (null !== $existing)
+      $this->data = $existing;
+
+    // Файл не найден, создаём новый.
+    else {
       // Сюда будем копировать файл.
       $dest = $storage .'/'. $this->filepath;
 
@@ -286,76 +300,18 @@ class FileNode extends Node implements iContentType
     return $node;
   }
 
-  /**
-   * Возвращает форму для редактирования файла.
-   *
-   * Форма для существующих файлов остаётся практически неизменной (полученной
-   * от родителя), в неё добавляется только поле для выбора локального файла,
-   * для возможности заменить существующий.
-   *
-   * Форма для добавления файла строится с нуля.  Пользователю предлагается
-   * выбор: загрузить локальный файл, скачать его с другого сайта, или
-   * использовать файл, загруженный по FTP (путь к таким файлам определяет
-   * метод getFTPRoot()).
-   *
-   * @return Form
-   *
-   * @param bool $simple true, если форма не должна содержать административные
-   * элементы: управление правами, привязкой к разделам итд.  Форма для
-   * добавления файла всегда возвращается в упрощённом виде.
-   */
-  public function formGet($simple = true)
-  {
-    if (null === $this->id) {
-      $form = new Form(array(
-        ));
-
-      $ftpfiles = self::listFilesOnFTP();
-
-      $form->addControl(new HiddenControl(array(
-        'value' => 'class',
-        )));
-
-      $form->addControl(new AttachmentControl(array(
-        'value' => 'file_0',
-        'unzip' => true,
-        'archive' => false,
-        'fetch' => true,
-        )));
-
-      $form->addControl(new URLControl(array(
-        'value' => '__file_url',
-        'label' => t('Загрузить файл из интернета'),
-        'description' => t('Укажите полный адрес файла, включая префикс http://, и я попытаюсь добавить его в CMS.'),
-        )));
-
-      $form->addControl(new SubmitControl(array(
-        'text' => t('Загрузить'),
-        )));
-    } else {
-      $form = parent::formGet($simple);
-
-      $form->addControl(new AttachmentControl(array(
-        'value' => '__file_node_update',
-        'label' => t('Заменить файл'),
-        'archive' => false,
-        )));
-    }
-
-    /*
-    $form->addControl(new SubmitControl(array(
-      'text' => t('Загрузить'),
-      )));
-    */
-
-    return $form;
-  }
-
   public function getFormTitle()
   {
     return $this->id
       ? t('Редактирование файла «%name»', array('%name' => $this->filename))
       : t('Добавление нового файла');
+  }
+
+  public function getFormSubmitText()
+  {
+    return $this->id
+      ? parent::getFormSubmitText()
+      : t('Добавить');
   }
 
   /**
@@ -375,17 +331,9 @@ class FileNode extends Node implements iContentType
   {
     parent::formProcess($data);
 
-    if (!empty($data['__file_node_update']) and empty($data['__file_node_update']['error'])) {
-      $oldid = $this->id;
-      $this->import($data['__file_node_update']);
-
-      if ($this->id != $oldid)
-        throw new RuntimeException(t('Такой файл в системе <a href="@url">уже есть</a>.', array(
-          '@url' => '?q=admin/content/edit/' . $this->id . '?destination=admin/content/list/files',
-          )));
-    }
-
-    return $this;
+    return $this->id
+      ? $this
+      : $this->file;
   }
 
   // РАБОТА С FTP.
@@ -480,7 +428,7 @@ class FileNode extends Node implements iContentType
    * структура не обнаружена (хранится в виде ноды с типом "type" и
    * именем "file").
    */
-  protected function getDefaultFields()
+  protected function getDefaultSchema()
   {
     return array(
       'name' => array (
@@ -495,6 +443,7 @@ class FileNode extends Node implements iContentType
         'description' => t('Имя, которое было у файла, когда пользователь добавлял его на сайт.  Под этим же именем файл будет сохранён, если пользователь попытается его сохранить.  Рекомендуется использовать только латинский алфавит: Internet Explorer некорректно обрабатывает кириллицу в именах файлов при скачивании файлов.'),
         'required' => true,
         'indexed' => true,
+        'volatile' => true,
         ),
       'filetype' => array (
         'label' => t('Тип MIME'),
@@ -502,30 +451,55 @@ class FileNode extends Node implements iContentType
         'description' => t('Используется для определения способов обработки файла.  Проставляется автоматически при закачке.'),
         'required' => true,
         'indexed' => true,
+        'volatile' => true,
         ),
       'filesize' => array (
         'label' => t('Размер в байтах'),
         'type' => 'NumberControl',
         'required' => true,
         'indexed' => true,
+        'volatile' => true,
         ),
       'filepath' => array (
         'label' => t('Локальный путь к файлу'),
         'type' => 'TextLineControl',
         'required' => true,
         'indexed' => true,
+        'volatile' => true,
         ),
       'width' => array (
         'label' => t('Ширина'),
         'type' => 'NumberControl',
         'description' => t('Проставляется только для картинок и SWF объектов.'),
+        'volatile' => true,
         ),
       'height' => array (
         'label' => t('Высота'),
         'type' => 'NumberControl',
         'description' => t('Проставляется только для картинок и SWF объектов.'),
+        'volatile' => true,
         ),
       );
+  }
+
+  /**
+   * Спецобработка добавления нового файла в архив.
+   */
+  public function schema()
+  {
+    if (!$this->id)
+      return new Schema(array(
+        'file' => array(
+          'type' => 'AttachmentControl',
+          'required' => true,
+          'newfile' => true,
+          'unzip' => true,
+          'archive' => false,
+          'fetch' => true,
+          ),
+        ));
+
+    return parent::schema();
   }
 
   /**
