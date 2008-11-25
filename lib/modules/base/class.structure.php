@@ -211,11 +211,12 @@ class Structure
     foreach ($groups as $gid) {
       if ($gid) {
         if (array_key_exists($gid = 'group:' . $gid, $this->access['groups'])) {
-          foreach ($this->access['groups'][$gid] as $mode => $types)
+          foreach ($this->access['groups'][$gid] as $mode => $types) {
             if (array_key_exists($mode, $result))
-              $result[$mode] = array_unique($result[$mode] + $types);
+              $result[$mode] = array_unique(array_merge($result[$mode], $types));
             else
               $result[$mode] = $types;
+          }
         }
       }
     }
