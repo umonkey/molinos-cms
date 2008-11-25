@@ -419,7 +419,7 @@ class AdminRPC implements iRemoteCall
           $url->setarg('noautologin', null);
 
           $r = new Redirect($url->string());
-          $r->send():
+          $r->send();
         }
       } catch (ObjectNotFoundException $e) { }
     }

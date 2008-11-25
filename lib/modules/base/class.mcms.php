@@ -1280,19 +1280,9 @@ class mcms
       mcms::fatal($e);
     }
 
-    // Информация о ходе выполнения запроса.
-    $result['content'] = str_replace(
-      array(
-        '$request_time',
-        '$peak_memory',
-        ),
-      array(
-        microtime(true) - MCMS_START_TIME,
-        self::filesize(memory_get_peak_usage()),
-        ),
-      $result['content']);
-
     $ctx->profile();
+
+    $result->send();
 
     // TODO: вернуть работу с node__fallback.
   }
