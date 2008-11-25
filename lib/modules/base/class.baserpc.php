@@ -89,6 +89,8 @@ class BaseRPC implements iRemoteCall
    */
   public static function rpc_logout(Context $ctx)
   {
+    $ctx->checkMethod('get');
+
     if (is_array($stack = mcms::session('uidstack'))) {
       $uid = array_pop($stack);
       mcms::session('uidstack', $stack);
@@ -100,6 +102,8 @@ class BaseRPC implements iRemoteCall
       User::authorize();
     else
       self::login($uid);
+
+    return new Redirect();
   }
 
   /**
