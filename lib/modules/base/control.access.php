@@ -147,8 +147,12 @@ class AccessControl extends Control
 
     $names[0] = t('Все посетители');
 
+    if (!($id = $data->id))
+      if (!($id = $data->parent_id))
+        $id = null;
+
     if (!empty($names)) {
-      $rows = mcms::db()->getResultsK("uid", "SELECT uid, c, r, u, d, p FROM node__access WHERE nid = ?", array($data->id));
+      $rows = mcms::db()->getResultsK("uid", "SELECT uid, c, r, u, d, p FROM node__access WHERE nid = ?", array($id));
 
       foreach ($names as $id => $name) {
         $row = array_key_exists($id, $rows)
