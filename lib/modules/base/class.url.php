@@ -320,7 +320,7 @@ class url
 
     if (!empty($args)) {
       $forbidden = $special
-        ? array()
+        ? array('__cleanurls')
         : array('nocache', 'widget', '__cleanurls');
 
       $pairs = array();
