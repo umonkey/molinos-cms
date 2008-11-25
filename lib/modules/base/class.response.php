@@ -113,14 +113,26 @@ class Response
    */
   protected function getContent()
   {
-    if ('text/html' != $this->type)
-      return $this->content;
+    $content = $this->content;
 
-    if (empty($_GET['__cleanurls']))
-      return $this->content;
+    if ('text/html' == $this->type) {
+      $content = str_replace(
+        array(
+          '$request_time',
+          '$peak_memory',
+          ),
+        array(
+          microtime(true) - MCMS_START_TIME,
+          mcms::filesize(memory_get_peak_usage()),
+          ),
+        $content);
+
+      if (!empty($_GET['__cleanurls'])) {
+        // $content = preg_replace('@(href|src|action)=([\'"])\?q=([^&"\'])+@');
+      }
+    }
 
     return $content;
 
-    // $content = preg_replace('@(href|src|action)=([\'"])\?q=([^&"\'])+@');
   }
 }
