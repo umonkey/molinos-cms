@@ -6,7 +6,7 @@ class SubscriptionRPC implements iRemoteCall
   {
     $next = new url($ctx->get('destination', ''));
     $next->setarg('message', mcms::dispatch_rpc(__CLASS__, $ctx));
-    $ctx->redirect($next->string());
+    return new Redirect($next->string());
   }
 
   public static function rpc_subscribe(Context $ctx)
@@ -60,7 +60,7 @@ class SubscriptionRPC implements iRemoteCall
 
     BebopMimeMail::send(null, $data['email'], t('Подписка на новости сайта %host', array('%host' => $_SERVER['HTTP_HOST'])), $body);
 
-    return t('Инструкция отправлена по почте.');
+    return t('Инструкция для активации подписки отправлена на указанный почтовый адрес.');
   }
 
   public static function rpc_confirm(Context $ctx)
