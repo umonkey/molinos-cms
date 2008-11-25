@@ -37,7 +37,7 @@ class Response
       $content = json_encode(array(
         'code' => $this->code,
         'type' => $this->type,
-        'content' => $this->content,
+        'content' => $this->getContent(),
         ));
     }
 
@@ -48,7 +48,7 @@ class Response
 
       $this->addHeaders();
 
-      $content = $this->content;
+      $content = $this->getContent();
     }
 
     header(sprintf('Content-Length: %u', null === $this->content ? 0 : strlen($this->content)));
@@ -100,5 +100,21 @@ class Response
       return false;
 
     return true;
+  }
+
+  /**
+   * Возвращает текст страницы.
+   */
+  protected function getContent()
+  {
+    if ('text/html' != $this->type)
+      return $this->content;
+
+    if (empty($_GET['__cleanurls']))
+      return $this->content;
+
+    return $content;
+
+    // $content = preg_replace('@(href|src|action)=([\'"])\?q=([^&"\'])+@');
   }
 }

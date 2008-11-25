@@ -51,34 +51,25 @@ class Page
         ),
       $result);
 
-    $result = array(
-      'headers' => array(
-        'Content-Type: text/html; charset=utf-8',
-        ),
-      'content' => $result,
-      );
-
     if ($ctx->debug('page'))
       mcms::debug($data, $widgets, $result);
     elseif ($ctx->debug('widget') and null === $ctx->get('widget')) {
-      $result['content'] = "<html><body><h1>Отладка вджетов</h1><p>Выберите виджет:</p><ul>";
+      $result = "<html><body><h1>Отладка вджетов</h1><p>Выберите виджет:</p><ul>";
 
       ksort($widgets);
 
       $u = $ctx->url()->string();
 
       foreach ($widgets as $k => $v) {
-        $result['content'] .= "<li><a href='{$u}&amp;widget={$k}'>{$k}</a></li>";
+        $result .= "<li><a href='{$u}&amp;widget={$k}'>{$k}</a></li>";
       }
 
-      $result['content'] .= "</ul><hr/>"
+      $result .= "</ul><hr/>"
         . mcms::getSignature($ctx)
         . "</body></html>";
     }
 
-    $result['headers'][] = 'Content-Length: ' . strlen($result['content']);
-
-    return $result;
+    return new Response($result);
   }
 
   private static function renderWidgets(Context $ctx, array $names)

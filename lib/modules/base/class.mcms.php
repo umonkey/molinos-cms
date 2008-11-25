@@ -657,9 +657,6 @@ class mcms
       ob_end_clean();
 
     if (!empty($_SERVER['REQUEST_METHOD'])) {
-      header('HTTP/1.1 500 Internal Server Error');
-      header("Content-Type: text/html; charset=utf-8");
-
       $html = '<html><head><title>Fatal Error</title></head><body>'
         .'<h1>Fatal Error</h1><p>'. $message .'</p>';
 
@@ -669,15 +666,12 @@ class mcms
       $html .= '<hr/>'. self::getSignature();
       $html .= '</body></html>';
 
-      $content = mcms::fixurls($html, false);
-
       $report = sprintf("--- Request method: %s ---\n--- Host: %s ---\n--- URL: %s ---\n\n%s", $_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], $_SERVER['REQUEST_URI'], $content);
+
       self::writeCrashDump($report);
 
-      header('Content-Length: '. strlen($content));
-      echo $content;
-
-      die();
+      $r = new Response($content, 'text/html', 500);
+      $r->send();
     }
     
     $backtrace = sprintf("--- backtrace (time: %s) ---\n\n%s", microtime(), $backtrace);
@@ -1322,8 +1316,6 @@ class mcms
       foreach ($result['headers'] as $h)
         header($h);
 
-    die(self::fixurls($result['content'], false));
-
     /*
     try {
       $req = new RequestController($ctx);
@@ -1383,15 +1375,10 @@ class mcms
               '@url' => $url->string(),
               )));
         }
-
-        header(sprintf('HTTP/1.1 %s %s', $e->getCode(),
-          self::getHttpStatusMessage($e->getCode())));
       } else {
         throw $e;
       }
     }
-
-    mcms::fixurls($output, true);
     */
   }
 
@@ -1431,35 +1418,6 @@ class mcms
 
     return str_replace('.0', '', number_format($file_or_size, 1, '.', ''))
       . $sfx;
-  }
-
-  public static function fixurls($content, $send = false)
-  {
-    // Замена "грязных" ссылок на "чистые".
-    if (!empty($_GET['__cleanurls']) and strlen($content) < 500000) {
-      $re = '@(?:href|src|action)=(?:"([^"]+)"|\'([^\']+)\')@';
-
-      if (preg_match_all($re, $content, $m)) {
-        foreach ($m[0] as $idx => $source) {
-          $link = empty($m[1][$idx])
-            ? $m[2][$idx]
-            : $m[1][$idx];
-
-          if (0 === strpos($link, '?q=')) {
-            $parts = explode('&amp;', substr($link, 3), 2);
-            $new = str_replace($link, join('?', $parts), $source);
-            $content = str_replace($source, $new, $content);
-          }
-        }
-      }
-    }
-
-    if ($send) {
-      header('Content-Length: '. strlen($content));
-      die($content);
-    }
-
-    return $content;
   }
 
   public static function fixurl($url)
