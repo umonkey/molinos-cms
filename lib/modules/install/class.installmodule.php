@@ -259,8 +259,8 @@ class InstallerNode extends Node
       }
 
       if (empty($options)) {
-        throw new Exception(t('Нет доступных драйверов PDO; рекоммендуем установить <a href=\'@url\'>PDO_SQLite</a> (или <a href=\'@url2\'>PDO_MySQL</a>, но SQLite проще и быстрее).', array(
-          '@url' => 'http://docs.php.net/manual/en/ref.pdo-sqlite.php',
+        throw new Exception(t('Нет доступных драйверов PDO; рекоммендуем установить <a href=\'@url1\'>PDO_SQLite</a> (или <a href=\'@url2\'>PDO_MySQL</a>, но SQLite проще и быстрее).', array(
+          '@url1' => 'http://docs.php.net/manual/en/ref.pdo-sqlite.php',
           '@url2' => 'http://docs.php.net/manual/en/ref.pdo-mysql.php',
           )));
       }
