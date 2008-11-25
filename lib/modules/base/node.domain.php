@@ -109,21 +109,6 @@ class DomainNode extends Node implements iContentType
     return $vid;
   }
 
-  public function sendHeaders()
-  {
-    $content_type = empty($this->content_type) ? "text/html" : $this->content_type;
-    $html_charset = empty($this->html_charset) ? "utf-8" : $this->html_charset;
-
-    $code = empty($this->http_code) ? 200 : $this->http_code;
-
-    header("Expires: -1");
-    header("Cache-Control: no-store, no-cache, must-revalidate", true);
-    header('Cache-Control: post-check=0, pre-check=0', false);
-    header("Pragma: no-cache", true);
-    header("HTTP/1.1 {$code} OK");
-    header("Content-Type: {$content_type}; charset={$html_charset}");
-  }
-
   // Возвращает путь к шаблону.
   private function getTemplateFile($type = 'page')
   {
