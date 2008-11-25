@@ -11,7 +11,15 @@ class Redirect extends Response
 
     $this->url = $url;
 
-    parent::__construct('Please go to ' . $url . '.', 'text/plain', $code);
+    $message = t('<html><head><title>Redirecting</title>'
+      . '<meta http-equiv=\'refresh\' content=\'0; url=@url\' />'
+      . '</head><body>'
+      . '<h1>Redirecting</h1><p>Redirecting to <a href=\'@url\'>a new location</a>.</p>'
+      . '</body></html>', array(
+        '@url' => $url,
+        ));
+
+    parent::__construct($message, 'text/html', $code);
   }
 
   public function send()
