@@ -15,6 +15,19 @@ class Response
 
   public function send()
   {
+    // Закрываем транзакцию, если есть.
+    if ($ctx = Context::last()) {
+      if (isset($ctx->db)) {
+        try {
+          $ctx->db->commit();
+        } catch (NotConnectedException $e) { }
+      }
+    }
+
+    // Сбрасываем кэш, если просили.
+    mcms::flush(mcms::FLUSH_NOW);
+
+    // Возвращаем JSON.
     if ($this->isJSON()) {
       header('HTTP/1.1 200 OK');
       header('Content-Type: application/x-json');
@@ -26,7 +39,10 @@ class Response
         'type' => $this->type,
         'content' => $this->content,
         ));
-    } else {
+    }
+
+    // Возвращаем обычный результат.
+    else {
       header('HTTP/1.1 ' . $this->code . ' ' . $this->getResponseTitle());
       header('Content-Type: ' . $this->type . '; charset=utf-8');
 
@@ -74,6 +90,15 @@ class Response
 
   private function isJSON()
   {
-    return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest';
+    if (!function_exists('json_encode'))
+      return false;
+
+    if (empty($_SERVER['HTTP_X_REQUESTED_WITH']))
+      return false;
+
+    if (strcasecmp($_SERVER['HTTP_X_REQUESTED_WITH'], 'XMLHttpRequest'))
+      return false;
+
+    return true;
   }
 }
