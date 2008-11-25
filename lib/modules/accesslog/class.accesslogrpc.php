@@ -4,7 +4,7 @@ class AccessLogRPC implements iRemoteCall
 {
   public static function hookRemoteCall(Context $ctx)
   {
-    mcms::dispatch_rpc(__CLASS__, $ctx);
+    return mcms::dispatch_rpc(__CLASS__, $ctx);
   }
 
   public static function rpc_stat(Context $ctx)
@@ -23,8 +23,6 @@ class AccessLogRPC implements iRemoteCall
 
     $result .= '</tbody></table>';
 
-    header('Content-Type: text/html; charset=utf-8');
-    header('Content-Length: '. strlen($result));
-    die($result);
+    return new Response($result);
   }
 }
