@@ -1393,7 +1393,8 @@ class mcms
       }
 
       if (false === $result) {
-        $e = new PageNotFoundException(t('Запрошенная вами страница не найдена. Кроме того, обработчик ошибки (errors/%code) также не найден.', array(
+        $e = new PageNotFoundException(t('%message. Кроме того, обработчик ошибки (errors/%code) также не найден.', array(
+          '%message' => rtrim($e->getMessage(), '.'),
           '%code' => $e->getCode(),
           )));
         mcms::fatal($e);
