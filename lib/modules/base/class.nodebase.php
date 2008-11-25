@@ -1740,9 +1740,25 @@ class NodeBase
    */
   public function getFormTitle()
   {
+    try {
+      $type = Node::load(array(
+        'class' => 'type',
+        'name' => $this->class,
+        ));
+
+      $name = mb_strtolower(mcms_plain($type->title));
+
+      if (mcms::user()->hasAccess('u', 'type'))
+        $name = l("?q=admin/content/edit/{$type->id}?destination=CURRENT", $name);
+
+      $name = ' (' . $name . ')';
+    } catch (ObjectNotFoundException $e) {
+      $type = '';
+    }
+
     return $this->id
-      ? $this->getName() . ' (' . $this->class . ')'
-      : t('Добавление нового документа (%type)', array('%type' => $this->class));
+      ? $this->getName() . $name
+      : t('Добавление нового документа (!type)', array('!type' => $name));
   }
 
   public function getFormSubmitText()
