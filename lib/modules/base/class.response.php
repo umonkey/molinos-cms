@@ -83,6 +83,8 @@ class Response
       return 'Bad Media Type';
     case 500:
       return 'Internal Server Error';
+    case 503:
+      return 'Service Unavailable';
     default:
       return 'Unknown Response';
     }

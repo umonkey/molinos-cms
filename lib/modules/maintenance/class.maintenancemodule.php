@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class MaintenanceModule implements iModuleConfig, iRequestHook
+class MaintenanceModule implements iModuleConfig, iRequestHook, iAdminMenu
 {
   public static function formGetModuleConfig()
   {
@@ -34,15 +34,14 @@ class MaintenanceModule implements iModuleConfig, iRequestHook
         $url = bebop_split_url();
 
         if ('admin' != substr($url['path'], 0, 7)) {
-          header('HTTP/1.1 503 Service Unavailable');
-          header('Content-Type: text/plain; charset=utf-8');
-          die(t('На сервере ведутся технические работы, обратитесь чуть позже.'));
+          $r = new Response(t('На сервере ведутся технические работы, обратитесь чуть позже.'), 'text/plain', 503);
+          $r->send();
         }
       }
     }
   }
 
-  public static function getDashboardIcons()
+  public static function getMenuIcons()
   {
     $icons = array();
     $user = mcms::user();
