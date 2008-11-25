@@ -70,8 +70,10 @@ class Context
       'files' => $_FILES,
       ), $args);
 
-    $this->_debug = ($tmp = mcms::config('debuggers'))
-      and mcms::matchip($_SERVER['REMOTE_ADDR'], $tmp);
+    if (null === ($tmp = mcms::config('debuggers')))
+      $this->_debug = true;
+    else
+      $this->_debug = mcms::matchip($_SERVER['REMOTE_ADDR'], $tmp);
 
     if (null === self::$_last)
       self::$_last = $this;
