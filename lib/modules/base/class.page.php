@@ -139,6 +139,9 @@ class Page
         } catch (NotConnectedException $e) { }
       }
 
+      if ($result instanceof Response)
+        $result->send();
+
       if (!empty($result))
         return array('content' => $result);
 
