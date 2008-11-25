@@ -453,46 +453,6 @@ class mcms
     return $list;
   }
 
-  public static function redirect($path, $status = 301)
-  {
-    if (!in_array($status, array('301', '302', '303', '307')))
-      throw new Exception("Статус перенаправления {$status} не определён в стандарте HTTP/1.1");
-
-    mcms::flush(mcms::FLUSH_NOW);
-
-    if ($_SERVER['REQUEST_METHOD'] == 'POST')
-      $status = 303;
-
-    if ($ctx = Context::last()) {
-      if (isset($ctx->db)) {
-        try {
-          $ctx->db->commit();
-        } catch (NotConnectedException $e) { }
-      }
-    }
-
-    $url = new url($path);
-    $target = mcms::fixurl($url->getAbsolute());
-
-    mcms::log('redirect', $target);
-
-    // При работе с JSON возвращаем адрес.
-    bebop_on_json(array(
-      'status' => 'redirect',
-      'redirect' => $target,
-      ));
-
-    if (!headers_sent()) {
-      header('HTTP/1.1 '. $status .' Redirect');
-      header('Location: '. $target);
-    } else {
-      die("now please go to {$target}\n"
-        ."Somebody screw up the cron by PRINTING something.\n");
-    }
-
-    exit();
-  }
-
   // Отладочные функции.
   public static function debug()
   {
