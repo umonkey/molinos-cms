@@ -20,8 +20,6 @@ class XspfModule implements iRemoteCall, iModuleConfig
     if (empty($tracks))
       throw new PageNotFoundException();
 
-    header('Content-Type: application/xspf+xml; charset=utf-8');
-
     // TODO: если запрошен один документ, и это — не файл, можно сразу возвращать все его файлы.
 
     $output .= "<?xml version='1.0' encoding='utf-8'?>";
@@ -29,8 +27,7 @@ class XspfModule implements iRemoteCall, iModuleConfig
     $output .= mcms::html('trackList', join('', $tracks));
     $output .= '</playlist>';
 
-    header('Content-Length: '. strlen($output));
-    die($output);
+    return new Response($output, 'application/xspf+xml');
   }
 
   public static function formGetModuleConfig()
