@@ -31,51 +31,60 @@ class BaseRPC implements iRemoteCall
    */
   public static function rpc_login(Context $ctx)
   {
-    if (null !== ($otp = $ctx->get('otp'))) {
-      try {
-        $node = Node::load(array(
-          'class' => 'user',
-          'name' => $ctx->get('email'),
-          ));
-
-        if ($ctx->get('otp') == $node->otp) {
-          $node->otp = null;
-          $node->save();
-
-          User::authorize($node->name, null, true);
-          mcms::log('auth', $node->name .': logged in using otp');
-
-          $ctx->redirect($ctx->get('destination', ''));
-        }
-      } catch (ObjectNotFoundException $e) {
-        throw new ForbiddenException(t('Пользователя с таким адресом нет.'));
-      }
-
-      throw new ForbiddenException(t('Ссылкой для восстановления пароля '
-        .'можно воспользоваться всего один раз, и этой ссылкой кто-то '
-        .'уже воспользовался.'));
-    }
-
-    if (!$ctx->method('post'))
-      throw new ForbiddenException('Идентификация возможна только '
-        .'методом POST.');
+    $ctx->checkMethod('post');
 
     try {
+      if (null !== ($otp = $ctx->get('otp'))) {
+        try {
+          $node = Node::load(array(
+            'class' => 'user',
+            'name' => $ctx->get('email'),
+            ));
+
+          if ($ctx->get('otp') == $node->otp) {
+            $node->otp = null;
+            $node->save();
+
+            User::authorize($node->name, null, true);
+            mcms::log('auth', $node->name .': logged in using otp');
+
+            return $ctx->getRedirect();
+          }
+        } catch (ObjectNotFoundException $e) {
+          throw new ForbiddenException(t('Пользователя с таким адресом нет.'));
+        }
+
+        throw new ForbiddenException(t('Ссылкой для восстановления пароля '
+          .'можно воспользоваться всего один раз, и этой ссылкой кто-то '
+          .'уже воспользовался.'));
+      }
+
       if (null === $ctx->post('login'))
         User::authorize($ctx->get('id'), null);
       else
         User::authorize($ctx->post('login'), $ctx->post('password'));
-    } catch (ObjectNotFoundException $e) {
-      bebop_on_json(array(
-        'status' => 'wrong',
-        'message' => 'Неверный пароль или имя пользователя.',
-        ));
-
-      if (null !== ($tmp = $ctx->get('onerror')))
-        $next = $tmp;
     }
 
-    return $next;
+    catch (Exception $e) {
+      if ($next = $ctx->get('onerror'))
+        return new Redirect($next);
+
+      bebop_on_json(array(
+        'status' => 'error',
+        'message' => $e->getMessage(),
+        ));
+
+      throw $e;
+    }
+
+    return $ctx->getRedirect();
+  }
+
+  private static function rpc_login_error(Context $ctx, $message)
+  {
+    if ($next = $ctx->get('onerror'))
+      return $ctx->getRedirect($next);
+    throw new ForbiddenException($message);
   }
 
   /**
@@ -214,7 +223,7 @@ class BaseRPC implements iRemoteCall
         ));
     }
 
-    return $back->string();
+    return new Redirect($back->string());
   }
 
   /**
