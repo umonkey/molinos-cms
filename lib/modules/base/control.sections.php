@@ -11,6 +11,9 @@ class SectionsControl extends SetControl implements iFormControl
 
   protected function getOptions($data)
   {
+    if (($data instanceof TypeNode) and $data->name == 'file')
+      return null;
+
     $result = TagNode::getTags('select');
 
     return $result;
