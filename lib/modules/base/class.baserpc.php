@@ -76,8 +76,6 @@ class BaseRPC implements iRemoteCall
 
       throw $e;
     }
-
-    return $ctx->getRedirect();
   }
 
   private static function rpc_login_error(Context $ctx, $message)
@@ -111,8 +109,6 @@ class BaseRPC implements iRemoteCall
       User::authorize();
     else
       self::login($uid);
-
-    return new Redirect();
   }
 
   /**
@@ -250,8 +246,6 @@ class BaseRPC implements iRemoteCall
     // Получаем почтовый адрес.
     $email = $node->getEmail();
 
-    $next = $ctx->getRedirect('');
-
     // Кодируем данные для передачи в email.
     $hash = mcms_encrypt(serialize($ctx->post));
 
@@ -273,39 +267,6 @@ class BaseRPC implements iRemoteCall
       throw new RuntimeException(t('Не удалось отправить письмо на адрес %email', array(
         '%email' => $email,
         )));
-
-    return $next;
-
-    /*
-      $ctx->redirect($ctx->get('destination'));
-    }
-
-    elseif (null !== ($hash = $ctx->get('hash'))) {
-      if (!is_array($data = unserialize(mcms_decrypt($hash))))
-        throw new RuntimeException(t('Не удалось расшифровать вашу просьбу, кто-то повредил ссылку.'));
-
-      $data['published'] = true;
-
-      $next = empty($data['on']['confirm'])
-        ? ''
-        : $data['on']['confirm'];
-
-      try {
-        $data['password'] = md5($data['password']);
-
-        $node = Node::create('user', $data);
-        unset($node->on);
-
-        $node->save();
-
-        User::authorize($node->name, null, true);
-      } catch (DuplicateException $e) {
-        throw new RuntimeException(t('Оказывается пользователь с таким адресом уже есть.'));
-      }
-
-      $ctx->redirect($next);
-    }
-    */
   }
 
   /**
@@ -323,7 +284,5 @@ class BaseRPC implements iRemoteCall
       ))->formProcess($data)->save();
 
     User::authorize($node->name, null, true);
-
-    return new Redirect();
   }
 }

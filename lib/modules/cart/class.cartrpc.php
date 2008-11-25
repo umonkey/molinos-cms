@@ -168,6 +168,6 @@ class CartRPC implements iRemoteCall
     if ($ctx->method('post'))
       foreach ($ctx->post('next', array()) as $k => $v)
         if (!empty($v) and null !== $ctx->post($k))
-          $ctx->redirect($v);
+          return new Redirect($v);
   }
 }

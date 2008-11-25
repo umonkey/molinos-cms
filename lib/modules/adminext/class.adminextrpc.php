@@ -57,8 +57,8 @@ class AdminExtRPC implements iRemoteCall
       'class' => 'nodelinks',
       ), $output);
 
-    return mcms::html('div', array(
+    return new Response(mcms::html('div', array(
       'class' => 'mcms-node-actions-list-wrapper',
-      ), $output);
+      ), $output));
   }
 }

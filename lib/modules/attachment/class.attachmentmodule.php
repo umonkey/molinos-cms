@@ -56,9 +56,9 @@ class AttachmentModule implements iRemoteCall
       $odd = !$odd;
     }
 
-    mcms::fixurls(mcms::html('table', array(
+    return new Response(mcms::html('table', array(
       'class' => 'options',
-      ), $output), true);
+      ), $output));
   }
 
   public static function rpc_ftp(Context $ctx)
@@ -109,8 +109,8 @@ class AttachmentModule implements iRemoteCall
 
     $message = t('Следующие файлы были загружены по FTP:');
 
-    mcms::fixurls($message . mcms::html('table', array(
+    return new Response($message . mcms::html('table', array(
       'class' => 'options',
-      ), $output), true);
+      ), $output));
   }
 };

@@ -22,7 +22,7 @@ class InstallModule implements iRemoteCall
     if (false === $output)
       mcms::fatal(t('Не удалось обработать запрос.'));
 
-    mcms::fixurls($output, true);
+    return $output;
   }
 
   /**
@@ -40,8 +40,6 @@ class InstallModule implements iRemoteCall
         }
       }
     }
-
-    return false;
   }
 
   public static function rpc_install(Context $ctx)
@@ -55,7 +53,7 @@ class InstallModule implements iRemoteCall
     $s = new Structure();
     $s->rebuild();
 
-    $ctx->redirect('?q=admin');
+    return new Redirect('?q=admin');
   }
 
   protected static function onGet(Context $ctx)
