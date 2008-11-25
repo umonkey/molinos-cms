@@ -27,20 +27,6 @@ class BaseModuleTests extends PHPUnit_Framework_TestCase
       throw new Exception('Bad database.');
   }
 
-  public function testParseHTML()
-  {
-    $html = '<script type="text/javascript" language="javascript" '
-      .'src="themes/test.js">hello</script>';
-
-    $good = array (
-      'type' => 'text/javascript',
-      'language' => 'javascript',
-      'src' => 'themes/test.js',
-      );
-
-    $this->assertEquals($good, mcms::parse_html($html));
-  }
-
   /**
    * @expectedException InvalidArgumentException
    */
