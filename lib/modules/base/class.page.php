@@ -139,18 +139,14 @@ class Page
         } catch (NotConnectedException $e) { }
       }
 
-      if ($result instanceof Response)
-        $result->send();
+      if (!($result instanceof Response)) {
+        if (empty($result))
+          $result = new Response(t('Запрос не обработан.'), 'text/plain', 404);
+        else
+          $result = new Response($result);
+      }
 
-      if (!empty($result))
-        return array('content' => $result);
-
-      if (null !== ($next = $ctx->get('destination')))
-        $ctx->redirect($next);
-
-      header('HTTP/1.1 200 OK');
-      header('Content-Type: text/plain; charset=utf-8');
-      die('Request not handled.');
+      $result->send();
     }
   }
 }
