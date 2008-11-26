@@ -142,7 +142,9 @@ class Structure
    */
   private function findPageParameters(array $page, array $path_args)
   {
-    $keys = explode('+', $page['params']);
+    $keys = array_key_exists('params', $page)
+      ? explode('+', $page['params'])
+      : array();
 
     // Параметров в урле больше, чем должно быть => мусор => 404.
     if (count($path_args) > count($keys))
