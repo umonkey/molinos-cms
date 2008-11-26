@@ -274,7 +274,7 @@ abstract class Widget implements iWidget
       if (null !== $ckey and is_array($cached = mcms::cache($ckey))) {
         mcms::add_extras($extras);
         mcms::add_extras($cached['extras']);
-        $this->debug($options, (array)$data, $result);
+        $this->debug($options, array(), $cached['content']);
         return $cached['content'];
       }
 
