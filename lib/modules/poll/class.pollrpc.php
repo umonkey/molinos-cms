@@ -17,6 +17,6 @@ class PollRPC implements iRemoteCall
         ));
     }
 
-    // $ctx->redirect($ctx->get('destination'));
+    return $ctx->getRedirect();
   }
 }
