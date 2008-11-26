@@ -34,8 +34,11 @@ class InstallModule implements iRemoteCall
       // Позволяем отключить драйвер в конфиге.
       if (in_array('sqlite', PDO_Singleton::listDrivers())) {
         if (file_exists($dist = 'conf' . DIRECTORY_SEPARATOR . 'default.db.dist')) {
-          if (copy($dist, substr($dist, 0, -5))) {
-            $ctx->gonext();
+          $target = substr($dist, 0, -5);
+
+          if (!file_exists($target))
+            if (!copy($dist, $target))
+              throw new RuntimeException(t('Не удалось проинсталлировать новую базу данных.'));
           }
         }
       }
