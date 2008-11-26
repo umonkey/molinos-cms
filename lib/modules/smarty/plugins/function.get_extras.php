@@ -3,5 +3,5 @@
 
 function smarty_function_get_extras($params, &$smarty)
 {
-  print mcms::extras();
+  return mcms::extras();
 }
