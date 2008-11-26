@@ -473,6 +473,7 @@ class AdminListHandler
           $result[$k]['#link'] = '?q=admin/structure/tree/pages/'. $v['id'];
         else
           $result[$k]['#nolink'] = true;
+      break;
 
     case 'widgets':
       foreach ($result as $k => $v)
