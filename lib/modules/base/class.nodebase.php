@@ -1758,7 +1758,7 @@ class NodeBase
 
     return $this->id
       ? $this->getName() . $name
-      : t('Добавление нового документа (!type)', array('!type' => $name));
+      : t('Добавление нового документа') . $name;
   }
 
   public function getFormSubmitText()
