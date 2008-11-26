@@ -666,11 +666,11 @@ class mcms
       $html .= '<hr/>'. self::getSignature();
       $html .= '</body></html>';
 
-      $report = sprintf("--- Request method: %s ---\n--- Host: %s ---\n--- URL: %s ---\n\n%s", $_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], $_SERVER['REQUEST_URI'], $content);
+      $report = sprintf("--- Request method: %s ---\n--- Host: %s ---\n--- URL: %s ---\n\n%s", $_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], $_SERVER['REQUEST_URI'], $html);
 
       self::writeCrashDump($report);
 
-      $r = new Response($content, 'text/html', 500);
+      $r = new Response($html, 'text/html', 500);
       $r->send();
     }
     
