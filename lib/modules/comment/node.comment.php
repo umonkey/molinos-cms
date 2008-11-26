@@ -53,12 +53,4 @@ class CommentNode extends Node
         ),
     );
   }
-
-  public function checkPermission($perm)
-  {
-    if ('d' == $perm and mcms::user()->id == $this->uid)
-      return true;
-
-    return parent::checkPermission($perm);
-  }
 };

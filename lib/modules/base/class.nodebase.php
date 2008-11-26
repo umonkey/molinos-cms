@@ -59,6 +59,9 @@ class NodeBase
         $data['created'] = $data['updated'];
     }
 
+    if (!array_key_exists('published', $data))
+      $data['published'] = $this->checkPermission('p');
+
     $this->data = $data;
   }
 
