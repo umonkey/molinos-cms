@@ -109,6 +109,12 @@ class BaseRPC implements iRemoteCall
       User::authorize();
     else
       self::login($uid);
+
+    $next = $uid
+      ? $ctx->get('from', '')
+      : '';
+
+    return $ctx->getRedirect($next);
   }
 
   /**
