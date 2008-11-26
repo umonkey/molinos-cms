@@ -34,7 +34,7 @@ class HiddenControl extends Control
 
   public function getHTML($data)
   {
-    if (null === $node or (null === ($value = $node->{$this->value})))
+    if (null === $data or (null === ($value = $data->{$this->value})))
       $value = $this->default;
 
     return mcms::html('input', array(
