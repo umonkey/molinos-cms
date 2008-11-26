@@ -31,7 +31,7 @@ function smarty_function_node($params, &$smarty)
 
     $path = array_key_exists('path', $params)
       ? $params['path']
-      : 'node/';
+      : '?q=node/';
 
     $a = array();
 
