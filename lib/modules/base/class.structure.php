@@ -111,7 +111,7 @@ class Structure
               continue;
 
             // У страницы меньше параметров, чем есть в запросе — не то.
-            if (count(explode('+', $meta['params'])) > count($args))
+            if (count($args) > count(explode('+', $meta['params'])))
               continue;
 
             $match = $page;
