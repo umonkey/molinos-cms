@@ -1112,6 +1112,8 @@ class mcms
           $__smarty->display($__fullpath, $compile_id, $compile_id);
 
           error_reporting($old);
+        } else {
+          mcms::flog('smarty', $filename . ': unable to render: Smarty not available.');
         }
       }
 
