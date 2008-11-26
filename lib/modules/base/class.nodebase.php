@@ -2220,7 +2220,7 @@ class NodeBase
     $schema = Schema::load($this->class);
 
     // Выбор родителя возможен только при создании.
-    if ($this->id)
+    if ($this->id and isset($schema['parent_id']))
       unset($schema['parent_id']);
 
     $hasfields = count($schema);
