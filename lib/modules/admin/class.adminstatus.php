@@ -91,6 +91,9 @@ class AdminStatus implements iAdminMenu
       self::count($parts, 'SELECT COUNT(*) FROM `node__session`',
         'сессий: !count');
 
+      self::count($parts, 'SELECT COUNT(*) FROM `node` WHERE `left` >= `right`',
+        '<strong>повреждённых веток: !count</strong>');
+
       if ('SQLite' == mcms::db()->getDbType())
         $parts[] = t('объём&nbsp;БД:&nbsp;%size', array(
           '%size' => mcms::filesize(mcms::db()->getDbName()),
