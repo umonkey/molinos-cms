@@ -1,7 +1,11 @@
 <?php
 // vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4:
 
-require_once('Smarty.class.php');
+// Для систем, где Smarty в путях.
+if (!(@include 'Smarty.class.php'))
+  // Для дебианов и убунт.
+  if (!(@include 'smarty' . DIRECTORY_SEPARATOR . 'Smarty.class.php'))
+    throw new RuntimeException(t('Не удалось подключить Smarty.'));
 
 class BebopSmarty extends Smarty
 {
