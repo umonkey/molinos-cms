@@ -15,6 +15,9 @@ class Response
 
   public function send()
   {
+    if (headers_sent())
+      die(t('Вывод страницы невозможен: заголовки уже ушли.'));
+
     // Закрываем транзакцию, если есть.
     if ($ctx = Context::last()) {
       if (isset($ctx->db)) {
