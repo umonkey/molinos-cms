@@ -35,7 +35,7 @@ class Page
       ? self::renderWidgets($ctx, $data['page']['widgets'])
       : array();
 
-    $result = bebop_render_object('page', $data['name'], $ctx->theme, $data = array(
+    $result = bebop_render_object('page', $data['name'], $ctx->theme, $pdata = array(
       'widgets' => $widgets,
       'page' => $data['name'],
       'section' => $ctx->section ? $ctx->section->getRaw() : null,
@@ -52,20 +52,28 @@ class Page
       $result);
 
     if ($ctx->debug('page'))
-      mcms::debug($data, $widgets, $result);
+      mcms::debug($pdata, $widgets, $result);
     elseif ($ctx->debug('widget') and null === $ctx->get('widget')) {
-      $result = "<html><body><h1>Отладка вджетов</h1><p>Выберите виджет:</p><ul>";
-
-      ksort($widgets);
+      $result = "<html><head>"
+        . '<style type=\'text/css\'>td, th { padding: 2px 6px; border: solid 1px #aaa; } table { border-collapse: collapse; border: solid 2px gray; }</style>'
+        . '</head><body><h1>Отладка вджетов</h1><p>Выберите виджет:</p>'
+        . '<table class=\'debug\'>';
 
       $u = $ctx->url()->string();
 
-      foreach ($widgets as $k => $v) {
-        $result .= "<li><a href='{$u}&amp;widget={$k}'>{$k}</a></li>";
+      foreach (Structure::getInstance()->findWidgets($data['page']['widgets']['default']) as $name => $info) {
+        $wlink = $u . '&widget=' . $name;
+        $slink = '?q=admin/content/edit/171&destination=CURRENT';
+
+        $result .= '<tr>';
+        $result .= mcms::html('td', l($wlink, $name));
+        $result .= mcms::html('td', $info['class']);
+        $result .= mcms::html('td', l($slink, t('настройки')));
+        $result .= '</tr>';
       }
 
-      $result .= "</ul><hr/>"
-        . mcms::getSignature($ctx)
+      $result .= '</table><hr/>'
+        . mcms::getSignature($ctx, true)
         . "</body></html>";
     }
 
