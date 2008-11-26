@@ -88,7 +88,7 @@ class UserWidget extends Widget implements iWidget
       return $options;
 
     $options['uid'] = $ctx->get('uid');
-    $options['login'] = $this->user->login;
+    $options['login'] = mcms::user()->login;
     $options['action'] = $ctx->get('action', 'default');
     $options['status'] = $ctx->get('status');
     $options['hash'] = $ctx->get('hash');
