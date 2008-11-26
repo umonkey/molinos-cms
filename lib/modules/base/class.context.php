@@ -457,7 +457,7 @@ class Context
   {
     if (null !== ($next = $this->get('destination')))
       ;
-    elseif (null !== ($next = $this->post('destination')))
+    elseif ($this->method('post') and null !== ($next = $this->post('destination')))
       ;
     else
       $next = $default;
