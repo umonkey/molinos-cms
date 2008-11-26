@@ -668,10 +668,24 @@ class mcms
 
       $report = sprintf("--- Request method: %s ---\n--- Host: %s ---\n--- URL: %s ---\n\n%s", $_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], $_SERVER['REQUEST_URI'], $html);
 
-      self::writeCrashDump($report);
+      try {
+        self::writeCrashDump($report);
+      } catch (Exception $e) { }
 
-      $r = new Response($html, 'text/html', 500);
-      $r->send();
+      try {
+        if (class_exists('Response')) {
+          $r = new Response($html, 'text/html', 500);
+          $r->send();
+        }
+      } catch (Exception $e) { }
+
+      // Сырой вывод используется в самом крайнем случае, когда ошибки
+      // валятся отовсюду, даже — из автозагрузчика классов.  Обычно
+      // это означает ошибку записи конфигурационного файла.
+      header('HTTP/1.1 500 FUBAR');
+      header('Content-Type: text/html; charset=utf-8');
+      header('Content-Length: ' . strlen($html));
+      die($html);
     }
     
     $backtrace = sprintf("--- backtrace (time: %s) ---\n\n%s", microtime(), $backtrace);
@@ -1128,96 +1142,106 @@ class mcms
    */
   public static function check()
   {
-    $htreq = array(
-      'register_globals' => 0,
-      'magic_quotes_gpc' => 0,
-      'magic_quotes_runtime' => 0,
-      'magic_quotes_sybase' => 0,
-      '@upload_tmp_dir' => mcms::mkdir(mcms::config('tmpdir') .'/upload'),
-      );
+    try {
+      $htreq = array(
+        'register_globals' => 0,
+        'magic_quotes_gpc' => 0,
+        'magic_quotes_runtime' => 0,
+        'magic_quotes_sybase' => 0,
+        '@upload_tmp_dir' => mcms::mkdir(mcms::config('tmpdir') .'/upload'),
+        );
 
-    $errors = $messages = array();
+      $errors = $messages = array();
 
-    foreach ($htreq as $k => $v) {
-      $key = substr($k, 0, 1) == '@' ? substr($k, 1) : $k;
+      foreach ($htreq as $k => $v) {
+        $key = substr($k, 0, 1) == '@' ? substr($k, 1) : $k;
 
-      ini_set($key, $v);
+        ini_set($key, $v);
 
-      if (($v != ($current = ini_get($key))) and (substr($k, 0, 1) != '@'))
-        $errors[] = $key;
-    }
-
-    if (!extension_loaded('pdo'))
-      $messages[] = t('Отсутствует поддержка <a href=\'@url\'>PDO</a>.  Она очень нужна, '
-        .'без неё не получится работать с базами данных.', array(
-          '@url' => 'http://docs.php.net/pdo',
-          ));
-
-    if (!extension_loaded('mbstring'))
-      $messages[] = t('Отсутствует поддержка юникода.  21й век на дворе, '
-        .'пожалуйста, установите расширение '
-        .'<a href=\'http://php.net/mbstring\'>mbstring</a>.');
-    elseif (!mb_internal_encoding('UTF-8'))
-      $messages[] = t('Не удалось установить UTF-8 в качестве '
-        .'базовой кодировки для модуля mbstr.');
-
-    mcms::mkdir(mcms::config('filestorage'), 'Каталог для загружаемых '
-      .'пользователями файлов (<tt>%path</tt>) закрыт для записи. '
-      .'Очень важно, чтобы в него можно было писать.');
-
-    if (!empty($errors) or !empty($messages)) {
-      $output = "<html><head><title>Ошибка конфигурации</title></head><body>";
-
-      if (!empty($errors)) {
-        $output .= '<h1>'. t('Нарушение безопасности') .'</h1>';
-        $output .= "<p>Следующие настройки <a href='http://php.net/'>PHP</a> неверны и не могут быть <a href='http://php.net/ini_set'>изменены на лету</a>:</p>";
-        $output .= "<table border='1'><tr><th>Параметр</th><th>Значение</th><th>Требуется</th></tr>";
-
-        foreach ($errors as $key)
-          $output .= "<tr><td>{$key}</td><td>". ini_get($key) ."</td><td>{$htreq[$key]}</td></tr>";
-
-        $output .= "</table>";
+        if (($v != ($current = ini_get($key))) and (substr($k, 0, 1) != '@'))
+          $errors[] = $key;
       }
 
-      if (!empty($messages)) {
-        $output .= '<h1>'. t('Ошибка настройки') .'</h1>';
-        $output .= '<ol><li>'. join('</li><li>', $messages) .'</li></ol>';
+      if (!extension_loaded('pdo'))
+        $messages[] = t('Отсутствует поддержка <a href=\'@url\'>PDO</a>.  Она очень нужна, '
+          .'без неё не получится работать с базами данных.', array(
+            '@url' => 'http://docs.php.net/pdo',
+            ));
+
+      if (!extension_loaded('mbstring'))
+        $messages[] = t('Отсутствует поддержка юникода.  21й век на дворе, '
+          .'пожалуйста, установите расширение '
+          .'<a href=\'http://php.net/mbstring\'>mbstring</a>.');
+      elseif (!mb_internal_encoding('UTF-8'))
+        $messages[] = t('Не удалось установить UTF-8 в качестве '
+          .'базовой кодировки для модуля mbstr.');
+
+      mcms::mkdir(mcms::config('filestorage'), 'Каталог для загружаемых '
+        .'пользователями файлов (<tt>%path</tt>) закрыт для записи. '
+        .'Очень важно, чтобы в него можно было писать.');
+
+      if (!empty($errors) or !empty($messages)) {
+        $output = "<html><head><title>Ошибка конфигурации</title></head><body>";
+
+        if (!empty($errors)) {
+          $output .= '<h1>'. t('Нарушение безопасности') .'</h1>';
+          $output .= "<p>Следующие настройки <a href='http://php.net/'>PHP</a> неверны и не могут быть <a href='http://php.net/ini_set'>изменены на лету</a>:</p>";
+          $output .= "<table border='1'><tr><th>Параметр</th><th>Значение</th><th>Требуется</th></tr>";
+
+          foreach ($errors as $key)
+            $output .= "<tr><td>{$key}</td><td>". ini_get($key) ."</td><td>{$htreq[$key]}</td></tr>";
+
+          $output .= "</table>";
+        }
+
+        if (!empty($messages)) {
+          $output .= '<h1>'. t('Ошибка настройки') .'</h1>';
+          $output .= '<ol><li>'. join('</li><li>', $messages) .'</li></ol>';
+        }
+
+        $output .= '<p>'. t('Свяжитесь с администратором вашего хостинга для исправления этих проблем.&nbsp; <a href=\'http://code.google.com/p/molinos-cms/\'>Molinos.CMS</a> на данный момент не может работать.') .'</p>';
+        $output .= "</body></html>";
+
+        $r = new Response($output, 'text/html', 500);
+        $r->send();
       }
-
-      $output .= '<p>'. t('Свяжитесь с администратором вашего хостинга для исправления этих проблем.&nbsp; <a href=\'http://code.google.com/p/molinos-cms/\'>Molinos.CMS</a> на данный момент не может работать.') .'</p>';
-      $output .= "</body></html>";
-
-      $r = new Response($output, 'text/html', 500);
-      $r->send();
+    } catch (Exception $e) {
+      mcms::fatal($e);
     }
   }
 
   public static function getSignature(Context $ctx = null, $full = false)
   {
-    if (null === $ctx)
-      $ctx = new Context();
+    try {
+      if (null === $ctx)
+        $ctx = new Context();
 
-    $at = mcms::html('a', array(
-      'href' => $ctx->url()->getBase($ctx),
-      ), $ctx->host() . $ctx->folder());
+      $at = mcms::html('a', array(
+        'href' => $ctx->url()->getBase($ctx),
+        ), $ctx->host() . $ctx->folder());
 
-    $link = 'http://code.google.com/p/molinos-cms/wiki/ChangeLog_' . str_replace('.', '_', mcms::version());
-    $sig = '<em>Molinos CMS ' . l($link, 'v' . mcms::version());
+      $link = 'http://code.google.com/p/molinos-cms/wiki/ChangeLog_' . str_replace('.', '_', mcms::version());
+      $sig = '<em>Molinos CMS ' . l($link, 'v' . mcms::version());
 
-    if ($full) {
-      $options = array();
+      if ($full) {
+        $options = array();
 
-      if (count($parts = explode(':', mcms::config('db.default'))))
-        if (in_array($parts[0], PDO_Singleton::listDrivers()))
-          $options[] = $parts[0];
+        if (count($parts = explode(':', mcms::config('db.default'))))
+          if (in_array($parts[0], PDO_Singleton::listDrivers()))
+            $options[] = $parts[0];
 
-      $options[] = str_replace('_provider', '', get_class(BebopCache::getInstance()));
-      $options[] = ini_get('memory_limit');
+        $options[] = str_replace('_provider', '', get_class(BebopCache::getInstance()));
+        $options[] = ini_get('memory_limit');
 
-      $sig .= ' [' . join('+', $options) . ']';
+        $sig .= ' [' . join('+', $options) . ']';
+      }
+
+      $sig .= ' at '. $at .'</em>';
     }
 
-    $sig .= ' at '. $at .'</em>';
+    catch (Exception $e) {
+      $sig = 'Molinos CMS v' . mcms::version();
+    }
 
     return $sig;
   }
@@ -1225,7 +1249,12 @@ class mcms
   public static function run(Context $ctx = null)
   {
     // Проверка готовности окружения.
-    self::check();
+    try {
+      self::check();
+    } catch (Exception $e) {
+      mcms::fatal($e);
+      print '<pre>'; die(var_dump($e));
+    }
 
     if (null === $ctx)
       $ctx = new Context(array('url' => '?' . $_SERVER['QUERY_STRING']));
@@ -1494,20 +1523,22 @@ class mcms
       $content = preg_replace('/ =>\s+array \(/', ' => array (', $content);
     }
 
+    $vpath = dirname($filename) . DIRECTORY_SEPARATOR . basename($filename);
+
     if (file_exists($filename)) {
       if (!is_writable($filename)) {
         if (is_writable(dirname($filename)))
           unlink($filename);
         else
           throw new RuntimeException(t('Изменение файла %file невозможно: он защищён от записи.', array(
-            '%file' => basename($filename),
+            '%file' => $vpath,
             )));
       }
     }
 
     if (!@file_put_contents($filename, $content))
       throw new RuntimeException(t('Не удалось записать файл %file.', array(
-        '%file' => basename($filename),
+        '%file' => $vpath,
         )));
   }
 
