@@ -75,9 +75,10 @@ class Config
         return $path;
 
     // Ничего не найдено, пытаемся использовать фабричный конфиг.
-    if (file_exists($src = 'conf' . DIRECTORY_SEPARATOR . 'default.config.php.dist'))
-      if (copy($src, $dst = 'conf' . DIRECTORY_SEPARATOR . 'default.config.php'))
-        return $dst;
+    if (file_exists($src = 'conf' . DIRECTORY_SEPARATOR . 'default.config.php.dist')) {
+      mcms::writeFile($dst = 'conf' . DIRECTORY_SEPARATOR . 'default.config.php', file_get_contents($src));
+      return $dst;
+    }
 
     throw new RuntimeException(t('Не удалось найти конфигурационный файл.'));
   }
