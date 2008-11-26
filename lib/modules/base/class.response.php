@@ -134,7 +134,11 @@ class Response
         $content);
 
       if (!empty($_GET['__cleanurls'])) {
-        // $content = preg_replace('@(href|src|action)=([\'"])\?q=([^&"\'])+@');
+        $re = '@(href|src|action)=([\'"])\?q=([^&"\']+)\&amp\;+@';
+        $content = preg_replace($re, '\1=\2\3?', $content);
+
+        $re = '@(href|src|action)=([\'"])\?q=([^&"\']+)([\'"])+@';
+        $content = preg_replace($re, '\1=\2\3\4', $content);
       }
     }
 
