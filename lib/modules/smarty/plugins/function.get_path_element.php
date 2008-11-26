@@ -3,15 +3,20 @@
 
 function smarty_function_get_path_element($params, &$smarty)
 {
-  static $path = null;
-  
-  if ($path === null)
-    $path = explode('/', preg_replace('/\?.*/', '', $_SERVER['REQUEST_URI']));
+  if (!array_key_exists('index', $params))
+    throw new SmartyException(t('{get_path_element} предполагает наличие параметра index.'));
 
-  if (!empty($params['index']) and is_numeric($params['index']))
-    $rc = @$path[$params['index']];
+  if (null === ($path = Context::last()->query()))
+    $path = array();
   else
-    $rc = "";
+    $path = preg_split('@/@', $path, -1, PREG_SPLIT_NO_EMPTY);
 
-  $smarty->assign($params['assign'], $rc);
+  $result = array_key_exists($idx = intval($params['index']), $path)
+    ? $path[$idx]
+    : null;
+
+  if (array_key_exists('assign', $params))
+    $smarty->assign($params['assign'], $result);
+  else
+    return $result;
 }
