@@ -1,40 +1,6 @@
 <?php
-/**
- * Обработчик RPC модуля base.
- *
- * Выполняет действие, указанное в параметре action.  Возможные варианты:
- * вход в систему (login), выход (logout), имперсонация (su), восстановление
- * забытого пароля (restore), промежуточную обработку OpenID (openid).
- *
- * @package mod_base
- * @subpackage Core
- * @author Justin Forest <justin.forest@gmail.com>
- * @copyright 2006-2008 Molinos.RU
- * @license http://www.gnu.org/copyleft/gpl.html GPL
- */
-
-/**
- * Обработчик RPC модуля base.
- *
- * Обработчики отдельных команд (методы onRemote...()) сделаны защищёнными
- * для того, чтобы их можно было использовать в тестах (унаследовав тестовый
- * класс от BaseModule).
- *
- * @package mod_base
- * @subpackage Core
- */
 class BaseModule implements iModuleConfig, iNodeHook
 {
-  private static function login($uid)
-  {
-    $node = Node::load(array('class' => 'user', 'id' => $uid));
-
-    if (!$node->published)
-      throw new ForbiddenException(t('Ваш профиль заблокирован.'));
-
-    mcms::session('uid', $node->id);
-  }
-
   /**
    * Возвращает форму для настройки модуля.
    *

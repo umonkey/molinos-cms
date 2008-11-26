@@ -285,4 +285,14 @@ class BaseRPC implements iRemoteCall
 
     User::authorize($node->name, null, true);
   }
+
+  private static function login($uid)
+  {
+    $node = Node::load(array('class' => 'user', 'id' => $uid));
+
+    if (!$node->published)
+      throw new ForbiddenException(t('Ваш профиль заблокирован.'));
+
+    mcms::session('uid', $node->id);
+  }
 }
