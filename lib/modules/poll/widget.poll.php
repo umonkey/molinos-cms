@@ -3,6 +3,8 @@
 
 class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
 {
+  private $options;
+
   public static function getWidgetInfo()
   {
     return array(
@@ -42,10 +44,13 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
   // Обработка GET запросов.
   public function onGet(array $options)
   {
-    if (null === ($poll = $this->getCurrentPoll()))
+    if (null === ($poll = $this->getCurrentPoll($options)))
       return null;
 
-    if (!$this->checkUserVoted()) {
+    // FIXME!
+    $this->options = $options;
+
+    if (!$this->checkUserVoted($options)) {
       return array(
         'mode' => 'form',
         'node' => $poll->getRaw(),
@@ -80,7 +85,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
 
     switch ($id) {
     case 'vote-form':
-      if (null !== ($node = $this->getCurrentPoll())) {
+      if (null !== ($node = $this->getCurrentPoll($this->options))) {
         $options = array(
           'label' => $node->name,
           'required' => true,
@@ -115,9 +120,13 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
     return array();
   }
 
-  protected function getCurrentPoll()
+  protected function getCurrentPoll(array $options)
   {
-    $nodes = Node::find($filter = array('class' => 'poll', 'tags' => $this->options['section'], '#sort' => array('created' => 'desc')), 1, 0);
+    $nodes = Node::find($filter = array(
+      'class' => 'poll',
+      'tags' => $options['section'],
+      '#sort' => '-id',
+      ), 1, 0);
 
     if (!empty($nodes))
       return $nodes[key($nodes)];
@@ -135,10 +144,10 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
     return $options;
   }
 
-  protected function checkUserVoted(Node $poll = null)
+  protected function checkUserVoted(array $options, Node $poll = null)
   {
     if (null === $poll)
-      if (null === ($poll = $this->getCurrentPoll()))
+      if (null === ($poll = $this->getCurrentPoll($options)))
         return true;
 
     if (!($uid = mcms::user()->id)) {
