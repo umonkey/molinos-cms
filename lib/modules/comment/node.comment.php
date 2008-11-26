@@ -3,12 +3,13 @@
 
 class CommentNode extends Node
 {
-  public function save()
+  public function getName()
   {
-    if (empty($this->name))
-      $this->name = t('Комментарий от %name', array('%name' => mcms::user()->name));
+    $name = $this->uid
+      ? t('Комментарий к ноде %id', array('%id' => $this->node))
+      : t('Анонимный комментарий к ноде %id', array('%id' => $this->node));
 
-    return parent::save();
+    return $name;
   }
 
   public function getFormTitle()
@@ -22,6 +23,9 @@ class CommentNode extends Node
   {
     if (empty($this->node))
       $this->node = $data['comment_node'];
+
+    if (!empty($data['anonymous']))
+      $this->anonymous = true;
 
     $res = parent::formProcess($data);
 
@@ -42,11 +46,6 @@ class CommentNode extends Node
         'type' => 'TextLineControl',
         'description' => t('Отображается в списках документов как в административном интерфейсе, так и на самом сайте.'),
         'required' => true,
-        ),
-      'uid' => array(
-        'type' => 'NodeLinkControl',
-        'label' => t('Автор'),
-        'dictionary' => 'user',
         ),
       'text' => array(
         'type' => 'TextHTMLControl',
