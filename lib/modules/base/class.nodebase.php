@@ -273,7 +273,8 @@ class NodeBase
       $this->created = gmdate('Y-m-d H:i:s');
 
     if (empty($this->data['uid']) and $this->data['class'] != 'user' and $this->data['class'] != 'group')
-      $this->data['uid'] = mcms::user()->id;
+      if (empty($this->data['anonymous']))
+        $this->data['uid'] = mcms::user()->id;
 
     // FIXME: вынести детей из data в отдельную переменную.
     if (isset($this->data['children']))
