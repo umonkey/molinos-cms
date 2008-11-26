@@ -20,7 +20,13 @@ class Response
       if (isset($ctx->db)) {
         try {
           $ctx->db->commit();
-        } catch (NotConnectedException $e) { }
+        }
+        catch (NotConnectedException $e) { }
+
+        // Если мы дошли до отправки данных пользователю,
+        // вряд ли мы не проинсталлированы. Хотя хорошо бы
+        // разобраться, как мы сюда вообще попадаем.
+        catch (NotInstalledException $e) { }
       }
     }
 
