@@ -513,7 +513,7 @@ class AdminRPC implements iRemoteCall
 
     $form->addControl(new HiddenControl(array(
       'value' => 'search_from',
-      'default' => $ctx->get('from', 'admin/content/list'),
+      'default' => $ctx->get('from', '?q=admin/content/list'),
       )));
 
     $form->addControl(new TextLineControl(array(
