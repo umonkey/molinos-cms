@@ -1249,12 +1249,7 @@ class mcms
   public static function run(Context $ctx = null)
   {
     // Проверка готовности окружения.
-    try {
-      self::check();
-    } catch (Exception $e) {
-      mcms::fatal($e);
-      print '<pre>'; die(var_dump($e));
-    }
+    self::check();
 
     if (null === $ctx)
       $ctx = new Context(array('url' => '?' . $_SERVER['QUERY_STRING']));
