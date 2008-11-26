@@ -59,8 +59,12 @@ class NodeBase
         $data['created'] = $data['updated'];
     }
 
-    if (!array_key_exists('published', $data))
-      $data['published'] = $this->checkPermission('p');
+    // Проверять публикацию пользователей и групп нельзя,
+    // т.к. они создаются при восстановлении сессии, получаем
+    // мёртвый цикл.
+    if (!in_array($data['class'], array('user', 'group')))
+      if (!array_key_exists('published', $data))
+        $data['published'] = $this->checkPermission('p');
 
     $this->data = $data;
   }
