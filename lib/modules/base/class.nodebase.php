@@ -1749,7 +1749,7 @@ class NodeBase
       $name = mb_strtolower(mcms_plain($type->title));
 
       if (mcms::user()->hasAccess('u', 'type'))
-        $name = l("?q=admin/content/edit/{$type->id}?destination=CURRENT", $name);
+        $name = l("?q=admin/content/edit/{$type->id}&destination=CURRENT", $name);
 
       $name = ' (' . $name . ')';
     } catch (ObjectNotFoundException $e) {
@@ -2233,6 +2233,7 @@ class NodeBase
         'type' => 'TextLineControl',
         'label' => t('Заголовок'),
         'required' => true,
+        'recommended' => true,
         ),
       'created' => array(
         'type' => 'DateTimeControl',
