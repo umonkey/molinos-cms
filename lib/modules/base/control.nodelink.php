@@ -145,56 +145,26 @@ class NodeLinkControl extends Control
   {
     $this->validate($value);
 
-    if (empty($value))
-      $node->{$this->value} = null;
-    else
-      $node->{$this->value} = Node::load($value);
+    try {
+      if (empty($value))
+        $node->{$this->value} = null;
+      elseif (is_numeric($value))
+        $node->{$this->value} = Node::load($value);
+      else {
+        $parts = explode('.', $this->values);
 
-    /*
-    if (!empty($data['nodelink_remap'][$key]))
-      $v['values'] = $data['nodelink_remap'][$key];
-    elseif (!empty($v['dictionary']))
-      $v['values'] = $v['dictionary'] . '.name';
-
-    $parts = explode('.', $v['values'], 2);
-
-    if (empty($value)) {
-      $node = null;
-    } elseif (is_numeric($value) and empty($data['nodelink_remap'][$key])) {
-      // Обработка обычных выпадающих списков.
-      try {
-        $node = Node::load($f = array(
+        $n = Node::load(array(
           'class' => $parts[0],
-          'id' => $value,
-          'deleted' => 0,
+          $parts[1] => $value,
           ));
-      } catch (ObjectNotFoundException $e) {
-        $node = null;
+
+        $node->{$this->value} = $n;
       }
-    } elseif (!empty($v['values'])) {
-      $required = substr($parts[1], -1) == '!';
-
-      $filter = array(
-        'class' => $parts[0],
-        rtrim($parts[1], '!') => $value,
-        'published' => 1,
-        'deleted' => 0,
-        );
-
-      $node = Node::find($filter, 1);
-
-      if (!empty($node))
-        $node = array_shift($node);
-      else
-        $node = null;
-
-      if (empty($node) and $required)
-        throw new ValidationException(t('Не заполнено поле «%field».',
-          array('%field' => $v['label'])));
+    } catch (ObjectNotFoundException $e) {
+      throw new PageNotFoundException(t('Объект «%name» не найден.', array(
+        '%name' => $value,
+        )));
     }
-
-    $this->$k = $node;
-    */
   }
 
   public function getLinkId($data)
