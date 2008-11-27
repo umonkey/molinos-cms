@@ -39,7 +39,8 @@ class Response
     // Возвращаем JSON.
     if ($this->isJSON()) {
       header('HTTP/1.1 200 OK');
-      header('Content-Type: application/x-json');
+      header('Content-Type: application/x-json; charset=utf-8');
+      header('Expires: ' . date('r', time() - (60*60*24)));
 
       setlocale(LC_ALL, "en_US.UTF-8");
 
@@ -60,7 +61,7 @@ class Response
       $content = $this->getContent();
     }
 
-    header(sprintf('Content-Length: %u', null === $this->content ? 0 : strlen($this->content)));
+    header(sprintf('Content-Length: %u', (null === $content) ? 0 : strlen($content)));
 
     die($content);
   }
