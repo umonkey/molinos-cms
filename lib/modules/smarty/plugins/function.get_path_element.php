@@ -11,7 +11,7 @@ function smarty_function_get_path_element($params, &$smarty)
   else
     $path = preg_split('@/@', $path, -1, PREG_SPLIT_NO_EMPTY);
 
-  $result = array_key_exists($idx = intval($params['index']), $path)
+  $result = array_key_exists($idx = intval($params['index']) - 1, $path)
     ? $path[$idx]
     : null;
 
