@@ -20,7 +20,10 @@ class AdminMenu implements iAdminMenu
     if (null === ($key = $this->getCacheKey()))
       return null;
 
-    return mcms::cache($key, $value);
+    if (null === $value)
+      return mcms::cache($key);
+    else
+      return mcms::cache($key, $value);
   }
 
   private static function getGroupName($name)
@@ -79,8 +82,7 @@ class AdminMenu implements iAdminMenu
 
     $output .= '</ul>';
 
-    if (null !== ($key = $this->getCacheKey()))
-      mcms::cache($key, $output);
+    $this->cache($key, $output);
 
     return $output;
   }
@@ -233,6 +235,9 @@ class AdminMenu implements iAdminMenu
     $columns = array();
     $idx = 0;
 
+    if (is_string($cached = mcms::cache($ckey = 'admin:desktop:status')))
+      return $cached;
+
     foreach ($this->getIcons() as $grname => $gritems) {
       $items = array();
 
@@ -276,11 +281,13 @@ class AdminMenu implements iAdminMenu
           ), $col);
     }
 
-    if (empty($result))
-      return null;
+    if (!empty($result))
+      $result = mcms::html('div', array(
+        'id' => 'desktop',
+        ), $result);
 
-    return mcms::html('div', array(
-      'id' => 'desktop',
-      ), $result);
+    mcms::cache($ckey, $result);
+
+    return $result;
   }
 };
