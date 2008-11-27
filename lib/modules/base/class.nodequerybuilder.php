@@ -606,13 +606,9 @@ class NodeQueryBuilder
     }
 
     // Выборка по дополнительной таблице.
-    else {
-      $schema = Node::create($table)->schema();
-
-      if (!empty($schema['fields'][$field]['indexed'])) {
-        $this->addTable('node__idx_'. $table);
-        $mask = "`node__idx_{$table}`.`{$field}`";
-      }
+    elseif (Node::create($table)->schema()->hasIndex($field)) {
+      $this->addTable('node__idx_'. $table);
+      $mask = "`node__idx_{$table}`.`{$field}`";
     }
 
     if (null !== $mask)
