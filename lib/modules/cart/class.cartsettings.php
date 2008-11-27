@@ -10,6 +10,7 @@ class CartSettings implements iModuleConfig
       $schema = $type->schema();
       if (isset($schema['price']))
         $types[$type->id] = $type->title;
+    }
 
     asort($types);
 
