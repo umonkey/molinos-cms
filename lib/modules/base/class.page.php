@@ -35,15 +35,11 @@ class Page
       ? self::renderWidgets($ctx, $data['page']['widgets'])
       : array();
 
-    // Запрошен конкретный виджет — отдаём его.
-    if (!$ctx->debug() and ($wname = $ctx->get('widget')) and array_key_exists($wname, $widgets))
-      return new Response($widgets[$wname]);
-
     $result = bebop_render_object('page', $data['name'], $ctx->theme, $pdata = array(
       'widgets' => $widgets,
       'page' => $data['name'],
-      'section' => $ctx->section ? $ctx->section->getRaw() : null,
-      'root' => $ctx->root ? $ctx->root->getRaw() : null,
+      'section' => ($ctx->section instanceof Node) ? $ctx->section->getRaw() : null,
+      'root' => ($ctx->root instanceof Node) ? $ctx->root->getRaw() : null,
       ));
 
     $result = str_replace(
@@ -60,15 +56,14 @@ class Page
     elseif ($ctx->debug('widget') and null === $ctx->get('widget')) {
       $result = "<html><head>"
         . '<style type=\'text/css\'>td, th { padding: 2px 6px; border: solid 1px #aaa; } table { border-collapse: collapse; border: solid 2px gray; }</style>'
-        . '</head><body><h1>Отладка виджетов</h1><p>Выберите виджет:</p>'
+        . '</head><body><h1>Отладка вджетов</h1><p>Выберите виджет:</p>'
         . '<table class=\'debug\'>';
 
       $u = $ctx->url()->string();
 
       foreach (Structure::getInstance()->findWidgets($data['page']['widgets']['default']) as $name => $info) {
         $wlink = $u . '&widget=' . $name;
-        $slink = '?q=admin/structure/edit/' . $info['id']
-          . '&destination=CURRENT';
+        $slink = '?q=admin/content/edit/171&destination=CURRENT';
 
         $result .= '<tr>';
         $result .= mcms::html('td', l($wlink, $name));
@@ -80,6 +75,11 @@ class Page
       $result .= '</table><hr/>'
         . mcms::getSignature($ctx, true)
         . "</body></html>";
+    }
+
+    if ($ctx->debug('profile')) {
+      $p = new Debugger($ctx);
+      return $p->getProfile($widgets);
     }
 
     return new Response($result);

@@ -1307,8 +1307,6 @@ class mcms
       mcms::fatal($e);
     }
 
-    $ctx->profile();
-
     $result->send();
 
     // TODO: вернуть работу с node__fallback.
