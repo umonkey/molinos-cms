@@ -88,6 +88,7 @@ class SubscriptionRPC implements iRemoteCall
       $node = Node::create('subscription', array(
         'name' => $data['email'],
         'last' => $last,
+        'published' => true,
         ));
 
       $status = t('Подписка активирована.');
