@@ -150,6 +150,11 @@ class Page
           $result = new Response($result);
       }
 
+      if ($ctx->debug('profile')) {
+        $p = new Debugger($ctx);
+        return $p->getProfile($widgets);
+      }
+
       $result->send();
     }
   }
