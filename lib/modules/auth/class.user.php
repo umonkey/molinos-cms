@@ -200,6 +200,11 @@ class User
     return isset($this->node->$key);
   }
 
+  public function getNode()
+  {
+    return $this->node;
+  }
+
   public function getRaw()
   {
     return (null === $this->node)
