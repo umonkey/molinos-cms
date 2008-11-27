@@ -16,28 +16,30 @@ class OrderNode extends Node implements iContentType
 
     $res = parent::save();
 
-    if ($isnew)
-      $this->sendInvoice();
+    if ($isnew) {
+      $this->sendEmail($this->email, 'invoice');
+      $this->sendEmail(mcms::modconf('cart', 'email'), 'notification');
+    }
 
     CartRPC::resetCart();
 
     return $res;
   }
 
-  protected function sendInvoice()
+  protected function sendEmail($to, $mode)
   {
     if (empty($this->email))
       return;
 
     $result = $this->render(null, null, array(
-      'mode' => 'invoice',
+      'mode' => $mode,
       'content' => $this->orderdetails,
       'details' => $this->data,
       ));
 
     if (!empty($result)) {
-      $subject = t('Ваш заказ на %host', array('%host' => $_SERVER['HTTP_HOST']));
-      BebopMimeMail::send(null, $this->email, $subject, $result);
+      $subject = t('Заказ на %host', array('%host' => $_SERVER['HTTP_HOST']));
+      BebopMimeMail::send(null, $to, $subject, $result);
     }
   }
 
