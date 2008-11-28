@@ -3,6 +3,7 @@
 
 class CommentFormWidget extends Widget
 {
+  private $options;
   protected $newcomment = null;
 
   public function __construct($name, array $data)
@@ -84,7 +85,7 @@ class CommentFormWidget extends Widget
       throw new WidgetHaltedException();
     }
 
-    return $options;
+    return $this->options = $options;
   }
 
   public function onGet(array $options)
