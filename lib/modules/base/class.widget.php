@@ -234,6 +234,12 @@ abstract class Widget implements iWidget
   {
     $method = 'on';
 
+    if (empty($params[0]))
+      throw new RuntimeException(t('Метод dispatch для виджета %name (%class) вызван без параметра.', array(
+        '%name' => $this->name,
+        '%class' => get_class($this),
+        )));
+
     array_unshift($params, $_SERVER['REQUEST_METHOD']);
 
     foreach ($params as $part)
@@ -261,7 +267,7 @@ abstract class Widget implements iWidget
       if (!is_array($options = $this->getRequestOptions($this->ctx))) {
         $this->debug(array(), array(), $options);
         mcms::add_extras($extras);
-        return "<!-- widget {$this->name} halted. -->";
+        return ""; // "<!-- widget {$this->name} halted. -->";
       }
 
       if (array_key_exists('#cache', $options) and empty($options['#cache']))
