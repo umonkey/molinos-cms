@@ -37,9 +37,14 @@ class Page
       ? self::renderWidgets($ctx, $data['page']['widgets'])
       : array();
 
+    if (!isset($ctx->theme))
+      throw new RuntimeException(t('Невозможно отобразить страницу %name: не указана тема.', array(
+        '%name' => $data['name'],
+        )));
+
     $result = bebop_render_object('page', $data['name'], $ctx->theme, $pdata = array(
       'widgets' => $widgets,
-      'page' => $data['name'],
+      'page' => $data,
       'section' => ($ctx->section instanceof Node) ? $ctx->section->getRaw() : null,
       'root' => ($ctx->root instanceof Node) ? $ctx->root->getRaw() : null,
       ));
@@ -65,7 +70,7 @@ class Page
 
       foreach (Structure::getInstance()->findWidgets($data['page']['widgets']['default']) as $name => $info) {
         $wlink = $u . '&widget=' . $name;
-        $slink = '?q=admin/content/edit/171&destination=CURRENT';
+        $slink = '?q=admin/structure/edit/' . $info['id'] . '&destination=CURRENT';
 
         $result .= '<tr>';
         $result .= mcms::html('td', l($wlink, $name));
