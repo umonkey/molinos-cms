@@ -351,13 +351,10 @@ class Context
   private function __isset($key)
   {
     switch ($key) {
-    case 'section':
-    case 'document':
-    case 'root':
-      return array_key_exists($key, $this->_args);
-
     case 'db':
       return $this->_db !== null;
+    default:
+      return array_key_exists($key, $this->_args);
     }
   }
 
