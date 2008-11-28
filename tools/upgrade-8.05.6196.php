@@ -21,7 +21,7 @@ function upgrade_8_05_6197()
     if (in_array($type->name, TypeNode::getInternal()))
       continue;
 
-    if (empty($type->notags) and empty($type->fields['sections'])) {
+    if (empty($type->notags) and empty($type->fields['sections']) and empty($type->fields['section'])) {
       $fields = $type->fields;
 
       $fields['sections'] = array(
