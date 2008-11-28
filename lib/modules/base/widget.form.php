@@ -256,6 +256,7 @@ class FormWidget extends Widget
         'value' => 'referer',
         )));
 
+      /*
       if (!empty($this->options['default'])) {
         foreach (array_keys($this->options['default']) as $k) {
           $tmp = $k;
@@ -265,6 +266,7 @@ class FormWidget extends Widget
             )));
         }
       }
+      */
     }
 
     return $form;
@@ -279,6 +281,10 @@ class FormWidget extends Widget
 
     $data['parent_id'] = $this->options['parent_id'];
     $data['published'] = $this->publish;
+
+    if (!empty($this->options['default']))
+      foreach ($this->options['default'] as $k => $v)
+        $data[$k] = $v;
 
     $node = Node::create($class, $data);
 

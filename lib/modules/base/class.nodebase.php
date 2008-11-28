@@ -1691,8 +1691,9 @@ class NodeBase
     }
 
     $tabs = array();
+    $schema = $this->schema();
 
-    foreach ($this->schema() as $name => $field) {
+    foreach ($schema as $name => $field) {
       if (!($group = trim($field->group)))
         $group = count($tabs)
           ? array_shift(array_keys($tabs))
@@ -1739,6 +1740,12 @@ class NodeBase
         $form->hlink = '<span>' . l('?q=admin/content/edit/' . $type->id . '&destination=CURRENT', 'схема') . '</span>';
       } catch (Exception $e) { }
     }
+
+    if ($this->parent_id and !isset($schema['parent_id']))
+      $form->addControl(new HiddenControl(array(
+        'value' => 'parent_id',
+        'default' => $this->parent_id,
+        )));
 
     return $form;
   }
