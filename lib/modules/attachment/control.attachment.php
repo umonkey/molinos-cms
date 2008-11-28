@@ -45,18 +45,22 @@ class AttachmentControl extends Control
 
   public function getHTML($data)
   {
-    if (($dt = $data->{$this->value}) instanceof Node)
-      $dt = $dt->getRaw();
-    elseif (is_numeric($dt))
-      $dt = Node::load($dt)->getRaw();
-    elseif (empty($dt))
-      $dt = array(
-        'name' => null,
-        'filetype' => null,
-        'updated' => null,
-        'created' => null,
-        'filepath' => null,
-        );
+    $dt = array(
+      'name' => null,
+      'filetype' => null,
+      'updated' => null,
+      'created' => null,
+      'filepath' => null,
+      );
+
+    if (($tmp = $data->{$this->value}) instanceof Node) {
+      $dt = $tmp->getRaw();
+    } elseif (is_numeric($dt)) {
+      try {
+        $dt = Node::load($dt)->getRaw();
+      } catch (ObjectNotFoundException $e) {
+      }
+    }
 
     return $this->wrapHTML($this->render($dt), false);
   }
