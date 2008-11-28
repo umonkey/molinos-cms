@@ -61,4 +61,9 @@ class NumberControl extends Control
 
     $node->{$this->value} = $value;
   }
+
+  public function getIndexValue($value)
+  {
+    return floatval($value);
+  }
 };

@@ -60,4 +60,9 @@ class BoolControl extends Control
   {
     $node->{$this->value} = !empty($value);
   }
+
+  public function getIndexValue($value)
+  {
+    return $value ? 1 : 0;
+  }
 };
