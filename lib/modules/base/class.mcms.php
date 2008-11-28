@@ -1464,7 +1464,7 @@ class mcms
 
     if (method_exists($class, $method)) {
       if (null === ($result = call_user_func(array($class, $method), $ctx)))
-        $result = $ctx->getRedirect();
+        $result = $ctx->getRedirect('');
       return $result;
     }
 
