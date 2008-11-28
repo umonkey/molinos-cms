@@ -124,14 +124,14 @@
 						
 					} else {
 					
-						$.get(options.source, {search: q}, function(txt) {
+						$.getJSON(options.source, {search: q}, function(txt) {
 
 							$results.hide();
 							
-							var items = parseTxt(txt, q);
+							var items = parseTxt(txt.content, q);
 							
 							displayItems(items);
-							addToCache(q, items, txt.length);
+							addToCache(q, items, txt.content.length);
 							
 						});
 						
