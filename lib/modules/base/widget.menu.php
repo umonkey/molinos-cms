@@ -21,6 +21,8 @@
  */
 class MenuWidget extends Widget implements iWidget
 {
+  private $options;
+
   /**
    * Возвращает описание виджета.
    *
@@ -125,7 +127,7 @@ class MenuWidget extends Widget implements iWidget
     $options['current'] = $ctx->section;
     $options['document'] = $ctx->document;
 
-    return $options;
+    return $this->options = $options;
   }
 
   /**
