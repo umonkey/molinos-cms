@@ -3,6 +3,8 @@
 
 class FormWidget extends Widget
 {
+  private $options;
+
   public static function getWidgetInfo()
   {
     return array(
@@ -80,7 +82,7 @@ class FormWidget extends Widget
     else
       $options['parent_id'] = null;
 
-    return $options;
+    return $this->options = $options;
   }
 
   public function onGet(array $options)
