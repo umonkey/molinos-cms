@@ -11,6 +11,8 @@ class Page
     if (false === ($data = Structure::getInstance()->findPage($domain, $query)))
       return false;
 
+    mcms::invoke('iRequestHook', 'hookRequest', array($ctx));
+
     if ($debug)
       mcms::debug($data);
 
