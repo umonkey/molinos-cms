@@ -22,6 +22,12 @@ function smarty_function_duration($params, &$smarty)
   if (null === $value)
     throw new RuntimeException(t('{duration} предполагает один из следующих параметров: value, seconds, minutes, hours или days.'));
 
+  $sign = ($value >= 0)
+    ? ''
+    : '-';
+
+  $value = abs($value);
+
   $map = array(
     60, ':',
     60, ':',
@@ -38,7 +44,7 @@ function smarty_function_duration($params, &$smarty)
     $value = intval($value / $size);
   }
 
-  $result = $value . $result;
+  $result = $sign . $value . $result;
 
   if (0 === strpos($result, '0.'))
     $result = substr($result, 2);
