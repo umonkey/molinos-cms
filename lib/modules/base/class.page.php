@@ -27,7 +27,7 @@ class Page
       $ctx->section = $ctx->root;
 
     // Устанавливаем шкуру.
-    if (!empty($data['page']['theme']))
+    if (!empty($data['page']['theme']) and !isset($ctx->theme))
       $ctx->theme = $data['page']['theme'];
 
     // Находим виджеты для этой страницы.
