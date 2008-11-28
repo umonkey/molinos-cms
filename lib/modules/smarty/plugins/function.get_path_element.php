@@ -13,7 +13,7 @@ function smarty_function_get_path_element($params, &$smarty)
 
   $result = array_key_exists($idx = intval($params['index']) - 1, $path)
     ? $path[$idx]
-    : null;
+    : '';
 
   if (array_key_exists('assign', $params))
     $smarty->assign($params['assign'], $result);
