@@ -2,18 +2,49 @@
 
 function smarty_function_duration($params, &$smarty)
 {
-  $value = empty($params['value']) ? 0 : $params['value'];
-  $mul = empty($params['mul']) ? 1 : $params['mul'];
+  $map = array(
+    'value' => 1,
+    'seconds' => 1,
+    'minutes' => 60,
+    'hours' => 3600,
+    'days' => 86400,
+    );
 
-  $value *= $mul;
+  $value = null;
 
-  $result = sprintf('%d:%02d:%02d',
-    $value / 216000,
-    ($value / 3600) % 3600,
-    ($value / 60) % 60);
+  foreach ($map as $k => $v) {
+    if (array_key_exists($k, $params)) {
+      $value = $params[$k] * $v;
+      break;
+    }
+  }
 
-  if ($value < 216000)
+  if (null === $value)
+    throw new RuntimeException(t('{duration} предполагает один из следующих параметров: value, seconds, minutes, hours или days.'));
+
+  $map = array(
+    60, ':',
+    60, ':',
+    // 8, '.',
+    );
+
+  $result = '';
+
+  while (!empty($map)) {
+    $size = array_shift($map);
+    $prefix = array_shift($map);
+
+    $result = sprintf('%s%02d', $prefix, $value % $size) . $result;
+    $value = intval($value / $size);
+  }
+
+  $result = $value . $result;
+
+  if (0 === strpos($result, '0.'))
     $result = substr($result, 2);
+
+  if (0 === strpos($result, '00:'))
+    $result = substr($result, 3);
 
   if (empty($params['assing']))
     return $result;
