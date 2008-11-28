@@ -36,7 +36,7 @@ class DateControl extends Control
       'id' => $this->id,
       'class' => 'form-text form-date',
       'name' => $this->value,
-      'value' => empty($data[$this->value]) ? null : $data[$this->value],
+      'value' => $data->{$this->value},
       ));
 
     return $this->wrapHTML($output);
