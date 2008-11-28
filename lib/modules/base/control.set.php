@@ -28,6 +28,9 @@ class SetControl extends Control
 
   public function __construct(array $form)
   {
+    if (!empty($form['values']) and 0 === strpos($form['values'], ':'))
+      $form['dictionary'] = substr($form['values'], 1);
+
     parent::__construct($form, array('value'));
   }
 
