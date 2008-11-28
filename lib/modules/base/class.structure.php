@@ -82,7 +82,9 @@ class Structure
     if (!$this->loaded)
       $this->load();
 
-    if (null === ($domain = $this->findDomain($domain)))
+    $overrides = array();
+
+    if (null === ($domain = $this->findDomain($domain, $overrides)))
       return false;
 
     $path = '/' . rtrim($path, '/');
@@ -128,6 +130,9 @@ class Structure
       'args' => $args,
       );
 
+    foreach ($overrides as $k => $v)
+      $result['page'][$k] = $v;
+
     if (empty($result['page']['published']))
       return false;
 
@@ -167,10 +172,13 @@ class Structure
   /**
    * Возвращает домен с учётом алиасов.
    */
-  private function findDomain($host)
+  private function findDomain($host, array &$overrides)
   {
-    if (array_key_exists($host, $this->aliases))
+    if (array_key_exists($host, $this->aliases)) {
+      $overrides = $this->aliases[$host];
+      unset($overrides['target']);
       return $this->aliases[$host]['target'];
+    }
 
     if (array_key_exists($host, $this->domains))
       return $host;
