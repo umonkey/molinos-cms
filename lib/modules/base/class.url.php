@@ -435,8 +435,12 @@ class url
   {
     $u = new url($url);
 
-    if (null === ($host = $u->host))
-      $host = $_SERVER['HTTP_HOST'];
+    if (null === ($host = $u->host)) {
+      if (empty($_SERVER['HTTP_HOST']))
+        $host = Context::last()->host();
+      else
+        $host = $_SERVER['HTTP_HOST'];
+    }
 
     if (0 === strpos($host, 'www.'))
       $host = substr($host, 4);
