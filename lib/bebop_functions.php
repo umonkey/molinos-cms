@@ -233,6 +233,8 @@ function bebop_get_file_type($filename, $realname = null)
     case '.php':
     case '.txt':
       return 'text/plain';
+    case '.zip':
+      return 'application/zip';
     }
   }
 
