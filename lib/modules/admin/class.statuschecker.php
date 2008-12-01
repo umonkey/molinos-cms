@@ -31,6 +31,9 @@ class StatusChecker implements iScheduler
     if (class_exists('UpdateMenu') and ($message = UpdateMenu::getMessage()))
       $parts[] = $message;
 
+    if (null !== ($message = self::checkDbAccess()))
+      $parts[] = $message;
+
     if ($email = self::getEmail()) {
       $subject = t('Отчёт о состоянии %host', array(
         '%host' => url::host(),
@@ -152,6 +155,26 @@ class StatusChecker implements iScheduler
       return t('<p class="important">Нарушение безопасности: документы типов !list могут быть изменены анонимно.</p>', array(
         '!list' => join(', ', $list),
         ));
+    }
+  }
+
+  private static function checkDbAccess()
+  {
+    if (null !== ($file = Context::last()->db->getDbFile())) {
+      if (0 === strpos(realpath($file), MCMS_ROOT . DIRECTORY_SEPARATOR)) {
+        $url = 'http://' . url::host() . mcms::path() . '/' . str_replace(DIRECTORY_SEPARATOR, '/', $file);
+
+        if (false !== ($headers = get_headers($url, 1))) {
+          if (3 == count($parts = explode(' ', $headers[0]))) {
+            if (200 == $parts[1]) {
+              return t('Файл базы данных доступен веб серверу, любой желающий может <a href=\'@url\'>скачать его</a>. Пожалуйста, вынесите его в папку, недоступную веб серверу, и измените путь в конфигурационном файле (%config).', array(
+                '@url' => $url,
+                '%config' => mcms::config('fullpath'),
+                ));
+            }
+          }
+        }
+      }
     }
   }
 }

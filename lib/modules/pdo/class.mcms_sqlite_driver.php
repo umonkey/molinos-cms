@@ -367,4 +367,9 @@ class mcms_sqlite_driver extends PDO_Singleton
 
      return $sql;
   }
+
+   public function getDbFile()
+   {
+     return $this->getDbName();
+   }
 }
