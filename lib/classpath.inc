@@ -22,10 +22,12 @@ return array (
         'AdminListHandler',
         'AdminMenu',
         'AdminRPC',
+        'AdminSettings',
         'AdminStatus',
         'AdminTreeHandler',
         'ModuleAdminUI',
         'NodeIndexer',
+        'StatusChecker',
         'AdminUIListControl',
         'AdminUINodeActionsControl',
         'AdminUISearchControl',
@@ -34,6 +36,8 @@ return array (
       'interfaces' => array (
         'iAdminMenu',
         'iRemoteCall',
+        'iModuleConfig',
+        'iScheduler',
         'iFormControl',
       ),
       'implementors' => array (
@@ -43,6 +47,12 @@ return array (
         ),
         'iRemoteCall' => array (
           'AdminRPC',
+        ),
+        'iModuleConfig' => array (
+          'AdminSettings',
+        ),
+        'iScheduler' => array (
+          'StatusChecker',
         ),
         'iFormControl' => array (
           'AdminUIListControl',
@@ -962,6 +972,7 @@ return array (
     'adminlisthandler' => 'lib/modules/admin/class.adminlisthandler.php',
     'adminmenu' => 'lib/modules/admin/class.adminmenu.php',
     'adminrpc' => 'lib/modules/admin/class.adminrpc.php',
+    'adminsettings' => 'lib/modules/admin/class.adminsettings.php',
     'adminstatus' => 'lib/modules/admin/class.adminstatus.php',
     'admintreehandler' => 'lib/modules/admin/class.admintreehandler.php',
     'adminuilistcontrol' => 'lib/modules/admin/control.adminuilist.php',
@@ -1075,6 +1086,7 @@ return array (
     'session' => 'lib/modules/base/class.session.php',
     'setcontrol' => 'lib/modules/base/control.set.php',
     'smtp' => 'lib/modules/mimemail/class.smtp.php',
+    'statuschecker' => 'lib/modules/admin/class.statuschecker.php',
     'structure' => 'lib/modules/base/class.structure.php',
     'structurema' => 'lib/modules/base/class.structurema.php',
     'submitcontrol' => 'lib/modules/base/control.submit.php',
@@ -1169,6 +1181,7 @@ return array (
       'urlcontrol',
     ),
     'imoduleconfig' => array (
+      'adminsettings',
       'basemodule',
       'bebopmimemail',
       'compressorsettings',
@@ -1198,6 +1211,7 @@ return array (
     ),
     'ischeduler' => array (
       'basecron',
+      'statuschecker',
       'typenode',
       'updatescheduler',
     ),
@@ -1219,10 +1233,12 @@ return array (
     'adminlisthandler' => 'admin',
     'adminmenu' => 'admin',
     'adminrpc' => 'admin',
+    'adminsettings' => 'admin',
     'adminstatus' => 'admin',
     'admintreehandler' => 'admin',
     'moduleadminui' => 'admin',
     'nodeindexer' => 'admin',
+    'statuschecker' => 'admin',
     'adminuilistcontrol' => 'admin',
     'adminuinodeactionscontrol' => 'admin',
     'adminuisearchcontrol' => 'admin',
