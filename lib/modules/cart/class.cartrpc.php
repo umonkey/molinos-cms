@@ -17,7 +17,7 @@ class CartRPC implements iRemoteCall
       $sum = $sumqty = 0;
       $ids = array_keys($cart);
 
-      foreach (Node::find(array('id' => $ids)) as $node) {
+      foreach ($nodes = Node::find(array('id' => $ids)) as $node) {
         if (empty($items))
           $qty = $cart[$node->id];
         else {
@@ -90,6 +90,7 @@ class CartRPC implements iRemoteCall
       'qty' => $sumqty,
       'price' => null,
       'sum' => $total,
+      'names' => count($nodes),
       );
 
     mcms::session('cart', $cart);
