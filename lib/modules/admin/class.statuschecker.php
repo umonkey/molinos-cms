@@ -34,7 +34,7 @@ class StatusChecker implements iScheduler
     if (null !== ($message = self::checkDbAccess()))
       $parts[] = $message;
 
-    if ($email = self::getEmail()) {
+    if (!empty($parts) and ($email = self::getEmail())) {
       $subject = t('Отчёт о состоянии %host', array(
         '%host' => url::host(),
         ));
@@ -106,26 +106,15 @@ class StatusChecker implements iScheduler
 
   private static function getBrokenTrees()
   {
-    $data = mcms::db()->getResults("SELECT `n`.`id`, `n`.`class`, `v`.`name` FROM `node` `n` INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` WHERE `n`.`deleted` = 0 AND `n`.`left` >= `n`.`right`");
-
-    if (empty($data))
+    if (!($count = mcms::db()->fetch("SELECT COUNT(*) FROM `node` `n` INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` WHERE `n`.`deleted` = 0 AND `n`.`left` >= `n`.`right`")))
       return null;
 
-    $result = t('Есть повреждённые ветки дерева (%count шт), добавление дочерних объектов в них невозможно:', array(
-      '%count' => count($data),
+    $fixxxer = new TreeBuilder();
+    $fixxxer->run();
+
+    $result = t('Были найдены повреждённые ветки дерева (%count шт). Всё дерево данных было перестроено.', array(
+      '%count' => $count,
       ));
-
-    $result .= '<table cellspacing=\'0\' cellpadding=\'4\'>';
-
-    foreach ($data as $row) {
-      $result .= '<tr>';
-      $result .= mcms::html('td', $row['id'] . '&nbsp;');
-      $result .= mcms::html('td', $row['class'] . '&nbsp;');
-      $result .= mcms::html('td', mcms_plain($row['name']));
-      $result .= '</tr>';
-    }
-
-    $result .= '</table>';
 
     return $result;
   }
