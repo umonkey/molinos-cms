@@ -35,8 +35,6 @@ class NodeIndexer
   {
     $table = 'node__idx_'. $type;
 
-    mcms::flog('indexer', $type . ': counting, indexes: ' . join(', ', $schema->getIndexes()) . '.');
-
     try {
       $sql = "SELECT COUNT(*) FROM `node` `n` "
         ."WHERE `n`.`class` = '{$type}' "
@@ -60,46 +58,77 @@ class NodeIndexer
         throw $e;
       }
     }
-
-    mcms::flog('indexer', sprintf('%s: %d nodes not indexed.', $type, $stat[$type]));
   }
 
   public static function run()
   {
+    self::fixRevisions();
+
     if (null !== ($stat = self::stats(false))) {
       $ctx = Context::last();
 
-      if (null !== ($class = $ctx->get('class'))) {
-        if (!empty($stat[$class])) {
-          $ctx->db->beginTransaction();
+      if (array_key_exists('_total', $stat))
+        unset($stat['_total']);
 
-          $ids = $ctx->db->getResultsV('id', "SELECT `n`.`id` FROM `node` `n` "
-            ."WHERE `n`.`deleted` = 0 AND `n`.`class` = ? AND NOT EXISTS "
-            ."(SELECT 1 FROM `node__idx_{$class}` `i` WHERE `i`.`id` = `n`.`id`) "
-            ."LIMIT 10", array($class));
+      foreach ($stat as $class => $count) {
+        $ctx->db->beginTransaction();
 
-          while (!empty($ids)) {
+        $ids = $ctx->db->getResultsV('id', "SELECT `n`.`id` FROM `node` `n` "
+          ."WHERE `n`.`deleted` = 0 AND `n`.`class` = ? AND NOT EXISTS "
+          ."(SELECT 1 FROM `node__idx_{$class}` `i` WHERE `i`.`id` = `n`.`id`) ",
+          array($class));
+
+        while (!empty($ids)) {
+          $id = array_shift($ids);
+
+          try {
             $node = Node::load(array(
-              'id' => array_shift($ids),
+              'id' => $id,
+              'class' => $class,
               '#recurse' => 1,
+              '#cache' => false,
               ));
 
             $node->reindex();
-
-            $stat[$class]--;
+          } catch (Exception $e) {
+            --$count;
+            mcms::flog('indexed', sprintf('node %u (%s): %s', $id, $class, $e->getMessage()));
           }
-
-          $ctx->db->commit();
         }
+
+        $ctx->db->commit();
+
+        mcms::flog('indexer', sprintf('%u nodes of type %s indexed.', $count, $class));
+      }
+    }
+  }
+
+  private static function fixRevisions()
+  {
+    $ids = mcms::db()->getResultsV("id", "SELECT id FROM node WHERE rid IS NULL AND deleted = 0");
+
+    if (!empty($ids)) {
+      mcms::db()->beginTransaction();
+
+      $sth1 = mcms::db()->prepare("SELECT rid FROM node__rev WHERE nid = ? ORDER BY rid DESC LIMIT 1");
+      $sth2 = mcms::db()->prepare("UPDATE node SET rid = ? WHERE id = ? AND rid IS NULL");
+
+      foreach ($ids as $id) {
+        $sth1->execute(array($id));
+        $row = $sth1->fetch();
+
+        if (empty($row['rid'])) {
+          mcms::flog('indexer', "node {$id} has no revisions, deleting.");
+          mcms::db()->exec("UPDATE node SET deleted = 1 WHERE id = ?", array($id));
+        } else {
+          mcms::flog('indexer', "node {$id} had no rid, setting to {$row['rid']}");
+          $sth2->execute(array($row['rid'], $id));
+        }
+
+        $sth1->closeCursor();
       }
 
-      $class = array_pop(array_keys($stat));
-
-      $url = '?q=admin.rpc&action=reindex'
-        . '&class=' . $class
-        . '&left=' . $stat[$class];
-
-      $ctx->redirect($url);
+      mcms::db()->commit();
     }
   }
 }

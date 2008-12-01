@@ -6,6 +6,8 @@ class StatusChecker implements iScheduler
   {
     $parts = array();
 
+    NodeIndexer::run();
+
     if ($message = self::getBrokenTrees())
       $parts[] = $message;
 
