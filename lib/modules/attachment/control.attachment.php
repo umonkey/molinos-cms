@@ -85,6 +85,8 @@ class AttachmentControl extends Control
         $value = Node::load($value['id']);
       elseif (!empty($value['url']))
         $value = FileNode::fromURL($value['url']);
+      elseif (!empty($value['ftp']))
+        $value = Node::create('file')->importFromFTP(array_shift($value['ftp']));
       else
         $value = $node->{$this->value};
     }

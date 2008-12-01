@@ -353,7 +353,7 @@ class FileNode extends Node implements iContentType
   public static function getFTPRoot()
   {
     if (null === ($path = mcms::config('ftpfolder')))
-      $path = mcms::config('filestorage') .'/ftp';
+      $path = mcms::config('filestorage') . DIRECTORY_SEPARATOR . 'ftp';
     return $path;
   }
 
@@ -419,6 +419,21 @@ class FileNode extends Node implements iContentType
 
       Context::killFile($filename);
     }
+  }
+
+  public function importFromFTP($filename)
+  {
+    $path = self::getFTPRoot() . DIRECTORY_SEPARATOR . basename($filename);
+
+    if (!file_exists($path))
+      throw new RuntimeException(t('Файл %path не найден в папке FTP.', array(
+        '%path' => $filename,
+        )));
+
+    return $this->import(array(
+      'tmp_name' => $path,
+      'name' => basename($path),
+      ), false);
   }
 
   /**
