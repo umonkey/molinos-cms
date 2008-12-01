@@ -31,10 +31,10 @@ class BaseRPC implements iRemoteCall
    */
   public static function rpc_login(Context $ctx)
   {
-    $ctx->checkMethod('post');
-
     try {
       if (null !== ($otp = $ctx->get('otp'))) {
+        $ctx->checkMethod('get');
+
         try {
           $node = Node::load(array(
             'class' => 'user',
@@ -58,6 +58,8 @@ class BaseRPC implements iRemoteCall
           .'можно воспользоваться всего один раз, и этой ссылкой кто-то '
           .'уже воспользовался.'));
       }
+
+      $ctx->checkMethod('post');
 
       if (null === $ctx->post('login'))
         User::authorize($ctx->get('id'), null);
