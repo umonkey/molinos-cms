@@ -361,9 +361,8 @@ function mcms_url(array $options = null)
 
 function mcms_encrypt($input)
 {
-  if (function_exists('mcrypt_create_iv')) {
-    $textkey = mcms::config('guid');
-    $securekey = hash('sha256', $textkey, true);
+  if (function_exists('mcrypt_create_iv') and ($key = mcms::config('guid'))) {
+    $securekey = hash('sha256', $key, true);
 
     if (!function_exists('mcrypt_create_iv'))
       throw new RuntimeException(t('Function mcrypt_create_iv not found.'));
@@ -380,9 +379,8 @@ function mcms_decrypt($input)
 {
   $input = base64_decode(rawurldecode($input));
 
-  if (function_exists('mcrypt_create_iv')) {
-    $textkey = mcms::config('guid');
-    $securekey = hash('sha256', $textkey, true);
+  if (function_exists('mcrypt_create_iv') and ($key = mcms::config('guid'))) {
+    $securekey = hash('sha256', $key, true);
 
     $iv = mcrypt_create_iv(32);
 

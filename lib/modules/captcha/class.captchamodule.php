@@ -29,7 +29,7 @@ class CaptchaModule implements iRemoteCall
 
   public function __construct($keyStr)
   {
-    $iniParams = parse_ini_file(dirname(__FILE__) . '/config.ini');
+    $iniParams = parse_ini_file(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.ini');
 
     foreach ($iniParams as $k => $v)
       $this->$k = $v;

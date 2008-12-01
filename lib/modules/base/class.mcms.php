@@ -526,34 +526,6 @@ class mcms
     $rc = BebopMimeMail::send('cms-bugs@molinos.ru', $recipient, $subject, $body);
   }
 
-  public static function captchaGen()
-  {
-    if ((mcms::user()->id != 0) or !mcms::ismodule('captcha'))
-      return null;
-
-    $result = strtolower(substr(base64_encode(rand()), 0, 6));
-    return $result;
-  }
-
-  public static function captchaCheck(array $data)
-  {
-    if (mcms::user()->id != 0)
-      return true;
-
-    if (!mcms::ismodule('captcha'))
-      return true;
-
-    if (!empty($data['captcha']) and is_array($data['captcha']) and count($data['captcha']) == 2) {
-      $usr = $data['captcha'][0];
-      $ref = mcms_decrypt($data['captcha'][1]);
-
-      if (0 === strcmp($usr, $ref))
-        return true;
-    }
-
-    throw new ForbiddenException(t('Проверьте правильность ввода текста с изображения.'));
-  }
-
   // Возвращает список доступных классов и файлов, в которых они описаны.
   // Информация о классах кэшируется в tmp/.classes.php или -- если доступен
   // класс BebopCache -- в более быстром кэше.

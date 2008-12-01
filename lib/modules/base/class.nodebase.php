@@ -1691,9 +1691,8 @@ class NodeBase
     }
 
     $tabs = array();
-    $schema = $this->schema();
 
-    foreach ($schema as $name => $field) {
+    foreach ($this->getFormFields() as $name => $field) {
       if (!($group = trim($field->group)))
         $group = count($tabs)
           ? array_shift(array_keys($tabs))
@@ -1793,6 +1792,21 @@ class NodeBase
   }
 
   /**
+   * Возвращает контролы для формы.
+   */
+  public function getFormFields()
+  {
+    $schema = $this->schema();
+
+    if (!mcms::user()->id and !$this->id and class_exists('CaptchaControl'))
+      $schema['captcha'] = new CaptchaControl(array(
+        'value' => 'captcha',
+        ));
+
+    return $schema;
+  }
+
+  /**
    * Обработка данных формы.
    *
    * Вызывается при получении от пользователя формы, для применения полученных
@@ -1804,7 +1818,7 @@ class NodeBase
    */
   public function formProcess(array $data)
   {
-    $schema = $this->schema();
+    $schema = $this->getFormFields();
 
     foreach ($schema as $name => $field) {
       $value = array_key_exists($name, $data)
