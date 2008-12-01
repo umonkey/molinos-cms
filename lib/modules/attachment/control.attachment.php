@@ -97,9 +97,16 @@ class AttachmentControl extends Control
   public function getLinkId($data)
   {
     if (null !== ($value = $data->{$this->value})) {
-      if (empty($value->id))
-        $value->save();
-      $value = Node::_id($value);
+      if (is_numeric($value))
+        ;
+      elseif (is_array($value))
+        $value = array_key_exists('id', $value)
+          ? $value['id']
+          : null;
+      elseif ($value instanceof Node)
+        $value = $value->id
+          ? $value->id
+          : $value->save()->id;
     }
 
     return $value;
