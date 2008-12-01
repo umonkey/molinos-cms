@@ -43,6 +43,10 @@ class CronModule implements iModuleConfig, iRemoteCall
 
   public static function isClientAllowed()
   {
+    // Запуск из консоли разрешён всегда.
+    if (empty($_SERVER['REMOTE_ADDR']))
+      return true;
+
     return mcms::matchip($_SERVER['REMOTE_ADDR'],
       mcms::modconf('cron', 'allowed', '127.0.0.1'));
   }
