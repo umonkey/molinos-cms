@@ -421,7 +421,7 @@ class url
     elseif (!empty($_SERVER['HTTP_HOST']))
       $result .= $_SERVER['HTTP_HOST'];
     else
-      $result .= 'localhost';
+      $result .= url::host();
 
     if (null !== $ctx)
       $result .= $ctx->folder();
