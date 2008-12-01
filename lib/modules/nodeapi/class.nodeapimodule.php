@@ -13,12 +13,8 @@ class NodeApiModule implements iRemoteCall
     if ($next instanceof Response)
       return $next;
 
-    if (null === $next) {
-      if ('POST' == $_SERVER['REQUEST_METHOD'] and $ctx->post('nodeapi_return'))
-        $next = $_SERVER['HTTP_REFERER'];
-      elseif (null === ($next = $ctx->get('destination')))
-        $next = '/';
-    }
+    if (null === $next)
+      return $ctx->getRedirect();
 
     return new Redirect($next);
   }
@@ -190,11 +186,7 @@ class NodeApiModule implements iRemoteCall
 
       $node->formProcess($ctx->post)->save();
 
-      if ($ctx->method('post'))
-        if (!($next = $ctx->post('destination')))
-          $next = $ctx->get('destination', '/');
-      else
-        $next = $ctx->get('destination', '/');
+      $next = $ctx->post('destination', $ctx->get('destination', ''));
 
       return new Redirect(self::fixredir($next, $node));
 
