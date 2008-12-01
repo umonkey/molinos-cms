@@ -58,7 +58,7 @@ class CompressorModule implements iRemoteCall
             $names[] = "// {$file}\n";
             $scripts[] = self::compressJS($fullname);
           } else {
-            mcms::log('compressor', $file .': dead, skipped');
+            mcms::flog('compressor', $file .': dead, skipped');
           }
         }
       }
@@ -123,7 +123,7 @@ class CompressorModule implements iRemoteCall
             $names[] = " * {$file}\n";
             $styles[] = self::compressCSS($file);
           } else {
-            mcms::log('compressor', $file .': dead, skipped');
+            mcms::flog('compressor', $file .': dead, skipped');
           }
         }
       }
@@ -159,7 +159,7 @@ class CompressorModule implements iRemoteCall
 
     // Реальный путь к сжимаемому файлу.
     if (!file_exists($rpath = MCMS_ROOT .'/'. $filename)) {
-      mcms::log('compressor', t('%file not found.', array('%file' => $filename)));
+      mcms::flog('compressor', t('%file not found.', array('%file' => $filename)));
       return null;
     }
 

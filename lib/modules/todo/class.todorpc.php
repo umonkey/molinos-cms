@@ -40,8 +40,6 @@ class TodoRPC implements iRemoteCall
         'rel' => $ctx->post('rel'),
         ));
 
-      mcms::log('todo', serialize($node->getRaw()));
-
       if (empty($node->name)) {
         $msg = t('не указан текст задачи.');
 

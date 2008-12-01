@@ -23,8 +23,11 @@ class BaseCron implements iScheduler
     }
 
     if (0 != $count) {
-      mcms::flog('cron', t('Sending crash report to %to', array('%to' => mcms::config('backtracerecipients'))));
-      BebopMimeMail::send(mcms::config('mail.from'), mcms::config('backtracerecipients'), 'Crashdump report for ' . $_SERVER['SERVER_NAME'], $message);
+      BebopMimeMail::send(
+        mcms::config('mail.from'),
+        mcms::config('backtracerecipients'),
+        'Crash dump report for ' . url::host(),
+        $message);
     }
   }
 }

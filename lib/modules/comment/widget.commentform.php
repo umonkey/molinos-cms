@@ -80,7 +80,7 @@ class CommentFormWidget extends Widget
 
     if (empty($this->allowed_types) or !in_array($ctx->document->class, $this->allowed_types)) {
       if ($ctx->canDebug())
-        mcms::log('comment', $this->getInstanceName() .': widget halted: '
+        mcms::flog('comment', $this->getInstanceName() .': widget halted: '
           .'type not allowed: '. $ctx->document->class);
       throw new WidgetHaltedException();
     }

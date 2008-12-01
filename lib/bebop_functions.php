@@ -278,7 +278,7 @@ function mcms_fetch_file($url, $content = true, $cache = true)
 
   // Скачиваем файл только если его нет на диске во временной директории
   if (file_exists($outfile)) {
-    mcms::log('fetch', 'found in cache: '. $url);
+    mcms::flog('fetch', 'found in cache: '. $url);
   } else {
     if (function_exists('curl_init')) {
       $ch = curl_init($url);
@@ -306,7 +306,7 @@ function mcms_fetch_file($url, $content = true, $cache = true)
         return null;
       }
 
-      mcms::log('fetch', 'read with curl: '. $url);
+      mcms::flog('fetch', 'read with curl: '. $url);
     }
 
     elseif ($f = fopen($url, 'rb')) {
@@ -319,7 +319,7 @@ function mcms_fetch_file($url, $content = true, $cache = true)
       fclose($f);
       fclose($out);
 
-      mcms::log('fetch', 'read with fopen: '. $url);
+      mcms::flog('fetch', 'read with fopen: '. $url);
     }
 
     else {

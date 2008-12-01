@@ -10,7 +10,7 @@ class BebopMimeMail implements iModuleConfig
 
     if (empty($from))
       if (($from = mcms::config('mail.from')) === null)
-        $from = "Molinos.CMS <no-reply@{$_SERVER['HTTP_HOST']}>";
+        $from = "Molinos.CMS <no-reply@" . url::host() . ">";
 
     if (strstr($body, '<html>') === false)
       $body = '<html><head><title>'. mcms_plain($subject) .'</title></head><body>'. $body .'</body></html>';
@@ -18,7 +18,7 @@ class BebopMimeMail implements iModuleConfig
     if (!is_array($to))
       $to = preg_split('/, */', $to, -1, PREG_SPLIT_NO_EMPTY);
 
-    mcms::log('mail', t('to=%to, subject=%subject', array('%to' => join(',', $to), '%subject' => $subject)));
+    mcms::flog('mail', t('to=%to, subject=%subject', array('%to' => join(',', $to), '%subject' => $subject)));
 
     $transport = (null == mcms::config('mail.server', null)) ? 'mail' : 'smtp';
     $mail = new htmlMimeMail();
@@ -77,7 +77,7 @@ class BebopMimeMail implements iModuleConfig
         if (false !== strpos($href, 'mailto:'))
           continue;
 
-        $new = 'http://'. $_SERVER['HTTP_HOST'] . mcms::path() .'/'. $href;
+        $new = 'http://'. url::host() . mcms::path() .'/'. $href;
 
         $new = str_replace($href, $new, $m[0][$idx]);
         $html = str_replace($m[0][$idx], $new, $html);

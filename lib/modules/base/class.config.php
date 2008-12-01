@@ -109,9 +109,6 @@ class Config
         : null;
     }
 
-    if (null === $res)
-      mcms::flog('config', $varname . ': not found.');
-
     return $res;
   }
 

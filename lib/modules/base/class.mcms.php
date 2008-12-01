@@ -686,6 +686,10 @@ class mcms
       header('Content-Type: text/html; charset=utf-8');
       header('Content-Length: ' . strlen($html));
       die($html);
+    } else {
+      $message = trim(strip_tags(str_replace("</p>", "</p>\n", $message))) . "\n";
+      $message .= $backtrace;
+      die($message);
     }
     
     $backtrace = sprintf("--- backtrace (time: %s) ---\n\n%s", microtime(), $backtrace);
@@ -1012,7 +1016,7 @@ class mcms
     $line = ltrim(str_replace(MCMS_ROOT, '', $frame['file']), '/')
       .'('. $frame['line'] .')';
 
-    mcms::log('debug', $msg = 'deprecated function '
+    mcms::flog('debug', $msg = 'deprecated function '
       .$func .' called from '. $line);
 
     if ($break)
@@ -1282,16 +1286,16 @@ class mcms
     }
     
     catch (UserErrorException $e) {
-      if ($ctx->debug('errors'))
+      if ($ctx->debug('errors') or empty($_SERVER['REQUEST_METHOD']))
         mcms::fatal($e);
 
       try {
         $result = Page::render($ctx, $ctx->host(), 'errors/' . $e->getCode());
       } catch (Exception $e2) {
-        mcms::fatal(new Exception(t('<p>Ошибка %code: %message.</p><p>Более «красивый» обработчик этой ошибки можно сделать, добавив страницу «errors/%code».</p>', array(
+        mcms::fatal(t('<p>Ошибка %code: %message.</p><p>Более «красивый» обработчик этой ошибки можно сделать, добавив страницу «errors/%code».</p>', array(
           '%code' => $e->getCode(),
           '%message' => rtrim($e->getMessage(), '.'),
-          ))));
+          )));
       }
 
       if (false === $result) {

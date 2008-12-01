@@ -161,7 +161,7 @@ class AdminRPC implements iRemoteCall
     }
 
     elseif (!class_exists($classes[0])) {
-      mcms::log(t('Класс %class, используемый админкой, не мог быть загружен.', array('%class' => $classes[0])));
+      mcms::flog('admin', t('Класс %class, используемый админкой, не мог быть загружен.', array('%class' => $classes[0])));
     }
 
     else {

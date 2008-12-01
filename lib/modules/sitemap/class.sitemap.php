@@ -61,10 +61,10 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
 
         if (empty($conf['no_ping'])) {
           if (count($hosts = explode("\n", $conf['ping']))) {
-            $sm = 'http://'. $_SERVER['HTTP_HOST'] . mcms::path() .'/?q=sitemap.rpc';
+            $sm = 'http://'. url::host() . mcms::path() .'/?q=sitemap.rpc';
 
             foreach ($hosts as $host) {
-              mcms::log('sitemap', 'pinging '. $host .' with '. $sm);
+              mcms::flog('sitemap', 'pinging '. $host .' with '. $sm);
               mcms_fetch_file('http://'. $host .'/ping?sitemap='. urlencode($sm), true, false);
             }
           }
@@ -95,7 +95,7 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
     $f = fopen($filename, 'w');
 
     fwrite($f, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    fwrite($f, "<?xml-stylesheet href=\"http://{$_SERVER['HTTP_HOST']}". mcms::path()
+    fwrite($f, "<?xml-stylesheet href=\"http://" . url::host() . mcms::path()
       ."/lib/modules/sitemap/sitemap.xsl\" type=\"text/xsl\" media=\"screen\"?>\n");
     fwrite($f, "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
 
@@ -118,7 +118,7 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
       fwrite($f, "<!-- sections -->\n");
 
       foreach ($res as $id)
-        fwrite($f, "<url><loc>http://{$_SERVER['HTTP_HOST']}/{$id}</loc></url>\n");
+        fwrite($f, "<url><loc>http://" . url::host() . "/{$id}</loc></url>\n");
     }
   }
 
@@ -137,7 +137,7 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
 
       foreach ($nodes as $node) {
         $line = "<url>"
-          ."<loc>http://{$_SERVER['HTTP_HOST']}/node/{$node->id}</loc>";
+          ."<loc>http://" . url::host() . "/node/{$node->id}</loc>";
         if (!empty($node->updated)) {
           $date = gmdate('Y-m-d', strtotime($node->updated));
           $line .= "<lastmod>{$date}</lastmod>";
@@ -150,7 +150,7 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
 
   private static function get_file_path()
   {
-    return mcms::config('tmpdir') .DIRECTORY_SEPARATOR. 'sitemap-'. $_SERVER['HTTP_HOST'] .'.xml';
+    return mcms::config('tmpdir') . DIRECTORY_SEPARATOR . 'sitemap-' .  url::host() .'.xml';
   }
 
   private static function get_disallowed_types()

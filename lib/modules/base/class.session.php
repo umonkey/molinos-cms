@@ -138,7 +138,7 @@ class Session
 
         if (!headers_sent()) {
           setcookie($name, empty($this->data) ? null : $this->id, $time, $path);
-          mcms::log('session', "cookie set: {$name}={$this->id}");
+          mcms::flog('session', "cookie set: {$name}={$this->id}");
         }
       }
     }

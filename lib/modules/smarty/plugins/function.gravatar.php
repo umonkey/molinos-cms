@@ -16,7 +16,7 @@ function smarty_function_gravatar($params, &$smarty)
 
   foreach ($user->getRaw() as $k => $v) {
     if ('file' == $v['class'] and 0 === strpos($v['filetype'], 'image/')) {
-      $default = 'http://'. $_SERVER['HTTP_HOST'] .mcms::path()
+      $default = 'http://'. url::host() . mcms::path()
         ."/attachment/{$v['id']},{$size},{$size},c";
       break;
     }

@@ -46,7 +46,7 @@ class BaseRPC implements iRemoteCall
             $node->save();
 
             User::authorize($node->name, null, true);
-            mcms::log('auth', $node->name .': logged in using otp');
+            mcms::flog('auth', $node->name .': logged in using otp');
 
             return $ctx->getRedirect();
           }
@@ -208,8 +208,6 @@ class BaseRPC implements iRemoteCall
           ));
 
       BebopMimeMail::send(null, $node->name, 'Восстановление пароля', $html);
-
-      mcms::log('auth', $node->name .': password reset link: '. $link);
 
       $back->setarg('remind', 'mail_sent');
 
