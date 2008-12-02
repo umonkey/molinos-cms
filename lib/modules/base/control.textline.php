@@ -41,8 +41,7 @@ class TextLineControl extends Control
     else
       $this->class = array_merge(array('form-text'), (array)$this->class);
 
-    if (null === ($value = $data->{$this->value}))
-      $value = $this->default;
+    $value = $this->getValue($data);
 
     $output = mcms::html('input', array(
       'type' => 'text',
@@ -55,6 +54,14 @@ class TextLineControl extends Control
       ));
 
     return $this->wrapHTML($output);
+  }
+
+  protected function getValue($data)
+  {
+    if (null === ($value = $data->{$this->value}))
+      $value = $this->default;
+
+    return $value;
   }
 
   public function set($value, Node &$node)

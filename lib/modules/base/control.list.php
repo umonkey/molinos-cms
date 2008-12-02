@@ -9,6 +9,16 @@ class ListControl extends TextLineControl implements iFormControl
       );
   }
 
+  protected function getValue($data)
+  {
+    $value = parent::getValue($data);
+
+    if (is_array($value))
+      $value = join(', ', $value);
+
+    return $value;
+  }
+
   public function set($value, Node &$node)
   {
     if (!empty($value))
