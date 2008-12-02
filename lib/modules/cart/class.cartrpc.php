@@ -149,7 +149,7 @@ class CartRPC implements iRemoteCall
 
   private static function getCart()
   {
-    if (!is_array($cart = mcms::session('cart')))
+    if (!is_array($cart = mcms::session('cart.' . mcms::user()->id)))
       $cart = array();
 
     return $cart;
@@ -161,7 +161,7 @@ class CartRPC implements iRemoteCall
       if (empty($v))
         unset($cart[$k]);
 
-    mcms::session('cart', $cart);
+    mcms::session('cart.' . mcms::user()->id, $cart);
   }
 
   private static function goNext(Context $ctx)
