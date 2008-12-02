@@ -19,7 +19,7 @@ class DBSchema_node extends TableManager
     $this->columns['rid'] = array(
         'type' => 'int',
         'required' => 0,
-        'key' => 'mul',
+        'key' => 'uni',
         );
 
     $this->columns['parent_id'] = array(
