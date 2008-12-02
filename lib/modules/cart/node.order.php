@@ -28,8 +28,10 @@ class OrderNode extends Node implements iContentType
 
   protected function sendEmail($to, $mode)
   {
-    if (empty($this->email))
+    if (empty($to)) {
+      mcms::flog('cart', $mode . ' not sent: email not found');
       return;
+    }
 
     $result = $this->render(null, null, array(
       'mode' => $mode,
