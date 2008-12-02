@@ -103,6 +103,19 @@ class AdminRPC implements iRemoteCall
         $conf[substr($k, 7)] = $v;
     }
 
+    if ('admin' == $ctx->get('module')) {
+      $debuggers = empty($conf['debuggers'])
+        ? null
+        : preg_split('/,\s*/', $conf['debuggers'], -1, PREG_SPLIT_NO_EMPTY);
+
+      $cfg = Config::getInstance();
+      $cfg->debuggers = $debuggers;
+      $cfg->write();
+
+      if (array_key_exists('debuggers', $conf))
+        unset($conf['debuggers']);
+    }
+
     if (count($tmp = array_values(Node::find(array('class' => 'moduleinfo', 'name' => $ctx->get('module'))))))
       $node = $tmp[0];
     else
