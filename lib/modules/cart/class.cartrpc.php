@@ -85,13 +85,24 @@ class CartRPC implements iRemoteCall
       }
     }
 
+    if ($discounter = mcms::modconf('cart', 'discounter')) {
+      if (class_exists($discounter)) {
+        $d = new $discounter();
+        $d->process($result);
+      }
+    }
+
     $result['total'] = array(
       'name' => t('Итого'),
       'qty' => $sumqty,
       'price' => null,
-      'sum' => $total,
+      'sum' => 0,
       'names' => count($nodes),
       );
+
+    foreach ($result as $k => $v)
+      if (is_numeric($k))
+        $result['total']['sum'] += $v['sum'];
 
     mcms::session('cart', $cart);
     return $result;

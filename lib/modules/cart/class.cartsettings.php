@@ -24,6 +24,12 @@ class CartSettings implements iModuleConfig
       'label' => t('Получатель уведомлений'),
       'description' => t('Почтовый адрес, на который будут приходить уведомления о новых заказах. Все заказы также будут сохранены в виде документов типа "Заказ" (если такого типа на данный момент нет, он будет создан при сохранении этого виджета).'),
       )));
+    $form->addControl(new EnumControl(array(
+      'value' => 'config_discounter',
+      'label' => t('Класс, обрабатывающий скидки'),
+      'options' => self::getDiscounters(),
+      'default_label' => t('(нет скидок)'),
+      )));
 
     $tab = $form->addControl(new FieldSetControl(array(
       'label' => t('Скидка'),
@@ -173,5 +179,15 @@ class CartSettings implements iModuleConfig
       // Привязываем новый тип к этому виджету.
       $this->me->linkAddParent($type->id);
     }
+  }
+
+  private static function getDiscounters()
+  {
+    $result = array();
+
+    foreach (mcms::getImplementors('iCartDiscounter') as $k)
+      $result[$k] = $k;
+
+    return $result;
   }
 }
