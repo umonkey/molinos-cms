@@ -1,7 +1,7 @@
 <?php
 
 // Текущая версия.
-define('MCMS_VERSION', '8.05.6197');
+define('MCMS_VERSION', '8.05.6198B1');
 
 // Начало обработки запроса, для замеров производительности.
 define('MCMS_START_TIME', microtime(true));
@@ -233,6 +233,12 @@ class Loader
       );
   }
 }
+
+// FIXME: вынести mcms::check() куда-нибудь сюда, чтобы консольные
+// скрипты его прозрачно использовали.
+
+if (function_exists('mb_internal_encoding'))
+  mb_internal_encoding('UTF-8');
 
 spl_autoload_register(array('Loader', 'autoload'));
 

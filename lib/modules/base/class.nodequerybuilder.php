@@ -244,6 +244,7 @@ class NodeQueryBuilder
     $this->params[$param] = mb_strtolower($needle);
 
     // Добавляем поиск по всем текстовым индексированным полям задействованных классов.
+    /*
     if (!empty($this->query['class'])) {
       foreach ((array)$this->query['class'] as $class) {
         $schema = Node::create($class)->schema();
@@ -264,6 +265,7 @@ class NodeQueryBuilder
         }
       }
     }
+    */
 
     $this->where[] = '('. join(' OR ', $matches) .')';
   }
