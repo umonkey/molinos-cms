@@ -219,7 +219,7 @@ class WidgetNode extends Node implements iContentType
   /**
    * Для новых виджетов возвращается урезанная схема, из одного поля (выбор типа виджета).
    */
-  public function schema()
+  public function getFormFields()
   {
     if ($this->id or $this->classname)
       return parent::schema();

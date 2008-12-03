@@ -500,9 +500,11 @@ class FileNode extends Node implements iContentType
   /**
    * Спецобработка добавления нового файла в архив.
    */
-  public function schema()
+  public function getFormFields()
   {
-    if (!$this->id)
+    if ($this->id)
+      return $this->schema();
+    else
       return new Schema(array(
         'file' => array(
           'type' => 'AttachmentControl',
@@ -513,8 +515,6 @@ class FileNode extends Node implements iContentType
           'fetch' => true,
           ),
         ));
-
-    return parent::schema();
   }
 
   /**

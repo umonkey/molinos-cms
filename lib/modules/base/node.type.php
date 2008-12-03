@@ -565,6 +565,13 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     unset($schema['notags']);
     unset($schema['hasfiles']);
 
+    return $schema;
+  }
+
+  public function getFormFields()
+  {
+    $schema = $this->schema();
+
     if (empty($this->id) or $this->name != 'type')
       $schema['isdictionary'] = new BoolControl(array(
         'value' => 'isdictionary',
