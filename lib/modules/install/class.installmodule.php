@@ -39,7 +39,6 @@ class InstallModule implements iRemoteCall
           if (!file_exists($target))
             if (!copy($dist, $target))
               throw new RuntimeException(t('Не удалось проинсталлировать новую базу данных.'));
-          }
         }
       }
     }
