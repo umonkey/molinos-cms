@@ -200,4 +200,39 @@ class Node extends NodeBase implements iContentType
       ? array_unique($permitted)
       : array_intersect($allowed, $permitted);
   }
+
+  public function getImage()
+  {
+    switch ($this->filetype) {
+    case 'image/jpeg':
+    case 'image/pjpeg':
+        $func = 'imagecreatefromjpeg';
+        break;
+    case 'image/png':
+    case 'image/x-png':
+        $func = 'imagecreatefrompng';
+        break;
+    case 'image/gif':
+        $func = 'imagecreatefromgif';
+        break;
+    default:
+        throw new RuntimeException(t('Файл %name не является картинкой.', array(
+          '%name' => $this->filename,
+          )));
+    }
+
+    if (!function_exists($func))
+      throw new RuntimeException(t('Текущая конфигурация PHP не поддерживает работу с файлами типа %type.', array(
+        '%type' => $this->filetype,
+        )));
+
+    $img = call_user_func($func, mcms::config('filestorage') . DIRECTORY_SEPARATOR . $this->filepath);
+
+    if (null === $img)
+      throw new RuntimeException(t('Не удалось открыть файл %name (возможно, он повреждён).', array(
+        '%name' => $this->filename,
+        )));
+
+    return $img;
+  }
 };
