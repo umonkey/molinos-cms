@@ -59,13 +59,6 @@ class NodeBase
         $data['created'] = $data['updated'];
     }
 
-    // Проверять публикацию пользователей и групп нельзя,
-    // т.к. они создаются при восстановлении сессии, получаем
-    // мёртвый цикл.
-    if (!in_array($data['class'], array('user', 'group')))
-      if (!array_key_exists('published', $data))
-        $data['published'] = $this->checkPermission('p');
-
     $this->data = $data;
   }
 
@@ -286,6 +279,9 @@ class NodeBase
     // FIXME: вынести детей из data в отдельную переменную.
     if (isset($this->data['children']))
       unset($this->data['children']);
+
+    if (!$this->id and !array_key_exists('published', $this->data))
+      $this->data['published'] = mcms::user()->hasAccess('p', $this->data['class']);
 
     /*
     // таки надо анонимные комментарии уметь оставлять
@@ -724,11 +720,6 @@ class NodeBase
       $data['parent_id'] = null;
     if (!array_key_exists('lang', $data))
       $data['lang'] = 'ru';
-
-    // Не проверяем пользователей, чтобы не войти в вечный цикл.
-    if (!array_key_exists('published', $data))
-      if (empty($data['id']) and 'user' !== $class)
-        $data['published'] = mcms::user()->hasAccess('p', $data['class']);
 
     return new $host($data);
   }
