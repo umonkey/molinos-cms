@@ -150,7 +150,7 @@ class UserNode extends Node implements iContentType
     throw new RuntimeException(t('У объекта отсутствует поле email.'));
   }
 
-  protected function getDefaultSchema()
+  public function getDefaultSchema()
   {
     $result = array(
       'name' => array(

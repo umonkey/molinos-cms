@@ -2238,31 +2238,21 @@ class NodeBase
 
   public function schema()
   {
-    $schema = Schema::load($this->class);
+    return Schema::load($this->class);
+  }
+
+  public function formGetFields()
+  {
+    $schema = $this->schema();
 
     // Выбор родителя возможен только при создании.
     if ($this->id and isset($schema['parent_id']))
       unset($schema['parent_id']);
 
-    $hasfields = count($schema);
-
-    foreach ($this->getDefaultSchema() as $k => $v) {
-      if (!empty($v['recommended']) and $hasfields)
-        continue;
-
-      if (!isset($schema[$k]) or !empty($v['volatile']) and class_exists($v['type'])) {
-        $class = $v['type'];
-        unset($v['type']);
-        $v['value'] = $k;
-
-        $schema[$k] = new $class($v);
-      }
-    }
-
     return $schema;
   }
 
-  protected function getDefaultSchema()
+  public function getDefaultSchema()
   {
     return array(
       'name' => array(

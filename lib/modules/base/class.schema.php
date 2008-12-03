@@ -37,7 +37,7 @@ class Schema extends ArrayObject
     throw new InvalidArgumentException(t('Содержимое схемы должно быть описано массивами или объектами-наследниками класса Control.'));
   }
 
-  public static function load($class)
+  public static function load($class, Node $subject = null)
   {
     $s = Structure::getInstance();
 
@@ -52,6 +52,24 @@ class Schema extends ArrayObject
           ));
 
         $schema = $node->fields;
+
+        // Применяем дефолтные поля.
+        if (null !== $subject) {
+          $hasfields = count($schema);
+
+          foreach ($subject->getDefaultSchema() as $k => $v) {
+            if (!empty($v['recommended']) and $hasfields)
+              continue;
+
+            if (!isset($schema[$k]) or !empty($v['volatile']) and class_exists($v['type'])) {
+              $class = $v['type'];
+              unset($v['type']);
+              $v['value'] = $k;
+
+              $schema[$k] = new $class($v);
+            }
+          }
+        }
       } catch (ObjectNotFoundException $e) {
         $schema = array();
       }

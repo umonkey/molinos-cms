@@ -283,7 +283,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     }
   }
 
-  private function formGetFields()
+  public function formGetFields()
   {
     if (in_array($this->name, array('file')))
       return null;
@@ -582,7 +582,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     return $schema;
   }
 
-  protected function getDefaultSchema()
+  public function getDefaultSchema()
   {
     return array(
       'perms' => array(

@@ -355,7 +355,7 @@ class DomainNode extends Node implements iContentType
     return $schema;
   }
 
-  protected function getDefaultSchema()
+  public function getDefaultSchema()
   {
     return array(
       'name' => array(

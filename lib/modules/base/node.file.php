@@ -443,7 +443,7 @@ class FileNode extends Node implements iContentType
    * структура не обнаружена (хранится в виде ноды с типом "type" и
    * именем "file").
    */
-  protected function getDefaultSchema()
+  public function getDefaultSchema()
   {
     return array(
       'name' => array (

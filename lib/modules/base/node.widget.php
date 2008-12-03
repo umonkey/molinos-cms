@@ -149,7 +149,7 @@ class WidgetNode extends Node implements iContentType
     return $classes;
   }
 
-  protected function getDefaultSchema()
+  public function getDefaultSchema()
   {
     $schema = array(
       'name' => array(

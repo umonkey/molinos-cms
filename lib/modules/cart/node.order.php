@@ -45,7 +45,7 @@ class OrderNode extends Node implements iContentType
     }
   }
 
-  protected function getDefaultSchema()
+  public function getDefaultSchema()
   {
     return array(
       'orderdetails' => array(
