@@ -357,6 +357,20 @@ abstract class Control implements iFormControl
   {
     return mb_strtolower(str_replace('Control', '', get_class($this))) .'-wrapper';
   }
+
+  /**
+   * Возвращает настройки контрола для сохранения в структуре.
+   */
+  public function dump()
+  {
+    $result = array();
+
+    foreach ($this->form as $k => $v)
+      if (!empty($v))
+        $result[$k] = $v;
+
+    return $result;
+  }
 };
 
 class ControlData
