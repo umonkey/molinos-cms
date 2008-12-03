@@ -164,7 +164,7 @@ class NodeBase
     $data = self::find($id);
 
     if (empty($data))
-      throw new ObjectNotFoundException();
+      throw new ObjectNotFoundException(array_key_exists('#error', $id) ? $id['#error'] : null);
 
     elseif (count($data) > 1 and !$first)
       throw new InvalidArgumentException("Выборка объекта по условию вернула "

@@ -21,8 +21,10 @@
  */
 class ObjectNotFoundException extends UserErrorException
 {
-  public function __construct()
+  public function __construct($message = null)
   {
-    parent::__construct("Объект не найден", 404, "Объект не найден", "Вы попытались обратиться к объекту, который не удалось найти.");
+    if (null === $message)
+      $message = t('Объект не найден');
+    parent::__construct($message, 404, $message, "Вы попытались обратиться к объекту, который не удалось найти.");
   }
 };
