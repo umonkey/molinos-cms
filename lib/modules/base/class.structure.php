@@ -33,6 +33,7 @@ class Structure
 
   public function __construct()
   {
+    // Загружается по требованию.
     // $this->load();
   }
 
@@ -40,6 +41,9 @@ class Structure
   {
     if (!file_exists($file = $this->getFileName()))
       $this->rebuild();
+
+    if (!file_exists($file))
+      throw new RuntimeException(t('Не удалось загрузить структуру сайта.'));
 
     $data = include($file);
 
@@ -218,6 +222,18 @@ class Structure
    */
   public function findSchema($class)
   {
+    static $lock = false;
+
+    if ($lock)
+      return false;
+
+    $lock = true;
+
+    if (!$this->loaded)
+      $this->load();
+
+    $lock = false;
+
     if (array_key_exists($class, $this->schema))
       return $this->schema[$class];
     else
