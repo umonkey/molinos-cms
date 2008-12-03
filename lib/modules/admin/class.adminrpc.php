@@ -90,6 +90,8 @@ class AdminRPC implements iRemoteCall
     mcms::user()->checkAccess('u', 'moduleinfo');
 
     mcms::enableModules($ctx->post('selected', array()));
+
+    Structure::getInstance()->rebuild();
   }
 
   private static function hookModConf(Context $ctx)
