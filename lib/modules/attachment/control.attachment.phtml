@@ -43,9 +43,11 @@ if ($c->value)
   <div class='search-result'></div>
 </div>
 
-<div class='ftp tab'>
-  <div class="ftp-results"></div>
-</div>
+<?php if ($c->ftp): ?>
+  <div class='ftp tab'>
+    <div class="ftp-results"></div>
+  </div>
+<?php endif; ?>
 
 <div class='controls'>
   <span class="local active">Файл</span>
@@ -55,7 +57,9 @@ if ($c->value)
   <?php if ($c->archive): ?>
     <span class="archive">Архив</span>
   <?php endif; ?>
-  <span class="ftp">FTP</span>
+  <?php if ($c->ftp): ?>
+    <span class="ftp">FTP</span>
+  <?php endif; ?>
 </div>
 <div class='sep'></div>
 </div>

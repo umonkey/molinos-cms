@@ -32,6 +32,9 @@ class AttachmentControl extends Control
     if (!array_key_exists('fetch', $form))
       $form['fetch'] = true;
 
+    if (null === mcms::config('ftpfolder'))
+      $form['ftp'] = false;
+
     parent::__construct($form, array('value'));
 
     $parts = array();
