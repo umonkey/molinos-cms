@@ -1969,7 +1969,7 @@ class NodeBase
       $parent = array_shift(mcms::db()->getResults("SELECT `left`, `right` FROM `node` WHERE `id` = :parent AND `lang` = :lang",
         array(':parent' => $node['parent_id'], 'lang' => $node['lang'])));
 
-      if (!empty($parent) and ($parent['left'] >= $parent['right']))
+      if (!empty($parent) and !empty($parent['left']) and !empty($parent['right']) and ($parent['left'] >= $parent['right']))
         throw new RuntimeException(t('Серьёзное нарушение целостности БД: границы ветки %id нарушены (left=%left ≥ right=%right).', array(
           '%id' => $node['parent_id'],
           '%left' => $parent['left'],
