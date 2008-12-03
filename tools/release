@@ -9,6 +9,21 @@ fi
 
 git clean -fd
 
+# syntax check
+if [ -z $(which php) ]; then
+    echo "PHP binary not found. Syntax check impossible, aborting."
+    exit 1
+else
+    echo "Checking syntax of all php files."
+    for file in $(find . -name '*.php' -o -name '*.phtml'); do
+        php -l $file >phplint.log
+        if [ $? -ne 0 ]; then
+            cat phplint.log && rm -f phplint.log && exit 1
+        fi
+    done
+    rm -f phplint.log
+fi
+
 echo "Rebuilding class map"
 php -f tools/rebuild_modmap.php
 
