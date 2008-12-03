@@ -147,9 +147,15 @@ class Structure
    */
   private function findPageParameters(array $page, array $path_args)
   {
-    $keys = array_key_exists('params', $page)
-      ? explode('+', $page['params'])
-      : array();
+    if (empty($page['params']))
+      return empty($path_args)
+        ? array()
+        : null;
+
+    $keys = explode('+', $page['params']);
+
+    if (empty($page['params']))
+      mcms::debug($page, $keys, $path_args);
 
     // Параметров в урле больше, чем должно быть => мусор => 404.
     if (count($path_args) > count($keys))

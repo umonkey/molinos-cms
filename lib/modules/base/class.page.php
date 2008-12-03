@@ -2,8 +2,15 @@
 
 class Page
 {
-  public static function render(Context $ctx, $domain, $query, $debug = false)
+  public static function render(Context $_ctx, $domain, $query, $debug = false)
   {
+    // Клонируем контекст, чтобы не изменить исходные параметры,
+    // т.к. это приводит к неверной работе страниц с ошибками.
+    // Например, если страница с ошибками не имеет параметров,
+    // а мы здесь их установим, они _придут_ в обработчик ошибки,
+    // что нарушит его работу.
+    $ctx = clone($_ctx);
+
     if ($rpc = self::checkRPC($ctx, $query))
       return $rpc;
 
