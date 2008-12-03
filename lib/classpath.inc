@@ -465,7 +465,6 @@ return array (
       ),
       'enabled' => false,
       'group' => 'Service',
-      'version' => '8.02.4782',
       'name' => array (
         'en' => 'Text Rasterization Module',
         'ru' => 'Растеризация текста',

@@ -39,9 +39,11 @@ class Schema extends ArrayObject
 
   public static function load($class)
   {
-    $schema = mcms::cache($key = 'schema:fields:' . $class);
+    $s = Structure::getInstance();
 
-    if (!is_array($schema)) {
+    if (false === ($schema = $s->findSchema($class))) {
+      mcms::flog('schema', $class . ': loading from file, please update schema (just delete the file).');
+
       try {
         $node = Node::load(array(
           'class' => 'type',
@@ -49,7 +51,7 @@ class Schema extends ArrayObject
           'name' => $class,
           ));
 
-        mcms::cache($key, $schema = $node->fields);
+        $schema = $node->fields;
       } catch (ObjectNotFoundException $e) {
         $schema = array();
       }

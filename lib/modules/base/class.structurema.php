@@ -7,17 +7,20 @@ class StructureMA
   private $domains = array();
   private $aliases = array();
   private $access = array();
+  private $schema = array();
 
   public function import()
   {
     $this->getWidgets();
     $this->getDomains();
     $this->getAccess();
+    $this->getSchema();
 
     return array(
       'widgets' => $this->widgets,
       'aliases' => $this->aliases,
       'domains' => $this->domains,
+      'schema' => $this->schema,
       'access' => $this->access,
       );
   }
@@ -144,5 +147,28 @@ class StructureMA
       'groups' => $groups,
       'types' => $types,
       );
+  }
+
+  private function getSchema()
+  {
+    // Получаем список сохранённых типов.
+    $types = mcms::db()->getResultsV("name", "SELECT `v`.`name` FROM `node` `n` "
+      . "INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
+      . "WHERE `n`.`deleted` = 0 AND `n`.`class` = 'type'");
+
+    // Добавляем типы, известные только по классам.
+    foreach (mcms::getImplementors('iContentType') as $class) {
+      if ('' !== ($name = strtolower(substr($class, 0, -4)))) {
+        if (!in_array($name, $types))
+          $types[] = $name;
+      }
+    }
+
+    foreach ($types as $type) {
+      $schema = Node::create($type)->schema();
+
+      foreach ($schema as $field => $ctl)
+        $this->schema[$type][$field] = $ctl->dump();
+    }
   }
 }
