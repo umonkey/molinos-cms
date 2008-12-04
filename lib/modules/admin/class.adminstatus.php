@@ -32,7 +32,7 @@ class AdminStatus implements iAdminMenu
           'group' => 'status',
           'message' => t('Пожалуйста, <a href=\'@url\'>установите пароль</a> '
             .'на ваш аккаунт.', array(
-              '@url' => '?q=admin/access/edit&id=8&destination=CURRENT',
+              '@url' => '?q=admin/access/edit/8&destination=CURRENT',
               )),
           );
 
