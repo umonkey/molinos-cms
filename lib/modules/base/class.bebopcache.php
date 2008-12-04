@@ -106,7 +106,7 @@ class XCache_provider extends BebopCache
   {
     if (!function_exists('xcache_set'))
       return false;
-    if (!ini_get('xcache.var_size'))
+    if (!intval(ini_get('xcache.var_size')))
       return false;
     return true;
   }
