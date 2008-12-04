@@ -31,7 +31,7 @@ class CronMenu implements iAdminMenu
     else
       $message .= t('Ваших полномочий недостаточно для ручного запуска '
         .'(см. <a href=\'@url\'>настройки модуля</a>).', array(
-          '@url' => 'admin?mode=modules&action=config&name=cron&cgroup=structure&destination=CURRENT',
+          '@url' => '?q=admin&mode=modules&action=config&name=cron&cgroup=structure&destination=CURRENT',
         ));
 
     $icon = array(
