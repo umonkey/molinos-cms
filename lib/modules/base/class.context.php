@@ -218,10 +218,30 @@ class Context
    * @param mixed $url текст ссылки, массив или объект url.
    * @return void
    */
-  public function redirect($url, $status = 301)
+  public function redirect($url, $status = 301, Node $node = null)
   {
     $url1 = new url($url);
     $next = $url1->getAbsolute($this);
+
+    if (null !== $node and $node->id) {
+      if (!$node->published)
+        $mode = 'pending';
+      elseif ($node->isNew())
+        $mode = 'created';
+      else
+        $mode = 'updated';
+
+      $url = new url($next);
+
+      if ('%ID' == $url->arg('id')) {
+        $url->setarg('id', $node->id);
+      } else {
+        $url->setarg($mode, $node->id);
+        $url->setarg('type', $node->class);
+      }
+
+      $next = $url->string();
+    }
 
     $r = new Redirect($next, $status);
     $r->send();
