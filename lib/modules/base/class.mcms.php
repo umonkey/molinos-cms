@@ -179,15 +179,13 @@ class mcms
 
     // Всего один файл — используем напрямую.
     if (count($nodes) == 1 or !mcms::ismodule('playlist'))
-      $playlist = $firstfile;
+      $playlist = '?q=' . urlencode($firstfile);
     else
-      $playlist = l('?q=playlist.rpc&nodes='. join(',', $nodes));
-
-    // Нет генератора плэйлистов, выходим.
+      $playlist = '?q=playlist.rpc&nodes='. join(',', $nodes);
 
     // Параметризация проигрывателя.
     $options = array_merge(array(
-      'file' => $playlist,
+      'file' => mcms::path() . '/' . $playlist,
       'showdigits' => 'true',
       'autostart' => 'false',
       'repeat' => 'false',
