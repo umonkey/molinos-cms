@@ -627,8 +627,17 @@ class mcms
       ob_end_clean();
 
     if (!empty($_SERVER['REQUEST_METHOD'])) {
-      $html = '<html><head><title>Fatal Error</title></head><body>'
-        .'<h1>Fatal Error</h1><p>'. $message .'</p>';
+      $html = '<html><head><title>Fatal Error</title></head>'
+        . '<body>'
+        . '<h1>Fatal Error</h1><p>'. $message .'</p>';
+
+      if (null !== $ctx and $ctx->canDebug()) {
+        $url = new url($ctx->url()->getAbsolute($ctx));
+        $url->setarg('debug', 'errors');
+
+        if ('errors' != $url->arg('debug'))
+          $html .= mcms::html('p', l($url->string(), t('Просмотреть стэк исходной ошибки.')));
+      }
 
       if (null !== $backtrace)
         $html .= '<h2>Стэк вызова</h2><pre>'. $backtrace .'</pre>';
