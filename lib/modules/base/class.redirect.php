@@ -2,6 +2,11 @@
 
 class Redirect extends Response
 {
+  const PERMANENT = 301;
+  const FOUND = 302;
+  const OTHER = 303;
+  const TEMPORARY = 307;
+
   private $url;
 
   public function __construct($url = '', $code = 302)
