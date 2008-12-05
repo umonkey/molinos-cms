@@ -15,7 +15,6 @@ class DrawTextRPC implements iRemoteCall
       self::usage();
 
     $options['background'] = $ctx->get('background');
-
     $options['padding'] = $ctx->get('padding', 0);
     $options['color'] = strtolower($ctx->get('color', '000000'));
     $options['bgcolor'] = strtolower($ctx->get('bgcolor', 'ffffff'));
@@ -23,6 +22,7 @@ class DrawTextRPC implements iRemoteCall
     $options['size'] = $ctx->get('size', TextDrawer::DRAW_TTF_BASE);
     $options['x'] = $ctx->get('x', 0);
     $options['y'] = $ctx->get('y', 0);
+    $options['wrap'] = $ctx->get('wrap');
 
     $drawer = new TextDrawer();
     $drawer->draw($options);
