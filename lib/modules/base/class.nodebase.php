@@ -2270,12 +2270,6 @@ class NodeBase
 
   public function isNew()
   {
-    if (empty($this->data['id']))
-      return true;
-    
-    if (array_key_exists('id', $this->olddata))
-      return true;
-
-    return false;
+    return empty($this->olddata['id']);
   }
 };
