@@ -151,7 +151,7 @@ class WidgetNode extends Node implements iContentType
 
   public function getDefaultSchema()
   {
-    $schema = array(
+    return array(
       'name' => array(
         'type' => 'TextLineControl',
         'label' => t('Внутреннее имя'),
@@ -196,6 +196,29 @@ class WidgetNode extends Node implements iContentType
         'columns' => array('r'),
         ),
       );
+  }
+
+  /**
+   * Для новых виджетов возвращается урезанная схема, из одного поля (выбор типа виджета).
+   */
+  public function getFormFields()
+  {
+    if (empty($this->id) or empty($this->classname))
+      return new Schema(array(
+        'classname' => array(
+          'type' => 'EnumRadioControl',
+          'label' => t('Тип виджета'),
+          'options' => self::listWidgets(),
+          'description' => t('Виджеты — это блоки, из которых формируются страницы, фрагменты приложения. Каждый виджет выполняет одну конкретную функцию. Выберите, какой виджет вы хотите создать.'),
+          'required' => true,
+          ),
+        'from' => array(
+          'type' => 'HiddenControl',
+          'default' => Context::last()->url()->string(),
+          ),
+        ));
+
+    $schema = $this->schema();
 
     // Добавляем настройки виджета.
     if (!empty($this->classname) and class_exists($this->classname)) {
@@ -214,29 +237,6 @@ class WidgetNode extends Node implements iContentType
     }
 
     return $schema;
-  }
-
-  /**
-   * Для новых виджетов возвращается урезанная схема, из одного поля (выбор типа виджета).
-   */
-  public function getFormFields()
-  {
-    if ($this->id or $this->classname)
-      return parent::schema();
-
-    return new Schema(array(
-      'classname' => array(
-        'type' => 'EnumRadioControl',
-        'label' => t('Тип виджета'),
-        'options' => self::listWidgets(),
-        'description' => t('Виджеты — это блоки, из которых формируются страницы, фрагменты приложения. Каждый виджет выполняет одну конкретную функцию. Выберите, какой виджет вы хотите создать.'),
-        'required' => true,
-        ),
-      'from' => array(
-        'type' => 'HiddenControl',
-        'default' => Context::last()->url()->string(),
-        ),
-      ));
   }
 
   public function getFormSubmitText()
