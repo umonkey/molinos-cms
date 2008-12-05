@@ -235,6 +235,8 @@ function bebop_get_file_type($filename, $realname = null)
       return 'text/plain';
     case '.zip':
       return 'application/zip';
+    case '.flv':
+      return 'video/flv';
     }
   }
 
