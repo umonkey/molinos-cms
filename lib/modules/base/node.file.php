@@ -331,6 +331,13 @@ class FileNode extends Node implements iContentType
   {
     parent::formProcess($data);
 
+    // Замена файла.
+    if ($this->replace instanceof Node) {
+      foreach (array('name', 'filename', 'filetype', 'filesize', 'filepath') as $k)
+        $this->$k = $this->replace->$k;
+      unset($this->replace);
+    }
+
     return $this->id
       ? $this
       : $this->file;
@@ -502,19 +509,29 @@ class FileNode extends Node implements iContentType
    */
   public function getFormFields()
   {
-    if ($this->id)
-      return $this->schema();
-    else
-      return new Schema(array(
-        'file' => array(
-          'type' => 'AttachmentControl',
-          'required' => true,
-          'newfile' => true,
-          'unzip' => true,
-          'archive' => false,
-          'fetch' => true,
-          ),
+    if ($this->id) {
+      $fields = parent::getFormFields();
+
+      $fields['replace'] = new AttachmentControl(array(
+        'value' => 'replace',
+        'label' => t('Заменить другим файлом'),
+        'archive' => false,
+        'unzip' => false,
         ));
+
+      return $fields;
+    }
+
+    return new Schema(array(
+      'file' => array(
+        'type' => 'AttachmentControl',
+        'required' => true,
+        'newfile' => true,
+        'unzip' => true,
+        'archive' => false,
+        'fetch' => true,
+        ),
+      ));
   }
 
   /**
