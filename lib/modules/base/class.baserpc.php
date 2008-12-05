@@ -290,6 +290,8 @@ class BaseRPC implements iRemoteCall
       ))->formProcess($data)->save();
 
     User::authorize($node->name, null, true);
+
+    $ctx->redirect('', Redirect::OTHER, $node);
   }
 
   private static function login($uid)
