@@ -115,7 +115,7 @@ class Context
     if (null === $this->_post)
       $this->_post = $this->getarg('post', array());
 
-    return array_key_exists($key, $this->_post)
+    return !empty($this->_post[$key])
       ? $this->_post[$key]
       : $default;
   }
