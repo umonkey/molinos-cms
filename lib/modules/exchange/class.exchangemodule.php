@@ -24,6 +24,9 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
   public static function hookRemoteCall(Context $ctx)
   {
+    if (!class_exists('ZipArchive'))
+      throw new RuntimeException(t('Функции резервного копирования используют расширение zip, которое отсутствует.'));
+
     $exchmode = $ctx->post('exchmode');
     $result = '';
     $themes = array();
@@ -212,7 +215,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     $str .= "</nodes>\n";
     $str .= "<links>\n";
 
-    $arr = Contex::last()->db->getResults("SELECT `tid`, `nid`, `key`, `order` FROM `node__rel` ORDER BY `tid`, `order`");
+    $arr = Context::last()->db->getResults("SELECT `tid`, `nid`, `key`, `order` FROM `node__rel` ORDER BY `tid`, `order`");
 
     foreach ($arr as $el)
       $str .= mcms::html('link', $el) ."\n";
@@ -394,7 +397,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
   {
     $icons = array();
 
-    if (mcms::user()->hasAccess('d', 'type'))
+    if (class_exists('ZipArchive') and mcms::user()->hasAccess('d', 'type'))
       $icons[] = array(
         'group' => 'structure',
         'href' => '?q=admin&module=exchange',
