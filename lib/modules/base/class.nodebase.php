@@ -60,6 +60,7 @@ class NodeBase
     }
 
     $this->data = $data;
+    $this->olddata['id'] = $this->id;
   }
 
   // Проверяет наличие других объектов с таким именем.
@@ -2265,5 +2266,16 @@ class NodeBase
         'recommended' => true,
         ),
       );
+  }
+
+  public function isNew()
+  {
+    if (empty($this->data['id']))
+      return true;
+    
+    if (array_key_exists('id', $this->olddata))
+      return true;
+
+    return false;
   }
 };
