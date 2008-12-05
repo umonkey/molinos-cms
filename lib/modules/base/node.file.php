@@ -572,10 +572,20 @@ class FileNode extends Node implements iContentType
   {
     $node = Node::create('file');
 
+    $u = parse_url($url);
+    $name = empty($u['path'])
+      ? 'unnamed'
+      : basename($u['path']);
+
+    if (false === ($headers = get_headers($url, 1)))
+      throw new RuntimeException(t('Не удалось определить тип файла: %url', array('%url' => $url)));
+    else
+      $type = $headers['Content-Type'];
+
     $node = $node->import($i = array(
       'tmp_name' => mcms_fetch_file($url, false),
-      'name' => basename($url),
-      'type' => bebop_get_file_type(basename($url)),
+      'name' => $name,
+      'type' => $type,
       ), false);
 
     return $node;
