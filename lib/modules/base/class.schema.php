@@ -22,7 +22,10 @@ class Schema extends ArrayObject
   {
     if ($value instanceof Control) {
       if (!empty($value->value) and $key != $value->value)
-        throw new InvalidArgumentException(t('Внешнее имя поля не соответствует внутреннему.'));
+        throw new InvalidArgumentException(t('Внешнее имя поля не соответствует внутреннему (%a vs %b).', array(
+          '%a' => $value->value,
+          '%b' => $key,
+          )));
       else
         return $value;
     }
