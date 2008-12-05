@@ -3,4 +3,18 @@
 
 class PollNode extends Node implements iContentType
 {
+  public function getDefaultSchema()
+  {
+    return array(
+      'mode' => array(
+        'type' => 'EnumControl',
+        'label' => t('Режим работы'),
+        'required' => true,
+        'options' => array(
+          'single' => t('одно значение'),
+          'multi' => t('несколько значений'),
+          ),
+        ),
+      );
+  }
 };
