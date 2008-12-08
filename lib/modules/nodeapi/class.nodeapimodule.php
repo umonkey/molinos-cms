@@ -63,7 +63,7 @@ class NodeApiModule implements iRemoteCall
       if (!$node->checkPermission('u'))
         throw new ForbiddenException(t('Вам нельзя редактировать этот объект.'));
 
-      $schema = $node->schema();
+      $schema = $node->getSchema();
 
       if (!array_key_exists($field = $ctx->get('field'), $schema['fields']))
         throw new PageNotFoundException(t('Нет такого поля у этого объекта.'));

@@ -343,19 +343,7 @@ class DomainNode extends Node implements iContentType
     return $links;
   }
 
-  public function schema()
-  {
-    $schema = parent::schema();
-
-    // Устаревшие поля
-    if ($this->id)
-      unset($schema['parent_id']);
-    unset($schema['aliases']);
-
-    return $schema;
-  }
-
-  public function getDefaultSchema()
+  public static function getDefaultSchema()
   {
     return array(
       'name' => array(
@@ -445,6 +433,9 @@ class DomainNode extends Node implements iContentType
         'label' => t('Адрес модератора'),
         'volatile' => true,
         'description' => t('Список адресов (через запятую), на которые отправляются сообщения о создании документов пользователями, у которых нет прав на публикацию документов.'),
+        ),
+      'aliases' => array(
+        'deprecated' => true,
         ),
       );
   }

@@ -25,7 +25,7 @@ class SearchIndexer implements iNodeHook
     return;
 
     $html = '';
-    $schema = $node->schema();
+    $schema = Schema::load($node->class);
 
     foreach ($schema['fields'] as $k => $v) {
       if (isset($node->$k)) {

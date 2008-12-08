@@ -121,7 +121,7 @@ class ModeratorModule implements iModuleConfig, iNodeHook
   {
     $body = '<dl>';
 
-    $schema = $node->schema();
+    $schema = $node->getSchema();
 
     foreach ($schema as $k => $v) {
       if (isset($node->$k)) {

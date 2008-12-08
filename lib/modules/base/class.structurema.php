@@ -164,11 +164,7 @@ class StructureMA
       }
     }
 
-    foreach ($types as $type) {
-      $schema = Node::create($type)->schema();
-
-      foreach ($schema as $field => $ctl)
-        $this->schema[$type][$field] = $ctl->dump();
-    }
+    foreach ($types as $type)
+      $this->schema[$type] = Schema::rebuild($type);
   }
 }

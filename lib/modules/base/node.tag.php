@@ -118,7 +118,7 @@ class TagNode extends Node implements iContentType
     return Node::count(array('class' => 'tag', 'parent_id' => null, 'deleted' => 0));
   }
 
-  public function getDefaultSchema()
+  public static function getDefaultSchema()
   {
     return array(
       'perms' => array(

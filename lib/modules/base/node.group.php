@@ -56,7 +56,7 @@ class GroupNode extends Node implements iContentType
       : t('Добавление новой группы');
   }
 
-  public function getDefaultSchema()
+  public static function getDefaultSchema()
   {
     return array(
       'name' => array (

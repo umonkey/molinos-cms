@@ -28,7 +28,7 @@ class MessageNode extends Node
     }
   }
 
-  public function getDefaultSchema()
+  public static function getDefaultSchema()
   {
     return array(
       'uid' => array(

@@ -38,7 +38,7 @@ class CommentNode extends Node
     return $res;
   }
 
-  public function getDefaultSchema()
+  public static function getDefaultSchema()
   {
     return array(
       'name' => array(

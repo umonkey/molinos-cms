@@ -247,7 +247,7 @@ class NodeQueryBuilder
     /*
     if (!empty($this->query['class'])) {
       foreach ((array)$this->query['class'] as $class) {
-        $schema = Node::create($class)->schema();
+        $schema = Schema::load($class);
 
         foreach ($schema as $field => $meta) {
           if (empty($meta->indexed) or $field == 'name')
@@ -599,7 +599,7 @@ class NodeQueryBuilder
         if (array_key_exists('class', $this->query)) {
           $class = is_array($this->query['class']) ? $this->query['class'][0] : $this->query['class'];
 
-          if (Node::create($class)->schema()->hasIndex($field)) {
+          if (Schema::load($class)->hasIndex($field)) {
             $this->addTable('node__idx_'. $class);
             $mask = "`node__idx_{$class}`.`{$field}`";
           }
@@ -608,7 +608,7 @@ class NodeQueryBuilder
     }
 
     // Выборка по дополнительной таблице.
-    elseif (Node::create($table)->schema()->hasIndex($field)) {
+    elseif (Schema::load($table)->hasIndex($field)) {
       $this->addTable('node__idx_'. $table);
       $mask = "`node__idx_{$table}`.`{$field}`";
     }

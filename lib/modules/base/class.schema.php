@@ -5,7 +5,7 @@ class Schema extends ArrayObject
   public function __construct(array $fields = array())
   {
     foreach ($fields as $k => $v)
-      if (null !== ($ctl = $this->rebuild($v, $k)))
+      if (null !== ($ctl = $this->rebuildControl($v, $k)))
         $fields[$k] = $ctl;
       else
         unset($fields[$k]);
@@ -15,10 +15,10 @@ class Schema extends ArrayObject
 
   public function offsetSet($index, $value)
   {
-    return parent::offsetSet($index, $this->rebuild($value, $index));
+    return parent::offsetSet($index, $this->rebuildControl($value, $index));
   }
 
-  private function rebuild($value, $key = null)
+  private function rebuildControl($value, $key = null)
   {
     if ($value instanceof Control) {
       if (!empty($value->value) and $key != $value->value)
@@ -40,45 +40,9 @@ class Schema extends ArrayObject
     throw new InvalidArgumentException(t('Содержимое схемы должно быть описано массивами или объектами-наследниками класса Control.'));
   }
 
-  public static function load($class, Node $subject = null)
+  public static function load($class)
   {
-    $s = Structure::getInstance();
-
-    if (false === ($schema = $s->findSchema($class))) {
-      mcms::flog('schema', $class . ': loading from file, please update schema (just delete the file).');
-
-      try {
-        $node = Node::load(array(
-          'class' => 'type',
-          'deleted' => 0,
-          'name' => $class,
-          ));
-
-        $schema = $node->fields;
-
-        // Применяем дефолтные поля.
-        if (null !== $subject) {
-          $hasfields = count($schema);
-
-          foreach ($subject->getDefaultSchema() as $k => $v) {
-            if (!empty($v['recommended']) and $hasfields)
-              continue;
-
-            if (!isset($schema[$k]) or !empty($v['volatile']) and class_exists($v['type'])) {
-              $class = $v['type'];
-              unset($v['type']);
-              $v['value'] = $k;
-
-              $schema[$k] = new $class($v);
-            }
-          }
-        }
-      } catch (ObjectNotFoundException $e) {
-        $schema = array();
-      }
-    }
-
-    return new Schema($schema);
+    return new Schema(Structure::getInstance()->findSchema($class, array()));
   }
 
   public function hasIndex($name)
@@ -107,5 +71,57 @@ class Schema extends ArrayObject
       if ($v->indexed and !in_array($k, array('name', 'uid', 'created', 'updated')))
         $result[] = $k;
     return $result;
+  }
+
+  /**
+   * Возвращает схему указанного типа документа.
+   *
+   * Читает сохранённую версию из БД, применяет
+   * дефолтные поля при необходимости.
+   */
+  public static function rebuild($class)
+  {
+    // Загружаем из БД.
+    try {
+      $node = Node::load(array(
+        'class' => 'type',
+        'deleted' => 0,
+        'name' => $class,
+        ));
+
+      $schema = $node->fields;
+    } catch (ObjectNotFoundException $e) {
+      $schema = array();
+    }
+
+    // Применяем дефолтные поля.
+    if (null !== ($host = Node::getClassName($class))) {
+      if (method_exists($host, 'getDefaultSchema')) {
+        if (is_array($default = call_user_func(array($host, 'getDefaultSchema')))) {
+          $hasfields = count($schema);
+
+          foreach ($default as $k => $v) {
+            if (!empty($v['recommended']) and $hasfields)
+              ;
+
+            elseif (!empty($v['deprecated'])) {
+              if (isset($schema[$k]))
+                unset($schema[$k]);
+            }
+
+            elseif (!isset($schema[$k]) or !empty($v['volatile']))
+              $schema[$k] = $v;
+          }
+        }
+      }
+    }
+
+    // Очистка от мусора.
+    foreach ($schema as $field => $meta)
+      foreach ($meta as $k => $v)
+        if (empty($v))
+          unset($schema[$field][$k]);
+
+    return $schema;
   }
 }

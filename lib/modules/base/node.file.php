@@ -450,7 +450,7 @@ class FileNode extends Node implements iContentType
    * структура не обнаружена (хранится в виде ноды с типом "type" и
    * именем "file").
    */
-  public function getDefaultSchema()
+  public static function getDefaultSchema()
   {
     return array(
       'name' => array (

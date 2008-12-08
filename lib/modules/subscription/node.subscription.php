@@ -15,9 +15,9 @@ class SubscriptionNode extends Node
   /**
    * Схема фиксирована, изменение невозможно.
    */
-  public function schema()
+  public static function getDefaultSchema()
   {
-    return new Schema(array(
+    return array(
       'name' => array(
         'type' => 'EmailControl',
         'label' => t('Почтовый адрес'),
@@ -33,7 +33,7 @@ class SubscriptionNode extends Node
         'label' => t('Подписка распространяется на разделы'),
         'group' => t('Разделы'),
         ),
-      ));
+      );
   }
 
   public function getEnabledSections()

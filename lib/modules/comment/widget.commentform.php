@@ -27,7 +27,7 @@ class CommentFormWidget extends Widget
   public static function getConfigOptions()
   {
     $fields = array();
-    $schema = Node::create('comment')->schema();
+    $schema = Schema::load('comment');
     foreach ($schema as $k => $v)
       $fields[$k] = $v->label . ' (' . $k . ')';
 

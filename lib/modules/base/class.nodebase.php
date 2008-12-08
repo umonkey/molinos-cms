@@ -312,7 +312,7 @@ class NodeBase
    */
   private function saveLinks()
   {
-    foreach ($this->schema() as $field => $ctl) {
+    foreach ($this->getSchema() as $field => $ctl) {
       if (false !== ($value = $ctl->getLinkId($this))) {
         if (null === $value)
           $this->linkRemoveChild(null, $field);
@@ -708,8 +708,7 @@ class NodeBase
     if (!is_string($class))
       throw new InvalidArgumentException(t('Тип создаваемого объекта должен быть строкой, а не «%type».', array('%type' => gettype($class))));
 
-    if (!class_exists($host = ucfirst(strtolower($class)) .'Node'))
-      $host = 'Node';
+    $host = self::getClassName($class);
 
     if (!is_array($data))
       $data = array();
@@ -723,6 +722,13 @@ class NodeBase
       $data['lang'] = 'ru';
 
     return new $host($data);
+  }
+
+  public static function getClassName($class, $default = 'Node')
+  {
+    if (!class_exists($host = ucfirst(strtolower($class)) . 'Node'))
+      $host = $default;
+    return $host;
   }
 
   /**
@@ -1788,7 +1794,7 @@ class NodeBase
    */
   public function getFormFields()
   {
-    $schema = $this->schema();
+    $schema = $this->getSchema();
 
     if (!mcms::user()->id and !$this->id and class_exists('CaptchaControl'))
       $schema['captcha'] = new CaptchaControl(array(
@@ -2110,7 +2116,7 @@ class NodeBase
     $fields = array('id');
     $params = array(':id' => $this->id);
 
-    $schema = $this->schema();
+    $schema = $this->getSchema();
 
     foreach ($schema->getIndexes() as $k) {
       if ($schema[$k]->indexed) {
@@ -2228,14 +2234,14 @@ class NodeBase
     }
   }
 
-  public function schema()
+  public final function getSchema()
   {
     return Schema::load($this->class);
   }
 
   public function formGetFields()
   {
-    $schema = $this->schema();
+    $schema = $this->getSchema();
 
     // Выбор родителя возможен только при создании.
     if ($this->id and isset($schema['parent_id']))
@@ -2244,7 +2250,7 @@ class NodeBase
     return $schema;
   }
 
-  public function getDefaultSchema()
+  public static function getDefaultSchema()
   {
     return array(
       'name' => array(

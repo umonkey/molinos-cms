@@ -55,7 +55,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
         'mode' => 'form',
         'node' => $poll->getRaw(),
         'options' => self::getPollOptions($poll),
-        'schema' => $poll->schema(),
+        'schema' => $poll->getSchema(),
         'form' => parent::formRender('vote-form', $poll),
         );
     }

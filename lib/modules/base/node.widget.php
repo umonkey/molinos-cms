@@ -149,7 +149,7 @@ class WidgetNode extends Node implements iContentType
     return $classes;
   }
 
-  public function getDefaultSchema()
+  public static function getDefaultSchema()
   {
     return array(
       'name' => array(
@@ -218,7 +218,7 @@ class WidgetNode extends Node implements iContentType
           ),
         ));
 
-    $schema = $this->schema();
+    $schema = $this->getSchema();
 
     // Добавляем настройки виджета.
     if (!empty($this->classname) and class_exists($this->classname)) {

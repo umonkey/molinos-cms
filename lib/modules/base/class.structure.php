@@ -220,24 +220,15 @@ class Structure
   /**
    * Возвращает структуру типа документа.
    */
-  public function findSchema($class)
+  public function findSchema($class, $default = false)
   {
-    static $lock = false;
-
-    if ($lock)
-      return false;
-
-    $lock = true;
-
     if (!$this->loaded)
       $this->load();
-
-    $lock = false;
 
     if (array_key_exists($class, $this->schema))
       return $this->schema[$class];
     else
-      return false;
+      return $default;
   }
 
   /**

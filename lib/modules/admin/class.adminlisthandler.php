@@ -286,7 +286,7 @@ class AdminListHandler
           $this->title = t('Список групп');
           break;
         default:
-          $tmp = Node::create($type)->schema();
+          $tmp = Schema::load($type);
 
           if (!empty($tmp['isdictionary']))
             $this->title = t('Справочник «%name»', array('%name' => mb_strtolower($tmp['title'])));

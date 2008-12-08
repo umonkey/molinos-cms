@@ -19,7 +19,7 @@ class NodeIndexer
           . "INNER JOIN node n ON n.rid = v.rid WHERE n.class = 'type' AND n.deleted = 0");
 
         foreach ($types as $type) {
-          $schema = Node::create($type)->schema();
+          $schema = Schema::load($type);
           if ($schema->hasIndexes())
             self::countTable($type, $stat, $schema);
         }

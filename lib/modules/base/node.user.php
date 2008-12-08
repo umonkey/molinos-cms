@@ -150,9 +150,9 @@ class UserNode extends Node implements iContentType
     throw new RuntimeException(t('У объекта отсутствует поле email.'));
   }
 
-  public function getDefaultSchema()
+  public static function getDefaultSchema()
   {
-    $result = array(
+    return array(
       'name' => array(
         'type' => 'EmailControl',
         'label' => t('Email или OpenID'),
@@ -176,11 +176,6 @@ class UserNode extends Node implements iContentType
         'parents' => true,
         ),
       );
-
-    if (!mcms::user()->hasAccess('u', 'user'))
-      unset($result['groups']);
-
-    return $result;
   }
 
   public function getFormTitle()

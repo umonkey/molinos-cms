@@ -4,7 +4,7 @@ if (!empty($document)) {
   $data = array(
     'document' => $document,
     'tags' => $tags,
-    'schema' => Node::create($document['class'])->schema(),
+    'schema' => Schema::load($document['class']),
     );
 
   if (!empty($neighbors))

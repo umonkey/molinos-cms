@@ -72,7 +72,7 @@ class SubscriptionControl extends SectionsControl implements iFormControl
   protected function findEmail($data)
   {
     if ($data instanceof Node) {
-      foreach ($data->schema() as $k => $v) {
+      foreach ($data->getSchema() as $k => $v) {
         if ($v instanceof EmailControl and false !== strpos($email = $data->$k, '@'))
           return $email;
       }

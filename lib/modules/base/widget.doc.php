@@ -173,7 +173,7 @@ class DocWidget extends Widget implements iWidget
         }
       }
 
-      $result['schema'] = $node->schema();
+      $result['schema'] = $node->getSchema();
 
       if ($this->showneighbors and $this->ctx->section->id and in_array($this->ctx->section->id, $sections)) {
         if (null !== ($n = $node->getNeighbors($this->ctx->section->id))) {

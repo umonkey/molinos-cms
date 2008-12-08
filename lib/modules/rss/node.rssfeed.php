@@ -23,7 +23,7 @@ class RssfeedNode extends Node
     return $form;
   }
 
-  public function getDefaultSchema()
+  public static function getDefaultSchema()
   {
     return array(
       'name' => array(

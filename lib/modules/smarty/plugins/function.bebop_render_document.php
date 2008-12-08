@@ -7,11 +7,11 @@ function smarty_function_bebop_render_document($params, &$smarty)
     return '';
 
   $doc = $params['doc'];
-  $schema = Node::create($doc['class'])->schema();
+  $schema = Schema::load($doc['class']);
 
   $output = "<div class='doc-type-{$doc['class']}'>";
 
-  foreach ($schema['fields'] as $field => $meta) {
+  foreach ($schema as $field => $meta) {
     if (empty($doc[$field]))
       continue;
 
@@ -20,14 +20,14 @@ function smarty_function_bebop_render_document($params, &$smarty)
       continue;
     }
 
-    switch (strtolower($meta['type'])) {
-      case 'textareacontrol':
-      case 'texthtmlcontrol':
-        $output .= '<h4>'. $meta['label'] .'</h4>';
+    switch (get_class($meta)) {
+      case 'TextAreaControl':
+      case 'TextHTMLControl':
+        $output .= '<h4>'. $meta->label .'</h4>';
         $output .= $doc[$field];
         break;
 
-      case 'textlinecontrol':
+      case 'TextLineControl':
         $output .= "<div class='field-{$field}'>". $doc[$field] ."</div>";
         break;
     }

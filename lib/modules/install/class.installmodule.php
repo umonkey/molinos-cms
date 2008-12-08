@@ -102,7 +102,7 @@ class InstallerNode extends Node
     return parent::__construct(array());
   }
 
-  public function schema()
+  public function getFormFields()
   {
     return new Schema(array(
       'debuggers' => array(

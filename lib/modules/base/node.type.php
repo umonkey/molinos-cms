@@ -163,7 +163,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   public function recreateIdxTable($tblname)
   {
     mcms::db()->exec("DROP TABLE IF EXISTS node__idx_{$tblname}");
-    $result = Node::create($tblname)->schema();
+    $result = Schema::load($tblname);
     $this->fields = $result['fields'];
     $this->name = $tblname;
     $this->updateTable();
@@ -307,7 +307,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if (null === ($name = $this->name))
       $name = 'type';
 
-    $schema = Node::create($name)->schema();
+    $schema = Schema::load($name);
 
     foreach ($schema as $name => $field) {
       if (!$field->volatile)
@@ -560,20 +560,9 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     return $links;
   }
 
-  public function schema()
-  {
-    $schema = parent::schema();
-
-    // Устаревшие поля, которые нужно скрыть.
-    unset($schema['notags']);
-    unset($schema['hasfiles']);
-
-    return $schema;
-  }
-
   public function getFormFields()
   {
-    $schema = $this->schema();
+    $schema = $this->getSchema();
 
     if (empty($this->id) or $this->name != 'type')
       $schema['isdictionary'] = new BoolControl(array(
@@ -585,7 +574,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     return $schema;
   }
 
-  public function getDefaultSchema()
+  public static function getDefaultSchema()
   {
     return array(
       'perms' => array(
@@ -600,6 +589,12 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
         'group' => t('Разделы'),
         'dictionary' => 'tag',
         'volatile' => true,
+        ),
+      'notags' => array(
+        'deprecated' => true,
+        ),
+      'hasfiles' => array(
+        'deprecated' => true,
         ),
       );
   }
