@@ -44,6 +44,16 @@ class Page
       ? self::renderWidgets($ctx, $data['page']['widgets'])
       : array();
 
+    // Запрошен отдельный виджет — возвращаем.
+    if (null !== ($w = $ctx->get('widget'))) {
+      if (array_key_exists($w, $widgets))
+        return new Response($widgets[$w]);
+      else
+        throw new PageNotFoundException(t('Виджет «%name» на этой странице отсутствует.', array(
+          '%name' => $w,
+          )));
+    }
+
     if (!isset($ctx->theme))
       throw new RuntimeException(t('Невозможно отобразить страницу %name: не указана тема.', array(
         '%name' => $data['name'],
