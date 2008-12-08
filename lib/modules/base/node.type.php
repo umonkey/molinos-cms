@@ -247,10 +247,10 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   {
     $user = mcms::user();
 
-    $url = new url();
+    $query = Context::last()->query();
 
     // Добавляем вкладку с правами.
-    if ($user->hasAccess('u', 'user') and 0 === strpos(trim($url->path, '/'), 'admin')) {
+    if ($user->hasAccess('u', 'user') and 0 === strpos($query, 'admin')) {
       $options = array(0 => t('Анонимные пользователи'));
 
       foreach ($acc = $this->getAccess() as $k => $v)
