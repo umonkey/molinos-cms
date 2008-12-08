@@ -203,7 +203,7 @@ class WidgetNode extends Node implements iContentType
    */
   public function getFormFields()
   {
-    if (empty($this->id) or empty($this->classname))
+    if ($this->isNew() and empty($this->classname))
       return new Schema(array(
         'classname' => array(
           'type' => 'EnumRadioControl',
@@ -235,6 +235,10 @@ class WidgetNode extends Node implements iContentType
           $schema[$v['value']] = $v;
         }
     }
+
+    $schema['classname'] = new HiddenControl(array(
+      'value' => 'classname',
+      ));
 
     return $schema;
   }
