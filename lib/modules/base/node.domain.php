@@ -409,19 +409,6 @@ class DomainNode extends Node implements iContentType
         'group' => t('Виджеты'),
         'volatile' => true,
         ),
-      'http_code' => array(
-        'type' => 'EnumControl',
-        'label' => t('HTTP код'),
-        'default' => 200,
-        'required' => true,
-        'volatile' => true,
-        'options' => array(
-          200 => '200 OK',
-          403 => '403 Forbidden',
-          404 => '404 Not Found',
-          500 => '500 Internal Server Error',
-          ),
-        ),
       'defaultsection' => array(
         'type' => 'SectionControl',
         'label' => t('Основной раздел'),
@@ -435,6 +422,9 @@ class DomainNode extends Node implements iContentType
         'description' => t('Список адресов (через запятую), на которые отправляются сообщения о создании документов пользователями, у которых нет прав на публикацию документов.'),
         ),
       'aliases' => array(
+        'deprecated' => true,
+        ),
+      'http_code' => array(
         'deprecated' => true,
         ),
       );
