@@ -269,18 +269,6 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
         'options' => $options,
         'label' => t('Доступ разрешён группам'),
         )));
-    $tab->addControl(new SetControl(array(
-      'value' => 'perm_own',
-      'label' => t('Права на собственные объекты'),
-      'options' => array(
-        'u' => t('Изменение'),
-        'd' => t('Удаление'),
-        ),
-      )));
-    $tab->addControl(new HiddenControl(array(
-      'value' => 'perm_own_reset',
-      'default' => 1,
-      )));
 
       return $tab;
     }
