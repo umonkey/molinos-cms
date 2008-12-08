@@ -1719,7 +1719,7 @@ class NodeBase
     if (count($tabs) > 1)
       foreach ($tabs as $tab)
         $form->addControl($tab);
-    else
+    elseif (count($tabs) == 1)
       foreach (array_shift($tabs)->getChildren() as $ctl)
         $form->addControl($ctl);
 
@@ -1795,6 +1795,9 @@ class NodeBase
   public function getFormFields()
   {
     $schema = $this->getSchema();
+
+    if (!$this->isNew() and isset($schema['parent_id']))
+      unset($schema['parent_id']);
 
     if (!mcms::user()->id and !$this->id and class_exists('CaptchaControl'))
       $schema['captcha'] = new CaptchaControl(array(
