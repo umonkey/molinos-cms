@@ -165,6 +165,6 @@ class StructureMA
     }
 
     foreach ($types as $type)
-      $this->schema[$type] = Schema::rebuild($type);
+      $this->schema[$type] = Schema::load($type, /* $cached = */ false);
   }
 }

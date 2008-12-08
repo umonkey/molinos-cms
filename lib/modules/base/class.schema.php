@@ -40,37 +40,14 @@ class Schema extends ArrayObject
     throw new InvalidArgumentException(t('Содержимое схемы должно быть описано массивами или объектами-наследниками класса Control.'));
   }
 
-  public static function load($class)
-  {
-    return new Schema(Structure::getInstance()->findSchema($class, array()));
-  }
-
-  public function hasIndex($name)
-  {
-    if (!isset($this[$name]))
-      return false;
-    return (bool)$this[$name]->indexed;
-  }
-
   /**
-   * Проверка наличия созданных вручную индексов.
-   * Стандартные индексы (name, uid итд) не учитываются.
+   * Возвращает схему указанного типа документа.
    */
-  public function hasIndexes()
+  public static function load($class, $cached = true)
   {
-    return count($this->getIndexes()) > 0;
-  }
-
-  /**
-   * Возвращает имена полей, по которым созданы индексы.
-   */
-  public function getIndexes()
-  {
-    $result = array();
-    foreach ($this as $k => $v)
-      if ($v->indexed and !in_array($k, array('name', 'uid', 'created', 'updated')))
-        $result[] = $k;
-    return $result;
+    return $cached
+      ? new Schema(Structure::getInstance()->findSchema($class, array()))
+      : self::rebuild($class);
   }
 
   /**
@@ -79,7 +56,7 @@ class Schema extends ArrayObject
    * Читает сохранённую версию из БД, применяет
    * дефолтные поля при необходимости.
    */
-  public static function rebuild($class)
+  private static function rebuild($class)
   {
     // Загружаем из БД.
     try {
@@ -123,5 +100,33 @@ class Schema extends ArrayObject
           unset($schema[$field][$k]);
 
     return $schema;
+  }
+
+  public function hasIndex($name)
+  {
+    if (!isset($this[$name]))
+      return false;
+    return (bool)$this[$name]->indexed;
+  }
+
+  /**
+   * Проверка наличия созданных вручную индексов.
+   * Стандартные индексы (name, uid итд) не учитываются.
+   */
+  public function hasIndexes()
+  {
+    return count($this->getIndexes()) > 0;
+  }
+
+  /**
+   * Возвращает имена полей, по которым созданы индексы.
+   */
+  public function getIndexes()
+  {
+    $result = array();
+    foreach ($this as $k => $v)
+      if ($v->indexed and !in_array($k, array('name', 'uid', 'created', 'updated')))
+        $result[] = $k;
+    return $result;
   }
 }
