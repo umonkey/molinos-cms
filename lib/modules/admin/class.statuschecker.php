@@ -2,7 +2,7 @@
 
 class StatusChecker implements iScheduler
 {
-  public static function taskRun()
+  public static function taskRun(Context $ctx)
   {
     $parts = array();
 

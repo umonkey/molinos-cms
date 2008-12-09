@@ -25,5 +25,5 @@ interface iScheduler
    *
    * @return void
    */
-  public static function taskRun();
+  public static function taskRun(Context $ctx);
 };

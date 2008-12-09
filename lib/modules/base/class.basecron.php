@@ -2,7 +2,7 @@
 
 class BaseCron implements iScheduler
 {
-  public static function taskRun()
+  public static function taskRun(Context $ctx)
   {
     $count = 0;
     $dumpdir = mcms::config('dumpdir', 'tmp/crashdump');

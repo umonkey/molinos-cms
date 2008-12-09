@@ -5,7 +5,7 @@ class SubscriptionScheduler implements iScheduler
   /**
    * Рассылка новостей.
    */
-  public static function taskRun()
+  public static function taskRun(Context $ctx)
   {
     // Отправка почты занимает много времени.
     if (!ini_get('safe_mode'))
@@ -36,8 +36,6 @@ class SubscriptionScheduler implements iScheduler
         'id' => array('>'. $last),
         '#sort' => 'id',
         ));
-
-      // mcms::debug($user, $last, $nodes);
 
       // Отправляем документы.
       foreach ($nodes as $node) {

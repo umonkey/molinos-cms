@@ -434,7 +434,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   /**
    * Выполнение периодических задач.
    */
-  public static function taskRun()
+  public static function taskRun(Contex $ctx)
   {
     // FIXME: что это должно делать ваще??
     return;
@@ -448,7 +448,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
       ."AND `x`.`class` NOT IN ('type', 'widget', 'domain', 'tag', 'user') "
       ."LIMIT 10";
 
-    while (count($ids = mcms::db()->getResultsV('id', $sql))) {
+    while (count($ids = $ctx->db->getResultsV('id', $sql))) {
       $nodes = Node::find(array('id' => $ids));
 
       foreach ($nodes as $node) {

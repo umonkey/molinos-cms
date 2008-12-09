@@ -31,7 +31,8 @@ class CronModule implements iModuleConfig, iRemoteCall
     header('HTTP/1.1 200 OK');
     header('Content-Type: text/plain; charset=utf-8');
 
-    mcms::invoke('iScheduler', 'taskRun');
+    $args = array($ctx);
+    mcms::invoke('iScheduler', 'taskRun', $args);
 
     self::touch();
 

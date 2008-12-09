@@ -2,7 +2,7 @@
 
 class UpdateScheduler implements iScheduler
 {
-  public static function taskRun()
+  public static function taskRun(Context $ctx)
   {
     if (($a = self::getAvailable()) == mcms::version())
       return;
