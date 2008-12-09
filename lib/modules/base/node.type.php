@@ -225,9 +225,6 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     if (null !== ($tmp = $this->formGetFields()))
       $form->addControl($tmp);
 
-    if (null !== ($tmp = $this->getAccessTab()))
-      $form->addControl($tmp);
-
     return $form;
   }
 
@@ -241,37 +238,6 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     return $this->id
       ? t('Настройка типа «%name»', array('%name' => $this->name))
       : t('Добавление нового типа документа');
-  }
-
-  private function getAccessTab()
-  {
-    $user = mcms::user();
-
-    $query = Context::last()->query();
-
-    // Добавляем вкладку с правами.
-    if ($user->hasAccess('u', 'user') and 0 === strpos($query, 'admin')) {
-      $options = array(0 => t('Анонимные пользователи'));
-
-      foreach ($acc = $this->getAccess() as $k => $v)
-        $options[$k] = empty($v['name']) ? $k : $v['name'];
-
-      $tab = new FieldSetControl(array(
-        'name' => 'access',
-        'label' => t('Доступ'),
-        'value' => 'tab_access',
-        ));
-      $tab->addControl(new HiddenControl(array(
-        'value' => 'reset_access',
-        )));
-      $tab->addControl(new AccessControl(array(
-        'value' => 'node_access',
-        'options' => $options,
-        'label' => t('Доступ разрешён группам'),
-        )));
-
-      return $tab;
-    }
   }
 
   public function formGetFields()
@@ -434,7 +400,7 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
   /**
    * Выполнение периодических задач.
    */
-  public static function taskRun(Contex $ctx)
+  public static function taskRun(Context $ctx)
   {
     // FIXME: что это должно делать ваще??
     return;
