@@ -93,12 +93,7 @@ class Structure
       return false;
 
     $path = '/' . rtrim($path, '/');
-    $args = array();
-
-    $match = '/';
-    $args = trim($path, '/')
-      ? explode('/', trim($path, '/'))
-      : array();
+    $match = null;
 
     foreach ($this->domains[$domain] as $page => $meta) {
       if (strlen($page) > strlen($match)) {
@@ -126,6 +121,9 @@ class Structure
         }
       }
     }
+
+    if (null === $match)
+      return false;
 
     $result = array(
       'name' => ('/' == $match)
