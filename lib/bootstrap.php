@@ -98,6 +98,8 @@ class Loader
             break;
           }
 
+          $classname = strtolower($classname);
+
           if (null !== $classname and is_readable($classpath)) {
             // Добавляем в список только первый найденный класс.
             if ($modok and !array_key_exists($classname, $result['classes'])) {
