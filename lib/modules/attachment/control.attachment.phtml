@@ -26,7 +26,7 @@ if ($c->value)
   <?php endif; ?>
 
   <input type='file' name='<?php print $c->value; ?>' />
-  <?php if (!empty($d['id'])): ?>
+  <?php if (!empty($d['id']) and !$c->required): ?>
   <label><input type="checkbox" name="<?php print $c->value; ?>[unlink]" value="1" /> Удалить файл</label>
   <?php endif; ?>
   <?php if ($c->unzip): ?>

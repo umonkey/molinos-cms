@@ -70,8 +70,6 @@ class AttachmentControl extends Control
 
   public function set($value, Node &$node)
   {
-    $this->validate($value);
-
     switch ($value['error']) {
     case UPLOAD_ERR_OK:
       $value = Node::create('file')->import($value);
@@ -90,9 +88,18 @@ class AttachmentControl extends Control
         $value = FileNode::fromURL($value['url']);
       elseif (!empty($value['ftp']))
         $value = Node::create('file')->importFromFTP(array_shift($value['ftp']));
+      elseif (!empty($value['unlink'])) {
+        $node->linkRemoveChild(null, $this->value);
+        $value = null;
+      }
       else
         $value = $node->{$this->value};
     }
+
+    if ($this->required and empty($value))
+      throw new ValidationException($this->label, t('Вы не загрузили файл в поле «%name», хотя оно отмечено как обязательное.', array(
+        '%name' => mb_strtolower($this->label),
+        )));
 
     $node->{$this->value} = $value;
   }
