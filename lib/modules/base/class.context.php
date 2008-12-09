@@ -350,6 +350,7 @@ class Context
     case 'theme':
     case 'moderatoremail':
     case 'root': // основной раздел
+    case 'method':
       if (array_key_exists($key, $this->_args))
         throw new InvalidArgumentException(t('Свойство %name уже определено'
           .' в этом контексте.', array('%name' => $key)));

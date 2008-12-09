@@ -684,7 +684,7 @@ class mcms
     // Если такой директории нет, пытаемся создать.
     $dumpdir = mcms::config('dumpdir', 'tmp/crashdump');
     if (!is_dir($dumpdir))
-      mkdir($dumpdir);
+      mkdir($dumpdir, 0700, true);
     // Задаем файл для выгрузки дампа и проверяем на наличие,
     // если существует - добавляем случайный мусор в название.
     $dumpfile = $dumpdir . '/' . date('Y-m-d-') . md5(serialize($_SERVER));
@@ -1267,6 +1267,8 @@ class mcms
     catch (UserErrorException $e) {
       if ($ctx->debug('errors') or empty($_SERVER['REQUEST_METHOD']))
         mcms::fatal($e);
+
+      $ctx->method = 'GET';
 
       try {
         $result = Page::render($ctx, $ctx->host(), 'errors/' . $e->getCode());
