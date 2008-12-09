@@ -240,7 +240,7 @@ abstract class Widget implements iWidget
         '%class' => get_class($this),
         )));
 
-    array_unshift($params, $_SERVER['REQUEST_METHOD']);
+    array_unshift($params, 'GET' /* $_SERVER['REQUEST_METHOD'] */);
 
     foreach ($params as $part)
       $method .= ucfirst(strtolower($part));
