@@ -30,11 +30,11 @@ class InstallModule implements iRemoteCall
    */
   public static function rpc_db(Context $ctx)
   {
-    if ('sqlite:conf/default.db' == mcms::config('db.default')) {
+    if (0 === strpos($dsn = mcms::config('db.default'), 'sqlite:')) {
       // Позволяем отключить драйвер в конфиге.
       if (in_array('sqlite', PDO_Singleton::listDrivers())) {
         if (file_exists($dist = 'conf' . DIRECTORY_SEPARATOR . 'default.db.dist')) {
-          $target = substr($dist, 0, -5);
+          $target = substr($dsn, 7);
 
           if (!file_exists($target))
             if (!copy($dist, $target))
