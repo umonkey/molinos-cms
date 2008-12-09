@@ -94,9 +94,6 @@ class Config
       $this->readData();
 
     switch ($varname) {
-    case 'tmpdir':
-      $res = 'tmp';
-      break;
     case 'filename':
       $res = basename($this->path);
       break;
