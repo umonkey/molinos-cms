@@ -296,7 +296,7 @@ class Context
    */
   public function getLang()
   {
-    return '??';
+    return 'ru';
   }
 
   private function __get($key)
@@ -420,57 +420,7 @@ class Context
     self::$_killfiles[] = $path;
   }
 
-  public function locateDomain()
-  {
-    $domains = Node::find($filter = array(
-      'class' => 'domain',
-      'parent_id' => null,
-      'published' => array(0, 1),
-      'deleted' => 0,
-      '#recurse' => 0,
-      '#files' => 0,
-      ));
-
-    if (empty($domains)) {
-      if (!count($domains = Node::find($filter)))
-        throw new NotInstalledException('domain');
-    }
-
-    if (count($domains) > 1) {
-      $host = $this->host();
-
-      foreach ($domains as $dom) {
-        // Точное совпадение, возвращаем домен.
-        if ($host == $dom->name) {
-          if (!empty($dom->redirect)) {
-            // Указан раздел — не выполняем редирект, если целевой домен — наш.
-            if (!empty($dom->defaultsection)) {
-              foreach ($domains as $dom2)
-                if ($dom2->name == $dom->redirect) {
-                  foreach (array('defaultsection', 'moderatoremail') as $k)
-                    if (!empty($dom->$k))
-                      $dom2->$k = $dom->$k;
-                  return $dom2;
-                }
-            }
-
-            $this->redirect('http://'. $dom->redirect);
-          }
-
-          return $dom;
-        }
-      }
-    }
-
-    $dom = array_shift($domains);
-
-    if (!empty($dom->redirect))
-      $this->redirect($dom);
-
-    return $dom;
-  }
-
-  public function getRedirect($default = null)
+  public function getRedirect($default = '')
   {
     if (null !== ($next = $this->get('destination')))
       ;
@@ -485,16 +435,6 @@ class Context
     $url = new url($next);
 
     return new Redirect($url->getAbsolute($this));
-  }
-
-  public function gonext()
-  {
-    if (null !== ($next = $this->get('destination')))
-      $this->redirect($next);
-    elseif (null !== ($next = $this->post('destination')))
-      $this->redirect($next);
-
-    throw new RuntimeException(t('Не указан адрес для дальнейшего перехода (?destination=).'));
   }
 
   public function canDebug()

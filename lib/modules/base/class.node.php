@@ -42,7 +42,7 @@ class Node extends NodeBase implements iContentType
   public function render($prefix = null, $theme = null, array $data = null)
   {
     if (null === $theme)
-      $theme = Context::last()->locateDomain()->theme;
+      $theme = Context::last()->theme;
     if (null === $data)
       $data = $this->data;
     return bebop_render_object("type", $this->class, $theme, $data);
