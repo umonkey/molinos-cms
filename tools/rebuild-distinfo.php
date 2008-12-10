@@ -6,11 +6,18 @@ $ini = array();
 
 foreach (glob(os::path('lib', 'modules', '*', 'module.ini')) as $file) {
   $module = basename(dirname($file));
-  $ini[$module] = ini::read($file);
+
+  $tmp = ini::read($file);
 
   foreach (array('section', 'priority', 'version', 'filename', 'name') as $k)
-    if (!array_key_exists($k, $ini[$module]))
-      printf("warning: %s has no '%s' key.\n", $module, $k);
+    if (!array_key_exists($k, $ini[$module])) {
+      printf("warning: %s has no '%s' key, module ignored.\n", $module, $k);
+      $tmp = null;
+      break;
+    }
+
+  if (null !== $tmp)
+    $ini[$module] = $tmp;
 }
 
 $header = "
