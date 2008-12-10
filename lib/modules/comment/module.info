@@ -1,7 +1,0 @@
-group = Interactive
-version = 8.02.4782
-docurl = http://code.google.com/p/molinos-cms/wiki/mod_comment
-
-[name]
-en = Basic Comment Support
-ru = Базовая поддержка комментариев

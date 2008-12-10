@@ -1,6 +1,0 @@
-group = Service
-docurl = http://code.google.com/p/molinos-cms/wiki/mod_drawtext
-
-[name]
-en = Text Rasterization Module
-ru = Растеризация текста

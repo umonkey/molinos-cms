@@ -1,7 +1,0 @@
-group = Service
-version = 8.02.4782
-docurl = http://code.google.com/p/molinos-cms/wiki/mod_maintenance
-
-[name]
-en = Disables the Web Site for Maintenance
-ru = Отключение сайта для технических работ
