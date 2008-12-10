@@ -57,15 +57,10 @@ class Loader
         );
 
       if (is_array($ini = parse_ini_file($modinfo, true))) {
-        // Копируем базовые свойства.
-        foreach (array('group', 'version', 'name', 'docurl') as $k) {
-          if (array_key_exists($k, $ini)) {
-            $result['modules'][$modname][$k] = $ini[$k];
+        $result['modules'][$modname] = $ini;
 
-            if ('group' == $k and !strcasecmp('core', $ini[$k]))
-              $modok = $result['modules'][$modname]['enabled'] = true;
-          }
-        }
+        if ('required' == $ini['priority'])
+          $modok = $result['modules'][$modname]['enabled'] = true;
       }
 
       if ($modok) {
@@ -134,7 +129,7 @@ class Loader
                 }
 
                 foreach ($interfaces as $i) {
-                  if (!in_array($i, $result['modules'][$modname]['interfaces']))
+                  if (empty($result['modules'][$modname]['interfaces']) or !in_array($i, $result['modules'][$modname]['interfaces']))
                     $result['modules'][$modname]['interfaces'][] = $i;
                   $result['modules'][$modname]['implementors'][$i][] = $classname;
 
