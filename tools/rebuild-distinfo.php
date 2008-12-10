@@ -7,10 +7,13 @@ $ini = array();
 foreach (glob(os::path('lib', 'modules', '*', 'module.ini')) as $file) {
   $module = basename(dirname($file));
 
-  $tmp = ini::read($file);
+  if (!is_array($tmp = ini::read($file))) {
+    printf("%s is corrupt.\n", $file);
+    continue;
+  }
 
   foreach (array('section', 'priority', 'version', 'filename', 'name') as $k)
-    if (!array_key_exists($k, $ini[$module])) {
+    if (!array_key_exists($k, $tmp)) {
       printf("warning: %s has no '%s' key, module ignored.\n", $module, $k);
       $tmp = null;
       break;
