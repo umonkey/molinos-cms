@@ -35,4 +35,45 @@ class os
     else
       return $path;
   }
+
+  /**
+   * Возвращает список всех файлов в папке.
+   */
+  public static function listFiles($path)
+  {
+    if (!is_dir($path))
+      throw new RuntimeException('os::listFiles() expects a folder path.');
+
+    $result = array();
+
+    $i = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
+
+    foreach ($i as $name => $object)
+      if ($object->isFile())
+        $result[] = $name;
+
+    asort($result);
+
+    return $result;
+  }
+
+  /**
+   * Удаляет папку со всем её содержимым.
+   */
+  public static function rmdir($path)
+  {
+    if (!is_dir($path))
+      throw new RuntimeException("os::rmdir() expects a full directory name.");
+
+    $i = new DirectoryIterator($path);
+
+    foreach ($i as $name => $object)
+      if (!$object->isDir())
+        unlink($object->getPathName());
+      elseif (!$object->isDot())
+        self::rmdir($object->getPathName());
+
+    if (!rmdir($path))
+      throw new RuntimeException(sprintf("os::path(%s) failed.", $path));
+  }
 }
