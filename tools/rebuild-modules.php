@@ -4,8 +4,9 @@ require dirname(__FILE__) .'/../lib/bootstrap.php';
 
 function rebuild_modules($dir)
 {
-  if (!is_dir($dir))
-    mkdir($dir);
+  if (is_dir($dir))
+    os::rmdir($dir);
+  mkdir($dir);
 
   $distinfo = array();
 
