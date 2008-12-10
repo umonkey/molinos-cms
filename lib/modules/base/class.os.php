@@ -16,8 +16,9 @@ class os
    *
    * Пример: os::path(array('lib', 'modules', 'base')).
    */
-  public static function path(array $components)
+  public static function path()
   {
+    $components = func_get_args();
     return implode(DIRECTORY_SEPARATOR, $components);
   }
 

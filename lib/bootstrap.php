@@ -36,7 +36,7 @@ class Loader
       ? 'modules.local'
       : 'modules';
 
-    $modules = glob(os::path(array(os::localpath(MCMS_LIB), $folder, '*', 'module.info')));
+    $modules = glob(os::path(os::localpath(MCMS_LIB), $folder, '*', 'module.info'));
 
     $exclude = self::exclude();
 
