@@ -1432,17 +1432,6 @@ class mcms
     return empty($link) ? null : $link;
   }
 
-  /**
-   * Превращает абсолютный путь к файлу в относительный.
-   */
-  public static function localpath($path)
-  {
-    if (0 === strpos($path, MCMS_ROOT))
-      return substr($path, strlen(MCMS_ROOT) + 1);
-    else
-      return $path;
-  }
-
   public static function dispatch_rpc($class, Context $ctx)
   {
     $method = 'rpc_'. $ctx->get('action', 'default');

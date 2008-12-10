@@ -11,6 +11,8 @@ define('MCMS_ROOT', dirname(MCMS_LIB));
 
 chdir(MCMS_ROOT);
 
+require implode(DIRECTORY_SEPARATOR, array('lib', 'modules', 'base', 'class.os.php'));
+
 class Loader
 {
   public static function rebuild($local = false)
@@ -34,11 +36,7 @@ class Loader
       ? 'modules.local'
       : 'modules';
 
-    $modules = glob(join(DIRECTORY_SEPARATOR, array(
-      self::localpath(MCMS_LIB),
-      $folder,
-      '*',
-      'module.info')));
+    $modules = glob(os::path(array(os::localpath(MCMS_LIB), $folder, '*', 'module.info')));
 
     $exclude = self::exclude();
 
@@ -166,14 +164,6 @@ class Loader
     return $result;
   }
 
-  private static function localpath($path)
-  {
-    if (0 === strpos($path, MCMS_ROOT))
-      return substr($path, strlen(MCMS_ROOT) + 1);
-    else
-      return $path;
-  }
-
   public static function getClassPath($className, $local = false)
   {
     static $map = null;
@@ -187,7 +177,7 @@ class Loader
       return null;
 
     return $local
-      ? self::localpath($map[$k])
+      ? os::localpath($map[$k])
       : $map[$k];
   }
 
