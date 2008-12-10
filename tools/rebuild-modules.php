@@ -13,7 +13,7 @@ function rebuild_modules($dir)
     $module = basename(dirname($inifile));
     $ini = ini::read($inifile);
 
-    foreach (array('section', 'priority', 'version', 'filename', 'name') as $k) {
+    foreach (array('section', 'priority', 'version', 'name') as $k) {
       if (!array_key_exists($k, $ini)) {
         printf("warning: %s has no '%s' key, module ignored.\n", $module, $k);
         $ini = null;
@@ -22,10 +22,11 @@ function rebuild_modules($dir)
     }
 
     if (null !== $ini) {
+      $ini['filename'] = $module . '-' . $ini['version'] . '.zip';
+      zip::fromFolder($zipname = os::path($dir, $ini['filename']), dirname($inifile));
+      $ini['sha1'] = sha1_file($zipname);
+      $ini['md5'] = md5_file($zipname);
       $distinfo[$module] = $ini;
-      $zipname = $module . '-' . $ini['version'] . '.zip';
-
-      zip::fromFolder(os::path($dir, $zipname), dirname($inifile));
     }
   }
 
