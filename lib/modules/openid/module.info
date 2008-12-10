@@ -1,6 +1,0 @@
-group = Core
-version = 1.0
-
-[name]
-en = OpenID
-ru = работа с OpenID

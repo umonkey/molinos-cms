@@ -1,6 +1,0 @@
-group = Core
-version = 1.0
-
-[name]
-en = Database Import and Export
-ru = Импорт и экспорт сайта

@@ -1,6 +1,0 @@
-group = Core
-version = 8.02.4782
-
-[name]
-en = HTML Mail Sender
-ru = Отправка почты в HTML

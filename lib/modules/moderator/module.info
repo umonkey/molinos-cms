@@ -1,7 +1,0 @@
-group = Service
-version = 8.02.4782
-docurl = http://code.google.com/p/molinos-cms/wiki/mod_moderator
-
-[name]
-en = Moderation Queue
-ru = Очередь модерирования

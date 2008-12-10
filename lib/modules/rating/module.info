@@ -1,7 +1,0 @@
-group = Interactive
-version = 8.02.4782
-docurl = http://code.google.com/p/molinos-cms/wiki/mod_rating
-
-[name]
-en = Content Rating
-ru = Оценка документов
