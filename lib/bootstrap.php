@@ -96,7 +96,8 @@ class Loader
             break;
           }
 
-          $classname = strtolower($classname);
+          if ('' === ($classname = strtolower($classname)))
+            continue;
 
           if (null !== $classname and is_readable($classpath)) {
             // Добавляем в список только первый найденный класс.
