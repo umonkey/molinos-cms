@@ -129,4 +129,50 @@ class Schema extends ArrayObject
         $result[] = $k;
     return $result;
   }
+
+  /**
+   * Формирует элементы формы с разбивкой на вкладки.
+   */
+  public function getForm(array $defaults = array())
+  {
+    $tabs = array();
+
+    foreach ($this as $name => $ctl) {
+      if (!($group = trim($ctl->group)))
+        $group = count($tabs)
+          ? array_shift(array_keys($tabs))
+          : t('Основные');
+
+      if ($ctl instanceof AttachmentControl)
+        $group = t('Файлы');
+
+      $ctl->value = $name;
+
+      $tabs[$group][$name] = $ctl;
+    }
+
+    $form = new Form($defaults);
+
+    // Несколько вкладок — филдсеты.
+    if (count($tabs) > 1) {
+      foreach ($tabs as $name => $controls) {
+        $tab = $form->addControl(new FieldSetControl(array(
+          'name' => $name,
+          'label' => $name,
+          'tabable' => true,
+          )));
+
+        foreach ($controls as $control)
+          $tab->addControl($control);
+      }
+    }
+
+    // Всего одна вкладка — без филдсета.
+    elseif (count($tabs) == 1) {
+      foreach (array_shift($tabs) as $control)
+        $form->addControl($control);
+    }
+
+    return $form;
+  }
 }

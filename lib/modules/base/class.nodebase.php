@@ -1688,40 +1688,10 @@ class NodeBase
       throw new ForbiddenException(t('У вас недостаточно прав для создания такого документа.'));
     }
 
-    $tabs = array();
-
-    foreach ($this->getFormFields() as $name => $field) {
-      if (!($group = trim($field->group)))
-        $group = count($tabs)
-          ? array_shift(array_keys($tabs))
-          : 'Основные';
-
-      if ($field instanceof AttachmentControl)
-        $group = 'Файлы';
-
-      if (!array_key_exists($group, $tabs))
-        $tabs[$group] = new FieldSetControl(array(
-          'name' => $group,
-          'label' => $group,
-          'tabable' => true,
-          ));
-
-      $field->value = $name;
-
-      $tabs[$group]->addControl($field);
-    }
-
-    $form = new Form(array(
+    $form = $this->getFormFields()->getForm(array(
       'action' => $this->getFormAction(),
       'title' => $this->getFormTitle(),
       ));
-
-    if (count($tabs) > 1)
-      foreach ($tabs as $tab)
-        $form->addControl($tab);
-    elseif (count($tabs) == 1)
-      foreach (array_shift($tabs)->getChildren() as $ctl)
-        $form->addControl($ctl);
 
     $form->addControl(new SubmitControl(array(
       'text' => $this->getFormSubmitText(),
