@@ -155,6 +155,8 @@ class Schema extends ArrayObject
 
     // Несколько вкладок — филдсеты.
     if (count($tabs) > 1) {
+      $form->addClass('tabbed');
+
       foreach ($tabs as $name => $controls) {
         $tab = $form->addControl(new FieldSetControl(array(
           'name' => $name,
