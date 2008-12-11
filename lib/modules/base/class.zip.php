@@ -11,6 +11,11 @@
 
 class zip
 {
+  public static function isAvailable()
+  {
+    return class_exists('ZipArchive');
+  }
+
   public static function fromFolder($zipName, $folderName)
   {
     $folderName = rtrim($folderName, DIRECTORY_SEPARATOR);
