@@ -63,8 +63,6 @@ class StatusChecker implements iScheduler
       } catch (ObjectNotFoundException $e) {
       }
     }
-
-    mcms::debug($conf);
   }
 
   private static function getSummary(array &$parts)
