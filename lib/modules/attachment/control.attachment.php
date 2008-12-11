@@ -56,6 +56,13 @@ class AttachmentControl extends Control
       'filepath' => null,
       );
 
+    // Никаких опций — простая загрузка файла.
+    if (!$this->archive and !$this->fetch and !$this->ftp)
+      return $this->wrapHTML(mcms::html('input', array(
+        'type' => 'file',
+        'name' => $this->value,
+        )));
+
     if (($tmp = $data->{$this->value}) instanceof Node) {
       $dt = $tmp->getRaw();
     } elseif (is_numeric($dt)) {
