@@ -76,4 +76,30 @@ class os
     if (!rmdir($path))
       throw new RuntimeException(sprintf("os::path(%s) failed.", $path));
   }
+
+  /**
+   * Безопасная замена содержимого файла.
+   *
+   * Если не удастся сохранить новый файл — старый изменён не будет.
+   */
+  public static function write($fileName, $content)
+  {
+    $vpath = dirname($fileName) . DIRECTORY_SEPARATOR . basename($fileName);
+
+    if (file_exists($fileName)) {
+      if (!is_writable($fileName)) {
+        if (is_writable(dirname($fileName)))
+          unlink($fileName);
+        else
+          throw new RuntimeException(t('Изменение файла %file невозможно: он защищён от записи.', array(
+            '%file' => $vpath,
+            )));
+      }
+    }
+
+    if (!@file_put_contents($fileName, $content))
+      throw new RuntimeException(t('Не удалось записать файл %file.', array(
+        '%file' => $vpath,
+        )));
+  }
 }

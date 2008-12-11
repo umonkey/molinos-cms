@@ -318,6 +318,7 @@ class mcms
     case 'openid':
     case 'pdo':
     case 'update':
+    case 'autoupdate':
       return true;
     }
 
@@ -386,10 +387,6 @@ class mcms
       foreach ($map[$if] as $class) {
         // Указан конкретный модуль, и текущий класс находится не в нём.
         if ($module !== null and $rev[$class] != $module)
-          continue;
-
-        // Класс находится в отключенном модуле.
-        if (!mcms::ismodule($rev[$class]))
           continue;
 
         $list[] = $class;
@@ -1493,23 +1490,7 @@ class mcms
       $content = preg_replace('/ =>\s+array \(/', ' => array (', $content);
     }
 
-    $vpath = dirname($filename) . DIRECTORY_SEPARATOR . basename($filename);
-
-    if (file_exists($filename)) {
-      if (!is_writable($filename)) {
-        if (is_writable(dirname($filename)))
-          unlink($filename);
-        else
-          throw new RuntimeException(t('Изменение файла %file невозможно: он защищён от записи.', array(
-            '%file' => $vpath,
-            )));
-      }
-    }
-
-    if (!@file_put_contents($filename, $content))
-      throw new RuntimeException(t('Не удалось записать файл %file.', array(
-        '%file' => $vpath,
-        )));
+    os::write($filename, $content);
   }
 
   public static function mkpath(array $elements)

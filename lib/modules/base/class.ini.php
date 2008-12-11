@@ -16,6 +16,8 @@ class ini
    */
   public static function read($filename)
   {
+    if (!file_exists($filename))
+      throw new RuntimeException(sprintf("ini::read(%s): not found.", $filename));
     return parse_ini_file($filename, true);
   }
 
@@ -38,7 +40,7 @@ class ini
         $output .= self::write_keys($v);
       }
 
-    file_put_contents($filename, $output);
+    os::write($filename, $output);
   }
 
   private static function write_keys(array $data)
