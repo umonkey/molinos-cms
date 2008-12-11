@@ -326,6 +326,21 @@ class ExchangeModule implements iRemoteCall
     return $plist;
   }
 
+  public static function getMenuIcons()
+  {
+    $icons = array();
+
+    if (class_exists('ZipArchive') and mcms::user()->hasAccess('d', 'type'))
+      $icons[] = array(
+        'group' => 'system',
+        'href' => '?q=admin&cgroup=system&module=exchange',
+        'title' => t('Бэкапы'),
+        'description' => t('Бэкап и восстановление данных в формате XML.'),
+        );
+
+    return $icons;
+  }
+
   private static function getResult($mode)
   {
     $titles = array(
