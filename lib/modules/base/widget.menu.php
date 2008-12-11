@@ -235,7 +235,7 @@ class MenuWidget extends Widget implements iWidget
           }
         }
 
-        $submenu .= mcms::html('li', $li, mcms::html('a', $a, mcms_plain($child->name)));
+        $submenu .= html::em('li', $li, html::em('a', $a, mcms_plain($child->name)));
 
         // Отрезаем финальный </li>.
         $submenu = substr($submenu, 0, -5);

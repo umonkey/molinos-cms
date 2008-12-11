@@ -24,7 +24,7 @@ class CaptchaControl extends Control implements iFormControl
 
     $key = $this->generate();
 
-    $output = mcms::html('img', array(
+    $output = html::em('img', array(
       'src' => '?q=captcha.rpc&seed='. $key,
       'alt' => 'captcha',
       ));

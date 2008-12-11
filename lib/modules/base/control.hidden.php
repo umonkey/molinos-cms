@@ -37,7 +37,7 @@ class HiddenControl extends Control
     if (null === $data or (null === ($value = $data->{$this->value})))
       $value = $this->default;
 
-    return mcms::html('input', array(
+    return html::em('input', array(
       'type' => 'hidden',
       'id' => $this->id,
       'class' => $this->class,

@@ -38,12 +38,12 @@ class InfoControl extends Control
     $text = $this->text;
 
     if (isset($this->url))
-      $text .= '<p>'. mcms::html('a', array(
+      $text .= '<p>'. html::em('a', array(
         'href' => $this->url,
         ), t('Подробная справка')) .'</p>';
 
     return isset($this->text)
-      ? mcms::html('div', array('class' => 'intro'), $text)
+      ? html::em('div', array('class' => 'intro'), $text)
       : null;
   }
 };

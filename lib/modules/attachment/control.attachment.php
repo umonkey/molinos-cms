@@ -58,7 +58,7 @@ class AttachmentControl extends Control
 
     // Никаких опций — простая загрузка файла.
     if (!$this->archive and !$this->fetch and !$this->ftp)
-      return $this->wrapHTML(mcms::html('input', array(
+      return $this->wrapHTML(html::em('input', array(
         'type' => 'file',
         'name' => $this->value,
         )));

@@ -35,7 +35,7 @@ class CartControl extends Control
     foreach ($data[$this->value] as $row) {
       $output .= "<tr class='product'>";
 
-      $output .= "<td class='check'>". mcms::html('input', array(
+      $output .= "<td class='check'>". html::em('input', array(
         'type' => 'checkbox',
         'name' => $this->value .'_checked[]',
         'value' => $row['id'],
@@ -43,7 +43,7 @@ class CartControl extends Control
 
       $output .= "<td class='name'>". mcms_plain($row['name']) ."</td>";
 
-      $output .= "<td class='qty'>". mcms::html('input', array(
+      $output .= "<td class='qty'>". html::em('input', array(
         'type' => 'text',
         'name' => "{$this->value}[{$row['id']}][qty]",
         'value' => $row['qty'],

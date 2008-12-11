@@ -101,7 +101,7 @@ class CartWidget extends Widget
   {
     return array(
       'mode' => 'status',
-      'html' => t('Вам необходимо '. mcms::html('a', array('href' => 'profile?register=1'),'зарегистрироваться'). ' перед оформлением заказа.'),
+      'html' => t('Вам необходимо '. html::em('a', array('href' => 'profile?register=1'),'зарегистрироваться'). ' перед оформлением заказа.'),
       );
   }
 

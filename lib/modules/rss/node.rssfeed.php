@@ -120,7 +120,7 @@ class RssfeedNode extends Node
     $output = '';
 
     if (count($nodes = array_values($this->loadItems()))) {
-      $output .= mcms::html('pubDate', date('r', strtotime($nodes[0]->created)));
+      $output .= html::em('pubDate', date('r', strtotime($nodes[0]->created)));
 
       foreach ($nodes as $node)
         $output .= $this->formatItem($node);
@@ -156,11 +156,11 @@ class RssfeedNode extends Node
     $output = '';
 
     if (!empty($node->name))
-      $output .= mcms::html('title', mcms_plain($node->name));
+      $output .= html::em('title', mcms_plain($node->name));
 
     if (!empty($node->uid))
       try {
-        $output .= mcms::html('dc:creator', mcms_plain(Node::load(array('class' => 'user', 'id' => $node->uid))->name));
+        $output .= html::em('dc:creator', mcms_plain(Node::load(array('class' => 'user', 'id' => $node->uid))->name));
       } catch (ObjectNotFoundException $e) {
       }
 
@@ -172,7 +172,7 @@ class RssfeedNode extends Node
     else
       $link = '/?q=node%2F'. $node->id;
 
-    $output .= mcms::html('link', 'http://'. $_SERVER['HTTP_HOST']
+    $output .= html::em('link', 'http://'. $_SERVER['HTTP_HOST']
       .mcms::path() . $link);
 
     foreach (preg_split('/, */', $this->contentfields) as $field) {
@@ -188,7 +188,7 @@ class RssfeedNode extends Node
       foreach ($node->files as $file)
         $output .= $this->getEnclosure($file);
 
-    return mcms::html('item', $output);
+    return html::em('item', $output);
   }
 
   private function getEnclosure($file)
@@ -200,7 +200,7 @@ class RssfeedNode extends Node
       $url = 'http://'. $_SERVER['HTTP_HOST'] . mcms::path()
         .'/?q=attachment.rpc&fid='. $file->id;
 
-    return mcms::html('enclosure', array(
+    return html::em('enclosure', array(
       'url' => $url,
       'length' => $file->filesize,
       'type' => $file->filetype,

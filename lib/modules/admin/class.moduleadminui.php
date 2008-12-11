@@ -21,7 +21,7 @@ class ModuleAdminUI
 
         $output .= '<tr>';
 
-        $output .= "<td>". mcms::html('input', array(
+        $output .= "<td>". html::em('input', array(
           'type' => 'checkbox',
           'name' => 'selected[]',
           'value' => $modname,
@@ -30,42 +30,42 @@ class ModuleAdminUI
           )) ."</td>";
 
         if (!empty($module['implementors']['iModuleConfig']) and $enabled)
-          $output .= mcms::html('td', mcms::html('a', array(
+          $output .= html::em('td', html::em('a', array(
             'class' => 'icon configure',
             'href' => "?q=admin/structure/modules&action=config&name={$modname}&destination=CURRENT",
             ), '<span>настроить</span>'));
         else
-          $output .= mcms::html('td');
+          $output .= html::em('td');
 
         if (!empty($module['docurl']))
-          $output .= "<td>". mcms::html('a', array(
+          $output .= "<td>". html::em('a', array(
             'class' => 'icon information',
             'href' => $module['docurl'],
             ), "<span>информация</span>") ."</td>";
         else
-          $output .= mcms::html('td');
+          $output .= html::em('td');
 
-        $output .= mcms::html('td', mcms::html('a', array(
+        $output .= html::em('td', html::em('a', array(
           'href' => "?q=admin/structure/modules&action=info&name={$modname}"
             ."&destination=CURRENT"), $modname));
 
         if (!empty($module['name']['ru']))
-          $output .= mcms::html('td', $module['name']['ru']);
+          $output .= html::em('td', $module['name']['ru']);
         elseif (!empty($module['name']['en']))
-          $output .= mcms::html('td', $module['name']['en']);
+          $output .= html::em('td', $module['name']['en']);
         else
-          $output .= mcms::html('td');
+          $output .= html::em('td');
 
         $output .= '</tr>';
       }
     }
 
-    $output = mcms::html('table', array(
+    $output = html::em('table', array(
       'class' => 'modlist',
       ), $output);
 
     if ($writable) {
-      $output .= mcms::html('input', array(
+      $output .= html::em('input', array(
         'type' => 'submit',
         'value' => t('Сохранить'),
         ));
@@ -76,7 +76,7 @@ class ModuleAdminUI
     if (!$writable)
       $html .= t('<p class=\'intro\'>Конфигурационный файл закрыт для записи, изменение списка модулей невозможно.</p>');
 
-    $html .= mcms::html('form', array(
+    $html .= html::em('form', array(
       'method' => 'post',
       'action' => "?q=admin.rpc&action=modlist&destination=CURRENT",
       ), $output);

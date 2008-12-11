@@ -47,14 +47,14 @@ class OrderDetailsControl extends Control
     foreach ($content as $k => $item) {
       if ($k !== 'total') {
         $rows .= '<tr>';
-        $rows .= mcms::html('td', $item['id']);
-        $rows .= mcms::html('td', $this->getProductLink($item));
-        $rows .= mcms::html('td', array('class' => 'sum'), number_format(abs($item['price']), 2, ',', '.'));
+        $rows .= html::em('td', $item['id']);
+        $rows .= html::em('td', $this->getProductLink($item));
+        $rows .= html::em('td', array('class' => 'sum'), number_format(abs($item['price']), 2, ',', '.'));
         if (is_numeric($k))
-          $rows .= mcms::html('td', array('class' => 'qty'), number_format($item['qty'], 0, ',', ' '));
+          $rows .= html::em('td', array('class' => 'qty'), number_format($item['qty'], 0, ',', ' '));
         else
-          $rows .= mcms::html('td');
-        $rows .= mcms::html('td', array('class' => 'sum'), number_format(abs($item['sum']), 2, ',', '.'));
+          $rows .= html::em('td');
+        $rows .= html::em('td', array('class' => 'sum'), number_format(abs($item['sum']), 2, ',', '.'));
         $rows .= '</tr>';
       }
     }

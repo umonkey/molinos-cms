@@ -10,12 +10,12 @@
 
 function show_todo(array $list, $type, $title, $linktpl)
 {
-  print mcms::html('h3', array(
+  print html::em('h3', array(
     'class' => "cold todolist {$type}". (empty($list[$type]) ? ' empty' : ''),
-  ), mcms::html('span', $title));
+  ), html::em('span', $title));
 
   if ('open' == $type)
-    print mcms::html('p', array(
+    print html::em('p', array(
       'class' => 'todolist emptymsg '. $type .' '. (empty($list[$type]) ? '' : 'hide'),
       ), 'Этот список пока пуст.  Вам нужно добавить или изменить задание, тогда здесь что-нибудь появится.');
 
@@ -25,23 +25,23 @@ function show_todo(array $list, $type, $title, $linktpl)
     foreach ($list[$type] as $task) {
       $link = str_replace('$nid', $task['id'], $linktpl);
 
-      $row = mcms::html('td', mcms::html('input', array(
+      $row = html::em('td', html::em('input', array(
         'type' => 'checkbox',
         'value' => $task['id'],
         )));
-      $row .= mcms::html('td', mcms::html('span', array(
+      $row .= html::em('td', html::em('span', array(
         'class' => 'delete',
         )));
-      $row .= mcms::html('td', l($link, mcms_plain($task['name'])));
+      $row .= html::em('td', l($link, mcms_plain($task['name'])));
 
       if (mcms::user()->id == $task['uid']['id'])
-        $row .= mcms::html('td');
+        $row .= html::em('td');
       else {
         $re = l($task['uid'], null, array('class' => 'userlink'));
-        $row .= mcms::html('td', $re);
+        $row .= html::em('td', $re);
       }
 
-      print mcms::html('tr', array(
+      print html::em('tr', array(
         'id' => $task['id'],
         ), $row);
     }
@@ -55,17 +55,17 @@ function show_users(array $list)
   $output = '';
 
   foreach ($list as $id => $name)
-    $output .= mcms::html('option', array(
+    $output .= html::em('option', array(
       'value' => $id,
       'selected' => ($id == mcms::user()->id) ? 'selected' : '',
       ), $name);
 
-  $html = mcms::html('select', array(
+  $html = html::em('select', array(
     'id' => 'todouser',
     'name' => 'user',
     ), $output);
 
-  return mcms::html('div', array(
+  return html::em('div', array(
     'class' => 'todo-setuser',
     ), $html);
 }

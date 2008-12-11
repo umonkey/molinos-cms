@@ -5,10 +5,10 @@ if (!empty($documents)) {
 
   foreach ($documents as $doc) {
     $link = l('node/'. $doc['id'], htmlspecialchars($doc['name']));
-    $output .= mcms::html('li', array(
+    $output .= html::em('li', array(
       'class' => 'node-'. $doc['class'],
       ), $link);
   }
 
-  print mcms::html('ul', $output);
+  print html::em('ul', $output);
 }

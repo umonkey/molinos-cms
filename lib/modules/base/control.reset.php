@@ -34,7 +34,7 @@ class ResetControl extends Control
 
   public function getHTML($data)
   {
-    return mcms::html('input', array(
+    return html::em('input', array(
       'type' => 'reset',
       'id' => $this->id,
       'class' => $this->class,

@@ -40,7 +40,7 @@ class TextHTMLControl extends Control
     if (mcms::ismodule('tinymce'))
       TinyMceModule::add_extras();
 
-    $output = mcms::html('textarea', array(
+    $output = html::em('textarea', array(
       'id' => $this->id,
       'class' => 'form-text visualEditor',
       'name' => $this->value,

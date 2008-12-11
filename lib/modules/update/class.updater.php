@@ -5,8 +5,8 @@ class Updater implements iAdminUI, iRemoteCall
 {
   public static function onGet(Context $ctx)
   {
-    $header = mcms::html('h1', t('Проверка обновлений'));
-    $message = mcms::html('p', t('Обновлений нет, '
+    $header = html::em('h1', t('Проверка обновлений'));
+    $message = html::em('p', t('Обновлений нет, '
       .'вы используете самую свежую версию CMS.'));
 
     if (file_exists($tmp = mcms::config('tmpdir') .'/update.txt')) {
@@ -23,11 +23,11 @@ class Updater implements iAdminUI, iRemoteCall
                 str_replace('.', '', mcms::version(mcms::VERSION_RELEASE)),
               ));
 
-          $input = mcms::html('input', array(
+          $input = html::em('input', array(
             'type' => 'submit',
             'value' => 'Скачать и установить',
             ));
-          $form = mcms::html('form', array(
+          $form = html::em('form', array(
             'method' => 'post',
             'action' => '?q=update.rpc&action=update',
             ), $input);

@@ -21,7 +21,7 @@
       if (!empty($widgets)) {
         foreach ($widgets as $k => $v)
           if (!empty($v))
-            print mcms::html('div', array(
+            print html::em('div', array(
               'id' => 'widget-'. $k,
               ), $v);
       }

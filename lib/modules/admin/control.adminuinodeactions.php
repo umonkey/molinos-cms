@@ -26,12 +26,12 @@ class AdminUINodeActionsControl extends Control
     $output .= $this->getSelectors();
     $output .= $this->getActions($actions);
 
-    $output .= mcms::html('div', array('class' => 'spacer_not_ie'));
-    $output = mcms::html('div', array('class' => 'tb_2_inside'), $output);
+    $output .= html::em('div', array('class' => 'spacer_not_ie'));
+    $output = html::em('div', array('class' => 'tb_2_inside'), $output);
 
     $this->addClass('tb_2');
 
-    return mcms::html('div', array('class' => $this->class), $output);
+    return html::em('div', array('class' => $this->class), $output);
   }
 
   private function getSelectors()
@@ -68,7 +68,7 @@ class AdminUINodeActionsControl extends Control
 
     $output .= '.';
 
-    return mcms::html('div', array('class' => 'jsonly ctrl_left doc_selector'), $output);
+    return html::em('div', array('class' => 'jsonly ctrl_left doc_selector'), $output);
   }
 
   private function getActions(array $actions)
@@ -78,28 +78,28 @@ class AdminUINodeActionsControl extends Control
     $strings = array(
       );
 
-    $options .= mcms::html('option', array(
+    $options .= html::em('option', array(
       'value' => '',
       ), t('Выберите действие'));
 
     foreach ($actions as $action) {
       $name = $this->getActionName($action);
 
-      $options .= mcms::html('option', array(
+      $options .= html::em('option', array(
         'value' => $action,
         ), '&nbsp;&nbsp;'. $name);
     }
 
-    $output = mcms::html('select', array(
+    $output = html::em('select', array(
       'name' => 'action[]',
       ), $options);
 
-    $output .= mcms::html('input', array(
+    $output .= html::em('input', array(
       'type' => 'submit',
       'value' => 'OK',
       ));
 
-    return mcms::html('div', array('class' => 'action_select nojs'), $output);
+    return html::em('div', array('class' => 'action_select nojs'), $output);
   }
 
   private function getActionName($action)

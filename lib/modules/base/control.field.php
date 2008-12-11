@@ -39,10 +39,10 @@ class FieldControl extends Control
 
   private function addProperty(array $data, $name, $title, $content = 'пример')
   {
-    $output = mcms::html('td', array('class' => 'fname'), $title .':');
-    $output .= mcms::html('td', array('class' => 'fprops'), $content);
+    $output = html::em('td', array('class' => 'fname'), $title .':');
+    $output .= html::em('td', array('class' => 'fprops'), $content);
 
-    return mcms::html('tr', array(
+    return html::em('tr', array(
       'class' => 'fprop '. $name,
       ), $output);
   }
@@ -59,66 +59,66 @@ class FieldControl extends Control
     else
       $data = $data->{$this->value}[$this->name];
 
-    $body = $this->addProperty($data, 'name', 'Имя', mcms::html('input', array(
+    $body = $this->addProperty($data, 'name', 'Имя', html::em('input', array(
       'type' => 'text',
       'value' => $this->name,
       'class' => 'nextid',
       'name' => "{$this->value}[{$id}][name]",
       )));
-    $body .= $this->addProperty($data, 'title', 'Заголовок', mcms::html('input', array(
+    $body .= $this->addProperty($data, 'title', 'Заголовок', html::em('input', array(
       'type' => 'text',
       'value' => $this->isnull($data, 'label'),
       'class' => 'nextid',
       'name' => "{$this->value}[{$id}][label]",
       )));
-    $body .= $this->addProperty($data, 'group', 'Группа', mcms::html('input', array(
+    $body .= $this->addProperty($data, 'group', 'Группа', html::em('input', array(
       'type' => 'text',
       'value' => $this->isnull($data, 'group', t('Основные свойства')),
       'class' => 'nextid',
       'name' => "{$this->value}[{$id}][group]",
       )));
-    $body .= $this->addProperty($data, 'description', 'Подсказка', mcms::html('textarea', array(
+    $body .= $this->addProperty($data, 'description', 'Подсказка', html::em('textarea', array(
       'class' => 'nextid',
       'name' => "{$this->value}[{$id}][description]",
       'rows' => 5,
       ), mcms_plain($this->isnull($data, 'description'))));
-    $body .= $this->addProperty($data, 'type', 'Тип', mcms::html('select', array(
+    $body .= $this->addProperty($data, 'type', 'Тип', html::em('select', array(
       'value' => $this->isnull($data, 'type'),
       'class' => 'nextid',
       'name' => "{$this->value}[{$id}][type]",
       ), $this->getTypes($this->isnull($data, 'type', 'TextLineControl'))));
 
-    $body .= $this->addProperty($data, 'dictionary', 'Справочник', mcms::html('select', array(
+    $body .= $this->addProperty($data, 'dictionary', 'Справочник', html::em('select', array(
       'name' => "{$this->value}[{$id}][dictionary]",
       'class' => 'nextid',
       ), $this->getDictionaries($this->isnull($data, 'dictionary', $this->isnull($data, 'values')))));
 
-    $body .= $this->addProperty($data, 'default', 'По умолчанию', mcms::html('input', array(
+    $body .= $this->addProperty($data, 'default', 'По умолчанию', html::em('input', array(
       'type' => 'text',
       'value' => $this->isnull($data, 'default'),
       'class' => 'nextid',
       'name' => "{$this->value}[{$id}][default]",
       )));
-    $body .= $this->addProperty($data, 'values', 'Значения', mcms::html('textarea', array(
+    $body .= $this->addProperty($data, 'values', 'Значения', html::em('textarea', array(
       'class' => 'nextid',
       'name' => "{$this->value}[{$id}][values]",
       'rows' => 5,
       ), mcms_plain($this->isnull($data, 'values'))));
-    $body .= $this->addProperty($data, 'required', 'Обязательное', mcms::html('input', array(
+    $body .= $this->addProperty($data, 'required', 'Обязательное', html::em('input', array(
       'type' => 'checkbox',
       'checked' => $this->isnull($data, 'required') ? 'checked' : null,
       'name' => "{$this->value}[{$id}][required]",
       'class' => 'nextid',
       'value' => 1,
       )));
-    $body .= $this->addProperty($data, 'indexed', 'Индекс', mcms::html('input', array(
+    $body .= $this->addProperty($data, 'indexed', 'Индекс', html::em('input', array(
       'type' => 'checkbox',
       'checked' => $this->isnull($data, 'indexed') ? 'checked' : null,
       'name' => "{$this->value}[{$id}][indexed]",
       'class' => 'nextid',
       'value' => 1,
       )));
-    $body .= $this->addProperty($data, 'delete', 'Удалить', mcms::html('input', array(
+    $body .= $this->addProperty($data, 'delete', 'Удалить', html::em('input', array(
       'type' => 'checkbox',
       'name' => "{$this->value}[{$id}][delete]",
       'class' => 'nextid',
@@ -130,10 +130,10 @@ class FieldControl extends Control
     if (!isset($this->name))
       $classes .= ' addnew';
 
-    $output = mcms::html('span', array('class' => $classes), $this->name ? $this->name : 'добавить...');
-    $output .= mcms::html('table', array('class' => 'fprops nojs'), $body);
+    $output = html::em('span', array('class' => $classes), $this->name ? $this->name : 'добавить...');
+    $output .= html::em('table', array('class' => 'fprops nojs'), $body);
 
-    return $this->wrapHTML(mcms::html('div', array(
+    return $this->wrapHTML(html::em('div', array(
       'id' => $this->name ? "field-{$this->name}-editor" : null,
       'class' => 'fprop '. strtolower($this->isnull($data, 'type', 'TypeTextControl')),
       ), $output), false);
@@ -163,7 +163,7 @@ class FieldControl extends Control
     asort($types);
 
     foreach ($types as $k => $v)
-      $output[] = mcms::html('option', array(
+      $output[] = html::em('option', array(
         'value' => $k,
         'selected' => strcasecmp($k, $current) ? null : 'selected',
         ), $v);
@@ -182,7 +182,7 @@ class FieldControl extends Control
     $output = '';
 
     foreach ($options as $k => $v)
-      $output .= mcms::html('option', array(
+      $output .= html::em('option', array(
         'value' => $k,
         'selected' => ($k == $current) ? 'selected' : null,
         ), $v);

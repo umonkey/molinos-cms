@@ -23,13 +23,13 @@ class AttachmentModule implements iRemoteCall
     $output = '';
 
     foreach ($nodes as $node) {
-      $c1 = mcms::html('input', array(
+      $c1 = html::em('input', array(
         'type' => 'radio',
         'name' => $ctx->get('name', 'unknown') .'[id]',
         'value' => $node->id,
         ));
 
-      $c2 = mcms::html('img', array(
+      $c2 = html::em('img', array(
         'alt' => $node->filename,
         'width' => 50,
         'height' => 50,
@@ -45,18 +45,18 @@ class AttachmentModule implements iRemoteCall
         '%type' => $node->filetype,
         ));
 
-      $row = mcms::html('td', array('class' => 'check'), $c1);
-      $row .= mcms::html('td', $c2);
-      $row .= mcms::html('td', array('class' => 'info'), $c3);
+      $row = html::em('td', array('class' => 'check'), $c1);
+      $row .= html::em('td', $c2);
+      $row .= html::em('td', array('class' => 'info'), $c3);
 
-      $output .= mcms::html('tr', array(
+      $output .= html::em('tr', array(
         'class' => $odd ? 'odd' : 'even',
         ), $row);
 
       $odd = !$odd;
     }
 
-    return new Response(mcms::html('table', array(
+    return new Response(html::em('table', array(
       'class' => 'options',
       ), $output));
   }
@@ -79,10 +79,10 @@ class AttachmentModule implements iRemoteCall
       return t('Нет файлов, загруженных по FTP.');
 
     $odd = true;
-    $output = mcms::html('tr', t('<th>&nbsp;</th><th>Имя</th><th>Размер</th>'));
+    $output = html::em('tr', t('<th>&nbsp;</th><th>Имя</th><th>Размер</th>'));
 
     foreach ($files as $k => $v) {
-      $c1 = mcms::html('input', array(
+      $c1 = html::em('input', array(
         'type' => $type,
         'name' => $ctx->get('name') .'[ftp][]',
         'value' => $k,
@@ -90,17 +90,17 @@ class AttachmentModule implements iRemoteCall
       $c2 = htmlspecialchars($k);
       $c3 = mcms::filesize($path .'/'. $k);
 
-      $row = mcms::html('td', array(
+      $row = html::em('td', array(
         'class' => 'checkbox',
         ), $c1)
-        . mcms::html('td', array(
+        . html::em('td', array(
           'class' => 'name',
           ), $c2)
-        . mcms::html('td', array(
+        . html::em('td', array(
           'class' => 'size',
           ), $c3);
 
-      $output .= mcms::html('tr', array(
+      $output .= html::em('tr', array(
         'class' => $odd ? 'odd' : 'even',
         ), $row);
 
@@ -109,7 +109,7 @@ class AttachmentModule implements iRemoteCall
 
     $message = t('Следующие файлы были загружены по FTP:');
 
-    return new Response($message . mcms::html('table', array(
+    return new Response($message . html::em('table', array(
       'class' => 'options',
       ), $output));
   }

@@ -7,11 +7,11 @@ if (!empty($documents)) {
       $html = '';
 
       if (!empty($doc['name']))
-        $html .= mcms::html('h2', $doc['name']);
+        $html .= html::em('h2', $doc['name']);
 
       $html .= $doc['teaser'];
 
-      print mcms::html('div', array(
+      print html::em('div', array(
         'class' => 'doc-teaser',
         ), $html);
     }

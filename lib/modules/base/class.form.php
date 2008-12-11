@@ -54,9 +54,9 @@ class Form extends Control
       if (!in_array($header = $this->header, array('h2', 'h3', 'h4', 'h5')))
         $header = 'h2';
 
-      $title = mcms::html('span', $this->title);
+      $title = html::em('span', $this->title);
 
-      $output .= mcms::html($header, array(
+      $output .= html::em($header, array(
         'class' => 'form-header',
         ), $title);
     }
@@ -64,7 +64,7 @@ class Form extends Control
     if (null != $this->intro)
       $output .= '<div class=\'intro\'>'. $this->intro .'</div>';
 
-    $output .= mcms::html('form', array(
+    $output .= html::em('form', array(
       'method' => isset($this->method) ? $this->method : 'post',
       'action' => $this->getAction(),
       'id' => $this->id,

@@ -138,7 +138,7 @@ abstract class Control implements iFormControl
 
   protected function getHidden(array $data)
   {
-    return mcms::html('input', array(
+    return html::em('input', array(
       'type' => 'hidden',
       'name' => $this->value,
       'value' => array_key_exists($this->value, $data) ? $data[$this->value] : null,
@@ -234,7 +234,7 @@ abstract class Control implements iFormControl
     $output = $fields;
 
     if (!empty($hidden))
-      $output .= mcms::html('fieldset', array(
+      $output .= html::em('fieldset', array(
         'style' => 'display:none',
         ), $hidden);
 
@@ -252,7 +252,7 @@ abstract class Control implements iFormControl
       $output = $this->getLabel($output);
 
     if (isset($this->description)) {
-      $output .= mcms::html('div', array(
+      $output .= html::em('div', array(
         'class' => 'note',
         ), $this->description);
     }
@@ -266,7 +266,7 @@ abstract class Control implements iFormControl
     if (in_array('hidden', (array)$this->class))
       $classes[] = 'hidden';
 
-    return mcms::html('div', array(
+    return html::em('div', array(
       'id' => $this->wrapper_id,
       'class' => $classes,
       ), $output);
@@ -278,16 +278,16 @@ abstract class Control implements iFormControl
       return $output;
 
     $star = $this->required
-      ? mcms::html('span', array('class' => 'required-label'), '*')
+      ? html::em('span', array('class' => 'required-label'), '*')
       : '';
 
     if (substr($label = $this->label, -3) != '...')
       if (substr($label, -1) != ':')
         $label .= ':';
 
-    $output = mcms::html('label', array(
+    $output = html::em('label', array(
       'class' => $this->required ? 'required' : null,
-      ), mcms::html('span', $label . $star) . $output);
+      ), html::em('span', $label . $star) . $output);
 
     return $output;
   }

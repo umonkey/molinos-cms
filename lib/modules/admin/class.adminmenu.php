@@ -63,18 +63,18 @@ class AdminMenu implements iAdminMenu
         else
           $output .= '<li>';
 
-        $output .= mcms::html('a', array(
+        $output .= html::em('a', array(
           'href' => $url,
           ), self::getGroupName($group));
 
         $output .= '<ul>';
 
         foreach ($icons as $icon) {
-          $tmp = mcms::html('a', array(
+          $tmp = html::em('a', array(
             'href' => $icon['href'],
             'title' => empty($icon['description']) ? null : $icon['description'],
             ), $icon['title']);
-          $output .= mcms::html('li', $tmp);
+          $output .= html::em('li', $tmp);
         }
 
         $output .= '</ul></li>';
@@ -254,21 +254,21 @@ class AdminMenu implements iAdminMenu
       }
 
       if (!empty($items)) {
-        $content = mcms::html('legend', self::getGroupName($grname));
+        $content = html::em('legend', self::getGroupName($grname));
 
         if (count($items) > 1)
-          $content .= mcms::html('ul', '<li>'. join('</li><li>', $items) .'</li>');
+          $content .= html::em('ul', '<li>'. join('</li><li>', $items) .'</li>');
         else
           $content .= $items[0];
 
         if (!array_key_exists($idx, $columns))
           $columns[$idx] = '';
 
-        $columns[$idx] .= mcms::html('fieldset', $content);
+        $columns[$idx] .= html::em('fieldset', $content);
 
         $idx = ($idx + 1) % 2;
 
-        // $result .= mcms::html('fieldset', $content);
+        // $result .= html::em('fieldset', $content);
       }
     }
 
@@ -276,14 +276,14 @@ class AdminMenu implements iAdminMenu
       $result = '';
 
       foreach ($columns as $idx => $col)
-        $result .= mcms::html('div', array(
+        $result .= html::em('div', array(
           'id' => 'desktop-column-'. ($idx + 1),
           'class' => 'column',
           ), $col);
     }
 
     if (!empty($result))
-      $result = mcms::html('div', array(
+      $result = html::em('div', array(
         'id' => 'desktop',
         ), $result);
 

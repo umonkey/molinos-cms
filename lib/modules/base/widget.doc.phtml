@@ -13,7 +13,7 @@ if (!empty($document)) {
   $code = bebop_render_object('type', $document['class'], $theme, $data);
 
   if (!empty($code))
-    print mcms::html('div', array(
+    print html::em('div', array(
       'class' => 'node node-'. $document['class'],
       ), $code);
 }

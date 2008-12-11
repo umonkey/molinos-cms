@@ -46,14 +46,14 @@ class EnumControl extends Control
     $options = '';
 
     if (!$this->required)
-      $options .= mcms::html('option', array(
+      $options .= html::em('option', array(
         'value' => '',
         ), $this->default_label);
 
     $enabled = $this->getEnabled($data);
 
     if (is_array($enabled) and count($enabled) == 1)
-      return mcms::html('input', array(
+      return html::em('input', array(
         'type' => 'hidden',
         'name' => $this->value,
         'value' => array_shift($enabled),
@@ -64,7 +64,7 @@ class EnumControl extends Control
     $list = $this->prepend + $this->getData($data);
 
     foreach ($list as $k => $v) {
-      $options .= mcms::html('option', array(
+      $options .= html::em('option', array(
         'value' => $k,
         'selected' => in_array($k, $selected) ? 'selected' : null,
         'disabled' => (null === $enabled or in_array($k, $enabled)) ? null : 'disabled',
@@ -74,7 +74,7 @@ class EnumControl extends Control
     if (empty($options))
       return '';
 
-    $output = mcms::html('select', array(
+    $output = html::em('select', array(
       'id' => $this->id,
       'name' => $this->value,
       ), $options);

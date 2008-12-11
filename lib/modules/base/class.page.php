@@ -90,9 +90,9 @@ class Page
         $slink = '?q=admin/structure/edit/' . $info['id'] . '&destination=CURRENT';
 
         $result .= '<tr>';
-        $result .= mcms::html('td', l($wlink, $name));
-        $result .= mcms::html('td', $info['class']);
-        $result .= mcms::html('td', l($slink, t('настройки')));
+        $result .= html::em('td', l($wlink, $name));
+        $result .= html::em('td', $info['class']);
+        $result .= html::em('td', l($slink, t('настройки')));
         $result .= '</tr>';
       }
 

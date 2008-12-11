@@ -83,7 +83,7 @@ class CompressorModule implements iRemoteCall
         file_put_contents($filename, $bulk);
       }
 
-      $newscript = mcms::html('script', array(
+      $newscript = html::em('script', array(
         'type' => 'text/javascript',
         'src' => '?q=compressor.rpc&type=js&hash='. $md5name,
         )) ."\n";
@@ -141,7 +141,7 @@ class CompressorModule implements iRemoteCall
         file_put_contents($filename, $bulk);
       }
 
-      $newlink = mcms::html('link', array(
+      $newlink = html::em('link', array(
         'rel' => 'stylesheet',
         'type' => 'text/css',
         'href' => '?q=compressor.rpc&type=css&hash='. $md5name,

@@ -67,13 +67,13 @@ class PagerControl extends Control
         $url['args'][$this->widget]['page'] = null;
       }
 
-      $right .= mcms::html('a', array('href' => bebop_combine_url($url, false)), $x);
+      $right .= html::em('a', array('href' => bebop_combine_url($url, false)), $x);
     }
 
-    $output = mcms::html('div', array('class' => 'pager_left'), $left);
-    $output .= mcms::html('div', array('class' => 'pager_right'), $right .'<p>'. t('пунктов на странице') .'</p>');
+    $output = html::em('div', array('class' => 'pager_left'), $left);
+    $output .= html::em('div', array('class' => 'pager_right'), $right .'<p>'. t('пунктов на странице') .'</p>');
 
-    return mcms::html('div', array('class' => 'pager'), $output);
+    return html::em('div', array('class' => 'pager'), $output);
   }
 
   private function getPagerData(array $input)

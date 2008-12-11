@@ -50,23 +50,23 @@ class AccessControl extends Control
         . join ('</th><th>', $columns) . "</th></tr>";
 
     foreach ($table as $rec) {
-      $row = mcms::html('td', $rec['label']);
+      $row = html::em('td', $rec['label']);
 
       foreach (array_keys($columns) as $col) {
-        $ctl = mcms::html('input', array(
+        $ctl = html::em('input', array(
           'type' => 'checkbox',
           'name' => "{$this->value}[{$rec['id']}][{$col}]",
           'value' => 1,
           'checked' => empty($rec[$col]) ? null : 'checked',
           ));
 
-        $row .= mcms::html('td', $ctl);
+        $row .= html::em('td', $ctl);
       }
 
-      $output .= mcms::html('tr', $row);
+      $output .= html::em('tr', $row);
     }
 
-    $output .= '</table>' . mcms::html('input', array(
+    $output .= '</table>' . html::em('input', array(
       'type' => 'hidden',
       'name' => $this->value . '[__reset]',
       'value' => 1,
@@ -77,15 +77,15 @@ class AccessControl extends Control
     $output = $this->wrapHTML($output, false);
 
     if ($data->right - $data->left > 1) {
-      $ctl = mcms::html('input', array(
+      $ctl = html::em('input', array(
         'type' => 'checkbox',
         'value' => 1,
         'name' => $this->value . '[__recurse]',
         ));
       $output .= '<div class=\'control\'>';
-      $output .= mcms::html('label', array(
+      $output .= html::em('label', array(
         ), $ctl . t('Применить рекурсивно ко всем дочерним объектам'));
-      $output .= mcms::html('div', array(
+      $output .= html::em('div', array(
         'class' => 'note',
         ), t('Это приведёт к сбросу ранее установленных прав на вложенные объекты.'));
       $output .= '</div>';
@@ -103,39 +103,39 @@ class AccessControl extends Control
       ? $data->perm_own
       : array();
 
-    $output = mcms::html('legend', 'Права на собственные объекты');
+    $output = html::em('legend', 'Права на собственные объекты');
 
-    $output .= mcms::html('input', array(
+    $output .= html::em('input', array(
       'type' => 'hidden',
       'name' => $this->value . '[own][__reset]',
       'value' => 1,
       ));
 
-    $ctl = mcms::html('input', array(
+    $ctl = html::em('input', array(
       'type' => 'checkbox',
       'name' => $this->value . '[own][]',
       'value' => 'u',
       'checked' => in_array('u', $own) ? 'checked' : null,
       ));
-    $output .= mcms::html('label', $ctl . 'Изменение');
+    $output .= html::em('label', $ctl . 'Изменение');
 
-    $ctl = mcms::html('input', array(
+    $ctl = html::em('input', array(
       'type' => 'checkbox',
       'name' => $this->value . '[own][]',
       'value' => 'd',
       'checked' => in_array('d', $own) ? 'checked' : null,
       ));
-    $output .= mcms::html('label', $ctl . 'Удаление');
+    $output .= html::em('label', $ctl . 'Удаление');
 
-    $ctl = mcms::html('input', array(
+    $ctl = html::em('input', array(
       'type' => 'checkbox',
       'name' => $this->value . '[own][]',
       'value' => 'p',
       'checked' => in_array('p', $own) ? 'checked' : null,
       ));
-    $output .= mcms::html('label', $ctl . 'Публикация');
+    $output .= html::em('label', $ctl . 'Публикация');
 
-    $output = mcms::html('fieldset', $output);
+    $output = html::em('fieldset', $output);
 
     return $output;
   }

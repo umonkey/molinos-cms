@@ -12,9 +12,9 @@ class XspfModule implements iRemoteCall, iModuleConfig
     $tracks = array();
 
     foreach ($nodes = Node::find(array('class' => 'file', 'id' => $nids)) as $node) {
-      $track = mcms::html('title', $node->name);
-      $track .= mcms::html('location', 'http://'. $_SERVER['HTTP_HOST'] .'attachment/'. $node->id .'?'. $node->filename);
-      $tracks[] = mcms::html('track', $track);
+      $track = html::em('title', $node->name);
+      $track .= html::em('location', 'http://'. $_SERVER['HTTP_HOST'] .'attachment/'. $node->id .'?'. $node->filename);
+      $tracks[] = html::em('track', $track);
     }
 
     if (empty($tracks))
@@ -24,7 +24,7 @@ class XspfModule implements iRemoteCall, iModuleConfig
 
     $output .= "<?xml version='1.0' encoding='utf-8'?>";
     $output .= "<playlist version='1' xmlns='http://xspf.org/ns/0/'>";
-    $output .= mcms::html('trackList', join('', $tracks));
+    $output .= html::em('trackList', join('', $tracks));
     $output .= '</playlist>';
 
     return new Response($output, 'application/xspf+xml');

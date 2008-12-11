@@ -37,7 +37,7 @@ function smarty_function_gravatar($params, &$smarty)
       ),
     );
 
-  return mcms::html('img', array(
+  return html::em('img', array(
     'class' => empty($params['class']) ? null : $params['class'],
     'src' => bebop_combine_url($url, false),
     'width' => $size,

@@ -478,7 +478,7 @@ abstract class Widget implements iWidget
     $html = $form->getHTML($data);
 
     if (!empty($html) and null !== $id) {
-      $html = mcms::html('div', array(
+      $html = html::em('div', array(
         'id' => $id .'-wrapper',
         'class' => $form->wrapper_class,
         ), $html);

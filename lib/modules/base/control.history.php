@@ -49,18 +49,18 @@ class HistoryControl extends Control
           .'&id={$info['uid']}&destination=CURRENT",
           $info['username']);
 
-      $row = mcms::html('td', $rid);
-      $row .= mcms::html('td', $info['created']);
-      $row .= mcms::html('td', $userlink);
-      $row .= mcms::html('td', l("?q=nodeapi.rpc&action=revert"
+      $row = html::em('td', $rid);
+      $row .= html::em('td', $info['created']);
+      $row .= html::em('td', $userlink);
+      $row .= html::em('td', l("?q=nodeapi.rpc&action=revert"
         ."&rid={$rid}&destination=CURRENT", 'вернуть'));
 
-      $rows[] = mcms::html('tr', array(
+      $rows[] = html::em('tr', array(
         'class' => 'rev-'. ($info['active'] ? 'active' : 'passive'),
         ), $row);
     }
 
-    return $this->wrapHTML(mcms::html('table', array(
+    return $this->wrapHTML(html::em('table', array(
       'class' => 'form-revision-history',
       ), join('', $rows)));
   }

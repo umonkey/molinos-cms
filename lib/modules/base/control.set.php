@@ -52,7 +52,7 @@ class SetControl extends Control
 
     // Если доступен только один раздел — выводим скрытый контрол.
     if ($enabled !== null and count($enabled) == 1) {
-      $content = mcms::html('input', array(
+      $content = html::em('input', array(
         'type' => 'hidden',
         'name' => $this->value . '[]',
         'value' => array_shift($enabled),
@@ -65,7 +65,7 @@ class SetControl extends Control
           ? true
           : false;
 
-        $inner = mcms::html('input', array(
+        $inner = html::em('input', array(
           'type' => 'checkbox',
           'value' => $k,
           'name' => $this->value . '[]',
@@ -73,15 +73,15 @@ class SetControl extends Control
           'disabled' => $disabled ? 'disabled' : null,
           ));
 
-        $inner = mcms::html('label', array('class' => 'normal'), $inner . $v);
+        $inner = html::em('label', array('class' => 'normal'), $inner . $v);
 
-        $content .= mcms::html('div', array(
+        $content .= html::em('div', array(
           'class' => 'form-checkbox' . ($disabled ? ' disabled' : ''),
           ), $inner);
       }
     }
 
-    $content .= mcms::html('input', array(
+    $content .= html::em('input', array(
       'type' => 'hidden',
       'name' => $this->value . '[__reset]',
       'value' => 1,

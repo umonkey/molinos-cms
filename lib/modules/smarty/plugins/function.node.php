@@ -59,6 +59,6 @@ function smarty_function_node($params, &$smarty)
     if (!empty($params['class']))
       $a['class'] = $params['class'];
 
-    print mcms::html('a', $a, mcms_plain($a['#text']));
+    print html::em('a', $a, mcms_plain($a['#text']));
   }
 }

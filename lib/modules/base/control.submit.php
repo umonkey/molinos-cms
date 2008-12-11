@@ -29,7 +29,7 @@ class SubmitControl extends Control
 
   public function getHTML($data)
   {
-    $output = $this->wrapHTML(mcms::html('input', array(
+    $output = $this->wrapHTML(html::em('input', array(
       'type' => 'submit',
       'id' => $this->id,
       'class' => array('form-submit'),

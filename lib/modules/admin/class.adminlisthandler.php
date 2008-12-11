@@ -117,9 +117,9 @@ class AdminListHandler
 
     elseif (0 == $this->getCount()) {
       if (count($this->types) == 1)
-        $output .= mcms::html('p', t('Нет документов для отображения в этом списке, <a href=\'@addurl\'>приступить к добавлению</a>?', array('@addurl' => "?q=admin&cgroup={$_GET['cgroup']}&mode=create&type={$this->types[0]}&destination=CURRENT")));
+        $output .= html::em('p', t('Нет документов для отображения в этом списке, <a href=\'@addurl\'>приступить к добавлению</a>?', array('@addurl' => "?q=admin&cgroup={$_GET['cgroup']}&mode=create&type={$this->types[0]}&destination=CURRENT")));
       else
-        $output .= mcms::html('p', t('Нет документов для отображения в этом списке.'));
+        $output .= html::em('p', t('Нет документов для отображения в этом списке.'));
     }
 
     return $output;
@@ -402,7 +402,7 @@ class AdminListHandler
           );
 
         if (!empty($row['new']))
-          $row['new'] = mcms::html('a', array(
+          $row['new'] = html::em('a', array(
             'href' => '?q='. urlencode($row['new']),
             ), mcms_plain($row['new']));
 

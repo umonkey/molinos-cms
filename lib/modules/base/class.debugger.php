@@ -23,7 +23,7 @@ class Debugger
 
     $output .= $this->getWidgets($widgetresults);
 
-    $output .= mcms::html('div', array('class' => 'hidden cdata'));
+    $output .= html::em('div', array('class' => 'hidden cdata'));
 
     $output .= $this->getSqlLogHTML($this->ctx);
 
@@ -78,19 +78,19 @@ class Debugger
           . '&debug=widget&nocache=' . $this->ctx->get('nocache');
 
         $output .= '<tr>';
-        $output .= mcms::html('td', array('align' => 'left'), l($plink, $name));
-        $output .= mcms::html('td', $w ? l('http://code.google.com/p/molinos-cms/wiki/' . $w['class'], $w['class']) : null);
-        $output .= mcms::html('td', $w['id'] ? l('?q=admin/content/edit/' . $w['id'] . '&destination=CURRENT', 'настройки') : null);
-        $output .= mcms::html('td', l($dlink, 'debug'));
-        $output .= mcms::html('td', array('align' => 'left'), $v['time']);
-        $output .= mcms::html('td', array('align' => 'right'), $v['queries']);
+        $output .= html::em('td', array('align' => 'left'), l($plink, $name));
+        $output .= html::em('td', $w ? l('http://code.google.com/p/molinos-cms/wiki/' . $w['class'], $w['class']) : null);
+        $output .= html::em('td', $w['id'] ? l('?q=admin/content/edit/' . $w['id'] . '&destination=CURRENT', 'настройки') : null);
+        $output .= html::em('td', l($dlink, 'debug'));
+        $output .= html::em('td', array('align' => 'left'), $v['time']);
+        $output .= html::em('td', array('align' => 'right'), $v['queries']);
 
         if (null === $widgetresults or !array_key_exists($name, $widgetresults) or empty($widgetresults[$name])) {
-          $output .= mcms::html('td');
+          $output .= html::em('td');
         } else {
-          $cdata = mcms::html('span', array('class' => 'hidden'), htmlspecialchars($widgetresults[$name]));
-          $link = mcms::html('u', 'результат');
-          $output .= mcms::html('td', $link . $cdata);
+          $cdata = html::em('span', array('class' => 'hidden'), htmlspecialchars($widgetresults[$name]));
+          $link = html::em('u', 'результат');
+          $output .= html::em('td', $link . $cdata);
         }
 
         $output .= '</tr>';

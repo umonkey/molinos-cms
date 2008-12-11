@@ -33,98 +33,6 @@ class mcms
 
   private static $extras = array();
 
-  /**
-   * Renders an HTML element.
-   *
-   * Returns the HTML representation of an element described by
-   * input parameters which are: element name, an array of attributes,
-   * and the content.  Except for the first parameter, all is optional.
-   *
-   * @return string
-   * @author Justin Forest
-   */
-  public static function html()
-  {
-    if (func_num_args() == 0 or func_num_args() > 3)
-      throw new InvalidArgumentException(t('mcms::html() принимает от одного до трёх параметров.'));
-    else {
-      $args = func_get_args();
-      $name = array_shift($args);
-
-      if (empty($name))
-        throw new InvalidArgumentException(t('Попытка создать HTML элемент без имени.'));
-
-      $parts = null;
-      $content = null;
-
-      if (is_array($tmp = array_shift($args)))
-        $parts = $tmp;
-      else
-        $content = $tmp;
-
-      if (!empty($args))
-        $content = array_shift($args);
-    }
-
-    $output = '<'. $name;
-
-    if (('td' == $name or 'th' == $name) and empty($content))
-      $content = '&nbsp;';
-
-    if (empty($parts))
-      $parts = array();
-
-    $fixmap = array(
-      'a' => 'href',
-      'form' => 'action',
-      );
-
-    // Замена CURRENT на текущий адрес.
-    if (array_key_exists($name, $fixmap)) {
-      if (array_key_exists($fixmap[$name], $parts)) {
-        $parts[$fixmap[$name]] = str_replace(array(
-          '&destination=CURRENT',
-          '?destination=CURRENT',
-          ), array(
-          '&destination='. urlencode($_SERVER['REQUEST_URI']),
-          '?destination='. urlencode($_SERVER['REQUEST_URI']),
-          ), strval($parts[$fixmap[$name]]));
-      }
-    }
-
-    $output .= self::htmlattrs($parts);
-
-    if (null === $content and !in_array($name, array('a', 'script', 'div', 'textarea', 'span'))) {
-      $output .= ' />';
-    } else {
-      $output .= '>'. $content .'</'. $name .'>';
-    }
-
-    return $output;
-  }
-
-  public static function htmlattrs(array $attrs)
-  {
-    $result = '';
-
-    foreach ($attrs as $k => $v) {
-      if (!empty($v)) {
-        if (is_array($v))
-          if ($k == 'class')
-            $v = join(' ', $v);
-          else {
-            $v = null;
-          }
-
-        $result .= ' '.$k.'=\''. mcms_plain($v, false) .'\'';
-      } elseif ($k == 'value') {
-        $result .= " value=''";
-      }
-    }
-
-    return $result;
-  }
-
   public static function mediaGetPlayer(array $files, $types = null, array $custom_options = array())
   {
     $nodes = array();
@@ -215,16 +123,16 @@ class mcms
 
     $url = 'themes/all/flash/player.swf?'. join('&', $args);
 
-    $params = mcms::html('param', array(
+    $params = html::em('param', array(
       'name' => 'movie',
       'value' => $url,
       ));
-    $params .= mcms::html('param', array(
+    $params .= html::em('param', array(
       'name' => 'wmode',
       'value' => 'transparent',
       ));
 
-    return mcms::html('object', array(
+    return html::em('object', array(
       'type' => 'application/x-shockwave-flash',
       'data' => $url,
       'width' => $options['width'],
@@ -633,7 +541,7 @@ class mcms
         $url->setarg('debug', 'errors');
 
         if ('errors' != $url->arg('debug'))
-          $html .= mcms::html('p', l($url->string(), t('Просмотреть стэк исходной ошибки.')));
+          $html .= html::em('p', l($url->string(), t('Просмотреть стэк исходной ошибки.')));
       }
 
       if (null !== $backtrace)
@@ -932,13 +840,13 @@ class mcms
   {
     $root = mcms::path();
 
-    $output = mcms::html('script', array(
+    $output = html::em('script', array(
       'type' => 'text/javascript',
       ), 'var mcms_path = \''. $root .'\';') ."\n";
 
     foreach ($extras as $k => $v) {
       if (0 === strpos($k, 'script:')) {
-        $output .= mcms::html('script', array(
+        $output .= html::em('script', array(
           'type' => 'text/javascript',
           ), substr($k, 7));
       }
@@ -961,12 +869,12 @@ class mcms
     foreach ($extras as $file => $ok) {
       if (!$ok or !$compress) {
         if ('.js' == substr($file, -3))
-          $js .= mcms::html('script', array(
+          $js .= html::em('script', array(
             'type' => 'text/javascript',
             'src' => $file,
             )) ."\n";
         elseif ('.css' == substr($file, -4))
-          $css .= mcms::html('link', array(
+          $css .= html::em('link', array(
             'rel' => 'stylesheet',
             'type' => 'text/css',
             'href' => $file,
@@ -1198,7 +1106,7 @@ class mcms
       if (null === $ctx)
         $ctx = new Context();
 
-      $at = mcms::html('a', array(
+      $at = html::em('a', array(
         'href' => $ctx->url()->getBase($ctx),
         ), $ctx->host() . $ctx->folder());
 
@@ -1373,22 +1281,22 @@ class mcms
       $link['host'] = 'Google Video';
       $link['vid'] = $m1[1];
     } elseif (preg_match('%^http://([a-z0-9]+\.){0,1}youtube\.com/(?:watch\?v=|v/)([^&]+)%i', $url, $m1)) {
-      $o = mcms::html('param', array(
+      $o = html::em('param', array(
         'name' => 'movie',
         'value' => 'http://www.youtube.com/v/'. $m1[2],
         ));
-      $o .= mcms::html('param', array(
+      $o .= html::em('param', array(
         'name' => 'wmode',
         'value' => 'transparent',
         ));
-      $o .= mcms::html('embed', array(
+      $o .= html::em('embed', array(
         'src' => 'http://www.youtube.com/v/'. $m1[2],
         'type' => 'application/x-shockwave-flash',
         'wmode' => 'transparent',
         'width' => $options['width'],
         'height' => $options['height'],
         ), $nothing);
-      $link['embed'] = mcms::html('object', array(
+      $link['embed'] = html::em('object', array(
         'width' => $options['width'],
         'height' => $options['height'],
         ), $o);
@@ -1503,7 +1411,7 @@ class mcms
     $output = '<ul class=\'pager\'>';
 
     foreach ($pager['list'] as $page => $link)
-      $output .= mcms::html('li', mcms::html('a', array(
+      $output .= html::em('li', html::em('a', array(
         'href' => $link,
         'class' => $link ? '' : 'active',
         ), $page));

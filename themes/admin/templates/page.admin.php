@@ -18,7 +18,7 @@ function render_notifications()
         '@url' => '?q=admin/content/edit/'. $_GET['created']
           .'&destination=CURRENT',
         ));
-      return mcms::html('div', array(
+      return html::em('div', array(
         'class' => 'notification',
         ), $output);
     }
@@ -45,7 +45,7 @@ function render_username()
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>Molinos.CMS</title>
-    <?php empty($base) or print mcms::html('base', array('href' => $base)); ?>
+    <?php empty($base) or print html::em('base', array('href' => $base)); ?>
 
     <?php
       mcms::extras('themes/admin/css/bebop.css');

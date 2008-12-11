@@ -40,7 +40,7 @@ class PasswordControl extends Control
   {
     $output = $this->getLabel();
 
-    $output .= mcms::html('input', array(
+    $output .= html::em('input', array(
       'type' => 'password',
       'id' => $this->id,
       'class' => 'form-text form-password1',
@@ -48,7 +48,7 @@ class PasswordControl extends Control
       'value' => null,
       ));
 
-    $output .= mcms::html('input', array(
+    $output .= html::em('input', array(
       'type' => 'password',
       'id' => $this->id,
       'class' => 'form-text form-password2',

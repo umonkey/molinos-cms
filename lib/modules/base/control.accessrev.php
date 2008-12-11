@@ -50,23 +50,23 @@ class AccessRevControl extends Control
         . join ('</th><th>', $columns) . "</th></tr>";
 
     foreach ($table as $rec) {
-      $row = mcms::html('td', $rec['label']);
+      $row = html::em('td', $rec['label']);
 
       foreach (array_keys($columns) as $col) {
-        $ctl = mcms::html('input', array(
+        $ctl = html::em('input', array(
           'type' => 'checkbox',
           'name' => "{$this->value}[{$rec['id']}][{$col}]",
           'value' => 1,
           'checked' => empty($rec[$col]) ? null : 'checked',
           ));
 
-        $row .= mcms::html('td', $ctl);
+        $row .= html::em('td', $ctl);
       }
 
-      $output .= mcms::html('tr', $row);
+      $output .= html::em('tr', $row);
     }
 
-    $output .= '</table>' . mcms::html('input', array(
+    $output .= '</table>' . html::em('input', array(
       'type' => 'hidden',
       'name' => $this->value . '[__reset]',
       'value' => 1,

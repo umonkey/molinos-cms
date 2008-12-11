@@ -1,5 +1,5 @@
 <?php
 
-print mcms::html('h2', l("/node/{$doc['id']}/", $doc['name']));
+print html::em('h2', l("/node/{$doc['id']}/", $doc['name']));
 
-print mcms::html('div', array('class' => 'teaser') , $doc['teaser']);
+print html::em('div', array('class' => 'teaser') , $doc['teaser']);

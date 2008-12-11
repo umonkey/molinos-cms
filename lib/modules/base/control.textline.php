@@ -43,7 +43,7 @@ class TextLineControl extends Control
 
     $value = $this->getValue($data);
 
-    $output = mcms::html('input', array(
+    $output = html::em('input', array(
       'type' => 'text',
       'id' => $this->id,
       'class' => $this->class,

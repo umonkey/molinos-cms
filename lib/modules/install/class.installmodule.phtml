@@ -21,7 +21,7 @@ mcms::extras('themes/admin/js/installer.js', false);
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <base href='<?php print $base; ?>' />
-    <?php if (!empty($title)) print mcms::html('title', $title); ?>
+    <?php if (!empty($title)) print html::em('title', $title); ?>
     <?php print mcms::extras(); ?>
 
     <link rel='shortcut icon' href='themes/all/img/lock.png' type='image/png' />

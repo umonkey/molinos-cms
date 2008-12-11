@@ -42,7 +42,7 @@ class NumberControl extends Control
     if (null === ($value = $data->{$this->value}))
       $value = $this->default;
 
-    $output = mcms::html('input', array(
+    $output = html::em('input', array(
       'type' => 'text',
       'id' => $this->id,
       'class' => 'form-text form-number',

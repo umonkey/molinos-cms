@@ -34,11 +34,11 @@ class DateTimeControl extends Control
     $output = '';
 
     if ($this->text)
-      $output .= mcms::html('label', array(
+      $output .= html::em('label', array(
         'for' => $this->id,
         ), $this->text);
 
-    $output .= mcms::html('input', array(
+    $output .= html::em('input', array(
       'type' => 'text', // 'datetime', // пользоваться этим в опере невозможно
       'id' => $this->id,
       'class' => 'form-text form-datetime',

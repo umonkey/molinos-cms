@@ -62,7 +62,7 @@ function l($url, $title = null, array $options = null, $absolute = false)
   if (null === $title)
     return $options['href'];
 
-  return mcms::html('a', $options, $title);
+  return html::em('a', $options, $title);
 }
 
 function t($message, array $argv = array())

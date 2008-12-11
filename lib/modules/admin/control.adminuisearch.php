@@ -19,7 +19,7 @@ class AdminUISearchControl extends Control
   public function getHTML($data)
   {
     $output = $this->getLeftPart();
-    return mcms::html('div', array('class' => 'tb_1'), $output);
+    return html::em('div', array('class' => 'tb_1'), $output);
   }
 
   private function getLeftPart()
@@ -31,7 +31,7 @@ class AdminUISearchControl extends Control
 
     $output .= $this->getSearchHTML();
 
-    return mcms::html('div', array('class' => 'ctrl_left'), $output);
+    return html::em('div', array('class' => 'ctrl_left'), $output);
   }
 
   private function getCreateHTML()
@@ -57,7 +57,7 @@ class AdminUISearchControl extends Control
     if ($this->dictlist)
       $link .= '&dictionary=1';
 
-    $output = mcms::html('a', array(
+    $output = html::em('a', array(
       'class' => 'newlink',
       'href' => $link,
       ), 'Добавить');
@@ -69,20 +69,20 @@ class AdminUISearchControl extends Control
   {
     $output = '';
 
-    $output = mcms::html('input', array(
+    $output = html::em('input', array(
       'type' => 'text',
       'name' => $this->value,
       'class' => 'search_field',
       'value' => $this->q,
       ));
 
-    $output .= mcms::html('input', array(
+    $output .= html::em('input', array(
       'type' => 'submit',
       'value' => 'Найти',
       ));
 
     $output .= '&nbsp;|&nbsp;';
-    $output .= mcms::html('a', array(
+    $output .= html::em('a', array(
       'href' => '?q=admin/content/search&from='. urlencode($_SERVER['REQUEST_URI']),
       ), 'Расширенный поиск');
 

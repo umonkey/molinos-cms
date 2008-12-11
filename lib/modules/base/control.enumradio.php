@@ -52,25 +52,25 @@ class EnumRadioControl extends Control
 
     if (is_array($this->options))
       foreach ($this->options as $k => $v) {
-        $option = mcms::html('input', array(
+        $option = html::em('input', array(
           'type' => 'radio',
           'class' => 'form-radio',
           'name' => $this->value,
           'checked' => ($selected == $k) ? 'checked' : null,
           'value' => $k,
           ));
-        $options .= mcms::html('label', array('class' => 'radio'), $option .'<span>'. $v .'</span>');
+        $options .= html::em('label', array('class' => 'radio'), $option .'<span>'. $v .'</span>');
       }
 
     if (empty($options))
       return '';
 
     if (isset($this->label))
-      $caption = mcms::html('legend', array('class' => 'radio'),
-        mcms::html('span', $this->label));
+      $caption = html::em('legend', array('class' => 'radio'),
+        html::em('span', $this->label));
     else
       $caption = null;
 
-    return $this->wrapHTML(mcms::html('fieldset', $caption . $options), false);
+    return $this->wrapHTML(html::em('fieldset', $caption . $options), false);
   }
 };

@@ -396,7 +396,7 @@ class AdminRPC implements iRemoteCall
     foreach ($types as $type) {
       if (mcms::user()->hasAccess('c', $type->name)) {
         $output .= '<dt>';
-        $output .= mcms::html('a', array(
+        $output .= html::em('a', array(
           'href' => "?q=admin&mode=create&type={$type->name}&destination=". urlencode($_GET['destination']),
           ), $type->title);
         $output .= '</dt>';
@@ -510,10 +510,10 @@ class AdminRPC implements iRemoteCall
     if (!empty($module['docurl'])) {
       $url = bebop_split_url($module['docurl']);
 
-      $tmp = mcms::html('th', 'Документация:');
-      $tmp .= mcms::html('td', l($module['docurl'], $url['host']));
+      $tmp = html::em('th', 'Документация:');
+      $tmp .= html::em('td', l($module['docurl'], $url['host']));
 
-      $output .= mcms::html('tr', $tmp);
+      $output .= html::em('tr', $tmp);
     }
 
     $output .= '</table>';

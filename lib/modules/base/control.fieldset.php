@@ -40,13 +40,13 @@ class FieldSetControl extends Control
     $content = self::getChildrenHTML($data);
 
     if (!empty($content)) {
-      $output = mcms::html('legend', mcms::html('span', $this->label));
+      $output = html::em('legend', html::em('span', $this->label));
       $output .= $content;
 
       if (null === $this->tabable or $this->tabable)
         $this->addClass('tabable');
 
-      return mcms::html('fieldset', array(
+      return html::em('fieldset', array(
         'class' => $this->class,
         ), $output);
     }

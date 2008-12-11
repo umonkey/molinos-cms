@@ -35,7 +35,7 @@ class BoolControl extends Control
       ? null
       : 'checked';
 
-    $output = mcms::html('input', array(
+    $output = html::em('input', array(
       'type' => 'checkbox',
       'name' => $this->value,
       'value' => $this->value ? 1 : $this->value,
@@ -44,9 +44,9 @@ class BoolControl extends Control
       ));
 
     if (isset($this->label))
-      $output = mcms::html('label', array(
+      $output = html::em('label', array(
         'id' => $this->id,
-        ), $output . mcms::html('span', $this->label));
+        ), $output . html::em('span', $this->label));
 
     return $this->wrapHTML($output, false);
   }

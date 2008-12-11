@@ -35,7 +35,7 @@ function __get($key)
     <title><?php print $_SERVER['HTTP_HOST']; ?> &mdash; авторизация</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="robots" content="none" />
-    <?php empty($base) or print mcms::html('base', array('href' => $base)); ?>
+    <?php empty($base) or print html::em('base', array('href' => $base)); ?>
     <link rel="shortcut icon" href="themes/all/img/favicon.ico"
       type="image/x-icon" />
     <?php print mcms::extras(); ?>

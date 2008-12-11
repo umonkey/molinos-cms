@@ -1,4 +1,4 @@
-<?php if (!empty($title)) print mcms::html('h2', $title); ?>
+<?php if (!empty($title)) print html::em('h2', $title); ?>
 <form action='<?php print $base;
   ?>?q=subscription.rpc&action=subscribe&destination=<?php
   print urlencode($_SERVER['REQUEST_URI']);
@@ -7,7 +7,7 @@
   print empty($email) ? null : $email; ?>' />
 <input type='submit' value='Подписаться' />
 <?php foreach ($enabled as $id) {
-  print mcms::html('input', array(
+  print html::em('input', array(
     'type' => 'hidden',
     'name' => 'sections[]',
     'value' => $id,

@@ -32,7 +32,7 @@ class BaseModuleTests extends PHPUnit_Framework_TestCase
    */
   public function testMissingArgsHTML()
   {
-    $tmp = mcms::html();
+    $tmp = html::em();
     $this->assertEquals($tmp, '123');
   }
 
@@ -41,12 +41,12 @@ class BaseModuleTests extends PHPUnit_Framework_TestCase
    */
   public function testEmptyHTML()
   {
-    $tmp = mcms::html(null);
+    $tmp = html::em(null);
   }
 
   public function testSpanHTML()
   {
-    $tmp = mcms::html('span');
+    $tmp = html::em('span');
     $this->assertEquals('<span></span>', $tmp);
   }
 

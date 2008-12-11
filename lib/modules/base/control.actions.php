@@ -38,15 +38,15 @@ class ActionsControl extends Control
     $options = '';
 
     foreach ($this->options as $k => $v)
-      $options .= mcms::html('option', array(
+      $options .= html::em('option', array(
         'value' => $k,
         ), mcms_plain($v));
 
-    $output = mcms::html('select', array(
+    $output = html::em('select', array(
       'name' => $this->value,
       ), $options);
 
-    $output .= mcms::html('input', array(
+    $output .= html::em('input', array(
       'type' => 'submit',
       'value' => isset($this->text) ? $this->text : t('OK'),
       ));

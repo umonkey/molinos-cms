@@ -83,7 +83,7 @@ class NodeLinkControl extends Control
       mcms::extras('themes/all/jquery/plugins/jquery.suggest.css');
     }
 
-    $output = mcms::html('input', array(
+    $output = html::em('input', array(
       'type' => 'text',
       'id' => $this->id,
       'class' => $this->class,
@@ -95,7 +95,7 @@ class NodeLinkControl extends Control
 
     if (!$this->readonly) {
       $output .= '<script language=\'javascript\' type=\'text/javascript\'>$(function(){$(\'#'. $this->id .'\').suggest(\'?q=autocomplete.rpc&source='. $this->values .'\');});</script>';
-      $output .= mcms::html('input', array(
+      $output .= html::em('input', array(
         'type' => 'hidden',
         'name' => "nodelink_remap[{$this->value}]",
         'value' => $this->values . ($this->required ? '!' : ''),
@@ -117,18 +117,18 @@ class NodeLinkControl extends Control
         $options = '';
 
         if (!$this->required)
-          $options .= mcms::html('option', array(
+          $options .= html::em('option', array(
             'value' => '',
             ), $this->default_label);
 
         foreach ($values as $id => $name) {
-          $options .= mcms::html('option', array(
+          $options .= html::em('option', array(
             'selected' => ($value == $id) ? 'selected' : null,
             'value' => $id,
             ), $name);
         }
 
-        return mcms::html('select', array(
+        return html::em('select', array(
           'name' => $this->value,
           ), $options);
       }

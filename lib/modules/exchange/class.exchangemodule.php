@@ -219,6 +219,8 @@ class ExchangeModule implements iRemoteCall
       ."</info>\n";
     $str .= "<nodes>\n";
 
+    mcms::debug($list);
+
     foreach ($list as $tmp) {
       $arr = $tmp->getRaw();
       $arrarr = array();
@@ -234,12 +236,12 @@ class ExchangeModule implements iRemoteCall
 
         if (is_array($val)) {
           $arrarr[$key] = $val;
-          $srlz .= mcms::html($key, "<![CDATA[". urlencode(serialize($val)) ."]]>") ."\n";
+          $srlz .= html::em($key, "<![CDATA[". urlencode(serialize($val)) ."]]>") ."\n";
           unset($arr[$key]);
         }
       }
 
-      $str .= mcms::html('node', $arr, $srlz) ."\n";
+      $str .= html::em('node', $arr, $srlz) ."\n";
     }
 
     $str .= "</nodes>\n";
@@ -248,7 +250,7 @@ class ExchangeModule implements iRemoteCall
     $arr = Context::last()->db->getResults("SELECT `tid`, `nid`, `key`, `order` FROM `node__rel` ORDER BY `tid`, `order`");
 
     foreach ($arr as $el)
-      $str .= mcms::html('link', $el) ."\n";
+      $str .= html::em('link', $el) ."\n";
 
     $str .= "</links>\n";
     $str .= "<accessrights>\n";
@@ -256,7 +258,7 @@ class ExchangeModule implements iRemoteCall
     $arr = Context::last()->db->getResults("SELECT `nid`, `uid`, `c`, `r`, `u`, `d`, `p` FROM `node__access` ORDER BY `nid`");
 
     foreach ($arr as $el)
-      $str .= mcms::html('access', $el) ."\n";
+      $str .= html::em('access', $el) ."\n";
 
     $str .= "</accessrights>\n";
     $str .= "</root>\n";

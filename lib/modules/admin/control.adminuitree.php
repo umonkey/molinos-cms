@@ -42,7 +42,7 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
         $row .= '</td>';
       }
 
-      $output .= mcms::html('tr', array(
+      $output .= html::em('tr', array(
         'class' => empty($node['published']) ? 'unpublished' : 'published',
         ), $row);
     }
@@ -66,7 +66,7 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
         ? $titles[$col]
         : $col;
 
-      $output .= mcms::html('th', array(
+      $output .= html::em('th', array(
         'class' => 'field-'. $col,
         ), $title);
     }
@@ -90,7 +90,7 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
       $output[] = $tmp;
 
     if (!empty($output)) {
-      return mcms::html('td', array(
+      return html::em('td', array(
         'class' => 'actions',
         'style' => 'padding-left: 4px; padding-right: 4px; width: '. (18 * count($output)) .'px',
         ), join('', $output));
@@ -152,14 +152,14 @@ class AdminUITreeControl extends AdminUIListControl implements iFormControl
     if (!is_readable($path))
       return;
 
-    $tmp = mcms::html('img', array(
+    $tmp = html::em('img', array(
       'src' => $img,
       'width' => 16,
       'height' => 16,
       'alt' => $title,
       ));
 
-    return mcms::html('a', array(
+    return html::em('a', array(
       'class' => 'icon',
       'href' => $href,
       'title' => $title,

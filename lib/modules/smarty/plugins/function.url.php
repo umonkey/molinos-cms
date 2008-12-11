@@ -17,6 +17,6 @@ function smarty_function_url($params, &$smarty)
     $a['style'] = $params['style'];
     $a['target'] = $params['target'];
    
-    return mcms::html('a', $a, $params['text']);
+    return html::em('a', $a, $params['text']);
   }
 }

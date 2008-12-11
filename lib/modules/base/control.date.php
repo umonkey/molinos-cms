@@ -31,7 +31,7 @@ class DateControl extends Control
 
   public function getHTML($data)
   {
-    $output = mcms::html('input', array(
+    $output = html::em('input', array(
       'type' => 'text', // 'date', // пользоваться этим в опере невозможно
       'id' => $this->id,
       'class' => 'form-text form-date',

@@ -60,7 +60,7 @@ class AdminUIListControl extends Control
         if (empty($node['id']) or !empty($node['_protected']))
           $row .= '&nbsp;';
         else
-          $row .= mcms::html('input', array(
+          $row .= html::em('input', array(
             'type' => 'checkbox',
             'name' => 'nodes[]',
             'value' => $node['id'],
@@ -89,7 +89,7 @@ class AdminUIListControl extends Control
           }
 
           if ($href)
-            $row .= mcms::html('a', array(
+            $row .= html::em('a', array(
               'href' => $href,
               'class' => isset($this->picker) ? 'returnHref' : null,
               'onclick' => isset($this->picker) ? "return mcms_picker.mySubmit(\"". l('?q=attachment.rpc&fid='. $node['id']) ."\",{$node['id']})" : null,
@@ -104,7 +104,7 @@ class AdminUIListControl extends Control
         $row .= '</td>';
       }
 
-      $output .= mcms::html('tr', array(
+      $output .= html::em('tr', array(
         'class' => $classes,
         ), $row);
 
@@ -182,7 +182,7 @@ class AdminUIListControl extends Control
     case 'thumbnail':
       if (null !== $node and !empty($node['class']) and $node['class'] == 'file') {
         if (file_exists($path = mcms::config('filestorage') .'/'. $node['filepath'])) {
-          $tmp = mcms::html('img', array(
+          $tmp = html::em('img', array(
             'src' => "?q=attachment.rpc&fid={$node['id']},48,48,c&rev={$node['rid']}",
             'width' => 48,
             'height' => 48,
@@ -192,7 +192,7 @@ class AdminUIListControl extends Control
                : null,
             ));
 
-          $tmp = mcms::html('a', array(
+          $tmp = html::em('a', array(
             'title' => 'Скачать',
             'href' => "?q=attachment/{$node['id']}/". urlencode($node['filename']),
             'class' => isset($this->picker) ? 'returnHref' : null,
@@ -217,7 +217,7 @@ class AdminUIListControl extends Control
 
     case 'email':
       if (!empty($value))
-        return mcms::html('a', array('href' => 'mailto:'. str_replace(' ', '', $value)), $value);
+        return html::em('a', array('href' => 'mailto:'. str_replace(' ', '', $value)), $value);
       break;
 
     case 'filesize':
@@ -234,7 +234,7 @@ class AdminUIListControl extends Control
         } else
           $class = null;
 
-        return mcms::html('a', array(
+        return html::em('a', array(
           'href' => '?q=admin/'. $this->getGroup() .'/edit/'. $node['id'] .'&destination=CURRENT',
           'class' => $class,
           ), $value);
@@ -269,7 +269,7 @@ class AdminUIListControl extends Control
       : $users[$uid]->fullname;
 
     if (mcms::user()->hasAccess('u', 'user'))
-      return mcms::html('a', array(
+      return html::em('a', array(
         'href' => "?q=admin/". $this->getGroup()
           ."/edit/{$uid}&destination=CURRENT",
         ), $name);
@@ -313,16 +313,16 @@ class AdminUIListControl extends Control
 
     foreach ($this->_actions as $key) {
       if (array_key_exists($key, $links) and is_array($links[$key])) {
-        $link = mcms::html('a', array(
+        $link = html::em('a', array(
           'href' => $links[$key]['href'],
           'class' => 'icon-'. $links[$key]['icon'],
           'title' => $links[$key]['title'],
-          ), mcms::html('span', $links[$key]['title']));
+          ), html::em('span', $links[$key]['title']));
       } else {
         $link = '';
       }
 
-      $output .= mcms::html('td', array(
+      $output .= html::em('td', array(
         'class' => 'icon',
         ), $link);
     }
@@ -332,14 +332,14 @@ class AdminUIListControl extends Control
 
   private function getIcon($img, $href, $title)
   {
-    $tmp = mcms::html('img', array(
+    $tmp = html::em('img', array(
       'src' => $img,
       'width' => 16,
       'height' => 16,
       'alt' => $title,
       ));
 
-    return mcms::html('a', array(
+    return html::em('a', array(
       'class' => 'icon',
       'href' => $href,
       'title' => $title,
@@ -366,7 +366,7 @@ class AdminUIListControl extends Control
 
     $this->_actions = $actions;
 
-    return mcms::html('th', array(
+    return html::em('th', array(
       'colspan' => count($actions),
       ));
   }

@@ -92,9 +92,9 @@ class TinyMceModule implements iModuleConfig, iPageHook
       return;
 
     if (empty($config['gzip'])) {
-      $html = mcms::html('script', array('src' => 'lib/modules/tinymce/editor/tiny_mce.js'));
+      $html = html::em('script', array('src' => 'lib/modules/tinymce/editor/tiny_mce.js'));
     } else {
-      $html = mcms::html('script', array('src' => 'lib/modules/tinymce/editor/tiny_mce_gzip.js'));
+      $html = html::em('script', array('src' => 'lib/modules/tinymce/editor/tiny_mce_gzip.js'));
     }
 
     if (!strlen($tmp = self::getInit($config)))
@@ -102,7 +102,7 @@ class TinyMceModule implements iModuleConfig, iPageHook
 
     $html .= $tmp;
 
-    $html .= mcms::html('script', array(
+    $html .= html::em('script', array(
       'src' => 'lib/modules/tinymce/file_picker.js.php',
       ));
 
