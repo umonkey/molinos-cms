@@ -1,7 +1,7 @@
 <?php
 
-class SaxImport extends SaxParser {
-
+class SaxImport extends SaxParser
+{
   private $curid = null;
   private $curnode = null;
 
@@ -153,4 +153,3 @@ class SaxImport extends SaxParser {
     xml_parse($this->parser, $xmlStream);
   }
 }
-

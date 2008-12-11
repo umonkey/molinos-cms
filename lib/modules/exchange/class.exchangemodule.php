@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
+class ExchangeModule implements iRemoteCall
 {
   // Добавляет в zip-архив указанный каталог
   function addToZip($fld, $zip, $from)
@@ -24,6 +24,8 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
   public static function hookRemoteCall(Context $ctx)
   {
+    return mcms::dispatch_rpc(__CLASS__, $ctx);
+
     if (!class_exists('ZipArchive'))
       throw new RuntimeException(t('Функции резервного копирования используют расширение zip, которое отсутствует.'));
 
@@ -32,60 +34,6 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     $themes = array();
 
     if ($exchmode == 'export') { // Экспорт профиля
-      $expprofiledescr = trim($ctx->post('expprofiledescr'));
-      $expprofilename = $_SERVER['HTTP_HOST'] ."_". date("Y-m-d");
-
-      if (empty($expprofiledescr))
-        $expprofiledescr = "Этот профиль был экспортирован с сайта ". $_SERVER['HTTP_HOST'];
-
-      $xmlstr = self::export($expprofilename, $expprofiledescr);
-
-      $xml = new SimpleXMLElement($xmlstr);
-
-      $zipfile = "siteprofile.zip";
-      $zipfilepath = mcms::config('tmpdir') ."/export/{$zipfile}";
-
-      mcms::mkdir(dirname($zipfilepath), t('Не удалось создать временный каталог для экспорта данных.'));
-
-      $zip = new ZipArchive;
-      $zip->open($zipfilepath, ZipArchive::OVERWRITE);
-
-      $Nodes = array();
-
-      foreach ($xml->nodes->node as $node) {
-        $curnode = array();
-
-        foreach ($node->attributes() as $a => $v)
-          $curnode[$a] = strval($v);
-
-        if ($curnode['class'] == 'file') {
-          $fpath = $curnode['filepath'];
-          $filestorage = mcms::config('filestorage');
-          $zip->addFile($filestorage ."/".$fpath, "{$filestorage}/{$fpath}");
-        }
-
-        if ($curnode['class'] == 'domain') {
-          if (array_key_exists('theme', $curnode)) {
-            if (is_dir($thm = $curnode['theme']))
-              self::addToZip(MCMS_ROOT ."/themes/{$thm}", $zip, "themes/{$thm}");
-          }
-        }
-      }
-
-      $zip->addFromString("siteprofile.xml", $xmlstr);
-      $zip->close();
-
-      if (!file_exists($zipfilepath))
-        throw new RuntimeException(t('Не удалось экспортировать данные.'));
-
-      header('Content-Type: application/octet-stream');
-      header('Accept-Ranges: bytes');
-      header('Content-Length: '. filesize($zipfilepath));
-      header('Content-Disposition: attachment; filename='. $zipfile);
-
-      readfile($zipfilepath);
-      unlink($zipfilepath);
-      exit();
     }
     else if ($exchmode == 'import') { // Импорт профиля
       $fn = basename($_FILES['impprofile']['name']);
@@ -164,6 +112,95 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
       return new Redirect('?q=admin&module=exchange&preset=export&result=upgradeok');
     }
+  }
+
+  public static function rpc_redirect(Context $ctx)
+  {
+    switch ($mode = $ctx->post('mode')) {
+    case 'backup':
+      return self::rpc_export($ctx);
+    case 'restore':
+      $form = ExchangeUI::getFormFields('restore');
+      $data = $form->getFormData($ctx, Node::create('exchange'));
+
+      switch ($data->profile) {
+      case 'manual':
+        if (empty($data->file))
+          throw new ValidationException($form['file']->label, t('Вы не выбрали файл, который нужно импортировать.'));
+        $path = os::path(mcms::config('filestorage'), $data->file->filepath);
+        break;
+      default:
+        $path = os::path('lib', 'modules', 'exchange', 'profiles', $data->profile);
+        break;
+      }
+
+      if (!file_exists($path))
+        throw new RuntimeException(t('Файл «%file» не найден.', array(
+          '%file' => $path,
+          )));
+
+      if (!self::import($path, true))
+        throw new RuntimeException(t('Не удалось загрузить профиль.'));
+
+      $ctx->redirect('?q=admin');
+    }
+
+    $ctx->redirect('?q=admin&module=exchange&mode=' . $mode);
+  }
+
+  public static function rpc_export(Context $ctx)
+  {
+    $expprofiledescr = t('Резервная копия.');
+    $expprofilename = $_SERVER['HTTP_HOST'] ."_". date("Y-m-d");
+
+    $xmlstr = self::export($expprofilename, $expprofiledescr);
+
+    $xml = new SimpleXMLElement($xmlstr);
+
+    $zipfile = "siteprofile.zip";
+    $zipfilepath = os::path(mcms::config('tmpdir'), 'export', $zipfile);
+
+    mcms::mkdir(dirname($zipfilepath), t('Не удалось создать временный каталог для экспорта данных.'));
+
+    $zip = new ZipArchive;
+    $zip->open($zipfilepath, ZipArchive::OVERWRITE);
+
+    $Nodes = array();
+
+    foreach ($xml->nodes->node as $node) {
+      $curnode = array();
+
+      foreach ($node->attributes() as $a => $v)
+        $curnode[$a] = strval($v);
+
+      if ($curnode['class'] == 'file') {
+        $fpath = $curnode['filepath'];
+        $filestorage = mcms::config('filestorage');
+        $zip->addFile($filestorage ."/".$fpath, "{$filestorage}/{$fpath}");
+      }
+
+      if ($curnode['class'] == 'domain') {
+        if (array_key_exists('theme', $curnode)) {
+          if (is_dir($thm = $curnode['theme']))
+            self::addToZip(MCMS_ROOT ."/themes/{$thm}", $zip, "themes/{$thm}");
+        }
+      }
+    }
+
+    $zip->addFromString("siteprofile.xml", $xmlstr);
+    $zip->close();
+
+    if (!file_exists($zipfilepath))
+      throw new RuntimeException(t('Не удалось экспортировать данные.'));
+
+    header('Content-Type: application/octet-stream');
+    header('Accept-Ranges: bytes');
+    header('Content-Length: '. filesize($zipfilepath));
+    header('Content-Disposition: attachment; filename='. $zipfile);
+
+    readfile($zipfilepath);
+    unlink($zipfilepath);
+    exit();
   }
 
   //экспорт профиля
@@ -245,7 +282,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
     return true;
   }
 
-  public static function getProfileList()
+  public static function getProfileList($simple = false)
   {
     $str = dirname(__FILE__).'/profiles/'.'*.xml';
 
@@ -275,115 +312,16 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       array_push($plist, $pr);
     }
 
+    if ($simple) {
+      $result = array();
+
+      foreach ($plist as $k => $v)
+        $result[$v['filename']] = $v['name'];
+
+      return $result;
+    }
+
     return $plist;
-  }
-
-  public static function getMenuIcons()
-  {
-    $icons = array();
-
-    if (class_exists('ZipArchive') and mcms::user()->hasAccess('d', 'type'))
-      $icons[] = array(
-        'group' => 'structure',
-        'href' => '?q=admin&module=exchange',
-        'title' => t('Бэкапы'),
-        'description' => t('Бэкап и восстановление данных в формате XML.'),
-        );
-
-    return $icons;
-  }
-
-  public static function onGet(Context $ctx)
-  {
-    if (null !== ($tmp = $ctx->get('result')))
-      return self::getResult($tmp);
-
-    $form = new Form(array(
-      'title' => t('Экспорт/импорт сайта в формате XML'),
-      'description' => t("Необходимо выбрать совершаемое вами действие"),
-      'action' => '?q=exchange.rpc',
-      'class' => '',
-      'id' => 'mod_exchange'
-      ));
-
-    $resstr = array (
-      'noprofilename' => 'Ошибка: не введено имя профиля',
-      'noimpprofile' => 'Ошибка: не выбран профиль для импорта',
-      'notopenr' => 'Ошибка: невозможно открыть файл на чтение',
-      'badfiletype' => 'Неподдерживаемый тип файла. Файл должен быть формата XML или ZIP',
-      'upgradeok' => 'Upgrade до Mysql прошёл успешно'
-      );
-
-    /*
-    if ($result)
-      $form->addControl(new InfoControl(array('text' => $resstr[$result])));
-    */
-
-    $options = array(
-       'export' => t('Бэкап'),
-       'import' => t('Восстановление'),
-       );
-
-    if (Context::last()->db->getDbType() == 'SQLite')
-      $options['upgradetoMySQL'] = t('Перенести данные в MySQL');
-
-    $form->addControl(new EnumRadioControl(array(
-       'value' => 'exchmode',
-       'label' => t('Выберите действие'),
-       'default' => 'import',
-       'options' => $options
-        )));
-
-    $form->addControl(new TextAreaControl(array(
-      'value' => 'expprofiledescr',
-      'label' => t('Комментарий к бэкапу'),
-      )));
-
-    $plist = ExchangeModule::getProfileList();
-    $options = array();
-
-    for ($i = 0; $i < count($plist); $i++) {
-      $pr = $plist[$i];
-      $options[$pr['filename']] = $pr['name'];
-    }
-
-    $form->addControl(new AttachmentControl(array(
-      'label' => t('Выберите импортируемый профиль'),
-      'value' => 'impprofile'
-      )));
-
-    if (Context::last()->db->getDbType() == 'SQLite') {
-      $form->addControl(new TextLineControl(array(
-        'value' => 'db[name]',
-        'label' => t('Имя базы данных'),
-        'description' => t("Перед инсталляцией база данных будет очищена от существующих данных, сделайте резервную копию!"),
-        )));
-
-      $form->addControl(new TextLineControl(array(
-        'value' => 'db[host]',
-        'label' => t('MySQL сервер'),
-        'wrapper_id' => 'db-server',
-        'default' => 'localhost',
-        )));
-
-      $form->addControl(new TextLineControl(array(
-        'value' => 'db[user]',
-        'label' => t('Пользователь MySQL'),
-        'wrapper_id' => 'db-user',
-        )));
-
-      $form->addControl(new PasswordControl(array(
-        'value' => 'db[pass]',
-        'label' => t('Пароль этого пользователя'),
-        'wrapper_id' => 'db-password',
-        )));
-    }
-
-    $form->addControl(new SubmitControl(array(
-      'text' => t('Произвести выбранную операцию'),
-       )));
-
-    return $form->getHTML(array());
   }
 
   private static function getResult($mode)

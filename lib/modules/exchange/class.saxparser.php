@@ -1,7 +1,7 @@
 <?php
 
-class SaxParser {
-
+class SaxParser
+{
   protected $parser = null;
 
   public function __construct($encoding = 'utf-8')
@@ -48,4 +48,3 @@ class SaxParser {
     fclose($fp);
   }
 }
-
