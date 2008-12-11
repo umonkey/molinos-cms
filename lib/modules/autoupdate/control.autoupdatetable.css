@@ -1,0 +1,23 @@
+.autoupdatetable-wrapper table {
+  border-collapse: collapse;
+}
+
+.autoupdatetable-wrapper th {
+  background-color: #eee;
+  font-size: 120%;
+}
+
+.autoupdatetable-wrapper td,
+.autoupdatetable-wrapper th {
+  vertical-align: top;
+  border: solid 1px gray;
+  padding: 2px 4px;
+}
+
+.autoupdatetable-wrapper p {
+  margin: 2px 0;
+}
+
+.autoupdatetable-wrapper .description {
+  color: gray;
+}
