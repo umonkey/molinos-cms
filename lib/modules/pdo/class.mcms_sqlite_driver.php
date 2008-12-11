@@ -137,7 +137,7 @@ class mcms_sqlite_driver extends PDO_Singleton
 
     mcms::flog('sqlite', 'deleting everything');
 
-    $sql = "SELECT `tbl_name` FROM `sqlite_master` WHERE `type` = 'table'";
+    $sql = "SELECT `tbl_name` FROM `sqlite_master` WHERE `type` = 'table' AND `tbl_name` NOT LIKE 'sqlite_%'";
     $rows = $this->getResults($sql);
 
     foreach ($rows as $k => $el) {
