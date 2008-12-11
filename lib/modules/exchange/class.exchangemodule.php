@@ -99,21 +99,16 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $filetype = substr($fn, -4);
 
       if ($filetype == '.xml') { // Это не архив, а xml
-        $xmlstr = implode(file($newfn), $arr);
+        $xmlstr = file_get_contents($newfn);
       }
       else if ($filetype == '.zip') { //Это zip-архив
         $zip = new ZipArchive;
         $zip->open($newfn);
         $xmlstr = $zip->getFromName("siteprofile.xml");
       }
-
       else { // неизвестный тип файла
         return new Redirect('?q=admin&mode=exchange&preset=export&result=badfiletype');
       }
-
-      $ctx->db->clearDB();
-
-      //Installer::CreateTables();
 
       if ($filetype == '.zip') {
         $zip->extractTo(MCMS_ROOT);
@@ -152,9 +147,6 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
       $xmlstr = self::export('Mysql-upgrade', 'Профиль для апгрейда до MySQL');
 
-      // функция очистки базы делает также её бэкап
-      $ctx->db->clearDB();
-
       // запишем конфиг новым dsn
       InstallModule::writeConfig($data, $olddsn);
 
@@ -163,6 +155,7 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
 
       // Перед импортом нужно очистить целевую базу данных,
       // чтобы не получить исключение о дубликатах.
+      // Функция очистки базы делает также её бэкап.
       $ctx->db->clearDB();
       self::import($xmlstr);
 
@@ -243,121 +236,13 @@ class ExchangeModule implements iRemoteCall, iAdminMenu, iAdminUI
       $xmlstr = $source;
     }
 
-    $db = Context::last()->db;
+    mcms::db()->clearDB();
+    mcms::db()->beginTransaction();
 
-    $db->clearDB();
-    $db->beginTransaction();
+    $sax = new SaxImport();
+    $sax->parse($source);
 
-    $xml = new SimpleXMLElement($xmlstr);
-
-    $Nodes = array();
-    $curnode = array();
-    $larr = array();
-
-    mcms::flog('exchange', 'importing nodes');
-
-    foreach ($xml->nodes->node as $node) {
-      $curnode = array();
-
-      foreach ($node->attributes() as $a => $v)
-        $curnode[$a] = strval($v);
-
-      foreach ($node as $attr => $val) {
-        if (false === ($obj = unserialize(urldecode($val))))
-          mcms::flog('exchange', 'unable to unserialize: ' . $val);
-          // throw new RuntimeException('Unable to unserialize: '. $val);
-        $curnode[$attr] = $obj;
-      }
-
-      if (empty($curnode['id']))
-        throw new RuntimeException(t('Отсутствует id объекта.'));
-      else
-        $curnode['__want_id'] = $curnode['id'];
-
-      foreach (array('id', 'rid', 'left', 'right', '_name') as $k)
-        if (array_key_exists($k, $curnode))
-          unset($curnode[$k]);
-
-      try {
-        $SiteNode = Node::create(strval($node['class']), $curnode);
-        $SiteNode->save();
-
-        mcms::flog('exchange', "imported a {$node['class']} node, id={$SiteNode->id}, name={$SiteNode->name}");
-      } catch (Exception $e) {
-        mcms::flog('exchange', $e);
-      }
-
-      $curid = $SiteNode->id;
-    }
-
-    mcms::flog('exchange', 'importing relations');
-
-    $at = array();
-    // внесём записи в `node__rel`
-    foreach ($xml->links->link as $link) {
-      foreach ($link->attributes() as $a => $v)
-        $at[$a] = strval($v);
-
-      $n = $at['nid'];
-      $t = $at['tid'];
-
-      $nid = $n;
-      $tid = $t;
-
-      if (!empty($nid) and !empty($tid)) {
-        $key = null;
-        $order = null;
-
-        if (array_key_exists('order', $v))
-          $order = $attr['order'];
-
-        if (array_key_exists('key', $v))
-          $key = $attr['key'];
-
-        $db->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order)", array(
-          ':tid' => $tid,
-          ':nid' => $nid,
-          ':key' => $key,
-          ':order' => $order
-          ));
-      }
-    }
-
-    // Внесём записи в `node__access`
-    mcms::flog('exchange', 'importing access');
-
-    foreach ($xml->accessrights->access as $acc) {
-      $at = array();
-
-      foreach ($acc->attributes() as $a => $v)
-        $at[$a] = strval($v);
-
-      $nd = $at['nid'];
-      $ud = empty($at['uid']) ? 0 : $at['uid'];
-
-      $nid = $nd;
-      $uid = $ud;
-
-      if (!empty($nid)) {
-        $c = empty($at['c']) ? 0 : 1;
-        $r = empty($at['r']) ? 0 : 1;
-        $u = empty($at['u']) ? 0 : 1;
-        $d = empty($at['d']) ? 0 : 1;
-        $p = empty($at['p']) ? 0 : 1;
-
-        $db->exec("INSERT INTO `node__access`(`nid`, `uid`, `c`, `r`, `u`, `d`, `p`) VALUES (:nid, :uid, :c, :r, :u, :d, :p)", array(
-          ':nid' => $nid,
-          ':uid' => empty($uid) ? 0 : $uid,
-          ':c' => $c,
-          ':r' => $r,
-          ':u' => $u,
-          ':d' => $d,
-          ':p' => $p,
-          ));
-      }
-    }
-
-    return 1;
+    return true;
   }
 
   public static function getProfileList()
