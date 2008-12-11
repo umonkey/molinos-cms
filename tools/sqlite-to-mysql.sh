@@ -11,6 +11,11 @@ if [ ! -f "$1" ]; then
   exit 1
 fi
 
+if [ -z $(which sqlite3) ]; then
+  echo "sqlite3 binary not found."
+  exit 1
+fi
+
 echo "Preparing a MySQL script."
 echo .dump | sqlite3 $1 | \
 sed -Ee 's/(CREATE TABLE|INSERT INTO) "([^"]+)"/\1 `\2`/g' | \
@@ -28,5 +33,14 @@ if [ -s $NAME.log ]; then
   cat $NAME.log && rm -f $NAME.log
 else
   rm -f $NAME.sql $NAME.log
-  echo "OK."
+  echo "Import OK."
+
+  for config in $(ls $(dirname $1)/*.config.php $(dirname $1)/*.ini 2>/dev/null); do
+    echo "Updating $config"
+    cat $config | sed -Ee "s#sqlite:$1#mysql://$3:$4@$2/$5#g" > $NAME.config && \
+    cat $NAME.config > $config && \
+    rm -f $NAME.config
+  done
+
+  echo "Done."
 fi
