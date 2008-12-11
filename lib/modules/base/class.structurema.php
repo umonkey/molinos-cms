@@ -152,7 +152,7 @@ class StructureMA
   private function getSchema()
   {
     // Получаем список сохранённых типов.
-    $types = mcms::db()->getResultsV("name", "SELECT `v`.`name` FROM `node` `n` "
+    $types = (array)mcms::db()->getResultsV("name", "SELECT `v`.`name` FROM `node` `n` "
       . "INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
       . "WHERE `n`.`deleted` = 0 AND `n`.`class` = 'type'");
 
