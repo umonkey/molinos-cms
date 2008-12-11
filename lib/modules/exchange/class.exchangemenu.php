@@ -8,8 +8,8 @@ class ExchangeMenu implements iAdminMenu
 
     if (zip::isAvailable() and mcms::user()->hasAccess('d', 'type'))
       $icons[] = array(
-        'group' => 'structure',
-        'href' => '?q=admin&module=exchange',
+        'group' => 'system',
+        'href' => '?q=admin&module=exchange&cgroup=system',
         'title' => t('Бэкапы'),
         'description' => t('Бэкап и восстановление данных в формате XML.'),
         );

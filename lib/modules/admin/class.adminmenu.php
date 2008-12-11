@@ -35,6 +35,7 @@ class AdminMenu implements iAdminMenu
       'statistics' => t('Статистика'),
       'structure' => t('Структура'),
       'status' => t('Состояние'),
+      'system' => t('Система'),
       );
 
     return array_key_exists($name, $trans)
@@ -177,8 +178,8 @@ class AdminMenu implements iAdminMenu
 
     if ($user->hasAccess('u', 'moduleinfo')) {
       $icons[] = array(
-        'group' => 'structure',
-        'href' => '?q=admin/structure/modules',
+        'group' => 'system',
+        'href' => '?q=admin/system/modules',
         'title' => t('Модули'),
         );
     }
