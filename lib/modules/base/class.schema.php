@@ -177,4 +177,20 @@ class Schema extends ArrayObject
 
     return $form;
   }
+
+  /**
+   * Валидирует форму, возвращает данные.
+   */
+  public function getFormData(Context $ctx, &$data = null)
+  {
+    if (null === $data)
+      $data = Control::data(array());
+
+    foreach ($this as $name => $field) {
+      $value = $ctx->post($name);
+      $field->set($value, $data, $ctx->post);
+    }
+
+    return $data;
+  }
 }
