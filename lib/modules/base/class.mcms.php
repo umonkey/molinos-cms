@@ -1126,7 +1126,9 @@ class mcms
         $sig .= ' [' . join('+', $options) . ']';
       }
 
-      $sig .= ' at '. $at .'</em>';
+      $sig .= ' at '. $at;
+      $sig .= ', ваш адрес: ' . $_SERVER['REMOTE_ADDR'] . '.';
+      $sig .= '</em>';
     }
 
     catch (Exception $e) {
