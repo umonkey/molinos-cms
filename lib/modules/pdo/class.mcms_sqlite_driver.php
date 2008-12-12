@@ -109,6 +109,14 @@ class mcms_sqlite_driver extends PDO_Singleton
 
   public function prepare($sql, array $options = null)
   {
+    static $log = false;
+
+    if (false === $log)
+      $log = mcms::config('log.sql');
+
+    if ($log)
+      error_log($sql . "\n", 3, $log);
+
     $newsql = $sql;
 
     $newsql = str_replace(array(
