@@ -12,6 +12,12 @@ class UpdateMenu implements iAdminMenu
         'message' => $message,
         );
 
+    $icons[] = array(
+      'group' => 'system',
+      'href' => '?q=admin&cgroup=system&module=update',
+      'title' => t('Обновления'),
+      );
+
     return $icons;
   }
 
@@ -23,7 +29,7 @@ class UpdateMenu implements iAdminMenu
       if (version_compare($version, mcms::version()) == 1)
         return t('<span class="updates">Есть обновление CMS: %version, его можно <a href="@url">установить</a>.</span>', array(
             '%version' => $version,
-            '@url' => '?q=admin&cgroup=none&module=update'
+            '@url' => '?q=admin&cgroup=system&module=update'
             ));
     }
   }

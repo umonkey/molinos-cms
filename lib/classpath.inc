@@ -929,25 +929,26 @@ return array (
         'UpdateMenu',
         'Updater',
         'UpdateScheduler',
+        'UpdateUI',
       ),
       'interfaces' => array (
         'iAdminMenu',
-        'iAdminUI',
         'iRemoteCall',
         'iScheduler',
+        'iAdminUI',
       ),
       'implementors' => array (
         'iAdminMenu' => array (
           'UpdateMenu',
-        ),
-        'iAdminUI' => array (
-          'Updater',
         ),
         'iRemoteCall' => array (
           'Updater',
         ),
         'iScheduler' => array (
           'UpdateScheduler',
+        ),
+        'iAdminUI' => array (
+          'UpdateUI',
         ),
       ),
       'enabled' => true,
@@ -1123,6 +1124,7 @@ return array (
     'updatemenu' => 'lib/modules/update/class.updatemenu.php',
     'updater' => 'lib/modules/update/class.updater.php',
     'updatescheduler' => 'lib/modules/update/class.updatescheduler.php',
+    'updateui' => 'lib/modules/update/class.updateui.php',
     'url' => 'lib/modules/base/class.url.php',
     'urlcontrol' => 'lib/modules/base/control.url.php',
     'user' => 'lib/modules/auth/class.user.php',
@@ -1145,7 +1147,7 @@ return array (
     ),
     'iadminui' => array (
       'exchangeui',
-      'updater',
+      'updateui',
     ),
     'icontenttype' => array (
       'domainnode',
@@ -1407,5 +1409,6 @@ return array (
     'updatemenu' => 'update',
     'updater' => 'update',
     'updatescheduler' => 'update',
+    'updateui' => 'update',
   ),
 );
