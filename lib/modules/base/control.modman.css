@@ -1,0 +1,23 @@
+.modman-wrapper table {
+  border-collapse: collapse;
+}
+
+.modman-wrapper th {
+  background-color: #eee;
+  font-size: 120%;
+}
+
+.modman-wrapper td,
+.modman-wrapper th {
+  vertical-align: top;
+  border: solid 1px gray;
+  padding: 2px 4px;
+}
+
+.modman-wrapper p {
+  margin: 2px 0;
+}
+
+.modman-wrapper .description {
+  color: gray;
+}
