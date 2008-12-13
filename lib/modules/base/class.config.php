@@ -76,7 +76,7 @@ class Config
 
     // Ничего не найдено, пытаемся использовать фабричный конфиг.
     if (file_exists($src = 'conf' . DIRECTORY_SEPARATOR . 'default.config.php.dist')) {
-      mcms::writeFile($dst = 'conf' . DIRECTORY_SEPARATOR . 'default.config.php', file_get_contents($src));
+      os::write($dst = 'conf' . DIRECTORY_SEPARATOR . 'default.config.php', file_get_contents($src));
       return $dst;
     }
 
@@ -155,7 +155,7 @@ class Config
     ksort($this->data);
 
     // Запись в новый файл.
-    mcms::writeFile($this->path, $this->data);
+    os::writeArray($this->path, $this->data);
 
     // Удаление старых файлов.
     if (file_exists($old = substr($this->path, 0, -11) . '.ini')) {
