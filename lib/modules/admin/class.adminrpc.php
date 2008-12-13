@@ -80,6 +80,8 @@ class AdminRPC implements iRemoteCall
     default:
       if ('GET' == $ctx->method())
         return self::onGet(self::fixCleanURLs($ctx));
+      else
+        return mcms::dispatch_rpc(__CLASS__, $ctx);
     }
 
     $ctx->redirect($next);
@@ -617,5 +619,22 @@ class AdminRPC implements iRemoteCall
     $output = bebop_render_object('page', 'admin', 'admin', $data);
 
     return $output;
+  }
+
+  /**
+   * Изменение списка активных модулей.
+   */
+  public static function rpc_modenable(Context $ctx)
+  {
+    $data = $ctx->post('modules');
+
+    $config = Config::getInstance();
+    $config->set('runtime.modules', $data['enable']);
+    $config->write();
+
+    Structure::getInstance()->rebuild();
+
+    mcms::flush();
+    mcms::flush(mcms::FLUSH_NOW);
   }
 }
