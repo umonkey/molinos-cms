@@ -18,11 +18,11 @@ class RatingRPC implements iRemoteCall
     if (empty($node) or empty($rate))
       throw new RuntimeException(t('Синтаксис: &node=id&rate=value'));
 
-    $db->exec("INSERT INTO `node__rating` (`nid`, `uid`, `ip`, `rate`) VALUES (:nid, :uid, :ip, :rate)", array(
-      ':nid' => $options['node'],
+    $ctx->db->exec("INSERT INTO `node__rating` (`nid`, `uid`, `ip`, `rate`) VALUES (:nid, :uid, :ip, :rate)", array(
+      ':nid' => $node,
       ':uid' => mcms::user()->id,
       ':ip' => $_SERVER['REMOTE_ADDR'],
-      ':rate' => $options['rate'],
+      ':rate' => $rate,
       ));
 
     return new Response(t('Голос принят.'));
