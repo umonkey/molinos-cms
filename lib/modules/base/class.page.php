@@ -148,6 +148,11 @@ class Page
     if ('.rpc' == substr($query, -4)) {
       $module = substr($query, 0, -4);
 
+      if (!mcms::ismodule($module))
+        throw new PageNotFoundException(t('Модуль %name отсутствует или выключен.', array(
+          '%name' => $module,
+          )));
+
       if ($ctx->method('post') and isset($ctx->db)) {
         try {
           $ctx->db->beginTransaction();
