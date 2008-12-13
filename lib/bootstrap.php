@@ -1,7 +1,7 @@
 <?php
 
 // Текущая версия.
-define('MCMS_VERSION', '8.05.6198RC2');
+define('MCMS_VERSION', '8.05.6199B1');
 
 // Начало обработки запроса, для замеров производительности.
 define('MCMS_START_TIME', microtime(true));
@@ -21,7 +21,11 @@ class Loader
       ? 'classpath.local.inc'
       : 'classpath.inc');
 
-    mcms::writeFile($path, self::scan($local, mcms::config('runtime.modules')));
+    $enabled = class_exists('mcms')
+      ? mcms::config('runtime.modules')
+      : array('admin');
+
+    os::writeArray($path, self::scan($local, $enabled));
   }
 
   private static function scan($local = false, $enabled_modules = null)
@@ -166,6 +170,9 @@ class Loader
 
     if (null === $map)
       $map = self::map('classes');
+
+    if (!is_array($map))
+      return null;
 
     $k = strtolower($className);
 

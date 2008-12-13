@@ -274,7 +274,7 @@ class Structure
   public function save()
   {
     if ($this->loaded)
-      mcms::writeFile($this->getFileName(), array(
+      os::writeArray($this->getFileName(), array(
         'widgets' => $this->widgets,
         'aliases' => $this->aliases,
         'domains' => $this->domains,

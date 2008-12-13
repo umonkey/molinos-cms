@@ -102,4 +102,12 @@ class os
         '%file' => $vpath,
         )));
   }
+
+  /**
+   * Сохраняет массив в файл.
+   */
+  public static function writeArray($fileName, array $content)
+  {
+    return self::write($fileName, '<?php return ' . var_export($content, true) . ';');
+  }
 }
