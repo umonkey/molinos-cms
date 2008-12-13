@@ -54,4 +54,19 @@ class RatingRPC implements iRemoteCall
 
     throw new BadRequestException(t('Этот вызов следует отправлять только через XMLHttpRequest в режиме JSON.'));
   }
+
+  /**
+   * Проверяет, голосовал ли текущий пользователь за документ.
+   */
+  protected function checkUserVoted(Context $ctx, $nid)
+  {
+    $user = mcms::user();
+
+    if ($user->id == 0)
+      $status = $ctx->db->fetch("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = 0 AND `ip` = :ip", array(':nid' => $this->ctx->document->id, ':ip' => $_SERVER['REMOTE_ADDR']));
+    else
+      $status = $ctx->db->fetch("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(':nid' => $this->ctx->document->id, ':uid' => $user->id));
+
+    return !empty($status);
+  }
 }

@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class RatingWidget extends Widget implements iNodeHook
+class RatingWidget extends Widget
 {
   public static function getWidgetInfo()
   {
@@ -64,14 +64,24 @@ class RatingWidget extends Widget implements iNodeHook
 
   protected function onGetStatus(array $options)
   {
-    $result = array(
-      'average' => $this->ctx->db->getResult("SELECT AVG(`rate`) FROM `node__rating` WHERE `nid` = :nid AND `rate` <> 0", array(':nid' => $this->options['node'])),
-      'count' => $this->ctx->db->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `rate` <> 0", array(':nid' => $this->options['node'])),
-      'user' => $this->ctx->db->getResult("SELECT `rate` FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(':nid' => $this->options['node'], ':uid' => mcms::user()->id)),
-      );
+    $result = $this->getStatus($options);
 
     bebop_on_json($result);
 
+    return $result;
+  }
+
+  private function getStatus(array $options)
+  {
+    $result = array(
+      'average' => $this->ctx->db->getResult("SELECT AVG(`rate`) FROM `node__rating` WHERE `nid` = :nid AND `rate` <> 0", array(':nid' => $options['node'])),
+      'count' => $this->ctx->db->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `rate` <> 0", array(':nid' => $options['node'])),
+      'user' => $this->ctx->db->getResult("SELECT `rate` FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(':nid' => $options['node'], ':uid' => mcms::user()->id)),
+      );
+
+    for ($idx = 1; $idx <= 5; $idx++)
+      $result['rates'][$idx] = mcms::db()->getResult("SELECT COUNT(`nid`) FROM `node__rating` WHERE `nid` = :nid AND `rate` = :rate", array(':nid' => $options['node'], ':rate' => $idx));
+ 
     return $result;
   }
 
@@ -86,7 +96,7 @@ class RatingWidget extends Widget implements iNodeHook
     // Статистика по текущему документу.
     $stats = $pdo->getResult("SELECT AVG(`rate`) FROM `node__rating` WHERE `nid` = :nid", array(':nid' => $options['node']));
 
-    if ($this->checkUserHasVote())
+    if ($this->checkUserHasVote($options))
       $output = $this->getStatsForm($stats, true);
     elseif ($this->user->id == 0 and empty($this->anonymous))
       $output = $this->getStatsForm($stats, false);
@@ -97,54 +107,6 @@ class RatingWidget extends Widget implements iNodeHook
     $result['html'] = "<div class='rating-widget' id='rating-widget-{$this->me->name}'>". $output ."</div>";
 
     return $result;
-  }
-
-  // Добавление голоса.
-  protected function onGetVote(array $options)
-  {
-    if ($this->checkUserHasVote())
-      throw new ForbiddenException(t("Вы уже голосовали за этот документ."));
-
-    $pdo = $this->ctx->db;
-
-    $params = array(
-      ':nid' => $this->ctx->document->id,
-      ':uid' => $this->user->id,
-      ':ip' => $_SERVER['REMOTE_ADDR'],
-      ':rate' => $options['vote'] / 5,
-      );
-
-    if ($this->user->id)
-      $pdo->exec("REPLACE INTO `node__rating` (`nid`, `uid`, `ip`, `rate`) VALUES (:nid, :uid, :ip, :rate)", $params);
-    else
-      $pdo->exec("INSERT INTO `node__rating` (`nid`, `uid`, `ip`, `rate`) VALUES (:nid, :uid, :ip, :rate)", $params);
-
-    $this->setUserVoted();
-
-    // Сообщаем скриптам статус.
-    bebop_on_json(array(
-      'status' => 'ok',
-      ));
-
-    return $this->ctx->getRedirect();
-  }
-
-  protected function onGetRate(array $options)
-  {
-    $result = array(
-      'status' => 'ok',
-      'message' => t('Your vote had been added.'),
-      );
-
-    $this->voteCast();
-
-    bebop_on_json($result);
-
-    $url = bebop_split_url();
-    $url['args'][$this->getInstanceName()] = null;
-
-    $r = new Redirect($url);
-    $r->send();
   }
 
   // Формирование формы со статистикой.
@@ -179,9 +141,9 @@ class RatingWidget extends Widget implements iNodeHook
   }
 
   // Возвращает true, если пользователь уже голосовал.
-  private function checkUserHasVote()
+  private function checkUserHasVote(array $options)
   {
-    $skey = 'already_voted_with_'. $this->getInstanceName();
+    $skey = 'already_voted_with_'. $this->getInstanceName() . "_{$options['node']}";
 
     $rate = (array)mcms::session('rate');
 
@@ -203,33 +165,23 @@ class RatingWidget extends Widget implements iNodeHook
     return $status;
   }
 
-  // Запрещаем повторное голосование.
-  private function setUserVoted()
-  {
-    $rate = (array)mcms::session('rate');
-    $rate['already_voted_with_'. $this->getInstanceName()] = true;
-    mcms::session('rate', $rate);
-  }
-
-  private function voteCast()
+  private function voteCast(array $options)
   {
     $db = $this->ctx->db;
 
+    /*
+    // Пока не очень понятно, зачем это нужно, потому что для системы рейтингов удалять ничего нельзя.
     $db->exec("DELETE FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(
-      ':nid' => $this->options['node'],
+      ':nid' => $options['node'],
       ':uid' => mcms::user()->id,
       ));
+    */
+
     $db->exec("INSERT INTO `node__rating` (`nid`, `uid`, `ip`, `rate`) VALUES (:nid, :uid, :ip, :rate)", array(
-      ':nid' => $this->options['node'],
+      ':nid' => $options['node'],
       ':uid' => mcms::user()->id,
       ':ip' => $_SERVER['REMOTE_ADDR'],
-      ':rate' => $this->options['rate'],
+      ':rate' => $options['rate'],
       ));
-  }
-
-  public static function hookNodeUpdate(Node $node, $op)
-  {
-    if ($op == 'erase')
-      mcms::db()->exec("DELETE FROM `node_rating` WHERE `nid` = :nid OR `uid` = :uid", array(':nid' => $node->id, ':uid' => $node->id));
   }
 };
