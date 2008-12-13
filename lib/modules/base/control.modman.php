@@ -2,14 +2,14 @@
 /**
  * Контрол для вывода списка обновлений.
  *
- * @package mod_autoupdate
+ * @package mod_base
  * @subpackage Controls
  * @author Justin Forest <justin.forest@gmail.com>
  * @copyright 2006-2008 Molinos.RU
  * @license http://www.gnu.org/copyleft/gpl.html GPL
  */
 
-class AutoUpdateTableControl extends Control
+class ModManControl extends Control
 {
   public function __construct(array $form)
   {
@@ -31,10 +31,9 @@ class AutoUpdateTableControl extends Control
 
     $this->nolabel = true;
 
-    $css = substr(Loader::getClassPath(__CLASS__), 0, -3) . 'css';
-    mcms::extras($css);
+    mcms::extras(substr(Loader::getClassPath(__CLASS__), 0, -3) . 'css');
 
-    return $this->wrapHTML(mcms::html('table', $result));
+    return $this->wrapHTML(html::em('table', $result));
   }
 
   private function getSections(array $data)
@@ -71,7 +70,7 @@ class AutoUpdateTableControl extends Control
 
   private function getSectionHTML($section, array $modules)
   {
-    $output = mcms::html('tr', mcms::html('th', array(
+    $output = html::em('tr', html::em('th', array(
       'colspan' => count($this->columns),
       ), $section));
 
@@ -99,10 +98,10 @@ class AutoUpdateTableControl extends Control
           $value = null;
         }
 
-        $row .= mcms::html('td', $value);
+        $row .= html::em('td', $value);
       }
 
-      $output .= mcms::html('tr', $row);
+      $output .= html::em('tr', $row);
     }
 
     return $output;
@@ -110,7 +109,7 @@ class AutoUpdateTableControl extends Control
 
   private function getCheckCell($name, array $meta)
   {
-    return mcms::html('input', array(
+    return html::em('input', array(
       'type' => 'checkbox',
       'name' => $this->value . '[enable][]',
       'value' => $name,
@@ -121,12 +120,12 @@ class AutoUpdateTableControl extends Control
 
   private function getNameCell($name, array $meta)
   {
-    $name = mcms::html('strong', empty($meta['docurl'])
+    $name = html::em('strong', empty($meta['docurl'])
       ? $name
       : l($meta['docurl'], $name));
 
     if (!empty($meta['name']))
-      $name .= mcms::html('p', array(
+      $name .= html::em('p', array(
         'class' => 'description',
         ), $meta['name']);
 
@@ -158,7 +157,7 @@ class AutoUpdateTableControl extends Control
     if (empty($meta['configurable']))
       return null;
 
-    $img = mcms::html('img', array(
+    $img = html::em('img', array(
       'src' => 'themes/admin/img/configure.png',
       'alt' => t('ключ'),
       ));
