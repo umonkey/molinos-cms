@@ -89,7 +89,7 @@ class modman
 
     // Получение информации из внешних источников.
     foreach (self::getSources() as $url) {
-      if (($file = http::fetch($url, http::NO_CACHE))) {
+      if (($file = http::fetch($url . '?random=' . rand(), http::NO_CACHE))) {
         $ini = ini::read($file);
 
         if (empty($ini['url_prefix']) or !is_string($ini['url_prefix']))
