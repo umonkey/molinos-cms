@@ -62,7 +62,7 @@ class http
         }
       }
 
-      elseif ($f = fopen($url, 'rb')) {
+      elseif ($f = @fopen($url, 'rb')) {
         if (!($out = fopen($outfile, 'w')))
           throw new RuntimeException(t('Не удалось сохранить временный файл %name', array('%name' => $outfile)));
 
@@ -74,6 +74,7 @@ class http
       }
 
       else {
+        mcms::flog('http', $url . ': failed.');
         throw new RuntimeException(t('Не удалось загрузить файл: '
           .'модуль CURL отсутствует, '
           .'открыть поток HTTP тоже не удалось.'));
