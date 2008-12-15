@@ -32,6 +32,6 @@ class Redirect extends Response
   protected function addHeaders()
   {
     header('Location: ' . $this->url);
-    mcms::flog('redirect', $this->url);
+    mcms::flog($this->url);
   }
 }

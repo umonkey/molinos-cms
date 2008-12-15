@@ -61,7 +61,7 @@ class TableManager
   public static function upgradeTables(array $names)
   {
     foreach ($names as $table) {
-      mcms::flog('db', $table .': upgrading structure');
+      mcms::flog($table .': upgrading structure');
       self::create($table);
     }
   }

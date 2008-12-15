@@ -126,7 +126,7 @@ class modman
         $modules[$name]['version.local'] = $ini['version.local'];
     }
 
-    mcms::flog('modman', 'module info updated, ' . count($modules) . ' module(s) available.');
+    mcms::flog('module info updated, ' . count($modules) . ' module(s) available.');
 
     ini::write(self::getInfoPath(), $modules);
   }
@@ -144,14 +144,14 @@ class modman
         )));
 
     if (empty($db[$name]['url'])) {
-      mcms::flog('modman', "no url for module {$name}, not updated.");
+      mcms::flog("no url for module {$name}, not updated.");
       return false;
     }
 
     $head = http::head($url = $db[$name]['url']);
 
     if (200 != $head['_status']) {
-      mcms::flog('modman', 'updateModule: file not found: ' . $url);
+      mcms::flog('updateModule: file not found: ' . $url);
       return false;
     }
 
@@ -159,7 +159,7 @@ class modman
 
     foreach (array('md5' => 'md5_file', 'sha1' => 'sha1_file') as $k => $func) {
       if (!empty($db[$name][$k]) and $db[$name][$k] != $func($tmp)) {
-        mcms::flog('modman', $k . ' hash mismatch for ' . $url);
+        mcms::flog($k . ' hash mismatch for ' . $url);
         return false;
       }
     }
@@ -169,9 +169,9 @@ class modman
     zip::unzipToFolder($tmp, $path);
 
     if ($existed)
-      mcms::flog('modman', $name . ': updated.');
+      mcms::flog($name . ': updated.');
     else
-      mcms::flog('modman', $name . ': installed.');
+      mcms::flog($name . ': installed.');
 
     return true;
   }
@@ -213,7 +213,7 @@ class modman
 
     os::rmdir(dirname($inipath));
 
-    mcms::flog('modman', $moduleName . ': uninstalled.');
+    mcms::flog($moduleName . ': uninstalled.');
   }
 
   /**

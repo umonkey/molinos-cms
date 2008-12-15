@@ -25,14 +25,14 @@ class http
 
     if (file_exists($outfile) and (($options & self::NO_CACHE) or ((time() - $ttl) > @filectime($outfile)))) {
       if (is_writable(dirname($outfile))) {
-        mcms::flog('http', 'removing stale file: ' . $url);
+        mcms::flog('removing stale file: ' . $url);
         unlink($outfile);
       }
     }
 
     // Скачиваем файл только если его нет на диске во временной директории
     if (file_exists($outfile)) {
-      mcms::flog('fetch', 'found in cache: '. $url);
+      mcms::flog('found in cache: '. $url);
     } else {
       if (function_exists('curl_init')) {
         $ch = curl_init($url);
@@ -56,7 +56,7 @@ class http
         fclose($fp);
 
         if (200 != $code) {
-          mcms::flog('fetch', $url . ': error ' . $code);
+          mcms::flog($url . ': error ' . $code);
           unlink($outfile);
           return null;
         }
@@ -74,7 +74,7 @@ class http
       }
 
       else {
-        mcms::flog('http', $url . ': failed.');
+        mcms::flog($url . ': failed.');
         throw new RuntimeException(t('Не удалось загрузить файл: '
           .'модуль CURL отсутствует, '
           .'открыть поток HTTP тоже не удалось.'));

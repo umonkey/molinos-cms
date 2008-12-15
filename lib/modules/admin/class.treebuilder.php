@@ -4,8 +4,6 @@ class TreeBuilder
 {
   public function run()
   {
-    $flog = 'tree';
-
     $db = mcms::db();
     $data = $db->getResultsK("id", "SELECT `id`, `parent_id`, `class`, `deleted`, NULL AS `left`, NULL AS `right` FROM `node` WHERE `parent_id` IS NOT NULL OR `id` IN (SELECT `parent_id` FROM `node` WHERE `parent_id` IS NOT NULL) ORDER BY `class`, `left`");
 
@@ -19,7 +17,7 @@ class TreeBuilder
 
       if (!array_key_exists($v['parent_id'], $data)) {
         if (empty($v['deleted'])) {
-          mcms::flog($flog, $v['parent_id'] . ': unknown parent id, deleting node ' . $v['id']);
+          mcms::flog($v['parent_id'] . ': unknown parent id, deleting node ' . $v['id']);
           $db->exec('DELETE FROM `node` WHERE `id` = ?', array($v['id']));
         }
         unset($data[$k]);
@@ -41,15 +39,15 @@ class TreeBuilder
       $next += 2;
     }
 
-    mcms::flog($flog, 'removing old borders');
+    mcms::flog('removing old borders');
     $db->exec("UPDATE `node` SET `left` = NULL, `right` = NULL");
 
-    mcms::flog($flog, 'setting borders');
+    mcms::flog('setting borders');
     $sth = $db->prepare("UPDATE `node` SET `left` = ?, `right` = ? WHERE `id` = ?");
     foreach ($data as $row)
       $sth->execute(array($row['left'], $row['right'], $row['id']));
 
-    mcms::flog($flog, 'saving.');
+    mcms::flog('saving.');
     $db->commit();
   }
 

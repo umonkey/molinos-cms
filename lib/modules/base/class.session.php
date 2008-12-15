@@ -138,7 +138,7 @@ class Session
 
         if (!headers_sent()) {
           setcookie($name, empty($this->data) ? null : $this->id, $time, $path);
-          mcms::flog('session', "cookie set: {$name}={$this->id}");
+          mcms::flog("cookie set: {$name}={$this->id}");
         }
       }
     }
@@ -225,7 +225,7 @@ class Session
 
     $id = md5($_SERVER['REMOTE_ADDR'] . microtime(false) . rand());
 
-    // mcms::flog('session', $id .': new id for '. $_SERVER['REMOTE_ADDR']);
+    // mcms::flog($id .': new id for '. $_SERVER['REMOTE_ADDR']);
 
     return $id;
   }

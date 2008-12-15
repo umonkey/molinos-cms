@@ -55,7 +55,7 @@ class mcms_sqlite_driver extends PDO_Singleton
           if (preg_match("/node__idx_(\w+)/i", $sql, $matches)) {
             $node = Node::load(array('class' => 'type', 'name' => $matches[1]));
             if (!empty($node)) {
-              mcms::flog('SQLite', $matches[1] .': updating index structure');
+              mcms::flog($matches[1] .': updating index structure');
               $node->recreateIdxTable($matches[1]);
               return self::exec($sql, $params);
             }
@@ -63,11 +63,11 @@ class mcms_sqlite_driver extends PDO_Singleton
             $re = '@(FROM|UPDATE|JOIN|INTO)\s+`([^`]+)`@i';
 
             if (!preg_match_all($re, $sql, $m)) {
-              mcms::flog('SQLite', 'could not find table names in SQL');
+              mcms::flog('could not find table names in SQL');
             } else {
               TableManager::upgradeTables($m[2]);
 
-              mcms::flog('SQLite', 're-running query: '. $sql);
+              mcms::flog('re-running query: '. $sql);
 
               $sth = $this->prepare($sql);
               $sth->execute($params);
@@ -133,7 +133,7 @@ class mcms_sqlite_driver extends PDO_Singleton
       'RANDOM()',
       ), $newsql);
 
-    // if ($sql != $newsql) mcms::flog('sqlite', $sql .' rewritten to: '. $newsql);
+    // if ($sql != $newsql) mcms::flog($sql .' rewritten to: '. $newsql);
 
     return parent::prepare($newsql);
   }
@@ -143,7 +143,7 @@ class mcms_sqlite_driver extends PDO_Singleton
   	// Прежде чем все похерить, стоит сделать резервную копию.
   	$this->makeBackup();
 
-    mcms::flog('sqlite', 'deleting everything');
+    mcms::flog('deleting everything');
 
     $sql = "SELECT `tbl_name` FROM `sqlite_master` WHERE `type` = 'table' AND `tbl_name` NOT LIKE 'sqlite_%'";
     $rows = $this->getResults($sql);
@@ -169,7 +169,7 @@ class mcms_sqlite_driver extends PDO_Singleton
     if ((null !== $this->dbfile) and file_exists($this->dbfile) and
         filesize($this->dbfile) > 0) {
       $fname = $this->dbfile .'.'. gmdate('YmdHis');
-      mcms::flog('sqlite', 'backing up as '. $fname);
+      mcms::flog('backing up as '. $fname);
       copy($this->dbfile, $fname);
     }
   }

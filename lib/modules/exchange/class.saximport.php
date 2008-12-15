@@ -85,15 +85,15 @@ class SaxImport extends SaxParser
 
       // логгирование
       case 'nodes':
-        mcms::flog('exchange', 'importing nodes');
+        mcms::flog('importing nodes');
         break;
       case 'links':
         // внесём записи в `node__rel`
-        mcms::flog('exchange', 'importing relations');
+        mcms::flog('importing relations');
         break;
       case 'accessrights':
         // Внесём записи в `node__access`
-        mcms::flog('exchange', 'importing access');
+        mcms::flog('importing access');
         break;
     }
 
@@ -119,9 +119,9 @@ class SaxImport extends SaxParser
           //var_dump($SiteNode, $this->curnode);
           $SiteNode->save();
 
-          mcms::flog('exchange', "imported a {$node['class']} node, id={$SiteNode->id}, name={$SiteNode->name}");
+          mcms::flog("imported a {$node['class']} node, id={$SiteNode->id}, name={$SiteNode->name}");
         } catch (Exception $e) {
-          mcms::flog('exchange', $e);
+          mcms::flog($e);
         }
 
         $this->curid = $SiteNode->id;
@@ -139,7 +139,7 @@ class SaxImport extends SaxParser
   {
     if ($this->field) {
       if (false === ($obj = unserialize(urldecode($cdata))))
-        mcms::flog('exchange', 'unable to unserialize: ' . $cdata);
+        mcms::flog('unable to unserialize: ' . $cdata);
       else {
         $this->curnode['fields'] = $obj;
       }
