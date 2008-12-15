@@ -1,7 +1,8 @@
-<?php // This is a generated file.
-return array (
-  'modules' => array (
-    'accesslog' => array (
+<?php return array (
+  'modules' => 
+  array (
+    'accesslog' => 
+    array (
       'section' => 'base',
       'priority' => 'optional',
       'version' => '1.0',
@@ -10,7 +11,8 @@ return array (
       'name' => 'Collect and view content access statistics.',
       'name.ru' => 'Сбор и просмотр статистики доступа к документам.',
     ),
-    'admin' => array (
+    'admin' => 
+    array (
       'section' => 'admin',
       'priority' => 'optional',
       'version' => '1.0',
@@ -18,7 +20,8 @@ return array (
       'name' => 'Default administrative UI.',
       'name.ru' => 'Стандартный административный интерфейс.',
     ),
-    'adminext' => array (
+    'adminext' => 
+    array (
       'section' => 'admin',
       'priority' => 'extra',
       'version' => '1.0',
@@ -26,7 +29,8 @@ return array (
       'name' => 'JavaScript extensions for managing the content on web site itself.',
       'name.ru' => 'JavaScript-расширение для управления документами с самого сайта, без админки.',
     ),
-    'attachment' => array (
+    'attachment' => 
+    array (
       'section' => 'base',
       'priority' => 'optional',
       'version' => '1.0',
@@ -34,7 +38,8 @@ return array (
       'name' => 'Provides means for uploading and downloading files.',
       'name.ru' => 'Взаимодействие с файловым архивом, загрузка и скачивание файлов.',
     ),
-    'auth' => array (
+    'auth' => 
+    array (
       'section' => 'core',
       'priority' => 'required',
       'version' => '1.0',
@@ -43,11 +48,13 @@ return array (
       'name' => 'Basic password based authentication system.',
       'name.ru' => 'Базовая система парольной авторизации.',
       'enabled' => true,
-      'classes' => array (
-        'User',
+      'classes' => 
+      array (
+        0 => 'User',
       ),
     ),
-    'autocomplete' => array (
+    'autocomplete' => 
+    array (
       'section' => 'base',
       'priority' => 'optional',
       'version' => '1.0',
@@ -55,7 +62,8 @@ return array (
       'name.ru' => 'Превращает большие выпадающие списки в поля с «живым» поиском.',
       'depends' => 'base, jquery',
     ),
-    'autoupdate' => array (
+    'autoupdate' => 
+    array (
       'section' => 'base',
       'priority' => 'optional',
       'version' => '1.0',
@@ -63,7 +71,8 @@ return array (
       'name' => 'Notifies you when updates to the system are available and lets you install them.',
       'name.ru' => 'Сообщает о доступных обновлениях системы и позволяет их установить.',
     ),
-    'base' => array (
+    'base' => 
+    array (
       'section' => 'core',
       'priority' => 'required',
       'version' => '1.0',
@@ -71,195 +80,211 @@ return array (
       'name' => 'Molinos CMS base files.',
       'name.ru' => 'Базовые файлы Molinos CMS.',
       'enabled' => true,
-      'classes' => array (
-        'BaseCron',
-        'BaseModule',
-        'BaseRPC',
-        'BebopCache',
-        'Calendar',
-        'Config',
-        'Context',
-        'Control',
-        'Debugger',
-        'Form',
-        'ini',
-        'Installer',
-        'mcms',
-        'Node',
-        'NodeBase',
-        'NodeMover',
-        'NodeQueryBuilder',
-        'os',
-        'Page',
-        'Redirect',
-        'Response',
-        'Schema',
-        'Session',
-        'Structure',
-        'StructureMA',
-        'url',
-        'Widget',
-        'zip',
-        'AccessControl',
-        'AccessRevControl',
-        'ActionsControl',
-        'BoolControl',
-        'DateControl',
-        'DateTimeControl',
-        'EmailControl',
-        'EnumControl',
-        'EnumRadioControl',
-        'FieldControl',
-        'FieldSetControl',
-        'FloatControl',
-        'HiddenControl',
-        'HistoryControl',
-        'InfoControl',
-        'ListControl',
-        'NodeLinkControl',
-        'NumberControl',
-        'PagerControl',
-        'PasswordControl',
-        'ResetControl',
-        'SectionControl',
-        'SectionsControl',
-        'SetControl',
-        'SubmitControl',
-        'TableControl',
-        'TextAreaControl',
-        'TextHTMLControl',
-        'TextLineControl',
-        'URLControl',
-        'BadRequestException',
-        'DuplicateException',
-        'ForbiddenException',
-        'NoIndexException',
-        'NotConnectedException',
-        'NotInstalledException',
-        'ObjectNotFoundException',
-        'PageNotFoundException',
-        'UnauthorizedException',
-        'UserErrorException',
-        'ValidationException',
-        'WidgetHaltedException',
-        'DomainNode',
-        'FeedbackNode',
-        'FileNode',
-        'GroupNode',
-        'TagNode',
-        'TypeNode',
-        'UserNode',
-        'WidgetNode',
-        'ArchiveWidget',
-        'DocWidget',
-        'FormWidget',
-        'LinkedNodesWidget',
-        'ListWidget',
-        'MenuWidget',
-        'TagCloudWidget',
-        'TagsWidget',
-        'TitleWidget',
-        'UserWidget',
+      'classes' => 
+      array (
+        0 => 'BaseCron',
+        1 => 'BaseModule',
+        2 => 'BaseRPC',
+        3 => 'BebopCache',
+        4 => 'Calendar',
+        5 => 'Config',
+        6 => 'Context',
+        7 => 'Control',
+        8 => 'Debugger',
+        9 => 'Form',
+        10 => 'html',
+        11 => 'http',
+        12 => 'ini',
+        13 => 'Installer',
+        14 => 'mcms',
+        15 => 'modman',
+        16 => 'Node',
+        17 => 'NodeBase',
+        18 => 'NodeMover',
+        19 => 'NodeQueryBuilder',
+        20 => 'os',
+        21 => 'Page',
+        22 => 'Redirect',
+        23 => 'Response',
+        24 => 'Schema',
+        25 => 'Session',
+        26 => 'Structure',
+        27 => 'StructureMA',
+        28 => 'url',
+        29 => 'Widget',
+        30 => 'zip',
+        31 => 'AccessControl',
+        32 => 'AccessRevControl',
+        33 => 'ActionsControl',
+        34 => 'BoolControl',
+        35 => 'DateControl',
+        36 => 'DateTimeControl',
+        37 => 'EmailControl',
+        38 => 'EnumControl',
+        39 => 'EnumRadioControl',
+        40 => 'FieldControl',
+        41 => 'FieldSetControl',
+        42 => 'FloatControl',
+        43 => 'HiddenControl',
+        44 => 'HistoryControl',
+        45 => 'InfoControl',
+        46 => 'ListControl',
+        47 => 'ModManControl',
+        48 => 'NodeLinkControl',
+        49 => 'NumberControl',
+        50 => 'PagerControl',
+        51 => 'PasswordControl',
+        52 => 'ResetControl',
+        53 => 'SectionControl',
+        54 => 'SectionsControl',
+        55 => 'SetControl',
+        56 => 'SubmitControl',
+        57 => 'TableControl',
+        58 => 'TextAreaControl',
+        59 => 'TextHTMLControl',
+        60 => 'TextLineControl',
+        61 => 'URLControl',
+        62 => 'BadRequestException',
+        63 => 'DuplicateException',
+        64 => 'ForbiddenException',
+        65 => 'NoIndexException',
+        66 => 'NotConnectedException',
+        67 => 'NotInstalledException',
+        68 => 'ObjectNotFoundException',
+        69 => 'PageNotFoundException',
+        70 => 'UnauthorizedException',
+        71 => 'UserErrorException',
+        72 => 'ValidationException',
+        73 => 'WidgetHaltedException',
+        74 => 'DomainNode',
+        75 => 'FeedbackNode',
+        76 => 'FileNode',
+        77 => 'GroupNode',
+        78 => 'TagNode',
+        79 => 'TypeNode',
+        80 => 'UserNode',
+        81 => 'WidgetNode',
+        82 => 'ArchiveWidget',
+        83 => 'DocWidget',
+        84 => 'FormWidget',
+        85 => 'LinkedNodesWidget',
+        86 => 'ListWidget',
+        87 => 'MenuWidget',
+        88 => 'TagCloudWidget',
+        89 => 'TagsWidget',
+        90 => 'TitleWidget',
+        91 => 'UserWidget',
       ),
-      'interfaces' => array (
-        'iScheduler',
-        'iModuleConfig',
-        'iNodeHook',
-        'iRemoteCall',
-        'iFormControl',
-        'iContentType',
-        'iWidget',
+      'interfaces' => 
+      array (
+        0 => 'iScheduler',
+        1 => 'iModuleConfig',
+        2 => 'iNodeHook',
+        3 => 'iRemoteCall',
+        4 => 'iFormControl',
+        5 => 'iContentType',
+        6 => 'iWidget',
       ),
-      'implementors' => array (
-        'iScheduler' => array (
-          'BaseCron',
-          'TypeNode',
+      'implementors' => 
+      array (
+        'iScheduler' => 
+        array (
+          0 => 'BaseCron',
+          1 => 'TypeNode',
         ),
-        'iModuleConfig' => array (
-          'BaseModule',
-          'TypeNode',
+        'iModuleConfig' => 
+        array (
+          0 => 'BaseModule',
+          1 => 'TypeNode',
         ),
-        'iNodeHook' => array (
-          'BaseModule',
+        'iNodeHook' => 
+        array (
+          0 => 'BaseModule',
         ),
-        'iRemoteCall' => array (
-          'BaseRPC',
+        'iRemoteCall' => 
+        array (
+          0 => 'BaseRPC',
         ),
-        'iFormControl' => array (
-          'Control',
-          'Form',
-          'AccessControl',
-          'AccessRevControl',
-          'ActionsControl',
-          'BoolControl',
-          'DateControl',
-          'DateTimeControl',
-          'EmailControl',
-          'EnumControl',
-          'EnumRadioControl',
-          'FieldControl',
-          'FieldSetControl',
-          'FloatControl',
-          'HiddenControl',
-          'HistoryControl',
-          'InfoControl',
-          'ListControl',
-          'NodeLinkControl',
-          'NumberControl',
-          'PagerControl',
-          'PasswordControl',
-          'ResetControl',
-          'SectionControl',
-          'SectionsControl',
-          'SetControl',
-          'SubmitControl',
-          'TableControl',
-          'TextAreaControl',
-          'TextHTMLControl',
-          'TextLineControl',
-          'URLControl',
+        'iFormControl' => 
+        array (
+          0 => 'Control',
+          1 => 'Form',
+          2 => 'AccessControl',
+          3 => 'AccessRevControl',
+          4 => 'ActionsControl',
+          5 => 'BoolControl',
+          6 => 'DateControl',
+          7 => 'DateTimeControl',
+          8 => 'EmailControl',
+          9 => 'EnumControl',
+          10 => 'EnumRadioControl',
+          11 => 'FieldControl',
+          12 => 'FieldSetControl',
+          13 => 'FloatControl',
+          14 => 'HiddenControl',
+          15 => 'HistoryControl',
+          16 => 'InfoControl',
+          17 => 'ListControl',
+          18 => 'ModManControl',
+          19 => 'NodeLinkControl',
+          20 => 'NumberControl',
+          21 => 'PagerControl',
+          22 => 'PasswordControl',
+          23 => 'ResetControl',
+          24 => 'SectionControl',
+          25 => 'SectionsControl',
+          26 => 'SetControl',
+          27 => 'SubmitControl',
+          28 => 'TableControl',
+          29 => 'TextAreaControl',
+          30 => 'TextHTMLControl',
+          31 => 'TextLineControl',
+          32 => 'URLControl',
         ),
-        'iContentType' => array (
-          'Node',
-          'Node',
-          'DomainNode',
-          'DomainNode',
-          'FeedbackNode',
-          'FileNode',
-          'FileNode',
-          'GroupNode',
-          'GroupNode',
-          'TagNode',
-          'TagNode',
-          'TypeNode',
-          'TypeNode',
-          'UserNode',
-          'UserNode',
-          'WidgetNode',
-          'WidgetNode',
+        'iContentType' => 
+        array (
+          0 => 'Node',
+          1 => 'Node',
+          2 => 'DomainNode',
+          3 => 'DomainNode',
+          4 => 'FeedbackNode',
+          5 => 'FileNode',
+          6 => 'FileNode',
+          7 => 'GroupNode',
+          8 => 'GroupNode',
+          9 => 'TagNode',
+          10 => 'TagNode',
+          11 => 'TypeNode',
+          12 => 'TypeNode',
+          13 => 'UserNode',
+          14 => 'UserNode',
+          15 => 'WidgetNode',
+          16 => 'WidgetNode',
         ),
-        'iWidget' => array (
-          'Widget',
-          'ArchiveWidget',
-          'ArchiveWidget',
-          'DocWidget',
-          'DocWidget',
-          'FormWidget',
-          'LinkedNodesWidget',
-          'ListWidget',
-          'MenuWidget',
-          'MenuWidget',
-          'TagCloudWidget',
-          'TagCloudWidget',
-          'TagsWidget',
-          'TagsWidget',
-          'TitleWidget',
-          'UserWidget',
-          'UserWidget',
+        'iWidget' => 
+        array (
+          0 => 'Widget',
+          1 => 'ArchiveWidget',
+          2 => 'ArchiveWidget',
+          3 => 'DocWidget',
+          4 => 'DocWidget',
+          5 => 'FormWidget',
+          6 => 'LinkedNodesWidget',
+          7 => 'ListWidget',
+          8 => 'MenuWidget',
+          9 => 'MenuWidget',
+          10 => 'TagCloudWidget',
+          11 => 'TagCloudWidget',
+          12 => 'TagsWidget',
+          13 => 'TagsWidget',
+          14 => 'TitleWidget',
+          15 => 'UserWidget',
+          16 => 'UserWidget',
         ),
       ),
     ),
-    'blog' => array (
+    'blog' => 
+    array (
       'section' => 'blog',
       'priority' => 'optional',
       'version' => '1.0',
@@ -268,7 +293,8 @@ return array (
       'name' => 'Organizes content submitted by users in blogs, accessible by user name.',
       'name.ru' => 'Предоставляет доступ к пользовательскому контенту в виде блога.',
     ),
-    'captcha' => array (
+    'captcha' => 
+    array (
       'section' => 'spam',
       'priority' => 'optional',
       'version' => '1.0',
@@ -276,7 +302,8 @@ return array (
       'name' => 'Blocks SPAM by requiring anonymous users to read a picture.',
       'name.ru' => 'Блокирует спам, заставляя анонимных пользователей вводить символы с картинки.',
     ),
-    'cart' => array (
+    'cart' => 
+    array (
       'section' => 'commerce',
       'priority' => 'optional',
       'version' => '1.0',
@@ -285,7 +312,8 @@ return array (
       'name' => 'Simple shopping cart, sends orders by email.',
       'name.ru' => 'Простая корзина для покупок, отправляет заказы на электронную почту.',
     ),
-    'comment' => array (
+    'comment' => 
+    array (
       'section' => 'interaction',
       'priority' => 'optional',
       'version' => '1.0',
@@ -295,7 +323,8 @@ return array (
       'name' => 'Provides widgets for showing and adding comments.',
       'name.ru' => 'Виджеты для просмотра и добавления комментариев.',
     ),
-    'compressor' => array (
+    'compressor' => 
+    array (
       'section' => 'performance',
       'priority' => 'optional',
       'version' => '1.0',
@@ -303,24 +332,30 @@ return array (
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_comment',
       'name' => 'Compresses JavaScript and CSS files to speed up page loading.',
       'name.ru' => 'Компрессор JavaScript и CSS файлов, уменьшает время загрузки страниц.',
-      'classes' => array (
-        'CompressorModule',
-        'CompressorSettings',
+      'classes' => 
+      array (
+        0 => 'CompressorModule',
+        1 => 'CompressorSettings',
       ),
-      'interfaces' => array (
-        'iRemoteCall',
-        'iModuleConfig',
+      'interfaces' => 
+      array (
+        0 => 'iRemoteCall',
+        1 => 'iModuleConfig',
       ),
-      'implementors' => array (
-        'iRemoteCall' => array (
-          'CompressorModule',
+      'implementors' => 
+      array (
+        'iRemoteCall' => 
+        array (
+          0 => 'CompressorModule',
         ),
-        'iModuleConfig' => array (
-          'CompressorSettings',
+        'iModuleConfig' => 
+        array (
+          0 => 'CompressorSettings',
         ),
       ),
     ),
-    'cron' => array (
+    'cron' => 
+    array (
       'section' => 'base',
       'priority' => 'optional',
       'version' => '1.0',
@@ -329,7 +364,8 @@ return array (
       'name' => 'Task scheduler, allows other modules to run periodic tasks.',
       'name.ru' => 'Позволяет другим модулям выполнять задачи по расписанию.',
     ),
-    'drawtext' => array (
+    'drawtext' => 
+    array (
       'section' => 'base',
       'priority' => 'optional',
       'version' => '1.0',
@@ -337,7 +373,8 @@ return array (
       'name' => 'Text rasterization module.',
       'name.ru' => 'Растеризация текста.',
     ),
-    'exchange' => array (
+    'exchange' => 
+    array (
       'section' => 'base',
       'priority' => 'optional',
       'version' => '1.0',
@@ -345,7 +382,8 @@ return array (
       'name' => 'Lets you back up the web site or restore it from a backup.',
       'name.ru' => 'Резервное копирование и восстановление сайта.',
     ),
-    'getid3' => array (
+    'getid3' => 
+    array (
       'section' => 'service',
       'priority' => 'optional',
       'version' => '1.0',
@@ -353,7 +391,8 @@ return array (
       'name' => 'ID3 tag library.',
       'name.ru' => 'Доступ к метаданным файлов (mp3, swf итд).',
     ),
-    'googleanalytics' => array (
+    'googleanalytics' => 
+    array (
       'section' => 'service',
       'priority' => 'optional',
       'version' => '1.0',
@@ -362,7 +401,8 @@ return array (
       'name' => 'Gather statistics with Google Analytics.',
       'name.ru' => 'Сбор статистики с помощью Google Analytics.',
     ),
-    'imgtoolkit' => array (
+    'imgtoolkit' => 
+    array (
       'section' => 'base',
       'priority' => 'optional',
       'version' => '1.0',
@@ -371,7 +411,8 @@ return array (
       'name' => 'Image processing library.',
       'name.ru' => 'Библиотека для обработки изображений.',
     ),
-    'install' => array (
+    'install' => 
+    array (
       'section' => 'base',
       'priority' => 'optional',
       'version' => '1.0',
@@ -379,7 +420,8 @@ return array (
       'name' => 'Molinos CMS Installer.',
       'name.ru' => 'Установщик Molinos CMS.',
     ),
-    'maintenance' => array (
+    'maintenance' => 
+    array (
       'section' => 'admin',
       'priority' => 'optional',
       'version' => '1.0',
@@ -388,7 +430,8 @@ return array (
       'name' => 'Disables the web site for maintenance.',
       'name.ru' => 'Отключение сайта для технических работ.',
     ),
-    'mimemail' => array (
+    'mimemail' => 
+    array (
       'section' => 'base',
       'priority' => 'optional',
       'version' => '1.0',
@@ -396,7 +439,8 @@ return array (
       'name' => 'HTML mail sender.',
       'name.ru' => 'Отправка почты в HTML.',
     ),
-    'moderator' => array (
+    'moderator' => 
+    array (
       'section' => 'admin',
       'priority' => 'optional',
       'version' => '1.0',
@@ -405,7 +449,8 @@ return array (
       'name' => 'Lets you review content submitted by users.',
       'name.ru' => 'Премодерирация пользовательского контента.',
     ),
-    'msg' => array (
+    'msg' => 
+    array (
       'section' => 'interaction',
       'priority' => 'optional',
       'version' => '1.0',
@@ -413,7 +458,8 @@ return array (
       'name' => 'Private messaging for users.',
       'name.ru' => 'Система обмена сообщениями между пользователями.',
     ),
-    'nodeapi' => array (
+    'nodeapi' => 
+    array (
       'section' => 'core',
       'priority' => 'required',
       'version' => '1.0',
@@ -422,26 +468,32 @@ return array (
       'name' => 'Required for all editing operations.',
       'name.ru' => 'API для работы с документами.',
       'enabled' => true,
-      'classes' => array (
-        'NodeApiModule',
+      'classes' => 
+      array (
+        0 => 'NodeApiModule',
       ),
-      'interfaces' => array (
-        'iRemoteCall',
+      'interfaces' => 
+      array (
+        0 => 'iRemoteCall',
       ),
-      'implementors' => array (
-        'iRemoteCall' => array (
-          'NodeApiModule',
+      'implementors' => 
+      array (
+        'iRemoteCall' => 
+        array (
+          0 => 'NodeApiModule',
         ),
       ),
     ),
-    'openid' => array (
+    'openid' => 
+    array (
       'section' => 'base',
       'priority' => 'optional',
       'version' => '1.0',
       'name' => 'Lets your visitors log in using OpenID.',
       'name.ru' => 'Позволяет пользователям авторизовываться с помощью OpenID.',
     ),
-    'pdo' => array (
+    'pdo' => 
+    array (
       'section' => 'core',
       'priority' => 'required',
       'version' => '1.0',
@@ -449,27 +501,29 @@ return array (
       'name' => 'Database drivers.',
       'name.ru' => 'Драйверы для доступа к базам данных.',
       'enabled' => true,
-      'classes' => array (
-        'DBSchema_node',
-        'DBSchema_node__access',
-        'DBSchema_node__fallback',
-        'DBSchema_node__log',
-        'DBSchema_node__poll',
-        'DBSchema_node__rel',
-        'DBSchema_node__rev',
-        'DBSchema_node__seq',
-        'DBSchema_node__session',
-        'mcms_mysql_driver',
-        'mcms_sqlite_driver',
-        'PDO_Singleton',
-        'TableInfo',
-        'TableManager',
-        'McmsPDOException',
-        'ReadOnlyDatabaseException',
-        'TableNotFoundException',
+      'classes' => 
+      array (
+        0 => 'DBSchema_node',
+        1 => 'DBSchema_node__access',
+        2 => 'DBSchema_node__fallback',
+        3 => 'DBSchema_node__log',
+        4 => 'DBSchema_node__poll',
+        5 => 'DBSchema_node__rel',
+        6 => 'DBSchema_node__rev',
+        7 => 'DBSchema_node__seq',
+        8 => 'DBSchema_node__session',
+        9 => 'mcms_mysql_driver',
+        10 => 'mcms_sqlite_driver',
+        11 => 'PDO_Singleton',
+        12 => 'TableInfo',
+        13 => 'TableManager',
+        14 => 'McmsPDOException',
+        15 => 'ReadOnlyDatabaseException',
+        16 => 'TableNotFoundException',
       ),
     ),
-    'playlist' => array (
+    'playlist' => 
+    array (
       'section' => 'multimedia',
       'priority' => 'optional',
       'version' => '1.0',
@@ -478,7 +532,8 @@ return array (
       'name' => 'XSPF Playlist Generator.',
       'name.ru' => 'Генератор XSPF плэйлистов.',
     ),
-    'poll' => array (
+    'poll' => 
+    array (
       'section' => 'interaction',
       'priority' => 'optional',
       'version' => '1.0',
@@ -487,7 +542,8 @@ return array (
       'name' => 'Poll your visitors.',
       'name.ru' => 'Опрос пользователей.',
     ),
-    'rating' => array (
+    'rating' => 
+    array (
       'section' => 'interaction',
       'priority' => 'optional',
       'version' => '1.0',
@@ -496,7 +552,8 @@ return array (
       'name' => 'Provides your visitors with tools to rate web site\'s contents.',
       'name.ru' => 'Позволяет пользователям оценивать контент сайта.',
     ),
-    'robots' => array (
+    'robots' => 
+    array (
       'section' => 'base',
       'priority' => 'optional',
       'version' => '1.0',
@@ -505,7 +562,8 @@ return array (
       'name' => 'Control over Web Crawlers.',
       'name.ru' => 'Управление веб-роботами.',
     ),
-    'rss' => array (
+    'rss' => 
+    array (
       'section' => 'syndication',
       'priority' => 'optional',
       'version' => '1.0',
@@ -514,7 +572,8 @@ return array (
       'name' => 'Export your content with RSS.',
       'name.ru' => 'Экспорт вашего контента в RSS.',
     ),
-    'search' => array (
+    'search' => 
+    array (
       'section' => 'base',
       'priority' => 'optional',
       'version' => '1.0',
@@ -523,7 +582,8 @@ return array (
       'name' => 'Widgets for searching the web site with mnoGoSearch or Google AJAX Search.',
       'name.ru' => 'Виджеты для поиска по сайту средствами mnoGoSearch или Google AJAX Search.',
     ),
-    'sitemap' => array (
+    'sitemap' => 
+    array (
       'section' => 'syndication',
       'priority' => 'optional',
       'version' => '1.0',
@@ -532,7 +592,8 @@ return array (
       'name' => 'Creates a sitemap and submits to Google.',
       'name.ru' => 'Составляет карту сайта и отправляет в Google.',
     ),
-    'smarty' => array (
+    'smarty' => 
+    array (
       'section' => 'templating',
       'priority' => 'optional',
       'version' => '1.0',
@@ -541,7 +602,8 @@ return array (
       'name' => 'Smarty template engine.',
       'name.ru' => 'Поддержка шаблонов на Smarty.',
     ),
-    'subscription' => array (
+    'subscription' => 
+    array (
       'section' => 'interaction',
       'priority' => 'optional',
       'version' => '1.0',
@@ -550,7 +612,8 @@ return array (
       'name' => 'Send updates to subscribed users via email.',
       'name.ru' => 'Рассылка новостей по почте подписанным пользователям.',
     ),
-    'syslog' => array (
+    'syslog' => 
+    array (
       'section' => 'admin',
       'priority' => 'optional',
       'version' => '1.0',
@@ -559,7 +622,8 @@ return array (
       'name' => 'Logs who, when and what does to your web site\'s content.',
       'name.ru' => 'Протоколирует все операции над контентом сайта.',
     ),
-    'tinymce' => array (
+    'tinymce' => 
+    array (
       'section' => 'visual',
       'priority' => 'optional',
       'version' => '1.0',
@@ -567,23 +631,29 @@ return array (
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/mod_tinymce',
       'name' => 'Popular WYSIWYG editor.',
       'name.ru' => 'Популярный WYSIWYG текстовый редактор.',
-      'classes' => array (
-        'TinyMceModule',
+      'classes' => 
+      array (
+        0 => 'TinyMceModule',
       ),
-      'interfaces' => array (
-        'iModuleConfig',
-        'iPageHook',
+      'interfaces' => 
+      array (
+        0 => 'iModuleConfig',
+        1 => 'iPageHook',
       ),
-      'implementors' => array (
-        'iModuleConfig' => array (
-          'TinyMceModule',
+      'implementors' => 
+      array (
+        'iModuleConfig' => 
+        array (
+          0 => 'TinyMceModule',
         ),
-        'iPageHook' => array (
-          'TinyMceModule',
+        'iPageHook' => 
+        array (
+          0 => 'TinyMceModule',
         ),
       ),
     ),
-    'todo' => array (
+    'todo' => 
+    array (
       'section' => 'interaction',
       'priority' => 'optional',
       'version' => '1.0',
@@ -591,7 +661,8 @@ return array (
       'name' => 'ToDo lists for users.',
       'name.ru' => 'Списки задач для пользователей.',
     ),
-    'update' => array (
+    'update' => 
+    array (
       'section' => 'core',
       'priority' => 'required',
       'version' => '1.0',
@@ -599,33 +670,42 @@ return array (
       'name' => 'Automatically updates your system.',
       'name.ru' => 'Автоматическое обновление системы.',
       'enabled' => true,
-      'classes' => array (
-        'UpdateMenu',
-        'Updater',
-        'UpdateScheduler',
+      'classes' => 
+      array (
+        0 => 'UpdateMenu',
+        1 => 'Updater',
+        2 => 'UpdateScheduler',
+        3 => 'UpdateUI',
       ),
-      'interfaces' => array (
-        'iAdminMenu',
-        'iAdminUI',
-        'iRemoteCall',
-        'iScheduler',
+      'interfaces' => 
+      array (
+        0 => 'iAdminMenu',
+        1 => 'iRemoteCall',
+        2 => 'iScheduler',
+        3 => 'iAdminUI',
       ),
-      'implementors' => array (
-        'iAdminMenu' => array (
-          'UpdateMenu',
+      'implementors' => 
+      array (
+        'iAdminMenu' => 
+        array (
+          0 => 'UpdateMenu',
         ),
-        'iAdminUI' => array (
-          'Updater',
+        'iRemoteCall' => 
+        array (
+          0 => 'Updater',
         ),
-        'iRemoteCall' => array (
-          'Updater',
+        'iScheduler' => 
+        array (
+          0 => 'UpdateScheduler',
         ),
-        'iScheduler' => array (
-          'UpdateScheduler',
+        'iAdminUI' => 
+        array (
+          0 => 'UpdateUI',
         ),
       ),
     ),
-    'xmlimport' => array (
+    'xmlimport' => 
+    array (
       'section' => 'syndication',
       'priority' => 'optional',
       'version' => '1.0',
@@ -634,7 +714,8 @@ return array (
       'name.ru' => 'Импорт контента с других сайтов через XML.',
     ),
   ),
-  'classes' => array (
+  'classes' => 
+  array (
     'accesscontrol' => 'lib/modules/base/control.access.php',
     'accessrevcontrol' => 'lib/modules/base/control.accessrev.php',
     'actionscontrol' => 'lib/modules/base/control.actions.php',
@@ -680,6 +761,8 @@ return array (
     'groupnode' => 'lib/modules/base/node.group.php',
     'hiddencontrol' => 'lib/modules/base/control.hidden.php',
     'historycontrol' => 'lib/modules/base/control.history.php',
+    'html' => 'lib/modules/base/class.html.php',
+    'http' => 'lib/modules/base/class.http.php',
     'iadminmenu' => 'lib/modules/base/interface.adminmenu.php',
     'icontenttype' => 'lib/modules/base/interface.contenttype.php',
     'iformcontrol' => 'lib/modules/base/interface.formcontrol.php',
@@ -701,6 +784,8 @@ return array (
     'mcms_sqlite_driver' => 'lib/modules/pdo/class.mcms_sqlite_driver.php',
     'mcmspdoexception' => 'lib/modules/pdo/exception.mcmspdo.php',
     'menuwidget' => 'lib/modules/base/widget.menu.php',
+    'modman' => 'lib/modules/base/class.modman.php',
+    'modmancontrol' => 'lib/modules/base/control.modman.php',
     'node' => 'lib/modules/base/class.node.php',
     'nodeapimodule' => 'lib/modules/nodeapi/class.nodeapimodule.php',
     'nodebase' => 'lib/modules/base/class.nodebase.php',
@@ -747,6 +832,7 @@ return array (
     'updatemenu' => 'lib/modules/update/class.updatemenu.php',
     'updater' => 'lib/modules/update/class.updater.php',
     'updatescheduler' => 'lib/modules/update/class.updatescheduler.php',
+    'updateui' => 'lib/modules/update/class.updateui.php',
     'url' => 'lib/modules/base/class.url.php',
     'urlcontrol' => 'lib/modules/base/control.url.php',
     'user' => 'lib/modules/auth/class.user.php',
@@ -759,96 +845,109 @@ return array (
     'widgetnode' => 'lib/modules/base/node.widget.php',
     'zip' => 'lib/modules/base/class.zip.php',
   ),
-  'interfaces' => array (
-    'iadminmenu' => array (
-      'updatemenu',
+  'interfaces' => 
+  array (
+    'iadminmenu' => 
+    array (
+      0 => 'updatemenu',
     ),
-    'iadminui' => array (
-      'updater',
+    'iadminui' => 
+    array (
+      0 => 'updateui',
     ),
-    'icontenttype' => array (
-      'domainnode',
-      'feedbacknode',
-      'filenode',
-      'groupnode',
-      'node',
-      'tagnode',
-      'typenode',
-      'usernode',
-      'widgetnode',
+    'icontenttype' => 
+    array (
+      0 => 'domainnode',
+      1 => 'feedbacknode',
+      2 => 'filenode',
+      3 => 'groupnode',
+      4 => 'node',
+      5 => 'tagnode',
+      6 => 'typenode',
+      7 => 'usernode',
+      8 => 'widgetnode',
     ),
-    'iformcontrol' => array (
-      'accesscontrol',
-      'accessrevcontrol',
-      'actionscontrol',
-      'boolcontrol',
-      'control',
-      'datecontrol',
-      'datetimecontrol',
-      'emailcontrol',
-      'enumcontrol',
-      'enumradiocontrol',
-      'fieldcontrol',
-      'fieldsetcontrol',
-      'floatcontrol',
-      'form',
-      'hiddencontrol',
-      'historycontrol',
-      'infocontrol',
-      'listcontrol',
-      'nodelinkcontrol',
-      'numbercontrol',
-      'pagercontrol',
-      'passwordcontrol',
-      'resetcontrol',
-      'sectioncontrol',
-      'sectionscontrol',
-      'setcontrol',
-      'submitcontrol',
-      'tablecontrol',
-      'textareacontrol',
-      'texthtmlcontrol',
-      'textlinecontrol',
-      'urlcontrol',
+    'iformcontrol' => 
+    array (
+      0 => 'accesscontrol',
+      1 => 'accessrevcontrol',
+      2 => 'actionscontrol',
+      3 => 'boolcontrol',
+      4 => 'control',
+      5 => 'datecontrol',
+      6 => 'datetimecontrol',
+      7 => 'emailcontrol',
+      8 => 'enumcontrol',
+      9 => 'enumradiocontrol',
+      10 => 'fieldcontrol',
+      11 => 'fieldsetcontrol',
+      12 => 'floatcontrol',
+      13 => 'form',
+      14 => 'hiddencontrol',
+      15 => 'historycontrol',
+      16 => 'infocontrol',
+      17 => 'listcontrol',
+      18 => 'modmancontrol',
+      19 => 'nodelinkcontrol',
+      20 => 'numbercontrol',
+      21 => 'pagercontrol',
+      22 => 'passwordcontrol',
+      23 => 'resetcontrol',
+      24 => 'sectioncontrol',
+      25 => 'sectionscontrol',
+      26 => 'setcontrol',
+      27 => 'submitcontrol',
+      28 => 'tablecontrol',
+      29 => 'textareacontrol',
+      30 => 'texthtmlcontrol',
+      31 => 'textlinecontrol',
+      32 => 'urlcontrol',
     ),
-    'imoduleconfig' => array (
-      'basemodule',
-      'compressorsettings',
-      'tinymcemodule',
-      'typenode',
+    'imoduleconfig' => 
+    array (
+      0 => 'basemodule',
+      1 => 'compressorsettings',
+      2 => 'tinymcemodule',
+      3 => 'typenode',
     ),
-    'inodehook' => array (
-      'basemodule',
+    'inodehook' => 
+    array (
+      0 => 'basemodule',
     ),
-    'ipagehook' => array (
-      'tinymcemodule',
+    'ipagehook' => 
+    array (
+      0 => 'tinymcemodule',
     ),
-    'iremotecall' => array (
-      'baserpc',
-      'compressormodule',
-      'nodeapimodule',
-      'updater',
+    'iremotecall' => 
+    array (
+      0 => 'baserpc',
+      1 => 'compressormodule',
+      2 => 'nodeapimodule',
+      3 => 'updater',
     ),
-    'ischeduler' => array (
-      'basecron',
-      'typenode',
-      'updatescheduler',
+    'ischeduler' => 
+    array (
+      0 => 'basecron',
+      1 => 'typenode',
+      2 => 'updatescheduler',
     ),
-    'iwidget' => array (
-      'archivewidget',
-      'docwidget',
-      'formwidget',
-      'linkednodeswidget',
-      'listwidget',
-      'menuwidget',
-      'tagcloudwidget',
-      'tagswidget',
-      'titlewidget',
-      'userwidget',
-      'widget',
+    'iwidget' => 
+    array (
+      0 => 'archivewidget',
+      1 => 'docwidget',
+      2 => 'formwidget',
+      3 => 'linkednodeswidget',
+      4 => 'listwidget',
+      5 => 'menuwidget',
+      6 => 'tagcloudwidget',
+      7 => 'tagswidget',
+      8 => 'titlewidget',
+      9 => 'userwidget',
+      10 => 'widget',
     ),
   ),
-  'rclasses' => array (
+  'rclasses' => 
+  array (
     'user' => 'auth',
     'basecron' => 'base',
     'basemodule' => 'base',
@@ -860,9 +959,12 @@ return array (
     'control' => 'base',
     'debugger' => 'base',
     'form' => 'base',
+    'html' => 'base',
+    'http' => 'base',
     'ini' => 'base',
     'installer' => 'base',
     'mcms' => 'base',
+    'modman' => 'base',
     'node' => 'base',
     'nodebase' => 'base',
     'nodemover' => 'base',
@@ -894,6 +996,7 @@ return array (
     'historycontrol' => 'base',
     'infocontrol' => 'base',
     'listcontrol' => 'base',
+    'modmancontrol' => 'base',
     'nodelinkcontrol' => 'base',
     'numbercontrol' => 'base',
     'pagercontrol' => 'base',
@@ -972,5 +1075,6 @@ return array (
     'updatemenu' => 'update',
     'updater' => 'update',
     'updatescheduler' => 'update',
+    'updateui' => 'update',
   ),
 );

@@ -600,7 +600,7 @@ class FileNode extends Node implements iContentType
       $type = $headers['Content-Type'];
 
     $node = $node->import($i = array(
-      'tmp_name' => mcms_fetch_file($url, false),
+      'tmp_name' => http::fetch($url),
       'name' => $name,
       'type' => $type,
       ), false);

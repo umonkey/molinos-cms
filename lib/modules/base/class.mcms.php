@@ -617,7 +617,7 @@ class mcms
 
     case self::VERSION_AVAILABLE:
       $release = self::version(self::VERSION_RELEASE);
-      $content = mcms_fetch_file('http://code.google.com/p/molinos-cms/downloads/list?q=label:R'. $release);
+      $content = http::fetch('http://code.google.com/p/molinos-cms/downloads/list?q=label:R'. $release, http::CONTENT);
 
       if (preg_match($re = "@http://molinos-cms\.googlecode\.com/files/molinos-cms-({$release}\.[0-9]+)\.zip@", $content, $m))
         return $m[1];

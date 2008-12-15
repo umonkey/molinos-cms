@@ -65,7 +65,7 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
 
             foreach ($hosts as $host) {
               mcms::flog('sitemap', 'pinging '. $host .' with '. $sm);
-              mcms_fetch_file('http://'. $host .'/ping?sitemap='. urlencode($sm), true, false);
+              http::fetch('http://'. $host .'/ping?sitemap='. urlencode($sm), http::CONTENT | http::NO_CACHE);
             }
           }
         }

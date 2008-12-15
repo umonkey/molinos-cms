@@ -11,7 +11,7 @@ class UpdateScheduler implements iScheduler
       .'molinos-cms-'. $a .'.zip';
 
     try {
-      if ($filename = mcms_fetch_file($url, false)) {
+      if ($filename = http::fetch($url, http::CONTENT)) {
         $tmp = mcms::config('tmpdir') .'/update.txt';
 
         file_put_contents($tmp, $a .','. $tmp);
@@ -29,8 +29,8 @@ class UpdateScheduler implements iScheduler
   private static function getAvailable()
   {
     $release = mcms::version(mcms::VERSION_RELEASE);
-    $content = mcms_fetch_file('http://code.google.com/p/molinos-cms'
-      .'/downloads/list?q=label:R'. $release);
+    $content = http::fetch('http://code.google.com/p/molinos-cms'
+      .'/downloads/list?q=label:R'. $release, http::CONTENT);
 
     if (preg_match($re = "@http://molinos-cms\.googlecode\.com/files/molinos-cms-({$release}\.[0-9]+)\.zip@", $content, $m))
       return $m[1];
