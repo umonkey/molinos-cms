@@ -157,7 +157,7 @@ class StructureMA
       . "WHERE `n`.`deleted` = 0 AND `n`.`class` = 'type'");
 
     // Добавляем типы, известные только по классам.
-    foreach (mcms::getImplementors('iContentType') as $class) {
+    foreach (Loader::getImplementors('iContentType') as $class) {
       if ('' !== ($name = strtolower(substr($class, 0, -4)))) {
         if (!in_array($name, $types))
           $types[] = $name;

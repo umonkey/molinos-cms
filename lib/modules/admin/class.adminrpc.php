@@ -174,7 +174,7 @@ class AdminRPC implements iRemoteCall
     if (null === ($module = $ctx->get('module')))
       $result['content'] = self::onGetInternal($ctx);
 
-    elseif (!count($classes = mcms::getImplementors('iAdminUI', $module))) {
+    elseif (!count($classes = Loader::getImplementors('iAdminUI', $module))) {
       throw new PageNotFoundException(t('Запрошенный модуль (%name) '
         .'не поддерживает работу с административным интерфейсом.',
           array('%name' => $module)));

@@ -131,7 +131,7 @@ class WidgetNode extends Node implements iContentType
   {
     $classes = array();
 
-    foreach (mcms::getImplementors('iWidget') as $classname) {
+    foreach (Loader::getImplementors('iWidget') as $classname) {
       if ($classname != 'widget' and substr($classname, -11) != 'adminwidget') {
         $info = Widget::getInfo($classname);
         if (empty($info['hidden']) and !empty($info['name'])) {
