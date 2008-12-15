@@ -483,7 +483,7 @@ class AdminRPC implements iRemoteCall
     }
 
     $tmp = new ModuleAdminUI();
-    return $tmp->getList();
+    return $tmp->getList($ctx);
   }
 
   private static function onGetModuleInfo($name)
