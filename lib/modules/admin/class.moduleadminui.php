@@ -41,7 +41,6 @@ class ModuleAdminUI
           'check',
           'settings',
           'name',
-          'version',
           ),
         ),
       'submit' => array(
