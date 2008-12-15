@@ -93,4 +93,14 @@ class html
 
     return $result;
   }
+
+  public static function simpleList(array $elements)
+  {
+    $result = '';
+
+    foreach ($elements as $em)
+      $result .= self::em('li', htmlspecialchars($em));
+
+    return $result;
+  }
 }
