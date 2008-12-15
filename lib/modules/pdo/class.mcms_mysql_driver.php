@@ -104,7 +104,7 @@ class mcms_mysql_driver extends PDO_Singleton
           $re = '@(FROM|UPDATE|JOIN|INTO)\s+`([^`]+)`@i';
 
           if (!preg_match_all($re, $sql, $m)) {
-            mcms::flog('mysql', 'could not find table names in SQL');
+            mcms::flog('could not find table names in SQL');
           } else {
             TableManager::upgradeTables($m[2]);
           }

@@ -46,7 +46,7 @@ class BaseRPC implements iRemoteCall
             $node->save();
 
             User::authorize($node->name, null, true);
-            mcms::flog('auth', $node->name .': logged in using otp');
+            mcms::flog($node->name .': logged in using otp');
 
             return $ctx->getRedirect();
           }

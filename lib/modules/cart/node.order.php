@@ -29,7 +29,7 @@ class OrderNode extends Node implements iContentType
   protected function sendEmail($to, $mode)
   {
     if (empty($to)) {
-      mcms::flog('cart', $mode . ' not sent: email not found');
+      mcms::flog($mode . ' not sent: email not found');
       return;
     }
 

@@ -272,7 +272,7 @@ class PDO_Singleton extends PDO
       parent::beginTransaction();
       $this->transaction = true;
       $this->log('-- transaction: begin --');
-      // mcms::flog('pdo', 'transaction begins');
+      // mcms::flog('transaction begins');
     } elseif (!$reentrant) {
       // throw new InvalidArgumentException("transaction is already running");
     }
@@ -285,7 +285,7 @@ class PDO_Singleton extends PDO
       parent::rollback();
       $this->transaction = false;
       $this->log('-- transaction: rollback --');
-      // mcms::flog('pdo', 'transaction rolled back');
+      // mcms::flog('transaction rolled back');
     }
   }
 
@@ -296,7 +296,7 @@ class PDO_Singleton extends PDO
       parent::commit();
       $this->transaction = false;
       $this->log('-- transaction: commit --');
-      // mcms::flog('pdo', 'transaction committed');
+      // mcms::flog('transaction committed');
     }
   }
 

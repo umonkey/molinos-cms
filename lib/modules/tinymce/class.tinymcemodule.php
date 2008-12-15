@@ -172,7 +172,7 @@ class TinyMceModule implements iModuleConfig, iPageHook
         $config['theme'] .'.js');
       break;
     default:
-      mcms::flog('tinymce', $config['theme'] .': unknown theme');
+      mcms::flog($config['theme'] .': unknown theme');
     }
   }
 }

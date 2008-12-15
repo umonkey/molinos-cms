@@ -49,7 +49,7 @@ class Loader
       $modname = basename($path);
 
       if (!is_readable($modinfo)) {
-        mcms::flog('bootstrap', $modinfo . ': not readable.');
+        mcms::flog($modinfo . ': not readable.');
         continue;
       }
 

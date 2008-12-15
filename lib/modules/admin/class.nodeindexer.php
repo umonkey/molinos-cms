@@ -92,13 +92,13 @@ class NodeIndexer
             $node->reindex();
           } catch (Exception $e) {
             --$count;
-            mcms::flog('indexed', sprintf('node %u (%s): %s', $id, $class, $e->getMessage()));
+            mcms::flog(sprintf('node %u (%s): %s', $id, $class, $e->getMessage()));
           }
         }
 
         $ctx->db->commit();
 
-        mcms::flog('indexer', sprintf('%u nodes of type %s indexed.', $count, $class));
+        mcms::flog(sprintf('%u nodes of type %s indexed.', $count, $class));
       }
     }
   }
@@ -118,10 +118,10 @@ class NodeIndexer
         $row = $sth1->fetch();
 
         if (empty($row['rid'])) {
-          mcms::flog('indexer', "node {$id} has no revisions, deleting.");
+          mcms::flog("node {$id} has no revisions, deleting.");
           mcms::db()->exec("UPDATE node SET deleted = 1 WHERE id = ?", array($id));
         } else {
-          mcms::flog('indexer', "node {$id} had no rid, setting to {$row['rid']}");
+          mcms::flog("node {$id} had no rid, setting to {$row['rid']}");
           $sth2->execute(array($row['rid'], $id));
         }
 

@@ -208,32 +208,7 @@ class mcms
 
   public static function ismodule($name)
   {
-    static $enabled = null;
-
-    // FIXME: придумать решение по-лучше
-    switch ($name) {
-    case 'admin':
-    case 'attachment':
-    case 'auth':
-    case 'base':
-    case 'cache':
-    case 'cron':
-    case 'exchange':
-    case 'imgtoolkit':
-    case 'install':
-    case 'mimemail':
-    case 'nodeapi':
-    case 'openid':
-    case 'pdo':
-    case 'update':
-    case 'autoupdate':
-      return true;
-    }
-
-    if (null === $enabled)
-      $enabled = mcms::config('runtime.modules');
-
-    return in_array($name, $enabled);
+    return file_exists(os::path('lib', 'modules', $name, 'module.ini'));
   }
 
   public static function flush($flags = null)
@@ -263,7 +238,7 @@ class mcms
   {
     $res = array();
 
-    foreach (self::getImplementors($interface) as $class)
+    foreach (Loader::getImplementors($interface) as $class)
       if (class_exists($class))
         $res[] = call_user_func_array(array($class, $method), $args);
 
@@ -274,34 +249,12 @@ class mcms
   {
     $res = false;
 
-    foreach (self::getImplementors($interface, $module) as $class) {
+    foreach (Loader::getImplementors($interface, $module) as $class) {
       if (class_exists($class))
         $res = call_user_func_array(array($class, $method), $args);
     }
 
     return $res;
-  }
-
-  /**
-   * Получение списка методов, обрабатывающих вызов.
-   */
-  public static function getImplementors($interface, $module = null)
-  {
-    $list = array();
-
-    if (array_key_exists($if = strtolower($interface), $map = Loader::map('interfaces'))) {
-      $rev = Loader::map('rclasses');
-
-      foreach ($map[$if] as $class) {
-        // Указан конкретный модуль, и текущий класс находится не в нём.
-        if ($module !== null and $rev[$class] != $module)
-          continue;
-
-        $list[] = $class;
-      }
-    }
-
-    return $list;
   }
 
   // Отладочные функции.
@@ -374,14 +327,25 @@ class mcms
     if (mcms::ismodule('syslog'))
       SysLogModule::log($op, $message, $nid);
     else
-      self::flog($op, $message);
+      self::flog($message);
   }
 
-  public static function flog($op, $message)
+  public static function flog($message)
   {
+    $prefix = '';
+
+    if (is_array($trace = debug_backtrace()) and count($trace) >= 2) {
+      $prefix = empty($trace[1]['class'])
+        ? $trace[1]['function']
+        : $trace[1]['class'] . $trace[1]['type'] . $trace[1]['function'] . '()';
+
+      $prefix = '[' . $prefix . '] ';
+    }
+
     if ($message instanceof Exception)
       $message = get_class($message) . ': ' . $message->getMessage();
-    error_log("[{$op}] {$message}", 0);
+
+    error_log($prefix . $message, 0);
   }
 
   public static function report(Exception $e)
@@ -436,11 +400,6 @@ class mcms
   {
     $tmp = self::getModuleMap();
     return $tmp['classes'];
-  }
-
-  public static function getModuleMap($name = null)
-  {
-    return Loader::map();
   }
 
   public static function enableModules(array $list)
@@ -899,7 +858,7 @@ class mcms
     $line = ltrim(str_replace(MCMS_ROOT, '', $frame['file']), '/')
       .'('. $frame['line'] .')';
 
-    mcms::flog('debug', $msg = 'deprecated function '
+    mcms::flog($msg = 'deprecated function '
       .$func .' called from '. $line);
 
     if ($break)
@@ -957,13 +916,9 @@ class mcms
 
   public static function render($filename, array $data)
   {
-    if (!file_exists($filename) and class_exists($filename, false)) {
-      $key = strtolower($filename);
-      $map = self::getClassMap();
-
-      if (array_key_exists($key, $map))
-        $filename = str_replace('.php', '.phtml', $map[$key]);
-    }
+    if (!file_exists($filename) and class_exists($filename, false))
+      if (null !== ($classpath = Loader::getClassPath($filename)))
+        $filename = str_replace('.php', '.phtml', $classpath);
 
     if (!is_readable($filename))
       return false;
@@ -1002,7 +957,7 @@ class mcms
 
           error_reporting($old);
         } else {
-          mcms::flog('smarty', $filename . ': unable to render: Smarty not available.');
+          mcms::flog($filename . ': unable to render: Smarty not available.');
         }
       }
 

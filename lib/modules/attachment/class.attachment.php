@@ -355,7 +355,7 @@ class Attachment
     $result = mcms::config('filestorage') .'/'. $this->node->filepath;
 
     if (!file_exists($result)) {
-      mcms::flog('attachment', "{$this->node->filename} ({$result}) is missing.");
+      mcms::flog("{$this->node->filename} ({$result}) is missing.");
       throw new PageNotFoundException(t('Файл %name не найден в файловом архиве.', array(
         '%name' => $this->node->filename,
         )));

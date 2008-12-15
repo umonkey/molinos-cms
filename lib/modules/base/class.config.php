@@ -159,7 +159,7 @@ class Config
 
     // Удаление старых файлов.
     if (file_exists($old = substr($this->path, 0, -11) . '.ini')) {
-      mcms::flog('config', $old . ': removing (deprecated).');
+      mcms::flog($old . ': removing (deprecated).');
       unlink($old);
     }
   }
