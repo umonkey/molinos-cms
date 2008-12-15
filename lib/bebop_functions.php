@@ -200,8 +200,8 @@ function bebop_get_templates($type, $name, $theme = null, $classname = null)
   // Если класс существует — добавляем его дефолтный шаблон в конец.
   if (null !== $classname) {
     $key = strtolower($classname);
-    if (array_key_exists($key, $classmap = mcms::getClassMap())) {
-      $rp = str_replace('.php', '.phtml', $classmap[$key]);
+    if (null !== ($classpath = Loader::getClassPath($key))) {
+      $rp = str_replace('.php', '.phtml', $classpath);
       if (is_readable($rp))
         $__options[] = $rp;
     }
