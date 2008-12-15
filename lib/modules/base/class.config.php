@@ -76,7 +76,7 @@ class Config
 
     // Ничего не найдено, пытаемся использовать фабричный конфиг.
     if (file_exists($src = 'conf' . DIRECTORY_SEPARATOR . 'default.config.php.dist')) {
-      os::write($dst = 'conf' . DIRECTORY_SEPARATOR . 'default.config.php', file_get_contents($src));
+      os::write($dst = os::path('conf', 'default.config.php'), file_get_contents($src), true);
       return $dst;
     }
 
