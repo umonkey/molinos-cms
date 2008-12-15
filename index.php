@@ -1,5 +1,8 @@
 <?php
 
+// Для включения локального лога расскомментировать:
+// ini_set('error_log', dirname($_SERVER['SCRIPT_FILENAME']) . DIRECTORY_SEPARATOR . 'php.log');
+
 // Расскоментировать для трассировки вызовов.
 // xdebug_start_trace(dirname($_SERVER['SCRIPT_FILENAME']) . DIRECTORY_SEPARATOR . "xdebug.log");
 
