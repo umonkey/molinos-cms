@@ -74,7 +74,6 @@ class modman
       unset($ini['version']);
       if (!empty($ini['name.ru']))
         $ini['name'] = $ini['name.ru'];
-      $ini['configurable'] = count(Loader::getImplementors('iModuleConfig', $name)) > 0;
       $result[$name] = $ini;
     }
 
