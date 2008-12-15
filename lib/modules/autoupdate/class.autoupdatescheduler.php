@@ -15,7 +15,7 @@ class AutoUpdateScheduler implements iScheduler
     $modules = array();
 
     foreach (self::getUrls() as $url) {
-      if (($file = mcms_fetch_file($url, false, false))) {
+      if (($file = http::fetch($url, http::NO_CACHE))) {
         $ini = ini::read($file);
 
         foreach ($ini as $k => $v) {

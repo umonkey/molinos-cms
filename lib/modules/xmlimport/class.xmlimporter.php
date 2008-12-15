@@ -44,7 +44,7 @@ class XmlImporter extends Widget
     $result = array();
 
     if (!empty($this->url)) {
-      if (null !== ($fcont = mcms_fetch_file($options['url'], true))) {
+      if (null !== ($fcont = http::fetch($options['url'], http::CONTENT))) {
         $xmlStream = new SimpleXMLElement($fcont);
         $result = $this->forArray($xmlStream);
       } else {
