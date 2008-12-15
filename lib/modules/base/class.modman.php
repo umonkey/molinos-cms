@@ -88,6 +88,7 @@ class modman
   {
     $modules = array();
 
+    // Получение информации из внешних источников.
     foreach (self::getSources() as $url) {
       if (($file = http::fetch($url, http::NO_CACHE))) {
         $ini = ini::read($file);
@@ -109,16 +110,20 @@ class modman
       }
     }
 
-    foreach ($modules as $k => $v) {
-      $local = os::path('lib', 'modules', $k, 'module.ini');
+    // Добавление информации о локальных модулях.
+    foreach (glob(os::path('lib', 'modules', '*', 'module.ini')) as $file) {
+      $name = basename(dirname($file));
+      $ini = ini::read($file);
 
-      if (file_exists($local)) {
-        $ini = ini::read($local);
-        $v['version.local'] = $ini['version'];
+      if (array_key_exists('version', $ini)) {
+        $ini['version.local'] = $ini['version'];
+        unset($ini['version']);
       }
 
-      ksort($v);
-      $modules[$k] = $v;
+      if (!array_key_exists($name, $modules))
+        $modules[$name] = $ini;
+      else
+        $modules[$name]['version.local'] = $ini['version.local'];
     }
 
     mcms::flog('modman', 'module info updated, ' . count($modules) . ' module(s) available.');
@@ -159,7 +164,14 @@ class modman
       }
     }
 
-    zip::unzipToFolder($tmp, os::path('lib', 'modules', $name));
+    $existed = is_dir($path = os::path('lib', 'modules', $name));
+
+    zip::unzipToFolder($tmp, $path);
+
+    if ($existed)
+      mcms::flog('modman', $name . ': updated.');
+    else
+      mcms::flog('modman', $name . ': installed.');
 
     return true;
   }
@@ -177,6 +189,38 @@ class modman
     if (!in_array($default, $urls))
       $urls[] = $default;
 
+    asort($urls);
+
     return $urls;
+  }
+
+  /**
+   * Деинсталляция модуля.
+   */
+  public static function uninstall($moduleName)
+  {
+    $inipath = os::path('lib', 'modules', $moduleName, 'module.ini');
+
+    if (!file_exists($inipath))
+      throw new RuntimeException(t('Модуль %name повреждён или не является модулем.', array(
+        '%name' => $moduleName,
+        )));
+
+    $ini = ini::read($inipath);
+
+    if ('required' == $ini['priority'])
+      return;
+
+    os::rmdir(dirname($inipath));
+
+    mcms::flog('modman', $moduleName . ': uninstalled.');
+  }
+
+  /**
+   * Инсталляция модуля.
+   */
+  public static function install($moduleName)
+  {
+    return self::updateModule($moduleName);
   }
 }
