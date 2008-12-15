@@ -12,6 +12,10 @@ class Updater implements iRemoteCall
   {
     modman::updateDB();
     Loader::rebuild();
+
+    $next = new url($ctx->get('destination'));
+    $next->setarg('status', null);
+    return new Redirect($next->string());
   }
 
   public static function rpc_upgrade(Context $ctx)
