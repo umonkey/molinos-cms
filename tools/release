@@ -17,7 +17,9 @@ else
     echo "Checking syntax of all php files."
     for file in $(find . -name '*.php' -o -name '*.phtml'); do
         php -l $file >phplint.log
-        if [ $? -ne 0 ]; then
+        RES=$?
+        if [ $RES -ne 0 -a $RES != 139 ]; then
+            echo "ERROR: $RES"
             cat phplint.log && rm -f phplint.log && exit 1
         fi
     done
@@ -25,8 +27,21 @@ else
 fi
 
 echo "Rebuilding class map"
-php -f tools/rebuild_modmap.php
+php -f tools/rebuild-modmap.php
 
 echo "Preparing Molinos CMS v$MCMS_VERSION"
+zip -9rq molinos-cms-$MCMS_VERSION.zip .htaccess.dist *.php conf/*.dist doc lib/*.php lib/modules/{admin,auth,base,nodeapi,pdo,update} themes tools
 
-zip -9rq molinos-cms-$MCMS_VERSION.zip .htaccess.dist *.php conf/*.dist doc lib themes tools
+echo "Preparing modules."
+php -f tools/rebuild-modules.php || exit 1
+for ZIP in modules/*.zip; do
+    NAME=$(basename $ZIP)
+    if [ -n "$(HEAD http://code.google.com/p/molinos-cms/downloads/detail?name=$NAME | grep '404 Not Found')" ]; then
+        echo "$NAME: uploading."
+        googlecode_upload.py -s $NAME -p molinos-cms -l Type-Module $ZIP
+    else
+        echo "$NAME is already there."
+    fi
+done
+cp modules/modules.ini ../molinos-cms.svn/dist/8.05/ && \
+svn ci -m "Semi-automatic release." ../molinos-cms.svn/dist/8.05/
