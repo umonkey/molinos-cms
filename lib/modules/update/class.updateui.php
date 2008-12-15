@@ -4,38 +4,76 @@ class UpdateUI implements iAdminUI
 {
   public static function onGet(Context $ctx)
   {
-    $header = html::em('h1', t('Проверка обновлений'));
-    $message = html::em('p', t('Обновлений нет, '
-      .'вы используете самую свежую версию CMS.'));
+    $modules = modman::getUpdatedModules();
 
-    if (file_exists($tmp = mcms::config('tmpdir') .'/update.txt')) {
-      list($version, $filename) = explode(',', trim(file_get_contents($tmp)));
+    if (null === ($mode = $ctx->get('mode')))
+      $mode = empty($modules)
+        ? 'update'
+        : 'upgrade';
 
-      if (file_exists($filename)) {
-        if (version_compare($version, mcms::version()) == 1) {
-          $message = t('Вы используете устаревшую версию Molinos.CMS '
-            .'(%current, в то время как уже вышла '
-            .'<a href=\'@url\'>%available</a>); пожалуйста, обновитесь.', array(
-              '%current' => mcms::version(),
-              '%available' => $version,
-              '@url' => 'http://code.google.com/p/molinos-cms/wiki/ChangeLog_'.
-                str_replace('.', '', mcms::version(mcms::VERSION_RELEASE)),
-              ));
+    $form = self::getForm($mode);
 
-          $input = html::em('input', array(
-            'type' => 'submit',
-            'value' => 'Скачать и установить',
-            ));
-          $form = html::em('form', array(
-            'method' => 'post',
-            'action' => '?q=update.rpc&action=update',
-            ), $input);
-
-          $message .= $form;
-        }
-      }
+    if (is_array($status = $ctx->get('status'))) {
+      if (!empty($status['updated']))
+        $form->intro .= t('Были обновлены модули: %list.', array(
+          '%list' => implode(', ', $status['updated']),
+          ));
     }
 
-    return $header . $message;
+    return $form->getHTML(Control::data(array(
+      'modules' => $modules,
+      )));
+  }
+
+  protected static function getForm($mode)
+  {
+    $form = self::getSchema($mode)->getForm(array(
+      'title' => t('Обновление системы'),
+      'action' => '?q=update.rpc&action=' . urlencode($mode) . '&destination=CURRENT',
+      ));
+
+    switch ($mode) {
+    case 'update':
+      $form->title = t('Обновлений нет');
+      break;
+    }
+
+    return $form;
+  }
+
+  protected static function getSchema($mode)
+  {
+    switch ($mode) {
+    case 'update':
+      return new Schema(array(
+        'info' => array(
+          'type' => 'InfoControl',
+          'text' => t('Система полностью обновлена (наличие обновлений проверяется в фоновом режиме, по расписанию).'),
+          ),
+        'submit' => array(
+          'type' => 'SubmitControl',
+          'text' => t('Проверить ещё раз'),
+          ),
+        ));
+    case 'upgrade':
+      return new Schema(array(
+        'modules' => array(
+          'type' => 'ModManControl',
+          'label' => t('Доступные обновления'),
+          'columns' => array(
+            'check',
+            'name',
+            'version',
+            'available',
+            ),
+          ),
+        'submit' => array(
+          'type' => 'SubmitControl',
+          'text' => t('Обновить отмеченные'),
+          ),
+        ));
+    default:
+      mcms::debug($mode);
+    }
   }
 }
