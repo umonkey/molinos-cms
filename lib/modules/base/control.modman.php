@@ -111,7 +111,7 @@ class ModManControl extends Control
   {
     return html::em('input', array(
       'type' => 'checkbox',
-      'name' => $this->value . '[enable][]',
+      'name' => $this->value . '[]',
       'value' => $name,
       'checked' => empty($meta['enabled']) ? '' : 'checked',
       'disabled' => ($meta['priority'] == 'required') ? 'disabled' : '',

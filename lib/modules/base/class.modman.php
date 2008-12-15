@@ -74,7 +74,7 @@ class modman
       unset($ini['version']);
       if (!empty($ini['name.ru']))
         $ini['name'] = $ini['name.ru'];
-      $ini['configurable'] = count(mcms::getImplementors('iModuleConfig', $name)) > 0;
+      $ini['configurable'] = count(Loader::getImplementors('iModuleConfig', $name)) > 0;
       $result[$name] = $ini;
     }
 
@@ -221,6 +221,8 @@ class modman
    */
   public static function install($moduleName)
   {
+    if (is_dir(os::path('lib', 'modules', $moduleName)))
+      return true;
     return self::updateModule($moduleName);
   }
 }

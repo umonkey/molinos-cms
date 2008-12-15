@@ -150,7 +150,7 @@ class FieldControl extends Control
   {
     $types = $output = array();
 
-    foreach ($tmp = mcms::getImplementors('iFormControl') as $class) {
+    foreach ($tmp = Loader::getImplementors('iFormControl') as $class) {
       if (class_exists($class)) {
         if ('control' != $class) {
           $info = call_user_func(array($class, 'getInfo'));
