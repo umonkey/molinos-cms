@@ -113,7 +113,7 @@ class ModManControl extends Control
       'type' => 'checkbox',
       'name' => $this->value . '[]',
       'value' => $name,
-      'checked' => empty($meta['enabled']) ? '' : 'checked',
+      'checked' => empty($meta['installed']) ? '' : 'checked',
       'disabled' => ($meta['priority'] == 'required') ? 'disabled' : '',
       ));
   }
@@ -154,7 +154,7 @@ class ModManControl extends Control
 
   private function getSettingsCell($name, array $meta)
   {
-    if (empty($meta['configurable']))
+    if (0 == count(Loader::getImplementors('iModuleConfig', $name)))
       return null;
 
     $img = html::em('img', array(
