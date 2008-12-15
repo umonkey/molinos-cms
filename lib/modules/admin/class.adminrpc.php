@@ -626,15 +626,34 @@ class AdminRPC implements iRemoteCall
    */
   public static function rpc_modenable(Context $ctx)
   {
-    $data = $ctx->post('modules');
+    $failed = $ok = array();
+    $enabled = $ctx->post('modules');
+
+    // Удаляем отключенные модули.
+    foreach (modman::getLocalModules() as $name => $info)
+      if (!in_array($name, $enabled))
+        modman::uninstall($name);
+
+    // Загружаем отсутствующие модули.
+    foreach (modman::getAllModules() as $name => $info) {
+      if (in_array($name, $enabled))
+        if (!modman::install($name))
+          $failed[] = $name;
+    }
+
+    $next = new url($ctx->get('destination', '?q=admin'));
+    $next->setarg('status.failed', implode(',', $failed));
 
     $config = Config::getInstance();
-    $config->set('runtime.modules', $data['enable']);
+    $config->set('runtime.modules', array_diff($enabled, $failed));
     $config->write();
 
+    Loader::rebuild();
     Structure::getInstance()->rebuild();
 
     mcms::flush();
     mcms::flush(mcms::FLUSH_NOW);
+
+    return new Redirect($next->string());
   }
 }
