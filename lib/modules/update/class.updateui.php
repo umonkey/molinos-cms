@@ -45,6 +45,8 @@ class UpdateUI implements iAdminUI
   {
     switch ($mode) {
     case 'update':
+      $sources = modman::getSources();
+
       return new Schema(array(
         'info' => array(
           'type' => 'InfoControl',
@@ -52,7 +54,7 @@ class UpdateUI implements iAdminUI
           ),
         'submit' => array(
           'type' => 'SubmitControl',
-          'text' => t('Проверить ещё раз'),
+          'text' => t('Проверить наличие обновлений'),
           ),
         ));
     case 'upgrade':
