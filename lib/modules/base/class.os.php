@@ -106,8 +106,15 @@ class os
   /**
    * Сохраняет массив в файл.
    */
-  public static function writeArray($fileName, array $content)
+  public static function writeArray($fileName, array $content, $pretty = false)
   {
-    return self::write($fileName, '<?php return ' . var_export($content, true) . ';');
+    $content = '<?php return ' . var_export($content, true) . ';';
+
+    if ($pretty) {
+      $content = preg_replace('@=>\s+array \(@', '=> array(', $content);
+      $content = preg_replace('@\d+ => @', '', $content);
+    }
+
+    return self::write($fileName, $content);
   }
 }
