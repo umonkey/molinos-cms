@@ -5,33 +5,43 @@ class Updater implements iRemoteCall
 {
   public static function hookRemoteCall(Context $ctx)
   {
-    switch ($ctx->get('action')) {
-    case 'update':
-      self::download($ctx);
-
-    case 'rebuild':
-      Loader::rebuild();
-      $ctx->redirect('admin');
-
-    default:
-      throw new BadRequestException();
-    }
+    return mcms::dispatch_rpc(__CLASS__, $ctx);
   }
 
-  private static function download(Context $ctx)
+  public static function rpc_update(Context $ctx)
   {
-    $url = mcms::version(mcms::VERSION_AVAILABLE_URL);
+    modman::updateDB();
+    Loader::rebuild();
+  }
 
-    // $tmpname = mcms_fetch_file($url, false);
-    // FIXME: почему-то mcms_fetch_file скачивает не полный файл.
-    $tmpname = self::download_raw($url);
+  public static function rpc_upgrade(Context $ctx)
+  {
+    $status = array();
 
-    if (null === $tmpname or !is_readable($tmpname))
-      throw new RuntimeException(t('Не удалось скачать свежий инсталляционный пакет Molinos.CMS.'));
+    $db = modman::getAllModules();
+    $modules = $ctx->post('modules', array());
 
-    self::unpack($tmpname);
+    $url = new url($ctx->get('destination'));
+    $url->setarg('status', null);
 
-    $ctx->redirect('?q=update.rpc&action=rebuild');
+    foreach ($modules as $module) {
+      $info = $db[$module];
+
+      $key = modman::updateModule($module)
+        ? 'updated'
+        : 'untouched';
+
+      $url->setarg('status[' . $key . '][]', $module);
+    }
+
+    modman::updateDB();
+
+    return new Redirect($url->string());
+  }
+
+  public static function rpc_rebuild(Context $ctx)
+  {
+    Loader::rebuild();
   }
 
   private static function download_raw($url)
