@@ -23,7 +23,7 @@ class Loader
     if (null === self::$map) {
       self::$map = array();
 
-      foreach (array('classpath.inc', 'classpath.core.inc') as $key) {
+      foreach (array('classpath.inc', 'classpath.base.inc') as $key) {
         if (file_exists($path = os::path(MCMS_LIB, $key)) and is_array($tmp = include $path)) {
           self::$map = $tmp;
           break;
@@ -35,7 +35,7 @@ class Loader
   public static function rebuild($local = false)
   {
     $path = MCMS_LIB . DIRECTORY_SEPARATOR . ($local
-      ? 'classpath.core.inc'
+      ? 'classpath.base.inc'
       : 'classpath.inc');
 
     os::writeArray($path, self::scan($local), true);
