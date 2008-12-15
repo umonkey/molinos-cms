@@ -319,56 +319,6 @@ abstract class Widget implements iWidget
 
     mcms::add_extras($extras);
     return $result;
-
-    /*
-    mcms::db()->log('-- widget: '. $this->getInstanceName() .' --');
-
-    if (!is_array($data = $this->onGet($this->options))) {
-      $output = $data;
-    } else {
-      $data['instance'] = $this->getInstanceName();
-      $data['lang'] = $ctx->getLang();
-
-      $output = bebop_render_object('widget', $data['instance'], $ctx->theme,
-        $data, get_class($this));
-    }
-
-    if (false === $output and array_key_exists('html', $data))
-      $output = $data['html'];
-
-    if ($ctx->debug() == 'widget') {
-      if ($this->getInstanceName() == $ctx->get('widget')) {
-        $key = strtolower($classname = get_class($this));
-
-        if (array_key_exists($key, $classmap = mcms::getClassMap()))
-          $classpath = $classmap[$key];
-        else
-          $classpath = 'unknown';
-
-        $tdata = array(
-          'class' => $classname,
-          'class_path' => $classpath,
-          'template_candidates' => bebop_get_templates('widget',
-            $this->getInstanceName(), $ctx->theme, $classname),
-          );
-
-        if ('widget' == $ctx->debug()) {
-          $tdata['existing_templates'] = array();
-
-          foreach ($tdata['template_candidates'] as $f)
-            if (file_exists($f))
-              $tdata['existing_templates'][] = $f;
-        }
-
-        $tdata['template_input'] = $data;
-        $tdata['template_output'] = $output;
-
-        mcms::debug('Widget debug: '. $this->getInstanceName() .'.', $tdata);
-      }
-    }
-
-    return $output;
-    */
   }
 
   private function debug(array $options, array $data, $result)

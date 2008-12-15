@@ -327,7 +327,7 @@ class mcms
     if (mcms::ismodule('syslog'))
       SysLogModule::log($op, $message, $nid);
     else
-      self::flog($message);
+      self::flog($op, $message);
   }
 
   public static function flog($message)
