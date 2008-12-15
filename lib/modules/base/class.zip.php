@@ -16,16 +16,52 @@ class zip
     return class_exists('ZipArchive');
   }
 
-  public static function fromFolder($zipName, $folderName)
+  public static function fromFolder($zipName, $folderPath)
   {
-    $folderName = rtrim($folderName, DIRECTORY_SEPARATOR);
+    $folderPath = rtrim($folderPath, DIRECTORY_SEPARATOR);
 
     $z = new ZipArchive();
     $z->open($zipName, ZIPARCHIVE::OVERWRITE);
 
-    foreach (os::listFiles($folderName) as $file)
-      $z->addFile($file, substr($file, strlen($folderName) + 1));
+    foreach (os::listFiles($folderPath) as $file)
+      $z->addFile($file, substr($file, strlen($folderPath) + 1));
 
     $z->close();
+  }
+
+  public static function unzipToFolder($zipName, $folderPath)
+  {
+    $tmpDir = file_exists($folderPath)
+      ? $folderPath . '.tmp'
+      : $folderPath;
+
+    if ($tmpDir != $folderPath and file_exists($tmpDir))
+      os::rmdir($tmpDir);
+
+    $z = new ZipArchive();
+
+    if (true !== ($error = $z->open($zipName)))
+      throw new RuntimeException(t('Не удалось открыть ZIP архив %name', array(
+        '%name' => basename($zipName),
+        )));
+
+    if (!$z->extractTo($tmpDir)) {
+      if ($tmpDir != $folderPath)
+        os::rmdir($tmpDir);
+      throw new RuntimeException(t('Не удалось распаковать содержимое архива в папку %path.', array(
+        '%path' => $tmpDir,
+        )));
+    }
+
+    if ($tmpDir != $folderPath) {
+      if (!rename($folderPath, $old = $folderPath . '.old')) {
+        os::rmdir($tmpDir);
+        throw new RuntimeException(t('Не удалось переименовать временную папку.'));
+      }
+
+      rename($tmpDir, $folderPath);
+
+      os::rmdir($old);
+    }
   }
 }
