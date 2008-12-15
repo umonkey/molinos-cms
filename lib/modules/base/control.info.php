@@ -46,4 +46,9 @@ class InfoControl extends Control
       ? html::em('div', array('class' => 'intro'), $text)
       : null;
   }
+
+  public function set($value, Node &$node)
+  {
+    // Ничего не делаем.
+  }
 };
