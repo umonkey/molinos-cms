@@ -158,7 +158,7 @@ class modman
 
     $tmp = http::fetch($url);
 
-    foreach (array('md5' => 'md5_file', 'sha1' => 'sha1_file') as $k => $func) {
+    foreach (array('sha1' => 'sha1_file') as $k => $func) {
       if (!empty($db[$name][$k]) and $db[$name][$k] != $func($tmp)) {
         mcms::flog($k . ' hash mismatch for ' . $url);
         return false;

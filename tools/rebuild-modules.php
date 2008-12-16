@@ -26,7 +26,12 @@ function rebuild_modules($dir)
       $ini['filename'] = $module . '-' . $ini['version'] . '.zip';
       zip::fromFolder($zipname = os::path($dir, $ini['filename']), dirname($inifile));
       $ini['sha1'] = sha1_file($zipname);
-      $ini['md5'] = md5_file($zipname);
+
+      $gcurl = 'http://code.google.com/p/molinos-cms/downloads/detail?name=' . $ini['filename'];
+      if ($gcinfo = http::fetch($gcurl, http::CONTENT))
+        if (preg_match('/SHA1 Checksum: ([0-9a-f]{40})/', $gcinfo, $m))
+          $ini['sha1'] = $m[1];
+
       $distinfo[$module] = $ini;
     }
   }
