@@ -37,7 +37,7 @@ class TextHTMLControl extends Control
     if (null !== ($content = $data->{$this->value}))
       $content = htmlspecialchars($content);
 
-    if (mcms::ismodule('tinymce'))
+    if (modman::isInstalled('tinymce'))
       TinyMceModule::add_extras();
 
     $output = html::em('textarea', array(

@@ -48,7 +48,7 @@ class FileNode extends Node implements iContentType
     }
 
     elseif ('.swf' == strtolower(substr($this->filename, -4))) {
-      if (mcms::ismodule('getid3')) {
+      if (modman::isInstalled('getid3')) {
         list($x, $y) = ID3Tools::getFlashSize($this);
 
         $this->width = $x;

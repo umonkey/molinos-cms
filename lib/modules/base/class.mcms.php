@@ -86,7 +86,7 @@ class mcms
       return null;
 
     // Всего один файл — используем напрямую.
-    if (count($nodes) == 1 or !mcms::ismodule('playlist'))
+    if (count($nodes) == 1 or !modman::isInstalled('playlist'))
       $playlist = '?q=' . urlencode($firstfile);
     else
       $playlist = '?q=playlist.rpc&nodes='. join(',', $nodes);
@@ -206,11 +206,6 @@ class mcms
       return $cache[$modulename];
   }
 
-  public static function ismodule($name)
-  {
-    return file_exists(os::path('lib', 'modules', $name, 'module.ini'));
-  }
-
   public static function flush($flags = null)
   {
     if (null !== ($cache = BebopCache::getInstance()))
@@ -324,7 +319,7 @@ class mcms
 
   public static function log($op, $message, $nid = null)
   {
-    if (mcms::ismodule('syslog'))
+    if (modman::isInstalled('syslog'))
       SysLogModule::log($op, $message, $nid);
     else
       self::flog($op, $message);

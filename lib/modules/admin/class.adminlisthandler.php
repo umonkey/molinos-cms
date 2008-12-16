@@ -327,7 +327,7 @@ class AdminListHandler
       $itypes = TypeNode::getInternal();
 
       foreach (Node::find(array('class' => 'type', '#recurse' => 0)) as $n) {
-        if (empty($n->isdictionary) and (empty($n->adminmodule) or !mcms::ismodule($n->adminmodule)) and !in_array($n->name, $itypes))
+        if (empty($n->isdictionary) and (empty($n->adminmodule) or !modman::isInstalled($n->adminmodule)) and !in_array($n->name, $itypes))
           $filter['class'][] = $n->name;
       }
 
@@ -436,7 +436,7 @@ class AdminListHandler
         if (!$this->ctx->canDebug() and in_array($v['name'], $itypes) or !empty($v['isdictionary']))
           unset($result[$k]);
 
-        if (!empty($v['adminmodule']) and !mcms::ismodule($v['adminmodule']))
+        if (!empty($v['adminmodule']) and !modman::isInstalled($v['adminmodule']))
           unset($result[$k]);
       }
 

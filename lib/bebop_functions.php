@@ -157,7 +157,7 @@ function bebop_render_object($type, $name, $theme = null, $data = array(), $clas
   foreach ($__options as $k => $v)
     $__options[$k] = str_replace('/', DIRECTORY_SEPARATOR, $v);
 
-  if (!mcms::ismodule('smarty')) {
+  if (!class_exists('BebopSmarty')) {
     foreach ($__options as $k => $v) {
       if (substr($v, -4) == '.tpl' and file_exists($v)) {
         throw new RuntimeException(t('Вы попытались использовать шаблон на '

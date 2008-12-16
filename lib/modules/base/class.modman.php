@@ -24,7 +24,7 @@ class modman
       foreach ($ini as $k => $v) {
         if (!empty($v['name.ru']))
           $ini[$k]['name'] = $v['name.ru'];
-        $ini[$k]['installed'] = mcms::ismodule($k);
+        $ini[$k]['installed'] = self::isInstalled($k);
       }
     }
 
@@ -47,7 +47,7 @@ class modman
 
   private static function canUpdateModule($name, array $info)
   {
-    if (!mcms::ismodule($name))
+    if (!modman::isInstalled($name))
       return false;
 
     if (empty($info['url']))
@@ -69,7 +69,7 @@ class modman
     foreach (glob(os::path('lib', 'modules', '*', 'module.ini')) as $file) {
       $ini = ini::read($file);
       $name = basename(dirname($file));
-      $ini['enabled'] = mcms::ismodule($name);
+      $ini['enabled'] = modman::isInstalled($name);
       $ini['version.local'] = $ini['version'];
       unset($ini['version']);
       if (!empty($ini['name.ru']))
@@ -222,8 +222,16 @@ class modman
    */
   public static function install($moduleName)
   {
-    if (is_dir(os::path('lib', 'modules', $moduleName)))
+    if (self::isInstalled($moduleName))
       return true;
     return self::updateModule($moduleName);
+  }
+
+  /**
+   * Проверяет, установлен ли модуль.
+   */
+  public static function isInstalled($moduleName)
+  {
+    return is_dir(os::path('lib', 'modules', $moduleName));
   }
 }
