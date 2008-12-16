@@ -9,9 +9,6 @@ fi
 
 git clean -fd
 
-echo "Rebuilding class map"
-php -f tools/rebuild-modmap.php
-
 echo "Preparing Molinos CMS v$MCMS_VERSION"
 zip -9r molinos-cms-$MCMS_VERSION.zip \
   .htaccess.dist \
@@ -24,6 +21,7 @@ zip -9r molinos-cms-$MCMS_VERSION.zip \
   lib/modules/auth \
   lib/modules/base \
   lib/modules/imgtoolkit \
+  lib/modules/install \
   lib/modules/nodeapi \
   lib/modules/pdo \
   lib/modules/update \
