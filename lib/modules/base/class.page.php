@@ -14,6 +14,15 @@ class Page
     if ($rpc = self::checkRPC($ctx, $query))
       return $rpc;
 
+    if ('robots.txt' == $query) {
+      if (is_array($data = Structure::getInstance()->findPage($domain, '')) and !empty($data['robots']))
+        $robots = $data['robots'];
+      else
+        $robots = DomainNode::getDefaultRobots();
+
+      return new Response($robots, 'text/plain');
+    }
+
     // Находим страницу в структуре.
     if (false === ($data = Structure::getInstance()->findPage($domain, $query)))
       return false;
@@ -148,7 +157,7 @@ class Page
     if ('.rpc' == substr($query, -4)) {
       $module = substr($query, 0, -4);
 
-      if (!mcms::ismodule($module))
+      if (!modman::isInstalled($module))
         throw new PageNotFoundException(t('Модуль %name отсутствует или выключен.', array(
           '%name' => $module,
           )));

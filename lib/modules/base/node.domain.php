@@ -427,6 +427,17 @@ class DomainNode extends Node implements iContentType
       'http_code' => array(
         'deprecated' => true,
         ),
+      'robots' => array(
+        'type' => 'TextAreaControl',
+        'label' => t('Инструкции для роботов'),
+        'default' => self::getDefaultRobots(),
+        ),
       );
+  }
+
+  public static function getDefaultRobots()
+  {
+    return "User-agent: *\n"
+      . "Disallow: /themes";
   }
 };
