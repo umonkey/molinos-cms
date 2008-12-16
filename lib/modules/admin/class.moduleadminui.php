@@ -21,13 +21,23 @@ class ModuleAdminUI
       return $message;
     }
 
-    $form = self::getSchema()->getForm(array(
+    if (!count($modules = modman::getAllModules())) {
+      try {
+        $modules = modman::updateDB();
+      } catch (Exception $e) {
+        $modules = modman::getLocalModules();
+      }
+    }
+
+    $schema = self::getSchema();
+
+    $form = $schema->getForm(array(
       'title' => t('Управление модулями'),
       'action' => '?q=admin.rpc&action=modenable&destination=CURRENT',
       ));
 
     return $form->getHTML(Control::data(array(
-      'modules' => modman::getAllModules(),
+      'modules' => $modules,
       )));
   }
 
