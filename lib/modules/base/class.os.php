@@ -117,4 +117,18 @@ class os
 
     return self::write($fileName, $content);
   }
+
+  /**
+   * Запуск программы.
+   */
+  public static function exec($command, array $args, &$output = null)
+  {
+    $rc = null;
+
+    foreach ($args as $arg)
+      $command .= ' ' . escapeshellarg($arg);
+
+    exec($command, $output, $rc);
+    return $rc;
+  }
 }
