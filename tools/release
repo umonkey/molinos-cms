@@ -20,7 +20,6 @@ zip -9r molinos-cms-$MCMS_VERSION.zip \
   lib/modules/attachment \
   lib/modules/auth \
   lib/modules/base \
-  lib/modules/imgtoolkit \
   lib/modules/install \
   lib/modules/nodeapi \
   lib/modules/pdo \
