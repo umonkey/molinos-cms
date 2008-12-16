@@ -1,19 +1,15 @@
 <?php
 // vim: expandtab tabstop=4 shiftwidth=4 softtabstop=4:
 
-// Для систем, где Smarty в путях.
-if (!(@include 'Smarty.class.php'))
-  // Для дебианов и убунт.
-  if (!(@include 'smarty' . DIRECTORY_SEPARATOR . 'Smarty.class.php'))
-    throw new RuntimeException(t('Не удалось подключить Smarty.'));
-
 class BebopSmarty extends Smarty
 {
     public function __construct($with_debug = false)
     {
+        require_once os::path(dirname(__FILE__), 'Smarty-2.6.21', 'libs', 'Smarty.class.php');
+
         $this->Smarty();
 
-        if (is_dir($tmp = dirname(__FILE__) .'/plugins')) {
+        if (is_dir($tmp = os::path(dirname(__FILE__), 'plugins'))) {
           $plugins = $this->plugins_dir;
           $plugins[] = $tmp;
           $this->plugins_dir = $plugins;
@@ -21,8 +17,8 @@ class BebopSmarty extends Smarty
 
         $tmpdir = mcms::config('tmpdir');
 
-        $this->compile_dir = mcms::mkdir($tmpdir .'/smarty_compile_dir', t('Не удалось создать папку для компиляции шаблонов (%path)', array('%path' => $this->compile_dir)));
-        $this->cache_dir = mcms::mkdir($tmpdir .'/smarty_cache', t('Не удалось создать папку для кэширования шаблонов (%path)', array('%path' => $this->cache_dir)));
+        $this->compile_dir = mcms::mkdir(os::path($tmpdir, 'smarty_compile_dir'), t('Не удалось создать папку для компиляции шаблонов (%path)', array('%path' => $this->compile_dir)));
+        $this->cache_dir = mcms::mkdir(os::path($tmpdir, 'smarty_cache'), t('Не удалось создать папку для кэширования шаблонов (%path)', array('%path' => $this->cache_dir)));
 
         $this->caching = false;
 
@@ -40,25 +36,5 @@ class BebopSmarty extends Smarty
     public function trigger_error($error_msg, $error_type = E_USER_WARNING)
     {
         throw new SmartyException($error_msg, $error_type);
-    }
-
-    // ioncube support
-    public function _read_file($filename)
-    {
-        if (!file_exists($filename) or !is_readable($filename)) {
-            return false;
-        }
-
-        if (function_exists('ioncube_read_file') and ioncube_file_is_encoded()) {
-            $res = ioncube_read_file($filename);
-
-            if (is_int($res)) {
-                return false;
-            }
-
-            return $res;
-        } else {
-            return file_get_contents($filename);
-        }
     }
 }
