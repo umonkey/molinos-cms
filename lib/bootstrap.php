@@ -90,17 +90,11 @@ class Loader
     foreach (glob($path . DIRECTORY_SEPARATOR . '*.php') as $classpath) {
       $parts = explode('.', basename($classpath), 3);
 
-      if (count($parts) != 3 or $parts[2] != 'php') {
-        if (class_exists('mcms'))
-          mcms::flog($classpath . ': bad file name.');
+      if (count($parts) != 3 or $parts[2] != 'php')
         continue;
-      }
 
-      if (!is_readable($classpath)) {
-        if (class_exists('mcms'))
-          mcms::flog($classpath . ': not readable.');
+      if (!is_readable($classpath))
         continue;
-      }
 
       $classname = null;
 
@@ -119,11 +113,8 @@ class Loader
         break;
       }
 
-      if ('' === ($classname = strtolower($classname))) {
-        if (class_exists('mcms'))
-          mcms::flog($classpath . ': unknown class name.');
+      if ('' === ($classname = strtolower($classname)))
         continue;
-      }
 
       if (true) {
         // Добавляем в список только первый найденный класс.
