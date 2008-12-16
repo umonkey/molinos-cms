@@ -30,8 +30,6 @@ zip -9r molinos-cms-$MCMS_VERSION.zip \
   themes \
   tools
 
-exit 2
-
 echo "Preparing modules."
 php -f tools/rebuild-modules.php || exit 1
 for ZIP in modules/*.zip; do
