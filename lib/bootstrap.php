@@ -21,13 +21,16 @@ class Loader
   private static function load()
   {
     if (null === self::$map) {
-      self::$map = array();
-
       foreach (array('classpath.inc', 'classpath.base.inc') as $key) {
         if (file_exists($path = os::path(MCMS_LIB, $key)) and is_array($tmp = include $path)) {
           self::$map = $tmp;
           break;
         }
+      }
+
+      if (null === self::$map) {
+        self::rebuild();
+        self::load();
       }
     }
   }
