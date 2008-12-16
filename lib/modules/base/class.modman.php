@@ -128,6 +128,8 @@ class modman
     mcms::flog('module info updated, ' . count($modules) . ' module(s) available.');
 
     ini::write(self::getInfoPath(), $modules);
+
+    return $modules;
   }
 
   /**
