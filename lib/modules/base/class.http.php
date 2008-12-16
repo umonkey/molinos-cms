@@ -19,7 +19,7 @@ class http
 
   function fetch($url, $options = null)
   {
-    $outfile = mcms::config('tmpdir') . "/mcms-fetch.". md5($url);
+    $outfile = os::path(mcms::mkdir(mcms::config('tmpdir')), 'mcms-fetch.'. md5($url));
 
     $ttl = mcms::config('file.cache.ttl', 3600);
 
