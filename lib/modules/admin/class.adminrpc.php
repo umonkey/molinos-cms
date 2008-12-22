@@ -46,14 +46,6 @@ class AdminRPC implements iRemoteCall
         $next = 'admin';
       break;
 
-    case 'modlist':
-      self::hookModList($ctx);
-      break;
-
-    case 'modconf':
-      self::hookModConf($ctx);
-      $ctx->redirect('?q=admin&cgroup=structure&mode=modules');
-
     case 'search':
       $terms = array();
 
@@ -85,54 +77,6 @@ class AdminRPC implements iRemoteCall
     }
 
     $ctx->redirect($next);
-  }
-
-  private static function hookModList(Context $ctx)
-  {
-    if ('POST' != $_SERVER['REQUEST_METHOD'])
-      throw new PageNotFoundException();
-
-    mcms::user()->checkAccess('u', 'moduleinfo');
-
-    mcms::enableModules($ctx->post('selected', array()));
-
-    Structure::getInstance()->rebuild();
-  }
-
-  private static function hookModConf(Context $ctx)
-  {
-    $conf = array();
-
-    mcms::user()->checkAccess('u', 'moduleinfo');
-
-    foreach ($ctx->post as $k => $v) {
-      if (substr($k, 0, 7) == 'config_' and !empty($v))
-        $conf[substr($k, 7)] = $v;
-    }
-
-    if ('admin' == $ctx->get('module')) {
-      $debuggers = empty($conf['debuggers'])
-        ? null
-        : preg_split('/,\s*/', $conf['debuggers'], -1, PREG_SPLIT_NO_EMPTY);
-
-      $cfg = Config::getInstance();
-      $cfg->debuggers = $debuggers;
-      $cfg->write();
-
-      if (array_key_exists('debuggers', $conf))
-        unset($conf['debuggers']);
-    }
-
-    if (count($tmp = array_values(Node::find(array('class' => 'moduleinfo', 'name' => $ctx->get('module'))))))
-      $node = $tmp[0];
-    else
-      $node = Node::create('moduleinfo', array(
-        'name' => $ctx->get('module'),
-        'published' => true,
-        ));
-
-    $node->config = $conf;
-    $node->save();
   }
 
   private static function fixCleanURLs(Context $ctx)
@@ -170,7 +114,6 @@ class AdminRPC implements iRemoteCall
 
     $result = array();
 
-    $m = $ctx->get('module');
     if (null === ($module = $ctx->get('module')))
       $result['content'] = self::onGetInternal($ctx);
 
@@ -209,11 +152,11 @@ class AdminRPC implements iRemoteCall
     case 'edit':
     case 'create':
     case 'status':
-    case 'modules':
     case 'drafts':
     case 'exchange':
     case 'trash':
     case '404':
+    case 'addremove':
       $method = 'onGet'. ucfirst(strtolower($mode));
       return call_user_func_array(array(__CLASS__, $method), array($ctx));
     default:
@@ -445,84 +388,6 @@ class AdminRPC implements iRemoteCall
     }
   }
 
-  private static function onGetModules(Context $ctx)
-  {
-    switch ($ctx->get('action')) {
-    case 'info':
-      return self::onGetModuleInfo($ctx->get('name'));
-
-    case 'config':
-      $form = mcms::invoke_module($ctx->get('name'), 'iModuleConfig', 'formGetModuleConfig');
-
-      if (!($form instanceof Form))
-        throw new PageNotFoundException();
-
-      $data = array();
-
-      if (is_array($tmp = mcms::modconf($ctx->get('name'))))
-        foreach ($tmp as $k => $v)
-          $data['config_'. $k] = $v;
-
-      if (empty($form->title))
-        $form->title = t('Настройка модуля %name', array('%name' => $ctx->get('name')));
-
-      $form->action = bebop_combine_url($tmp = array(
-        'args' => array(
-          'q' => 'admin.rpc',
-          'module' => $ctx->get('name'),
-          'action' => 'modconf',
-          'destination' => $_SERVER['REQUEST_URI'],
-          ),
-        ), false);
-
-      $form->addControl(new SubmitControl(array(
-        'text' => t('Сохранить'),
-        )));
-
-      return $form->getHTML(Control::data($data));
-    }
-
-    $tmp = new ModuleAdminUI();
-    return $tmp->getList($ctx);
-  }
-
-  private static function onGetModuleInfo($name)
-  {
-    $map = mcms::getModuleMap();
-
-    if (empty($map['modules'][$name]))
-      throw new PageNotFoundException();
-
-    $module = $map['modules'][$name];
-
-    $classes = $module['classes'];
-    sort($classes);
-
-    $output = "<h2>Информация о модуле mod_{$name}</h2>";
-    $output .= '<table class=\'modinfo\'>';
-    $output .= '<tr><th>Описание:</th><td>'. $module['name']['ru'] .'</td></tr>';
-    $output .= '<tr><th>Классы:</th><td>'. join(', ', $classes) .'</td></tr>';
-
-    if (!empty($module['interfaces']))
-      $output .= '<tr><th>Интерфейсы:</th><td>'. join(', ', $module['interfaces']) .'</td></tr>';
-
-    if (!empty($module['version']))
-      $output .= '<tr><th>Версия CMS:</th><td>≥'. $module['version'] .'</td></tr>';
-
-    if (!empty($module['docurl'])) {
-      $url = bebop_split_url($module['docurl']);
-
-      $tmp = html::em('th', 'Документация:');
-      $tmp .= html::em('td', l($module['docurl'], $url['host']));
-
-      $output .= html::em('tr', $tmp);
-    }
-
-    $output .= '</table>';
-
-    return $output;
-  }
-
   private static function onGetSearch(Context $ctx)
   {
     $form = new Form(array(
@@ -619,41 +484,5 @@ class AdminRPC implements iRemoteCall
     $output = bebop_render_object('page', 'admin', 'admin', $data);
 
     return $output;
-  }
-
-  /**
-   * Изменение списка активных модулей.
-   */
-  public static function rpc_modenable(Context $ctx)
-  {
-    $failed = $ok = array();
-    $enabled = $ctx->post('modules');
-
-    // Удаляем отключенные модули.
-    foreach (modman::getLocalModules() as $name => $info)
-      if (!in_array($name, $enabled))
-        modman::uninstall($name);
-
-    // Загружаем отсутствующие модули.
-    foreach (modman::getAllModules() as $name => $info) {
-      if (in_array($name, $enabled))
-        if (!modman::install($name))
-          $failed[] = $name;
-    }
-
-    $next = new url($ctx->get('destination', '?q=admin'));
-    $next->setarg('status.failed', implode(',', $failed));
-
-    $config = Config::getInstance();
-    $config->set('runtime.modules', array_diff($enabled, $failed));
-    $config->write();
-
-    Loader::rebuild();
-    Structure::getInstance()->rebuild();
-
-    mcms::flush();
-    mcms::flush(mcms::FLUSH_NOW);
-
-    return new Redirect($next->string());
   }
 }

@@ -134,9 +134,11 @@ class ModManControl extends Control
 
   private function getVersionCell($name, array $meta)
   {
-    return empty($meta['version.local'])
-      ? null
-      : 'v' . $meta['version.local'];
+    if (!empty($meta['version.local']))
+      return 'v' . $meta['version.local'];
+    if (!empty($meta['version']))
+      return 'v' . $meta['version'];
+    return null;
   }
 
   private function getAvailableCell($name, array $meta)
@@ -158,10 +160,10 @@ class ModManControl extends Control
       return null;
 
     $img = html::em('img', array(
-      'src' => 'themes/admin/img/configure.png',
+      'src' => 'lib/modules/modman/configure.png',
       'alt' => t('ключ'),
       ));
 
-    return l("?q=admin/structure/modules&action=config&name={$name}&destination=CURRENT", $img);
+    return l("?q=admin&cgroup=system&module=modman&mode=config&name={$name}&destination=CURRENT", $img);
   }
 }

@@ -86,7 +86,7 @@ class mcms
       return null;
 
     // Всего один файл — используем напрямую.
-    if (count($nodes) == 1 or !modman::isInstalled('playlist'))
+    if (count($nodes) == 1 or !class_exists('XspfModule'))
       $playlist = '?q=' . urlencode($firstfile);
     else
       $playlist = '?q=playlist.rpc&nodes='. join(',', $nodes);
@@ -319,7 +319,7 @@ class mcms
 
   public static function log($op, $message, $nid = null)
   {
-    if (modman::isInstalled('syslog'))
+    if (class_exists('SysLogmodule'))
       SysLogModule::log($op, $message, $nid);
     else
       self::flog($op, $message);

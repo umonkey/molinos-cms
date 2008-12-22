@@ -230,7 +230,7 @@ class WidgetNode extends Node implements iContentType
           $v['volatile'] = true;
           if (!array_key_exists('group', $v))
             $v['group'] = t('Настройки');
-          if (array_key_exists('ifmodule', $v) and !modman::isInstalled($v['ifmodule']))
+          if (array_key_exists('ifmodule', $v) and class_exists('modman') and !modman::isInstalled($v['ifmodule']))
             continue;
           $schema[$v['value']] = $v;
         }
