@@ -81,7 +81,10 @@ class mcms_sqlite_driver extends PDO_Singleton
               //для индексных таблиц свой механизм пересоздания
                $node = Node::load(array('class' => 'type', 'name' => $tblmatches[1]));
                if (!empty($node)) {
-                 $node->recreateIdxTable($tblmatches[1]);
+                 if (!$node->recreateIdxTable($tblmatches[1]))
+                   throw new RuntimeException(t('Не удалось создать индексную таблицу для типа %type.', array(
+                     '%type' => $tblmatches[1],
+                     )));
                  return self::exec($sql, $params);
                }
             }
