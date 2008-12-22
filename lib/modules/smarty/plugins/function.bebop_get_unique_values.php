@@ -11,16 +11,18 @@ function smarty_function_bebop_get_unique_values($params, &$smarty)
   } else {
     $key = 'bebop_unique_value_for_'. $params['type'];
 
-    if (!is_array($result = mcms::cache($key))) {
+    if (is_array($result = mcms::cache($key))) {
       $result = array();
 
       $pdo = mcms::db();
-      $schema = Schema::load($params['type']);
+      $schema = Node::create($params['type'])->schema();
 
-      foreach ($schema['fields'] as $field => $meta) {
-        if ($meta->indexed)
-          $result[$field] = $pdo->getResultsV($field, "SELECT DISTINCT `f`.`{$field}` as `{$field}` FROM `node` `n` INNER JOIN `node_{$params['type']}` `f` ON `f`.`rid` = `n`.`rid` WHERE `n`.`class` = :type ORDER BY `{$field}`", array(':type' => $params['type']));
-      }
+      foreach ($schema->getIndexes() as $field)
+        $result[$field] = $pdo->getResultsV($field,
+          "SELECT DISTINCT `f`.`{$field}` as `{$field}` FROM `node` `n` "
+          . "INNER JOIN `node__idx_{$params['type']}` `f` "
+          . "ON `f`.`id` = `n`.`id` WHERE `n`.`class` = :type "
+          . "ORDER BY `{$field}`", array(':type' => $params['type']));
 
       mcms::cache($key, $result);
     }
