@@ -140,7 +140,7 @@ class CommentFormWidget extends Widget
 
   private function sendNotifications(Node $c)
   {
-    if (modman::isInstalled('rating')) {
+    if (class_exists('RatingRPC')) {
       if ($uid = mcms::user()->id)
         $me = Node::load(array('class' => 'user', 'id' => $uid));
       else

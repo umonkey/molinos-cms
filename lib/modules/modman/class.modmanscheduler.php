@@ -1,6 +1,6 @@
 <?php
 
-class UpdateScheduler implements iScheduler
+class ModManScheduler implements iScheduler
 {
   public static function taskRun(Context $ctx)
   {

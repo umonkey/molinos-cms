@@ -54,39 +54,6 @@ form.inline {
   font-style: normal;
 }
 
-table.modinfo {
-  margin-top: 1em;
-}
-table.modinfo th {
-  text-align: right;
-  white-space: nowrap;
-}
-table.modinfo td,
-table.modinfo th {
-  vertical-align: top;
-}
-
-.modlist {
-  margin-bottom: .5em;
-}
-.modlist th {
-  padding: 4px;
-}
-.modlist a.icon span {
-  display: none;
-}
-.modlist a.icon {
-  display: block;
-  width: 16px;
-  height: 16px;
-}
-.modlist .configure {
-  background: transparent url(../img/configure.png) no-repeat top left;
-}
-.modlist .information {
-  background: transparent url(../img/information.png) no-repeat top left;
-}
-
 form.tabbed fieldset.tabable {
   border: 0;
   padding: 0;

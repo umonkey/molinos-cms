@@ -53,6 +53,9 @@ class modman
     if (empty($info['url']))
       return false;
 
+    if (empty($info['version.local']))
+      return false;
+
     if (version_compare($info['version.local'], $info['version'], '>='))
       return false;
 
@@ -78,6 +81,18 @@ class modman
     }
 
     return $result;
+  }
+
+  /**
+   * Возвращает информацию о настраиваемых модулях.
+   */
+  public static function getConfigurableModules()
+  {
+    foreach ($modules = self::getLocalModules() as $k => $v)
+      if (!count(Loader::getImplementors('iModuleConfig', $k)))
+        unset($modules[$k]);
+
+    return $modules;
   }
 
   /**

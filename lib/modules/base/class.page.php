@@ -157,7 +157,7 @@ class Page
     if ('.rpc' == substr($query, -4)) {
       $module = substr($query, 0, -4);
 
-      if (!modman::isInstalled($module))
+      if (class_exists('modman') and !modman::isInstalled($module))
         throw new PageNotFoundException(t('Модуль %name отсутствует или выключен.', array(
           '%name' => $module,
           )));

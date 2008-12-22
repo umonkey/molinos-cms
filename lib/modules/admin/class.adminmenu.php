@@ -176,14 +176,6 @@ class AdminMenu implements iAdminMenu
         );
     }
 
-    if ($user->hasAccess('u', 'moduleinfo')) {
-      $icons[] = array(
-        'group' => 'system',
-        'href' => '?q=admin/system/modules',
-        'title' => t('Модули'),
-        );
-    }
-
     if ($user->hasAccess('u', 'user'))
       $icons[] = array(
         'group' => 'access',

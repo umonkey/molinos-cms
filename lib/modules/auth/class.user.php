@@ -182,6 +182,8 @@ class User
 
       // Возможно, это не e-mail, а openID.
       else {
+        if (!class_exists('OpenIdModule'))
+          throw new RuntimeException(t('Модуль OpenID отключен.'));
         OpenIdModule::OpenIDVerify($args[0]);
         exit();
       }
