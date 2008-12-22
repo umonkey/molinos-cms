@@ -48,9 +48,9 @@ mcms::extras('themes/admin/js/installer.js', false);
     </div>
 
     <div id="footer">
-      <img src="<?=$prefix?>/img/siteimage/logo_molinos_btm_ico.gif" alt="Molinos.Ru" align="middle" />
-      <img src="<?=$prefix?>/img/siteimage/logo_molinos_btm.gif" alt="Molinos.Ru" align="middle" />
-      <span>Версия <?=mcms::version()?></span>
+      <img src="<?php print $prefix; ?>/img/siteimage/logo_molinos_btm_ico.gif" alt="Molinos.Ru" align="middle" />
+      <img src="<?php print $prefix; ?>/img/siteimage/logo_molinos_btm.gif" alt="Molinos.Ru" align="middle" />
+      <span>Версия <?php print mcms::version(); ?></span>
     </div>
     <div class='jqmw hidden' id='defaultPopup'></div>
   </body>
