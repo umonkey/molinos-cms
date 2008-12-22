@@ -221,8 +221,8 @@ class Loader
       : self::$map['interfaces'][$interfaces];
 
     if (null !== $module)
-      $list = array_intersect($list,
-        array_keys(array_intersect(self::$map['rclasses'], array(strtolower($module)))));
+      $list = array_values(array_intersect($list,
+        array_keys(array_intersect(self::$map['rclasses'], array(strtolower($module))))));
 
     return $list;
   }
