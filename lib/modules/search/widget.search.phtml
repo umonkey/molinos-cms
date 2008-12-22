@@ -1,7 +1,7 @@
 <?php if ('gas' == $mode): ?>
 <?php if ($onlyform): ?>
-<form method="get" action="<?=$resultpage?>">
-<input class="formText" type="text" name="<?=$instance?>.query" />
+<form method="get" action="<?php print $resultpage; ?>">
+<input class="formText" type="text" name="<?php print $instance; ?>.query" />
 <input class="formSubmit" type="submit" value="Найти" />
 </form>
 <?php else: ?>
@@ -35,7 +35,7 @@ function OnLoad() {
     searchControl.draw(gctl);
 
     // Execute an inital search
-    searchControl.execute("<?=$query?>");
+    searchControl.execute("<?php print $query; ?>");
   }
 }
 google.setOnLoadCallback(OnLoad);

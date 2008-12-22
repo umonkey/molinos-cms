@@ -41,7 +41,7 @@ mcms::extras('themes/admin/js/installer.js', false);
         <div id='center'>
           <?php if ('error' == $mode): ?>
           <h2>Ошибка</h2>
-          <p><?=$message?></p>
+          <p><?php print $message; ?></p>
           <?php else: ?>
           <h2><?php if (!empty($title)) print $title; ?></h2>
           <?php if (!empty($form)) print $form; ?>
@@ -63,7 +63,7 @@ mcms::extras('themes/admin/js/installer.js', false);
 
     <div id="footer">
       <div class="signature">
-        <hr/><?=mcms::getSignature(null, true)?>
+        <hr/><?php print mcms::getSignature(null, true); ?>
       </div>
     </div>
   </body>
