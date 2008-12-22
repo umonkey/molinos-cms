@@ -162,11 +162,18 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
   public function recreateIdxTable($tblname)
   {
+    if ($tblname != $this->name)
+      throw new InvalidArgumentException(t('Пересоздание полей не в том объекте: %a vs. %b', array(
+        '%a' => $this->name,
+        '%b' => $tblname,
+        )));
+
     mcms::db()->exec("DROP TABLE IF EXISTS node__idx_{$tblname}");
-    $result = Schema::load($tblname);
-    $this->fields = $result['fields'];
-    $this->name = $tblname;
-    $this->updateTable();
+
+    // $result = Node::create($tblname)->schema();
+    // $this->fields = $result['fields'];
+    // $this->name = $tblname;
+    return $this->updateTable();
   }
 
   public function fieldMove($name, $delta = 0)
@@ -372,12 +379,14 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     // Если таблица создаётся, и колонка всего одна — rid — пропускаем.
     if (!$t->exists() and $t->columnCount() == 1 and $t->columnExists('id'))
-      return;
+      return false;
 
     $t->commit();
 
-    //Значения в индексной таблице обновляются по cron
+    // Значения в индексной таблице обновляются по cron
     mcms::db()->exec("DELETE FROM `node__idx_{$this->name}`");
+
+    return true;
   }
 
   private static function checkFieldName($name)
