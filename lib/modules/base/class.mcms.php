@@ -568,7 +568,10 @@ class mcms
       return MCMS_VERSION;
 
     case self::VERSION_RELEASE:
-      return substr(MCMS_VERSION, 0, - strlen(strrchr(MCMS_VERSION, '.')));
+      $parts = explode('.', MCMS_VERSION);
+      $release = $parts[0] . '.' . $parts[1];
+      $release = substr($release, 0, strspn($release, '0123456789.'));
+      return $release;
 
     case self::VERSION_AVAILABLE:
       $release = self::version(self::VERSION_RELEASE);
