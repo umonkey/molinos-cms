@@ -2,41 +2,53 @@
 
 require dirname(__FILE__) .'/../lib/bootstrap.php';
 
-function rebuild_modules($dir)
+class Builder
 {
-  if (is_dir($dir))
-    os::rmdir($dir);
-  mkdir($dir);
+  private $inifile;
+  private $modules;
 
-  $distinfo = array();
+  public function __construct($inifile)
+  {
+    $this->modules = ini::read($this->inifile = $inifile);
+  }
 
-  foreach (glob(os::path('lib', 'modules', '*', 'module.ini')) as $inifile) {
-    $module = basename(dirname($inifile));
-    $ini = ini::read($inifile);
+  private function getExistingModules()
+  {
+    $html = http::fetch('http://code.google.com/p/molinos-cms/downloads/list?q=label:Type-Module', http::CONTENT | http::NO_CACHE);
 
-    foreach (array('section', 'priority', 'version', 'name') as $k) {
-      if (!array_key_exists($k, $ini)) {
-        printf("warning: %s has no '%s' key, module ignored.\n", $module, $k);
-        $ini = null;
-        break;
+    if (!preg_match_all('@/files/([^"\']+\.zip)@', $html, $m))
+      return array();
+
+    return $m[1];
+  }
+
+  public function run()
+  {
+    $tmpdir = mcms::mkdir(os::path(mcms::config('tmpdir'), 'modules'));
+    $existing = $this->getExistingModules();
+
+    foreach (glob(os::path('lib', 'modules', '*', 'module.ini')) as $inifile) {
+      $module = basename(dirname($inifile));
+      $ini = ini::read($inifile);
+
+      foreach (array('section', 'priority', 'version', 'name') as $k) {
+        if (!array_key_exists($k, $ini)) {
+          printf("warning: %s has no '%s' key, module ignored.\n", $module, $k);
+          continue 2;
+        }
+      }
+
+      if (!in_array($zipname = $module . '-' . $ini['version'] . '.zip', $existing)) {
+        $ini['filename'] = $zipname;
+        zip::fromFolder($fullzipname = os::path($tmpdir, $ini['filename']), dirname($inifile));
+        $ini['sha1'] = sha1_file($fullzipname);
+
+        $this->modules[$module] = $ini;
+
+        printf("new file: %s\n", $fullzipname);
       }
     }
 
-    if (null !== $ini) {
-      $ini['filename'] = $module . '-' . $ini['version'] . '.zip';
-      zip::fromFolder($zipname = os::path($dir, $ini['filename']), dirname($inifile));
-      $ini['sha1'] = sha1_file($zipname);
-
-      $gcurl = 'http://code.google.com/p/molinos-cms/downloads/detail?name=' . $ini['filename'];
-      if ($gcinfo = http::fetch($gcurl, http::CONTENT))
-        if (preg_match('/SHA1 Checksum: ([0-9a-f]{40})/', $gcinfo, $m))
-          $ini['sha1'] = $m[1];
-
-      $distinfo[$module] = $ini;
-    }
-  }
-
-  if (!empty($distinfo)) {
     $header =
       "; Дата создания: " . mcms::now() . "\n"
       . ";\n"
@@ -55,10 +67,16 @@ function rebuild_modules($dir)
       . ";   templating = работа с шаблонами\n"
       . ";   visual = визуальные редакторы\n";
 
-    ini::write(os::path($dir, 'modules.ini'), $distinfo, $header);
+    ksort($this->modules);
+
+    ini::write($this->inifile, $this->modules, $header);
   }
 }
 
-rebuild_modules('modules');
+if ($argc < 2) {
+  printf("Usage: %s path/to/modules.ini\n", basename(__FILE__));
+  exit(1);
+}
 
-printf("Done.\n");
+$b = new Builder($argv[1]);
+$b->run();

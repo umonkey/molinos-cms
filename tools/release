@@ -1,16 +1,29 @@
 #!/bin/sh
 
-MCMS_VERSION=$(grep "define('MCMS_VERSION'" < lib/bootstrap.php | sed -e s"@define('MCMS_VERSION', '\|');@@g")
+DIR=$(dirname $0)
+
+MCMS_VERSION=$(grep "define('MCMS_VERSION'" < $DIR/../lib/bootstrap.php | sed -e s"@define('MCMS_VERSION', '\|');@@g")
 
 if [ -z "$MCMS_VERSION" ]; then
     echo "Unable to find version number in lib/bootstrap.php"
     exit 1
 fi
 
+if [ ! -d $DIR/svn/.svn ]; then
+  echo "Please checkout dist/* as $DIR/svn, eg:"
+  echo "$ svn checkout http://molinos-cms.googlecode.com/svn/dist/??? $DIR/svn"
+  exit 1
+fi
+
+if [ ! -f $DIR/svn/modules.ini ]; then
+  touch $DIR/svn/modules.ini
+  svn add $DIR/svn/modules.ini
+fi
+
 git clean -fd
 
 echo "Preparing Molinos CMS v$MCMS_VERSION"
-zip -9r molinos-cms-$MCMS_VERSION.zip \
+zip -q9r molinos-cms-$MCMS_VERSION.zip \
   .htaccess.dist \
   *.php \
   conf/*.dist \
@@ -24,19 +37,24 @@ zip -9r molinos-cms-$MCMS_VERSION.zip \
   lib/modules/nodeapi \
   lib/modules/pdo \
   lib/modules/update \
-  themes \
-  tools
+  themes
 
-echo "Preparing modules."
-php -f tools/rebuild-modules.php || exit 1
-for ZIP in modules/*.zip; do
-    NAME=$(basename $ZIP)
-    if [ -n "$(HEAD http://code.google.com/p/molinos-cms/downloads/detail?name=$NAME | grep '404 Not Found')" ]; then
-        echo "$NAME: uploading."
-        googlecode_upload.py -s $NAME -p molinos-cms -l Type-Module $ZIP
-    else
-        echo "$NAME is already there."
-    fi
-done
-cp modules/modules.ini ../molinos-cms.svn/dist/8.05/ && \
-svn ci -m "Semi-automatic release." ../molinos-cms.svn/dist/8.05/
+echo -n "Preparing modules: "
+php -f tools/rebuild-modules.php $DIR/svn/modules.ini || exit 1
+
+if [ -n "$(ls tmp/modules)" ]; then
+    echo "done, uploading."
+
+    for ZIP in tmp/modules/*.zip; do
+        NAME=$(basename $ZIP)
+
+        if [ $NAME -ne "*.zip" ]; then
+            echo "$NAME: uploading."
+            googlecode_upload.py -s $NAME -p molinos-cms -l Type-Module $ZIP
+        fi
+    done
+
+    svn ci -m "Semi-automatic release." $DIR/svn
+else
+    echo "nothing new."
+fi
