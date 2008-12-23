@@ -871,6 +871,8 @@ class mcms
           ? dirname($_SERVER['SCRIPT_NAME'])
           : $_GET['__rootpath'];
 
+        $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
+
         if ('/' == ($path = '/'. trim($path, '/')))
           $path = '';
       }
@@ -917,13 +919,13 @@ class mcms
     if (!is_readable($filename))
       return false;
 
-    if ('/' == substr($filename, 0, 1))
+    if (DIRECTORY_SEPARATOR == substr($filename, 0, 1))
       $__fullpath = $filename;
     else
-      $__fullpath = MCMS_ROOT .'/'. $filename;
+      $__fullpath = MCMS_ROOT . DIRECTORY_SEPARATOR . $filename;
 
     if (file_exists($__fullpath)) {
-      $data['prefix'] = rtrim(dirname(dirname($filename)), '/');
+      $data['prefix'] = str_replace(DIRECTORY_SEPARATOR, '/', rtrim(dirname(dirname($filename)), DIRECTORY_SEPARATOR));
 
       ob_start();
 
@@ -935,9 +937,9 @@ class mcms
           $__smarty = new BebopSmarty($with_debug);
           $__smarty->template_dir = ($__dir = dirname($__fullpath));
 
-          if (is_dir($__dir .'/plugins')) {
+          if (is_dir($__dir . DIRECTORY_SEPARATOR . 'plugins')) {
             $__plugins = $__smarty->plugins_dir;
-            $__plugins[] = $__dir .'/plugins';
+            $__plugins[] = $__dir . DIRECTORY_SEPARATOR . 'plugins';
             $__smarty->plugins_dir = $__plugins;
           }
 
