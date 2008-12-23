@@ -63,7 +63,7 @@ class html
 
     $output .= self::attrs($parts);
 
-    if (null === $content and !in_array($name, array('a', 'script', 'div', 'textarea', 'span'))) {
+    if (null === $content and !in_array($name, array('a', 'script', 'div', 'textarea', 'span', 'base'))) {
       $output .= ' />';
     } else {
       $output .= '>'. $content .'</'. $name .'>';
