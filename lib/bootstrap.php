@@ -11,6 +11,8 @@ define('MCMS_ROOT', dirname(MCMS_LIB));
 
 chdir(MCMS_ROOT);
 
+set_include_path(MCMS_ROOT);
+
 require implode(DIRECTORY_SEPARATOR, array('lib', 'modules', 'base', 'class.os.php'));
 
 class Loader
@@ -52,7 +54,7 @@ class Loader
       'interfaces' => array(),
       );
 
-    $modules = glob(os::path(os::localpath(MCMS_LIB), 'modules', '*', 'module.ini'));
+    $modules = glob(os::path(MCMS_LIB, 'modules', '*', 'module.ini'));
 
     foreach ($modules as $modinfo) {
       $path = dirname($modinfo);
@@ -122,7 +124,7 @@ class Loader
       if (true) {
         // Добавляем в список только первый найденный класс.
         if (!array_key_exists($classname, $result['classes'])) {
-          $result['classes'][$classname] = $classpath;
+          $result['classes'][$classname] = os::localpath($classpath);
           $result['rclasses'][$classname] = $modname;
         }
 
