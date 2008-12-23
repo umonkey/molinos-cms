@@ -11,7 +11,7 @@ mcms::extras('themes/admin/js/installer.js', false);
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <base href='<?php print $base; ?>' />
+    <base href='<?php print $base; ?>'></base>
     <?php if (!empty($title)) print html::em('title', $title); ?>
     <?php print mcms::extras(); ?>
 
