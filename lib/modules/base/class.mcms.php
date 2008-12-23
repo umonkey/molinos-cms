@@ -541,12 +541,11 @@ class mcms
   {
     // Узнаем, куда же складывать дампы.
     // Если такой директории нет, пытаемся создать.
-    $dumpdir = mcms::config('dumpdir', 'tmp/crashdump');
-    if (!is_dir($dumpdir))
-      mkdir($dumpdir, 0700, true);
+    $dumpdir = mcms::mkdir(mcms::config('dumpdir', os::path('tmp', 'crashdump')));
+
     // Задаем файл для выгрузки дампа и проверяем на наличие,
     // если существует - добавляем случайный мусор в название.
-    $dumpfile = $dumpdir . '/' . date('Y-m-d-') . md5(serialize($_SERVER));
+    $dumpfile = os::path($dumpdir, date('Y-m-d-') . md5(serialize($_SERVER)));
     if (file_exists($dumpfile))
       $dumpfile .= rand();
     $dumpfile .= '.log';
