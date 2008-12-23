@@ -25,7 +25,7 @@ class http
 
     if (file_exists($outfile) and (($options & self::NO_CACHE) or ((time() - $ttl) > @filectime($outfile)))) {
       if (is_writable(dirname($outfile))) {
-        mcms::flog('removing cached copy of ' . $url);
+        // mcms::flog('removing cached copy of ' . $url);
         unlink($outfile);
       }
     }
