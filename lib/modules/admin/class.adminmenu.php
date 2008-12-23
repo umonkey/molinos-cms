@@ -83,7 +83,7 @@ class AdminMenu implements iAdminMenu
 
     $output .= '</ul>';
 
-    $this->cache($key, $output);
+    $this->cache($output);
 
     return $output;
   }
