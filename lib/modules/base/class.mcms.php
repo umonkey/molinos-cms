@@ -28,8 +28,7 @@ class mcms
 
   const VERSION_CURRENT = 1;
   const VERSION_RELEASE = 2;
-  const VERSION_AVAILABLE = 3;
-  const VERSION_AVAILABLE_URL = 4;
+  const VERSION_STABLE = 2;
 
   private static $extras = array();
 
@@ -572,17 +571,8 @@ class mcms
       $release = substr($release, 0, strspn($release, '0123456789.'));
       return $release;
 
-    case self::VERSION_AVAILABLE:
-      $release = self::version(self::VERSION_RELEASE);
-      $content = http::fetch('http://code.google.com/p/molinos-cms/downloads/list?q=label:R'. $release, http::CONTENT);
-
-      if (preg_match($re = "@http://molinos-cms\.googlecode\.com/files/molinos-cms-({$release}\.[0-9]+)\.zip@", $content, $m))
-        return $m[1];
-      else
-        return MCMS_VERSION;
-
-    case self::VERSION_AVAILABLE_URL:
-      return 'http://molinos-cms.googlecode.com/files/molinos-cms-'. self::version(self::VERSION_AVAILABLE) .'.zip';
+    case self::VERSION_STABLE:
+      return substr(MCMS_VERSION, 0, strspn(MCMS_VERSION, '0123456789.'));
     }
 
     return MCMS_VERSION;
@@ -1064,7 +1054,7 @@ class mcms
         'href' => $ctx->url()->getBase($ctx),
         ), $ctx->host() . $ctx->folder());
 
-      $link = 'http://code.google.com/p/molinos-cms/wiki/ChangeLog_' . str_replace('.', '_', mcms::version());
+      $link = 'http://code.google.com/p/molinos-cms/wiki/ChangeLog_' . str_replace('.', '_', mcms::version(mcms::VERSION_STABLE));
       $sig = '<em>Molinos CMS ' . l($link, 'v' . mcms::version());
 
       if ($full) {
