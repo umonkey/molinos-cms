@@ -26,6 +26,8 @@ class ModManControl extends Control
 
   public function getHTML($data)
   {
+    $result = '';
+
     foreach ($this->getSections($data->{$this->value}) as $name => $modules)
       $result .= $this->getSectionHTML($name, $modules);
 
