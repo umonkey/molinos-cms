@@ -30,7 +30,8 @@ class Attachment
         // TODO: cdw, другие опции
       }
 
-      $this->filename = $m[3];
+      if (!empty($m[3]))
+        $this->filename = $m[3];
 
       $fid = $m[1];
     }
