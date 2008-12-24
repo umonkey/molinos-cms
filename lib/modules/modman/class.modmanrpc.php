@@ -55,8 +55,12 @@ class ModManRPC implements iRemoteCall
     mcms::user()->checkAccess('u', 'moduleinfo');
 
     foreach ($ctx->post as $k => $v) {
-      if (substr($k, 0, 7) == 'config_' and !empty($v))
-        $conf[substr($k, 7)] = $v;
+      if (substr($k, 0, 7) == 'config_' and !empty($v)) {
+        if (is_array($v) and array_key_exists('__reset', $v))
+          unset($v['__reset']);
+        if (!empty($v))
+          $conf[substr($k, 7)] = $v;
+      }
     }
 
     if ('admin' == ($module = $ctx->get('module'))) {
