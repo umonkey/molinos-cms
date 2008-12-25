@@ -67,7 +67,7 @@ class BaseRPC implements iRemoteCall
         User::authorize($ctx->post('login'), $ctx->post('password'));
     }
 
-    catch (Exception $e) {
+    catch (ForbiddenException $e) {
       if ($next = $ctx->get('onerror'))
         return new Redirect($next);
 
