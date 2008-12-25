@@ -26,6 +26,8 @@
  */
 class TodoListWidget extends Widget
 {
+  private $options;
+
   public static function getWidgetInfo()
   {
     return array(
@@ -61,7 +63,7 @@ class TodoListWidget extends Widget
     else
       $options['relname'] = $ctx->document->name;
 
-    return $options;
+    return $this->options = $options;
   }
 
   public function onGet(array $options)
