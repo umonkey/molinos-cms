@@ -68,7 +68,7 @@ class Page
         '%name' => $data['name'],
         )));
 
-    $result = bebop_render_object('page', $data['name'], $ctx->theme, $pdata = array(
+    $result = template::render($ctx->theme, 'page', $data['name'], $pdata = array(
       'widgets' => $widgets,
       'page' => $data,
       'section' => ($ctx->section instanceof Node) ? $ctx->section->getRaw() : null,

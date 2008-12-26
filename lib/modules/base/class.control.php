@@ -130,7 +130,7 @@ abstract class Control implements iFormControl
     $class = get_class($this);
     $ctrln = mb_strtolower(substr($class, 0, -7));
 
-    return bebop_render_object('control', $ctrln, 'admin', array(
+    return template::render('admin', 'control', $ctrln, array(
       'd' => $data,
       'c' => $this,
       ), $class);

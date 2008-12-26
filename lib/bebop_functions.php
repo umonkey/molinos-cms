@@ -127,54 +127,6 @@ function bebop_on_json(array $result)
   }
 }
 
-// Применяет шаблон к данным.
-function bebop_render_object($type, $name, $theme = null, $data = array(), $classname = null)
-{
-  // Префикс всегда фиксированный и показывает на корень сайта.  Это нужно
-  // для корректной подгрузки стилей и скриптов, а также для работы
-  // относительных ссылок в любой ветке сайта.  Привязка к типовым страницам
-  // намеренно отключена, чтобы ссылка "node/123" _всегда_ вела в одно место.
-  $data['base'] = 'http://'. $_SERVER['HTTP_HOST'] . mcms::path() .'/';
-
-  $__options = bebop_get_templates($type, $name, $theme, $classname);
-
-  if ($data instanceof Exception) {
-    $data = array('error' => array(
-      'code' => $data->getCode(),
-      'class' => get_class($data),
-      'message' => $data->getMessage(),
-      'description' => $data->getMessage(),
-      ));
-  } elseif (!is_array($data)) {
-    $data = array($data);
-  }
-
-  // Передаём шаблону путь к шкуре.
-  $data['theme'] = $theme;
-  $data['prefix'] = 'themes/' . $theme;
-
-  // Исправляем разделители пути (для Windows итд).
-  foreach ($__options as $k => $v)
-    $__options[$k] = str_replace('/', DIRECTORY_SEPARATOR, $v);
-
-  if (!class_exists('BebopSmarty')) {
-    foreach ($__options as $k => $v) {
-      if (substr($v, -4) == '.tpl' and file_exists($v)) {
-        throw new RuntimeException(t('Вы попытались использовать шаблон на '
-          .'Smarty, однако соответствующий модуль отключен.  Попросите '
-          .'администратора сайта его включить.'));
-      }
-    }
-  }
-
-  foreach ($__options as $__filename) {
-    if (false !== ($output = mcms::render($__filename, $data)))
-      return $output;
-  }
-
-  return false;
-}
-
 function bebop_get_templates($type, $name, $theme = null, $classname = null)
 {
   if (null === $theme)

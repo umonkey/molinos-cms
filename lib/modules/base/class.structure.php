@@ -23,6 +23,7 @@ class Structure
   protected $domains = array();
   protected $access = array();
   protected $schema = array();
+  protected $templates = array();
 
   public static function getInstance()
   {
@@ -280,6 +281,7 @@ class Structure
         'domains' => $this->domains,
         'schema' => $this->schema,
         'access' => $this->access,
+        'templates' => $this->templates,
         ));
   }
 
@@ -287,5 +289,10 @@ class Structure
   {
     if (file_exists($file = $this->getFileName()))
       unlink($file);
+  }
+
+  public function getTemplateEngines()
+  {
+    return $this->templates;
   }
 }
