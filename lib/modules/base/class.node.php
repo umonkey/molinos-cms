@@ -45,7 +45,7 @@ class Node extends NodeBase implements iContentType
       $theme = Context::last()->theme;
     if (null === $data)
       $data = $this->data;
-    return bebop_render_object("type", $this->class, $theme, $data);
+    return template::render($theme, 'type', $this->class, $data);
   }
 
   /**

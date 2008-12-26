@@ -10,14 +10,14 @@ class InstallModule implements iRemoteCall
         $output = self::onGet($ctx);
     } catch (Exception $e) {
       mcms::fatal($e);
-      $output = mcms::render(__CLASS__, array(
+      $output = template::renderClass(__CLASS__, array(
         'mode' => 'error',
         'message' => $e->getMessage(),
         ));
     }
 
     if (is_array($output))
-      $output = mcms::render(__CLASS__, $output);
+      $output = template::renderClass(__CLASS__, $output);
 
     if (false === $output)
       mcms::fatal(t('Не удалось обработать запрос.'));

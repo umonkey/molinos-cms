@@ -1018,34 +1018,6 @@ class NodeBase
     return $nodes;
   }
 
-  // Применяет к объекту шаблон.  Формат имени шаблона: префикс.имя.tpl, префикс можно
-  // передать извне (по умолчанию используется "doc").  Если массив с данными пуст,
-  // будут использоваться данные текущего объекта.
-  /**
-   * Применение шаблона к объекту.
-   *
-   * Все параметры передаются в bebop_render_object().
-   *
-   * @see bebop_render_object()
-   *
-   * @param string $prefix если пусто — использлуется "doc".
-   *
-   * @param string $theme не изменяется.
-   *
-   * @param array $data если пусто — используется содержимое объекта.
-   *
-   * @return mixed полученные от шаблона результат (или NULL).
-   */
-  public function render($prefix = null, $theme = null, array $data = null)
-  {
-    if (null === $data)
-      $data = $this->data;
-    if (null === $prefix)
-      $prefix = 'doc';
-
-    return bebop_render_object($prefix, $theme, $data);
-  }
-
   // РАБОТА СО СВЯЗЯМИ.
   // Документация: http://code.google.com/p/molinos-cms/wiki/Node_links
 

@@ -664,7 +664,7 @@ class mcms
       if (null !== ($re = mcms::config('backtracerecipient'))) {
         $release = substr(mcms::version(), 0, -(strrpos(mcms::version(), '.') + 1));
 
-        $message = mcms::render(__CLASS__, array(
+        $message = template::renderClass(__CLASS__, array(
           'mode' => 'fatal',
           'url' => "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}",
           'host' => $_SERVER['HTTP_HOST'],
@@ -900,70 +900,6 @@ class mcms
       return $s->$args[0];
     elseif (count($args) >= 2)
       $s->$args[0] = $args[1];
-  }
-
-  public static function render($filename, array $data)
-  {
-    if (!file_exists($filename) and class_exists($filename, false))
-      if (null !== ($classpath = Loader::getClassPath($filename)))
-        $filename = str_replace('.php', '.phtml', $classpath);
-
-    if (!is_readable($filename))
-      return false;
-
-    if (DIRECTORY_SEPARATOR == substr($filename, 0, 1))
-      $__fullpath = $filename;
-    else
-      $__fullpath = MCMS_ROOT . DIRECTORY_SEPARATOR . $filename;
-
-    if (file_exists($__fullpath)) {
-      $data['prefix'] = str_replace(DIRECTORY_SEPARATOR, '/', rtrim(dirname(dirname($filename)), DIRECTORY_SEPARATOR));
-
-      ob_start();
-
-      $ext = strrchr($filename, '.');
-
-      if ($ext == '.tpl') {
-        if (class_exists('BebopSmarty')) {
-          $with_debug = (false !== strstr($filename, 'page.'));
-          $__smarty = new BebopSmarty($with_debug);
-          $__smarty->template_dir = ($__dir = dirname($__fullpath));
-
-          if (is_dir($__dir . DIRECTORY_SEPARATOR . 'plugins')) {
-            $__plugins = $__smarty->plugins_dir;
-            $__plugins[] = $__dir . DIRECTORY_SEPARATOR . 'plugins';
-            $__smarty->plugins_dir = $__plugins;
-          }
-
-          foreach ($data as $k => $v)
-            $__smarty->assign($k, $v);
-
-          error_reporting(($old = error_reporting()) & ~E_NOTICE);
-
-          $compile_id = md5($__fullpath);
-          $__smarty->display($__fullpath, $compile_id, $compile_id);
-
-          error_reporting($old);
-        } else {
-          mcms::flog($filename . ': unable to render: Smarty not available.');
-        }
-      }
-
-      elseif ($ext == '.php' or $ext == '.phtml') {
-        extract($data, EXTR_SKIP);
-        include($__fullpath);
-      }
-
-      $output = ob_get_clean();
-
-      if (file_exists($tmp = str_replace($ext, '.css', $filename)))
-        mcms::extras($tmp);
-
-      if (file_exists($tmp = str_replace($ext, '.js', $filename)))
-        mcms::extras($tmp);
-
-      return trim($output);
-    }
   }
 
   /**

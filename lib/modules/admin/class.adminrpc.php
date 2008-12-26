@@ -462,7 +462,7 @@ class AdminRPC implements iRemoteCall
         } catch (ObjectNotFoundException $e) {
         }
 
-        $result = bebop_render_object('page', 'login', 'lib/modules/admin');
+        $result = template::render(dirname(__FILE__), 'page', 'login');
 
         if (false === $result)
           throw new RuntimeException(t('Не удалось вывести страницу для входа '
@@ -481,7 +481,7 @@ class AdminRPC implements iRemoteCall
   {
     $data['base'] = mcms::path();
 
-    $output = bebop_render_object('page', 'admin', 'admin', $data);
+    $output = template::render('admin', 'page', 'admin', $data);
 
     return $output;
   }

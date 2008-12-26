@@ -22,6 +22,7 @@ class StructureMA
       'domains' => $this->domains,
       'schema' => $this->schema,
       'access' => $this->access,
+      'templates' => $this->getTemplates(),
       );
   }
 
@@ -166,5 +167,17 @@ class StructureMA
 
     foreach ($types as $type)
       $this->schema[$type] = Schema::load($type, /* $cached = */ false);
+  }
+
+  private function getTemplates()
+  {
+    $result = array();
+
+    foreach (Loader::getImplementors('iTemplateProcessor') as $class) {
+      foreach (call_user_func(array($class, 'getExtensions')) as $ext)
+        $result[$ext] = $class;
+    }
+
+    return $result;
   }
 }

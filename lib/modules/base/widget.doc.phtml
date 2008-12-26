@@ -10,7 +10,7 @@ if (!empty($document)) {
   if (!empty($neighbors))
     $data['neighbors'] = $neighbors;
 
-  $code = bebop_render_object('type', $document['class'], $theme, $data);
+  $code = template::render($theme, 'type', $document['class'], $data);
 
   if (!empty($code))
     print html::em('div', array(
