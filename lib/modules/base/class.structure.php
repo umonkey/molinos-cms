@@ -293,6 +293,12 @@ class Structure
 
   public function getTemplateEngines()
   {
+    if (!$this->loaded)
+      $this->load();
+
+    if (empty($this->templates))
+      $this->rebuild();
+
     return $this->templates;
   }
 }
