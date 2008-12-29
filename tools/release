@@ -34,6 +34,7 @@ zip -q9r molinos-cms-$MCMS_VERSION.zip \
   lib/modules/auth \
   lib/modules/base \
   lib/modules/install \
+  lib/modules/modman \
   lib/modules/nodeapi \
   lib/modules/phtml \
   lib/modules/pdo \
