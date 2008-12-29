@@ -4,6 +4,9 @@ class ModManScheduler implements iScheduler
 {
   public static function taskRun(Context $ctx)
   {
+    modman::updateDB();
+
+    /*
     if (($a = self::getAvailable()) == mcms::version())
       return;
 
@@ -19,6 +22,7 @@ class ModManScheduler implements iScheduler
     } catch (RuntimeException $e) {
       printf("error downloading an update: %s\n", $e->getMessage());
     }
+    */
   }
 
   /**

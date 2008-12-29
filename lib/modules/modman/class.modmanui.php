@@ -130,6 +130,7 @@ class ModManUI implements iAdminUI
           'version',
           'available',
           ),
+        'disable_required' => false,
         ),
       'submit' => array(
         'type' => 'SubmitControl',
@@ -168,8 +169,6 @@ class ModManUI implements iAdminUI
   {
     switch ($mode) {
     case 'update':
-      $sources = modman::getSources();
-
       return new Schema(array(
         'info' => array(
           'type' => 'InfoControl',
@@ -191,6 +190,7 @@ class ModManUI implements iAdminUI
             'version',
             'available',
             ),
+          'disable_required' => false,
           ),
         'submit' => array(
           'type' => 'SubmitControl',

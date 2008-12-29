@@ -13,6 +13,9 @@ class ModManControl extends Control
 {
   public function __construct(array $form)
   {
+    if (!array_key_exists('disable_required', $form))
+      $form['disable_required'] = true;
+
     parent::__construct($form, array('value', 'columns'));
   }
 
@@ -116,7 +119,7 @@ class ModManControl extends Control
       'name' => $this->value . '[]',
       'value' => $name,
       'checked' => empty($meta['installed']) ? '' : 'checked',
-      'disabled' => ($meta['priority'] == 'required') ? 'disabled' : '',
+      'disabled' => ($meta['priority'] == 'required' and $this->disable_required) ? 'disabled' : '',
       ));
   }
 
