@@ -35,6 +35,7 @@ zip -q9r molinos-cms-$MCMS_VERSION.zip \
   lib/modules/base \
   lib/modules/install \
   lib/modules/nodeapi \
+  lib/modules/phtml \
   lib/modules/pdo \
   lib/modules/update \
   themes
