@@ -13,10 +13,8 @@ class template
 
     $pass1 = $pass2 = array();
 
-    $s = Structure::getInstance();
-
     // Формирование списка возможных шаблонов.
-    foreach (Structure::getInstance()->getTemplateEngines() as $ext => $class) {
+    foreach (self::getEngines() as $ext => $class) {
       $pass1[os::path($themeName, 'templates', $templateType . '.' . $templateName . '.' . $ext)] = $class;
       $pass2[os::path($themeName, 'templates', $templateType . '.default.' . $ext)] = $class;
     }
@@ -74,7 +72,9 @@ class template
    */
   private static function getEngines()
   {
-    return Structure::getInstance()->getTemplateEngines();
+    $engines = Structure::getInstance()->getTemplateEngines();
+
+    return $engines;
   }
 
   /**
