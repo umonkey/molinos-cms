@@ -123,6 +123,9 @@ class ModManRPC implements iRemoteCall
     mcms::flush();
     mcms::flush(mcms::FLUSH_NOW);
 
+    // Обновляем базу модулей, чтобы выбросить удалённые локальные.
+    modman::updateDB();
+
     return new Redirect($next->string());
   }
 
