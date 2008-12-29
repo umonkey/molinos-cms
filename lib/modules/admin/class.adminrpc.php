@@ -133,6 +133,7 @@ class AdminRPC implements iRemoteCall
 
     $am = new AdminMenu();
     $result['dashboard'] = $am->__toString();
+    $result['base'] = $ctx->url()->getBase();
 
     return self::getPage($result);
   }
@@ -479,8 +480,6 @@ class AdminRPC implements iRemoteCall
 
   private static function getPage(array $data)
   {
-    $data['base'] = mcms::path();
-
     $output = template::render('admin', 'page', 'admin', $data);
 
     return $output;
