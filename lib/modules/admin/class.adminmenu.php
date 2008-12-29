@@ -228,6 +228,8 @@ class AdminMenu implements iAdminMenu
     $columns = array();
     $idx = 0;
 
+    $result = null;
+
     if (is_string($cached = mcms::cache($ckey = 'admin:desktop:status')))
       return $cached;
 
