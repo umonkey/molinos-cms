@@ -185,9 +185,9 @@ class modman
     zip::unzipToFolder($tmp, $path);
 
     if ($existed)
-      mcms::flog($name . ': updated.');
+      mcms::flog($name . ': updated from v' . $db[$name]['version.local'] . ' to v' . $db[$name]['version'] . '.');
     else
-      mcms::flog($name . ': installed.');
+      mcms::flog($name . ': installed v' . $db[$name]['version'] . '.');
 
     return true;
   }
