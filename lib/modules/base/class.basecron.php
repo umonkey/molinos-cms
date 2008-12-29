@@ -22,7 +22,7 @@ class BaseCron implements iScheduler
       $message = t('Can not read crashdump directory') . '<br />';
     }
 
-    if (0 != $count) {
+    if (0 != $count and class_exists('BebopMimeMail')) {
       BebopMimeMail::send(
         mcms::config('mail.from'),
         mcms::config('backtracerecipients'),
