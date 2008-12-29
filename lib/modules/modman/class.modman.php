@@ -67,18 +67,9 @@ class modman
    */
   public static function getLocalModules()
   {
-    $result = array();
-
-    foreach (glob(os::path('lib', 'modules', '*', 'module.ini')) as $file) {
-      $ini = ini::read($file);
-      $name = basename(dirname($file));
-      $ini['enabled'] = modman::isInstalled($name);
-      $ini['version.local'] = $ini['version'];
-      unset($ini['version']);
-      if (!empty($ini['name.ru']))
-        $ini['name'] = $ini['name.ru'];
-      $result[$name] = $ini;
-    }
+    foreach ($result = self::getAllModules() as $name => $info)
+      if (empty($info['installed']))
+        unset($result[$name]);
 
     return $result;
   }
@@ -233,15 +224,11 @@ class modman
   {
     $inipath = os::path('lib', 'modules', $moduleName, 'module.ini');
 
-    if (!file_exists($inipath))
-      throw new RuntimeException(t('Модуль %name повреждён или не является модулем.', array(
-        '%name' => $moduleName,
-        )));
-
-    $ini = ini::read($inipath);
-
-    if ('required' == $ini['priority'])
-      return;
+    if (file_exists($inipath)) {
+      $ini = ini::read($inipath);
+      if ('required' == $ini['priority'])
+        return;
+    }
 
     os::rmdir(dirname($inipath));
 
