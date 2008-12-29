@@ -83,8 +83,11 @@ class ModManUI implements iAdminUI
         . urlencode($ctx->get('destination', 'CURRENT')),
       ));
 
+    if (!count($modules = modman::getAllModules()))
+      $modules = modman::updateDB();
+
     return $form->getHTML(Control::data(array(
-      'modules' => modman::getAllModules(),
+      'modules' => $modules,
       )));
   }
 
