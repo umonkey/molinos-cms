@@ -125,19 +125,35 @@ class modman
     }
 
     // Добавление информации о локальных модулях.
-    foreach (glob(os::path('lib', 'modules', '*', 'module.ini')) as $file) {
-      $name = basename(dirname($file));
-      $ini = ini::read($file);
+    foreach (glob(os::path('lib', 'modules', '*')) as $dir) {
+      $name = basename($dir);
 
-      if (array_key_exists('version', $ini)) {
-        $ini['version.local'] = $ini['version'];
-        unset($ini['version']);
+      // Информация о модуле существует, загружаем.
+      if (file_exists($file = os::path($dir, 'module.ini'))) {
+        $ini = ini::read($file);
+
+        if (array_key_exists('version', $ini)) {
+          $ini['version.local'] = $ini['version'];
+          unset($ini['version']);
+        }
+
+        if (!array_key_exists($name, $modules))
+          $modules[$name] = $ini;
+        else
+          $modules[$name]['version.local'] = $ini['version.local'];
       }
 
-      if (!array_key_exists($name, $modules))
-        $modules[$name] = $ini;
-      else
-        $modules[$name]['version.local'] = $ini['version.local'];
+      // Информации о файле нет, устанавливаем версию 0.0
+      // для возможности обновления.
+      elseif (!array_key_exists($name, $modules)) {
+        $modules[$name] = array(
+          'name' => t('Неопознанный модуль.'),
+          'version.local' => '0.0',
+          'section' => 'custom',
+          'priority' => 'optional',
+          'installed' => true,
+          );
+      }
     }
 
     mcms::flog('module info updated, ' . count($modules) . ' module(s) available.');
