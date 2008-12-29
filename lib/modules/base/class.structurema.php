@@ -174,8 +174,9 @@ class StructureMA
     $result = array();
 
     foreach (Loader::getImplementors('iTemplateProcessor') as $class) {
-      foreach (call_user_func(array($class, 'getExtensions')) as $ext)
-        $result[$ext] = $class;
+      if (class_exists($class))
+        foreach (call_user_func(array($class, 'getExtensions')) as $ext)
+          $result[$ext] = $class;
     }
 
     return $result;
