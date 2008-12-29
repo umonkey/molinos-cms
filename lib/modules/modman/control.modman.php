@@ -29,56 +29,19 @@ class ModManControl extends Control
 
   public function getHTML($data)
   {
-    $result = '';
-
-    foreach ($this->getSections($data->{$this->value}) as $name => $modules)
-      $result .= $this->getSectionHTML($name, $modules);
+    $result = $this->getRowsHTML($data->{$this->value});
 
     $this->nolabel = true;
 
     mcms::extras(substr(Loader::getClassPath(__CLASS__), 0, -3) . 'css');
+    mcms::extras(substr(Loader::getClassPath(__CLASS__), 0, -3) . 'js');
 
     return $this->wrapHTML(html::em('table', $result));
   }
 
-  private function getSections(array $data)
+  private function getRowsHTML(array $modules)
   {
-    $map = array(
-      'base' => t('Основная функциональность'),
-      'admin' => t('Администрирование'),
-      'core' => t('Ядро'),
-      'blog' => t('Блоги'),
-      'spam' => t('Спам'),
-      'commerce' => t('Коммерция'),
-      'interaction' => t('Интерактив'),
-      'performance' => t('Производительность'),
-      'service' => t('Служебные'),
-      'multimedia' => t('Мультимедиа'),
-      'syndication' => t('Обмен данными'),
-      'templating' => t('Шаблоны'),
-      'visual' => t('Визуальные редакторы'),
-      'custom' => t('Локальные'),
-      );
-
-    $result = array();
-
-    foreach ($data as $k => $v) {
-      $name = array_key_exists($v['section'], $map)
-        ? $map[$v['section']]
-        : $v['section'];
-      $result[$name][$k] = $v;
-    }
-
-    ksort($result);
-
-    return $result;
-  }
-
-  private function getSectionHTML($section, array $modules)
-  {
-    $output = html::em('tr', html::em('th', array(
-      'colspan' => count($this->columns),
-      ), $section));
+    $output = '';
 
     foreach ($modules as $name => $meta) {
       $row = "";
@@ -107,7 +70,16 @@ class ModManControl extends Control
         $row .= html::em('td', $value);
       }
 
-      $output .= html::em('tr', $row);
+      $class = array();
+
+      if (!empty($meta['installed']))
+        $class[] = 'installed';
+      if (!empty($meta['section']))
+        $class[] = 'section-' . $meta['section'];
+
+      $output .= html::em('tr', array(
+        'class' => $class,
+        ), $row);
     }
 
     return $output;

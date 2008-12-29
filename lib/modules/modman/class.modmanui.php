@@ -63,6 +63,30 @@ class ModManUI implements iAdminUI
   protected static function aui_addremove(Context $ctx)
   {
     $schema = new Schema(array(
+      'filter' => array(
+        'type' => 'EnumControl',
+        'label' => t('Показать'),
+        'required' => true,
+        'class' => 'modman-filter',
+        'options' => array(
+          '' => t('все модули'),
+          'installed' => t('только установленные'),
+          'section-base' => t('Основная функциональность'),
+          'section-admin' => t('Администрирование'),
+          'section-core' => t('Ядро'),
+          'section-blog' => t('Блоги'),
+          'section-spam' => t('Спам'),
+          'section-commerce' => t('Коммерция'),
+          'section-interaction' => t('Интерактив'),
+          'section-performance' => t('Производительность'),
+          'section-service' => t('Служебные'),
+          'section-multimedia' => t('Мультимедиа'),
+          'section-syndication' => t('Обмен данными'),
+          'section-templating' => t('Шаблоны'),
+          'section-visual' => t('Визуальные редакторы'),
+          'section-custom' => t('Локальные'),
+          ),
+        ),
       'modules' => array(
         'type' => 'ModManControl',
         'columns' => array(
