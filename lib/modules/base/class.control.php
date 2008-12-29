@@ -263,6 +263,9 @@ abstract class Control implements iFormControl
       $this->value . '-field-wrapper',
       );
 
+    if (!empty($this->class))
+      $classes = array_merge($classes, $this->class);
+
     if (in_array('hidden', (array)$this->class))
       $classes[] = 'hidden';
 
