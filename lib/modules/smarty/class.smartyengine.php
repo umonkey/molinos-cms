@@ -9,6 +9,9 @@ class SmartyEngine implements iTemplateProcessor
 
   public static function processTemplate($fileName, array $data)
   {
+    if (!class_exists('Smarty'))
+      require os::path(dirname(__FILE__), 'Smarty-2.6.21', 'libs', 'Smarty.class.php');
+
     $__smarty = new BebopSmarty();
 
     $__smarty->template_dir = ($__dir = dirname($fileName));
@@ -27,7 +30,7 @@ class SmartyEngine implements iTemplateProcessor
     $compile_id = md5($fileName);
 
     ob_start();
-    $__smarty->display($fileName, $compile_id, $compile_id);
+    $__smarty->display(basename($fileName), $compile_id, $compile_id);
     $output = ob_get_clean();
 
     error_reporting($old);
