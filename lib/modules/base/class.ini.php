@@ -36,7 +36,9 @@ class ini
     // Теперь сохраняем секции.
     foreach ($data as $k => $v)
       if (is_array($v) and !empty($v)) {
-        $output .= sprintf("\n[%s]\n", $k);
+        if (!empty($output))
+          $output .= "\n";
+        $output .= sprintf("[%s]\n", $k);
         $output .= self::write_keys($v);
       }
 
