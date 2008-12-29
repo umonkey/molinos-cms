@@ -57,6 +57,7 @@ class ModManControl extends Control
       'syndication' => t('Обмен данными'),
       'templating' => t('Шаблоны'),
       'visual' => t('Визуальные редакторы'),
+      'custom' => t('Локальные'),
       );
 
     $result = array();
