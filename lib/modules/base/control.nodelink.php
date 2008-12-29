@@ -76,11 +76,11 @@ class NodeLinkControl extends Control
 
     $this->addClass('form-text');
 
-    if (!$this->readonly) {
+    if (!$this->readonly and modman::isInstalled('autocomplete')) {
       $this->addClass('autocomplete');
 
-      mcms::extras('themes/all/jquery/plugins/jquery.suggest.js');
-      mcms::extras('themes/all/jquery/plugins/jquery.suggest.css');
+      mcms::extras('lib/modules/autocomplete/jquery.suggest.js');
+      mcms::extras('lib/modules/autocomplete/jquery.suggest.css');
     }
 
     $output = html::em('input', array(
