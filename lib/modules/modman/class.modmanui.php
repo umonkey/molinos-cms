@@ -71,6 +71,7 @@ class ModManUI implements iAdminUI
         'options' => array(
           '' => t('все модули'),
           'installed' => t('только установленные'),
+          'uninstalled' => t('не установленные'),
           'section-base' => t('Основная функциональность'),
           'section-admin' => t('Администрирование'),
           'section-core' => t('Ядро'),

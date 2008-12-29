@@ -72,7 +72,9 @@ class ModManControl extends Control
 
       $class = array();
 
-      if (!empty($meta['installed']))
+      if (empty($meta['installed']))
+        $class[] = 'uninstalled';
+      else
         $class[] = 'installed';
       if (!empty($meta['section']))
         $class[] = 'section-' . $meta['section'];
