@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class MaintenanceModule implements iModuleConfig
+class MaintenanceModule implements iRequestHook
 {
   public static function hookRequest(Context $ctx = null)
   {
