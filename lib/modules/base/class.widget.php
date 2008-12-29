@@ -294,7 +294,7 @@ abstract class Widget implements iWidget
         $data['instance'] = $this->name;
         $data['lang'] = $ctx->getLang();
 
-        $result = template::renderClass(get_class($this),'widget', $this->name, $data);
+        $result = template::render($ctx->theme, 'widget', $this->name, $data);
 
         if (false === $result and array_key_exists('html', $data))
           $result = $data['html'];
