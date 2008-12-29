@@ -42,19 +42,14 @@ zip -q9r molinos-cms-$MCMS_VERSION.zip \
 echo -n "Preparing modules: "
 php -f tools/rebuild-modules.php $DIR/svn/modules.ini || exit 1
 
-if [ -n "$(ls tmp/modules)" ]; then
-    echo "done, uploading."
+echo "done, uploading."
 
-    for ZIP in tmp/modules/*.zip; do
+for ZIP in tmp/modules/*.zip; do
+    if [ -f "$ZIP" ]; then
         NAME=$(basename $ZIP)
+        echo "$NAME: uploading."
+        googlecode_upload.py -s $NAME -p molinos-cms -l Type-Module $ZIP
+    fi
+done
 
-        if [ $NAME -ne "*.zip" ]; then
-            echo "$NAME: uploading."
-            googlecode_upload.py -s $NAME -p molinos-cms -l Type-Module $ZIP
-        fi
-    done
-
-    svn ci -m "Semi-automatic release." $DIR/svn
-else
-    echo "nothing new."
-fi
+svn ci -m "Semi-automatic release." $DIR/svn

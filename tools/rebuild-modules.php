@@ -39,37 +39,17 @@ class Builder
       }
 
       if (!in_array($zipname = $module . '-' . $ini['version'] . '.zip', $existing)) {
-        $ini['filename'] = $zipname;
         zip::fromFolder($fullzipname = os::path($tmpdir, $ini['filename']), dirname($inifile));
-        $ini['sha1'] = sha1_file($fullzipname);
-
-        $this->modules[$module] = $ini;
-
         printf("new file: %s\n", $fullzipname);
       }
-    }
 
-    $header =
-      "; Дата создания: " . mcms::now() . "\n"
-      . ";\n"
-      . "; Секции:\n"
-      . ";   core = необходимая функциональность\n"
-      . ";   base = базовая функциональность\n"
-      . ";   admin = функции для администрирования\n"
-      . ";   service = сервисные функции\n"
-      . ";   blog = работа с блогами\n"
-      . ";   spam = борьба со спамом\n"
-      . ";   commerce = электронная коммерция\n"
-      . ";   interaction = интерактив\n"
-      . ";   performance = производительность\n"
-      . ";   multimedia = мультимедийные функции\n"
-      . ";   syndication = обмен данными между сайтами\n"
-      . ";   templating = работа с шаблонами\n"
-      . ";   visual = визуальные редакторы\n";
+      $ini['filename'] = $zipname;
+      $this->modules[$module] = $ini;
+    }
 
     ksort($this->modules);
 
-    ini::write($this->inifile, $this->modules, $header);
+    ini::write($this->inifile, $this->modules);
   }
 }
 
