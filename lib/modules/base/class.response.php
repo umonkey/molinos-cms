@@ -145,7 +145,7 @@ class Response
         $content = preg_replace($re, '\1=\2\3\4', $content);
       }
 
-      $content = str_replace('<head>', '<head><meta name="genetator" content="Molinos CMS v' . mcms::version() . '" />', $content);
+      $content = str_replace('<head>', '<head><meta name="generator" content="Molinos CMS v' . mcms::version() . '" />', $content);
     }
 
     return $content;
