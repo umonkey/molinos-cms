@@ -3,6 +3,7 @@
 DIR=$(dirname $0)
 
 MCMS_VERSION=$(grep "define('MCMS_VERSION'" < $DIR/../lib/bootstrap.php | sed -e s"@define('MCMS_VERSION', '\|');@@g")
+MCMS_RELEASE=$(echo $MCMS_VERSION | sed -re 's/^([0-9]+\.[0-9]+).*/\1/g')
 
 if [ -z "$MCMS_VERSION" ]; then
     echo "Unable to find version number in lib/bootstrap.php"
@@ -10,14 +11,14 @@ if [ -z "$MCMS_VERSION" ]; then
 fi
 
 if [ ! -d $DIR/svn/.svn ]; then
-  echo "Please checkout dist/* as $DIR/svn, eg:"
-  echo "$ svn checkout http://molinos-cms.googlecode.com/svn/dist/??? $DIR/svn"
+  echo "Please checkout dist/ as $DIR/svn, eg:"
+  echo "$ svn checkout https://molinos-cms.googlecode.com/svn/dist/ $DIR/svn"
   exit 1
 fi
 
-if [ ! -f $DIR/svn/modules.ini ]; then
-  touch $DIR/svn/modules.ini
-  svn add $DIR/svn/modules.ini
+if [ ! -f $DIR/svn/$MCMS_RELEASE/modules.ini ]; then
+  touch $DIR/svn/$MCMS_RELEASE/modules.ini
+  svn add $DIR/svn/$MCMS_RELEASE/modules.ini
 fi
 
 git clean -fd
@@ -42,7 +43,7 @@ zip -q9r molinos-cms-$MCMS_VERSION.zip \
   themes
 
 echo -n "Preparing modules: "
-php -f tools/rebuild-modules.php $DIR/svn/modules.ini || exit 1
+php -f tools/rebuild-modules.php $DIR/svn/$MCMS_RELEASE/modules.ini || exit 1
 
 echo "done, uploading."
 
