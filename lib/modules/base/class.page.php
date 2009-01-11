@@ -94,8 +94,11 @@ class Page
         . '<table class=\'debug\'>';
 
       $u = $ctx->url()->string();
+	  
+      $widgetslist = Structure::getInstance()->findWidgets($data['page']['widgets']['default']);
+      uksort($widgetslist, "strnatcmp");
 
-      foreach (Structure::getInstance()->findWidgets($data['page']['widgets']['default']) as $name => $info) {
+      foreach ($widgetslist as $name => $info) {
         $wlink = $u . '&widget=' . $name;
         $slink = '?q=admin/structure/edit/' . $info['id'] . '&destination=CURRENT';
 
