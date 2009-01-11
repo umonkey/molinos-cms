@@ -39,8 +39,8 @@ class Builder
       }
 
       if (!in_array($zipname = $module . '-' . $ini['version'] . '.zip', $existing)) {
-        zip::fromFolder($fullzipname = os::path($tmpdir, $ini['filename']), dirname($inifile));
-        printf("new file: %s\n", $fullzipname);
+        zip::fromFolder($fullzipname = os::path($tmpdir, $zipname), dirname($inifile));
+        printf("new file: %s\n", basename($fullzipname));
       }
 
       $ini['filename'] = $zipname;
