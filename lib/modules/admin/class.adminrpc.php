@@ -136,7 +136,7 @@ class AdminRPC implements iRemoteCall
     $result .= $am->getXML();
 
     return self::getPage($ctx, array(
-      'base' => $ctx->url()->getBase(),
+      'base' => $ctx->url()->getBase($ctx),
       'content' => $result,
       ));
   }
