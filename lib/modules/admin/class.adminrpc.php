@@ -133,7 +133,7 @@ class AdminRPC implements iRemoteCall
 
     $am = new AdminMenu();
     $result['dashboard'] = $am->__toString();
-    $result['base'] = $ctx->url()->getBase();
+    $result['base'] = $ctx->url()->getBase($ctx);
 
     return self::getPage($result);
   }
