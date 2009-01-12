@@ -252,18 +252,14 @@ html>body .spacer_not_ie {
   font-size: 93%;
 }
 
-form.tabbed ul.ftabber-tabs li {
-  list-style: none;
-  float: left;
-}
-form.tabbed ul.ftabber-tabs li a {
-  display: block;
-  padding: 5px 16px 6px 15px;
-}
-form.tabbed ul.ftabber-tabs li.active a {
-  text-decoration: none;
-}
-form.tabbed .tab-content {
+/* навигация по вкладкам */
+form.tabbed ul.tabber-navigation { list-style:none outside; }
+	form.tabbed ul.tabber-navigation li { float: left; }
+		form.tabbed ul.tabber-navigation li a { display:block; padding:5px 16px 6px 15px; }
+		form.tabbed ul.tabber-navigation li.active a { text-decoration:none; }
+
+/* вкладка */
+form.tabbed .tabber-tab {
   padding: 4px 0 0 0;
   clear: both;
   border: none;

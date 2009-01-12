@@ -65,15 +65,9 @@ $(document).ready(function () {
 	// Превращение филдсетов в табы
 	if ($('form.tabbed').length != 0) {
 		$('.tabbed').tabber({
-			active: 0,
 			selectors: {
-				tab: 'fieldset.tabable',
-				header: '>legend'
-			},
-			classes: {
-				tab: 'tab-content',
-				controls: 'ftabber-tabs',
-				container: 'ftabber-form'
+				tabContainer: 'fieldset.tabable',
+				tabTitle: '>legend'
 			}
 		});
 	}

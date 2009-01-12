@@ -24,13 +24,11 @@ a, .fakelink {
   background-color: #c0e6c0;
 }
 
-form.tabbed ul.ftabber-tabs li a {
-  color: black;
-}
-form.tabbed ul.ftabber-tabs li.active a {
-  background-color: #e4ecee;
-}
-form.tabbed .tab-content {
+/* навигация по вкладкам */
+form.tabbed ul.tabber-navigation li a { color:black; }
+form.tabbed ul.tabber-navigation li.active a { background-color: #e4ecee; }
+/* вкладка */
+form.tabbed .tabber-tab {
   border-top: 2px solid #e4ecee;
 }
 
