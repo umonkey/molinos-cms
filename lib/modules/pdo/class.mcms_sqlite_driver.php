@@ -12,7 +12,7 @@ class mcms_sqlite_driver extends PDO_Singleton
     $dsn = 'sqlite:'. $this->dbfile;
 
     if (':memory:' != $this->dbfile) {
-      if (!file_exists($this->dbfile))
+      if (!file_exists(realpath($this->dbfile)))
         throw new NotInstalledException('db');
     }
 
