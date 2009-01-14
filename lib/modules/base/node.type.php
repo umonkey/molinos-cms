@@ -15,7 +15,7 @@
  * @package mod_base
  * @subpackage Types
  */
-class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
+class TypeNode extends Node implements iContentType
 {
   // Устанавливается при изменении внутреннего имени.  После сохранения все
   // документы этого типа обновляются.
@@ -300,50 +300,6 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
 
     if (!$ok)
       throw new ValidationException('name', t("Имя поля может содержать только буквы латинского алфавита, арабские цифры и символ подчёркивания (\"_\"), вы ввели: %name.", array('%name' => $name)));
-  }
-
-  /**
-   * Выполнение периодических задач.
-   */
-  public static function taskRun(Context $ctx)
-  {
-    // FIXME: что это должно делать ваще??
-    return;
-
-    $count = 0;
-    $sql = "SELECT `x`.`id` AS `id` FROM `node` `n` "
-      ."INNER JOIN `node__rev` `r` ON `r`.`rid` = `n`.`rid` "
-      ."INNER JOIN `node` `x` ON `x`.`class` = `r`.`name` "
-      ."WHERE `n`.`class` = 'type' AND `x`.`updated` < `n`.`updated` "
-      ."AND `n`.`deleted` = 0 "
-      ."AND `x`.`class` NOT IN ('type', 'widget', 'domain', 'tag', 'user') "
-      ."LIMIT 10";
-
-    while (count($ids = $ctx->db->getResultsV('id', $sql))) {
-      $nodes = Node::find(array('id' => $ids));
-
-      foreach ($nodes as $node) {
-        $node->save();
-        $count++;
-      }
-    }
-  }
-
-  public static function formGetModuleConfig()
-  {
-    $form = new Form(array());
-
-    $form->addControl(new EmailControl(array(
-      'value' => 'config_from',
-      'label' => t('Адрес отправителя'),
-      'default' => mcms::config('mail_from'),
-      )));
-
-    return $form;
-  }
-
-  public static function hookPostInstall()
-  {
   }
 
   public static function isReservedFieldName($field)
