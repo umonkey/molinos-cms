@@ -22,6 +22,11 @@ class SmartyEngine implements iTemplateProcessor
       $__smarty->plugins_dir = $__plugins;
     }
 
+    // Двойной вызов dirname() нужен потому, что шаблон лежит
+    // в папке templates, а нам нужен её родитель.
+    if (empty($data['prefix']))
+      $data['prefix'] = os::localpath(dirname(dirname($fileName)));
+
     foreach ($data as $k => $v)
       $__smarty->assign($k, $v);
 
