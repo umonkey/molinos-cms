@@ -35,8 +35,15 @@ class zip
   public static function unzipToFolder($zipName, $folderPath)
   {
     if (!self::isAvailable())
+<<<<<<< HEAD:lib/modules/base/class.zip.php
       throw new ZipException();
 
+=======
+      throw new RuntimeException(t('Извините, функции для работы с ZIP архивами недоступны. Поможет <a href="@url">установка расширения zip</a>.', array(
+        '@url' => 'http://docs.php.net/manual/ru/zip.installation.php',
+        )));
+      
+>>>>>>> 88523a7... Вывод сообщения при недоступности расширения ZIP.:lib/modules/base/class.zip.php
     $tmpDir = file_exists($folderPath)
       ? $folderPath . '.tmp'
       : $folderPath;
