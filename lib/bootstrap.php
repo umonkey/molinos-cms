@@ -191,7 +191,7 @@ class Loader
   public static function autoload($className)
   {
     if (null !== ($path = self::getClassPath($className))) {
-      if (!file_exists($path)) {
+      if (!file_exists(realpath($path))) {
         mcms::flog($className . ' is in a file which does not exist.');
         return;
       }
