@@ -338,9 +338,9 @@ class FileNode extends Node implements iContentType
       unset($this->replace);
     }
 
-    return $this->id
-      ? $this
-      : $this->file;
+    return ($this->file instanceof FileNode)
+      ? $this->file
+      : $this;
   }
 
   // РАБОТА С FTP.

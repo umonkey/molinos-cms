@@ -32,7 +32,7 @@ class template
    */
   public static function renderClass($className, array $data)
   {
-    if (false !== ($classPath = Loader::getClassPath())) {
+    if (false !== ($classPath = Loader::getClassPath($className))) {
       $base = self::getBaseName($classPath);
 
       foreach (self::getEngines() as $ext => $class)
