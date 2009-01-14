@@ -73,7 +73,7 @@ class Page
       'page' => $data,
       'section' => ($ctx->section instanceof Node) ? $ctx->section->getRaw() : null,
       'root' => ($ctx->root instanceof Node) ? $ctx->root->getRaw() : null,
-      'base' => $ctx->url()->getBase(),
+      'base' => $ctx->url()->getBase($ctx),
       ));
 
     $result = str_replace(
