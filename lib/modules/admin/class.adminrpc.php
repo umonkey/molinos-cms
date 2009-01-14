@@ -20,6 +20,7 @@ class AdminRPC implements iRemoteCall
       mcms::flush(mcms::FLUSH_NOW);
 
       Structure::getInstance()->rebuild();
+      Loader::rebuild();
 
       break;
 
