@@ -379,10 +379,10 @@ class AdminListHandler
   private function haveModule($moduleName)
   {
     if (empty($modulename))
-      return false;
+      return true;
 
     if (!class_exists('modman'))
-      return false;
+      return true;
 
     if (!modman::isInstalled($moduleName))
       return false;
