@@ -106,6 +106,11 @@ class Structure
         }
 
         if (0 === strpos($path, $page)) {
+          if ('/' == ($realpage = $page))
+            $page = '';
+
+          // Если запрошенный путь начинается с имени текущей страницы
+          // и содержит слэш — за ним, вероятно, следуют параметры.
           if ('/' == substr($path, strlen($page), 1)) {
             $args = explode('/', trim(substr($path, strlen($page) + 1), '/'));
 
@@ -117,7 +122,7 @@ class Structure
             if (count($args) > count(explode('+', $meta['params'])))
               continue;
 
-            $match = $page;
+            $match = $realpage;
           }
         }
       }
