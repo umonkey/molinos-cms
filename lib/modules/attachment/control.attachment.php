@@ -78,6 +78,9 @@ class AttachmentControl extends Control
 
   public function set($value, Node &$node)
   {
+    if (empty($value) or !is_array($value))
+      return;
+
     switch ($value['error']) {
     case UPLOAD_ERR_OK:
       $value = Node::create('file')->import($value);
