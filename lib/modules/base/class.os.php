@@ -92,14 +92,15 @@ class os
           unlink($fileName);
         else
           throw new RuntimeException(t('Изменение файла %file невозможно: он защищён от записи.', array(
-            '%file' => $vpath,
+            '%file' => self::localpath($vpath),
             )));
       }
     }
 
     if (!@file_put_contents($fileName, $content))
-      throw new RuntimeException(t('Не удалось записать файл %file.', array(
-        '%file' => $vpath,
+      throw new RuntimeException(t('Не удалось записать файл %file, проверьте права на папку %folder.', array(
+        '%file' => self::localpath($vpath),
+        '%folder' => dirname(self::localpath($vpath)),
         )));
   }
 
