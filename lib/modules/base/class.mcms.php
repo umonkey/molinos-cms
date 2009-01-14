@@ -982,16 +982,17 @@ class mcms
 
   public static function getSignature(Context $ctx = null, $full = false)
   {
+    $result = array(
+      'version' => mcms::version(),
+      'client' => $_SERVER['REMOTE_ADDR'],
+      );
+
     try {
       if (null === $ctx)
         $ctx = new Context();
 
-      $at = html::em('a', array(
-        'href' => $ctx->url()->getBase($ctx),
-        ), $ctx->host() . $ctx->folder());
-
-      $link = 'http://code.google.com/p/molinos-cms/wiki/ChangeLog_' . str_replace('.', '_', mcms::version(mcms::VERSION_STABLE));
-      $sig = '<em>Molinos CMS ' . l($link, 'v' . mcms::version());
+      $result['at'] = $ctx->host() . $ctx->folder();
+      $result['version_link'] = 'http://code.google.com/p/molinos-cms/wiki/ChangeLog_' . str_replace('.', '_', mcms::version(mcms::VERSION_STABLE));
 
       if ($full) {
         $options = array();
@@ -1003,19 +1004,19 @@ class mcms
         $options[] = str_replace('_provider', '', get_class(BebopCache::getInstance()));
         $options[] = ini_get('memory_limit');
 
-        $sig .= ' [' . join('+', $options) . ']';
+        $result['options'] = join('+', $options);
       }
-
-      $sig .= ' at '. $at;
-      $sig .= ', ваш адрес: ' . $_SERVER['REMOTE_ADDR'] . '.';
-      $sig .= '</em>';
     }
 
     catch (Exception $e) {
-      $sig = 'Molinos CMS v' . mcms::version();
     }
 
-    return $sig;
+    return $result;
+  }
+
+  public static function getSignatureXML(Context $ctx = null)
+  {
+    return html::em('signature', self::getSignature($ctx, true));
   }
 
   public static function run(Context $ctx = null)

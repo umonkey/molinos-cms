@@ -7,8 +7,8 @@
  * но он упрощает многие вещи, например — формирование подписи
  * или использование вложенных элементов.
  *
- * @see Control::wrapHTML()
- * @see Control::getChildrenHTML()
+ * @see Control::wrapXML()
+ * @see Control::getChildrenXML()
  *
  * @package mod_base
  * @subpackage Controls
@@ -25,8 +25,8 @@
  * но он упрощает многие вещи, например — формирование подписи
  * или использование вложенных элементов.
  *
- * @see Control::wrapHTML()
- * @see Control::getChildrenHTML()
+ * @see Control::wrapXML()
+ * @see Control::getChildrenXML()
  *
  * @package mod_base
  * @subpackage Controls
@@ -119,10 +119,13 @@ abstract class Control implements iFormControl
     $this->form['class'][] = $class;
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
-    mcms::debug("Missing getHTML() handler in ". get_class($this) ."!", $this, $data);
-    return null;
+    throw new RuntimeException(t('В классе %class (%file) нет метода %method!', array(
+      '%class' => get_class($this),
+      '%file' => Loader::getClassPath(get_class($this)),
+      '%method' => 'getXML()',
+      )));
   }
 
   protected function render(array $data)
@@ -138,7 +141,7 @@ abstract class Control implements iFormControl
 
   protected function getHidden(array $data)
   {
-    return html::em('input', array(
+    return html::em('control', array(
       'type' => 'hidden',
       'name' => $this->value,
       'value' => array_key_exists($this->value, $data) ? $data[$this->value] : null,
@@ -214,65 +217,36 @@ abstract class Control implements iFormControl
     return $this->children;
   }
 
-  protected function getChildrenHTML($data)
+  protected function getChildrenXML($data)
   {
-    $fields = '';
-    $hidden = '';
-    $other = '';
+    $output = '';
 
-    foreach ($this->children as $child) {
-      $child->captcha = $this->captcha;
-
-      if ($child instanceof FieldSetControl)
-        $fields .= $child->getHTML($data);
-      elseif ($child instanceof HiddenControl)
-        $hidden .= $child->getHTML($data);
-      else
-        $other .= $child->getHTML($data);
-    }
-
-    $output = $fields;
-
-    if (!empty($hidden))
-      $output .= html::em('fieldset', array(
-        'style' => 'display:none',
-        ), $hidden);
-
-    $output .= $other;
+    foreach ($this->children as $child)
+      $output .= $child->getXML($data);
 
     return $output;
   }
 
-  protected function wrapHTML($output, $with_label = true)
+  protected final function wrapXML(array $options, $content = null)
   {
-    if (!empty($this->nolabel))
-      $with_label = false;
+    $class = strtolower(get_class($this));
 
-    if ($with_label)
-      $output = $this->getLabel($output);
+    if (substr($class, -7) != 'control')
+      throw new RuntimeException(t('У классов, реализующих контролы, должен быть суффикс Control.'));
 
-    if (isset($this->description)) {
-      $output .= html::em('div', array(
-        'class' => 'note',
-        ), $this->description);
-    }
-
-    $classes = array(
-      'control',
-      $this->getWrapperClass(),
-      $this->value . '-field-wrapper',
+    $defaults = array(
+      'id' => $this->id,
+      'type' => substr($class, 0, -7),
+      'label' => $this->label,
+      'title' => $this->title,
+      'required' => $this->required ? 'yes' : null,
+      'description' => $this->description,
+      'class' => $this->class,
+      'name' => $this->value,
+      'readonly' => $this->readonly ? true : false,
       );
 
-    if (!empty($this->class))
-      $classes = array_merge($classes, $this->class);
-
-    if (in_array('hidden', (array)$this->class))
-      $classes[] = 'hidden';
-
-    return html::em('div', array(
-      'id' => $this->wrapper_id,
-      'class' => $classes,
-      ), $output);
+    return html::em('control', array_merge($defaults, $options), $content);
   }
 
   protected function getLabel($output = null)

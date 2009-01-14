@@ -442,4 +442,41 @@ class Context
   {
     return $this->_debug;
   }
+
+  /**
+   * Добавление дополнительного элемента.
+   */
+  public function addExtra($type, $id)
+  {
+    if (!array_key_exists('extras', $this->_args))
+      $this->_args['extras'] = array();
+
+    $this->_args['extras'][] = array($type, $id);
+  }
+
+  /**
+   * Получение списка дополнительных элементов.
+   */
+  public function getExtras()
+  {
+    if (!array_key_exists('extras', $this->_args))
+      return array();
+
+    return $this->_args['extras'];
+  }
+
+  public function getExtrasXML()
+  {
+    $output = '';
+
+    foreach ($this->getExtras() as $e)
+      $output .= html::em('item', array(
+        'type' => $e[0],
+        'value' => $e[1],
+        ));
+
+    return empty($output)
+      ? ''
+      : html::em('extras', $output);
+  }
 }

@@ -34,88 +34,37 @@ class ModManUI implements iAdminUI
       )));
   }
 
+  private static function getXML(Context $ctx, array $list, array $options)
+  {
+    $ctx->theme = os::path('lib', 'modules', 'modman', 'template.xsl');
+
+    $output = '';
+
+    foreach ($list as $k => $v)
+      $output .= html::em('module', array('id' => $k) + $v);
+
+    return html::em('modules', $options, $output);
+  }
+
   protected static function aui_settings(Context $ctx)
   {
-    $schema = new Schema(array(
-      'modules' => array(
-        'type' => 'ModManControl',
-        'label' => t('Настройка модулей'),
-        'columns' => array(
-          'settings',
-          'name',
-          'version',
-          ),
-        ),
-      ));
-
-    $form = $schema->getForm(array(
+    return self::getXML($ctx, modman::getConfigurableModules(), array(
+      'mode' => 'settings',
       'title' => t('Настройка модулей'),
-      'intro' => t('Здесь видны только модули, предполагающие настройку. Вы можете <a href="@url">установить дополнительные модули</a>.', array(
-        '@url' => '?q=admin&cgroup=system&module=modman&mode=addremove&destination=CURRENT',
-        )),
       ));
-
-    return $form->getHTML(Control::data(array(
-      'modules' => modman::getConfigurableModules(),
-      )));
   }
 
   protected static function aui_addremove(Context $ctx)
   {
-    $schema = new Schema(array(
-      'filter' => array(
-        'type' => 'EnumControl',
-        'label' => t('Показать'),
-        'required' => true,
-        'class' => 'modman-filter',
-        'options' => array(
-          '' => t('все модули'),
-          'installed' => t('только установленные'),
-          'uninstalled' => t('не установленные'),
-          'section-base' => t('Основная функциональность'),
-          'section-admin' => t('Администрирование'),
-          'section-core' => t('Ядро'),
-          'section-blog' => t('Блоги'),
-          'section-spam' => t('Спам'),
-          'section-commerce' => t('Коммерция'),
-          'section-interaction' => t('Интерактив'),
-          'section-performance' => t('Производительность'),
-          'section-service' => t('Служебные'),
-          'section-multimedia' => t('Мультимедиа'),
-          'section-syndication' => t('Обмен данными'),
-          'section-templating' => t('Шаблоны'),
-          'section-visual' => t('Визуальные редакторы'),
-          'section-custom' => t('Локальные'),
-          ),
-        ),
-      'modules' => array(
-        'type' => 'ModManControl',
-        'columns' => array(
-          'check',
-          'name',
-          'version',
-          ),
-        ),
-      'submit' => array(
-        'type' => 'SubmitControl',
-        'text' => t('Сохранить изменения'),
-        ),
-      ));
-
-    $form = $schema->getForm(array(
-      'title' => t('Установка и удаление модулей'),
-      'action' => '?q=modman.rpc&action=addremove&destination='
-        . urlencode($ctx->get('destination', 'CURRENT')),
-      ));
-
     if (!count($modules = modman::getAllModules())) {
       modman::updateDB();
       $modules = modman::getAllModules();
     }
 
-    return $form->getHTML(Control::data(array(
-      'modules' => $modules,
-      )));
+    return self::getXML($ctx, $modules, array(
+      'mode' => 'addremove',
+      'title' => t('Установка и удаление модулей'),
+      ));
   }
 
   protected static function aui_config(Context $ctx)

@@ -35,30 +35,14 @@ class FieldSetControl extends Control
       $this->label = '?';
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
-    $content = self::getChildrenHTML($data);
+    $content = self::getChildrenXML($data);
 
-    if (!empty($content)) {
-      $output = html::em('legend', html::em('span', $this->label));
-      $output .= $content;
+    if ($this->tabable)
+      $this->addClass('tabable');
 
-      if (null === $this->tabable or $this->tabable)
-        $this->addClass('tabable');
-
-      return html::em('fieldset', array(
-        'class' => $this->class,
-        ), $output);
-    }
-  }
-
-  protected function getChildrenHTML($node = null)
-  {
-    $output = '';
-
-    if (null != $this->intro)
-      $output .= '<div class=\'intro\'>'. $this->intro .'</div>';
-
-    return $output . parent::getChildrenHTML($node);
+    if (!empty($content))
+      return parent::wrapXML(array(), $content);
   }
 };

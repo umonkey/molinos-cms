@@ -34,34 +34,24 @@ class HistoryControl extends Control
     parent::__construct($form);
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
     if (empty($data[$this->value]))
       return;
 
-    $rows = array();
+    $items = '';
 
-    foreach ($data[$this->value] as $rid => $info) {
-      if (empty($info['username']))
-        $userlink = 'anonymous';
-      else
-        $userlink = l("?q=admin&mode=edit&cgroupo=access'
-          .'&id={$info['uid']}&destination=CURRENT",
-          $info['username']);
-
-      $row = html::em('td', $rid);
-      $row .= html::em('td', $info['created']);
-      $row .= html::em('td', $userlink);
-      $row .= html::em('td', l("?q=nodeapi.rpc&action=revert"
-        ."&rid={$rid}&destination=CURRENT", 'вернуть'));
-
-      $rows[] = html::em('tr', array(
-        'class' => 'rev-'. ($info['active'] ? 'active' : 'passive'),
-        ), $row);
+    foreach ($data->{$this->value} as $rid => $info) {
+      $items .= html::em('item', array(
+        'uid' => $info['uid'],
+        'username' => $info['username'],
+        'rid' => $rid,
+        'created' => $info['created'],
+        ));
     }
 
-    return $this->wrapHTML(html::em('table', array(
-      'class' => 'form-revision-history',
-      ), join('', $rows)));
+    return empty($items)
+      ? null
+      : parent::wrapXML(array(), $items);
   }
 };

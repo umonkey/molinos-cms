@@ -77,15 +77,22 @@ class html
     $result = '';
 
     foreach ($attrs as $k => $v) {
-      if (!empty($v)) {
-        if (is_array($v))
-          if ($k == 'class')
-            $v = join(' ', $v);
-          else {
-            $v = null;
-          }
+      if (is_array($v)) {
+        if ('class' == $k)
+          $v = join(' ', array_unique($v));
+        else
+          continue;
+      }
 
-        $result .= ' '.$k.'=\''. mcms_plain($v, false) .'\'';
+      if (null === $v or '' === $v)
+        continue;
+
+      if (!empty($v)) {
+        if (true === $v)
+          $v = 'yes';
+        else
+          $v = mcms_plain($v, false);
+        $result .= ' '.$k.'=\''. $v .'\'';
       } elseif ($k == 'value') {
         $result .= " value=''";
       }
@@ -102,5 +109,35 @@ class html
       $result .= self::em('li', htmlspecialchars($em));
 
     return $result;
+  }
+
+  public static function cdata($data)
+  {
+    return '<![CDATA[' . $data . ']]>';
+  }
+
+  public static function formatExtras(array $extras)
+  {
+    $output = '';
+
+    foreach ($extras as $item) {
+      switch ($item[0]) {
+      case 'style':
+        $output .= html::em('link', array(
+          'rel' => 'stylesheet',
+          'type' => 'text/css',
+          'href' => $item[1],
+          ));
+        break;
+      case 'script':
+        $output .= html::em('script', array(
+          'type' => 'text/javascript',
+          'src' => $item[1],
+          ));
+        break;
+      }
+    }
+
+    return $output;
   }
 }

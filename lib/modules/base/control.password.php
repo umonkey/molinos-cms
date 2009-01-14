@@ -36,27 +36,12 @@ class PasswordControl extends Control
     return 'VARCHAR(255)';
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
-    $output = $this->getLabel();
+    $this->addClass('form-text');
+    $this->addClass('form-password');
 
-    $output .= html::em('input', array(
-      'type' => 'password',
-      'id' => $this->id,
-      'class' => 'form-text form-password1',
-      'name' => $this->value .'[]',
-      'value' => null,
-      ));
-
-    $output .= html::em('input', array(
-      'type' => 'password',
-      'id' => $this->id,
-      'class' => 'form-text form-password2',
-      'name' => $this->value .'[]',
-      'value' => null,
-      ));
-
-    return $this->wrapHTML($output, false);
+    return parent::wrapXML(array());
   }
 
   public function set($value, Node &$node)

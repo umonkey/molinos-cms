@@ -35,44 +35,16 @@ class Form extends Control
       );
   }
 
-  /**
-   * Формирование HTML-кода формы.
-   *
-   * Опционально добавляет заголовок и вступление (свойство intro), завёрнутое в
-   * div class=intro.
-   *
-   * @return string HTML-код формы.
-   */
-  public function getHTML($data)
+  public function getXML($data)
   {
-    $output = '';
-
-    if (is_array($data))
-      $data = Control::data($data);
-
-    if (isset($this->title)) {
-      if (!in_array($header = $this->header, array('h2', 'h3', 'h4', 'h5')))
-        $header = 'h2';
-
-      $title = html::em('span', $this->title);
-
-      $output .= html::em($header, array(
-        'class' => 'form-header',
-        ), $title);
-    }
-
-    if (null != $this->intro)
-      $output .= '<div class=\'intro\'>'. $this->intro .'</div>';
-
-    $output .= html::em('form', array(
+    return html::em('form', array(
       'method' => isset($this->method) ? $this->method : 'post',
       'action' => $this->getAction(),
-      'id' => $this->id,
       'class' => $this->class,
       'enctype' => 'multipart/form-data',
-      ), parent::getChildrenHTML($data));
-
-    return $output;
+      'title' => $this->title,
+      'intro' => $this->intro,
+      ), parent::getChildrenXML($data));
   }
 
   private function getAction()

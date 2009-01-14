@@ -29,20 +29,16 @@ class EmailControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
     if (null === ($value = $data->{$this->value}))
       $value = $this->default;
 
-    $output = html::em('input', array(
-      'type' => 'text',
-      'id' => $this->id,
-      'class' => 'form-text',
-      'name' => $this->value,
+    $this->addClass('form-text');
+
+    return parent::wrapXML(array(
       'value' => $value,
       ));
-
-    return $this->wrapHTML($output);
   }
 
   public static function getSQL()

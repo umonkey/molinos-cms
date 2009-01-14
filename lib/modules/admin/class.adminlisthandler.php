@@ -64,83 +64,73 @@ class AdminListHandler
         $this->ctx->redirect("?q=admin&mode=create&cgroup={$_GET['cgroup']}&dictionary=1&welcome=1&type={$this->types[0]}&destination=CURRENT");
     }
 
-    $output = '<h2>'. $this->title .'</h2>';
+    $output = self::getNodeActions(array(), $this->actions);
 
-    if (!$this->hidesearch)
-      $output .= $this->getSearchForm();
+    $output .= $data;
 
-    if (!empty($data)) {
-      $form = new Form(array(
-        'id' => 'nodelist-form',
-        'action' => '?q=nodeapi.rpc&action=mass&destination=CURRENT',
-        ));
-      if (empty($_GET['picker']))
-        $form->addControl(new AdminUINodeActionsControl(array(
-          'actions' => $this->actions,
-          'addlink' => $this->addlink,
-          )));
+    return html::em('list', array(
+      'title' => $this->title,
+      'preset' => $preset ? $preset : 'default',
+      'search' => $this->hidesearch ? null : 'yes',
+      'type' => $this->getType(),
+      ), $output);
+  }
 
-      $form->addControl(new AdminUIListControl(array(
-        'columns' => $this->columns,
-        'picker' => $this->ctx->get('picker'),
-        'selectors' => $this->selectors,
-        'noedit' => $this->noedit,
-        'columntitles' => $this->columntitles,
-        'linkfield' => $this->linkfield,
-        'zoomlink' => $this->zoomlink,
-        )));
-
-      if (empty($_GET['picker']))
-        $form->addControl(new AdminUINodeActionsControl(array(
-          'actions' => $this->actions,
-          'addlink' => $this->addlink,
-          )));
-      $form->addControl(new PagerControl(array(
-        'value' => '__pager',
-        )));
-
-      $output .= $form->getHTML(Control::data(array(
-        'nodes' => $data,
-        'preset' => $preset,
-        '__pager' => $this->getPager(),
-        )));
-    }
-
-    elseif (null !== $this->ctx->get('search')) {
-      $tmp = bebop_split_url();
-      $tmp['args']['search'] = null;
-
-      $output .= '<p>'. t('Нет документов, удовлетворяющих запросу.  <a href=\'@url\'>Отмените поиск</a> или поищите что-нибудь другое.', array(
-        '@url' => bebop_combine_url($tmp, false),
-        )) .'</p>';
-    }
-
-    elseif (0 == $this->getCount()) {
-      if (count($this->types) == 1)
-        $output .= html::em('p', t('Нет документов для отображения в этом списке, <a href=\'@addurl\'>приступить к добавлению</a>?', array('@addurl' => "?q=admin&cgroup={$_GET['cgroup']}&mode=create&type={$this->types[0]}&destination=CURRENT")));
-      else
-        $output .= html::em('p', t('Нет документов для отображения в этом списке.'));
-    }
-
-    return $output;
+  private function getType()
+  {
+    return empty($this->types)
+      ? null
+      : $this->types[0];
   }
 
   private function getSearchForm()
   {
-    $form = new Form(array(
+    $output = html::em('form', array(
+      'name' => 'search',
       'action' => '?q=admin.rpc&action=search',
-      ));
-    $form->addControl(new HiddenControl(array(
-      'value' => 'search_from',
-      'default' => $_SERVER['REQUEST_URI'],
-      )));
-    $form->addControl(new AdminUISearchControl(array(
+      'from' => $_SERVER['REQUEST_URI'],
       'q' => $this->ctx->get('search'),
-      'type' => $this->types,
-      'value' => 'search_term',
-      'dictlist' => $this->ctx->get('preset') == 'dictlist',
-      )));
-    return $form->getHTML(null);
+      ));
+
+    return $output;
+  }
+
+  public static function getNodeActions(array $sel, array $act)
+  {
+    $selectors = array(
+      'all' => 'все',
+      'none' => 'ни одного',
+      'published' => 'опубликованные',
+      'unpublished' => 'скрытые',
+      );
+
+    $actions = array(
+      'publish' => t('опубликовать'),
+      'unpublish' => t('скрыть'),
+      'delete' => t('удалить'),
+      'clone' => t('клонировать'),
+      'undelete' => t('восстановить'),
+      'erase' => t('удалить окончательно'),
+      'reindex' => t('индексировать'),
+      );
+
+    $output = '';
+
+    foreach ($selectors as $k => $v)
+      $output .= html::em('selector', array(
+        'name' => $k,
+        'title' => $v,
+        ));
+
+    foreach ($act as $action)
+      $output .= html::em('action', array(
+        'name' => $action,
+        'title' => array_key_exists($action, $actions)
+          ? $actions[$action]
+          : $action,
+        ));
+
+    return html::em('massctl', $output);
   }
 
   private function getPager()
@@ -369,6 +359,7 @@ class AdminListHandler
     }
 
     $filter['#permcheck'] = true;
+    $filter['#recurse'] = 1;
 
     if ('pages' == $this->preset)
       $filter['parent_id'] = null;
@@ -379,10 +370,10 @@ class AdminListHandler
   private function haveModule($moduleName)
   {
     if (empty($modulename))
-      return false;
+      return true;
 
     if (!class_exists('modman'))
-      return false;
+      return true;
 
     if (!modman::isInstalled($moduleName))
       return false;
@@ -433,70 +424,15 @@ class AdminListHandler
       return $data;
     }
 
-    $result = array();
+    $result = '';
     $itypes = TypeNode::getInternal();
 
-    foreach (Node::find($this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit) as $node) {
-      $tmp = $node->getRaw();
-      $tmp['_links'] = $node->getActionLinks();
-      $result[] = $tmp;
+    foreach ($nodes = Node::find($filter = $this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit) as $node) {
+      if ('dictlist' != $this->preset or !empty($node->isdictionary))
+        $result .= $node->getXML('node');
     }
 
-    switch ($this->ctx->get('preset')) {
-    case 'schema':
-      $tmp = array();
-
-      foreach ($result as $k => $v) {
-        if (!$this->ctx->canDebug() and in_array($v['name'], $itypes) or !empty($v['isdictionary']))
-          unset($result[$k]);
-
-        if (!empty($v['adminmodule']) and !$this->haveModule($v['adminmodule']))
-          unset($result[$k]);
-      }
-
-      foreach ($result as $v) {
-        if (!in_array($v['name'], $itypes)) {
-          $tmp[] = $v;
-        }
-      }
-
-      foreach ($result as $v) {
-        if (in_array($v['name'], $itypes)) {
-          $v['_protected'] = !$this->ctx->canDebug();
-          $v['published'] = false;
-          $tmp[] = $v;
-        }
-      }
-
-      $result = $tmp;
-      break;
-
-    case 'dictlist':
-      foreach ($result as $k => $v) {
-        if (empty($v['isdictionary'])) {
-          unset($result[$k]);
-        } else {
-          $result[$k]['#link'] = l("?q=admin&cgroup=content&preset=dict&mode=list&type=". $v['name']);
-        }
-      }
-      break;
-
-    case 'pages':
-      foreach ($result as $k => $v)
-        if (empty($v['redirect']))
-          $result[$k]['#link'] = '?q=admin/structure/tree/pages/'. $v['id'];
-        else
-          $result[$k]['#nolink'] = true;
-      break;
-
-    case 'widgets':
-      foreach ($result as $k => $v)
-        if ($i = Widget::getInfo($v['classname']))
-          $result[$k]['classname'] = mb_strtolower($i['name']);
-      break;
-    }
-
-    return $result;
+    return html::em('data', $result);
   }
 
   protected function getCount()

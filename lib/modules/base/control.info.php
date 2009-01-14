@@ -33,18 +33,12 @@ class InfoControl extends Control
     parent::__construct($form, array('text'));
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
-    $text = $this->text;
-
-    if (isset($this->url))
-      $text .= '<p>'. html::em('a', array(
-        'href' => $this->url,
-        ), t('Подробная справка')) .'</p>';
-
-    return isset($this->text)
-      ? html::em('div', array('class' => 'intro'), $text)
-      : null;
+    return parent::wrapXML(array(
+      'text' => $this->text,
+      'url' => $this->url,
+      ));
   }
 
   public function set($value, Node &$node)

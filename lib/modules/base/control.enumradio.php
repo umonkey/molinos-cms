@@ -35,7 +35,7 @@ class EnumRadioControl extends Control
     return 'VARCHAR(255)';
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
     $selected = $data->{$this->value};
 
@@ -48,29 +48,36 @@ class EnumRadioControl extends Control
       }
     }
 
-    $options = '';
+    if (count($options = $this->getData())) {
+      $output = '';
 
-    if (is_array($this->options))
-      foreach ($this->options as $k => $v) {
-        $option = html::em('input', array(
-          'type' => 'radio',
-          'class' => 'form-radio',
-          'name' => $this->value,
-          'checked' => ($selected == $k) ? 'checked' : null,
+      foreach ($options as $k => $v) {
+        $output .= html::em('option', array(
+          'checked' => ($selected == $k),
           'value' => $k,
+          'text' => $v,
           ));
-        $options .= html::em('label', array('class' => 'radio'), $option .'<span>'. $v .'</span>');
       }
+    }
 
-    if (empty($options))
-      return '';
+    return empty($output)
+      ? null
+      : parent::wrapXML(array(), $output);
+  }
 
-    if (isset($this->label))
-      $caption = html::em('legend', array('class' => 'radio'),
-        html::em('span', $this->label));
-    else
-      $caption = null;
+  private function getData()
+  {
+    $list = array();
 
-    return $this->wrapHTML(html::em('fieldset', $caption . $options), false);
+    if (!$this->required)
+      $list[''] = $this->default_label;
+
+    if (isset($this->dictionary))
+      $list += Node::getSortedList($this->dictionary);
+
+    elseif (is_array($this->options))
+      $list += array();
+
+    return $list;
   }
 };

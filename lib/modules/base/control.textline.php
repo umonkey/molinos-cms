@@ -34,26 +34,14 @@ class TextLineControl extends Control
     return 'VARCHAR(255)';
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
-    if (null === $this->class)
-      $this->class = 'form-text';
-    else
-      $this->class = array_merge(array('form-text'), (array)$this->class);
+    $this->addClass('form-text');
 
-    $value = $this->getValue($data);
-
-    $output = html::em('input', array(
-      'type' => 'text',
-      'id' => $this->id,
-      'class' => $this->class,
-      'name' => $this->value,
-      'value' => $value,
-      'readonly' => $this->readonly ? 'readonly' : null,
+    return parent::wrapXML(array(
+      'value' => $this->getValue($data),
       'maxlength' => 255,
       ));
-
-    return $this->wrapHTML($output);
   }
 
   protected function getValue($data)

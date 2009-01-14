@@ -259,15 +259,12 @@ abstract class Widget implements iWidget
    */
   public final function render(Context $ctx)
   {
-    $extras = mcms::get_extras();
-
     try {
       $this->ctx = $ctx->forWidget($this->name);
 
       if (!is_array($options = $this->getRequestOptions($this->ctx))) {
         $this->debug(array(), array(), $options);
-        mcms::add_extras($extras);
-        return ""; // "<!-- widget {$this->name} halted. -->";
+        return "<!-- widget {$this->name} halted. -->";
       }
 
       if (array_key_exists('#cache', $options) and empty($options['#cache']))
@@ -278,46 +275,34 @@ abstract class Widget implements iWidget
         $ckey = 'widget:' . $this->name . ':' . md5(serialize($options));
 
       if (null !== $ckey and is_array($cached = mcms::cache($ckey))) {
-        mcms::add_extras($extras);
-        mcms::add_extras($cached['extras']);
         $this->debug($options, array(), $cached['content']);
         return $cached['content'];
       }
 
       if (null === ($data = $this->onGet($options)))
         $result = "<!-- widget {$this->name} halted. -->";
-      elseif (!is_array($data)) {
-        $result = $data;
-        $data = array();
+      elseif (!is_string($data))
+        throw new RuntimeException(t('Виджет %name (%class) вернул мусор вместо XML.', array(
+          '%name' => $this->name,
+          '%class' => get_class($this),
+          )));
+      else {
+        // TODO: добавить заголовок виджета
+        $result = html::em('widget', array(
+          'name' => $this->name,
+          'class' => get_class($this),
+          ), $data);
       }
-      elseif (is_array($data)) {
-        $data['instance'] = $this->name;
-        $data['lang'] = $ctx->getLang();
-
-        $result = template::render($ctx->theme, 'widget', $this->name, $data);
-
-        if (false === $result and array_key_exists('html', $data))
-          $result = $data['html'];
-      }
-
-      $this->debug($options, (array)$data, $result);
 
       if (null !== $ckey) {
-        $e = mcms::get_extras();
-
         mcms::cache($ckey, array(
           'content' => $result,
-          'extras' => $e,
           ));
-
-        mcms::add_extras($e);
       }
     } catch (WidgetHaltedException $e) {
-      mcms::add_extras($extras);
       return false;
     }
 
-    mcms::add_extras($extras);
     return $result;
   }
 

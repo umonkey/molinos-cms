@@ -43,45 +43,36 @@ class AdminMenu implements iAdminMenu
       : $name;
   }
 
-  public function getHTML()
+  public function getXML()
   {
     $cgroup = $this->getCurrentGroup();
 
-    if (is_string($tmp = $this->cache()))
+    if (false && is_string($tmp = $this->cache()))
       return $tmp;
 
-    $menu = $this->getIcons();
+    $output = '';
 
-    $output = '<ul>';
+    foreach ($this->getIcons() as $group => $icons) {
+      $tmp = '';
 
-    foreach ($menu as $group => $icons) {
       if (array_key_exists('href', $icons[0])) {
-        $url = $icons[0]['href'];
+        foreach ($icons as $icon)
+          $tmp .= html::em('link', array(
+            'url' => $icon['href'],
+            'description' => empty($icon['description']) ? null : $icon['description'],
+            'title' => $icon['title'],
+            ));
 
-        if ($group == $cgroup)
-          $output .= '<li class=\'current\'>';
-        else
-          $output .= '<li>';
-
-        $output .= html::em('a', array(
-          'href' => $url,
-          ), self::getGroupName($group));
-
-        $output .= '<ul>';
-
-        foreach ($icons as $icon) {
-          $tmp = html::em('a', array(
-            'href' => $icon['href'],
-            'title' => empty($icon['description']) ? null : $icon['description'],
-            ), $icon['title']);
-          $output .= html::em('li', $tmp);
-        }
-
-        $output .= '</ul></li>';
+        $output .= html::em('tab', array(
+          'class' => ($group == $cgroup) ? 'current' : null,
+          'url' => $icons[0]['href'],
+          'name' => $group,
+          'title' => self::getGroupName($group),
+          ), $tmp);
       }
     }
 
-    $output .= '</ul>';
+    $output = html::em('menu', $output);
 
     $this->cache($output);
 
@@ -234,52 +225,25 @@ class AdminMenu implements iAdminMenu
       return $cached;
 
     foreach ($this->getIcons() as $grname => $gritems) {
-      $items = array();
+      $items = '';
 
       foreach ($gritems as $item) {
-        if (array_key_exists('message', $item)) {
+        if (!empty($item['message'])) {
           $text = $item['message'];
-
-          if (false === strpos($text, '<') and array_key_exists('href', $item))
-            $text = l($item['href'], $text);
-
-          $items[] = $text;
+          unset($item['group']);
+          unset($item['message']);
+          $items .= html::em('message', $item, html::cdata($text));
         }
       }
 
-      if (!empty($items)) {
-        $content = html::em('legend', self::getGroupName($grname));
-
-        if (count($items) > 1)
-          $content .= html::em('ul', '<li>'. join('</li><li>', $items) .'</li>');
-        else
-          $content .= $items[0];
-
-        if (!array_key_exists($idx, $columns))
-          $columns[$idx] = '';
-
-        $columns[$idx] .= html::em('fieldset', $content);
-
-        $idx = ($idx + 1) % 2;
-
-        // $result .= html::em('fieldset', $content);
-      }
-    }
-
-    if (!empty($columns)) {
-      $result = '';
-
-      foreach ($columns as $idx => $col)
-        $result .= html::em('div', array(
-          'id' => 'desktop-column-'. ($idx + 1),
-          'class' => 'column',
-          ), $col);
+      if (!empty($items))
+        $result .= html::em('group', array(
+          'title' => self::getGroupName($grname),
+          ), $items);
     }
 
     if (!empty($result))
-      $result = html::em('div', array(
-        'id' => 'desktop',
-        ), $result);
+      $result = html::em('messages', $result);
 
     mcms::cache($ckey, $result);
 

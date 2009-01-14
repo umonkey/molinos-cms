@@ -145,11 +145,7 @@ class DocWidget extends Widget implements iWidget
    */
   protected function onGetView(array $options)
   {
-    $result = array(
-      'document' => array(),
-      'tags' => array(),
-      'schema' => array(),
-      );
+    $output = '';
 
     if (null !== ($node = $this->getDocument($options))) {
       if (in_array($node->class, array('tag', 'config')))
@@ -161,36 +157,36 @@ class DocWidget extends Widget implements iWidget
       if (!$node->checkPermission('r'))
         throw new ForbiddenException(t('У вас нет доступа к этому документу.'));
 
-      $result['document'] = $node->getRaw();
-      $result['document']['_links'] = $node->getActionLinks();
-
-      $sections = array();
+      $output .= $node->getXML('document');
+      $output .= $node->getActionLinksXML();
 
       if (count($sids = $node->linkListParents('tag', true))) {
-        foreach (Node::find(array('class' => 'tag', 'id' => $sids, 'published' => 1)) as $tag) {
-          $sections[] = $tag->id;
-          $result['tags'][] = $tag->getRaw();
-        }
+        $tmp = '';
+        foreach (Node::find(array('class' => 'tag', 'id' => $sids, 'published' => 1)) as $tag)
+          $tmp .= $tag->getXML('section');
+        $output .= html::em('sections', $tmp);
       }
 
+      /*
       $result['schema'] = $node->getSchema();
+      */
 
       if ($this->showneighbors and $this->ctx->section->id and in_array($this->ctx->section->id, $sections)) {
         if (null !== ($n = $node->getNeighbors($this->ctx->section->id))) {
-          $result['neighbors'] = array(
-            'prev' => empty($n['right']) ? null : $n['right']->getRaw(),
-            'next' => empty($n['left']) ? null : $n['left']->getRaw(),
-            );
+          $tmp = '';
+
+          if (!empty($n['right']))
+            $tmp .= $n['right']->getXML('right');
+          if (!empty($n['left']))
+            $tmp .= $n['left']->getXML('left');
+
+          if (!empty($tmp))
+            $output .= html::em('neighbors', $tmp);
         }
       }
     }
 
-    /*
-    if (array_key_exists('document', $result))
-      bebop_on_json(array($result['document']));
-    */
-
-    return $result;
+    return $output;
   }
 
   /**

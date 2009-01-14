@@ -29,26 +29,13 @@ class BoolControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
-    $checked = empty($data->{$this->value})
-      ? null
-      : 'checked';
-
-    $output = html::em('input', array(
-      'type' => 'checkbox',
-      'name' => $this->value,
+    return parent::wrapXML(array(
       'value' => $this->value ? 1 : $this->value,
-      'checked' => $checked,
-      'disabled' => $this->disabled ? 'disabled' : null,
+      'checked' => empty($data->{$this->value}) ? null : 'yes',
+      'disabled' => $this->disabled ? 'yes' : null,
       ));
-
-    if (isset($this->label))
-      $output = html::em('label', array(
-        'id' => $this->id,
-        ), $output . html::em('span', $this->label));
-
-    return $this->wrapHTML($output, false);
   }
 
   public static function getSQL()

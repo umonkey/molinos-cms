@@ -133,6 +133,21 @@ class Node extends NodeBase implements iContentType
     return $links;
   }
 
+  public function getActionLinksXML()
+  {
+    $output = '';
+    $links = $this->getActionLinks();
+
+    foreach ($links as $k => $v) {
+      if (is_array($v))
+        $output .= html::em('link', array('name' => $k) + $v);
+    }
+
+    return empty($output)
+      ? ''
+      : html::em('links', $output);
+  }
+
   public static function getSortedList($class, $field = 'name', $key = 'id')
   {
     $result = array();

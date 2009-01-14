@@ -222,19 +222,6 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     $array = $data;
   }
 
-  // РАБОТА С ФОРМАМИ.
-  // Документация: http://code.google.com/p/molinos-cms/wiki/Forms
-
-  public function formGet($simple = true)
-  {
-    $form = parent::formGet();
-
-    if (null !== ($tmp = $this->formGetFields()))
-      $form->addControl($tmp);
-
-    return $form;
-  }
-
   public function getFormTitle()
   {
     if ($this->isdictionary)
@@ -245,97 +232,6 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
     return $this->id
       ? t('Настройка типа «%name»', array('%name' => $this->name))
       : t('Добавление нового типа документа');
-  }
-
-  public function formGetFields()
-  {
-    if (in_array($this->name, array('file')))
-      return null;
-
-    $form = new FieldSetControl(array(
-      'name' => 'fields',
-      'label' => t('Поля'),
-      'class' => 'fields-editor'
-      ));
-
-    $form->addControl(new HiddenControl(array(
-      'value' => '__reset_fields',
-      'default' => 1,
-      )));
-
-    $id = 1;
-
-    if (null === ($name = $this->name))
-      $name = 'type';
-
-    $schema = Schema::load($name);
-
-    foreach ($schema as $name => $field) {
-      if (!$field->volatile)
-        $form->addControl(new FieldControl(array(
-          'id' => 'field' . $id++,
-          'name' => $name,
-          'value' => 'fields',
-          'label' => $field->label,
-          )));
-    }
-
-    $form->addControl(new FieldControl(array(
-      'id' => 'field' . $id++,
-      'name' => null,
-      'value' => 'fields',
-      )));
-
-    return $form;
-  }
-
-  // Обрабатывает подключение виджетов и полей, остальное передаёт родителю.
-  public function formProcess(array $data)
-  {
-    if (!empty($data['__reset_fields'])) {
-      $fields = array();
-
-      foreach ($data['fields'] as $f) {
-        if (!empty($f['name']) and empty($f['delete'])) {
-          $fields[$f['name']] = $f;
-          unset($fields[$f['name']]['name']);
-        }
-      }
-
-      if (empty($fields))
-        throw new RuntimeException(t('Попытка сохранить тип документа без полей.'));
-
-      $this->fields = $fields;
-    }
-
-    return parent::formProcess($data);
-  }
-
-  protected function updateFields(array $data)
-  {
-    $fields = array();
-
-    if (empty($data['fields']) or !is_array($data['fields']))
-      throw new ValidationException(t('Поля документа не заполнены.'));
-
-    foreach ($data['fields'] as $f) {
-      if (!empty($f['name']) and empty($f['delete'])) {
-        if (strspn(mb_strtolower($f['name']), '0123456789abcdefghijklmnopqrstuvwxyz_') != strlen($f['name']))
-          throw new ValidationException('Имя поля может содержать только цифры, буквы и прочерк.');
-
-        if (array_key_exists(strtolower($f['name']), $fields))
-          throw new ValidationException(t('Поле %name описано дважды.', array('%name' => $f['name'])));
-
-        foreach ($f as $k => $v)
-          if (empty($v))
-            unset($f[$k]);
-
-        $fields[$f['name']] = $f;
-        unset($fields[$f['name']]['name']);
-      }
-    }
-
-    $this->fields = $fields;
   }
 
   public function updateTable()
@@ -533,6 +429,12 @@ class TypeNode extends Node implements iContentType, iScheduler, iModuleConfig
         'label' => t('Тип является справочником'),
         'volatile' => true,
         ));
+
+    $schema['fields'] = new FieldControl(array(
+      'value' => 'fields',
+      'label' => null,
+      'group' => t('Поля'),
+      ));
 
     return $schema;
   }

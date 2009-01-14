@@ -30,10 +30,9 @@ class AdminStatus implements iAdminMenu
       if (0 !== strpos(mcms::user()->name, 'http://'))
         $icons[] = array(
           'group' => 'status',
-          'message' => t('Пожалуйста, <a href=\'@url\'>установите пароль</a> '
-            .'на ваш аккаунт.', array(
-              '@url' => '?q=admin/access/edit/8&destination=CURRENT',
-              )),
+          'message' => t('Пожалуйста, установите пароль на ваш аккаунт.'),
+          'link' => '?q=admin/access/edit/8&destination='
+            . urlencode($_SERVER['REQUEST_URI']),
           );
 
     return $icons;

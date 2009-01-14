@@ -56,7 +56,7 @@ class Page
     // Запрошен отдельный виджет — возвращаем.
     if (null !== ($w = $ctx->get('widget'))) {
       if (array_key_exists($w, $widgets))
-        return new Response($widgets[$w]);
+        return new Response($widgets[$w], 'text/xml');
       else
         throw new PageNotFoundException(t('Виджет «%name» на этой странице отсутствует.', array(
           '%name' => $w,
@@ -68,58 +68,48 @@ class Page
         '%name' => $data['name'],
         )));
 
-    $result = template::render($ctx->theme, 'page', $data['name'], $pdata = array(
-      'widgets' => $widgets,
-      'page' => $data,
-      'section' => ($ctx->section instanceof Node) ? $ctx->section->getRaw() : null,
-      'root' => ($ctx->root instanceof Node) ? $ctx->root->getRaw() : null,
-      'base' => $ctx->url()->getBase(),
-      ));
+    $output = '';
 
-    $result = str_replace(
-      array(
-        '$execution_time',
-        ),
-      array(
-        microtime(true) - MCMS_START_TIME,
-        ),
-      $result);
+    if ($ctx->section instanceof Node)
+      $output .= $ctx->section->getXML('section');
+    if ($ctx->root instanceof Node)
+      $output .= $ctx->root->getXML('root');
 
-    if ($ctx->debug('page'))
-      mcms::debug($pdata, $widgets, $result);
-    elseif ($ctx->debug('widget') and null === $ctx->get('widget')) {
-      $result = "<html><head>"
-        . '<style type=\'text/css\'>td, th { padding: 2px 6px; border: solid 1px #aaa; } table { border-collapse: collapse; border: solid 2px gray; }</style>'
-        . '</head><body><h1>Отладка вджетов</h1><p>Выберите виджет:</p>'
-        . '<table class=\'debug\'>';
+    $server = ($ctx->get('xslt') != 'client');
+    $stylesheet = self::findStyleSheet($ctx->theme, $data['name']);
 
-      $u = $ctx->url()->string();
-	  
-      $widgetslist = Structure::getInstance()->findWidgets($data['page']['widgets']['default']);
-      uksort($widgetslist, "strnatcmp");
+    $output .= html::em('widgets', join('', $widgets));
 
-      foreach ($widgetslist as $name => $info) {
-        $wlink = $u . '&widget=' . $name;
-        $slink = '?q=admin/structure/edit/' . $info['id'] . '&destination=CURRENT';
+    $data['page']['base'] = $ctx->url()->getBase();
+    $data['page']['name'] = $data['name'];
+    $data['page']['prefix'] = 'themes/' . $ctx->theme;
+    $data['page']['execution_time'] = microtime(true) - MCMS_START_TIME;
+    $data['page']['version'] = mcms::version();
 
-        $result .= '<tr>';
-        $result .= html::em('td', l($wlink, $name));
-        $result .= html::em('td', $info['class']);
-        $result .= html::em('td', l($slink, t('настройки')));
-        $result .= '</tr>';
-      }
+    $result = '<?xml version="1.0" encoding="utf-8"?>';
+    if (!$server and $stylesheet)
+      $result .= '<?xml-stylesheet type="text/xsl" href="' . $stylesheet . '"?>';
+    $result .= html::em('page', $data['page'], $output);
 
-      $result .= '</table><hr/>'
-        . mcms::getSignature($ctx, true)
-        . "</body></html>";
+    if ($server)
+      return xslt::transform($result,
+        self::findStyleSheet($ctx->theme, $data['name']));
+    else
+      return new Response($result, 'text/xml');
+  }
+
+  private static function findStyleSheet($themeName, $pageName)
+  {
+    foreach (array($pageName, 'default') as $name) {
+      $path = os::path('themes', $themeName, 'templates', 'page.' . $name . '.xsl');
+      if (file_exists($path))
+        /*
+        return '<?xml-stylesheet type="text/xsl" href="' . $path . '"?>';
+        */
+        return $path;
     }
 
-    if ($ctx->debug('profile')) {
-      $p = new Debugger($ctx);
-      return $p->getProfile($widgets);
-    }
-
-    return new Response($result);
+    mcms::debug($path);
   }
 
   private static function renderWidgets(Context $ctx, array $names)

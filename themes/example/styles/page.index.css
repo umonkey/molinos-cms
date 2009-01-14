@@ -6,16 +6,16 @@
 	*/
 		body { background:#fff; }
 		
-		div#navigation { width:15%; min-width:150px; float:left; display:inline; margin:256px 5% 0 5%; }
+		div.MenuWidget { width:15%; min-width:150px; float:left; display:inline; margin:256px 5% 0 5%; }
 		
-			div#navigation ul { list-style:none outside; }
-				div#navigation ul li { margin-bottom:1.335em; }
-					div#navigation ul li.current a { color:#ff7a00; text-decoration:none; }
+			div.MenuWidget ul { list-style:none outside; }
+				div.MenuWidget ul li { margin-bottom:1.335em; }
+					div.MenuWidget ul li.current a { color:#ff7a00; text-decoration:none; }
 					
-		div#content { width:50%; max-width:700px; float:left; display:inline; }
+		div.ListWidget { width:50%; max-width:700px; float:left; display:inline; }
 		
-			div#content ul.articles { list-style:none outside; }
-      div#content ol { margin-left: 2em; list-style-position: outside; }
+			div.ListWidget ul.articles { list-style:none outside; }
+      div.ListWidget ol { margin-left: 2em; list-style-position: outside; }
 
 	/**
 	 * Supplementary rules

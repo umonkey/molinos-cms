@@ -34,64 +34,37 @@ class AccessControl extends Control
 
   public function __construct(array $form)
   {
+    if (empty($form['columns']))
+      $form['columns'] = array('c', 'r', 'u', 'd', 'p');
     parent::__construct($form);
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
-    $table = $this->getData($data);
-    $columns = $this->getColumns();
+    $output = '';
 
-    $output = '<table class=\'padded highlight\'>'
-      . "<label>{$this->label}:</label>";
+    foreach ($this->columns as $c)
+      $output .= html::em('column', array(
+        'name' => $c,
+        'label' => mb_strtoupper($c),
+        ));
 
-    if (count($columns) > 1)
-      $output .= "<tr><th>&nbsp;</th><th>"
-        . join ('</th><th>', $columns) . "</th></tr>";
+    foreach ($this->getData($data) as $row) {
+      $tmp = '';
 
-    foreach ($table as $rec) {
-      $row = html::em('td', $rec['label']);
-
-      foreach (array_keys($columns) as $col) {
-        $ctl = html::em('input', array(
-          'type' => 'checkbox',
-          'name' => "{$this->value}[{$rec['id']}][{$col}]",
-          'value' => 1,
-          'checked' => empty($rec[$col]) ? null : 'checked',
+      foreach ($this->columns as $c)
+        $tmp .= html::em('perm', array(
+          'name' => $c,
+          'enabled' => empty($row[$c]) ? '' : 'yes',
           ));
 
-        $row .= html::em('td', $ctl);
-      }
-
-      $output .= html::em('tr', $row);
+      $output .= html::em('row', array(
+        'id' => $row['id'],
+        'name' => $row['label'],
+        ), $tmp);
     }
 
-    $output .= '</table>' . html::em('input', array(
-      'type' => 'hidden',
-      'name' => $this->value . '[__reset]',
-      'value' => 1,
-      ));
-
-    $output .= $this->getOwnPermissions($data);
-
-    $output = $this->wrapHTML($output, false);
-
-    if ($data->right - $data->left > 1) {
-      $ctl = html::em('input', array(
-        'type' => 'checkbox',
-        'value' => 1,
-        'name' => $this->value . '[__recurse]',
-        ));
-      $output .= '<div class=\'control\'>';
-      $output .= html::em('label', array(
-        ), $ctl . t('Применить рекурсивно ко всем дочерним объектам'));
-      $output .= html::em('div', array(
-        'class' => 'note',
-        ), t('Это приведёт к сбросу ранее установленных прав на вложенные объекты.'));
-      $output .= '</div>';
-    }
-
-    return $output;
+    return parent::wrapXML(array(), $output);
   }
 
   protected function getOwnPermissions($data)

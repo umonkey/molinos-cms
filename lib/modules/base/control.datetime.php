@@ -29,24 +29,14 @@ class DateTimeControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
-    $output = '';
+    $this->addClass('form-text');
+    $this->addClass('form-datetime');
 
-    if ($this->text)
-      $output .= html::em('label', array(
-        'for' => $this->id,
-        ), $this->text);
-
-    $output .= html::em('input', array(
-      'type' => 'text', // 'datetime', // пользоваться этим в опере невозможно
-      'id' => $this->id,
-      'class' => 'form-text form-datetime',
-      'name' => $this->value,
+    return parent::wrapXML(array(
       'value' => $data->{$this->value},
       ));
-
-    return $this->wrapHTML($output);
   }
 
   public static function getSQL()

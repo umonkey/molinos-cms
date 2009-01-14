@@ -270,6 +270,8 @@ class ListWidget extends Widget
     if (empty($filter['tags']))
       return "<!-- widget {$this->name} halted: no tags. -->";
 
+    $output = '';
+
     $result = array(
       'path' => array(),
       'section' => array(),
@@ -281,8 +283,10 @@ class ListWidget extends Widget
     // Возращаем путь к текущему корню.
     // FIXME: это неверно, т.к. виджет может возвращать произвольный раздел!
     if (null !== $this->ctx->section->id) {
+      $tmp = '';
       foreach ($this->ctx->section->getParents() as $node)
-        $result['path'][] = $node->getRaw();
+        $tmp .= $node->getXML();
+      $output .= html::em('path', $tmp);
     }
 
     if (empty($options['filter']['tags']))
@@ -295,11 +299,8 @@ class ListWidget extends Widget
       if (empty($node))
         throw new PageNotFoundException(t('Запрошенный раздел не найден.'));
       else
-        $result['section'] = $node[0]->getRaw();
+        $output .= $node[0]->getXML('section');
     }
-
-    // Возвращаем список разделов.
-    // $result['sections'] = empty($filter['tags']) ? array() : $filter['tags'];
 
     // Добавляем пэйджер.
     if (!empty($options['limit'])) {
@@ -314,14 +315,13 @@ class ListWidget extends Widget
     }
 
     // Формируем список документов.
-    foreach ($nodes = Node::find($filter, $options['limit'], $options['offset']) as $node) {
-      $result['documents'][] = $node->getRaw();
-      $result['keys'][] = $node->id;
+    $tmp = '';
+    foreach ($nodes = Node::find($filter, $options['limit'], $options['offset']) as $node)
+      $tmp .= $node->getXML();
+    if (!empty($tmp))
+      $output .= html::em('documents', $tmp);
 
-      if (!array_key_exists($node->class, $result['schema']))
-        $result['schema'][$node->class] = $node->getSchema();
-    }
-
+    /*
     // Добавляем информацию о поиске.
     if (!empty($options['search'])) {
       $result['search'] = array(
@@ -329,13 +329,13 @@ class ListWidget extends Widget
         'reset' => l(null, array($this->getInstanceName() => array('search' => null))),
         );
     }
+    */
 
-    $this->countComments($result);
+    // $this->countComments($result);
 
-    $result['options'] = $options;
-    $result['root'] = $this->ctx->section;
+    // $result['options'] = $options;
 
-    return $result;
+    return $output;
   }
 
   private function countComments(array &$result)

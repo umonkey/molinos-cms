@@ -32,123 +32,28 @@ class FieldControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  private function isnull(array $data, $key, $default = null)
+  public function getXML($data)
   {
-    return array_key_exists($key, $data) ? $data[$key] : $default;
-  }
+    $output = $this->getTypes();
+    $output .= $this->getDictionaries();
 
-  private function addProperty(array $data, $name, $title, $content = 'пример')
-  {
-    $output = html::em('td', array('class' => 'fname'), $title .':');
-    $output .= html::em('td', array('class' => 'fprops'), $content);
+    foreach ($data->{$this->value} as $k => $v)
+      $output .= html::em('field', array('name' => $k) + $v);
 
-    return html::em('tr', array(
-      'class' => 'fprop '. $name,
-      ), $output);
-  }
+    for ($idx = 1; $idx <= 5; $idx++) {
+      $output .= html::em('field', array(
+        'name' => 'newfield' . $idx,
+        'isnew' => true,
+        'type' => 'textlinecontrol',
+        ));
+    }
 
-  public function getHTML($data)
-  {
-    $id = $this->id;
-
-    if (!($data instanceof Node))
-      throw new InvalidArgumentException(t('FieldControl должен получать ноду.'));
-
-    if (null === $this->name or empty($data->{$this->value}[$this->name]))
-      $data = array('label' => t('Новое поле'));
-    else
-      $data = $data->{$this->value}[$this->name];
-
-    $body = $this->addProperty($data, 'name', 'Имя', html::em('input', array(
-      'type' => 'text',
-      'value' => $this->name,
-      'class' => 'nextid',
-      'name' => "{$this->value}[{$id}][name]",
-      )));
-    $body .= $this->addProperty($data, 'title', 'Заголовок', html::em('input', array(
-      'type' => 'text',
-      'value' => $this->isnull($data, 'label'),
-      'class' => 'nextid',
-      'name' => "{$this->value}[{$id}][label]",
-      )));
-    $body .= $this->addProperty($data, 'group', 'Группа', html::em('input', array(
-      'type' => 'text',
-      'value' => $this->isnull($data, 'group', t('Основные свойства')),
-      'class' => 'nextid',
-      'name' => "{$this->value}[{$id}][group]",
-      )));
-    $body .= $this->addProperty($data, 'description', 'Подсказка', html::em('textarea', array(
-      'class' => 'nextid',
-      'name' => "{$this->value}[{$id}][description]",
-      'rows' => 5,
-      ), mcms_plain($this->isnull($data, 'description'))));
-    $body .= $this->addProperty($data, 'type', 'Тип', html::em('select', array(
-      'value' => $this->isnull($data, 'type'),
-      'class' => 'nextid',
-      'name' => "{$this->value}[{$id}][type]",
-      ), $this->getTypes($this->isnull($data, 'type', 'TextLineControl'))));
-
-    $body .= $this->addProperty($data, 'dictionary', 'Справочник', html::em('select', array(
-      'name' => "{$this->value}[{$id}][dictionary]",
-      'class' => 'nextid',
-      ), $this->getDictionaries($this->isnull($data, 'dictionary', $this->isnull($data, 'values')))));
-
-    $body .= $this->addProperty($data, 'default', 'По умолчанию', html::em('input', array(
-      'type' => 'text',
-      'value' => $this->isnull($data, 'default'),
-      'class' => 'nextid',
-      'name' => "{$this->value}[{$id}][default]",
-      )));
-    $body .= $this->addProperty($data, 'values', 'Значения', html::em('textarea', array(
-      'class' => 'nextid',
-      'name' => "{$this->value}[{$id}][values]",
-      'rows' => 5,
-      ), mcms_plain($this->isnull($data, 'values'))));
-    $body .= $this->addProperty($data, 'required', 'Обязательное', html::em('input', array(
-      'type' => 'checkbox',
-      'checked' => $this->isnull($data, 'required') ? 'checked' : null,
-      'name' => "{$this->value}[{$id}][required]",
-      'class' => 'nextid',
-      'value' => 1,
-      )));
-    $body .= $this->addProperty($data, 'indexed', 'Индекс', html::em('input', array(
-      'type' => 'checkbox',
-      'checked' => $this->isnull($data, 'indexed') ? 'checked' : null,
-      'name' => "{$this->value}[{$id}][indexed]",
-      'class' => 'nextid',
-      'value' => 1,
-      )));
-    $body .= $this->addProperty($data, 'delete', 'Удалить', html::em('input', array(
-      'type' => 'checkbox',
-      'name' => "{$this->value}[{$id}][delete]",
-      'class' => 'nextid',
-      'value' => 1,
-      )));
-
-    $classes = 'caption fakelink';
-
-    if (!isset($this->name))
-      $classes .= ' addnew';
-
-    $output = html::em('span', array('class' => $classes), $this->name ? $this->name : 'добавить...');
-    $output .= html::em('table', array('class' => 'fprops nojs'), $body);
-
-    return $this->wrapHTML(html::em('div', array(
-      'id' => $this->name ? "field-{$this->name}-editor" : null,
-      'class' => 'fprop '. strtolower($this->isnull($data, 'type', 'TypeTextControl')),
-      ), $output), false);
-  }
-
-  protected function wrapHTML($output)
-  {
-    mcms::extras('lib/modules/base/control.field.js');
-    mcms::extras('lib/modules/base/control.field.css');
-    return $output;
+    return parent::wrapXML(array(), $output);
   }
 
   private function getTypes($current = null)
   {
-    $types = $output = array();
+    $types = array();
 
     foreach ($tmp = Loader::getImplementors('iFormControl') as $class) {
       if (class_exists($class)) {
@@ -162,13 +67,15 @@ class FieldControl extends Control
 
     asort($types);
 
-    foreach ($types as $k => $v)
-      $output[] = html::em('option', array(
-        'value' => $k,
-        'selected' => strcasecmp($k, $current) ? null : 'selected',
-        ), $v);
+    $output = '';
 
-    return join('', $output);
+    foreach ($types as $k => $v)
+      $output .= html::em('type', array(
+        'name' => $k,
+        'label' => $v,
+        ));
+
+    return $output;
   }
 
   // FIXME: переделать так, чтобы отображались только справочники.
@@ -182,11 +89,55 @@ class FieldControl extends Control
     $output = '';
 
     foreach ($options as $k => $v)
-      $output .= html::em('option', array(
-        'value' => $k,
-        'selected' => ($k == $current) ? 'selected' : null,
-        ), $v);
+      $output .= html::em('dictionary', array(
+        'name' => $k,
+        'label' => $v,
+        ));
 
     return $output;
+  }
+
+  public function set($value, Node &$node)
+  {
+    if (empty($value['__reset']))
+      return;
+
+    $node->{$this->value} = $this->extractFields($value);
+  }
+
+  protected function validate($value)
+  {
+    if (empty($value['__reset']))
+      return true;
+
+    if (!count($fields = $this->extractFields($value)))
+      throw new ValidationException(t('Тип документа должен содержать хотя бы одно поле.'));
+
+    foreach ($this->extractFields($value) as $name => $info) {
+      if (strspn(mb_strtolower($name), '0123456789abcdefghijklmnopqrstuvwxyz_') != strlen($name))
+        throw new ValidationException('Имя поля может содержать только цифры, буквы и прочерк.');
+    }
+
+    return true;
+  }
+
+  private function extractFields(array $data)
+  {
+    $fields = array();
+
+    foreach ($data as $idx => $f) {
+      if ($idx != '__reset' and !empty($f['name']) and empty($f['delete'])) {
+        $name = $f['name'];
+        unset($f['name']);
+
+        foreach ($f as $k => $v)
+          if ('' === $v)
+            unset($f[$k]);
+
+        $fields[$name] = $f;
+      }
+    }
+
+    return $fields;
   }
 };

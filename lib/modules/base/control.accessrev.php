@@ -34,47 +34,44 @@ class AccessRevControl extends Control
 
   public function __construct(array $form)
   {
+    if (!array_key_exists('columns', $form))
+      $form['columns'] = array('c', 'r', 'u', 'd', 'p');
     parent::__construct($form);
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
-    $table = $this->getData($data);
-    $columns = $this->getColumns();
+    $output = '';
 
-    $output = '<table class=\'padded highlight\'>'
-      . "<label>{$this->label}:</label>";
+    foreach ($this->columns as $c)
+      $output .= html::em('column', array(
+        'name' => $c,
+        'label' => mb_strtoupper($c),
+        ));
 
-    if (count($columns) > 1)
-      $output .= "<tr><th>&nbsp;</th><th>"
-        . join ('</th><th>', $columns) . "</th></tr>";
+    foreach ($this->getData($data) as $row) {
+      $tmp = '';
 
-    foreach ($table as $rec) {
-      $row = html::em('td', $rec['label']);
-
-      foreach (array_keys($columns) as $col) {
-        $ctl = html::em('input', array(
-          'type' => 'checkbox',
-          'name' => "{$this->value}[{$rec['id']}][{$col}]",
-          'value' => 1,
-          'checked' => empty($rec[$col]) ? null : 'checked',
+      foreach ($this->columns as $c)
+        $tmp .= html::em('perm', array(
+          'name' => $c,
+          'enabled' => empty($row[$c]) ? '' : 'yes',
           ));
 
-        $row .= html::em('td', $ctl);
-      }
+      if (!empty($row['nid']))
+        $id = $row['nid'];
+      elseif (!empty($row['id']))
+        $id = $row['id'];
+      else
+        $id = null;
 
-      $output .= html::em('tr', $row);
+      $output .= html::em('row', array(
+        'id' => $id,
+        'name' => $row['label'],
+        ), $tmp);
     }
 
-    $output .= '</table>' . html::em('input', array(
-      'type' => 'hidden',
-      'name' => $this->value . '[__reset]',
-      'value' => 1,
-      ));
-
-    $output = $this->wrapHTML($output, false);
-
-    return $output;
+    return parent::wrapXML(array(), $output);
   }
 
   protected function getWrapperClass()

@@ -179,23 +179,15 @@ class MenuWidget extends Widget implements iWidget
 
     $output = $this->renderMenu($root, $this->depth ? $this->depth : 1, $path, $current);
 
-    if (!empty($output)) {
-      if (in_array($this->header, array('h2', 'h3', 'h4')))
-        $output = '<h2>'. mcms_plain($this->me->title) .'</h2>'. $output;
-    }
-
-    return array('html' => $output);
+    return $output;
   }
 
   private function renderMenu(TagNode $root, $depth, array $path, $myid)
   {
     $output = '';
     $ndepth = $depth - 1;
-    $level = $this->depth - $depth + 1;
 
     if  (!empty($root->children)) {
-      $submenu = '';
-
       foreach ($root->children as $idx => $child) {
         if (empty($child->published))
           continue;
@@ -206,48 +198,28 @@ class MenuWidget extends Widget implements iWidget
         $li = $a = array();
 
         if (array_key_exists($child->id, $path))
-          $li['class'][] = 'active';
+          $child->_active = 'active';
 
         if ($myid == $child->id)
-          $li['class'][] = 'current';
-
-        if ($idx == 0)
-          $li['class'][] = 'first';
-        elseif ($idx == count($root->children) - 1)
-          $li['class'][] = 'last';
-
-        $li['class'][] = 'level-'. $level;
-
-        if (!empty($child->description))
-          $a['title'] = mcms_plain($child->description);
+          $child->_current = 'current';
 
         if (null !== $this->external and !empty($child->{$this->external}))
           $link = $child->{$this->external};
         else
           $link = '?q=' . $this->prefix . $child->id;
 
-        $a['href'] = str_replace('$tid', $child->id, $link);
+        $child->_link = $link;
 
         if ($this->hidecurrent and in_array('current', $li['class'])) {
           if (empty($this->options['document']->id)) {
-            $a['href'] = null;
-            $a['class'][] = 'nolink';
+            unset($child->_link);
           }
         }
 
-        $submenu .= html::em('li', $li, html::em('a', $a, mcms_plain($child->name)));
-
-        // Отрезаем финальный </li>.
-        $submenu = substr($submenu, 0, -5);
-
-        if ($ndepth)
-          $submenu .= $this->renderMenu($child, $ndepth, $path, $myid);
-
-        $submenu .= '</li>';
+        $output .= $child->getXML('section', $ndepth
+          ? $this->renderMenu($child, $ndepth, $path, $myid)
+          : null);
       }
-
-      if (!empty($submenu))
-        $output .= '<ul>'. $submenu .'</ul>';
     }
 
     return $output;

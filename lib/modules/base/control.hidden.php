@@ -32,17 +32,10 @@ class HiddenControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
-    if (null === $data or (null === ($value = $data->{$this->value})))
-      $value = $this->default;
-
-    return html::em('input', array(
-      'type' => 'hidden',
-      'id' => $this->id,
-      'class' => $this->class,
-      'name' => $this->value,
-      'value' => $value,
+    return parent::wrapXML(array(
+      'value' => $data->{$this->value},
       ));
   }
 };

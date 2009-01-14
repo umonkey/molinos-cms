@@ -46,7 +46,7 @@ class AttachmentControl extends Control
       $this->description .= '<p>'. join(' ', $parts) .'</p>';
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
     $dt = array(
       'name' => null,
@@ -55,13 +55,6 @@ class AttachmentControl extends Control
       'created' => null,
       'filepath' => null,
       );
-
-    // Никаких опций — простая загрузка файла.
-    if (!$this->archive and !$this->fetch and !$this->ftp)
-      return $this->wrapHTML(html::em('input', array(
-        'type' => 'file',
-        'name' => $this->value,
-        )));
 
     if (($tmp = $data->{$this->value}) instanceof Node) {
       $dt = $tmp->getRaw();
@@ -72,7 +65,15 @@ class AttachmentControl extends Control
       }
     }
 
-    return $this->wrapHTML($this->render($dt), false);
+    $dt['filename'] = $dt['name'];
+    $dt['name'] = $this->value;
+
+    return parent::wrapXML($dt + array(
+      'newfile' => $this->newfile,
+      'unzip' => $this->unzip,
+      'fetch' => $this->fetch,
+      'archive' => $this->archive,
+      ));
   }
 
   public function set($value, Node &$node)

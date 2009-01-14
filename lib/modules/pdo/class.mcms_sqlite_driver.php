@@ -254,7 +254,7 @@ class mcms_sqlite_driver extends PDO_Singleton
         $c['autoincrement'] = true;
       }
 
-      if ($indexes[$name])
+      if (!empty($indexes[$name]))
         $c['key'] = 'mul';
 
       $columns[$name] = $c;

@@ -34,7 +34,7 @@ class NumberControl extends Control
     return 'DECIMAL(10,2)';
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
     if (isset($this->hidden))
       return $this->getHidden($data);
@@ -42,15 +42,12 @@ class NumberControl extends Control
     if (null === ($value = $data->{$this->value}))
       $value = $this->default;
 
-    $output = html::em('input', array(
-      'type' => 'text',
-      'id' => $this->id,
-      'class' => 'form-text form-number',
-      'name' => $this->value,
+    $this->addClass('form-text');
+    $this->addClass('form-number');
+
+    return parent::wrapXML(array(
       'value' => $value,
       ));
-
-    return $this->wrapHTML($output);
   }
 
   public function set($value, Node &$node, array $data = array())

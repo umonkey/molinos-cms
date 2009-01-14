@@ -29,10 +29,12 @@ class TextHTMLControl extends Control
 
   public function __construct(array $form)
   {
+    if (empty($form['rows']))
+      $form['rows'] = 10;
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
     if (null !== ($content = $data->{$this->value}))
       $content = htmlspecialchars($content);
@@ -40,13 +42,13 @@ class TextHTMLControl extends Control
     if (class_exists('TinyMceModule'))
       TinyMceModule::add_extras();
 
-    $output = html::em('textarea', array(
-      'id' => $this->id,
-      'class' => 'form-text visualEditor',
-      'name' => $this->value,
-      ), $content);
+    $this->addClass('form-text');
+    $this->addClass('visualEditor');
 
-    return $this->wrapHTML($output);
+    return parent::wrapXML(array(
+      'rows' => $this->rows,
+      'cols' => $this->cols,
+      ), html::cdata($content));
   }
 
   public function set($value, Node &$node)

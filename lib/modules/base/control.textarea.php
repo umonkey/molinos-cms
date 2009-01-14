@@ -34,7 +34,7 @@ class TextAreaControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
     if (is_array($content = $data->{$this->value}))
       $content = join("\n", $content);
@@ -42,15 +42,13 @@ class TextAreaControl extends Control
     if (empty($content) and isset($this->default))
       $content = $this->default;
 
-    $output = html::em('textarea', array(
-      'id' => $this->id,
-      'class' => array_merge($this->class, array('form-text', 'resizable')),
-      'name' => $this->value,
+    $this->addClass('form-text');
+    $this->addClass('resizable');
+
+    return parent::wrapXML(array(
       'rows' => $this->rows,
       'cols' => $this->cols,
-      ), $content);
-
-    return $this->wrapHTML($output);
+      ), html::cdata($content));
   }
 
   public function set($value, Node &$node)

@@ -1,0 +1,55 @@
+.modman table {
+  border-collapse: collapse;
+}
+
+.modman table th {
+  background-color: #eee;
+  font-size: 120%;
+}
+
+.modman table td,
+.modman table th {
+  vertical-align: top;
+  border: solid 1px gray;
+  padding: 2px 4px;
+}
+
+.modman table p {
+  margin: 2px 0;
+}
+
+.modman table .description {
+  color: gray;
+}
+
+.modman .filter {
+  margin: 10px 0;
+  display: block;
+}
+.modman .filter span {
+  margin-right: 10px;
+}
+
+.modman td label {
+  display: block;
+  font-weight: bold;
+}
+
+.modman a.docurl {
+  background: transparent url(images/info.png) no-repeat top left;
+}
+.modman a.download {
+  background: transparent url(images/download.png) no-repeat top left;
+}
+.modman a.icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.modman a.icon span {
+  display: none;
+}
+
+.modman .form-submit {
+  margin-top: 10px;
+}

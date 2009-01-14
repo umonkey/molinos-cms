@@ -57,13 +57,17 @@ class NodeLinkControl extends Control
     return 'int';
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
-    if (isset($this->hidden))
+    if ($this->hidden)
       return $this->getHidden($data);
 
+    $this->addClass('form-text');
+    if (!$this->readonly)
+      $this->addClass('autocomplete');
+
     if (null !== ($output = $this->getSelect(strval($this->getCurrentValue($data)))))
-      return $this->wrapHTML($output);
+      return parent::wrapXML(array(), $output);
 
     $parts = explode('.', $this->values, 2);
 
@@ -74,35 +78,9 @@ class NodeLinkControl extends Control
     else
       $name = '';
 
-    $this->addClass('form-text');
-
-    if (!$this->readonly and modman::isInstalled('autocomplete')) {
-      $this->addClass('autocomplete');
-
-      mcms::extras('lib/modules/autocomplete/jquery.suggest.js');
-      mcms::extras('lib/modules/autocomplete/jquery.suggest.css');
-    }
-
-    $output = html::em('input', array(
-      'type' => 'text',
-      'id' => $this->id,
-      'class' => $this->class,
-      'autocomplete' => 'off',
-      'name' => $this->value,
+    return parent::wrapXML(array(
       'value' => $name,
-      'readonly' => $this->readonly ? 'readonly' : null,
       ));
-
-    if (!$this->readonly) {
-      $output .= '<script language=\'javascript\' type=\'text/javascript\'>$(function(){$(\'#'. $this->id .'\').suggest(\'?q=autocomplete.rpc&source='. $this->values .'\');});</script>';
-      $output .= html::em('input', array(
-        'type' => 'hidden',
-        'name' => "nodelink_remap[{$this->value}]",
-        'value' => $this->values . ($this->required ? '!' : ''),
-        ));
-    }
-
-    return $this->wrapHTML($output);
   }
 
   private function getSelect($value)
@@ -119,18 +97,20 @@ class NodeLinkControl extends Control
         if (!$this->required)
           $options .= html::em('option', array(
             'value' => '',
-            ), $this->default_label);
+            'text' => $this->default_label
+              ? $this->default_label
+              : t('(нет)'),
+            ));
 
         foreach ($values as $id => $name) {
           $options .= html::em('option', array(
-            'selected' => ($value == $id) ? 'selected' : null,
+            'selected' => ($value == $id),
             'value' => $id,
-            ), $name);
+            'text' => $name,
+            ));
         }
 
-        return html::em('select', array(
-          'name' => $this->value,
-          ), $options);
+        return $options;
       }
     }
   }

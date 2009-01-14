@@ -112,9 +112,26 @@ class NodeBase
     foreach ($this->files as $k => $v)
       $tmp['files'][$k] = $v->getRaw();
 
-    $tmp['_name'] = $this->getName();
+    $tmp['displayName'] = $this->getName();
 
     return $tmp;
+  }
+
+  /**
+   * Возвращает содержимое ноды в XML.
+   */
+  public function getXML($em = 'node', $_content = null)
+  {
+    $content = '';
+
+    $raw = $this->getRaw();
+
+    if ($this->uid instanceof Node) {
+      $raw['userName'] = $this->uid->getName();
+      $raw['uid'] = $this->uid->id;
+    }
+
+    return html::em($em, $raw, $content . $_content);
   }
 
   /**
@@ -1694,25 +1711,9 @@ class NodeBase
    */
   public function getFormTitle()
   {
-    try {
-      $type = Node::load(array(
-        'class' => 'type',
-        'name' => $this->class,
-        ));
-
-      $name = mb_strtolower(mcms_plain($type->title));
-
-      if (mcms::user()->hasAccess('u', 'type'))
-        $name = l("?q=admin/content/edit/{$type->id}&destination=CURRENT", $name);
-
-      $name = ' (' . $name . ')';
-    } catch (ObjectNotFoundException $e) {
-      $type = '';
-    }
-
     return $this->id
-      ? $this->getName() . $name
-      : t('Добавление нового документа') . $name;
+      ? $this->getName()
+      : t('Добавление нового документа');
   }
 
   public function getFormSubmitText()
@@ -2012,7 +2013,8 @@ class NodeBase
       $sql = "SELECT DISTINCT tid, nid, `key` AS _key "
         ."FROM `node__rel` WHERE `nid` IN (SELECT `id` FROM `node` WHERE "
         ."`deleted` = 0) AND `tid` "
-        ."IN (". join(', ', array_keys($nodes)) .")";
+        ."IN (". join(', ', array_keys($nodes)) .") "
+        ;
 
       // FIXME: для разделов загружаем ТОЛЬКО именованые ссылки,
       // иначе мы загрузим ВСЕ документы, привязанные к разделам,
@@ -2021,6 +2023,10 @@ class NodeBase
         $sql .= ' AND (`key` IS NOT NULL OR `tid` NOT IN '
           .'(SELECT `id` FROM `node` WHERE `class` = \'tag\' '
           .'AND `deleted` = 0 AND `published` = 1))';
+
+      // Добавляем загрузку пользователей.
+      $sql .= " UNION SELECT id, uid, 'uid' FROM node WHERE id "
+        ." IN (". join(', ', array_keys($nodes)) .")";
 
       foreach (mcms::db()->getResults($sql) as $l)
           $map[$l['nid']][] = $l;

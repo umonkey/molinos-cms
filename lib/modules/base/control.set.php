@@ -34,7 +34,7 @@ class SetControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
     $options = $this->getOptions($data);
 
@@ -50,44 +50,22 @@ class SetControl extends Control
     if ($enabled !== null and empty($enabled))
       return null;
 
-    // Если доступен только один раздел — выводим скрытый контрол.
-    if ($enabled !== null and count($enabled) == 1) {
-      $content = html::em('input', array(
-        'type' => 'hidden',
-        'name' => $this->value . '[]',
-        'value' => array_shift($enabled),
+    $output = '';
+
+    foreach ($options as $k => $v) {
+      $disabled = ((null !== $enabled) and !in_array($k, $enabled))
+        ? true
+        : false;
+
+      $output = html::em('option', array(
+        'value' => $k,
+        'checked' => in_array($k, $selected),
+        'disabled' => $disabled ? 'disabled' : null,
+        'text' => $v,
         ));
-    } else {
-      $content = $this->getLabel();
-
-      foreach ($options as $k => $v) {
-        $disabled = ((null !== $enabled) and !in_array($k, $enabled))
-          ? true
-          : false;
-
-        $inner = html::em('input', array(
-          'type' => 'checkbox',
-          'value' => $k,
-          'name' => $this->value . '[]',
-          'checked' => in_array($k, $selected),
-          'disabled' => $disabled ? 'disabled' : null,
-          ));
-
-        $inner = html::em('label', array('class' => 'normal'), $inner . $v);
-
-        $content .= html::em('div', array(
-          'class' => 'form-checkbox' . ($disabled ? ' disabled' : ''),
-          ), $inner);
-      }
     }
 
-    $content .= html::em('input', array(
-      'type' => 'hidden',
-      'name' => $this->value . '[__reset]',
-      'value' => 1,
-      ));
-
-    return $this->wrapHTML($content, false);
+    return parent::wrapXML(array(), $output);
   }
 
   protected function makeOptionsFromValues(array &$form)

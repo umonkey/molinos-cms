@@ -21,36 +21,17 @@ class AdminTreeHandler
   {
     $this->setUp($preset);
 
-    $output = '<h2>'. $this->title .'</h2>';
-
-    if (!empty($_GET['msg']) and ('welcome' == $_GET['msg']))
-      $output .= '<p class=\'helpmsg\'>'. t('Вы обратились к ненастроенному домену.  Сейчас вам, скорее всего, следует добавить несколько типовых страниц для вашего нового сайта, затем добавить к нему несколько виджетов.') .'</p>';
-
-    $form = new Form(array(
-      'id' => 'nodelist-form',
-      'action' => '?q=nodeapi.rpc&action=mass&destination=CURRENT',
-      ));
-    $form->addControl(new AdminUINodeActionsControl(array(
-      'actions' => $this->actions,
-      'addlink' => $this->addlink,
-      )));
-    $form->addControl(new AdminUITreeControl(array(
-      'columns' => $this->columns,
-      'columntitles' => $this->columntitles,
-      'selectors' => $this->selectors,
-      'zoomlink' => $this->zoomlink,
-      )));
-
-    $form->addControl(new AdminUINodeActionsControl(array(
-      'actions' => $this->actions,
-      'addlink' => $this->addlink,
-      )));
-
-    $output .= $form->getHTML(array(
-      'nodes' => $this->getData(),
-      ));
+    $output = html::em('list', array(
+      'title' => $this->title,
+      'preset' => $preset,
+      ), $this->getMassCtl() . $this->getData());
 
     return $output;
+  }
+
+  private function getMassCtl()
+  {
+    return AdminListHandler::getNodeActions(array(), $this->actions);
   }
 
   protected function getData()
@@ -134,11 +115,8 @@ class AdminTreeHandler
 
   private function getNodeTree()
   {
-    $list = array();
+    $output = '';
     $user = mcms::user();
-
-    $columns = $this->columns;
-    $columns[] = 'parent_id';
 
     $filter = array(
       'class' => $this->type,
@@ -153,71 +131,12 @@ class AdminTreeHandler
 
       $children = $root->getChildren('flat');
 
-      foreach ($children as $node) {
-        if ($this->type == 'pages' and $node['theme'] == 'admin' and !$user->hasAccess('u', 'moduleinfo'))
-          continue;
-
-        $item = array(
-          'id' => $node['id'],
-          'published' => !empty($node['published']),
-          'internal' => !empty($node['internal']),
-          'class' => $node['class'],
-          'parent_id' => $node['parent_id'],
-          );
-
-        if (!empty($node['depth']))
-          $item['depth'] = $node['depth'];
-
-        $link = true;
-
-        foreach ($columns as $field) {
-          if ($field == 'actions')
-            continue;
-
-          if (empty($node[$field]))
-            $text = null;
-          else
-            $text = mcms_plain($node[$field]);
-
-          if ($link) {
-            $args = array(
-              'class' => array(),
-              'href' => "?q=admin/". $this->getGroup() ."/edit/{$node['id']}&destination=CURRENT",
-              'style' => empty($node['depth']) ? null : 'margin-left:'. ($node['depth'] * 10) .'px',
-              );
-
-            if (empty($text))
-              $text = t('(без названия)');
-
-            if (!empty($node['description'])) {
-              $args['title'] = $node['description'];
-              $args['class'][] = 'hint';
-            }
-
-            $text = html::em('a', $args, $text);
-
-            $link = false;
-          }
-
-          $item[$field] = $text;
-        }
-
-        if (array_key_exists('actions', $this->columns)) {
-          $actions = array();
-
-          $actions[] = html::em('a', array('href' => "admin/node/{$node['id']}/raise/?destination=CURRENT"), 'поднять');
-          $actions[] = html::em('a', array('href' => "admin/node/{$node['id']}/sink/?destination=CURRENT"), 'опустить');
-
-          if ($this->tree == 'tag')
-            $actions[] = html::em('a', array('href' => "admin/node/create/?BebopNode.class=tag&BebopNode.parent={$node['id']}&destination=CURRENT"), 'добавить');
-
-          $item['actions'] = join('&nbsp;', $actions);
-        }
-
-        $list[$node['id']] = $item;
-      }
+      foreach ($children as $node)
+        $output .= html::em('node', $node);
     }
 
-    return $list;
+    return empty($output)
+      ? null
+      : html::em('data', $output);
   }
 };

@@ -29,17 +29,14 @@ class DateControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
-    $output = html::em('input', array(
-      'type' => 'text', // 'date', // пользоваться этим в опере невозможно
-      'id' => $this->id,
-      'class' => 'form-text form-date',
-      'name' => $this->value,
+    $this->addClass('form-text');
+    $this->addClass('form-date');
+
+    return parent::wrapXML(array(
       'value' => $data->{$this->value},
       ));
-
-    return $this->wrapHTML($output);
   }
 
   public static function getSQL()

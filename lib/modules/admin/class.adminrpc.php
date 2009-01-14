@@ -112,10 +112,10 @@ class AdminRPC implements iRemoteCall
     if (null !== ($tmp = self::checkAccessAndAutoLogin($ctx)))
       return $tmp;
 
-    $result = array();
+    $result = '';
 
     if (null === ($module = $ctx->get('module')))
-      $result['content'] = self::onGetInternal($ctx);
+      $result .= html::em('content', self::onGetInternal($ctx));
 
     elseif (!count($classes = Loader::getImplementors('iAdminUI', $module))) {
       throw new PageNotFoundException(t('Запрошенный модуль (%name) '
@@ -128,14 +128,17 @@ class AdminRPC implements iRemoteCall
     }
 
     else {
-      $result['content'] = call_user_func_array(array($classes[0], 'onGet'), array($ctx));
+      $result .= html::em('content',
+        call_user_func_array(array($classes[0], 'onGet'), array($ctx)));
     }
 
     $am = new AdminMenu();
-    $result['dashboard'] = $am->__toString();
-    $result['base'] = $ctx->url()->getBase();
+    $result .= $am->getXML();
 
-    return self::getPage($result);
+    return self::getPage($ctx, array(
+      'base' => $ctx->url()->getBase(),
+      'content' => $result,
+      ));
   }
 
   private static function onGetInternal(Context $ctx)
@@ -285,7 +288,7 @@ class AdminRPC implements iRemoteCall
     $form = $node->formGet(false);
     $form->addClass('tabbed');
 
-    return $form->getHTML($node);
+    return $form->getXML($node);
   }
 
   private static function onGetCreate(Context $ctx)
@@ -329,7 +332,7 @@ class AdminRPC implements iRemoteCall
           )));
       }
 
-      return $form->getHTML($node);
+      return $form->getXML($node);
     }
 
     $types = Node::find(array(
@@ -337,24 +340,23 @@ class AdminRPC implements iRemoteCall
       '-name' => TypeNode::getInternal(),
       ));
 
-    $output = '<dl>';
+    $output = '';
+    $names = array();
 
     foreach ($types as $type) {
       if (mcms::user()->hasAccess('c', $type->name)) {
-        $output .= '<dt>';
-        $output .= html::em('a', array(
-          'href' => "?q=admin&mode=create&type={$type->name}&destination=". urlencode($_GET['destination']),
-          ), $type->title);
-        $output .= '</dt>';
-
-        if (isset($type->description))
-          $output .= '<dd>'. $type->description .'</dd>';
+        $output .= $type->getXML('type');
+        $names[] = $type->name;
       }
     }
 
-    $output .= '</dl>';
+    if (1 == count($names))
+      $ctx->redirect("?q=admin/content/create&type={$names[0]}&destination="
+        . urlencode($ctx->get('destination')));
 
-    return '<h2>Какой документ вы хотите создать?</h2>'. $output;
+    return html::em('typechooser', array(
+      'destination' => $ctx->get('destination'),
+      ), $output);
   }
 
   private static function onGetStatus(Context $ctx)
@@ -478,10 +480,101 @@ class AdminRPC implements iRemoteCall
         .'к администрированию сайта.'));
   }
 
-  private static function getPage(array $data)
+  private static function getPage(Context $ctx, array $data)
   {
-    $output = template::render('admin', 'page', 'admin', $data);
+    if (isset($ctx->theme)) {
+      $theme = $ctx->theme;
+
+      if (file_exists($tmp = str_replace('.xsl', '.css', $theme)))
+        $ctx->addExtra('style', $tmp);
+      if (file_exists($tmp = str_replace('.xsl', '.js', $theme)))
+        $ctx->addExtra('script', $tmp);
+    } else {
+      $theme = os::path('lib', 'modules', 'admin', 'template.xsl');
+    }
+
+    $data['content'] .= $ctx->getExtrasXML();
+    $data['content'] .= self::getToolBar();
+
+    $data['content'] .= mcms::getSignatureXML($ctx);
+
+    $xml = '<?xml version="1.0" encoding="utf-8"?>';
+    $xml .= html::em('page', array(
+      'base' => $data['base'],
+      'prefix' => 'lib/modules/admin',
+      'url' => $_SERVER['REQUEST_URI'],
+      'urlEncoded' => urlencode($_SERVER['REQUEST_URI']),
+      'cgroup' => self::getCGroup($ctx),
+      ), $data['content']);
+
+    $output = xslt::transform($xml, $theme);
 
     return $output;
+  }
+
+  private static function getCGroup(Context $ctx)
+  {
+    if (null === ($cgroup = $ctx->get('cgroup'))) {
+      $parts = explode('/', $ctx->query());
+      $cgroup = $parts[1];
+    }
+
+    return $cgroup;
+  }
+
+  private static function getToolBar()
+  {
+    $xslmode = empty($_GET['xslt'])
+      ? ''
+      : $_GET['xslt'];
+
+    $toolbar = html::em('a', array(
+      'class' => 'editprofile',
+      'href' => '?q=admin&cgroup=access&mode=edit&id='
+        . mcms::user()->id
+        . '&destination=CURRENT',
+      'title' => t('Редактирование профиля'),
+      ), mcms::user()->getName());
+    $toolbar .= html::em('a', array(
+      'class' => 'home',
+      'href' => '?q=admin',
+      'title' => t('Вернуться к началу'),
+      ));
+    $toolbar .= html::em('a', array(
+      'class' => 'reload',
+      'href' => '?q=admin.rpc&action=reload&flush=1&destination=CURRENT',
+      'title' => t('Перезагрузка'),
+      ));
+    $toolbar .= html::em('a', array(
+      'class' => 'exit',
+      'href' => '?q=base.rpc&action=logout&from='
+        . urlencode($_SERVER['REQUEST_URI']),
+      ));
+    if ($xslmode != 'none') {
+      $url = new url();
+      $url->setarg('xslt', 'none');
+      $toolbar .= html::em('a', array(
+        'class' => 'xml',
+        'href' => $_SERVER['REQUEST_URI'] . '&xslt=none',
+        ), 'XML');
+    }
+    if ($xslmode != 'client') {
+      $url = new url();
+      $url->setarg('xslt', 'client');
+      $toolbar .= html::em('a', array(
+        'class' => 'xml',
+        'href' => $_SERVER['REQUEST_URI'] . '&xslt=client',
+        ), 'Client');
+    }
+    if ($xslmode != '') {
+      $url = new url();
+      $url->setarg('xslt', null);
+      $toolbar .= html::em('a', array(
+        'class' => 'xml',
+        'href' => $url->string(),
+        ), 'Server');
+    }
+
+    return html::em('toolbar', $toolbar);
   }
 }

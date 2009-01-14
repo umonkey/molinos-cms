@@ -39,9 +39,9 @@ interface iFormControl
   public static function getSQL();
 
   /**
-   * Возвращает HTML код элемента.
+   * Возвращает XML код элемента.
    */
-  public function getHTML($data);
+  public function getXML($data);
 
   /**
    * Добавление дочернего контрола.

@@ -41,19 +41,20 @@ class EnumControl extends Control
     return 'VARCHAR(255)';
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
     $options = '';
 
     if (!$this->required)
       $options .= html::em('option', array(
         'value' => '',
-        ), $this->default_label);
+        'text' => $this->default_label,
+        ));
 
     $enabled = $this->getEnabled($data);
 
     if (is_array($enabled) and count($enabled) == 1)
-      return html::em('input', array(
+      return html::em('control', array(
         'type' => 'hidden',
         'name' => $this->value,
         'value' => array_shift($enabled),
@@ -66,24 +67,22 @@ class EnumControl extends Control
     foreach ($list as $k => $v) {
       $options .= html::em('option', array(
         'value' => $k,
-        'selected' => in_array($k, $selected) ? 'selected' : null,
-        'disabled' => (null === $enabled or in_array($k, $enabled)) ? null : 'disabled',
-        ), $v);
+        'selected' => in_array($k, $selected),
+        'disabled' => !(null === $enabled or in_array($k, $enabled)),
+        'text' => $v,
+        ));
     }
 
-    if (empty($options))
-      return '';
-
-    $output = html::em('select', array(
-      'id' => $this->id,
-      'name' => $this->value,
-      ), $options);
-
-    return $this->wrapHTML($output);
+    return empty($options)
+      ? null
+      : parent::wrapXML(array(), $options);
   }
 
   protected function getData($data)
   {
+    if (isset($this->dictionary))
+      return Node::getSortedList($this->dictionary);
+
     if (!is_array($result = $this->options))
       $result = array();
 
