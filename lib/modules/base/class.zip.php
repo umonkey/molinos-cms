@@ -18,6 +18,9 @@ class zip
 
   public static function fromFolder($zipName, $folderPath)
   {
+    if (!self::isAvailable())
+      throw new ZipException();
+
     $folderPath = rtrim($folderPath, DIRECTORY_SEPARATOR);
 
     $z = new ZipArchive();
@@ -31,6 +34,9 @@ class zip
 
   public static function unzipToFolder($zipName, $folderPath)
   {
+    if (!self::isAvailable())
+      throw new ZipException();
+
     $tmpDir = file_exists($folderPath)
       ? $folderPath . '.tmp'
       : $folderPath;
@@ -63,5 +69,13 @@ class zip
 
       os::rmdir($old);
     }
+  }
+}
+
+class ZipException extends Exception
+{
+  public function __construct()
+  {
+    parent::__construct(t('Функции для работы с ZIP архивами недоступны.'));
   }
 }
