@@ -274,8 +274,6 @@ class mcms
         $output[] = 'breakpoint';
       }
 
-      bebop_on_json(array('args' => $output));
-
       if (ob_get_length())
         ob_end_clean();
 
@@ -472,11 +470,6 @@ class mcms
 
     if (!(($ctx = Context::last()) and $ctx->canDebug()))
       $backtrace = null;
-
-    bebop_on_json(array(
-      'status' => 'error',
-      'message' => $message,
-      ));
 
     foreach ($args as $arg)
       $extras[] = var_export($arg, true) .';';
@@ -1029,60 +1022,10 @@ class mcms
 
     $ctx->db = mcms::config('db.default');
 
-    if ($ctx->get('flush') and $ctx->canDebug()) {
-      mcms::flush();
-      mcms::flush(mcms::FLUSH_NOW);
-    }
+    $request = new Request();
+    $response = $request->process($ctx);
 
-    try {
-      if (false === ($result = Page::render($ctx, $ctx->host(), $ctx->query())))
-        throw new PageNotFoundException();
-    }
-
-    catch (NotConnectedException $e) {
-      if ('install.rpc' == $ctx->query())
-        mcms::fatal($e);
-      $ctx->redirect('?q=install.rpc&action=db&destination=CURRENT');
-    }
-    
-    catch (NotInstalledException $e) {
-      if ('install.rpc' == $ctx->query())
-        mcms::fatal($e);
-      $ctx->redirect('?q=install.rpc&action=' . $e->get_type()
-        . '&destination=CURRENT');
-    }
-    
-    catch (UserErrorException $e) {
-      if ($ctx->debug('errors') or empty($_SERVER['REQUEST_METHOD']))
-        mcms::fatal($e);
-
-      $ctx->method = 'GET';
-
-      try {
-        $result = Page::render($ctx, $ctx->host(), 'errors/' . $e->getCode());
-      } catch (Exception $e2) {
-        mcms::fatal(t('<p>Ошибка %code: %message.</p><p>Более «красивый» обработчик этой ошибки можно сделать, добавив страницу «errors/%code».</p>', array(
-          '%code' => $e->getCode(),
-          '%message' => rtrim($e->getMessage(), '.'),
-          )));
-      }
-
-      if (false === $result) {
-        $e = new PageNotFoundException(t('%message. Кроме того, обработчик ошибки (errors/%code) также не найден.', array(
-          '%code' => $e->getCode(),
-          '%message' => rtrim($e->getMessage(), '.'),
-          )));
-        mcms::fatal($e);
-      }
-    }
-
-    catch (Exception $e) {
-      mcms::fatal($e);
-    }
-
-    $result->send();
-
-    // TODO: вернуть работу с node__fallback.
+    $response->send();
   }
 
   public static function matchip($value, $ips)

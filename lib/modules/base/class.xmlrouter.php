@@ -1,21 +1,18 @@
 <?php
 
-class Page
+class XMLRouter implements iRequestRouter
 {
-  public static function render(Context $_ctx, $domain, $query, $debug = false)
+  protected $query;
+
+  public function __construct($query)
   {
-    // Клонируем контекст, чтобы не изменить исходные параметры,
-    // т.к. это приводит к неверной работе страниц с ошибками.
-    // Например, если страница с ошибками не имеет параметров,
-    // а мы здесь их установим, они _придут_ в обработчик ошибки,
-    // что нарушит его работу.
-    $ctx = clone($_ctx);
+    $this->query = $query;
+  }
 
-    if ($rpc = self::checkRPC($ctx, $query))
-      return $rpc;
-
-    if ('robots.txt' == $query) {
-      if (is_array($data = Structure::getInstance()->findPage($domain, '')) and !empty($data['robots']))
+  public function route(Context $ctx)
+  {
+    if ('robots.txt' == $this->query) {
+      if (is_array($data = Structure::getInstance()->findPage($ctx->host(), '')) and !empty($data['robots']))
         $robots = $data['robots'];
       else
         $robots = DomainNode::getDefaultRobots();
@@ -24,13 +21,10 @@ class Page
     }
 
     // Находим страницу в структуре.
-    if (false === ($data = Structure::getInstance()->findPage($domain, $query)))
-      return false;
+    if (false === ($data = Structure::getInstance()->findPage($ctx->host(), $this->query)))
+      throw new PageNotFoundException();
 
     mcms::invoke('iRequestHook', 'hookRequest', array($ctx));
-
-    if ($debug)
-      mcms::debug($data);
 
     // Устанавливаем распарсенные коды раздела и документа.
     if (!empty($data['args']['sec']))
@@ -98,20 +92,6 @@ class Page
       return new Response($result, 'text/xml');
   }
 
-  private static function findStyleSheet($themeName, $pageName)
-  {
-    foreach (array($pageName, 'default') as $name) {
-      $path = os::path('themes', $themeName, 'templates', 'page.' . $name . '.xsl');
-      if (file_exists($path))
-        /*
-        return '<?xml-stylesheet type="text/xsl" href="' . $path . '"?>';
-        */
-        return $path;
-    }
-
-    mcms::debug($path);
-  }
-
   private static function renderWidgets(Context $ctx, array $names)
   {
     $s = Structure::getInstance();
@@ -140,54 +120,17 @@ class Page
     return $result;
   }
 
-  private static function checkRPC(Context $ctx, $query)
+  private static function findStyleSheet($themeName, $pageName)
   {
-    if ('admin' == $query or 0 === strpos($query, 'admin/'))
-      $query = 'admin.rpc';
-
-    elseif (strpos($query, 'attachment/') === 0)
-      $query = 'attachment.rpc';
-
-    if ('.rpc' == substr($query, -4)) {
-      $module = substr($query, 0, -4);
-
-      if (class_exists('modman') and !modman::isInstalled($module))
-        throw new PageNotFoundException(t('Модуль %name отсутствует или выключен.', array(
-          '%name' => $module,
-          )));
-
-      if ($ctx->method('post') and isset($ctx->db)) {
-        try {
-          $ctx->db->beginTransaction();
-        } catch (NotConnectedException $e) { }
-      }
-
-      $args = array($ctx);
-
-      if (false === ($result = mcms::invoke_module($module, 'iRemoteCall', 'hookRemoteCall', $args)))
-        throw new RuntimeException(t('Обработчик RPC в модуле %module отсутствует.', array(
-          '%module' => $module,
-          )));
-
-      if ($ctx->method('post') and isset($ctx->db)) {
-        try {
-          $ctx->db->commit();
-        } catch (NotConnectedException $e) { }
-      }
-
-      if (!($result instanceof Response)) {
-        if (empty($result))
-          $result = new Response(t('Запрос не обработан.'), 'text/plain', 404);
-        else
-          $result = new Response($result);
-      }
-
-      if ($ctx->debug('profile')) {
-        $p = new Debugger($ctx);
-        return $p->getProfile($widgets);
-      }
-
-      $result->send();
+    foreach (array($pageName, 'default') as $name) {
+      $path = os::path('themes', $themeName, 'templates', 'page.' . $name . '.xsl');
+      if (file_exists($path))
+        /*
+        return '<?xml-stylesheet type="text/xsl" href="' . $path . '"?>';
+        */
+        return $path;
     }
+
+    mcms::debug($path);
   }
 }

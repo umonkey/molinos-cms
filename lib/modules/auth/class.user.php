@@ -50,11 +50,10 @@ class User
           'tagged' => array($this->node->id),
           '#recurse' => 0,
           '#files' => false,
-          '#raw' => true,
           ));
 
         foreach ($nodes as $k => $v)
-          $groups[$k] = $v['_name'];
+          $groups[$k] = $v->getName();
 
         mcms::cache("user:{$this->node->id}:groupnames", $groups);
       }

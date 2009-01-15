@@ -2,9 +2,9 @@
 
 class Response
 {
-  private $code;
-  private $type;
-  private $content;
+  protected $code;
+  protected $type;
+  protected $content;
 
   public function __construct($content, $type = 'text/html', $code = 200)
   {
@@ -36,30 +36,12 @@ class Response
     // Сбрасываем кэш, если просили.
     mcms::flush(mcms::FLUSH_NOW);
 
-    // Возвращаем JSON.
-    if ($this->isJSON()) {
-      header('HTTP/1.1 200 OK');
-      header('Content-Type: application/x-json; charset=utf-8');
-      header('Expires: ' . date('r', time() - (60*60*24)));
+    header('HTTP/1.1 ' . $this->code . ' ' . $this->getResponseTitle());
+    header('Content-Type: ' . $this->type . '; charset=utf-8');
 
-      setlocale(LC_ALL, "en_US.UTF-8");
+    $this->addHeaders();
 
-      $content = json_encode(array(
-        'code' => $this->code,
-        'type' => $this->type,
-        'content' => $this->getContent(),
-        ));
-    }
-
-    // Возвращаем обычный результат.
-    else {
-      header('HTTP/1.1 ' . $this->code . ' ' . $this->getResponseTitle());
-      header('Content-Type: ' . $this->type . '; charset=utf-8');
-
-      $this->addHeaders();
-
-      $content = $this->getContent();
-    }
+    $content = $this->getContent();
 
     header(sprintf('Content-Length: %u', (null === $content) ? 0 : strlen($content)));
 
@@ -102,20 +84,6 @@ class Response
 
   protected function addHeaders()
   {
-  }
-
-  private function isJSON()
-  {
-    if (!function_exists('json_encode'))
-      return false;
-
-    if (empty($_SERVER['HTTP_X_REQUESTED_WITH']))
-      return false;
-
-    if (strcasecmp($_SERVER['HTTP_X_REQUESTED_WITH'], 'XMLHttpRequest'))
-      return false;
-
-    return true;
   }
 
   /**

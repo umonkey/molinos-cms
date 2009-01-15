@@ -102,31 +102,6 @@ function t($message, array $argv = array())
   return $message;
 }
 
-function bebop_is_json()
-{
-  return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) and $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest';
-}
-
-// Возвращает массив в виде JSON.
-function bebop_on_json(array $result)
-{
-  if (bebop_is_json()) {
-    try {
-      if ($ctx = Context::last())
-        $ctx->db->commit();
-    } catch (InvalidArgumentException $e) { }
-
-    mcms::flush(mcms::FLUSH_NOW);
-
-    setlocale(LC_ALL, "en_US.UTF-8");
-
-    $output = json_encode($result);
-    header('Content-Type: application/x-json');
-    header('Content-Length: '. strlen($output));
-    die($output);
-  }
-}
-
 function bebop_get_templates($type, $name, $theme = null, $classname = null)
 {
   if (null === $theme)

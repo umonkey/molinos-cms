@@ -437,8 +437,6 @@ class AdminRPC implements iRemoteCall
 
     $output = $form->getHTML(array());
 
-    bebop_on_json(array('html' => $output));
-
     return $output;
   }
 

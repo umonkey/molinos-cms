@@ -332,10 +332,6 @@ class UserWidget extends Widget implements iWidget
       throw new PageNotFoundException();
     }
 
-    bebop_on_json(array(
-      'status' => $status,
-      ));
-
     if (empty($_GET['destination']))
       $dest = bebop_split_url();
     else

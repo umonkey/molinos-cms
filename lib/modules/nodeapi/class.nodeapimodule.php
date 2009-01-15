@@ -110,10 +110,6 @@ class NodeApiModule implements iRemoteCall
 
       $node = Node::load($filter);
 
-      bebop_on_json(array(
-        'node' => $node->getRaw(),
-        ));
-
       mcms::debug(array(
         'node' => $node,
         'links' => $node->getActionLinks(),
@@ -235,12 +231,6 @@ class NodeApiModule implements iRemoteCall
     default:
       mcms::debug($ctx, $_POST);
     }
-
-    bebop_on_json(array(
-      'action' => $action,
-      'node' => $nid,
-      'status' => 'ok',
-      ));
   }
 
   public static function fixredir($path, Node $node, $updated = false)

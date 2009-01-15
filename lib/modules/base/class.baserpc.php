@@ -8,9 +8,6 @@ class BaseRPC implements iRemoteCall
    * В зависимости от значения GET-параметра action вызывает один из
    * методов onRemote.  Результат работы метода — адрес для редиректа.
    *
-   * При успешно обработанных запросах от XMLHttpRequest возвращает
-   * JSON объект с параметром status=ok.
-   *
    * @param Context $ctx используется для доступа к GET/POST данным.
    * @return void
    */
@@ -70,11 +67,6 @@ class BaseRPC implements iRemoteCall
     catch (ForbiddenException $e) {
       if ($next = $ctx->get('onerror'))
         return new Redirect($next);
-
-      bebop_on_json(array(
-        'status' => 'error',
-        'message' => $e->getMessage(),
-        ));
 
       throw $e;
     }
@@ -210,19 +202,9 @@ class BaseRPC implements iRemoteCall
       BebopMimeMail::send(null, $node->name, 'Восстановление пароля', $html);
 
       $back->setarg('remind', 'mail_sent');
-
-      bebop_on_json(array(
-        'status' => 'sent',
-        'message' => 'Новый пароль был отправлен на указанный адрес.',
-        ));
     } catch (ObjectNotFoundException $e) {
       $back->setarg('remind', 'notfound');
       $back->setarg('remind_address', $ctx->post('identifier'));
-
-      bebop_on_json(array(
-        'status' => 'error',
-        'message' => 'Пользователь с таким адресом на найден.',
-        ));
     }
 
     return new Redirect($back->string());
