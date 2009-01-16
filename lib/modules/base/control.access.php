@@ -58,6 +58,7 @@ class AccessControl extends Control
           'name' => "{$this->value}[{$rec['id']}][{$col}]",
           'value' => 1,
           'checked' => empty($rec[$col]) ? null : 'checked',
+          'class' => 'perm-' . $col,
           ));
 
         $row .= html::em('td', $ctl);
