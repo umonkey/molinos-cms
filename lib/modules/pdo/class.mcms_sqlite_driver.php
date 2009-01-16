@@ -46,6 +46,7 @@ class mcms_sqlite_driver extends PDO_Singleton
 
       switch ($info[1]) {
       case 1: // General error: 1 no such table: xyz. (или no such column)
+      case 17:
         if (preg_match("/(no such column:|has no column named)\s*(\S+)/i", $info[2], $matches)) {
           $cname = trim($matches[2]);
 
@@ -66,11 +67,7 @@ class mcms_sqlite_driver extends PDO_Singleton
               mcms::flog('could not find table names in SQL');
             } else {
               TableManager::upgradeTables($m[2]);
-
-              mcms::flog('re-running query: '. $sql);
-
-              $sth = $this->prepare($sql);
-              $sth->execute($params);
+              return self::exec($sql, $params);
             }
           }
         }
