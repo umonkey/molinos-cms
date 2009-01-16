@@ -227,12 +227,13 @@ class modman
     if (file_exists($inipath)) {
       $ini = ini::read($inipath);
       if ('required' == $ini['priority'])
-        return;
+        return false;
     }
 
     os::rmdir(dirname($inipath));
 
     mcms::flog($moduleName . ': uninstalled.');
+    return true;
   }
 
   /**

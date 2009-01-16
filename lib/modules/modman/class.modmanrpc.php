@@ -95,27 +95,29 @@ class ModManRPC implements iRemoteCall
    */
   public static function rpc_addremove(Context $ctx)
   {
-    $failed = $ok = array();
+    $status = array();
     $enabled = $ctx->post('modules');
 
     // Удаляем отключенные модули.
-    foreach (modman::getLocalModules() as $name => $info)
-      if (!in_array($name, $enabled))
-        modman::uninstall($name);
+    foreach (modman::getLocalModules() as $name => $info) {
+      if (!in_array($name, $enabled)) {
+        if (modman::uninstall($name))
+          $status[$name] = 'removed';
+      }
+    }
 
     // Загружаем отсутствующие модули.
     foreach (modman::getAllModules() as $name => $info) {
-      if (in_array($name, $enabled))
+      if (in_array($name, $enabled) and !modman::isInstalled($name)) {
         if (!modman::install($name))
-          $failed[] = $name;
+          $status[$name] = 'failed';
+        else
+          $status[$name] = 'installed';
+      }
     }
 
     $next = new url($ctx->get('destination', '?q=admin'));
-    $next->setarg('status.failed', implode(',', $failed));
-
-    $config = Config::getInstance();
-    $config->set('runtime.modules', array_diff($enabled, $failed));
-    $config->write();
+    $next->setarg('status', $status);
 
     Loader::rebuild();
     Structure::getInstance()->rebuild();
