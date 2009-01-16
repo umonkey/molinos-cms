@@ -76,7 +76,7 @@ $(document).ready(function () {
 	------------------------------------------------------------------------------------------------------------------- */
 	/* клик по CRUDP */
 	$('.control.access-wrapper th').click(function(){
-		mcms.forms.crud.recheck($(this).parents('table:eq(0)').find('input[value="'+$(this).text().toLowerCase()+'"]') );
+		mcms.forms.crud.recheck($(this).parents('table:eq(0)').find('input.perm-'+$(this).text().toLowerCase()) );
 	});
 	
 	/* клик по названию группы */

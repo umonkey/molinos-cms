@@ -34,44 +34,48 @@ class AccessRevControl extends Control
 
   public function __construct(array $form)
   {
-    if (!array_key_exists('columns', $form))
-      $form['columns'] = array('c', 'r', 'u', 'd', 'p');
     parent::__construct($form);
   }
 
-  public function getXML($data)
+  public function getHTML($data)
   {
-    $output = '';
+    $table = $this->getData($data);
+    $columns = $this->getColumns();
 
-    foreach ($this->columns as $c)
-      $output .= html::em('column', array(
-        'name' => $c,
-        'label' => mb_strtoupper($c),
-        ));
+    $output = '<table class=\'padded highlight\'>'
+      . "<label>{$this->label}:</label>";
 
-    foreach ($this->getData($data) as $row) {
-      $tmp = '';
+    if (count($columns) > 1)
+      $output .= "<tr><th>&nbsp;</th><th>"
+        . join ('</th><th>', $columns) . "</th></tr>";
 
-      foreach ($this->columns as $c)
-        $tmp .= html::em('perm', array(
-          'name' => $c,
-          'enabled' => empty($row[$c]) ? '' : 'yes',
+    foreach ($table as $rec) {
+      $row = html::em('td', $rec['label']);
+
+      foreach (array_keys($columns) as $col) {
+        $ctl = html::em('input', array(
+          'type' => 'checkbox',
+          'name' => "{$this->value}[{$rec['id']}][{$col}]",
+          'value' => 1,
+          'checked' => empty($rec[$col]) ? null : 'checked',
+          'class' => 'perm-' . $col,
           ));
 
-      if (!empty($row['nid']))
-        $id = $row['nid'];
-      elseif (!empty($row['id']))
-        $id = $row['id'];
-      else
-        $id = null;
+        $row .= html::em('td', $ctl);
+      }
 
-      $output .= html::em('row', array(
-        'id' => $id,
-        'name' => $row['label'],
-        ), $tmp);
+      $output .= html::em('tr', $row);
     }
 
-    return parent::wrapXML(array(), $output);
+    $output .= '</table>' . html::em('input', array(
+      'type' => 'hidden',
+      'name' => $this->value . '[__reset]',
+      'value' => 1,
+      ));
+
+    $output = $this->wrapHTML($output, false);
+
+    return $output;
   }
 
   protected function getWrapperClass()

@@ -205,7 +205,7 @@
               </td>
               <xsl:for-each select="perm">
                 <td>
-                  <input type="checkbox" name="{../../@name}[{../@id}][{@name}]" value="1">
+                  <input type="checkbox" name="{../../@name}[{../@id}][{@name}]" class="perm-{@name}" value="1">
                     <xsl:if test="@enabled = 'yes'">
                       <xsl:attribute name="checked">
                         <xsl:text>checked</xsl:text>
