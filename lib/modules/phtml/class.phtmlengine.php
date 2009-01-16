@@ -12,7 +12,7 @@ class PHTMLEngine implements iTemplateProcessor
     if (array_key_exists('prefix', $data))
       throw new RuntimeException(t('Параметр $prefix зарезервирован и не может быть передан шаблону.'));
 
-    $data['prefix'] = dirname($fileName);
+    $data['prefix'] = dirname(dirname($fileName));
 
     if (array_key_exists('data', $data))
       extract($data, EXTR_OVERWRITE);
