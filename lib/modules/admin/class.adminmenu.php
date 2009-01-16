@@ -106,9 +106,10 @@ class AdminMenu implements iAdminMenu
     $result = array();
 
     foreach ($i = mcms::invoke('iAdminMenu', 'getMenuIcons') as $tmp) {
-      foreach ($tmp as $icon)
-        if (array_key_exists('group', $icon))
-          $result[$icon['group']][] = $icon;
+      if (is_array($tmp))
+        foreach ($tmp as $icon)
+          if (array_key_exists('group', $icon))
+            $result[$icon['group']][] = $icon;
     }
 
     ksort($result);
