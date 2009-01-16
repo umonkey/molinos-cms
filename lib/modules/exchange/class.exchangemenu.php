@@ -2,8 +2,14 @@
 
 class ExchangeMenu implements iAdminMenu
 {
+  /**
+   * Отключено в связи с неработоспособностью, см.
+   * http://code.google.com/p/molinos-cms/issues/detail?id=613
+   */
   public static function getMenuIcons()
   {
+    return;
+
     $icons = array();
 
     if (zip::isAvailable() and mcms::user()->hasAccess('d', 'type'))
