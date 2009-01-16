@@ -50,8 +50,9 @@ echo "done, uploading."
 for ZIP in tmp/modules/*.zip; do
     if [ -f "$ZIP" ]; then
         NAME=$(basename $ZIP)
+        INFO=$(echo "$ZIP" | sed -e 's/^\([^-]*\)-/\1 v/g' | sed -e 's/\.zip$//g')
         echo "$NAME: uploading."
-        googlecode_upload.py -s $NAME -p molinos-cms -l Type-Module $ZIP
+        googlecode_upload.py -s "$INFO" -p molinos-cms -l Type-Module $ZIP
     fi
 done
 
