@@ -5,16 +5,14 @@ class MaintenanceModule implements iRequestHook
 {
   public static function hookRequest(Context $ctx = null)
   {
-    if (null === $ctx) {
-      $conf = mcms::modconf('maintenance');
+    $conf = mcms::modconf('maintenance');
 
-      if (!empty($conf['state']) and 'closed' === $conf['state']) {
-        $url = bebop_split_url();
+    if (!empty($conf['state']) and 'closed' === $conf['state'] and !$ctx->canDebug()) {
+      $query = $ctx->query();
 
-        if ('admin' != substr($url['path'], 0, 7)) {
-          $r = new Response(t('На сервере ведутся технические работы, обратитесь чуть позже.'), 'text/plain', 503);
-          $r->send();
-        }
+      if ('admin' != $query and 0 !== strpos($query, 'admin/')) {
+        $r = new Response(t('На сервере ведутся технические работы, обратитесь чуть позже.'), 'text/plain', 503);
+        $r->send();
       }
     }
   }
