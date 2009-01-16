@@ -50,7 +50,7 @@ class ModManUI implements iAdminUI
 
     $form = $schema->getForm(array(
       'title' => t('Настройка модулей'),
-      'intro' => t('Здесь видны только модули, предполагающие настройку. Вы можете <a href="@url">установить дополнительные модули</a>.', array(
+      'intro' => t('Здесь видны только модули, предполагающие настройку. Вы можете <a href="@url">включить дополнительные модули</a>.', array(
         '@url' => '?q=admin&cgroup=system&module=modman&mode=addremove&destination=CURRENT',
         )),
       ));
@@ -62,6 +62,31 @@ class ModManUI implements iAdminUI
 
   protected static function aui_addremove(Context $ctx)
   {
+    $message = null;
+
+    if (is_array($status = $ctx->get('status'))) {
+      $list = '';
+      foreach ($status as $name => $s) {
+        switch ($s) {
+        case 'removed':
+          $s = 'удалён';
+          break;
+        case 'installed':
+          $s = 'установлен';
+          break;
+        case 'failed':
+          $s = 'ошибка';
+          break;
+        }
+        $list .= html::em('li', $name . ': ' . $s);
+      }
+
+      if (!empty($list))
+        $message = t('<p>Результат работы:</p>!list', array(
+          '!list' => html::em('ul', $list),
+          ));
+    }
+
     $schema = new Schema(array(
       'filter' => array(
         'type' => 'EnumControl',
@@ -106,6 +131,7 @@ class ModManUI implements iAdminUI
       'title' => t('Установка и удаление модулей'),
       'action' => '?q=modman.rpc&action=addremove&destination='
         . urlencode($ctx->get('destination', 'CURRENT')),
+      'intro' => $message,
       ));
 
     if (!count($modules = modman::getAllModules())) {
