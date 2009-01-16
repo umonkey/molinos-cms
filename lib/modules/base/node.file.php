@@ -573,6 +573,9 @@ class FileNode extends Node implements iContentType
       $list['locate']['title'] = t('Скачать');
     }
 
+    if (array_key_exists('clone', $list))
+      unset($list['clone']);
+
     return $list;
   }
 
