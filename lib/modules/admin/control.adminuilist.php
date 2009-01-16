@@ -354,11 +354,14 @@ class AdminUIListControl extends Control
   private function getActionsHeader($data)
   {
     $actions = array();
+    $skip = is_array($this->actions)
+      ? $this->actions
+      : array();
 
     foreach ($data->nodes as $node) {
       if (!empty($node['_links'])) {
         foreach ($node['_links'] as $key => $val) {
-          if (!in_array($key, $actions) and is_array($val))
+          if (!in_array($key, $actions) and !in_array($key, $skip) and is_array($val))
             $actions[] = $key;
         }
       }

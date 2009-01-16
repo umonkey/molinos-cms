@@ -88,6 +88,7 @@ class AdminListHandler
         'columntitles' => $this->columntitles,
         'linkfield' => $this->linkfield,
         'zoomlink' => $this->zoomlink,
+        'actions' => $this->actions,
         )));
 
       if (empty($_GET['picker']))
