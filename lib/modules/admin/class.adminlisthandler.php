@@ -190,6 +190,7 @@ class AdminListHandler
         $this->types = array('file');
         $this->title = t('Файловый архив');
         $this->columns = array('thumbnail', 'name', 'filename', 'filetype', 'filesize', 'uid', 'created');
+        $this->actions = array('publish', 'unpublish', 'delete');
         break;
       case 'schema':
         $this->types = array('type');
