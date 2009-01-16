@@ -65,6 +65,8 @@ class ModManUI implements iAdminUI
     $message = null;
 
     if (is_array($status = $ctx->get('status'))) {
+      $configurable = modman::getConfigurableModules();
+
       $list = '';
       foreach ($status as $name => $s) {
         switch ($s) {
@@ -72,7 +74,13 @@ class ModManUI implements iAdminUI
           $s = 'удалён';
           break;
         case 'installed':
-          $s = 'установлен';
+          if (!array_key_exists($name, $configurable))
+            $s = 'установлен';
+          else
+            $s = t('установлен (<a href="@url">настроить</a>)', array(
+              '@url' => '?q=admin&cgroup=system&module=modman&mode=config&name='
+                . urlencode($name) . '&destination=CURRENT',
+              ));
           break;
         case 'failed':
           $s = 'ошибка';
