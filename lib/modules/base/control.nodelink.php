@@ -63,7 +63,7 @@ class NodeLinkControl extends Control
       return $this->getHidden($data);
 
     if (null !== ($output = $this->getSelect(strval($this->getCurrentValue($data)))))
-      return $this->wrapHTML($output);
+      return $output;
 
     $parts = explode('.', $this->values, 2);
 
@@ -112,6 +112,13 @@ class NodeLinkControl extends Control
         foreach ($z = Node::find($filter) as $tmp)
           $values[$tmp->id] = $tmp->getName();
 
+        if (1 == count($values))
+          return html::em('input', array(
+            'name' => $this->value,
+            'type' => 'hidden',
+            'value' => array_shift(array_keys($values)),
+            ));
+
         asort($values);
 
         $options = '';
@@ -128,9 +135,9 @@ class NodeLinkControl extends Control
             ), $name);
         }
 
-        return html::em('select', array(
+        return $this->wrapHTML(html::em('select', array(
           'name' => $this->value,
-          ), $options);
+          ), $options));
       }
     }
   }
