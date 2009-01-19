@@ -266,4 +266,15 @@ class User
     $list = mcms::db()->getResultsV("nid", "SELECT nid FROM node__access WHERE uid IN ({$uids}) AND c = 1 AND nid IN (SELECT id FROM node WHERE class = 'tag' AND deleted = 0)");
     return $list;
   }
+
+  /**
+   * Получение почтового адреса пользователя.
+   */
+  public function getEmail()
+  {
+    foreach (array('name', 'email') as $k)
+      if (false !== strpos($this->node->$k, '@'))
+        return $this->node->$k;
+    return null;
+  }
 }
