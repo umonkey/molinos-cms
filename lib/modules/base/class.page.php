@@ -76,6 +76,9 @@ class Page
       'base' => $ctx->url()->getBase($ctx),
       ));
 
+    if (false === $result)
+      throw new RuntimeException(t('Не удалось отобразить страницу: отсутствует шаблон или не включен необходимый шаблонизатор.'));
+
     $result = str_replace(
       array(
         '$execution_time',
