@@ -112,7 +112,7 @@ class NodeLinkControl extends Control
         foreach ($z = Node::find($filter) as $tmp)
           $values[$tmp->id] = $tmp->getName();
 
-        if (1 == count($values))
+        if (1 == count($values) and empty($this->nohide))
           return html::em('input', array(
             'name' => $this->value,
             'type' => 'hidden',
