@@ -200,9 +200,9 @@ class ListWidget extends Widget
       ;
 
     elseif (!is_array($this->sort)) {
-      $fields = explode(' ', $this->sort);
+      $fields = preg_split('/[,\s]+/', $this->sort, -1, PREG_SPLIT_NO_EMPTY);
 
-      foreach (explode(' ', $this->sort) as $field) {
+      foreach ($fields as $field) {
         // Это происходит если пользователь ввёл больше одного пробела.
         if (empty($field))
           continue;
