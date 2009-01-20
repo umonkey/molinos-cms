@@ -4,15 +4,18 @@ require dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEP
 
 function upgrade_8_05_6197()
 {
-  mcms::db()->beginTransaction();
+  $ctx = new Context();
+  $ctx->db = mcms::config('db.default');
+
+  $ctx->db->beginTransaction();
 
   // Установка дефолтных пра на виджеты.
-  $count = mcms::db()->fetch("SELECT COUNT(*) FROM node__access "
+  $count = $ctx->db->fetch("SELECT COUNT(*) FROM node__access "
     . "WHERE uid = 0 AND nid IN (SELECT id FROM node "
     . "WHERE class = 'widget' AND deleted = 0)");
 
   if (!intval($count)) {
-    mcms::db()->exec("INSERT INTO node__access (uid, nid, r) SELECT 0, id, 1 "
+    $ctx->db->exec("INSERT INTO node__access (uid, nid, r) SELECT 0, id, 1 "
       . "FROM node WHERE class = 'widget' AND deleted = 0");
   }
 
@@ -35,15 +38,12 @@ function upgrade_8_05_6197()
     }
   }
 
-  mcms::db()->commit();
+  $ctx->db->commit();
 }
 
 upgrade_8_05_6197();
 
 Loader::rebuild();
-
-if (class_exists('mcms'))
-  mcms::redirect('?q=admin');
 
 header('Content-Type: text/plain; charset=utf-8');
 die('OK, now go to ?q=admin');
