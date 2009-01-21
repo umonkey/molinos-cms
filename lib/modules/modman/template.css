@@ -53,3 +53,19 @@
 .modman .form-submit {
   margin-top: 10px;
 }
+
+.modman p.note {
+  color: gray;
+  margin: 1em 0;
+  font-style: italic;
+}
+
+#modmanresult {
+  margin-bottom: 2em;
+  padding: 4px 6px;
+  border: solid 1px #ddd;
+  background-color: #eee;
+}
+#modmanresult ol {
+  margin-left: 2em;
+}

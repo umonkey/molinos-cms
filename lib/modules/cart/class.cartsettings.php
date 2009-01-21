@@ -185,7 +185,7 @@ class CartSettings implements iModuleConfig
   {
     $result = array();
 
-    foreach (mcms::getImplementors('iCartDiscounter') as $k)
+    foreach (Loader::getImplementors('iCartDiscounter') as $k)
       $result[$k] = $k;
 
     return $result;

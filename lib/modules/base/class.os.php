@@ -39,7 +39,7 @@ class os
   /**
    * Возвращает список всех файлов в папке.
    */
-  public static function listFiles($path)
+  public static function listFiles($path, $exclude = null)
   {
     if (!is_dir($path))
       throw new RuntimeException('os::listFiles() expects a folder path.');
@@ -50,7 +50,8 @@ class os
 
     foreach ($i as $name => $object)
       if ($object->isFile())
-        $result[] = $name;
+        if (null === $exclude or 0 !== strpos($name, $exclude))
+          $result[] = $name;
 
     asort($result);
 

@@ -16,17 +16,28 @@ class zip
     return class_exists('ZipArchive');
   }
 
-  public static function fromFolder($zipName, $folderPath)
+  public static function fromFolder($zipName, $folderPath, $exclude = null)
   {
     if (!self::isAvailable())
       throw new ZipException();
 
     $folderPath = rtrim($folderPath, DIRECTORY_SEPARATOR);
 
-    $z = new ZipArchive();
-    $z->open($zipName, ZIPARCHIVE::OVERWRITE);
+    if (!is_writable(dirname($zipName)))
+      throw new RuntimeException(t('Невозможно создать %name: папка защищена от записи.', array(
+        '%name' => $zipName,
+        )));
 
-    foreach (os::listFiles($folderPath) as $file)
+    if (file_exists($zipName))
+      unlink($zipName);
+
+    $z = new ZipArchive();
+    if (true !== ($res = $z->open($zipName, ZIPARCHIVE::CREATE)))
+      throw new RuntimeException(t('Не удалось создать архив %name.', array(
+        '%name' => $zipName,
+        )));
+
+    foreach (os::listFiles($folderPath, $exclude) as $file)
       $z->addFile($file, substr($file, strlen($folderPath) + 1));
 
     $z->close();
@@ -35,15 +46,8 @@ class zip
   public static function unzipToFolder($zipName, $folderPath)
   {
     if (!self::isAvailable())
-<<<<<<< HEAD:lib/modules/base/class.zip.php
       throw new ZipException();
 
-=======
-      throw new RuntimeException(t('Извините, функции для работы с ZIP архивами недоступны. Поможет <a href="@url">установка расширения zip</a>.', array(
-        '@url' => 'http://docs.php.net/manual/ru/zip.installation.php',
-        )));
-      
->>>>>>> 88523a7... Вывод сообщения при недоступности расширения ZIP.:lib/modules/base/class.zip.php
     $tmpDir = file_exists($folderPath)
       ? $folderPath . '.tmp'
       : $folderPath;

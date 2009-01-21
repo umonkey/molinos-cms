@@ -26,7 +26,7 @@
 
 
   <!-- обычные текстовые строки -->
-  <xsl:template match="control[@type = 'email' or @type = 'textline' or @type = 'url' or @type = 'date' or @type = 'datetime']">
+  <xsl:template match="control[@type = 'email' or @type = 'textline' or @type = 'url' or @type = 'date' or @type = 'datetime' or @type = 'number']">
     <div>
       <xsl:call-template name="default_control_classes" />
       <xsl:call-template name="default_control_label" />
@@ -58,14 +58,19 @@
 
 
   <!-- выпадающий список -->
-  <xsl:template match="control[@type = 'enum']">
+  <xsl:template match="control[@type = 'enum' or @type = 'section']">
     <div>
       <xsl:call-template name="default_control_classes" />
       <xsl:call-template name="default_control_label" />
       <select name="{@name}" id="{@id}">
         <xsl:for-each select="option">
           <option value="{@value}">
-            <xsl:value-of select="@text" />
+            <xsl:if test="@selected">
+              <xsl:attribute name="selected">
+                <xsl:text>selected</xsl:text>
+              </xsl:attribute>
+            </xsl:if>
+            <xsl:value-of select="@text" disable-output-escaping="yes" />
           </option>
         </xsl:for-each>
       </select>
@@ -123,8 +128,21 @@
             </xsl:attribute>
           </xsl:if>
         </input>
-        <xsl:value-of select="@text" />
+        <xsl:value-of select="@text" disable-output-escaping="yes" />
       </label>
+    </div>
+  </xsl:template>
+
+
+  <!-- чекбокс -->
+  <xsl:template match="control[@type = 'bool']">
+    <div>
+      <xsl:call-template name="default_control_classes" />
+      <label>
+        <input type="checkbox" name="{@name}" value="{@value}" />
+        <xsl:value-of select="@label" />
+      </label>
+      <xsl:call-template name="default_control_info" />
     </div>
   </xsl:template>
 
@@ -154,7 +172,7 @@
       <xsl:call-template name="default_control_classes" />
       <xsl:call-template name="default_control_label" />
       <textarea class="{@class}" rows="{@rows}" cols="{@cols}" name="{@name}">
-        <xsl:value-of select="text()" />
+        <xsl:value-of select="text()" disable-output-escaping="yes" />
       </textarea>
       <xsl:call-template name="default_control_info" />
     </div>
@@ -328,6 +346,11 @@
           <select name="{@name}">
             <xsl:for-each select="option">
               <option value="{@value}">
+                <xsl:if test="@selected">
+                  <xsl:attribute name="selected">
+                    <xsl:text>selected</xsl:text>
+                  </xsl:attribute>
+                </xsl:if>
                 <xsl:value-of select="@text" />
               </option>
             </xsl:for-each>
@@ -380,7 +403,7 @@
   <xsl:template name="default_control_info">
     <xsl:if test="@description">
       <div class="note">
-        <xsl:value-of select="@description" />
+        <xsl:value-of select="@description" disable-output-escaping="yes" />
       </div>
     </xsl:if>
   </xsl:template>

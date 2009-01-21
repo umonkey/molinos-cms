@@ -14,13 +14,13 @@ class ModManMenu implements iAdminMenu
 
     $icons[] = array(
       'group' => 'system',
-      'href' => '?q=admin&cgroup=system&module=modman&mode=settings',
+      'href' => '?action=form&module=modman&mode=settings',
       'title' => t('Настройки'),
       );
 
     $icons[] = array(
       'group' => 'system',
-      'href' => '?q=admin&cgroup=system&module=modman&mode=addremove',
+      'href' => '?action=form&module=modman&mode=addremove',
       'title' => t('Модули'),
       );
 

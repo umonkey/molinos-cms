@@ -46,53 +46,8 @@ class ModManUI implements iAdminUI
     return html::em('modules', $options, $output);
   }
 
-  protected static function aui_settings(Context $ctx)
-  {
-    return self::getXML($ctx, modman::getConfigurableModules(), array(
-      'mode' => 'settings',
-      'title' => t('Настройка модулей'),
-      ));
-  }
-
-  protected static function aui_addremove(Context $ctx)
-  {
-    if (!count($modules = modman::getAllModules())) {
-      modman::updateDB();
-      $modules = modman::getAllModules();
-    }
-
-    return self::getXML($ctx, $modules, array(
-      'mode' => 'addremove',
-      'title' => t('Установка и удаление модулей'),
-      ));
-  }
-
   protected static function aui_config(Context $ctx)
   {
-    if (!array_key_exists($name = $ctx->get('name'), modman::getConfigurableModules()))
-      throw new PageNotFoundException();
-
-    $form = mcms::invoke_module($name, 'iModuleConfig', 'formGetModuleConfig');
-
-    $data = array();
-
-    if (is_array($tmp = mcms::modconf($name)))
-      foreach ($tmp as $k => $v)
-        $data['config_'. $k] = $v;
-
-    if (empty($form->title))
-      $form->title = t('Настройка модуля %name', array('%name' => $name));
-
-    $form->action = '?q=modman.rpc&action=configure&module=' . $name
-      . '&destination=' . urlencode($ctx->get('destination', '?q=admin'));
-
-    $form->addControl(new SubmitControl(array(
-      'text' => t('Сохранить'),
-      )));
-
-    $html = $form->getHTML(Control::data($data));
-
-    return $html;
   }
 
   protected static function aui_upgrade(Context $ctx)

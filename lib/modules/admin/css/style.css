@@ -745,3 +745,51 @@ table.nodelist td.icon .icon-sink {
   color: #ccc !important;
   text-decoration: none;
 }
+
+
+/**
+ * Поле для подбора файлов.
+ **/
+.attachment-wrapper th span {
+  display: block;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  vertical-align: middle;
+  padding: 2px;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+.attachment-wrapper td {
+  width: 300px;
+  vertical-align: middle;
+  padding: 2px;
+}
+.attachment-wrapper td * {
+  display: none;
+}
+.attachment-wrapper td input {
+  width: 300px !important;
+}
+.attachment-wrapper td .active {
+  display: block;
+}
+.attachment-wrapper th span.preview {
+  background-image: url(../img/icons/icon-download.png);
+}
+.attachment-wrapper th span.delete {
+  background-image: url(../img/bin.gif);
+}
+.attachment-wrapper th span.switch-file {
+  background-image: url(../img/icons/raise.png);
+}
+.attachment-wrapper th span.switch-find {
+  background-image: url(../img/zoom.png);
+}
+.attachment-wrapper th span.switch-url {
+  background-image: url(../img/icons/icon-www.png);
+}
+.attachment-wrapper th span.switch-info {
+  background-image: url(../img/information.png);
+}

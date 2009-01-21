@@ -57,7 +57,7 @@ class SetControl extends Control
         ? true
         : false;
 
-      $output = html::em('option', array(
+      $output .= html::em('option', array(
         'value' => $k,
         'checked' => in_array($k, $selected),
         'disabled' => $disabled ? 'disabled' : null,

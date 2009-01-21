@@ -235,11 +235,19 @@
       </tr>
     </thead>
     <tbody>
+      <xsl:if test="/page/@picker">
+        <xsl:attribute name="class">
+          <xsl:text>picker</xsl:text>
+        </xsl:attribute>
+        <xsl:attribute name="id">
+          <xsl:value-of select="/page/@picker" />
+        </xsl:attribute>
+      </xsl:if>
       <xsl:for-each select="node">
-        <tr>
+        <tr id="file-{@id}">
           <xsl:call-template name="odd_row" />
           <td class="icon">
-            <a class="icon-download" href="{@_url}"></a>
+            <a class="picker icon-download" href="{@_url}"></a>
           </td>
           <xsl:apply-templates select="." mode="mcms_list_name" />
           <td class="field-filename">
@@ -318,7 +326,7 @@
 
   <xsl:template match="node" mode="mcms_list_name">
     <td class="field-name">
-      <a href="?q=admin.rpc&amp;action=edit&amp;cgroup={/page/@cgroup}&amp;node={@id}&amp;destination={/page/@urlEncoded}">
+      <a class="picker" href="?q=admin.rpc&amp;action=edit&amp;cgroup={/page/@cgroup}&amp;node={@id}&amp;destination={/page/@urlEncoded}">
         <xsl:if test="@depth">
           <xsl:attribute name="style">
             <xsl:text>padding-left:</xsl:text>
@@ -415,5 +423,10 @@
     <td class="selector">
       <input type="checkbox" name="nodes[]" value="{@id}" />
     </td>
+  </xsl:template>
+
+
+  <!-- подавление неопознанных блоков -->
+  <xsl:template match="block" mode="content">
   </xsl:template>
 </xsl:stylesheet>

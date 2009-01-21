@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-  <xsl:include href="list.xsl" />
+  <xsl:import href="../base/forms.xsl" />
+  <xsl:import href="list.xsl" />
 
   <xsl:output
     method="xml"
@@ -29,7 +30,11 @@
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
         <script type='text/javascript' src='lib/modules/admin/js/jquery.mcms.tabber.js'></script>
         <script type='text/javascript' src='lib/modules/admin/js/bebop.js'></script>
-        <script type='text/javascript'><![CDATA[var mcms_path = '';]]></script>
+        <script type='text/javascript'>
+          <xsl:text>var mcms_path = '</xsl:text>
+          <xsl:value-of select="/page/@folder" />
+          <xsl:text>';</xsl:text>
+        </script>
         <xsl:apply-templates select="extras/item" mode="extras" />
       </head>
       <body>
@@ -99,6 +104,12 @@
         </fieldset>
       </form>
     </div>
+  </xsl:template>
+
+
+  <!-- произвольная форма -->
+  <xsl:template match="block[@name = 'form']" mode="content">
+    <xsl:apply-templates select="form" />
   </xsl:template>
 
 
@@ -309,11 +320,6 @@
   </xsl:template>
 
 
-  <!-- подавление неопознанных блоков -->
-  <xsl:template match="block" mode="content">
-  </xsl:template>
-
-
   <!-- Подпись в подвале. -->
   <xsl:template match="block[@name = 'signature']">
     <div id="footer" class="signature">
@@ -363,6 +369,44 @@
     <xsl:value-of select="substring($timestamp,12,5)" />
   </xsl:template>
 
-  <!-- Шаблоны контролов -->
-  <xsl:include href="../base/forms.xsl" />
+  <!-- расширенный файловый контрол -->
+  <xsl:template match="control[@type = 'attachment']">
+    <div id="file-{@id}">
+      <xsl:call-template name="default_control_classes" />
+      <xsl:call-template name="default_control_label" />
+      <input type="hidden" name="{@name}[id]" id="file-{@id}-replace" value="{@id}" />
+
+      <table>
+        <tr>
+          <th>
+            <span class="preview" />
+          </th>
+          <td>
+            <input type="text" class="info form-text active" name="{@name}[filename]" value="{@filename}" />
+            <input type="file" class="form-file" name="{@name}" />
+            <input type="text" class="url form-text" name="{@name}[url]" />
+            <span class="delete">файл будет удалён</span>
+            <span class="replace">файл будет заменён</span>
+          </td>
+          <th>
+            <span class="switch-info" title="Показать информацию о файле" />
+          </th>
+          <th>
+            <span class="switch-url" title="Загрузить с другого сайта" />
+          </th>
+          <th>
+            <span class="switch-file" title="Загрузить со своего компьютера" />
+          </th>
+          <th>
+            <span class="switch-find" title="Подобрать в файловом архиве" />
+          </th>
+          <th class="delete">
+            <span class="delete" title="Убрать отсюда этот файл" />
+          </th>
+        </tr>
+      </table>
+
+      <xsl:call-template name="default_control_info" />
+    </div>
+  </xsl:template>
 </xsl:stylesheet>

@@ -311,7 +311,6 @@ class AdminRPC implements iRemoteCall
     $ctx->redirect($url->string());
   }
 
-
   /**
    * Вывод приветствия админки.
    */
@@ -319,6 +318,32 @@ class AdminRPC implements iRemoteCall
   {
     $m = new AdminMenu();
     return $m->getDesktop();
+  }
+
+  /**
+   * Форма, отображаемая модулем.
+   */
+  public static function rpc_get_form(Context $ctx)
+  {
+    if (null === ($module = $ctx->get('module')))
+      throw new RuntimeException(t('Не указан модуль, выводящий форму.'));
+
+    if (null === ($class = array_shift(Loader::getImplementors('iAdminForm', $module))))
+      throw new RuntimeException(t('Модуль %module не умеет отображать административные формы.', array(
+        '%module' => $module,
+        )));
+
+    if (!class_exists($class))
+      throw new RuntimeException(t('Класс %class не существует.', array(
+        '%class' => $class,
+        )));
+
+    $o = new $class();
+    $output = $o->getAdminFormXML($ctx);
+
+    return html::em('block', array(
+      'name' => 'form',
+      ), $output);
   }
 
   private static function fixCleanURLs(Context $ctx)
@@ -729,6 +754,8 @@ class AdminRPC implements iRemoteCall
     $data['back'] = urlencode($ctx->get('destination', $_SERVER['REQUEST_URI']));
     $data['url'] = $ctx->url()->string();
     $data['cgroup'] = $ctx->get('cgroup');
+    $data['folder'] = $ctx->folder();
+    $data['picker'] = $ctx->get('picker');
 
     if (empty($data['status']))
       $data['status'] = 200;
@@ -737,6 +764,14 @@ class AdminRPC implements iRemoteCall
       $theme = $ctx->theme;
     else
       $theme = os::path('lib', 'modules', 'admin', 'template.xsl');
+
+    if (file_exists($tmp = str_replace('.xsl', '.css', $theme)))
+      $ctx->addExtra('style', $tmp);
+    if (file_exists($tmp = str_replace('.xsl', '.js', $theme)))
+      $ctx->addExtra('script', $tmp);
+
+    if ('' !== ($tmp = $ctx->getExtrasXML()))
+      $content .= $tmp;
 
     $xml = '<?xml version="1.0" encoding="utf-8"?>';
     $xml .= html::em('page', $data, $content);

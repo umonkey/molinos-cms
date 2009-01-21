@@ -1,24 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-  <xsl:template match="modules">
+
+  <xsl:template match="block[@name = 'modman' and @mode = 'config']" mode="content">
+    <xsl:apply-templates select="form" />
+  </xsl:template>
+
+  <xsl:template match="block[@name = 'modman' and @mode = 'settings']" mode="content">
     <h2>
       <xsl:value-of select="@title" />
     </h2>
     <div class="modman">
       <xsl:apply-templates select="." mode="module-extras" />
-
+      <p class="note">В этой таблице приведены только модули с настройками, полный список модулей доступен <a href="?q=admin.rpc&amp;action=form&amp;module=modman&amp;mode=addremove&amp;cgroup=system">отдельно</a>.</p>
       <form method="post" action="?q=modman.rpc&amp;action=addremove&amp;destination={/page/@urlEncoded}">
         <table>
           <tbody>
             <xsl:apply-templates select="module" />
           </tbody>
         </table>
-
-        <xsl:if test="@mode = 'addremove'">
-          <p class="hint">Если при установке модулей возникают проблемы, вы можете скачать и установить их вручную, воспользовавшись специальной ссылкой.</p>
-          <input class="form-submit" type="submit" value="Применить" />
-        </xsl:if>
       </form>
+      <xsl:if test="not(module)">
+        <p>Удивительно, но ни один модуль не найден.</p>
+      </xsl:if>
+    </div>
+  </xsl:template>
+
+  <xsl:template match="block[@name = 'modman' and @mode = 'addremove']" mode="content">
+    <h2>
+      <xsl:value-of select="@title" />
+    </h2>
+    <xsl:if test="status">
+      <div id="modmanresult">
+        <p>Результат выполнения операции:</p>
+        <ol>
+          <xsl:for-each select="status">
+            <li>
+              <xsl:value-of select="@module" />
+              <xsl:text>: </xsl:text>
+              <xsl:choose>
+                <xsl:when test="@result = 'removed'">
+                  <xsl:text>удалён</xsl:text>
+                </xsl:when>
+                <xsl:when test="@result = 'installed'">
+                  <xsl:text>установлен</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>возникла ошибка</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
+            </li>
+          </xsl:for-each>
+        </ol>
+      </div>
+    </xsl:if>
+    <div class="modman">
+      <xsl:apply-templates select="." mode="module-extras" />
+      <form method="post" action="?q=modman.rpc&amp;action=addremove&amp;destination={/page/@urlEncoded}">
+        <table>
+          <tbody>
+            <xsl:apply-templates select="module" />
+          </tbody>
+        </table>
+        <p class="note">Если при установке модулей возникают проблемы, вы можете скачать и установить их вручную, воспользовавшись специальной ссылкой.</p>
+        <input class="form-submit" type="submit" value="Применить" />
+      </form>
+      <xsl:if test="not(module)">
+        <p>Удивительно, но ни один модуль не найден.</p>
+      </xsl:if>
     </div>
   </xsl:template>
 
@@ -49,7 +97,7 @@
 
       <xsl:if test="../@mode = 'settings'">
         <td>
-          <a href="?q=admin&amp;cgroup=system&amp;module=modman&amp;mode=config&amp;name={@id}&amp;destination={/page/@urlEncoded}">
+          <a href="?q=admin.rpc&amp;action=form&amp;module=modman&amp;mode=config&amp;name={@id}&amp;cgroup=system&amp;destination={/page/@urlEncoded}">
             <img src="lib/modules/modman/configure.png" alt="settings" />
           </a>
         </td>

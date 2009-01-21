@@ -73,10 +73,10 @@ class EnumRadioControl extends Control
       $list[''] = $this->default_label;
 
     if (isset($this->dictionary))
-      $list += Node::getSortedList($this->dictionary);
+      $list = array_merge($list, Node::getSortedList($this->dictionary));
 
     elseif (is_array($this->options))
-      $list += array();
+      $list = array_merge($list, $this->options);
 
     return $list;
   }
