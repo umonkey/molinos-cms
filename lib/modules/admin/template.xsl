@@ -26,9 +26,9 @@
           </xsl:if>
         </title>
         <link rel="stylesheet" type="text/css" href="lib/modules/admin/template.css" />
-        <script type="text/javascript" src="themes/all/jquery/jquery.js"></script>
-        <script type='text/javascript' src='themes/all/jquery/plugins/jquery.mcms.tabber.js'></script>
-        <script type='text/javascript' src='themes/admin/js/bebop.js'></script>
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
+        <script type='text/javascript' src='lib/modules/admin/js/jquery.mcms.tabber.js'></script>
+        <script type='text/javascript' src='lib/modules/admin/js/bebop.js'></script>
         <script type='text/javascript'><![CDATA[var mcms_path = '';]]></script>
         <xsl:apply-templates select="extras/item" mode="extras" />
       </head>
