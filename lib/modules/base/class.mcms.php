@@ -1168,6 +1168,9 @@ class mcms
 
   public static function dispatch_rpc($class, Context $ctx, $default = 'default')
   {
+    if ($ctx->method('post'))
+      $default = $ctx->post('action', $default);
+
     $action = $ctx->get('action', $default);
 
     $call = array(
