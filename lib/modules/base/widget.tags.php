@@ -89,6 +89,9 @@ class TagsWidget extends Widget implements iWidget
       $result['path'] = array();
       $result['dynamic'] = $options['dynamic'];
 
+      if ($this->illcache)
+        $result['real_section'] = $this->ctx->section->getRaw();
+
       self::tagsFilterPublished($result['sections']);
 
       if ($root->id)
