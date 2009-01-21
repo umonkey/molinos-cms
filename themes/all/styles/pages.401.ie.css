@@ -1,9 +1,0 @@
-/**
- * Оформление страницы авторизации для ie
-*/
-
-* html #form-user-login-form-wrapper { height:15.416em; }
-input.text, 
-textarea.text { margin:0 0 .053em 0; }
-
-fieldset legend {  margin-left:-.5em; }
