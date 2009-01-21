@@ -105,7 +105,7 @@
         <tr>
           <xsl:call-template name="odd_row" />
           <td class="icon">
-            <a class="icon-add" title="Добавить подраздел" href="?q=admin&amp;cgroup={/page/@cgroup}&amp;mode=create&amp;type=tag&amp;parent={@id}&amp;destination={/page/@urlEncoded}">
+            <a class="icon-add" title="Добавить подраздел" href="?q=admin.rpc&amp;action=create&amp;type=tag&amp;parent={@id}&amp;cgroup={/page/@cgroup}&amp;destination={/page/@urlEncoded}">
               <span/>
             </a>
           </td>
@@ -167,9 +167,10 @@
 
   <!-- вывод доменов -->
   <xsl:template match="data[../@preset = 'pages']" mode="mcms_list">
+    <xsl:variable name="domains" select="not(node/@parent_id)" />
     <thead>
       <tr>
-        <th/>
+        <th colspan="2" />
         <th>Имя</th>
         <th>Название</th>
         <th>Шкура</th>
@@ -179,7 +180,31 @@
       <xsl:for-each select="node">
         <tr>
           <xsl:call-template name="odd_row" />
-          <xsl:apply-templates select="." mode="mcms_list_name" />
+          <xsl:choose>
+            <xsl:when test="$domains">
+              <td class="icon">
+                <a class="icon-edit" href="?q=admin.rpc&amp;action=edit&amp;cgroup=structure&amp;node={@id}&amp;destination={/page/@urlEncoded}" />
+              </td>
+              <td class="field-name">
+                <a href="?q=admin.rpc&amp;action=tree&amp;preset=pages&amp;subid={@id}&amp;cgroup={/page/@cgroup}">
+                  <xsl:if test="@depth">
+                    <xsl:attribute name="style">
+                      <xsl:text>padding-left:</xsl:text>
+                      <xsl:value-of select="@depth * 10" />
+                      <xsl:text>px</xsl:text>
+                    </xsl:attribute>
+                  </xsl:if>
+                  <xsl:value-of select="@displayName" />
+                </a>
+              </td>
+            </xsl:when>
+            <xsl:otherwise>
+              <td class="icon">
+                <a class="icon-add" href="?q=admin.rpc&amp;action=create&amp;type=domain&amp;parent={@id}&amp;destination={/page/@urlEncoded}" />
+              </td>
+              <xsl:apply-templates select="." mode="mcms_list_name" />
+            </xsl:otherwise>
+          </xsl:choose>
           <td class="field-title">
             <xsl:value-of select="@title" />
           </td>

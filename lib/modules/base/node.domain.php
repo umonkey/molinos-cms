@@ -378,6 +378,7 @@ class DomainNode extends Node implements iContentType
         'label' => t('Шкура'),
         'description' => t('Имя папки с шаблонами для этой страницы.'),
         'volatile' => true,
+        'default_label' => t('(не выбрана)'),
         ),
       'content_type' => array(
         'type' => 'EnumControl',
@@ -439,5 +440,17 @@ class DomainNode extends Node implements iContentType
   {
     return "User-agent: *\n"
       . "Disallow: /themes";
+  }
+
+  public function getFormFields()
+  {
+    $schema = parent::getFormFields();
+
+    // Удаляем устаревшие поля.
+    foreach (array('parent_id', 'language', 'content_type', 'html_charset') as $k)
+      if (isset($schema[$k]))
+        unset($schema[$k]);
+
+    return $schema;
   }
 };

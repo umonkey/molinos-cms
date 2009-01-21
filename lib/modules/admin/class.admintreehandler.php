@@ -43,7 +43,7 @@ class AdminTreeHandler
       $data = self::getNodeTree();
 
       if (empty($data)) {
-        $r = new Redirect("?q=admin&mode=create"
+        $r = new Redirect("?q=admin.rpc&action=create"
           ."&parent=". $this->ctx->get('subid')
           ."&type={$this->type}"
           ."&destination=CURRENT");

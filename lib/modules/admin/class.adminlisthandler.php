@@ -249,9 +249,9 @@ class AdminListHandler implements iAdminList
           'theme' => 'Шкура',
           );
         $this->types = array('domain');
-        $this->title = t('Обрабатываемые домены');
+        $this->title = t('Домены');
         $this->hidesearch = true;
-        $this->addlink = '?q=admin/structure/create&type=domain'
+        $this->addlink = '?q=admin.rpc&action=create&type=domain&cgroup=structure'
           .'&destination=CURRENT';
         $this->sort = array('name');
         $this->limit = null;
