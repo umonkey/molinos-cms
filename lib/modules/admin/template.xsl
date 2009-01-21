@@ -124,7 +124,17 @@
 
   <xsl:template match="link" mode="top_menu_controls">
     <li>
-      <a href="{@url}">
+      <a>
+        <xsl:if test="@url != /page/@url">
+          <xsl:attribute name="href">
+            <xsl:value-of select="@url" />
+          </xsl:attribute>
+        </xsl:if>
+        <xsl:if test="@url = /page/@url">
+          <xsl:attribute name="class">
+            <xsl:text>active</xsl:text>
+          </xsl:attribute>
+        </xsl:if>
         <xsl:value-of select="@title" />
       </a>
     </li>

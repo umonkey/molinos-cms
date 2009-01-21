@@ -727,6 +727,8 @@ class AdminRPC implements iRemoteCall
     $data['prefix'] = 'lib/modules/admin';
     $data['urlEncoded'] = urlencode($_SERVER['REQUEST_URI']);
     $data['back'] = urlencode($ctx->get('destination', $_SERVER['REQUEST_URI']));
+    $data['url'] = $ctx->url()->string();
+    $data['cgroup'] = $ctx->get('cgroup');
 
     if (empty($data['status']))
       $data['status'] = 200;

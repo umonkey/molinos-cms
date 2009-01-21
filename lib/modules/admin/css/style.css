@@ -736,3 +736,12 @@ table.nodelist td.icon .icon-sink {
 #exception p {
   font-size: 1.5em;
 }
+
+
+/**
+ * Меню админки.
+ **/
+#top_menu_controls a.active {
+  color: #ccc !important;
+  text-decoration: none;
+}
