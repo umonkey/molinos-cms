@@ -218,8 +218,8 @@ class NodeQueryBuilder
 
       foreach ($parts as $k => $v) {
         if (preg_match('/^([^:]+)\:([a-z0-9_,]+)$/i', $v, $m)) {
-          $this->query[$m[1]] = explode(',', $m[2]);
           unset($parts[$k]);
+          $this->query[$m[1]] = explode(',', $m[2]);
         }
       }
 
@@ -380,7 +380,7 @@ class NodeQueryBuilder
   private function addSortFields()
   {
     if (!empty($this->query['#sort']) and is_string($this->query['#sort'])) {
-      $fieldarr = preg_split("/[,\s]+/", $this->query['#sort'], -1, PREG_SPLIT_NO_EMPTY);
+      $fieldarr = preg_split("/\s+/", $this->query['#sort'], -1, PREG_SPLIT_NO_EMPTY);
 
       $this->query['#sort'] = array();
       foreach ($fieldarr as $f) {

@@ -1686,17 +1686,6 @@ class NodeBase
       'text' => $this->getFormSubmitText(),
       )));
 
-    if (mcms::user()->id and mcms::user()->hasAccess('u', 'type') and $this->class != 'type') {
-      try {
-        $type = Node::load(array(
-          'class' => 'type',
-          'name' => $this->class,
-          ));
-
-        $form->hlink = '<span>' . l('?q=admin/content/edit/' . $type->id . '&destination=CURRENT', 'схема') . '</span>';
-      } catch (Exception $e) { }
-    }
-
     if ($this->parent_id and !isset($schema['parent_id']))
       $form->addControl(new HiddenControl(array(
         'value' => 'parent_id',

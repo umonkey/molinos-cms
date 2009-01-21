@@ -368,10 +368,7 @@ class url
 
   private function fixEscape($value)
   {
-    return str_replace(
-      array('%2F', '%2C'),
-      array('/', ','),
-      urlencode($value));
+    return urlencode($value);
   }
 
   /**

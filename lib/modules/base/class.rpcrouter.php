@@ -15,6 +15,9 @@ class RPCRouter implements iRequestRouter
 
     $response = mcms::invoke_module($this->query, 'iRemoteCall', 'hookRemoteCall', $args);
 
+    if (true === $response)
+      $response = $ctx->getRedirect();
+
     if (!($response instanceof Response))
       $response = new Response(t('Не удалось обработать запрос.'), 'text/plain', 404);
 

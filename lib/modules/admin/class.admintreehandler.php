@@ -21,7 +21,8 @@ class AdminTreeHandler
   {
     $this->setUp($preset);
 
-    $output = html::em('list', array(
+    $output = html::em('block', array(
+      'name' => 'tree',
       'title' => $this->title,
       'preset' => $preset,
       ), $this->getMassCtl() . $this->getData());

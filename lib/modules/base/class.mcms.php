@@ -1009,7 +1009,10 @@ class mcms
 
   public static function getSignatureXML(Context $ctx = null)
   {
-    return html::em('signature', self::getSignature($ctx, true));
+    $sig = self::getSignature($ctx, true);
+    $sig['name'] = 'signature';
+
+    return html::em('block', $sig);
   }
 
   public static function run(Context $ctx = null)
@@ -1163,14 +1166,21 @@ class mcms
     return empty($link) ? null : $link;
   }
 
-  public static function dispatch_rpc($class, Context $ctx)
+  public static function dispatch_rpc($class, Context $ctx, $default = 'default')
   {
-    $method = 'rpc_'. $ctx->get('action', 'default');
+    $action = $ctx->get('action', $default);
 
-    if (method_exists($class, $method)) {
-      if (null === ($result = call_user_func(array($class, $method), $ctx)))
-        $result = $ctx->getRedirect();
-      return $result;
+    $call = array(
+      array($class, 'rpc_' . strtolower($ctx->method()) . '_' . $action),
+      array($class, 'rpc_' . $action),
+      );
+
+    foreach ($call as $args) {
+      if (method_exists($args[0], $args[1])) {
+        if (null === ($result = call_user_func(array($args[0], $args[1]), $ctx)))
+          $result = $ctx->getRedirect();
+        return $result;
+      }
     }
 
     return false;

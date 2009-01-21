@@ -27,7 +27,7 @@ class xslt
     $doc->loadXML($xml);
     self::checkErrors();
 
-    if (class_exists('xsltCache')) {
+    if (class_exists('xsltCache') and false) {
       $proc = new xsltCache;
       $proc->importStyleSheet($xsltName);
     } else {

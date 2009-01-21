@@ -120,7 +120,7 @@ class UserNode extends Node implements iContentType
         );
 
     $links['search'] = array(
-      'href' => '?q=admin/content/list&search=uid%3A'. $this->id,
+      'href' => '?q=admin.rpc&action=list&cgroup=content&search=uid%3A'. $this->id,
       'title' => t('Найти документы пользователя'),
       'icon' => 'search',
       );

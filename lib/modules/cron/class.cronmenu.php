@@ -4,18 +4,21 @@ class CronMenu implements iAdminMenu
 {
   public static function getMenuIcons()
   {
-    $icons = array();
-
     try {
       $node = Node::load(array('class' => 'cronstats'));
 
-      if ((time() - strtotime($node->updated)) > 86400)
-        $icons[] = self::getIcon(t('давно'));
+      if ((time() - strtotime($node->updated)) < 86400)
+        return;
     } catch (ObjectNotFoundException $e) {
-      $icons[] = self::getIcon(t('ни разу'));
     }
 
-    return $icons;
+    return array(
+      array(
+        'group' => 'status',
+        'message' => t('Рекомендуется запустить планировщик заданий.'),
+        'link' => '?q=admin&mode=modules&action=config&name=cron&cgroup=structure&destination=CURRENT',
+        ),
+      );
   }
 
   private static function getIcon($msg)

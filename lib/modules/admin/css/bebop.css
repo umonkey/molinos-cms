@@ -61,3 +61,23 @@ form.tabbed fieldset.tabable {
 form.tabbed fieldset.tabable legend.tabable {
   display: none;
 }
+
+form.advsearch table {
+  border-collapse: collapse;
+}
+form.advsearch th,
+form.advsearch td {
+  padding: 4px 8px;
+}
+form.advsearch th {
+  text-align: left;
+}
+form.advsearch .form-text {
+  width: 100%;
+}
+form.advsearch tr.submit {
+  background-color: #eee;
+}
+form.advsearch option {
+  white-space: pre;
+}

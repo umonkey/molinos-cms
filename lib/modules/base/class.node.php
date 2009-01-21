@@ -71,17 +71,15 @@ class Node extends NodeBase implements iContentType
   {
     $links = array();
 
-    $adminui = (false !== strpos($_SERVER['REQUEST_URI'], 'admin/'));
-
     if ($this->checkPermission('u'))
       $links['edit'] = array(
-        'href' => '?q=admin/content/edit/'. $this->id
+        'href' => '?q=admin.rpc&action=edit&cgroup=content&node='. $this->id
           .'&destination=CURRENT',
         'title' => t('Редактировать'),
         'icon' => 'edit',
         );
 
-    if ($adminui and $this->checkPermission('c'))
+    if ($this->checkPermission('c'))
       $links['clone'] = array(
         'href' => '?q=nodeapi.rpc&action=clone&node='. $this->id
           .'&destination=CURRENT',
@@ -114,13 +112,12 @@ class Node extends NodeBase implements iContentType
         );
     }
 
-    if ($adminui)
-      if ($this->published and !$this->deleted and !in_array($this->class, array('domain', 'widget', 'type')))
-        $links['locate'] = array(
-          'href' => '?q=nodeapi.rpc&action=locate&node='. $this->id,
-          'title' => t('Найти на сайте'),
-          'icon' => 'locate',
-          );
+    if ($this->published and !$this->deleted and !in_array($this->class, array('domain', 'widget', 'type')))
+      $links['locate'] = array(
+        'href' => '?q=nodeapi.rpc&action=locate&node='. $this->id,
+        'title' => t('Найти на сайте'),
+        'icon' => 'locate',
+        );
 
     if (($ctx = Context::last()) and $ctx->canDebug())
       $links['dump'] = array(
@@ -168,12 +165,19 @@ class Node extends NodeBase implements iContentType
     // Вывод обычных списков
     else {
       foreach (Node::find(array('class' => $class, 'deleted' => 0)) as $n) {
-        $result[$n->$key] = ('name' == $field)
+        $value = ('name' == $field)
           ? $n->getName()
           : $n->$field;
 
+        if (empty($value))
+          $value = $n->getName();
+
+        $result[$n->$key] = $value;
+
+        /*
         if ('name' != $field)
           $result[$n->$key] .= ' (' . $n->name . ')';
+        */
       }
 
       asort($result);

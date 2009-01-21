@@ -5,15 +5,19 @@ class NodeApiModule implements iRemoteCall
 {
   public static function hookRemoteCall(Context $ctx)
   {
+    try {
     if ($ctx->get('action') == 'mass')
       $next = self::doMassAction($ctx);
     else
       $next = self::doSingleAction($ctx);
+    } catch (Exception $e) {
+      mcms::fatal($e);
+    }
 
     if ($next instanceof Response)
       return $next;
 
-    if (null === $next)
+    if (null === $next or true === $next)
       return $ctx->getRedirect();
 
     return new Redirect($next);

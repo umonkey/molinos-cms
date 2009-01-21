@@ -489,7 +489,7 @@ td.nowrap {
 }
 
 .nodelist .editlink {
-  background: transparent url(../img/icon-edit.png) no-repeat top left;
+  background: transparent url(../img/icons/icon-edit.png) no-repeat top left;
   display: block;
   width: 16px;
   height: 16px;
@@ -589,66 +589,78 @@ table.nodelist td.icon a {
   height: 16px;
   background-repeat: no-repeat;
   background-position: top left;
-  background-image: url(../img/icon-default.gif);
+  background-image: url(../img/icons/icon-default.gif);
 }
 table.nodelist td.icon span {
   display: none;
 }
 
 table.nodelist td.icon .icon-dump {
-  background-image: url(../img/icon-dump.gif);
+  background-image: url(../img/icons/icon-dump.gif);
 }
 
 table.nodelist td.icon .icon-edit {
-  background-image: url(../img/icon-edit.png);
+  background-image: url(../img/icons/icon-edit.png);
 }
 
 table.nodelist td.icon .icon-locate {
-  background-image: url(../img/icon-www.png);
+  background-image: url(../img/icons/icon-www.png);
 }
 
 table.nodelist td.icon .icon-download {
-  background-image: url(../img/icon-download.png);
+  background-image: url(../img/icons/icon-download.png);
 }
 
 table.nodelist td.icon .icon-sudo {
-  background-image: url(../img/icon-sudo.gif);
+  background-image: url(../img/icons/icon-sudo.gif);
 }
 
 table.nodelist td.icon .icon-delete {
-  background-image: url(../img/icon-delete.png);
+  background-image: url(../img/icons/icon-delete.png);
 }
 
 table.nodelist td.icon .icon-unpublish {
-  background-image: url(../img/icon-unpublish.png);
+  background-image: url(../img/icons/icon-unpublish.png);
 }
 
 table.nodelist td.icon .icon-publish {
-  background-image: url(../img/icon-publish.png);
+  background-image: url(../img/icons/icon-publish.png);
 }
 
 table.nodelist td.icon .icon-add {
-  background-image: url(../img/icon-add.png);
+  background-image: url(../img/icons/icon-add.png);
 }
 
 table.nodelist td.icon .icon-feed {
-  background-image: url(../img/icon-feed.png);
+  background-image: url(../img/icons/icon-feed.png);
 }
 
 table.nodelist td.icon .icon-validate {
-  background-image: url(../img/icon-validate.gif);
+  background-image: url(../img/icons/icon-validate.gif);
 }
 
 table.nodelist td.icon .icon-search {
-  background-image: url(../img/icon-search.png);
+  background-image: url(../img/icons/icon-search.png);
 }
 
 table.nodelist td.icon .icon-clone {
-  background-image: url(../img/icon-clone.png);
+  background-image: url(../img/icons/icon-clone.png);
 }
 
 table.nodelist td.icon .icon-link {
-  background-image: url(../img/icon-link.png);
+  background-image: url(../img/icons/icon-link.png);
+}
+
+table.nodelist td.icon .icon-zoom {
+  background-image: url(../img/icons/find.png);
+}
+
+table.nodelist td.icon .icon-raise {
+  background-image: url(../img/icons/raise.png);
+}
+
+table.nodelist td.icon .icon-sink {
+  background-image: url(../img/icons/sink.png);
 }
 
 #center .control .disabled {
@@ -656,10 +668,71 @@ table.nodelist td.icon .icon-link {
 }
 
 #desktop fieldset p.important {
-  background: transparent url(../img/warning.png) no-repeat top left;
+  background: transparent url(../img/icons/warning.png) no-repeat top left;
   padding-left: 20px;
 }
 
 #center .access-wrapper td {
   white-space: nowrap;
+}
+
+
+/**
+ * Форма входа.
+ **/
+#login-form {
+  display: block;
+  width: 500px;
+  height: 300px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -250px;
+  margin-top: -150px;
+  /*
+  background: url(../img/mcms.logo_90ccw.jpg) no-repeat right bottom;
+  */
+}
+#login-form fieldset {
+  margin: 0;
+  padding: 10px;
+  border: solid 1px #ccc;
+}
+#login-form fieldset legend {
+  margin: 0 10px;
+  padding: 0 10px;
+  color: gray;
+}
+#login-form .control {
+  margin: 10px 0 10px 0;
+}
+#login-form .control label span {
+  display: block;
+  margin: 4px 0;
+}
+#login-form input.text {
+  display: block;
+  width: 462px;
+  font-size: 2em;
+  border: solid 2px #ccc;
+  padding: 4px 6px;
+}
+#login-form input.submit {
+  height: 2em;
+  padding: 0 40px;
+  font-size: 1.25em;
+}
+#login-form input.submit1 {
+  margin-right: 10px;
+}
+
+#exception {
+  margin: 10px;
+}
+#exception h2 {
+  font-size: 2em;
+  margin: 0 0 10px 0;
+}
+#exception p {
+  font-size: 1.5em;
 }

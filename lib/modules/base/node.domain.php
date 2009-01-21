@@ -327,14 +327,14 @@ class DomainNode extends Node implements iContentType
 
     if (empty($this->redirect))
       $links['alias'] = array(
-        'href' => '?q=admin/structure/create&type=domain'
+        'href' => '?q=admin.rpc&action=create&cgroup=structure&type=domain'
           .'&alias='. $this->id
           .'&destination=CURRENT',
         'title' => t('Добавить алиас'),
         'icon' => 'link',
         );
 
-    $links['edit']['href'] = '?q=admin/structure/edit/'. $this->id
+    $links['edit']['href'] = '?q=admin.rpc&action=edit&cgroup=structure&node='. $this->id
       .'&destination=CURRENT';
 
     if (!empty($this->redirect) and array_key_exists('clone', $links))

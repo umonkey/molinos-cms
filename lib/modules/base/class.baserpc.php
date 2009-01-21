@@ -70,6 +70,8 @@ class BaseRPC implements iRemoteCall
 
       throw $e;
     }
+
+    return true;
   }
 
   private static function rpc_login_error(Context $ctx, $message)

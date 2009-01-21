@@ -37,8 +37,9 @@ class FieldControl extends Control
     $output = $this->getTypes();
     $output .= $this->getDictionaries();
 
-    foreach ($data->{$this->value} as $k => $v)
-      $output .= html::em('field', array('name' => $k) + $v);
+    if (is_array($data->{$this->value}))
+      foreach ($data->{$this->value} as $k => $v)
+        $output .= html::em('field', array('name' => $k) + $v);
 
     for ($idx = 1; $idx <= 5; $idx++) {
       $output .= html::em('field', array(

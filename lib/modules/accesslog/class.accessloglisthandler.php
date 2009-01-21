@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class AccessLogListHandler extends AdminListHandler
+class AccessLogListHandler extends AdminListHandler implements iAdminList
 {
   protected function setUp()
   {

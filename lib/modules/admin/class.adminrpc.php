@@ -3,27 +3,45 @@
 
 class AdminRPC implements iRemoteCall
 {
+  /**
+   * Основная точка входа.
+   */
   public static function hookRemoteCall(Context $ctx)
   {
+    try {
+      if (!mcms::user()->id)
+        throw new UnauthorizedException();
+      $output = mcms::dispatch_rpc(__CLASS__, $ctx, 'status');
+    }
+
+    catch (UserErrorException $e) {
+      return self::render($ctx, array(
+        'status' => $e->getCode(),
+        'error' => get_class($e),
+        'message' => $e->getMessage(),
+        ));
+    }
+
+    catch (Exception $e) {
+      return self::render($ctx, array(
+        'status' => 500,
+        'error' => get_class($e),
+        'message' => $e->getMessage(),
+        ));
+    }
+
+    if (true === $output)
+      return $output;
+
+    return self::getPage($ctx, array(
+      'content' => $output,
+      ));
+
     $action = $ctx->get('action');
 
     $next = $ctx->get('destination', '');
 
-    switch ($ctx->get('action')) {
-    case 'reload':
-      $tmpdir = mcms::config('tmpdir');
-
-      foreach (glob($tmpdir .'/mcms-fetch.*') as $tmp)
-        unlink($tmp);
-
-      mcms::flush();
-      mcms::flush(mcms::FLUSH_NOW);
-
-      Structure::getInstance()->rebuild();
-      Loader::rebuild();
-
-      break;
-
+    switch ($action) {
     case '404':
       mcms::user()->checkAccess('u', 'type');
 
@@ -78,6 +96,229 @@ class AdminRPC implements iRemoteCall
     }
 
     $ctx->redirect($next);
+  }
+
+  /**
+   * Сброс кэша.
+   */
+  public static function rpc_get_reload(Context $ctx)
+  {
+    $tmpdir = mcms::config('tmpdir');
+
+    foreach (glob($tmpdir .'/mcms-fetch.*') as $tmp)
+      unlink($tmp);
+
+    mcms::flush();
+    mcms::flush(mcms::FLUSH_NOW);
+
+    Structure::getInstance()->rebuild();
+    Loader::rebuild();
+
+    return true;
+  }
+
+  /**
+   * Вывод списка объектов.
+   */
+  public static function rpc_get_list(Context $ctx)
+  {
+    $class = array_shift($i = Loader::getImplementors('iAdminList',
+      $module = $ctx->get('module', 'admin')));
+
+    if (null === $class and 'admin' == $module)
+      $class = 'AdminListHandler';
+
+    if (empty($class))
+      throw new RuntimeException(t('Модуль %module не умеет выводить админстративные списки.', array(
+        '%module' => $module,
+        )));
+
+    $tmp = new $class($ctx);
+    return $tmp->getHTML($ctx->get('preset'));
+  }
+
+  /**
+   * Вывод дерева объектов.
+   */
+  public static function rpc_get_tree(Context $ctx)
+  {
+    $tmp = new AdminTreeHandler($ctx);
+    return $tmp->getHTML($ctx->get('preset'));
+  }
+
+  /**
+   * Редактирование объектов.
+   */
+  public static function rpc_get_edit(Context $ctx)
+  {
+    if (null === ($nid = $ctx->get('node')))
+      throw new PageNotFoundException();
+
+    $node = Node::load(array(
+      'id' => $nid,
+      'deleted' => array(0, 1),
+      '#recurse' => true
+      ));
+
+    $form = $node->formGet(false);
+    $form->addClass('tabbed');
+
+    return html::em('block', array(
+      'name' => 'edit',
+      ), $form->getXML($node));
+  }
+
+  /**
+   * Добавление объекта.
+   */
+  public static function rpc_get_create(Context $ctx)
+  {
+    if (null !== $ctx->get('type')) {
+      $node = Node::create($type = $ctx->get('type'), array(
+        'parent_id' => $ctx->get('parent'),
+        'isdictionary' => $ctx->get('dictionary'),
+        ));
+
+      if ($nodeargs = $ctx->get('node'))
+        foreach ($nodeargs as $k => $v)
+          $node->$k = $v;
+
+      $form = $node->formGet(false);
+      $form->addClass('tabbed');
+      $form->addClass("node-{$type}-create-form");
+      $form->action = "?q=nodeapi.rpc&action=create&type={$type}&destination=". urlencode($_GET['destination']);
+
+      if ($node->parent_id)
+        $form->addControl(new HiddenControl(array(
+          'value' => 'parent_id',
+          'default' => $node->parent_id,
+          )));
+
+      if ($ctx->get('dictionary')) {
+        if (null !== ($tmp = $form->findControl('tab_general')))
+          $tmp->intro = t('Вы создаёте первый справочник.  Вы сможете использовать его значения в качестве выпадающих списков (для этого надо будет добавить соответствующее поле в нужный <a href=\'@types\'>тип документа</a>).', array('@types' => 'admin/?cgroup=structure&mode=list&preset=schema'));
+
+        $form->hideControl('tab_sections');
+        $form->hideControl('tab_widgets');
+
+        if (null !== ($ctl = $form->findControl('title')))
+          $ctl->label = t('Название справочника');
+        if (null !== ($ctl = $form->findControl('name')))
+          $ctl->label = t('Внутреннее имя справочника');
+
+        $form->addControl(new HiddenControl(array(
+          'value' => 'isdictionary',
+          'default' => 1,
+          )));
+      }
+
+      return html::em('block', array(
+        'name' => 'create',
+        ), $form->getXML($node));
+    }
+
+    $types = Node::find(array(
+      'class' => 'type',
+      '-name' => TypeNode::getInternal(),
+      ));
+
+    $output = '';
+    $names = array();
+
+    foreach ($types as $type) {
+      if (mcms::user()->hasAccess('c', $type->name)) {
+        $output .= $type->getXML('type');
+        $names[] = $type->name;
+      }
+    }
+
+    if (1 == count($names))
+      $ctx->redirect("?q=admin/content/create&type={$names[0]}&destination="
+        . urlencode($ctx->get('destination')));
+
+    $output = html::em('typechooser', array(
+      'destination' => $ctx->get('destination'),
+      ), $output);
+
+    return html::em('block', array(
+      'name' => 'create',
+      ), $output);
+  }
+
+  /**
+   * Поиск (форма).
+   */
+  public static function rpc_get_search(Context $ctx)
+  {
+    $output = '';
+
+    $url = new url($ctx->get('destination'));
+
+    if (null === $url->arg('preset')) {
+      $tmp = '';
+      foreach (Node::getSortedList('type', 'title', 'name') as $k => $v)
+        $tmp .= html::em('type', array(
+          'name' => $k,
+          'title' => $v,
+          ));
+      $output .= html::em('types', $tmp);
+    }
+
+    $tmp = '';
+    foreach (Node::getSortedList('user', 'fullname', 'id') as $k => $v)
+      $tmp .= html::em('user', array(
+        'id' => $k,
+        'name' => $v,
+        ));
+    $output .= html::em('users', $tmp);
+
+    if (null === $url->arg('preset')) {
+      $tmp = '';
+      foreach (Node::getSortedList('tag', 'id', 'name') as $k => $v)
+        $tmp .= html::em('section', array(
+          'id' => $k,
+          'name' => $v,
+          ));
+      $output .= html::em('sections', $tmp);
+    }
+
+    return html::em('block', array(
+      'name' => 'search',
+      'query' => $ctx->get('query'),
+      'from' => urlencode($ctx->get('destination')),
+      ), $output);
+  }
+
+  /**
+   * Поиск (обработка).
+   */
+  public static function rpc_post_search(Context $ctx)
+  {
+    $term = $ctx->post('search_term');
+
+    if (null !== ($tmp = $ctx->post('search_class')))
+      $term .= ' class:' . $tmp;
+
+    if (null !== ($tmp = $ctx->post('search_uid')))
+      $term .= ' uid:' . $tmp;
+
+    if (null !== ($tmp = $ctx->post('search_tag')))
+      $term .= ' tags:' . $tmp;
+
+    $url = new url($ctx->get('from'));
+    $url->setarg('search', $term);
+
+    $ctx->redirect($url->string());
+  }
+
+
+  /**
+   * Вывод приветствия админки.
+   */
+  public static function rpc_get_status(Context $ctx)
+  {
+    $m = new AdminMenu();
+    return $m->getDesktop();
   }
 
   private static function fixCleanURLs(Context $ctx)
@@ -152,7 +393,6 @@ class AdminRPC implements iRemoteCall
 
     switch ($mode = $ctx->get('mode', 'status')) {
     case 'search':
-    case 'list':
     case 'tree':
     case 'edit':
     case 'create':
@@ -167,12 +407,6 @@ class AdminRPC implements iRemoteCall
     default:
       throw new PageNotFoundException();
     }
-  }
-
-  private static function onGetList(Context $ctx)
-  {
-    $tmp = new AdminListHandler($ctx);
-    return $tmp->getHTML($ctx->get('preset'));
   }
 
   private static function onGetTree(Context $ctx)
@@ -277,87 +511,7 @@ class AdminRPC implements iRemoteCall
       return $form->getHTML(array());
     }
 
-    if (null === ($nid = $ctx->get('id')))
-      throw new PageNotFoundException();
-
-    $node = Node::load(array(
-      'id' => $nid,
-      'deleted' => array(0, 1),
-      '#recurse' => true
-      ));
-
-    $form = $node->formGet(false);
-    $form->addClass('tabbed');
-
-    return $form->getXML($node);
-  }
-
-  private static function onGetCreate(Context $ctx)
-  {
-    if (null !== $ctx->get('type')) {
-      $node = Node::create($type = $ctx->get('type'), array(
-        'parent_id' => $ctx->get('parent'),
-        'isdictionary' => $ctx->get('dictionary'),
-        ));
-
-      if ($nodeargs = $ctx->get('node'))
-        foreach ($nodeargs as $k => $v)
-          $node->$k = $v;
-
-      $form = $node->formGet(false);
-      $form->addClass('tabbed');
-      $form->addClass("node-{$type}-create-form");
-      $form->action = "?q=nodeapi.rpc&action=create&type={$type}&destination=". urlencode($_GET['destination']);
-
-      if ($node->parent_id)
-        $form->addControl(new HiddenControl(array(
-          'value' => 'parent_id',
-          'default' => $node->parent_id,
-          )));
-
-      if ($ctx->get('dictionary')) {
-        if (null !== ($tmp = $form->findControl('tab_general')))
-          $tmp->intro = t('Вы создаёте первый справочник.  Вы сможете использовать его значения в качестве выпадающих списков (для этого надо будет добавить соответствующее поле в нужный <a href=\'@types\'>тип документа</a>).', array('@types' => 'admin/?cgroup=structure&mode=list&preset=schema'));
-
-        $form->hideControl('tab_sections');
-        $form->hideControl('tab_widgets');
-
-        if (null !== ($ctl = $form->findControl('title')))
-          $ctl->label = t('Название справочника');
-        if (null !== ($ctl = $form->findControl('name')))
-          $ctl->label = t('Внутреннее имя справочника');
-
-        $form->addControl(new HiddenControl(array(
-          'value' => 'isdictionary',
-          'default' => 1,
-          )));
-      }
-
-      return $form->getXML($node);
-    }
-
-    $types = Node::find(array(
-      'class' => 'type',
-      '-name' => TypeNode::getInternal(),
-      ));
-
-    $output = '';
-    $names = array();
-
-    foreach ($types as $type) {
-      if (mcms::user()->hasAccess('c', $type->name)) {
-        $output .= $type->getXML('type');
-        $names[] = $type->name;
-      }
-    }
-
-    if (1 == count($names))
-      $ctx->redirect("?q=admin/content/create&type={$names[0]}&destination="
-        . urlencode($ctx->get('destination')));
-
-    return html::em('typechooser', array(
-      'destination' => $ctx->get('destination'),
-      ), $output);
+    // Остальное вынесено в rpc_get_edit.
   }
 
   private static function onGetStatus(Context $ctx)
@@ -464,6 +618,9 @@ class AdminRPC implements iRemoteCall
         } catch (ObjectNotFoundException $e) {
         }
 
+        return $ctx->redirect('?q=admin.rpc&action=login'
+          . '&destination=' . urlencode($_SERVER['REQUEST_URI']));
+
         $result = template::render(dirname(__FILE__), 'page', 'login');
 
         if (false === $result)
@@ -481,34 +638,19 @@ class AdminRPC implements iRemoteCall
 
   private static function getPage(Context $ctx, array $data)
   {
-    if (isset($ctx->theme)) {
-      $theme = $ctx->theme;
+    $content = empty($data['content'])
+      ? ''
+      : $data['content'];
+    $content .= self::getToolBar();
+    $content .= mcms::getSignatureXML($ctx);
 
-      if (file_exists($tmp = str_replace('.xsl', '.css', $theme)))
-        $ctx->addExtra('style', $tmp);
-      if (file_exists($tmp = str_replace('.xsl', '.js', $theme)))
-        $ctx->addExtra('script', $tmp);
-    } else {
-      $theme = os::path('lib', 'modules', 'admin', 'template.xsl');
-    }
+    $menu = new AdminMenu();
+    $content .= $menu->getXML();
 
-    $data['content'] .= $ctx->getExtrasXML();
-    $data['content'] .= self::getToolBar();
+    if (!empty($content))
+      $content = html::em('blocks', $content);
 
-    $data['content'] .= mcms::getSignatureXML($ctx);
-
-    $xml = '<?xml version="1.0" encoding="utf-8"?>';
-    $xml .= html::em('page', array(
-      'base' => $data['base'],
-      'prefix' => 'lib/modules/admin',
-      'url' => $_SERVER['REQUEST_URI'],
-      'urlEncoded' => urlencode($_SERVER['REQUEST_URI']),
-      'cgroup' => self::getCGroup($ctx),
-      ), $data['content']);
-
-    $output = xslt::transform($xml, $theme);
-
-    return $output;
+    return self::render($ctx, array(), $content);
   }
 
   private static function getCGroup(Context $ctx)
@@ -541,7 +683,7 @@ class AdminRPC implements iRemoteCall
       ));
     $toolbar .= html::em('a', array(
       'class' => 'reload',
-      'href' => '?q=admin.rpc&action=reload&flush=1&destination=CURRENT',
+      'href' => '?q=admin.rpc&action=reload&destination=CURRENT',
       'title' => t('Перезагрузка'),
       ));
     $toolbar .= html::em('a', array(
@@ -574,6 +716,35 @@ class AdminRPC implements iRemoteCall
         ), 'Server');
     }
 
-    return html::em('toolbar', $toolbar);
+    return html::em('block', array(
+      'name' => 'toolbar',
+      ), $toolbar);
+  }
+
+  private static function render(Context $ctx, array $data, $content = null)
+  {
+    $data['base'] = $ctx->url()->getBase($ctx);
+    $data['prefix'] = 'lib/modules/admin';
+    $data['urlEncoded'] = urlencode($_SERVER['REQUEST_URI']);
+    $data['back'] = urlencode($ctx->get('destination', $_SERVER['REQUEST_URI']));
+
+    if (empty($data['status']))
+      $data['status'] = 200;
+
+    if (isset($ctx->theme))
+      $theme = $ctx->theme;
+    else
+      $theme = os::path('lib', 'modules', 'admin', 'template.xsl');
+
+    $xml = '<?xml version="1.0" encoding="utf-8"?>';
+    $xml .= html::em('page', $data, $content);
+
+    try {
+      $output = xslt::transform($xml, $theme);
+    } catch (Exception $e) {
+      mcms::fatal($e);
+    }
+
+    return $output;
   }
 }

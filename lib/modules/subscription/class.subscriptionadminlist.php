@@ -1,6 +1,6 @@
 <?php
 
-class SubscriptionAdminList extends AdminListHandler implements iAdminUI
+class SubscriptionAdminList extends AdminListHandler implements iAdminList
 {
   protected function setUp($preset = null)
   {
@@ -14,11 +14,5 @@ class SubscriptionAdminList extends AdminListHandler implements iAdminUI
       'last' => t('Последняя новость'),
       'created' => t('Дата подписки'),
       );
-  }
-
-  public static function onGet(Context $ctx)
-  {
-    $tmp = new SubscriptionAdminList($ctx);
-    return $tmp->getHTML();
   }
 }

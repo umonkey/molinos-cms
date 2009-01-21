@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class AdminListHandler
+class AdminListHandler implements iAdminList
 {
   protected $ctx;
 
@@ -30,8 +30,6 @@ class AdminListHandler
   public function __construct(Context $ctx)
   {
     $this->ctx = $ctx;
-
-    $this->selectors = true;
 
     if (null !== ($tmp = $ctx->get('deleted')))
       $this->deleted = $tmp;
@@ -64,11 +62,12 @@ class AdminListHandler
         $this->ctx->redirect("?q=admin&mode=create&cgroup={$_GET['cgroup']}&dictionary=1&welcome=1&type={$this->types[0]}&destination=CURRENT");
     }
 
-    $output = self::getNodeActions(array(), $this->actions);
+    $output = self::getNodeActions((array)$this->selectors, $this->actions);
 
     $output .= $data;
 
-    return html::em('list', array(
+    return html::em('block', array(
+      'name' => 'list',
       'title' => $this->title,
       'preset' => $preset ? $preset : 'default',
       'search' => $this->hidesearch ? null : 'yes',
@@ -97,12 +96,13 @@ class AdminListHandler
 
   public static function getNodeActions(array $sel, array $act)
   {
-    $selectors = array(
-      'all' => 'все',
-      'none' => 'ни одного',
-      'published' => 'опубликованные',
-      'unpublished' => 'скрытые',
-      );
+    if (empty($sel))
+      $sel = array(
+        'all' => 'все',
+        'none' => 'ни одного',
+        'published' => 'опубликованные',
+        'unpublished' => 'скрытые',
+        );
 
     $actions = array(
       'publish' => t('опубликовать'),
@@ -116,7 +116,7 @@ class AdminListHandler
 
     $output = '';
 
-    foreach ($selectors as $k => $v)
+    foreach ($sel as $k => $v)
       $output .= html::em('selector', array(
         'name' => $k,
         'title' => $v,
@@ -159,22 +159,23 @@ class AdminListHandler
       case 'groups':
         $this->types = array('group');
         $this->title = t('Список групп');
-        $this->columns = array('name', 'description', 'created');
         $this->limit = null;
         $this->page = 1;
-        $this->sort = array('name');
+        $this->actions = array('delete', 'clone');
+        $this->selectors = array(
+          'all' => 'все',
+          'none' => 'ни одной',
+          );
         break;
       case 'users':
         $this->types = array('user');
         $this->title = t('Список пользователей');
-        $this->columns = array('name', 'fullname', 'created');
-        $this->columntitles = array(
-          'name' => 'Идентификатор',
-          'fullname' => 'Полное имя',
-          'created' => 'Зарегистрирован',
+        $this->selectors = array(
+          'all' => 'всех',
+          'none' => 'ни одного',
+          'published' => 'активных',
+          'unpublished' => 'заблокированных',
           );
-        $this->sort = array('name');
-        $this->zoomlink = "?q=admin&cgroup=content&columns=name,class,uid,created&mode=list&search=uid%3ANODEID";
         break;
       case 'files':
         $this->types = array('file');

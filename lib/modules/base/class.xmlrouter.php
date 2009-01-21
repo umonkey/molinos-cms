@@ -21,7 +21,7 @@ class XMLRouter implements iRequestRouter
     }
 
     // Находим страницу в структуре.
-    if (false === ($data = Structure::getInstance()->findPage($ctx->host(), $this->query)))
+    if (false === ($data = Structure::getInstance()->findPage($ctx->host(), $ctx->query)))
       throw new PageNotFoundException();
 
     mcms::invoke('iRequestHook', 'hookRequest', array($ctx));
@@ -32,7 +32,7 @@ class XMLRouter implements iRequestRouter
     if (!empty($data['args']['doc']))
       $ctx->document = $data['args']['doc'];
 
-    if (!empty($data['page']['defaultsection']))
+    if (!empty($data['page']['defaultsection']) and !isset($ctx->root))
       $ctx->root = $data['page']['defaultsection'];
 
     if (!isset($ctx->section) and isset($ctx->root))
@@ -131,6 +131,6 @@ class XMLRouter implements iRequestRouter
         return $path;
     }
 
-    mcms::debug($path);
+    return os::path('lib', 'modules', 'admin', 'template.xsl');
   }
 }
