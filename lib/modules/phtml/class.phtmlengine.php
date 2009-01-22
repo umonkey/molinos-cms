@@ -4,7 +4,7 @@ class PHTMLEngine implements iTemplateProcessor
 {
   public static function getExtensions()
   {
-    return array('phtml', 'php');
+    return array('phtml');
   }
 
   public static function processTemplate($fileName, array $data)
