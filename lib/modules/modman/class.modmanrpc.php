@@ -101,6 +101,8 @@ class ModManRPC implements iRemoteCall
     // Удаляем отключенные модули.
     foreach (modman::getLocalModules() as $name => $info) {
       if (!in_array($name, $enabled)) {
+        $args = array($ctx);
+        mcms::invoke_module($name, 'iInstaller', 'onUninstall', $args);
         if (modman::uninstall($name))
           $status[$name] = 'removed';
       }

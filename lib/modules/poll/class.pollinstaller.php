@@ -34,5 +34,9 @@ class PollInstaller implements iInstaller
 
   public static function onUninstall(Context $ctx)
   {
+    $t = new TableInfo('node__poll');
+
+    if ($t->exists())
+      $t->delete();
   }
 }

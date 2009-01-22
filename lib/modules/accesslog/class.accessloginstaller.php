@@ -37,5 +37,9 @@ class AccessLogInstaller implements iInstaller
 
   public static function onUninstall(Context $ctx)
   {
+    $t = new TableInfo('node__astat');
+
+    if ($t->exists())
+      $t->delete();
   }
 }
