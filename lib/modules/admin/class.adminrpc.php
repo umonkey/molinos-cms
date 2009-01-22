@@ -341,9 +341,12 @@ class AdminRPC implements iRemoteCall
     $o = new $class();
     $output = $o->getAdminFormXML($ctx);
 
-    return html::em('block', array(
+    if (0 === strpos($output, '<form'))
+      $output = html::em('block', array(
       'name' => 'form',
       ), $output);
+
+    return $output;
   }
 
   private static function fixCleanURLs(Context $ctx)
