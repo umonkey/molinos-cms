@@ -179,57 +179,24 @@ class FileNode extends Node implements iContentType
 
     // Формируем внутреннее имя файла.
     $intname = md5_file($file['tmp_name']);
-    $this->filepath = substr($intname, 0, 1) .'/'. substr($intname, 1, 1) .'/'. $intname;
+    $this->filepath = substr($intname, 0, 1) .'/'. substr($intname, 1, 1) .'/'. $intname
+      . '.' . $this->getSafeExtension();
 
-    $existing = null;
+    // Сюда будем копировать файл.
+    $dest = $storage .'/'. $this->filepath;
 
-    // Находим существующий файл.
-    try {
-      $node = Node::find(array(
-        'class' => 'file',
-        'filepath' => $this->filepath,
-        ), 1);
+    // Создаём каталог для него.
+    mcms::mkdir(dirname($dest), 'Файл не удалось сохранить, т.к. отсутствуют права на запись в каталог, где этот файл должен был бы храниться (%path).  Сообщите об этой проблеме администратору сайта.');
 
-      if (empty($node))
-        throw new ObjectNotFoundException();
-
-      // Исправление для Issue 300: файла физически нет, и заменить ноду нельзя.
-      if (!file_exists($storage .'/'. $this->filepath))
-        throw new ObjectNotFoundException();
-
-      $existing = array_shift($node)->data;
-    }
-
-    // Теоретически это должно возникать только при добавлении
-    // нового файла в архив, когда мы возвращаем укороченную
-    // форму.
-    catch (NoIndexException $e) {
-    }
-
-    catch (ObjectNotFoundException $e) {
-    }
-
-    if (null !== $existing)
-      $this->data = $existing;
-
-    // Файл не найден, создаём новый.
-    else {
-      // Сюда будем копировать файл.
-      $dest = $storage .'/'. $this->filepath;
-
-      // Создаём каталог для него.
-      mcms::mkdir(dirname($dest), 'Файл не удалось сохранить, т.к. отсутствуют права на запись в каталог, где этот файл должен был бы храниться (%path).  Сообщите об этой проблеме администратору сайта.');
-
-      // Копируем файл.
-      if ($uploaded) {
-        if (!($c1 = is_uploaded_file($file['tmp_name'])) or !($c2 = move_uploaded_file($file['tmp_name'], $dest))) {
-          $debug = sprintf("File could not be uploaded.\nis_uploaded_file: %d\nmove_uploaded_file: %d\ndestination: %s", $c1, $c2, $storage .'/'. $this->filepath);
-          mcms::debug($debug, $file, $this);
-          throw new UserErrorException("Ошибка загрузки", 400, "Ошибка загрузки", "Не удалось загрузить файл: ошибка {$file['error']}");
-        }
-      } elseif (!copy($file['tmp_name'], $dest)) {
-        throw new UserErrorException("Ошибка загрузки", 400, "Ошибка загрузки", "Не удалось скопировать файл {$file['tmp_name']} в {$dest}.");
+    // Копируем файл.
+    if ($uploaded) {
+      if (!($c1 = is_uploaded_file($file['tmp_name'])) or !($c2 = move_uploaded_file($file['tmp_name'], $dest))) {
+        $debug = sprintf("File could not be uploaded.\nis_uploaded_file: %d\nmove_uploaded_file: %d\ndestination: %s", $c1, $c2, $storage .'/'. $this->filepath);
+        mcms::debug($debug, $file, $this);
+        throw new UserErrorException("Ошибка загрузки", 400, "Ошибка загрузки", "Не удалось загрузить файл: ошибка {$file['error']}");
       }
+    } elseif (!copy($file['tmp_name'], $dest)) {
+      throw new UserErrorException("Ошибка загрузки", 400, "Ошибка загрузки", "Не удалось скопировать файл {$file['tmp_name']} в {$dest}.");
     }
 
     // Прикрепляем файл к родительскому объекту.
@@ -237,6 +204,27 @@ class FileNode extends Node implements iContentType
       $this->linkAddParent($file['parent_id']);
 
     return $this;
+  }
+
+  /**
+   * Возвращает безопасное расширение файла.
+   */
+  private function getSafeExtension()
+  {
+    switch ($ext = os::getFileExtension($this->filename)) {
+    case 'php':
+    case 'php3':
+    case 'php4':
+    case 'pl':
+    case 'phtml':
+    case 'inc':
+    case 'tpl':
+    case 'sh':
+      $ext .= '.txt';
+      break;
+    }
+
+    return $ext;
   }
 
   /**
@@ -559,7 +547,8 @@ class FileNode extends Node implements iContentType
   public function getRaw()
   {
     $result = parent::getRaw();
-    $result['_url'] = $this->_url;
+    if (file_exists($tmp = os::path(mcms::config('filestorage'), $this->filepath)))
+      $result['url'] = $tmp;
     return $result;
   }
 
@@ -609,5 +598,29 @@ class FileNode extends Node implements iContentType
       ), false);
 
     return $node;
+  }
+
+  public function getXML($em = 'node', $_content = null)
+  {
+    if (!empty($this->data['versions'])) {
+      $versions = '';
+
+      foreach ($this->data['versions'] as $k => $v)
+        if (file_exists($path = os::path(mcms::config('filestorage'), $v))) {
+          $versions .= html::em('version', array(
+            'name' => $k,
+            'url' => $path,
+            ));
+        }
+
+      $_content .= $versions;
+    }
+
+    return parent::getXML($em, $_content);
+  }
+
+  public function getRealURL()
+  {
+    return os::path(mcms::config('filestorage'), $this->filepath);
   }
 };

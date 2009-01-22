@@ -23,6 +23,7 @@ class AdminListHandler implements iAdminList
 
   protected $preset = null;
   protected $hidesearch = false;
+  protected $nopermcheck = false;
 
   // Кэшируем для исключения повторных вызовов.
   private $count = null;
@@ -360,7 +361,8 @@ class AdminListHandler implements iAdminList
       }
     }
 
-    $filter['#permcheck'] = true;
+    if (!$this->nopermcheck)
+      $filter['#permcheck'] = true;
     $filter['#recurse'] = 1;
 
     if ('pages' == $this->preset)

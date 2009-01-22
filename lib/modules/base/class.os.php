@@ -133,4 +133,12 @@ class os
     exec($command, $output, $rc);
     return $rc;
   }
+
+  /**
+   * Возвращает расширение файла.
+   */
+  public static function getFileExtension($fileName)
+  {
+    return strtolower(substr($fileName, strrpos($fileName, '.') + 1));
+  }
 }

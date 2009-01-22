@@ -76,9 +76,12 @@ class ImageMagickGD
         return ($this->img !== FALSE);
     }
 
-    public function save($path)
+    public function save($path, $type = null)
     {
-        switch ($this->mime) {
+      if (null === $type)
+        $type = $this->mime;
+
+        switch ($type) {
             case 'image/jpeg':
             case 'image/pjpeg':
                 $rc = imagejpeg($this->img, $path, $this->quality);
@@ -197,7 +200,11 @@ class ImageMagickGD
     public function scale($width, $height, array $_options = null)
     {
         // Нормализация опций, во избежание ворнингов.
-        $options = array_merge(array('downsize' => false, 'crop' => false, 'white' => false, 'quality' => 85), $_options == null ? array() : $_options);
+        $options = array_merge(array(
+          'downsize' => false,
+          'crop' => false,
+          'white' => false,
+          'quality' => 85), $_options == null ? array() : $_options);
 
         // Сохраним качество, понадобится в будущем.
         $this->quality = $options['quality'];

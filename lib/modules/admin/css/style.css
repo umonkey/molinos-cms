@@ -506,6 +506,23 @@ td.nowrap {
   margin: 0 0 0 2px;
 }
 
+/**
+ * Пробелы для версий файлов.
+ **/
+.nodelist td.versions {
+  white-space: nowrap;
+}
+.nodelist td.versions a {
+  margin-left: 2px;
+  margin-right: 2px;
+}
+.nodelist th {
+  white-space: nowrap;
+}
+.nodelist td.field-name {
+  width: 100%;
+}
+
 .helpmsg {
   margin: .5em 0 1em;
   font-style: italic;

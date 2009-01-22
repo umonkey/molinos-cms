@@ -303,8 +303,10 @@ abstract class Control implements iFormControl
       throw new ValidationException($this->label);
 
     if (!empty($value) and !empty($this->re))
-      if (!preg_match($this->re, $value))
+      if (!preg_match($this->re, $value)) {
+        mcms::debug($this->re, $value, preg_match($this->re, $value));
         throw new ValidationException($this->label, t('Вы неверно заполнили поле «%field».', array('%field' => mb_strtolower($this->label))));
+      }
   }
 
   /**

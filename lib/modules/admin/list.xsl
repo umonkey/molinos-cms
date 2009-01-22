@@ -20,7 +20,7 @@
         </xsl:if>
         <xsl:apply-templates select="massctl" mode="mcms_list" />
 
-        <form id="nodeList" method="post" action="?q=nodeapi.rpc">
+        <form id="nodeList" method="post" action="?q=nodeapi.rpc&amp;destination={/page/@urlEncoded}">
           <input id="nodeListCommand" type="hidden" name="action" value="" />
           <table class="mcms nodelist">
             <xsl:apply-templates select="data" mode="mcms_list" />
@@ -247,15 +247,17 @@
 
   <!-- вывод файлов -->
   <xsl:template match="data[../@preset = 'files']" mode="mcms_list">
+    <xsl:variable name="versions" select="not(not(node/version))" />
+
     <thead>
       <tr>
         <th colspan="2"/>
-        <th>Заголовок</th>
         <th>Имя файла</th>
-        <th>Тип</th>
-        <th class="field-filesize">Размер</th>
+        <xsl:if test="$versions">
+          <th>Версии</th>
+        </xsl:if>
         <th/>
-        <th>Владелец</th>
+        <th class="field-filesize">Размер</th>
         <th>Дата добавления</th>
       </tr>
     </thead>
@@ -272,18 +274,20 @@
         <tr id="file-{@id}">
           <xsl:call-template name="odd_row" />
           <td class="icon">
-            <a class="picker icon-download" href="{@_url}"></a>
+            <xsl:if test="@url">
+              <a class="picker icon-download" href="{@url}"></a>
+            </xsl:if>
           </td>
           <xsl:apply-templates select="." mode="mcms_list_name" />
-          <td class="field-filename">
-            <xsl:value-of select="@filename" />
-          </td>
-          <td class="field-filetype">
-            <xsl:value-of select="@filetype" />
-          </td>
-          <td class="field-filesize">
-            <xsl:value-of select="@filesize" />
-          </td>
+          <xsl:if test="$versions">
+            <td class="versions">
+              <xsl:for-each select="version">
+                <a href="{@url}">
+                  <xsl:value-of select="@name" />
+                </a>
+              </xsl:for-each>
+            </td>
+          </xsl:if>
           <td>
             <xsl:if test="@width and @height">
               <xsl:value-of select="@width" />
@@ -291,7 +295,9 @@
               <xsl:value-of select="@height" />
             </xsl:if>
           </td>
-          <xsl:apply-templates select="." mode="mcms_list_author" />
+          <td class="field-filesize">
+            <xsl:value-of select="@filesize" />
+          </td>
           <td class="field-created">
             <xsl:call-template name="FormatDate">
               <xsl:with-param name="timestamp" select="@created" />

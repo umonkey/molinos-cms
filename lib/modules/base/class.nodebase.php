@@ -312,7 +312,14 @@ class NodeBase
 
     mcms::flush();
 
+    $this->dirty = false;
     mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, $isnew ? 'create' : 'update'));
+
+    // Если обработчик изменил объект — сохраняем снова.
+    if ($this->dirty) {
+      unset($this->data['dirty']);
+      $this->dbWrite();
+    }
 
     $this->purgeRevisions();
 
