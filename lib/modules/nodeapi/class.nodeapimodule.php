@@ -6,10 +6,7 @@ class NodeApiModule implements iRemoteCall
   public static function hookRemoteCall(Context $ctx)
   {
     try {
-    if ($ctx->get('action') == 'mass')
-      $next = self::doMassAction($ctx);
-    else
-      $next = self::doSingleAction($ctx);
+      $next = mcms::dispatch_rpc(__CLASS__, $ctx);
     } catch (Exception $e) {
       mcms::fatal($e);
     }
@@ -23,220 +20,273 @@ class NodeApiModule implements iRemoteCall
     return new Redirect($next);
   }
 
-  private static function doMassAction(Context $ctx)
+  /**
+   * Изменение отдельного поля документа.
+   */
+  public static function rpc_post_modify(Context $ctx)
   {
-    if (!empty($_POST['nodes']) and !empty($_POST['action']) and is_array($_POST['action'])) {
-      foreach ($_POST['action'] as $action) {
-        if (!empty($action)) {
-          foreach ($_POST['nodes'] as $nid)
-            self::doSingleAction($ctx, $action, $nid);
-          break;
-        }
-      }
+    $node = Node::load($ctx->get('node'));
+
+    $field = $ctx->get('field');
+    $value = $ctx->get('value');
+
+    if (null === $field)
+      throw new InvalidArgumentException(t('Не указан параметр field.'));
+
+    if (!$node->checkPermission('u'))
+      throw new ForbiddenException();
+
+    $node->$field = $value;
+    $node->save();
+  }
+
+  /**
+   * Получение формы редактирования объекта.
+   */
+  public static function rpc_get_editor(Context $ctx)
+  {
+    $node = Node::load($ctx->get('node'));
+
+    if (!$node->checkPermission('u'))
+      throw new ForbiddenException(t('Вам нельзя редактировать этот объект.'));
+
+    $schema = $node->getSchema();
+
+    if (!array_key_exists($field = $ctx->get('field'), $schema['fields']))
+      throw new PageNotFoundException(t('Нет такого поля у этого объекта.'));
+
+    $tpl = $schema['fields'][$field];
+    $tpl['value'] = $field;
+    $tpl['nolabel'] = true;
+
+    $form = new Form(array(
+      'action' => '?q=nodeapi.rpc&action=modify&node='. $node->id
+        .'&field='. $field,
+      ));
+    $form->addControl(Control::make($tpl));
+    $form->addControl(new SubmitControl(array(
+      'text' => 'OK',
+      )));
+
+    return new Response($form->getHTML($node));
+  }
+
+  /**
+   * Откат документа на нужную версию.
+   */
+  public static function rpc_get_revert(Context $ctx)
+  {
+    $info = $ctx->db->getResults("SELECT `v`.`nid` AS `id`, "
+      ."`n`.`class` AS `class` FROM `node__rev` `v` "
+      ."INNER JOIN `node` `n` ON `n`.`id` = `v`.`nid` "
+      ."WHERE `v`.`rid` = ?", array($rid = $ctx->get('rid')));
+
+    if (!empty($info)) {
+      mcms::user()->checkAccess('u', $info[0]['class']);
+      $ctx->db->exec("UPDATE `node` SET `rid` = ? WHERE `id` = ?",
+        array($rid, $info[0]['id']));
+      mcms::flush();
     }
   }
 
-  private static function doSingleAction(Context $ctx, $action = null, $nid = null)
+  /**
+   * Вывод содержимого объекта.
+   */
+  public static function rpc_get_dump(Context $ctx)
   {
-    if (null === $action)
-      $action = $ctx->get('action');
+    $filter = array(
+      'id' => $ctx->get('node'),
+      'deleted' => array(0),
+      '#recurse' => $ctx->get('bare') ? 0 : 1,
+      );
 
-    if (null === $nid)
-      $nid = $ctx->get('node');
+    if ($ctx->canDebug())
+      $filter['deleted'][] = 1;
 
-    switch ($action) {
-    case 'modify':
+    $node = Node::load($filter);
+
+    mcms::debug(array(
+      'node' => $node,
+      'links' => $node->getActionLinks(),
+      ));
+
+    throw new ForbiddenException();
+  }
+
+  /**
+   * Поиск объекта на сайте.
+   */
+  public static function rpc_get_locate(Context $ctx)
+  {
+    $node = Node::load($ctx->get('node'));
+
+    if ('tag' == $node->class)
+      $link = '?q=ID';
+    else
+      $link = '?q=node/ID';
+
+    if ($ctx->get('__cleanurls'))
+      $link = substr($link, 3);
+
+    return new Redirect(str_replace('ID', $node->id, $link));
+  }
+
+  /**
+   * Ренидексация объекта (используется?)
+   */
+  public static function rpc_get_reindex(Context $ctx)
+  {
+    $node = Node::load(array('id' => $ctx->get('node'), '#recurse' => 1));
+    mcms::user()->checkAccess('u', $node->class);
+
+    if ($node->class == 'type')
+      $node->updateTable();
+    else
+      $node->reindex();
+  }
+
+  /**
+   * Публикация объектов.
+   */
+  public static function rpc_post_publish(Context $ctx)
+  {
+    foreach (self::getNodes($ctx) as $nid) {
       $node = Node::load($nid);
+      $node->publish();
+    }
+  }
 
-      $field = $ctx->get('field');
-      $value = $ctx->get('value');
-
-      if (null === $field)
-        throw new InvalidArgumentException(t('Не указан параметр field.'));
-
-      if (!$node->checkPermission('u'))
-        throw new ForbiddenException();
-
-      $node->$field = $value;
-      $node->save();
-      break;
-
-    case 'editor':
+  /**
+   * Сокрытие объектов.
+   */
+  public static function rpc_post_unpublish(Context $ctx)
+  {
+    foreach (self::getNodes($ctx) as $nid) {
       $node = Node::load($nid);
+      $node->unpublish();
+    }
+  }
 
-      if (!$node->checkPermission('u'))
-        throw new ForbiddenException(t('Вам нельзя редактировать этот объект.'));
-
-      $schema = $node->getSchema();
-
-      if (!array_key_exists($field = $ctx->get('field'), $schema['fields']))
-        throw new PageNotFoundException(t('Нет такого поля у этого объекта.'));
-
-      $tpl = $schema['fields'][$field];
-      $tpl['value'] = $field;
-      $tpl['nolabel'] = true;
-
-      $form = new Form(array(
-        'action' => '?q=nodeapi.rpc&action=modify&node='. $node->id
-          .'&field='. $field,
-        ));
-      $form->addControl(Control::make($tpl));
-      $form->addControl(new SubmitControl(array(
-        'text' => 'OK',
-        )));
-
-      die($form->getHTML($node));
-
-    case 'revert':
-      $info = $ctx->db->getResults("SELECT `v`.`nid` AS `id`, "
-        ."`n`.`class` AS `class` FROM `node__rev` `v` "
-        ."INNER JOIN `node` `n` ON `n`.`id` = `v`.`nid` "
-        ."WHERE `v`.`rid` = ?", array($rid = $ctx->get('rid')));
-
-      if (!empty($info)) {
-        mcms::user()->checkAccess('u', $info[0]['class']);
-        $ctx->db->exec("UPDATE `node` SET `rid` = ? WHERE `id` = ?",
-          array($rid, $info[0]['id']));
-        mcms::flush();
-      }
-
-      break;
-
-    case 'dump':
-      $filter = array(
-        'id' => $nid,
-        'deleted' => array(0),
-        '#recurse' => empty($_GET['bare']) ? 1 : 0,
-        );
-
-      if ($ctx->canDebug())
-        $filter['deleted'][] = 1;
-
-      $node = Node::load($filter);
-
-      mcms::debug(array(
-        'node' => $node,
-        'links' => $node->getActionLinks(),
-        ));
-
-      throw new ForbiddenException();
-
-    case 'locate':
+  /**
+   * Удаление объектов.
+   */
+  public static function rpc_post_delete(Context $ctx)
+  {
+    foreach (self::getNodes($ctx) as $nid) {
       $node = Node::load($nid);
+      $node->delete();
+    }
+  }
 
-      if ('tag' == $node->class)
-        $link = '?q=ID';
-      else
-        $link = '?q=node/ID';
-
-      return new Redirect(str_replace('ID', $node->id, $link));
-
-    case 'reindex':
-      $node = Node::load(array('id' => $nid, '#recurse' => 1));
-      mcms::user()->checkAccess('u', $node->class);
-
-      if ($node->class == 'type')
-        $node->updateTable();
-      else
-        $node->reindex();
-
-      break;
-
-    case 'publish':
-    case 'enable':
-      if (null !== $nid) {
-        $node = Node::load($nid);
-        $node->publish();
-      }
-      break;
-
-    case 'unpublish':
-    case 'disable':
-      if (null !== $nid) {
-        $node = Node::load($nid);
-        $node->unpublish();
-      }
-      break;
-
-    case 'delete':
-      if (null !== $nid) {
-        $node = Node::load($nid);
-        $node->delete();
-      }
-      break;
-
-    case 'clone':
+  /**
+   * Клонирование объектов.
+   */
+  public static function rpc_post_clone(Context $ctx)
+  {
+    foreach (self::getNodes($ctx) as $nid) {
       $node = Node::load(array(
         'id' => $nid,
         'deleted' => array(0, 1),
         ));
       $node->duplicate();
-      break;
+    }
+  }
 
-    case 'create':
-      if (!$ctx->method('post'))
-        throw new BadRequestException(t('Этот запрос можно отправить '
-          .'только методом POST.'));
+  /**
+   * Создание объекта.
+   */
+  public static function rpc_post_create(Context $ctx)
+  {
+    $parent = $ctx->post('parent_id');
 
-      $parent = $ctx->post('parent_id');
+    $node = Node::create($ctx->get('type'), array(
+      'parent_id' => empty($parent) ? null : $parent,
+      ));
 
-      $node = Node::create($ctx->get('type'), array(
-        'parent_id' => empty($parent) ? null : $parent,
-        ));
+    $node->formProcess($ctx->post)->save();
 
-      $node->formProcess($ctx->post)->save();
+    $next = $ctx->post('destination', $ctx->get('destination', ''));
 
-      $next = $ctx->post('destination', $ctx->get('destination', ''));
+    return new Redirect(self::fixredir($next, $node));
+  }
 
-      return new Redirect(self::fixredir($next, $node));
+  /**
+   * Изменение объекта.
+   */
+  public static function rpc_post_edit(Context $ctx)
+  {
+    $node = Node::load($ctx->get('node'));
+    $node->formProcess($ctx->post)->save();
+  }
 
-    case 'edit':
-      if (!$ctx->method('post'))
-        throw new BadRequestException(t('Этот запрос можно отправить '
-          .'только методом POST.'));
-      $node = Node::load($ctx->get('node'));
-      $node->formProcess($ctx->post)->save();
-      break;
+  /**
+   * Восстановление удалённых объектов.
+   */
+  public static function rpc_post_undelete(Context $ctx)
+  {
+    $nodes = Node::find(array(
+      'id' => self::getNodes($ctx),
+      'deleted' => 1,
+      ));
 
-    case 'undelete':
-      $node = Node::load(array(
-        'id' => $nid,
-        'deleted' => 1,
-        ));
+    foreach ($nodes as $node)
       $node->undelete();
-      break;
+  }
 
-    case 'erase':
+  /**
+   * Окончательное удаление из корзины.
+   */
+  public static function rpc_post_erase(Context $ctx)
+  {
+    $nodes = Node::find(array(
+      'id' => self::getNodes($ctx),
+      'deleted' => 1,
+      ));
+
+    foreach ($nodes as $node) {
       try {
-        $node = Node::load(array(
-          'id' => $nid,
-          'deleted' => 1,
-          ));
         $node->erase();
       } catch (ObjectNotFoundException $e) {
         // случается при рекурсивном удалении вложенных объектов
       }
-      break;
-
-    case 'raise':
-      if (null === $ctx->get('section')) {
-        $tmp = new NodeMover($ctx->db);
-        $tmp->moveUp($nid);
-      }
-      break;
-
-    case 'sink':
-      if (null === $ctx->get('section')) {
-        $tmp = new NodeMover($ctx->db);
-        $tmp->moveDown($nid);
-      }
-      break;
-
-    default:
-      mcms::debug($ctx, $_POST);
     }
   }
 
+  /**
+   * Перемещение наверх по дереву.
+   */
+  public static function rpc_get_raise(Context $ctx)
+  {
+    if (null === $ctx->get('section')) {
+      $tmp = new NodeMover($ctx->db);
+      $tmp->moveUp($ctx->get('node'));
+    }
+  }
+
+  /**
+   * Перемещение вниз по дереву.
+   */
+  public static function rpc_get_sink(Context $ctx)
+  {
+    if (null === $ctx->get('section')) {
+      $tmp = new NodeMover($ctx->db);
+      $tmp->moveDown($ctx->get('node'));
+    }
+  }
+
+  /**
+   * Возвращает идентификаторы задействованных объектов.
+   */
+  private static function getNodes(Context $ctx)
+  {
+    if (!is_array($nodes = $ctx->post('nodes', array($ctx->get('node')))))
+      $nodes = array();
+    return $nodes;
+  }
+
+  /**
+   * Подставляет в адрес редиректа информацию о модифицированном объекте.
+   */
   public static function fixredir($path, Node $node, $updated = false)
   {
     if ($updated)
