@@ -406,7 +406,7 @@
 
     <xsl:template match="action" mode="mcms_list_mass_controls">
       <xsl:choose>
-        <xsl:when test="position() = last()">
+        <xsl:when test="position() = last() and position() != 1">
           <xsl:text> или </xsl:text>
         </xsl:when>
         <xsl:when test="position() != 1">

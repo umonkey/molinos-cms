@@ -12,7 +12,7 @@ class AttachmentListHandler extends AdminListHandler implements iAdminList
   {
     $this->types = array('imgtransform');
     $this->title = t('Правила трансформации картинок');
-    $this->actions = array('clone', 'delete');
+    $this->actions = array('delete');
     $this->nopermcheck = true;
   }
 }
