@@ -1,4 +1,5 @@
 <?php
+
 class BaseModule implements iModuleConfig, iNodeHook
 {
   /**
@@ -65,18 +66,5 @@ class BaseModule implements iModuleConfig, iNodeHook
       // rebuild() был бы лучше, но он вызывает рекурсию при импорте.
       $s->drop();
     }
-  }
-
-  /**
-   * Обработка инсталляции модуля.
-   *
-   * Ничего не делает, просто заглушка — iModuleConfig требует реализации.
-   *
-   * @todo вынести в BaseModuleSettings.
-   *
-   * @return void
-   */
-  public static function hookPostInstall()
-  {
   }
 };

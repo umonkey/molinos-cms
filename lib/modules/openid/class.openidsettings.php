@@ -77,8 +77,4 @@ class OpenIdSettings implements iModuleConfig
 
     return $result;
   }
-
-  public static function hookPostInstall()
-  {
-  }
 }

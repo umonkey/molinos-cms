@@ -71,10 +71,6 @@ class TinyMceModule implements iModuleConfig, iPageHook
     return $form;
   }
 
-  public static function hookPostInstall()
-  {
-  }
-
   public static function hookPage(&$output, Node $page)
   {
     if ('text/html' != $page->content_type)

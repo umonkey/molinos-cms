@@ -2225,4 +2225,9 @@ class NodeBase
   {
     return empty($this->olddata['id']);
   }
+
+  public function canEditFields()
+  {
+    return false;
+  }
 };

@@ -18,10 +18,6 @@ class JSLibsConfig implements iModuleConfig
     return $form;
   }
 
-  public static function hookPostInstall()
-  {
-  }
-
   private static function getLibrariesHTML()
   {
     $result = array();

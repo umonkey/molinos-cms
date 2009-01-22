@@ -386,6 +386,12 @@ class TypeNode extends Node implements iContentType
         'volatile' => true,
         ));
 
+    if ($this->name) {
+      $tmp = Node::create($this->name);
+      if (!$tmp->canEditFields())
+        return $schema;
+    }
+
     $schema['fields'] = new FieldControl(array(
       'value' => 'fields',
       'label' => null,

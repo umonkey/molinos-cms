@@ -152,4 +152,9 @@ class ImgTransformNode extends Node implements iContentType
     foreach ($files as $file)
       unlink($file);
   }
+
+  public function canEditFields()
+  {
+    return false;
+  }
 }

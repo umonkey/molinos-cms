@@ -63,6 +63,13 @@ class ModmanForm implements iAdminForm
 
   protected function getInstallForm(Context $ctx)
   {
+    // Пост-инсталляционный хук для новых модулей.
+    foreach ($ctx->get('status', array()) as $name => $status)
+      if ('installed' == $status) {
+        $args = array($ctx);
+        mcms::invoke_module($name, 'iInstaller', 'onInstall', $args);
+      }
+
     if (!count($modules = modman::getAllModules())) {
       modman::updateDB();
       $modules = modman::getAllModules();

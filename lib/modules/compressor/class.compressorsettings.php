@@ -28,8 +28,4 @@ class CompressorSettings implements iModuleConfig
 
     return $result;
   }
-
-  public static function hookPostInstall()
-  {
-  }
 }

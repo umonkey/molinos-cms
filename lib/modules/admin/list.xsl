@@ -141,7 +141,6 @@
       <tr>
         <th colspan="2" />
         <th>Имя</th>
-        <th>Имя отображаемое</th>
         <th>Описание</th>
       </tr>
     </thead>
@@ -153,11 +152,8 @@
             <a class="icon-zoom" href="?q=admin.rpc&amp;action=list&amp;cgroup=content&amp;type={@name}" />
           </td>
           <xsl:apply-templates select="." mode="mcms_list_name" />
-          <td class="field-title">
+          <td class="field-title nowrap">
             <xsl:value-of select="@title" />
-          </td>
-          <td class="field-description">
-            <xsl:value-of select="@description" />
           </td>
         </tr>
       </xsl:for-each>

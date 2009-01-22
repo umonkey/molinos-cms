@@ -185,34 +185,4 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
 
     return $form;
   }
-
-  public static function hookPostInstall()
-  {
-    $t = new TableInfo('node__poll');
-
-    if (!$t->exists()) {
-      $t->columnSet('nid', array(
-        'type' => 'int',
-        'required' => true,
-        'key' => 'mul',
-        ));
-      $t->columnSet('uid', array(
-        'type' => 'int',
-        'required' => false,
-        'key' => 'mul',
-        ));
-      $t->columnSet('ip', array(
-        'type' => 'varchar(15)',
-        'required' => true,
-        'key' => 'mul',
-        ));
-      $t->columnSet('option', array(
-        'type' => 'int',
-        'required' => true,
-        'key' => 'mul',
-        ));
-
-      $t->commit();
-    }
-  }
 };

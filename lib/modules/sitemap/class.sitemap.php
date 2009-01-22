@@ -32,10 +32,6 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
     return $form;
   }
 
-  public static function hookPostInstall()
-  {
-  }
-
   public static function hookNodeUpdate(Node $node, $op)
   {
     $stop = array(

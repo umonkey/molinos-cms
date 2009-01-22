@@ -61,10 +61,6 @@ class BebopMimeMail implements iModuleConfig
     return $form;
   }
 
-  public static function hookPostInstall()
-  {
-  }
-
   // Превращает все относительные ссылки в абсолютные.
   private static function fixhtml($html)
   {

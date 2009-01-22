@@ -16,10 +16,6 @@ class CronModule implements iModuleConfig, iRemoteCall
     return $form;
   }
 
-  public static function hookPostInstall()
-  {
-  }
-
   public static function hookRemoteCall(Context $ctx)
   {
     if (!self::isClientAllowed())

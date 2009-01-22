@@ -63,10 +63,6 @@ class CartSettings implements iModuleConfig
     return $form;
   }
 
-  public static function hookPostInstall()
-  {
-  }
-
   // Проверяет типы документов, инсталлирует новые.
   // FIXME: перетащить куда-нибудь.
   private function installTypes()

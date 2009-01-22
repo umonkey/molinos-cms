@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class AccessLogListHandler extends AdminListHandler implements iAdminList
+class AccessLogListHandler extends AdminListHandler
 {
   protected function setUp()
   {
@@ -15,7 +15,7 @@ class AccessLogListHandler extends AdminListHandler implements iAdminList
   {
     $offset = ($this->page - 1) * $this->limit;
 
-    $data = $this->ctx->db->getResults("SELECT * FROM `node__astat` ORDER BY `lid` DESC LIMIT {$offset}, {$this->limit}");
+    $data = $this->ctx->db->getResults("SELECT * FROM `node__astat` ORDER BY `id` DESC LIMIT {$offset}, {$this->limit}");
 
     return $data;
   }

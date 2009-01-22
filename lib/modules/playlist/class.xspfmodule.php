@@ -54,8 +54,4 @@ class XspfModule implements iRemoteCall, iModuleConfig
 
     return $form;
   }
-
-  public static function hookPostInstall()
-  {
-  }
 };
