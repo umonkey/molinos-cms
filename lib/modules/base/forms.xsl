@@ -92,7 +92,7 @@
         <xsl:for-each select="option">
           <label>
             <input type="radio" name="{../@name}" value="{@value}">
-              <xsl:if test="@checkd">
+              <xsl:if test="@checked">
                 <xsl:attribute name="checked">
                   <xsl:text>checked</xsl:text>
                 </xsl:attribute>
