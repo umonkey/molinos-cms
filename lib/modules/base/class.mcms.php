@@ -1221,12 +1221,22 @@ class mcms
 
   public static function dispatch_rpc($class, Context $ctx)
   {
-    $method = 'rpc_'. $ctx->get('action', 'default');
+    if ($ctx->method('post'))
+      $default = $ctx->post('action', $default);
 
-    if (method_exists($class, $method)) {
-      if (null === ($result = call_user_func(array($class, $method), $ctx)))
-        $result = $ctx->getRedirect();
-      return $result;
+    $action = $ctx->get('action', $default);
+
+    $call = array(
+      array($class, 'rpc_' . strtolower($ctx->method()) . '_' . $action),
+      array($class, 'rpc_' . $action),
+      );
+
+    foreach ($call as $args) {
+      if (method_exists($args[0], $args[1])) {
+        if (null === ($result = call_user_func(array($args[0], $args[1]), $ctx)))
+          $result = $ctx->getRedirect();
+        return $result;
+      }
     }
 
     return false;
