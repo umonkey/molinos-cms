@@ -408,6 +408,7 @@ class Context
       $url['args']['widget'] = $this->get('widget');
 
     $url['args']['q'] = $this->query();
+    $url['args']['destination'] = $this->get('destination');
 
     $ctx = new Context($this->_args);
     $ctx->_db = $this->_db;
