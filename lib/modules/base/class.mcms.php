@@ -1219,7 +1219,7 @@ class mcms
     return empty($link) ? null : $link;
   }
 
-  public static function dispatch_rpc($class, Context $ctx)
+  public static function dispatch_rpc($class, Context $ctx, $default = 'default')
   {
     if ($ctx->method('post'))
       $default = $ctx->post('action', $default);
