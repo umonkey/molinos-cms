@@ -35,6 +35,9 @@ print urlencode($_SERVER['REQUEST_URI']);
 <?php elseif ('register' == $mode): ?>
 <?php if (!empty($form)) print $form; ?>
 
+<?php elseif ('regwait' == $mode): ?>
+<p><?php print $message; ?></p>
+
 <?php elseif (!empty($form)): ?>
 <?php print $form; ?>
 

@@ -175,10 +175,29 @@ class UserWidget extends Widget implements iWidget
     }
 
     $node = Node::create('user');
+    $form = $node->formGet();
+
+    // Правим обратный адрес.
+    $next = new url($this->ctx->url());
+    $next->setarg($this->name . '.action', 'regwait');
+    $url = new url($form->action);
+    $url->setarg('destination', $this->ctx->get('destination', $next->string()));
+    $form->action = $url->string();
 
     return array(
       'mode' => 'register',
-      'form' => $node->formGet()->getHTML($node),
+      'form' => $form->getHTML($node),
+      );
+  }
+
+  /**
+   * Вывод сообщения об отправке мыла.
+   */
+  protected function onGetRegWait(array $options)
+  {
+    return array(
+      'mode' => $options['action'],
+      'message' => t('Инструкция по активации вашей учётной записи отправлена на введённый почтовый адрес.'),
       );
   }
 
