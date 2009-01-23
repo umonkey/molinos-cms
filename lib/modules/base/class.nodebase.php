@@ -80,7 +80,7 @@ class NodeBase
    *
    * @return void
    */
-  protected function checkUnique($field, $message = null, array $filter = array())
+  public function checkUnique($field, $message = null, array $filter = array())
   {
     $filter['class'] = $this->class;
     $filter[$field] = $this->$field;

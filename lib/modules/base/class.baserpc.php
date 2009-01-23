@@ -248,6 +248,7 @@ class BaseRPC implements iRemoteCall
 
     // Валидируем данные.
     $node = Node::create('user')->formProcess($ctx->post);
+    $node->checkUnique('name', t('Этот пользователь уже зарегистрирован.'));
 
     // Получаем почтовый адрес.
     $email = $node->getEmail();
