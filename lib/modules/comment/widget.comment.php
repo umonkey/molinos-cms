@@ -103,6 +103,9 @@ class CommentWidget extends Widget
     if (empty($options['mode']))
       $options['mode'] = 'list';
 
+    if ('linked' == $options['mode'])
+      $options['mode'] = 'list';
+
     switch ($options['mode']) {
     case 'list':
       switch ($this->startwith) {
