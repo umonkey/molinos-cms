@@ -36,7 +36,7 @@ class SectionControl extends EnumControl implements iFormControl
 
   protected function getSelected($data)
   {
-    if ($this->store or !($data instanceof Node))
+    if ($this->store or !($data instanceof Node) or $this->dictionary == 'widget')
       return array($data->{$this->value});
 
     $links = $data->linkListParents('tag', true);

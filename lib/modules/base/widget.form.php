@@ -255,18 +255,6 @@ class FormWidget extends Widget
       $form->addControl(new HiddenControl(array(
         'value' => 'referer',
         )));
-
-      /*
-      if (!empty($this->options['default'])) {
-        foreach (array_keys($this->options['default']) as $k) {
-          $tmp = $k;
-
-          $form->replaceControl($tmp, new HiddenControl(array(
-            'value' => $tmp,
-            )));
-        }
-      }
-      */
     }
 
     return $form;
@@ -287,6 +275,14 @@ class FormWidget extends Widget
         $data[$k] = $v;
 
     $node = Node::create($class, $data);
+
+    if (!($tid = $this->section_default))
+      $tid = $this->ctx->section->id;
+
+    foreach ($node->getFormFields() as $name => $info)
+      if ($info instanceof SectionControl)
+        if (!$node->$name)
+          $node->$name = $tid;
 
     return $node;
   }
