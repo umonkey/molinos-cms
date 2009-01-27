@@ -8,12 +8,12 @@ function fix_sqlite(array $url)
 
   $row = $pdo->fetch("SELECT * FROM node__rev LIMIT 1");
   if (!array_key_exists('data_enc', $row)) {
-    printf("Adding node__rev.data_enc to %s\n", $url);
+    printf("Adding node__rev.data_enc to %s\n", $url['path']);
     $pdo->exec("ALTER TABLE node__rev ADD COLUMN data_enc MEDIUMBLOB");
   }
 
   $sth1 = $pdo->prepare("SELECT rid, data FROM node__rev");
-  $sth2 = $pdo->prepare("UPDATE node__rev SET data_enc = ? WHERE rid = ?");
+  $sth2 = $pdo->prepare("UPDATE node__rev SET data = NULL, data_enc = ? WHERE rid = ?");
 
   $sth1->execute();
 
