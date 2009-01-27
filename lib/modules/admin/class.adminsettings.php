@@ -7,11 +7,19 @@ class AdminSettings implements iModuleConfig
     $form = new Form(array());
 
     $form->addControl(new NodeLinkControl(array(
-      'value' => 'config_admin',
-      'label' => t('Администратор сервера'),
-      'dictionary' => 'user',
-      'required' => true,
-      'description' => t('Выберите пользователя, который занимается администрированием этого сайта. На его почтовый адрес будут приходить сообщения о состоянии системы.'),
+      'value' => 'config_admin_group',
+      'label' => t('Административная группа'),
+      'dictionary' => 'group',
+      'description' => t('Пользователи из выбранной группы будут иметь доступ к настройке системы.'),
+      'default_label' => t('(дать доступ всем)'),
+      )));
+
+    $form->addControl(new NodeLinkControl(array(
+      'value' => 'config_user_group',
+      'label' => t('Доступ к админке'),
+      'dictionary' => 'group',
+      'description' => t('Пользователи из выбранной группы смогут пользоваться административным интерфейсом.'),
+      'default_label' => t('(разрешить всем пользователям)'),
       )));
 
     $form->addControl(new ListControl(array(

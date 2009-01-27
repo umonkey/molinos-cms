@@ -1300,6 +1300,19 @@ class mcms
 
     return $output;
   }
+
+  /**
+   * Возвращает true, если текущий пользователь входит в административную группу.
+   */
+  public static function isAdmin()
+  {
+    $gid = mcms::modconf('admin', 'admin_group');
+
+    if (empty($gid))
+      return true;
+
+    return mcms::user()->hasGroups(array($gid));
+  }
 };
 
 set_exception_handler('mcms::fatal');

@@ -4,6 +4,9 @@ class ModManUI implements iAdminUI
 {
   public static function onGet(Context $ctx)
   {
+    if (!mcms::isAdmin())
+      throw new ForbiddenException();
+
     $method = 'aui_' . $ctx->get('mode', 'settings');
 
     if (method_exists(__CLASS__, $method))

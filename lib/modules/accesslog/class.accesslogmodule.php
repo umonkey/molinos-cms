@@ -130,7 +130,7 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
 
   private function isGlobal()
   {
-    return mcms::user()->hasAccess('u', 'moduleinfo');
+    return mcms::isAdmin();
   }
 
   private function getFilter(array &$params)

@@ -6,23 +6,25 @@ class ModManMenu implements iAdminMenu
   {
     $icons = array();
 
-    if ($message = self::getMessage())
+    if (mcms::isAdmin()) {
+      if ($message = self::getMessage())
+        $icons[] = array(
+          'group' => 'status',
+          'message' => $message,
+          );
+
       $icons[] = array(
-        'group' => 'status',
-        'message' => $message,
+        'group' => 'system',
+        'href' => '?q=admin&cgroup=system&module=modman&mode=settings',
+        'title' => t('Настройки'),
         );
 
-    $icons[] = array(
-      'group' => 'system',
-      'href' => '?q=admin&cgroup=system&module=modman&mode=settings',
-      'title' => t('Настройки'),
-      );
-
-    $icons[] = array(
-      'group' => 'system',
-      'href' => '?q=admin&cgroup=system&module=modman&mode=addremove',
-      'title' => t('Модули'),
-      );
+      $icons[] = array(
+        'group' => 'system',
+        'href' => '?q=admin&cgroup=system&module=modman&mode=addremove',
+        'title' => t('Модули'),
+        );
+    }
 
     return $icons;
   }

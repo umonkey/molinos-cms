@@ -5,6 +5,8 @@ class ModManRPC implements iRemoteCall
 {
   public static function hookRemoteCall(Context $ctx)
   {
+    if (!mcms::isAdmin())
+      throw new ForbiddenException();
     return mcms::dispatch_rpc(__CLASS__, $ctx);
   }
 
@@ -51,8 +53,6 @@ class ModManRPC implements iRemoteCall
   public static function rpc_configure(Context $ctx)
   {
     $conf = array();
-
-    mcms::user()->checkAccess('u', 'moduleinfo');
 
     foreach ($ctx->post as $k => $v) {
       if (substr($k, 0, 7) == 'config_' and !empty($v)) {

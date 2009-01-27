@@ -6,11 +6,13 @@ class BackupMenu implements iAdminMenu
   {
     $icons = array();
 
-    $icons[] = array(
-      'group' => 'system',
-      'href' => '?q=admin&cgroup=system&module=backup',
-      'title' => t('Архив сайта'),
-      );
+    if (mcms::isAdmin()) {
+      $icons[] = array(
+        'group' => 'system',
+        'href' => '?q=admin&cgroup=system&module=backup',
+        'title' => t('Архив сайта'),
+        );
+    }
 
     return $icons;
   }

@@ -26,14 +26,15 @@ class SysLogModule implements iAdminUI, iAdminMenu
   public static function getMenuIcons()
   {
     $icons = array();
-    $user = mcms::user();
 
-    $icons[] = array(
-      'group' => 'statistics',
-      'href' => '?q=admin&module=syslog&mode=list&cgroup=statistics',
-      'title' => t('Журнал событий'),
-      'description' => t('Кто, что, когда и с чем делал.'),
-    );
+    if (mcms::isAdmin()) {
+      $icons[] = array(
+        'group' => 'statistics',
+        'href' => '?q=admin&module=syslog&mode=list&cgroup=statistics',
+        'title' => t('Журнал событий'),
+        'description' => t('Кто, что, когда и с чем делал.'),
+      );
+    }
 
     return $icons;
   }

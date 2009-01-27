@@ -93,7 +93,7 @@ class AdminMenu implements iAdminMenu
     if (!empty($_GET['nocache']))
       return null;
 
-    $key = 'adminmenu:'. $this->getCurrentGroup();
+    $key = 'adminmenu:' . mcms::user()->id . ':' . $this->getCurrentGroup();
 
     if (!empty($_GET['__cleanurls']))
       $key .= ':cleanurls';
