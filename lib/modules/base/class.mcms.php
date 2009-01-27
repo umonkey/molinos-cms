@@ -1052,6 +1052,13 @@ class mcms
     }
     
     catch (UserErrorException $e) {
+      if (404 == $e->getCode()) {
+        $row = $ctx->db->getResult("SELECT * FROM node__fallback WHERE old = ?", array($ctx->query()));
+        if (!empty($row['new'])) {
+          $ctx->redirect($row['new']);
+        }
+      }
+
       if ($ctx->debug('errors') or empty($_SERVER['REQUEST_METHOD']))
         mcms::fatal($e);
 
