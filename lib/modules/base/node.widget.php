@@ -17,7 +17,6 @@
  */
 class WidgetNode extends Node implements iContentType
 {
-  // Проверяем на уникальность.
   /**
    * Сохранение виджета.
    *
@@ -72,10 +71,12 @@ class WidgetNode extends Node implements iContentType
     foreach ((array)$this->config as $k => $v)
       $this->{'config_' . $k} = $v;
 
-    $form->addControl(new HiddenControl(array(
-      'value' => 'from',
-      'default' => $_SERVER['REQUEST_URI'],
-      )));
+    $tmp = Context::last()->get('node');
+    if (empty($tmp['classname']))
+      $form->addControl(new HiddenControl(array(
+        'value' => 'from',
+        'default' => $_SERVER['REQUEST_URI'],
+        )));
 
     return $form;
   }
@@ -253,5 +254,13 @@ class WidgetNode extends Node implements iContentType
     return $this->id
       ? parent::getFormSubmitText()
       : t('Продолжить');
+  }
+
+  public function getXML($em = 'node', $_content = null)
+  {
+    foreach ($info = Widget::getInfo($this->classname) as $k => $v)
+      $this->data['_widget_' . $k] = $v;
+
+    return parent::getXML($em, $_content);
   }
 };

@@ -30,6 +30,7 @@ class LinkedNodesWidget extends Widget
     return array(
       'name' => 'Связанные документы',
       'description' => 'Выводит список документов, привязанных к текущему.',
+      'docurl' => 'http://code.google.com/p/molinos-cms/wiki/LinkedNodesWidget',
       );
   }
 

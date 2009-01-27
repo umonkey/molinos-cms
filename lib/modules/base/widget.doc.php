@@ -36,6 +36,7 @@ class DocWidget extends Widget implements iWidget
     return array(
       'name' => 'Отдельный документ',
       'description' => 'Выводит запрошенный пользователем документ.',
+      'docurl' => 'http://code.google.com/p/molinos-cms/wiki/DocWidget',
       );
   }
 

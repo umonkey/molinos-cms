@@ -231,8 +231,19 @@
             <xsl:value-of select="@title" />
           </td>
           <td class="field-classname">
-            <a href="http://code.google.com/p/molinos-cms/wiki/{@classname}">
-              <xsl:value-of select="@classname" />
+            <a>
+              <xsl:attribute name="href">
+                <xsl:choose>
+                  <xsl:when test="@_widget_docurl">
+                    <xsl:value-of select="@_widget_docurl" />
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:text>http://code.google.com/p/molinos-cms/w/list?q=</xsl:text>
+                    <xsl:value-of select="@classname" />
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:attribute>
+              <xsl:value-of select="@_widget_name" />
             </a>
           </td>
         </tr>

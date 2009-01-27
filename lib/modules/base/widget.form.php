@@ -10,6 +10,7 @@ class FormWidget extends Widget
     return array(
       'name' => 'Форма для создания документа',
       'description' => 'Выводит форму для создания документа.',
+      'docurl' => 'http://code.google.com/p/molinos-cms/wiki/FormWidget',
       );
   }
 

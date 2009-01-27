@@ -10,6 +10,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
     return array(
       'name' => t('Голосование'),
       'description' => t('Выводит и обрабатывает форму для опроса пользователей.'),
+      'docurl' => 'http://code.google.com/p/molinos-cms/wiki/PollWidget',
       );
   }
 

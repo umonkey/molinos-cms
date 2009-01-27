@@ -33,6 +33,7 @@ class ListWidget extends Widget
     return array(
       'name' => 'Список документов',
       'description' => 'Позволяет выбирать документы из разделов и сортировать их.',
+      'docurl' => 'http://code.google.com/p/molinos-cms/wiki/ListWidget',
       );
   }
 

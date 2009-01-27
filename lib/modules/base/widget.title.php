@@ -35,6 +35,7 @@ class TitleWidget extends Widget
     return array(
       'name' => 'Названия разделов',
       'description' => 'Выводит названия раздела и документа, указанного в адресной строке.',
+      'docurl' => 'http://code.google.com/p/molinos-cms/wiki/TitleWidget',
       );
   }
 

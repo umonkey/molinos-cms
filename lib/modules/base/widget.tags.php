@@ -30,6 +30,7 @@ class TagsWidget extends Widget implements iWidget
     return array(
       'name' => 'Список разделов',
       'description' => 'Выводит список разделов и подразделов в виде дерева.',
+      'docurl' => 'http://code.google.com/p/molinos-cms/wiki/TagsWidget',
       );
   }
 

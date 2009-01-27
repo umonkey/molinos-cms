@@ -8,6 +8,7 @@ class SubscriptionWidget extends Widget
     return array(
       'name' => 'Управление подпиской',
       'description' => 'Позволяет пользователям подписываться на новости.',
+      'docurl' => 'http://code.google.com/p/molinos-cms/wiki/SubscriptionWidget',
       );
   }
 

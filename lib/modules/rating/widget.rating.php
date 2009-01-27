@@ -8,6 +8,7 @@ class RatingWidget extends Widget
     return array(
       'name' => t('Оценка документов'),
       'description' => t('Выводит и обрабатывает форму голосования за документы.'),
+      'docurl' => 'http://code.google.com/p/molinos-cms/wiki/RatingWidget',
       );
   }
 

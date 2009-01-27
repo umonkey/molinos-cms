@@ -56,6 +56,7 @@ class CommentWidget extends Widget
     return array(
       'name' => 'Комментарии (просмотр)',
       'description' => 'Позволяет пользователям читать комментарии.',
+      'docurl' => 'http://code.google.com/p/molinos-cms/wiki/CommentWidget',
       );
   }
 

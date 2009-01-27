@@ -8,6 +8,7 @@ class BlogWidget extends Widget
     return array(
       'name' => 'Блоги',
       'description' => 'Используется для отображения сводной ленты блогов и отдельных лент пользователей.',
+      'docurl' => 'http://code.google.com/p/molinos-cms/wiki/BlogWidget',
       );
   }
 

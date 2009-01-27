@@ -8,6 +8,7 @@ class CartWidget extends Widget
     return array(
       'name' => 'Корзина для покупок',
       'description' => 'Позволяет пользователю добавлять товар в корзину.',
+      'docurl' => 'http://code.google.com/p/molinos-cms/wiki/CartWidget',
       );
   }
 
