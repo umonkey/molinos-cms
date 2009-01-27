@@ -198,4 +198,11 @@ class UserNode extends Node implements iContentType
 
     return parent::getFormAction();
   }
+
+  public function checkPermission($perm)
+  {
+    if ($this->id == mcms::user()->id)
+      return true;
+    return parent::checkPermission($perm);
+  }
 };
