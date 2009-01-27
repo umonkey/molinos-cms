@@ -97,7 +97,7 @@
                   <xsl:text>checked</xsl:text>
                 </xsl:attribute>
               </xsl:if>
-              <xsl:value-of select="@text" />
+              <xsl:value-of select="@text" disable-output-escaping="yes" />
             </input>
           </label>
         </xsl:for-each>

@@ -34,8 +34,11 @@ class HiddenControl extends Control
 
   public function getXML($data)
   {
+    if (null === ($value = $data->{$this->value}))
+      $value = $this->default;
+
     return parent::wrapXML(array(
-      'value' => $data->{$this->value},
+      'value' => $value,
       ));
   }
 };

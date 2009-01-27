@@ -72,6 +72,11 @@ class WidgetNode extends Node implements iContentType
     foreach ((array)$this->config as $k => $v)
       $this->{'config_' . $k} = $v;
 
+    $form->addControl(new HiddenControl(array(
+      'value' => 'from',
+      'default' => $_SERVER['REQUEST_URI'],
+      )));
+
     return $form;
   }
 
@@ -95,7 +100,7 @@ class WidgetNode extends Node implements iContentType
    */
   public function formProcess(array $data)
   {
-    $isnew = (null === $this->id);
+    $isnew = $this->isNew();
 
     // Шаг 1: выбор типа.
     if ($isnew and !empty($data['from']) and !empty($data['classname'])) {
