@@ -231,7 +231,12 @@ function bebop_selected_action(action)
   if (!$('.nodelist :checked').size()) {
     alert('Документы не выбраны.');
   } else {
-    $('.action_select option[value="'+ action +'"]').attr('selected', 'selected');
-    $('form#nodelist-form').submit();
+    var sel = '.action_select option[value="'+ action +'"]';
+    if ($(sel).length == 0) {
+      alert('Oops. Это действие недоступно, что-то где-то сломалось в шаблоне административной шкуры.');
+    } else {
+      $(sel).attr('selected', 'selected');
+      $('form#nodelist-form').submit();
+    }
   }
 }

@@ -73,7 +73,7 @@ class ModeratorModule implements iModuleConfig, iNodeHook
       return;
 
     // Пользователь сам себе публикатор.
-    if (mcms::user()->hasAccess('p', $node->class))
+    if ($node->checkPermission('p'))
       return;
 
     switch ($op) {

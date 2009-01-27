@@ -535,7 +535,12 @@ class NodeBase
       $this->data['published'] = true;
 
       if (isset($this->id)) {
-        mcms::db()->exec("UPDATE `node` SET `published` = 1, `rid` = :rid WHERE `id` = :id", array(':rid' => $rev ? $rev : $this->rid, ':id' => $this->id));
+        mcms::db()->exec("UPDATE `node` SET `published` = 1, `rid` = :rid WHERE `id` = :id", $params = array(
+          ':rid' => $rev
+            ? $rev
+            : $this->rid,
+          ':id' => $this->id,
+          ));
 
         // Даём другим модулям возможность обработать событие (например, mod_moderator).
         mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'publish'));

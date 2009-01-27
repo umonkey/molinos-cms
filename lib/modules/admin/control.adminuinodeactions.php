@@ -128,6 +128,7 @@ class AdminUINodeActionsControl extends Control
   {
     $actions = array_flip($this->actions);
 
+    /*
     $user = mcms::user();
 
     if (!count($user->getAccess('u'))) {
@@ -136,6 +137,7 @@ class AdminUINodeActionsControl extends Control
       if (array_key_exists('unpublish', $actions))
         unset($actions['unpublish']);
     }
+    */
 
     return array_flip($actions);
   }
