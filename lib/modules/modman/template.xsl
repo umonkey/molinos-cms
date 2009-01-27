@@ -86,13 +86,15 @@
 
       <xsl:if test="../@mode = 'addremove'">
         <td>
-          <input type="checkbox" name="modules[]" value="{@id}" id="check-{@id}">
-            <xsl:if test="@installed">
-              <xsl:attribute name="checked">
-                <xsl:text>checked</xsl:text>
-              </xsl:attribute>
-            </xsl:if>
-          </input>
+          <xsl:if test="@url">
+            <input type="checkbox" name="modules[]" value="{@id}" id="check-{@id}">
+              <xsl:if test="@installed">
+                <xsl:attribute name="checked">
+                  <xsl:text>checked</xsl:text>
+                </xsl:attribute>
+              </xsl:if>
+            </input>
+          </xsl:if>
         </td>
       </xsl:if>
 
