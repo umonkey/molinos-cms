@@ -268,7 +268,27 @@ class TypeNode extends Node implements iContentType
     if (null === ($name = $this->name))
       $name = 'type';
 
-    $schema = Schema::load($name);
+    // Для новых типов свой набор полей.
+    if ($this->isNew())
+      $schema = new Schema(array(
+        'name' => array(
+          'type' => 'TextLineControl',
+          'label' => t('Заголовок'),
+          'required' => true,
+          ),
+        'text' => array(
+          'type' => 'TextAreaControl',
+          'label' => t('Текст'),
+          'required' => true,
+          ),
+        'section' => array(
+          'type' => 'SectionControl',
+          'label' => t('Поместить в раздел'),
+          'required' => true,
+          ),
+        ));
+    else
+      $schema = Schema::load($name);
 
     foreach ($schema as $name => $field) {
       if (!$field->volatile)
