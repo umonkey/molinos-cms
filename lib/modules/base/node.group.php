@@ -92,4 +92,9 @@ class GroupNode extends Node implements iContentType
         ),
       );
   }
+
+  public function twoStepCreation()
+  {
+    return true;
+  }
 }

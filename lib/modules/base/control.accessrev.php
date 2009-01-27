@@ -39,6 +39,9 @@ class AccessRevControl extends Control
 
   public function getHTML($data)
   {
+    if (($data instanceof Node) and !$data->id)
+      return;
+
     $table = $this->getData($data);
     $columns = $this->getColumns();
 

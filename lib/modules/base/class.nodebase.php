@@ -2223,4 +2223,9 @@ class NodeBase
   {
     return empty($this->olddata['id']);
   }
+
+  public function twoStepCreation()
+  {
+    return false;
+  }
 };

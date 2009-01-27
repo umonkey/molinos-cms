@@ -185,10 +185,18 @@ class NodeApiModule implements iRemoteCall
         ));
 
       $node->formProcess($ctx->post)->save();
-
       $next = $ctx->post('destination', $ctx->get('destination', ''));
 
-      return new Redirect(self::fixredir($next, $node));
+      if ($node->twoStepCreation()) {
+        $u = new url(array());
+        $u->setarg('destination', $next);
+        $u->setarg('q', 'admin/content/edit/' . $node->id);
+        $next = $u->string();
+      } else {
+        $next = self::fixredir($next, $node);
+      }
+
+      return new Redirect($next);
 
     case 'edit':
       if (!$ctx->method('post'))

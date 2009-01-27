@@ -117,8 +117,11 @@ class AdminListHandler
     }
 
     elseif (0 == $this->getCount()) {
+      $cgroup = empty($_GET['cgroup'])
+        ? 'content'
+        : $_GET['cgroup'];
       if (count($this->types) == 1)
-        $output .= html::em('p', t('Нет документов для отображения в этом списке, <a href=\'@addurl\'>приступить к добавлению</a>?', array('@addurl' => "?q=admin&cgroup={$_GET['cgroup']}&mode=create&type={$this->types[0]}&destination=CURRENT")));
+        $output .= html::em('p', t('Нет документов для отображения в этом списке, <a href=\'@addurl\'>приступить к добавлению</a>?', array('@addurl' => "?q=admin&cgroup={$cgroup}&mode=create&type={$this->types[0]}&destination=CURRENT")));
       else
         $output .= html::em('p', t('Нет документов для отображения в этом списке.'));
     }
