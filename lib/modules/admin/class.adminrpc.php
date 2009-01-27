@@ -5,8 +5,9 @@ class AdminRPC implements iRemoteCall
 {
   public static function hookRemoteCall(Context $ctx)
   {
-    if ($gid = mcms::modconf('admin', 'user_group') and !mcms::user()->hasGroups(array($gid)))
-      throw new ForbiddenException();
+    if (mcms::user()->id)
+      if ($gid = mcms::modconf('admin', 'user_group') and !mcms::user()->hasGroups(array($gid)))
+        throw new ForbiddenException();
 
     $action = $ctx->get('action');
 
