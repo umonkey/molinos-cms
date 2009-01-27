@@ -120,6 +120,13 @@ class SetControl extends Control
     else
       $options = $this->options;
 
+    // При выводе дерева доменов прячим алиасы.
+    if ('domain' == $this->dictionary) {
+      foreach (Node::find(array('class' => 'domain')) as $dom)
+        if (!empty($dom->redirect) and array_key_exists($dom->id, $options))
+          unset($options[$dom->id]);
+    }
+
     return $options;
   }
 
