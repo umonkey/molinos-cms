@@ -73,12 +73,14 @@ class GroupNode extends Node implements iContentType
         'label' => t('В группу входят'),
         'dictionary' => 'user',
         'group' => t('Участники'),
+        'volatile' => true,
         ),
       'typerms' => array(
         'type' => 'AccessRevControl',
         'group' => t('Доступ'),
         'label' => t('Доступ к типам документов'),
         'dictionary' => 'type',
+        'volatile' => true,
         ),
       'tagperms' => array(
         'type' => 'AccessRevControl',
@@ -86,6 +88,7 @@ class GroupNode extends Node implements iContentType
         'label' => t('Доступ к разделам'),
         'dictionary' => 'tag',
         'columns' => array('c'),
+        'volatile' => true,
         ),
       );
   }
