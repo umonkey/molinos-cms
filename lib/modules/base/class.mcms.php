@@ -244,7 +244,7 @@ class mcms
     $res = false;
 
     foreach (Loader::getImplementors($interface, $module) as $class) {
-      if (class_exists($class))
+      if (class_exists($class) and method_exists($class, $method))
         $res = call_user_func_array(array($class, $method), $args);
     }
 
