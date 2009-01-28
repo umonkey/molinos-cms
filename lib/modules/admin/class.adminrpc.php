@@ -196,7 +196,7 @@ class AdminRPC implements iRemoteCall
 
       if ($ctx->get('dictionary')) {
         if (null !== ($tmp = $form->findControl('tab_general')))
-          $tmp->intro = t('Вы создаёте первый справочник.  Вы сможете использовать его значения в качестве выпадающих списков (для этого надо будет добавить соответствующее поле в нужный <a href=\'@types\'>тип документа</a>).', array('@types' => 'admin/?cgroup=structure&mode=list&preset=schema'));
+          $tmp->intro = t('Вы создаёте первый справочник.  Вы сможете использовать его значения в качестве выпадающих списков (для этого надо будет добавить соответствующее поле в нужный <a href=\'@types\'>тип документа</a>).', array('@types' => '?q=admin&cgroup=structure&mode=list&preset=schema'));
 
         $form->hideControl('tab_sections');
         $form->hideControl('tab_widgets');
@@ -233,7 +233,7 @@ class AdminRPC implements iRemoteCall
     }
 
     if (1 == count($names))
-      $ctx->redirect("?q=admin/content/create&type={$names[0]}&destination="
+      $ctx->redirect("?q=admin.rpc&cgroup=content&action=create&type={$names[0]}&destination="
         . urlencode($ctx->get('destination')));
 
     $output = html::em('typechooser', array(
