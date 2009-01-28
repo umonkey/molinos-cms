@@ -132,7 +132,7 @@ class AccessControl extends Control
           ? $rows[$id]
           : array();
 
-        $row['id'] = $id;
+        $row['id'] = $id ? $id : 'all';
         $row['label'] = $name;
 
         $result[] = $row;
@@ -203,6 +203,9 @@ class AccessControl extends Control
     $sth = mcms::db()->prepare("INSERT INTO node__access (uid, nid, c, r, u, d, p) SELECT :uid, id, :c, :r, :u, :d, :p FROM node WHERE id IN (" . join(", ", $ids) . ")");
 
     foreach ($value as $uid => $row) {
+      if ('all' == $uid)
+        $uid = 0;
+
       $params = array(
         ':uid' => intval($uid),
         );
