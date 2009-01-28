@@ -280,13 +280,13 @@ abstract class Widget implements iWidget
       }
 
       if (null === ($data = $this->onGet($options)))
-        $result = "<!-- widget {$this->name} halted. -->";
-      elseif (!is_string($data))
+        $result = "<!-- widget {$this->name} had nothing to say. -->";
+      elseif (!is_string($data)) {
         throw new RuntimeException(t('Виджет %name (%class) вернул мусор вместо XML.', array(
           '%name' => $this->name,
           '%class' => get_class($this),
           )));
-      else {
+      } else {
         // TODO: добавить заголовок виджета
         $result = html::em('widget', array(
           'name' => $this->name,
@@ -410,7 +410,7 @@ abstract class Widget implements iWidget
         'value' => 'destination',
         )));
 
-    $html = $form->getHTML($data);
+    $html = $form->getXML($data);
 
     if (!empty($html) and null !== $id) {
       $html = html::em('div', array(
