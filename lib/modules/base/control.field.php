@@ -34,12 +34,22 @@ class FieldControl extends Control
 
   public function getXML($data)
   {
+    if (!($data instanceof TypeNode))
+      return null;
+
     $output = $this->getTypes();
     $output .= $this->getDictionaries();
 
-    if (is_array($data->{$this->value}))
-      foreach ($data->{$this->value} as $k => $v)
-        $output .= html::em('field', array('name' => $k) + $v);
+    if (!is_array($schema = $data->{$this->value})) {
+      $schema = array();
+      foreach (Node::create($data->name)->getFormFields() as $k => $v) {
+        $schema[$k] = $v->dump();
+        $schema[$k]['type'] = strtolower(get_class($v));
+      }
+    }
+
+    foreach ($schema as $k => $v)
+      $output .= html::em('field', array('name' => $k) + $v);
 
     for ($idx = 1; $idx <= 5; $idx++) {
       $output .= html::em('field', array(
