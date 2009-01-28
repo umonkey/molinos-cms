@@ -21,16 +21,18 @@ class XMLRouter implements iRequestRouter
     }
 
     // Находим страницу в структуре.
-    if (false === ($data = Structure::getInstance()->findPage($ctx->host(), $ctx->query)))
+    if (false === ($data = Structure::getInstance()->findPage($ctx->host(), $ctx->query())))
       throw new PageNotFoundException();
 
     mcms::invoke('iRequestHook', 'hookRequest', array($ctx));
 
     // Устанавливаем распарсенные коды раздела и документа.
     if (!empty($data['args']['sec']))
-      $ctx->section = $data['args']['sec'];
+      if (!isset($ctx->section))
+        $ctx->section = $data['args']['sec'];
     if (!empty($data['args']['doc']))
-      $ctx->document = $data['args']['doc'];
+      if (!isset($ctx->document))
+        $ctx->document = $data['args']['doc'];
 
     if (!empty($data['page']['defaultsection']) and !isset($ctx->root))
       $ctx->root = $data['page']['defaultsection'];
