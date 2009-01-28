@@ -90,10 +90,10 @@ class CommentFormWidget extends Widget
 
   public function onGet(array $options)
   {
-    return array(
-      'doc' => $this->ctx->document->getRaw(),
-      'html' => parent::formRender('comment-new'),
-      );
+    $form = $this->getNewForm();
+    $form->captcha = true;
+
+    return $form->getXML(Control::data(array()));
   }
 
   protected function getNewForm($strip = true)
@@ -111,7 +111,7 @@ class CommentFormWidget extends Widget
       else
         $skip = $this->hide_anon;
 
-      foreach ($skip as $k)
+      foreach ((array)$skip as $k)
         $form->replaceControl($k, null);
     }
 
