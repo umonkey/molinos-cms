@@ -161,7 +161,10 @@ class DocWidget extends Widget implements iWidget
       if (!$node->checkPermission('r'))
         throw new ForbiddenException(t('У вас нет доступа к этому документу.'));
 
-      $result['document'] = $node->getRaw();
+      // Форматирование полек документа.
+      $result['schema'] = $node->getSchema();
+      $result['document'] = $node->format();
+
       $result['document']['_links'] = $node->getActionLinks();
 
       $sections = array();
@@ -172,8 +175,6 @@ class DocWidget extends Widget implements iWidget
           $result['tags'][] = $tag->getRaw();
         }
       }
-
-      $result['schema'] = $node->getSchema();
 
       if ($this->showneighbors and $this->ctx->section->id and in_array($this->ctx->section->id, $sections)) {
         if (null !== ($n = $node->getNeighbors($this->ctx->section->id))) {

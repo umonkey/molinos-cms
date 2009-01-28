@@ -315,7 +315,7 @@ class ListWidget extends Widget
 
     // Формируем список документов.
     foreach ($nodes = Node::find($filter, $options['limit'], $options['offset']) as $node) {
-      $result['documents'][] = $node->getRaw();
+      $result['documents'][] = $node->format();
       $result['keys'][] = $node->id;
 
       if (!array_key_exists($node->class, $result['schema']))

@@ -375,6 +375,14 @@ abstract class Control implements iFormControl
 
     return $result;
   }
+
+  /**
+   * Форматирование значения.
+   */
+  public function format($value)
+  {
+    return $value;
+  }
 };
 
 class ControlData

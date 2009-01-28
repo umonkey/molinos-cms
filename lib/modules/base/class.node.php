@@ -235,4 +235,20 @@ class Node extends NodeBase implements iContentType
 
     return $img;
   }
+
+  /**
+   * Возвращает массив с отформатированными полями документа.
+   */
+  public function format()
+  {
+    $result = array();
+    $schema = $this->getSchema();
+
+    foreach ($this->getRaw() as $k => $v)
+      $result[$k] = isset($schema[$k])
+        ? $schema[$k]->format($v)
+        : $v;
+
+    return $result;
+  }
 };
