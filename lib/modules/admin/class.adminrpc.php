@@ -8,6 +8,10 @@ class AdminRPC implements iRemoteCall
    */
   public static function hookRemoteCall(Context $ctx)
   {
+    // Быстрый и грязный хак для добавления TinyMCE.
+    if (class_exists('TinyMceModule'))
+      TinyMceModule::add_extras($ctx);
+
     try {
       if (!mcms::user()->id)
         throw new UnauthorizedException();
