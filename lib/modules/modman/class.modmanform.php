@@ -37,6 +37,10 @@ class ModmanForm implements iAdminForm
       throw new PageNotFoundException();
 
     $form = mcms::invoke_module($name, 'iModuleConfig', 'formGetModuleConfig');
+    if (!($form instanceof iFormControl))
+      throw new RuntimeException(t('Модуль %name не поддерживает настройку. Скорее всего, в него совсем недавно были внесены изменения, ручная "перезагрузка" системы поможет.', array(
+        '%name' => $name,
+        )));
 
     $data = array();
 
