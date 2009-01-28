@@ -68,7 +68,7 @@ class TinyMceModule implements iPageHook
     return $output;
   }
 
-  public static function add_extras()
+  public static function add_extras(Context $ctx)
   {
     $config = mcms::modconf('tinymce');
 
@@ -78,12 +78,11 @@ class TinyMceModule implements iPageHook
     $text = 'script:tinyMCE_initializer = {'
       . $config['initializer']
       . ' };';
-    mcms::extras($text);
 
     if (empty($config['gzip']))
-      mcms::extras('lib/modules/tinymce/editor/tiny_mce.js', false);
+      $ctx->addExtra('script', 'lib/modules/tinymce/editor/tiny_mce.js');
     else
-      mcms::extras('lib/modules/tinymce/editor/tiny_mce_gzip.js', false);
+      $ctx->addExtra('script', 'lib/modules/tinymce/editor/tiny_mce_gzip.js');
 
     if (empty($config['theme']))
       $config['theme'] = 'simple';
@@ -94,9 +93,9 @@ class TinyMceModule implements iPageHook
     case 'advanced':
     case 'overkill':
       if (!empty($config['gzip']))
-        mcms::extras('lib/modules/tinymce/editor/template_'.
+        $ctx->addExtra('script', 'lib/modules/tinymce/editor/template_'.
           $config['theme'] .'_gzip.js');
-      mcms::extras('lib/modules/tinymce/editor/template_'.
+      $ctx->addExtra('script', 'lib/modules/tinymce/editor/template_'.
         $config['theme'] .'.js');
       break;
     default:

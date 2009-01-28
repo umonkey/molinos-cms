@@ -40,7 +40,7 @@ class TextHTMLControl extends Control
       $content = htmlspecialchars($content);
 
     if (class_exists('TinyMceModule'))
-      TinyMceModule::add_extras();
+      TinyMceModule::add_extras(Context::last());
 
     $this->addClass('form-text');
     $this->addClass('visualEditor');
