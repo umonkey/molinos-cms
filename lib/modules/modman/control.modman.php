@@ -63,6 +63,9 @@ class ModManControl extends Control
         case 'settings':
           $value = $this->getSettingsCell($name, $meta);
           break;
+        case 'download':
+          $value = $this->getDownloadCell($name, $meta);
+          break;
         default:
           $value = null;
         }
@@ -79,6 +82,9 @@ class ModManControl extends Control
       if (!empty($meta['section']))
         $class[] = 'section-' . $meta['section'];
 
+      if (empty($meta['url']))
+        $class[] = 'section-custom';
+
       $output .= html::em('tr', array(
         'class' => $class,
         ), $row);
@@ -89,6 +95,9 @@ class ModManControl extends Control
 
   private function getCheckCell($name, array $meta)
   {
+    if (empty($meta['url']))
+      return null;
+
     return html::em('input', array(
       'type' => 'checkbox',
       'name' => $this->value . '[]',
@@ -145,5 +154,19 @@ class ModManControl extends Control
       ));
 
     return l("?q=admin&cgroup=system&module=modman&mode=config&name={$name}&destination=CURRENT", $img);
+  }
+
+  private function getDownloadCell($name, array $meta)
+  {
+    if (empty($meta['url']))
+      return null;
+
+    $img = html::em('img', array(
+      'src' => 'themes/admin/img/icon-download.png',
+      ));
+
+    return l($meta['url'], $img, array(
+      'title' => $meta['filename'],
+      ));
   }
 }

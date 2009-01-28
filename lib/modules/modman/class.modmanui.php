@@ -130,6 +130,7 @@ class ModManUI implements iAdminUI
           'check',
           'name',
           'version',
+          'download',
           ),
         ),
       'submit' => array(
@@ -149,6 +150,8 @@ class ModManUI implements iAdminUI
       modman::updateDB();
       $modules = modman::getAllModules();
     }
+
+    ksort($modules);
 
     return $form->getHTML(Control::data(array(
       'modules' => $modules,
