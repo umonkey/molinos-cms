@@ -2228,6 +2228,6 @@ class NodeBase
 
   public function canEditFields()
   {
-    return false;
+    return true;
   }
 };
