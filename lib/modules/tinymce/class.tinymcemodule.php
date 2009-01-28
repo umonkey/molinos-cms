@@ -11,6 +11,7 @@ class TinyMceModule implements iModuleConfig, iPageHook
     $tab = new FieldSetControl(array(
       'name' => 'main',
       'label' => t('Основные настройки'),
+      'class' => 'tabable',
       ));
     $tab->addControl(new EnumControl(array(
       'value' => 'config_theme',
@@ -57,6 +58,7 @@ class TinyMceModule implements iModuleConfig, iPageHook
     $tab = new FieldSetControl(array(
       'name' => 'pages',
       'label' => t('Страницы'),
+      'class' => 'tabable',
       ));
     $tab->addControl(new InfoControl(array(
       'text' => t('Этот модуль всегда используется в административном интерфейсе, отключить его нельзя.'),
