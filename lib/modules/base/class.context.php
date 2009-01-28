@@ -452,6 +452,11 @@ class Context
     if (!array_key_exists('extras', $this->_args))
       $this->_args['extras'] = array();
 
+    // Поиск дублей.
+    foreach ($this->_args['extras'] as $item)
+      if ($item[0] == $type and $item[1] == $id)
+        return;
+
     $this->_args['extras'][] = array($type, $id);
   }
 
