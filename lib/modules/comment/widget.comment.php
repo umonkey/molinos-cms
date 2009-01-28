@@ -181,14 +181,21 @@ class CommentWidget extends Widget
 
     $cids = $this->listComments($options['doc'], empty($result['pager']['current']) ? 1 : $result['pager']['current']);
 
-    $result['comments'] = Node::find(array(
+    $output = null;
+    $nodes = Node::find(array(
       'class' => 'comment',
       'id' => $cids,
       '#sort' => array('id' => 'asc'),
       '#raw' => true,
       ));
 
-    return $result;
+    $tmp = null;
+    foreach ($nodes as $node)
+      $output .= $node->getXML();
+    if (!empty($tmp))
+      $output .= html::em('comments', $tmp);
+
+    return $output;
   }
 
   protected function onGetLast(array $options)
