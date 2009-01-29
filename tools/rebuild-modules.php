@@ -14,7 +14,7 @@ class Builder
 
   private function getExistingModules()
   {
-    $html = http::fetch('http://code.google.com/p/molinos-cms/downloads/list?q=label:Type-Module', http::CONTENT | http::NO_CACHE);
+    $html = http::fetch('http://code.google.com/p/molinos-cms/downloads/list?q=label:Type-Module&can=1', http::CONTENT | http::NO_CACHE);
 
     if (!preg_match_all('@/files/([^"\']+\.zip)@', $html, $m))
       return array();
