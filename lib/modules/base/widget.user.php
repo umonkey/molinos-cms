@@ -129,28 +129,7 @@ class UserWidget extends Widget implements iWidget
    */
   protected function onGetDefault(array $options)
   {
-    $user = mcms::user();
-
-    $result = array(
-      'user' => $user->getRaw(),
-      'groups' => $user->getGroups(true),
-      'form' => null,
-      'status' => $options['status'],
-      );
-
-    // Добавка для вошедших.
-    if ($user->id) {
-      $result['mode'] = 'logout';
-    }
-
-    // Добавка для невошедших.
-    else {
-      $result['mode'] = 'login';
-      $result['register_link'] = '?q=' . $this->ctx->query()
-        . "&{$this->name}.action=register";
-    }
-
-    return $result;
+    return mcms::user()->getNode()->getXML();
   }
 
   /**
