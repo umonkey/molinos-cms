@@ -186,7 +186,6 @@ class CommentWidget extends Widget
       'class' => 'comment',
       'id' => $cids,
       '#sort' => array('id' => 'asc'),
-      '#raw' => true,
       ));
 
     $tmp = null;
