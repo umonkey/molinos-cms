@@ -155,10 +155,6 @@ class Page
 
   private static function checkRPC(Context $ctx, $query)
   {
-    if (is_array($data = Structure::getInstance()->findPage($ctx->host(), '')))
-      if (!empty($data['page']['theme']))
-        Context::last()->theme = $data['page']['theme'];
-
     if ('admin' == $query or 0 === strpos($query, 'admin/'))
       $query = 'admin.rpc';
 
@@ -178,6 +174,16 @@ class Page
           $ctx->db->beginTransaction();
         } catch (NotConnectedException $e) { }
       }
+
+      // Определяем шкуру, чтобы можно было использовать рендеринг
+      // документов, например — при отправке сообщений о принятии
+      // заказа (модуль cart).  Проверка на isset нужна для того,
+      // чтобы не получить ошибку о повторном присваивании значения
+      // если мы попали сюда в процессе обработки ошибки (errors/*).
+      if (!isset($ctx->theme))
+        if (is_array($data = Structure::getInstance()->findPage($ctx->host(), '')))
+          if (!empty($data['page']['theme']))
+            $ctx->theme = $data['page']['theme'];
 
       $args = array($ctx);
 
