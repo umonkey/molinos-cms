@@ -496,6 +496,21 @@ class ListWidget extends Widget
       // $query['#sort'] = array('id' => 'desc');
     }
 
+    if (!empty($query['#sort'])) {
+      foreach ($query['#sort'] as $k => $v) {
+        if (!in_array($k, array('RAND()', 'id', 'rid', 'name', 'uid', 'created', 'updated'))) {
+          if (false !== strpos($k, '.')) {
+            $parts = explode('.', $k);
+            $schema = Schema::load($parts[0]);
+            if (!Schema::load($parts[0])->hasIndex($parts[1])) {
+              mcms::flog('ignoring sorting rule %s = %s: no such index.', $k, $v);
+              unset($query['#sort'][$k]);
+            }
+          }
+        }
+      }
+    }
+
     $query['#permcheck'] = true;
     $query['#recurse'] = 1;
 
