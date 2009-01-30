@@ -101,6 +101,36 @@ class FormWidget extends Widget
     $result = array();
     $types = $this->getTypeList($options['root']);
 
+    if (empty($types))
+      return '<!-- no available types -->';
+
+    // Запрошенный тип недоступен.
+    if (!empty($options['type']) and !array_key_exists($options['type'])) {
+      try {
+        Node::load(array(
+          'class' => 'type',
+          'name' => $options['type'],
+          ));
+        throw new ForbiddenException(t('Вы не можете создать документ этого типа.'));
+      } catch (ObjectNotFoundException $e) {
+        throw new ForbiddenException(t('Тип документа «%name» мне не известен.', array(
+          '%name' => $options['type'],
+          )));
+      }
+    }
+
+    // Выводим форму добавления документа.
+    if (!empty($options['type']) or count($types) == 1) {
+      $node = Node::create(empty($options['type'])
+        ? array_shift(array_keys($types))
+        : $options['type']);
+      return $node->formGet()->getXML($node);
+    }
+
+    // Выводим список типов документов.
+    return html::em('allowedTypes', html::simpleOptions($types));
+
+
     // Если тип документа не указан, но доступен всего
     // один тип — используем его.
     if (!empty($options['type']) or 1 == count($types)) {
@@ -138,6 +168,8 @@ class FormWidget extends Widget
           );
       }
     }
+
+    mcms::debug($result);
 
     return $result;
   }
