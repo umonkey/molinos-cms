@@ -159,7 +159,7 @@ class DocWidget extends Widget implements iWidget
         throw new ForbiddenException(t('У вас нет доступа к этому документу.'));
 
       $output .= $node->getXML('document');
-      $output .= $node->getActionLinksXML();
+      // $output .= $node->getActionLinksXML();
 
       if (count($sids = $node->linkListParents('tag', true))) {
         $tmp = '';
