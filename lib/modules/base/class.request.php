@@ -38,7 +38,11 @@ class Request
     }
 
     catch (UserErrorException $e) {
-      $response = $this->tryOnce($ctx, 'errors/' . $e->getCode());
+      try {
+        $response = $this->tryOnce($ctx, 'errors/' . $e->getCode());
+      } catch (Exception $e2) {
+        mcms::fatal($e);
+      }
     }
 
     catch (Exception $e) {
