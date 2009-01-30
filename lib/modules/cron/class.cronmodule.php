@@ -44,8 +44,13 @@ class CronModule implements iModuleConfig, iRemoteCall
     if (empty($_SERVER['REMOTE_ADDR']))
       return true;
 
-    return mcms::matchip($_SERVER['REMOTE_ADDR'],
-      mcms::modconf('cron', 'allowed', '127.0.0.1'));
+    if ('127.0.0.1' == $_SERVER['REMOTE_ADDR'])
+      return true;
+
+    if (!($ips = mcms::modconf('cron', 'allowed')))
+      return true;
+
+    return mcms::matchip($_SERVER['REMOTE_ADDR'], $ips);
   }
 
   private static function touch()
