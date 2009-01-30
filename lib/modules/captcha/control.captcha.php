@@ -17,25 +17,16 @@ class CaptchaControl extends Control implements iFormControl
     return parent::__construct($form);
   }
 
-  public function getHTML($data)
+  public function getXML($data)
   {
     if (!$this->isActive($data))
       return;
 
     $key = $this->generate();
 
-    $output = html::em('img', array(
-      'src' => '?q=captcha.rpc&seed='. $key,
-      'alt' => 'captcha',
+    return parent::wrapXML(array(
+      'key' => $key,
       ));
-
-    $output .= '<div class="captchablock">';
-    $output .= '<label for="captcha-'.$this->id.'">Введите текст с картинки:</label>';
-    $output .= '<input id="captcha-'.$this->id.'" type="text" name="captcha[]" />';
-    $output .= '<input type="hidden" name="captcha[]" value="'. $key .'" />';
-    $output .= '</div>';
-
-    return $this->wrapHTML($output);
   }
 
   public function set($value, Node &$node)
