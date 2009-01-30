@@ -139,6 +139,59 @@ class os
    */
   public static function getFileExtension($fileName)
   {
-    return strtolower(substr($fileName, strrpos($fileName, '.') + 1));
+    if (false === ($pos = strrpos($fileName, '.')))
+      return null;
+    return strtolower(substr($fileName, $pos + 1));
+  }
+
+  /**
+   * Определяет тип файла по содержимому, разными способами.
+   */
+  public static function getFileType($fileName, $realName = null)
+  {
+    $result = 'application/octet-stream';
+
+    if (function_exists('mime_content_type'))
+      $result = mime_content_type($fileName);
+
+    elseif (function_exists('finfo_open')) {
+      if (false !== ($r = @finfo_open(FILEINFO_MIME))) {
+        $result = finfo_file($r, $fileName);
+        $result = str_replace(strrchr($result, ';'), '', $result);
+        finfo_close($r);
+      }
+    }
+
+    // Не удалось, гадаем по расширению.
+    if ('application/octet-stream' == $result and null !== $realName) {
+      switch (strtolower(substr($realName, strrpos($realName, '.')))) {
+      case '.pdf':
+        return 'application/pdf';
+      case '.desktop':
+        return 'application/x-gnome-shortcut';
+      case '.bmp':
+        return 'image/bmp';
+      case '.gif':
+        return 'image/gif';
+      case '.jpg':
+      case '.jpeg':
+        return 'image/jpeg';
+      case '.png':
+        return 'image/png';
+      case '.mp3':
+        return 'audio/mpeg';
+      case '.php':
+      case '.txt':
+        return 'text/plain';
+      case '.zip':
+        return 'application/zip';
+      case '.flv':
+        return 'video/flv';
+      case '.ttf':
+        return 'application/x-font-ttf';
+      }
+    }
+
+    return $result;
   }
 }

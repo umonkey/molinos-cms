@@ -140,59 +140,7 @@ function bebop_get_templates($type, $name, $theme = null, $classname = null)
 // Определяет тип файла.
 function bebop_get_file_type($filename, $realname = null)
 {
-  if (strrchr($filename, '.')) {
-    switch (strtolower(substr($filename, strrpos($filename, '.')))) {
-    case '.pdf':
-      return 'application/pdf';
-    case '.desktop':
-      return 'application/x-gnome-shortcut';
-    case '.bmp':
-      return 'image/bmp';
-    case '.gif':
-      return 'image/gif';
-    case '.jpg':
-    case '.jpeg':
-      return 'image/jpeg';
-    case '.png':
-      return 'image/png';
-    case '.mp3':
-      return 'audio/mpeg';
-    case '.php':
-    case '.txt':
-      return 'text/plain';
-    case '.zip':
-      return 'application/zip';
-    case '.flv':
-      return 'video/flv';
-    }
-  }
-
-  if (false !== strpos($filename, 'archive.org/stream/'))
-    return 'audio/x-mpegurl';
-
-  $result = 'application/octet-stream';
-
-  if (function_exists('mime_content_type')) {
-    $result = mime_content_type($filename);
-  }
-
-  elseif (function_exists('finfo_open')) {
-    if (false !== ($r = @finfo_open(FILEINFO_MIME))) {
-      $result = finfo_file($r, $filename);
-      $result = str_replace(strrchr($result, ';'), '', $result);
-      finfo_close($r);
-    }
-  }
-
-  if (isset($realname) and ('application/octet-stream' == $result)) {
-    switch (strrchr($realname, '.')) {
-    case '.ttf':
-      $result = 'application/x-font-ttf';
-      break;
-    }
-  }
-
-  return $result;
+  mcms::fatal(t('Вызовы bebop_get_file_type() следует заменить на os::getFileType().'));
 }
 
 function mcms_plain($text, $strip = true)

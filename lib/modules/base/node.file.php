@@ -162,8 +162,6 @@ class FileNode extends Node implements iContentType
       $file['size'] = filesize($file['tmp_name']);
     if (!array_key_exists('name', $file))
       $file['name'] = basename($file['tmp_name']);
-    if (!array_key_exists('type', $file) or 'application/octet-stream' == $file['type'])
-      $file['type'] = bebop_get_file_type($file['tmp_name'], $file['name']);
 
     if ($this->id === null and FileNode::isUnzipable($file)) {
       if (null === ($node = $this->unzip($file['tmp_name'])))
@@ -172,18 +170,16 @@ class FileNode extends Node implements iContentType
       return $this;
     }
 
-    // Заполняем метаданные.
+    $this->filepath = $this->getCleanFileName($file);
     $this->filename = $this->name = $file['name'];
     $this->filetype = $file['type'];
     $this->filesize = $file['size'];
 
-    // Формируем внутреннее имя файла.
-    $intname = md5_file($file['tmp_name']);
-    $this->filepath = substr($intname, 0, 1) .'/'. substr($intname, 1, 1) .'/'. $intname
-      . '.' . $this->getSafeExtension();
-
     // Сюда будем копировать файл.
-    $dest = $storage .'/'. $this->filepath;
+    $dest = os::path($storage, $this->filepath);
+
+    if (file_exists($dest))
+      throw new RuntimeException(t('Такой файл уже есть.'));
 
     // Создаём каталог для него.
     mcms::mkdir(dirname($dest), 'Файл не удалось сохранить, т.к. отсутствуют права на запись в каталог, где этот файл должен был бы храниться (%path).  Сообщите об этой проблеме администратору сайта.');
@@ -207,11 +203,35 @@ class FileNode extends Node implements iContentType
   }
 
   /**
+   * Возвращает очищенное (от некошерных символов) имя файла.
+   */
+  private function getCleanFileName(array &$file)
+  {
+    $filename = mcms::translit($file['name']);
+    $filename = preg_replace('/[^a-z0-9_.-]+/', '_', $filename);
+    $filename = trim($filename, '_');
+    $filename .= $this->getSafeExtension($filename);
+
+    $md5 = md5_file($file['tmp_name']);
+
+    $filepath = substr($md5, 0, 1) . '/' . substr($md5, 1, 1) . '/'
+      . $filename;
+
+    return $filepath;
+  }
+
+  /**
    * Возвращает безопасное расширение файла.
    */
-  private function getSafeExtension()
+  private function getSafeExtension($filename = null)
   {
-    switch ($ext = os::getFileExtension($this->filename)) {
+    if (null === $filename)
+      $filename = $this->filename;
+
+    if (null === ($ext = os::getFileExtension($filename)))
+      return null;
+
+    switch ($ext) {
     case 'php':
     case 'php3':
     case 'php4':
@@ -222,6 +242,8 @@ class FileNode extends Node implements iContentType
     case 'sh':
       $ext .= '.txt';
       break;
+    default:
+      return null;
     }
 
     return $ext;

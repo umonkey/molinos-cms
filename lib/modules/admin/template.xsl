@@ -370,7 +370,7 @@
   </xsl:template>
 
   <!-- расширенный файловый контрол -->
-  <xsl:template match="control[@type = 'attachment']">
+  <xsl:template match="control[@type = 'attachment' and not(@newfile)]">
     <div id="file-{@id}">
       <xsl:call-template name="default_control_classes" />
       <xsl:call-template name="default_control_label" />
