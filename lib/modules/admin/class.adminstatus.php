@@ -31,8 +31,8 @@ class AdminStatus implements iAdminMenu
         $icons[] = array(
           'group' => 'status',
           'message' => t('Пожалуйста, установите пароль на ваш аккаунт.'),
-          'link' => '?action=edit&cgroup=access&node=' . mcms::user()->id . '&destination='
-            . urlencode($_SERVER['REQUEST_URI']),
+          'link' => '?q=admin.rpc&action=edit&cgroup=access&node=' . mcms::user()->id
+            . '&destination=CURRENT',
           );
 
     return $icons;
