@@ -245,6 +245,9 @@ class AdminMenu implements iAdminMenu
           $text = $item['message'];
           unset($item['group']);
           unset($item['message']);
+
+          if (array_key_exists('link', $item))
+            $item['link'] = str_replace('&destination=CURRENT', '&destination=' . urlencode($_SERVER['REQUEST_URI']), $item['link']);
           $items .= html::em('message', $item, html::cdata($text));
         }
       }
