@@ -166,27 +166,41 @@ class UserWidget extends Widget implements iWidget
    */
   protected function onGetRegister(array $options)
   {
-    if ($this->user->id) {
-      $url = new url();
-      $url->setarg($this->getInstanceName() .'.action', 'edit');
+    switch ($options['status']) {
+    case 'wait':
+      $output = html::em('p', t('Инструкция по активации профиля отправлена по электронной почте.'));
+      break;
 
-      $r = new Redirect($url->string());
-      $r->send();
+    default:
+      if (mcms::user()->id) {
+        $url = new url();
+        $url->setarg($this->getInstanceName() .'.action', 'edit');
+
+        $r = new Redirect($url->string());
+        $r->send();
+      }
+
+      $node = Node::create('user');
+      $form = $node->formGet();
+
+      // Правим обратный адрес.
+      if (null === $this->ctx->get('destination')) {
+        $next = new url($this->ctx->url());
+        $next->setarg($this->name . '.action', 'register');
+        $next->setarg($this->name . '.status', 'wait');
+
+        $action = new url($form->action);
+        $action->setarg('destination', $next->string());
+
+        $form->action = $action->string();
+      }
+
+      $output = $form->getHTML($node);
     }
-
-    $node = Node::create('user');
-    $form = $node->formGet();
-
-    // Правим обратный адрес.
-    $next = new url($this->ctx->url());
-    $next->setarg($this->name . '.action', 'regwait');
-    $url = new url($form->action);
-    $url->setarg('destination', $this->ctx->get('destination', $next->string()));
-    $form->action = $url->string();
 
     return array(
       'mode' => 'register',
-      'form' => $form->getHTML($node),
+      'form' => $output,
       );
   }
 
@@ -270,18 +284,7 @@ class UserWidget extends Widget implements iWidget
 
   private function getLogoutForm(array $options)
   {
-    $user = $this->user;
-
     $output = parent::formRender('user-logout-form');
-    /*
-    $output .= "<p class='profileEditLink'>". t('<a href=\'@link\'>Изменить профиль</a>', array(
-      '@link' => mcms_url(array('args' => array(
-        'destination' => 'CURRENT',
-        $this->getInstanceName() => array('action' => 'edit'),
-        ))),
-      )) ."</p>";
-    */
-
     return $output;
   }
 
@@ -458,10 +461,12 @@ class UserWidget extends Widget implements iWidget
       return $form;
 
     case 'profile-edit-form':
-      $uid = empty($this->options['uid']) ? $user->id : $this->options['uid'];
-
-      if (empty($uid))
-        throw new ForbiddenException(t('Только зарегистрированные пользователи могут редактировать профиль.'));
+      // Перебрасываем анонимного пользователя на страницу регистрации.
+      if (!($uid = mcms::user()->id)) {
+        $url = new url();
+        $url->setarg($this->name . '.action', 'register');
+        $this->ctx->redirect($url->string());
+      }
 
       $profile = Node::load(array('class' => 'user', 'id' => $uid));
       $form = $profile->formGet();
@@ -479,6 +484,15 @@ class UserWidget extends Widget implements iWidget
       if (null !== $this->header) {
         $form->title = $this->header ? t('Редактирование профиля') : null;
         $form->header = $this->header;
+      }
+
+      if (null === $this->ctx->get('destination')) {
+        $next = new url();
+        $next->setarg($this->name . '.status', 'ok');
+
+        $url = new url($form->action);
+        $url->setarg('destination', $next->string());
+        $form->action = $url->string();
       }
 
       return $form;
@@ -511,6 +525,7 @@ class UserWidget extends Widget implements iWidget
       return $form;
 
     case 'user-register-form':
+      // TODO: по-моему это не используется, всё в onGetRegister().
       $user = Node::create('user');
       return $user->formGet();
     }
