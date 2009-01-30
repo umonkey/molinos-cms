@@ -16,7 +16,7 @@ class CronMenu implements iAdminMenu
       array(
         'group' => 'status',
         'message' => t('Рекомендуется запустить планировщик заданий.'),
-        'link' => '?q=admin&mode=modules&action=config&name=cron&cgroup=structure&destination=CURRENT',
+        'link' => '?q=cron.rpc&destination=CURRENT',
         ),
       );
   }
