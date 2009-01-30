@@ -616,7 +616,12 @@ class FileNode extends Node implements iContentType
       $_content .= $versions;
     }
 
-    return parent::getXML($em, $_content);
+    $data = $this->data;
+
+    if (file_exists($tmp = os::path(mcms::config('filestorage'), $this->filepath)))
+      $data['url'] = $tmp;
+
+    return parent::getRealXML($em, $data, $_content);
   }
 
   public function getRealURL()

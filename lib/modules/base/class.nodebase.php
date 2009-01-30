@@ -118,20 +118,56 @@ class NodeBase
   }
 
   /**
+   * Рендерит описание ноды в XML.
+   */
+  protected function getRealXML($em, array $data, $_content)
+  {
+    $content = '';
+    $attrs = array();
+
+    foreach ($data as $k => $v) {
+      // Стандартные поля делаем атрибутами.
+      if (in_array($k, array('id', 'parent_id', 'rid', 'class', 'name', 'lang', 'created', 'updated', 'published', 'deleted', 'depth')))
+        $attrs[$k] = $v;
+
+      // Служебные поля игнорируем.
+      elseif (in_array($k, array('left', 'right')))
+        ;
+
+      // Дальше идут субэлементы, пустые игнорируем.
+      elseif (empty($v))
+        continue;
+
+      // Ноды разворачиваем в субэлементы.
+      elseif ($v instanceof Node)
+        $content .= $v->getXML($k);
+
+      // Массивы — тоже (их тут вообще не должно быть).
+      elseif (is_array($v)) {
+        if (array_key_exists('class', $v))
+          $content .= html::em($k, $v);
+      }
+
+      // Всё, что содержит спецсимволы — в cdata.
+      elseif (strlen($v) != strcspn($v, '<>&'))
+        $content .= html::em($k, html::cdata($v));
+
+      // Всё остальное — простые элементы.
+      else
+        $content .= html::em($k, $v);
+    }
+
+    $attrs['displayName'] = $this->getName();
+
+    return html::em($em, $attrs, $content . $_content);
+  }
+
+  /**
    * Возвращает содержимое ноды в XML.
    */
   public function getXML($em = 'node', $_content = null)
   {
-    $content = '';
-
-    $raw = $this->getRaw();
-
-    if ($this->uid instanceof Node) {
-      $raw['userName'] = $this->uid->getName();
-      $raw['uid'] = $this->uid->id;
-    }
-
-    return html::em($em, $raw, $content . $_content);
+    return $this->getRealXML($em, $this->data, $_content);
   }
 
   /**

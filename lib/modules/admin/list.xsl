@@ -53,10 +53,10 @@
           </td>
           <xsl:apply-templates select="." mode="mcms_list_name" />
           <td class="field-fullname">
-            <xsl:value-of select="@fullname" />
+            <xsl:value-of select="fullname" />
           </td>
           <td class="field-email">
-            <xsl:value-of select="@email" />
+            <xsl:value-of select="email" />
           </td>
           <td class="field-created">
             <xsl:call-template name="FormatDate">
@@ -153,7 +153,7 @@
           </td>
           <xsl:apply-templates select="." mode="mcms_list_name" />
           <td class="field-title nowrap">
-            <xsl:value-of select="@title" />
+            <xsl:value-of select="title" />
           </td>
         </tr>
       </xsl:for-each>
@@ -202,10 +202,10 @@
             </xsl:otherwise>
           </xsl:choose>
           <td class="field-title">
-            <xsl:value-of select="@title" />
+            <xsl:value-of select="title" />
           </td>
           <td class="field-theme">
-            <xsl:value-of select="@theme" />
+            <xsl:value-of select="theme" />
           </td>
         </tr>
       </xsl:for-each>
@@ -228,22 +228,22 @@
           <xsl:call-template name="odd_row" />
           <xsl:apply-templates select="." mode="mcms_list_name" />
           <td class="field-title">
-            <xsl:value-of select="@title" />
+            <xsl:value-of select="title" />
           </td>
           <td class="field-classname">
             <a>
               <xsl:attribute name="href">
                 <xsl:choose>
-                  <xsl:when test="@_widget_docurl">
-                    <xsl:value-of select="@_widget_docurl" />
+                  <xsl:when test="_widget_docurl">
+                    <xsl:value-of select="_widget_docurl" />
                   </xsl:when>
                   <xsl:otherwise>
                     <xsl:text>http://code.google.com/p/molinos-cms/w/list?q=</xsl:text>
-                    <xsl:value-of select="@classname" />
+                    <xsl:value-of select="classname" />
                   </xsl:otherwise>
                 </xsl:choose>
               </xsl:attribute>
-              <xsl:value-of select="@_widget_name" />
+              <xsl:value-of select="_widget_name" />
             </a>
           </td>
         </tr>
@@ -281,8 +281,8 @@
         <tr id="file-{@id}">
           <xsl:call-template name="odd_row" />
           <td class="icon">
-            <xsl:if test="@url">
-              <a class="picker icon-download" href="{@url}"></a>
+            <xsl:if test="url">
+              <a class="picker icon-download" href="{url}"></a>
             </xsl:if>
           </td>
           <xsl:apply-templates select="." mode="mcms_list_name" />
@@ -296,14 +296,14 @@
             </td>
           </xsl:if>
           <td>
-            <xsl:if test="@width and @height">
-              <xsl:value-of select="@width" />
+            <xsl:if test="width and height">
+              <xsl:value-of select="width" />
               <xsl:text>x</xsl:text>
-              <xsl:value-of select="@height" />
+              <xsl:value-of select="height" />
             </xsl:if>
           </td>
           <td class="field-filesize">
-            <xsl:value-of select="@filesize" />
+            <xsl:value-of select="filesize" />
           </td>
           <td class="field-created">
             <xsl:call-template name="FormatDate">
@@ -379,9 +379,11 @@
 
   <xsl:template match="node" mode="mcms_list_author">
     <td class="field-uid">
-      <a href="?q=admin.rpc&amp;action=edit&amp;cgroup=access&amp;node={@id}&amp;destination={/page/@urlEncoded}">
-        <xsl:value-of select="@userName" />
-      </a>
+      <xsl:if test="uid">
+        <a href="?q=admin.rpc&amp;action=edit&amp;cgroup=access&amp;node={@id}&amp;destination={/page/@urlEncoded}">
+          <xsl:value-of select="uid/@displayName" />
+        </a>
+      </xsl:if>
     </td>
   </xsl:template>
 
