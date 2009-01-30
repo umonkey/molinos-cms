@@ -6,10 +6,11 @@ class ModManMenu implements iAdminMenu
   {
     $icons = array();
 
-    if ($message = self::getMessage())
+    if (count(modman::getUpdatedModules()))
       $icons[] = array(
         'group' => 'status',
-        'message' => $message,
+        'message' => t('Есть обновления для некоторых модулей.'),
+        'link' => '?q=admin.rpc&action=form&module=modman&mode=upgrade&cgroup=system&destination=CURRENT',
         );
 
     $icons[] = array(
@@ -25,13 +26,5 @@ class ModManMenu implements iAdminMenu
       );
 
     return $icons;
-  }
-
-  public static function getMessage()
-  {
-    if (count(modman::getUpdatedModules()))
-      return t('<p class="important">Для некоторых модулей CMS есть обновления, <a href="@url">установите</a> их.</p>', array(
-          '@url' => '?q=admin&cgroup=system&module=modman&mode=upgrade&destination=CURRENT'
-          ));
   }
 }
