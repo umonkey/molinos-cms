@@ -51,12 +51,15 @@ class XMLRouter implements iRequestRouter
 
     // Запрошен отдельный виджет — возвращаем.
     if (null !== ($w = $ctx->get('widget'))) {
-      if (array_key_exists($w, $widgets))
-        return new Response($widgets[$w], 'text/xml');
-      else
+      if (array_key_exists($w, $widgets)) {
+        $output = '<?xml version="1.0" encoding="utf-8"?>'
+          . $widgets[$w];
+        return new Response($output, 'text/xml');
+      } else {
         throw new PageNotFoundException(t('Виджет «%name» на этой странице отсутствует.', array(
           '%name' => $w,
           )));
+      }
     }
 
     if (!isset($ctx->theme))
