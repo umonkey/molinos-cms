@@ -312,7 +312,7 @@ abstract class Control implements iFormControl
   /**
    * Преобразует массив в объект, пригодный для использования формами.
    */
-  public static function data(array $data)
+  public static function data(array $data = array())
   {
     return new ControlData($data);
   }
