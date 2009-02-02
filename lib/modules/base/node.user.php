@@ -198,4 +198,14 @@ class UserNode extends Node implements iContentType
 
     return parent::getFormAction();
   }
+
+  public function getFormFields()
+  {
+    $schema = parent::getFormFields();
+
+    if (!mcms::user()->hasAccess('u', 'group') and isset($schema['groups']))
+      unset($schema['groups']);
+
+    return $schema;
+  }
 };
