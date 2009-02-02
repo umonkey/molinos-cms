@@ -140,7 +140,7 @@ class UserWidget extends Widget implements iWidget
    */
   protected function onGetRegister(array $options)
   {
-    if ($this->user->id) {
+    if (mcms::user()->id) {
       $url = new url();
       $url->setarg($this->getInstanceName() .'.action', 'edit');
 
@@ -149,11 +149,7 @@ class UserWidget extends Widget implements iWidget
     }
 
     $node = Node::create('user');
-
-    return array(
-      'mode' => 'register',
-      'form' => $node->formGet()->getHTML($node),
-      );
+    return $node->formGet()->getXML($node);
   }
 
   /**
@@ -200,8 +196,16 @@ class UserWidget extends Widget implements iWidget
       break;
 
     default:
-      $output = parent::formRender('profile-edit-form');
-      break;
+      if (!mcms::user()->id) {
+        $url = new url();
+        $url->setarg($this->getInstanceName() .'.action', 'register');
+
+        $r = new Redirect($url->string());
+        $r->send();
+      }
+
+      $node = mcms::user()->getNode();
+      return $node->formGet()->getXML($node);
     }
 
     return array('form' => $output);
@@ -407,33 +411,6 @@ class UserWidget extends Widget implements iWidget
         )));
 
       return $form;
-
-    case 'profile-edit-form':
-      $uid = empty($this->options['uid']) ? $user->id : $this->options['uid'];
-
-      if (empty($uid))
-        throw new ForbiddenException(t('Только зарегистрированные пользователи могут редактировать профиль.'));
-
-      $profile = Node::load(array('class' => 'user', 'id' => $uid));
-      $form = $profile->formGet();
-
-      if (!empty($this->options['hash'])) {
-        if (mcms::user()->id)
-          throw new PageNotFoundException();
-
-        if ($this->options['hash'] != md5($profile->password))
-          throw new PageNotFoundException();
-
-        $form->intro = t('Вы вошли в систему используя одноразовый пароль.&nbsp; Вы теперь можете изменить настройки профиля, в том числе &mdash; ввести новый пароль.');
-      }
-
-      if (null !== $this->header) {
-        $form->title = $this->header ? t('Редактирование профиля') : null;
-        $form->header = $this->header;
-      }
-
-      return $form;
-
     case 'profile-remind-form':
       $form = new Form(array(
         'title' => t('Восстановление пароля'),
