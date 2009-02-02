@@ -89,6 +89,11 @@ class CommentWidget extends Widget
         'required' => true,
         'default' => 10,
         ),
+      'deep' => array(
+        'type' => 'BoolControl',
+        'label' => t('Вытаскивать аватары пользователей'),
+        'value' => 1,
+        ),
       );
   }
 
@@ -186,6 +191,7 @@ class CommentWidget extends Widget
       'class' => 'comment',
       'id' => $cids,
       '#sort' => array('id' => 'asc'),
+      '#recurse' => $this->deep ? 2 : 1,
       ));
 
     $tmp = null;
