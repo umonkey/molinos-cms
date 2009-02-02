@@ -76,6 +76,9 @@ class Page
       'base' => $ctx->url()->getBase($ctx),
       ));
 
+    $args = array(&$result, Node::create('page'));
+    mcms::invoke('iPageHook', 'hookPage', $args);
+
     if (false === $result)
       throw new RuntimeException(t('Не удалось отобразить страницу: отсутствует шаблон или не включен необходимый шаблонизатор.'));
 
