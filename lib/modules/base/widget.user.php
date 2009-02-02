@@ -123,7 +123,48 @@ class UserWidget extends Widget implements iWidget
    */
   protected function onGetDefault(array $options)
   {
-    return mcms::user()->getNode()->getXML();
+    // Зарегистрированный пользователь.
+    if (mcms::user()->id) {
+      $form = new Form(array(
+        'action' => '?q=base.rpc&action=logout&destination=CURRENT',
+        ));
+      $form->addControl(new SubmitControl(array(
+        'text' => t('Выйти'),
+        )));
+      $output = $form->getXML(Control::data());
+    }
+
+    // Анонимный пользователь.
+    else {
+      $url = new url();
+      $url->setarg($this->name . '.action', 'retry');
+      $url->setarg('destination', $this->ctx->get('destination'));
+
+      $form = new Form(array(
+        'title' => t('Вход'),
+        'action' => '?q=base.rpc&action=login&destination=CURRENT',
+        ));
+      $form->addControl(new TextLineControl(array(
+        'value' => 'login',
+        'label' => t('Имя'),
+        'required' => true,
+        )));
+      $form->addControl(new PasswordControl(array(
+        'value' => 'password',
+        'label' => t('Пароль'),
+        'required' => true,
+        )));
+      $form->addControl(new BoolControl(array(
+        'value' => 'remember',
+        'label' => t('Помнить 2 недели'),
+        )));
+      $form->addControl(new SubmitControl(array(
+        'text' => (null === $this->submittext) ? t('Войти') : $this->submittext,
+        )));
+      $output = $form->getXML(Control::data());
+    }
+
+    return $output;
   }
 
   /**
@@ -209,22 +250,6 @@ class UserWidget extends Widget implements iWidget
     }
 
     return array('form' => $output);
-  }
-
-  private function getLoginForm(array $options)
-  {
-    $url = new url($this->ctx->url());
-    $url->setarg($this->name .'.action', 'register');
-
-    mcms::debug($url);
-
-    $output = parent::formRender('user-login-form');
-    $output .= t("<p class='profileRegisterLink'><a href='@url'>"
-      ."Зарегистрироваться</a></p>", array(
-        '@url' => $url->string(),
-        ));
-
-    return $output;
   }
 
   private function getLogoutForm(array $options)
@@ -326,7 +351,7 @@ class UserWidget extends Widget implements iWidget
   /**
    * Возвращает указанную форму.
    *
-   * @param string $id идентификатор формы (user-logout-form, user-login-form,
+   * @param string $id идентификатор формы (user-logout-form,
    * profile-edit-form, profile-remind-form).
    *
    * @see Widget::formRender()
@@ -363,54 +388,6 @@ class UserWidget extends Widget implements iWidget
 
       return $form;
 
-    case 'user-login-form':
-      $tmp = bebop_split_url();
-      $tmp['args'][$this->getInstanceName()]['action'] = 'retry';
-      $tmp['args']['destination'] = $this->ctx->get('destination');
-
-      $form = new Form(array(
-        'title' => t('Вход'),
-        'action' => '?q=base.rpc&action=login&destination='. urlencode(bebop_combine_url($tmp, false)),
-        ));
-
-      if (null !== $this->header) {
-        $form->title = $this->header ? t('Идентификация') : null;
-        $form->header = $this->header;
-      }
-
-      if ('wrong' == $this->options['status']) {
-        $next = empty($_GET['destination']) ? $_SERVER['REQUEST_URI'] : $_GET['destination'];
-
-        $link = t("Вы ввели неверные данные.&nbsp; <a href='@remind' class='remind'>Забыли пароль?</a>", array(
-          '@remind' => mcms_url(array('args' => array(
-            'destination' => $next,
-            $this->getInstanceName() => array('action' => 'restore'),
-            ))),
-          ));
-
-        $form->addControl(new InfoControl(array(
-          'text' => $link,
-          )));
-      }
-
-      $form->addControl(new HiddenControl(array(
-        'value' => 'action',
-        )));
-      $form->addControl(new TextLineControl(array(
-        'value' => 'login',
-        'label' => t('Имя'),
-        'required' => true,
-        )));
-      $form->addControl(new PasswordControl(array(
-        'value' => 'password',
-        'label' => t('Пароль'),
-        'required' => true,
-        )));
-      $form->addControl(new SubmitControl(array(
-        'text' => (null === $this->submittext) ? t('Войти') : $this->submittext,
-        )));
-
-      return $form;
     case 'profile-remind-form':
       $form = new Form(array(
         'title' => t('Восстановление пароля'),
@@ -459,12 +436,6 @@ class UserWidget extends Widget implements iWidget
     case 'user-logout-form':
       return array(
         'action' => 'logout',
-        );
-
-    case 'user-login-form':
-      return array(
-        'action' => 'login',
-        'destination' => empty($_GET['destination']) ? null : $_GET['destination'],
         );
 
     case 'profile-remind-form':
