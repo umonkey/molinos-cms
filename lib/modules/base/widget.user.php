@@ -84,9 +84,15 @@ class UserWidget extends Widget implements iWidget
 
     $options['uid'] = $ctx->get('uid');
     $options['login'] = mcms::user()->login;
-    $options['action'] = $ctx->get('action', 'default');
     $options['status'] = $ctx->get('status');
     $options['hash'] = $ctx->get('hash');
+
+    if ('default' == ($options['action'] = $ctx->get('action', 'default'))) {
+      if (mcms::user()->id)
+        $options['action'] = 'logout';
+      else
+        $options['action'] = 'login';
+    }
 
     $options['#cache'] = false;
 
@@ -112,60 +118,76 @@ class UserWidget extends Widget implements iWidget
   }
 
   /**
-   * Возврат профиля пользователя.
-   *
-   * @param array $options параметры виджета.
-   *
-   * @return array информация о пользователе, ключи: uid, mode, name, groups,
-   * form, где form — форма для входа или выхода, в зависимости от текущего
-   * состояния пользователя (анонимен или идентифицирован), mode (login или
-   * logout).
+   * Форма входа.
    */
-  protected function onGetDefault(array $options)
+  protected function onGetLogin(array $options)
   {
-    // Зарегистрированный пользователь.
-    if (mcms::user()->id) {
-      $form = new Form(array(
-        'action' => '?q=base.rpc&action=logout&destination=CURRENT',
-        ));
-      $form->addControl(new SubmitControl(array(
-        'text' => t('Выйти'),
-        )));
-      $output = $form->getXML(Control::data());
-    }
+    $url = $this->getMeLink('action', 'retry');
+    $url->setarg('destination', $this->ctx->get('destination'));
 
-    // Анонимный пользователь.
-    else {
-      $url = new url();
-      $url->setarg($this->name . '.action', 'retry');
-      $url->setarg('destination', $this->ctx->get('destination'));
+    $form = new Form(array(
+      'title' => t('Вход'),
+      'action' => '?q=base.rpc&action=login&destination=CURRENT',
+      ));
+    $form->addControl(new TextLineControl(array(
+      'value' => 'login',
+      'label' => t('Имя'),
+      'required' => true,
+      )));
+    $form->addControl(new PasswordControl(array(
+      'value' => 'password',
+      'label' => t('Пароль'),
+      'required' => true,
+      )));
+    $form->addControl(new BoolControl(array(
+      'value' => 'remember',
+      'label' => t('Помнить 2 недели'),
+      )));
+    $form->addControl(new SubmitControl(array(
+      'text' => (null === $this->submittext) ? t('Войти') : $this->submittext,
+      )));
+    $output = $form->getXML(Control::data());
 
-      $form = new Form(array(
-        'title' => t('Вход'),
-        'action' => '?q=base.rpc&action=login&destination=CURRENT',
-        ));
-      $form->addControl(new TextLineControl(array(
-        'value' => 'login',
-        'label' => t('Имя'),
-        'required' => true,
-        )));
-      $form->addControl(new PasswordControl(array(
-        'value' => 'password',
-        'label' => t('Пароль'),
-        'required' => true,
-        )));
-      $form->addControl(new BoolControl(array(
-        'value' => 'remember',
-        'label' => t('Помнить 2 недели'),
-        )));
-      $form->addControl(new SubmitControl(array(
-        'text' => (null === $this->submittext) ? t('Войти') : $this->submittext,
-        )));
-      $output = $form->getXML(Control::data());
-    }
+    $output .= html::em('link', array(
+      'rel' => 'remind',
+      'href' => $this->getMeLink('action', 'remind')->string(),
+      'text' => t('Восстановить пароль'),
+      ));
+
+    $output .= html::em('link', array(
+      'rel' => 'register',
+      'href' => $this->getMeLink('action', 'register')->string(),
+      'text' => t('Зарегистрироваться'),
+      ));
 
     return $output;
   }
+
+  /**
+   * Форма выхода.
+   */
+  protected function onGetLogout(array $options)
+  {
+    $form = new Form(array(
+      'action' => '?q=base.rpc&action=logout&destination=CURRENT',
+      ));
+    $form->addControl(new SubmitControl(array(
+      'text' => t('Выйти'),
+      )));
+    $output = $form->getXML(Control::data());
+
+    $output .= html::em('link', array(
+      'rel' => 'remind',
+      'href' => $this->getmelink('action', 'edit')->string(),
+      'text' => t('Мои настройки'),
+      ));
+
+    return $output;
+  }
+
+  /**
+   * Форма восстановления пароля.
+   */
 
   /**
    * Возвращает форму регистрации нового пользователя.
@@ -194,62 +216,48 @@ class UserWidget extends Widget implements iWidget
   }
 
   /**
-   * Обработчик запросов на восстановление пароля.
-   *
-   * Вместо этого можно использовать ?q=base.rpc&action=restore, что не требует
-   * наличия виджета.
-   *
-   * @todo переписать этот метод так, чтобы он использовал base.rpc.
-   *
-   * @param array $options параметры виджета.
-   *
-   * @return array данные для шаблона, ключи: mode (всегда «restore»), form —
-   * HTML код формы для восстановления пароля.
+   * Форма восстановления пароля.
    */
-  protected function onGetRestore(array $options)
+  protected function onGetRemind(array $options)
   {
-    if ($options['status'] == 'sent') {
-      $form = '<h2>'. t('Восстановление пароля') .'</h2>';
-      $form .= '<p>'. t('Инструкция по восстановлению пароля была отправлена на электронную почту.') .'</p>';
-      $form .= '<p><a href=\'/\'>'. t('Вернуться на главную страницу') .'</a></p>';
-    } else {
-      $form = parent::formRender('profile-remind-form');
-    }
+    $next = $this->getMeLink('action', 'login');
+    $next->setarg($this->name . '.status', 'reminderSent');
 
-    return array(
-      'mode' => 'restore',
-      'form' => $form,
-      );
+    $form = new Form(array(
+      'title' => t('Вход'),
+      'action' => '?q=base.rpc&action=restore&destination=' . urlencode($next->string()),
+      ));
+    $form->addControl(new EmailControl(array(
+      'value' => 'email',
+      'label' => t('Почтовый адрес'),
+      'description' => t('Этот адрес вы использовали при регистрации.'),
+      'required' => true,
+      )));
+    $form->addControl(new SubmitControl(array(
+      'text' => t('Отправить письмо'),
+      )));
+
+    $output = $form->getXML(Control::data());
+
+    $output .= html::em('link', array(
+      'rel' => 'login',
+      'href' => $this->getMeLink('action', 'login')->string(),
+      'text' => t('Не надо восстанавливать, я помню пароль.'),
+      ));
+
+    return $output;
   }
 
   /**
-   * Возвращает форму для редактирования профиля.
-   *
-   * @param array $options параметры виджета.
-   *
-   * @return array данные для шаблона, ключи: form — HTML код формы.
+   * Форма редактирования профиля.
    */
   protected function onGetEdit(array $options)
   {
-    switch ($options['status']) {
-    case 'ok':
-      $output = "<p>Настройки профиля сохранены.</p>";
-      break;
+    if (!mcms::user()->id)
+      $this->ctx->redirect($this->getMeLink('action', 'register')->string());
 
-    default:
-      if (!mcms::user()->id) {
-        $url = new url();
-        $url->setarg($this->getInstanceName() .'.action', 'register');
-
-        $r = new Redirect($url->string());
-        $r->send();
-      }
-
-      $node = mcms::user()->getNode();
-      return $node->formGet()->getXML($node);
-    }
-
-    return array('form' => $output);
+    $node = mcms::user()->getNode();
+    return $node->formGet()->getXML($node);
   }
 
   private function getLogoutForm(array $options)
@@ -452,5 +460,12 @@ class UserWidget extends Widget implements iWidget
     default:
       mcms::debug("Form {$id} is not handled by UserWidget");
     }
+  }
+
+  private function getMeLink($arg, $value)
+  {
+    $url = new url();
+    $url->setarg($this->name . '.' . $arg, $value);
+    return $url;
   }
 };
