@@ -405,8 +405,20 @@ class NodeQueryBuilder
         elseif ($field == 'RAND()')
           ;
 
-        elseif (strstr($field, '.') === false)
-          $field = "`node`.`{$field}`";
+        elseif (strstr($field, '.') === false) {
+          if (in_array($field, array('id', 'rid', 'left', 'right', 'parent_id', 'class', 'created', 'updated')))
+            $field = "`node`.`{$field}`";
+
+          elseif (1 == count($classes = (array)$this->query['class'])) {
+            $this->addTable($table = 'node__idx_' . $classes[0]);
+            $field = "`{$table}`.`{$field}`";
+          }
+
+          else
+            throw new InvalidArgumentException(t('Сортировка документов нескольких типов возможна только по стандартным полям (%field — не стандартное поле).', array(
+              '%field' => $field,
+              )));
+        }
 
         else {
           $parts = explode('.', $field);

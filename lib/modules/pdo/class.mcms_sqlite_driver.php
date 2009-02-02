@@ -48,7 +48,8 @@ class mcms_sqlite_driver extends PDO_Singleton
       case 1: // General error: 1 no such table: xyz. (или no such column)
       case 17:
         if (preg_match("/(no such column:|has no column named)\s*(\S+)/i", $info[2], $matches)) {
-          $cname = trim($matches[2]);
+          if (false !== ($pos = strpos($cname = trim($matches[2]), '.')))
+            $cname = substr($cname, $pos + 1);
 
           //В SQlite в $info имя таблицы не содержится, надо проанализировать sql-запрос
           //Если в sql-запросе имеется строка node__idx_*** -
@@ -56,9 +57,17 @@ class mcms_sqlite_driver extends PDO_Singleton
           if (preg_match("/node__idx_(\w+)/i", $sql, $matches)) {
             $node = Node::load(array('class' => 'type', 'name' => $matches[1]));
             if (!empty($node)) {
+              if (empty($node->fields[$cname]['indexed']))
+                throw new RuntimeException(t("Отсутствует индекс по полю %type.%field", array(
+                  '%type' => $matches[1],
+                  '%field' => $cname,
+                  )));
+
               mcms::flog($matches[1] .': updating index structure');
               $node->recreateIdxTable($matches[1]);
-              return self::exec($sql, $params);
+              $sth = $this->prepare($sql);
+              $sth->execute($params);
+              return $sth;
             }
           } else { // Это не индексная таблица, а одна из основных
             $re = '@(FROM|UPDATE|JOIN|INTO)\s+`([^`]+)`@i';
