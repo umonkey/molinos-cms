@@ -64,13 +64,7 @@ class XMLRouter implements iRequestRouter
         '%name' => $data['name'],
         )));
 
-    $output = '';
-
-    if ($ctx->section instanceof Node)
-      $output .= $ctx->section->getXML('section');
-    if ($ctx->root instanceof Node)
-      $output .= $ctx->root->getXML('root');
-    $output .= mcms::user()->getNode()->getXML('user');
+    $output = $this->getRequestOptions($ctx);
 
     $server = ($ctx->get('xslt') != 'client');
     $stylesheet = self::findStyleSheet($ctx->theme, $data['name']);
@@ -93,6 +87,38 @@ class XMLRouter implements iRequestRouter
         self::findStyleSheet($ctx->theme, $data['name']));
     else
       return new Response($result, 'text/xml');
+  }
+
+  private function getRequestOptions(Context $ctx)
+  {
+    $output = '';
+
+    $get = $ctx->url()->as_array();
+    if (!empty($get['args'])) {
+      $tmp = '';
+      foreach ($get['args'] as $k => $v)
+        if ('__cleanurls' != $k and !empty($v) and !is_array($v))
+          $tmp .= html::em('arg', array(
+            'name' => $k,
+            ), html::cdata($v));
+      if (!empty($tmp))
+        $output .= html::em('getArgs', $tmp);
+    }
+
+    $output .= mcms::user()->getNode()->getXML('user');
+
+    if ($ctx->section instanceof Node) {
+      $output .= '<!-- requested section -->';
+      $output .= $ctx->section->getXML('section');
+    }
+    if ($ctx->root instanceof Node) {
+      $output .= '<!-- default section for this page -->';
+      $output .= $ctx->root->getXML('root');
+    }
+
+    return html::em('request', array(
+      'remoteIP' => $_SERVER['REMOTE_ADDR'],
+      ), $output);
   }
 
   private static function renderWidgets(Context $ctx, array $names)
