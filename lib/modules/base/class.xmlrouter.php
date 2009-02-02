@@ -70,6 +70,7 @@ class XMLRouter implements iRequestRouter
       $output .= $ctx->section->getXML('section');
     if ($ctx->root instanceof Node)
       $output .= $ctx->root->getXML('root');
+    $output .= mcms::user()->getNode()->getXML('user');
 
     $server = ($ctx->get('xslt') != 'client');
     $stylesheet = self::findStyleSheet($ctx->theme, $data['name']);
