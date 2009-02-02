@@ -74,7 +74,7 @@ class XMLRouter implements iRequestRouter
 
     $output .= html::em('widgets', join('', $widgets));
 
-    $data['page']['base'] = $ctx->url()->getBase();
+    $data['page']['base'] = $ctx->url()->getBase($ctx);
     $data['page']['name'] = $data['name'];
     $data['page']['prefix'] = 'themes/' . $ctx->theme;
     $data['page']['execution_time'] = microtime(true) - MCMS_START_TIME;
