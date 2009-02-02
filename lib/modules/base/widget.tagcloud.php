@@ -99,7 +99,7 @@ class TagCloudWidget extends Widget implements iWidget
     $types = "'". join("', '", $options['types']) ."'";
 
     $data = $this->ctx->db->getResults($sql = 'SELECT n.id AS id, v.name AS name, '
-      .'COUNT(*) AS cnt '
+      .'COUNT(*) AS `count` '
       .'FROM node n INNER JOIN node__rev v ON v.rid = n.rid '
       .'INNER JOIN node__rel r ON r.tid = n.id '
       .'WHERE n.class = \'tag\' '
@@ -112,16 +112,20 @@ class TagCloudWidget extends Widget implements iWidget
     // Calculate the total number of docs.
     $total = 0;
     foreach ($data as $k => $v)
-      $total += $v['cnt'];
+      $total += $v['count'];
 
     // Подсчёт процентов и установка ссылок.
     foreach ($data as $k => $v) {
-      $data[$k]['percent'] = intval(100 / $total * $v['cnt']);
-      $data[$k]['__link'] = str_replace('$id', $v['id'], $this->linktpl);
+      $data[$k]['percent'] = intval(100 / $total * $v['cnt'] / 10);
+      $data[$k]['link'] = str_replace('$id', $v['id'], $this->linktpl);
     }
 
-    $result = array('tags' => $data);
+    $output = '';
+    foreach ($data as $tag)
+      $output .= html::em('tag', $tag);
 
-    return $result;
+    return empty($output)
+      ? null
+      : html::em('tags', $output);
   }
 }
