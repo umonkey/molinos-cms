@@ -315,9 +315,13 @@ class ListWidget extends Widget
       }
     }
 
+    // Получаем список документов.
+    $nodes = Node::find($filter, $options['limit'], $options['offset']);
+    $this->countComments($nodes);
+
     // Формируем список документов.
     $tmp = '';
-    foreach ($nodes = Node::find($filter, $options['limit'], $options['offset']) as $node)
+    foreach ($nodes as $node)
       $tmp .= $node->getXML();
     if (!empty($tmp))
       $output .= html::em('documents', $tmp);
@@ -342,19 +346,11 @@ class ListWidget extends Widget
   private function countComments(array &$result)
   {
     if ($this->count_comments) {
-      $ids = array();
-      foreach ($result['documents'] as $doc)
-        $ids[] = $doc['id'];
-
+      $ids = array_keys($result);
       $data = $this->ctx->db->getResultsKV("id", "cnt", "SELECT r.tid AS id, COUNT(*) AS cnt FROM node__rel r INNER JOIN node n ON n.id = r.nid WHERE n.class = 'comment' AND n.published = 1 AND n.deleted = 0 AND r.tid IN (". join(', ', $ids) .") GROUP BY r.tid");
 
-      foreach ($result['documents'] as $k => $v) {
-        $count = array_key_exists($v['id'], $data)
-          ? $data[$v['id']]
-          : 0;
-
-        $result['documents'][$k]['_comments'] = $count;
-      }
+      foreach ($data as $k => $v)
+        $result[$k]->commentCount = $v;
     }
   }
 
