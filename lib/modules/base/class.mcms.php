@@ -435,18 +435,20 @@ class mcms
       // Расщеплённый текущий урл.
       $url = new url();
 
+      $plinks = array();
       for ($i = $beg; $i <= $end; $i++) {
         $url->setarg($paramname, ($i == $default) ? '' : $i);
+        $plinks[$i] = ($i == $current) ? '' : $url->string();
         $list .= html::em('page', array(
           'number' => $i,
-          'link' => ($i == $current) ? '' : $url->string(),
+          'link' => $plinks[$i],
           ));
       }
 
-      if (!empty($result['list'][$current - 1]))
-        $result['prev'] = $result['list'][$current - 1];
-      if (!empty($result['list'][$current + 1]))
-        $result['next'] = $result['list'][$current + 1];
+      if (!empty($plinks[$current - 1]))
+        $result['prev'] = $plinks[$current - 1];
+      if (!empty($plinks[$current + 1]))
+        $result['next'] = $plinks[$current + 1];
     }
 
     return html::em('pager', $result, $list);
