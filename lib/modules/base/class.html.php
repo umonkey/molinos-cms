@@ -111,6 +111,18 @@ class html
     return $result;
   }
 
+  public static function simpleOptions(array $elements)
+  {
+    $output = '';
+
+    foreach ($elements as $k => $v)
+      $output .= html::em('option', array(
+        'value' => $k,
+        ), $v);
+
+    return $output;
+  }
+
   public static function cdata($data)
   {
     return '<![CDATA[' . $data . ']]>';
