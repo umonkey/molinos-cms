@@ -107,6 +107,8 @@ class NodeLinkControl extends Control
 
   private function getSelect($value)
   {
+    $values = array();
+
     if (count($parts = explode('.', $this->values, 2)) == 2) {
       if (Node::count($filter = array('class' => $parts[0], 'published' => 1, '#sort' => array('name' => 'asc'))) < self::limit) {
         foreach ($z = Node::find($filter) as $tmp)
