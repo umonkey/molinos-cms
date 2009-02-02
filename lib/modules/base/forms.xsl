@@ -139,7 +139,13 @@
     <div>
       <xsl:call-template name="default_control_classes" />
       <label>
-        <input type="checkbox" name="{@name}" value="{@value}" />
+        <input type="checkbox" name="{@name}" value="{@value}">
+          <xsl:if test="@checked">
+            <xsl:attribute name="checked">
+              <xsl:text>checked</xsl:text>
+            </xsl:attribute>
+          </xsl:if>
+        </input>
         <xsl:value-of select="@label" />
       </label>
       <xsl:call-template name="default_control_info" />
