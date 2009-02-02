@@ -18,10 +18,12 @@ class NodeIndexer
         $types = mcms::db()->getResultsV("name", "SELECT v.name AS name FROM node__rev v "
           . "INNER JOIN node n ON n.rid = v.rid WHERE n.class = 'type' AND n.deleted = 0");
 
-        foreach ($types as $type) {
-          $schema = Schema::load($type);
-          if ($schema->hasIndexes())
-            self::countTable($type, $stat, $schema);
+        if (is_array($types)) {
+          foreach ($types as $type) {
+            $schema = Schema::load($type);
+            if ($schema->hasIndexes())
+              self::countTable($type, $stat, $schema);
+          }
         }
 
         mcms::cache('nodeindexer:stats', $stat);
