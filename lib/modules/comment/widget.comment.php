@@ -171,6 +171,7 @@ class CommentWidget extends Widget
 
   protected function onGetList(array $options)
   {
+    $output = '';
     $result = array();
 
     $pdo = $this->ctx->db;
@@ -181,12 +182,8 @@ class CommentWidget extends Widget
       ."AND `n`.`class` = 'comment' AND `r`.`tid` = :id",
       array(':id' => $options['doc']));
 
-    if ($total > $this->perpage)
-      $result['pager'] = $this->getPager($total, $options['page'], $this->perpage, $options['default']);
+    $cids = $this->listComments($options['doc'], empty($options['page']) ? 1 : $options['page']);
 
-    $cids = $this->listComments($options['doc'], empty($result['pager']['current']) ? 1 : $result['pager']['current']);
-
-    $output = null;
     $nodes = Node::find(array(
       'class' => 'comment',
       'id' => $cids,
@@ -196,9 +193,12 @@ class CommentWidget extends Widget
 
     $tmp = null;
     foreach ($nodes as $node)
-      $output .= $node->getXML();
+      $tmp .= $node->getXML();
     if (!empty($tmp))
       $output .= html::em('comments', $tmp);
+
+    if ($total > $this->perpage)
+      $output .= $this->getPager($total, $options['page'], $this->perpage, $options['default']);
 
     return $output;
   }

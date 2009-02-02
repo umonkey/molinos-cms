@@ -303,18 +303,6 @@ class ListWidget extends Widget
         $output .= $node[0]->getXML('section');
     }
 
-    // Добавляем пэйджер.
-    if (!empty($options['limit'])) {
-      if ($this->pager and empty($filter['#sort']['RAND()'])) {
-        $options['count'] = Node::count($filter);
-
-        $result['pager'] = mcms::pager($options['count'], $options['page'],
-          $options['limit'], $this->getInstanceName() .'.page');
-        if ($result['pager']['pages'] < 2)
-          unset($result['pager']);
-      }
-    }
-
     // Получаем список документов.
     $nodes = Node::find($filter, $options['limit'], $options['offset']);
     $this->countComments($nodes);
@@ -325,6 +313,16 @@ class ListWidget extends Widget
       $tmp .= $node->getXML();
     if (!empty($tmp))
       $output .= html::em('documents', $tmp);
+
+    // Добавляем пэйджер.
+    if (!empty($options['limit'])) {
+      if ($this->pager and empty($filter['#sort']['RAND()'])) {
+        $options['count'] = Node::count($filter);
+
+        $output .= mcms::pager($options['count'], $options['page'],
+          $options['limit'], $this->getInstanceName() .'.page');
+      }
+    }
 
     /*
     // Добавляем информацию о поиске.
