@@ -403,10 +403,10 @@ class mcms
     Loader::rebuild();
   }
 
-  public static function pager($total, $current, $limit,
-    $paramname = 'page', $default = 1)
+  public static function pager($total, $current, $limit, $paramname = 'page', $default = 1)
   {
     $result = array();
+    $list = '';
 
     if (empty($limit))
       return null;
@@ -437,7 +437,10 @@ class mcms
 
       for ($i = $beg; $i <= $end; $i++) {
         $url->setarg($paramname, ($i == $default) ? '' : $i);
-        $result['list'][$i] = ($i == $current) ? '' : $url->string();
+        $list .= html::em('page', array(
+          'number' => $i,
+          'link' => ($i == $current) ? '' : $url->string(),
+          ));
       }
 
       if (!empty($result['list'][$current - 1]))
@@ -446,7 +449,7 @@ class mcms
         $result['next'] = $result['list'][$current + 1];
     }
 
-    return $result;
+    return html::em('pager', $result, $list);
   }
 
   public static function fatal()
