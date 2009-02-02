@@ -85,6 +85,8 @@ class CommentFormWidget extends Widget
       throw new WidgetHaltedException();
     }
 
+    $options['#cache'] = false;
+
     return $this->options = $options;
   }
 
