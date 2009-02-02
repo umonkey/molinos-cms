@@ -65,7 +65,7 @@ class SearchWidget extends Widget implements iWidget
     if (null === ($host = $this->gas_host))
       $host = $_SERVER['HTTP_HOST'];
 
-    return array(
+    return html::em('search', array(
       'mode' => 'gas',
       'apikey' => $config['gas_key'],
       'hostname' => $host,
@@ -74,7 +74,7 @@ class SearchWidget extends Widget implements iWidget
       'onlyform' => (bool)strcasecmp($this->gas_page, trim($this->ctx->query(), '/')),
       'resultpage' => $this->gas_page,
       'query' => $options['q'],
-      );
+      ));
   }
 
   private function getResults(array $options)
