@@ -48,12 +48,6 @@ class UserWidget extends Widget implements iWidget
       $groups[$node->id] = $node->name;
     
     return array(
-      'groups' => array(
-        'type' => 'SetControl',
-        'label' => t('Группы для новых пользователей'),
-        'options' => $groups,
-        'description' => t('Укажите список групп, в которые будут добавлены пользователи, регистрирующиеся на сайте.'),
-        ),
       'submittext' => array(
         'type' => 'TextLineControl',
         'label' => t('Текст для кнопки входа'),
