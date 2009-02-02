@@ -93,12 +93,12 @@ class CommentFormWidget extends Widget
     $form = $this->getNewForm();
     $form->captcha = true;
 
-    return $form->getXML(Control::data(array()));
+    return $form->getXML(Node::create('comment'));
   }
 
   protected function getNewForm($strip = true)
   {
-    $form = Node::create('comment')->formGet(/* simple = */ true);
+    $form = Node::create('comment')->formGet();
 
     $form->addControl(new HiddenControl(array(
       'value' => 'comment_node',
