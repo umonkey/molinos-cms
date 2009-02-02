@@ -366,6 +366,24 @@ class url
     return $result;
   }
 
+  public function getArgsXML()
+  {
+    $tmp = '';
+    $get = preg_split('/[?&]+/', $this->getArgsAsString(), -1, PREG_SPLIT_NO_EMPTY);
+
+    foreach ($get as $arg) {
+      $parts = explode('=', $arg);
+      if ('q' != $parts[0])
+        $tmp .= html::em('arg', array(
+          'name' => $parts[0],
+          ), html::cdata($parts[1]));
+    }
+
+    return empty($tmp)
+      ? ''
+      : html::em('getArgs', $tmp);
+  }
+
   private function fixEscape($value)
   {
     return urlencode($value);

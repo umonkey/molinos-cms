@@ -91,20 +91,7 @@ class XMLRouter implements iRequestRouter
 
   private function getRequestOptions(Context $ctx)
   {
-    $output = '';
-
-    $get = $ctx->url()->as_array();
-    if (!empty($get['args'])) {
-      $tmp = '';
-      foreach ($get['args'] as $k => $v)
-        if ('__cleanurls' != $k and !empty($v) and !is_array($v))
-          $tmp .= html::em('arg', array(
-            'name' => $k,
-            ), html::cdata($v));
-      if (!empty($tmp))
-        $output .= html::em('getArgs', $tmp);
-    }
-
+    $output = $ctx->url()->getArgsXML();
     $output .= mcms::user()->getNode()->getXML('user');
 
     if ($ctx->section instanceof Node) {
