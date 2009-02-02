@@ -269,8 +269,8 @@ class TypeNode extends Node implements iContentType
       $name = 'type';
 
     // Для новых типов свой набор полей.
-    if ($this->isNew())
-      $schema = new Schema(array(
+    if ($this->isNew()) {
+      $this->fields = array(
         'name' => array(
           'type' => 'TextLineControl',
           'label' => t('Заголовок'),
@@ -286,9 +286,11 @@ class TypeNode extends Node implements iContentType
           'label' => t('Поместить в раздел'),
           'required' => true,
           ),
-        ));
-    else
+        );
+      $schema = new Schema($this->fields);
+    } else {
       $schema = Schema::load($name);
+    }
 
     foreach ($schema as $name => $field) {
       if (!$field->volatile)
