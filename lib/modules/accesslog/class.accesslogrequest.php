@@ -5,6 +5,11 @@ class AccessLogRequest implements iRequestHook
   public static function hookRequest(Context $ctx = null)
   {
     if (null !== $ctx) {
+      // Лог в SQLite приводит к тому, что каждый посетитель
+      // блокирует БД эксклюзивно.
+      if ('SQLite' == $ctx->db->getDbType())
+        return;
+
       $conf = mcms::modconf('accesslog');
 
       try {
