@@ -284,6 +284,7 @@ table.padded {
 table.mcms.nodelist th,
 table.mcms.nodelist td {
   text-align: left;
+  white-space: nowrap;
 }
 
 table.mcms th,
@@ -521,6 +522,12 @@ td.nowrap {
 }
 .nodelist td.field-name {
   width: 100%;
+}
+.nodelist td.field-name a {
+  white-space: normal;
+  display: inline-block;
+  height: 1.3em;
+  overflow: hidden;
 }
 
 .helpmsg {
