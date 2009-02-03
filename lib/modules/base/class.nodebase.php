@@ -124,10 +124,11 @@ class NodeBase
   {
     $content = '';
     $attrs = array();
+    $schema = $this->getSchema();
 
     foreach ($data as $k => $v) {
       // Стандартные поля делаем атрибутами.
-      if (in_array($k, array('id', 'parent_id', 'rid', 'class', 'name', 'lang', 'created', 'updated', 'published', 'deleted', 'depth')))
+      if (self::isInternalField($k))
         $attrs[$k] = $v;
 
       // Служебные поля игнорируем.
@@ -138,23 +139,30 @@ class NodeBase
       elseif (empty($v))
         continue;
 
-      // Ноды разворачиваем в субэлементы.
-      elseif ($v instanceof Node)
-        $content .= $v->getXML($k);
+      else {
+        $formatted = isset($schema[$k])
+          ? $schema[$k]->format($v)
+          : false;
 
-      // Массивы — тоже (их тут вообще не должно быть).
-      elseif (is_array($v)) {
-        if (array_key_exists('class', $v))
-          $content .= html::em($k, $v);
+        $formatted = (empty($formatted) or $formatted == $v)
+          ? null
+          : html::em('html', html::cdata($formatted));
+
+        // Ноды разворачиваем в субэлементы.
+        if ($v instanceof Node)
+          $content .= $v->getXML($k, $formatted);
+
+        // Массивы — тоже (их тут вообще не должно быть).
+        elseif (is_array($v)) {
+          if (array_key_exists('class', $v))
+            $content .= html::em($k, $v, $formatted);
+        }
+
+        // Всё остальное — cdata.
+        else {
+          $content .= html::em($k, null === $formatted ? html::cdata($v) : $formatted);
+        }
       }
-
-      // Всё, что содержит спецсимволы — в cdata.
-      elseif (strlen($v) != strcspn($v, '<>&'))
-        $content .= html::em($k, html::cdata($v));
-
-      // Всё остальное — простые элементы.
-      else
-        $content .= html::em($k, $v);
     }
 
     $attrs['displayName'] = $this->getName();
@@ -2265,5 +2273,27 @@ class NodeBase
   public function canEditFields()
   {
     return true;
+  }
+
+  private static function isInternalField($name)
+  {
+    switch ($name) {
+    case 'id':
+    case 'parent_id':
+    case 'rid':
+    case 'class':
+    case 'name':
+    case 'lang':
+    case 'left':
+    case 'right':
+    case 'created':
+    case 'updated':
+    case 'published':
+    case 'deleted':
+    case 'depth':
+      return true;
+    default:
+      return false;
+    }
   }
 };

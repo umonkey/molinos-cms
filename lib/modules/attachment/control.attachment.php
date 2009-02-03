@@ -132,4 +132,40 @@ class AttachmentControl extends Control
 
     return $value;
   }
+
+  public function format($value)
+  {
+    if ($value instanceof FileNode) {
+      switch ($value->filetype) {
+      case 'video/flv':
+      case 'video/x-flv':
+        $url = new url(array(
+          'path' => 'lib/modules/attachment/player.swf',
+          ));
+        $url->setarg('file', mcms::config('filestorage') . '/' . $value->filepath);
+        $url->setarg('width', $value->width);
+        $url->setarg('height', $value->height);
+
+        $params = html::em('param', array(
+          'name' => 'movie',
+          'value' => $url->string(),
+          ));
+        $params .= html::em('param', array(
+          'name' => 'wmode',
+          'value' => 'transparent',
+          ));
+
+        $obj = array(
+          'type' => 'application/x-shockwave-flash',
+          'data' => $url->string(),
+          'width' => $value->width,
+          'height' => $value->height,
+          );
+
+        return html::em('object', $obj, $params);
+      }
+    }
+
+    return $value;
+  }
 };

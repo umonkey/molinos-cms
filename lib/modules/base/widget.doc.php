@@ -86,27 +86,15 @@ class DocWidget extends Widget implements iWidget
    */
   protected function getRequestOptions(Context $ctx)
   {
+    if (!$ctx->document->id)
+      return false;
+
     if (is_array($options = parent::getRequestOptions($ctx))) {
       if (null === ($options['action'] = $ctx->get('action', $this->mode)))
         $options['action'] = 'view';
 
-      if ($uid = mcms::user()->id) {
-        $options['cachecontrol'] = $uid;
-        $options['uid'] = $uid;
-      } else {
-        $options['cachecontrol'] = array_keys(mcms::user()->getGroups());
-      }
-
       if ($this->showneighbors)
         $options['section'] = $ctx->section;
-
-      if (empty($this->fixed))
-        $options['root'] = $ctx->document;
-      else
-        $options['root'] = $this->fixed;
-
-      if ('' == strval($options['root']))
-        return false;
     }
 
     return $options;
@@ -148,7 +136,7 @@ class DocWidget extends Widget implements iWidget
   {
     $output = '';
 
-    if (null !== ($node = $this->getDocument($options))) {
+    if (null !== ($node = $this->ctx->document)) {
       if (in_array($node->class, array('tag', 'config')))
         throw new PageNotFoundException();
 
@@ -159,7 +147,6 @@ class DocWidget extends Widget implements iWidget
         throw new ForbiddenException(t('У вас нет доступа к этому документу.'));
 
       $output .= $node->getXML('document');
-      // $output .= $node->getActionLinksXML();
 
       if (count($sids = $node->linkListParents('tag', true))) {
         $tmp = '';
@@ -219,7 +206,10 @@ class DocWidget extends Widget implements iWidget
         : null;
 
     elseif (!empty($options['root']))
-      return Node::load($options['root']);
+      return mcms::debug(Node::load(array(
+        'id' => $options['root'],
+        '#cache' => false,
+        )));
 
     return null;
   }
