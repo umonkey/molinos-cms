@@ -125,7 +125,16 @@ class html
 
   public static function cdata($data)
   {
-    return '<![CDATA[' . $data . ']]>';
+    if (empty($data))
+      return null;
+
+    if (!is_string($data))
+      throw new InvalidArgumentException(t('Параметр для html::cdata() должен быть строкой.'));
+
+    if (strlen($data) != strcspn($data, '<>&'))
+      return '<![CDATA[' . $data . ']]>';
+    else
+      return $data;
   }
 
   public static function formatExtras(array $extras)
