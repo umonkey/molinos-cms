@@ -46,7 +46,11 @@ class Request
     }
 
     catch (Exception $e) {
-      $response = $this->tryOnce($ctx, 'errors/500');
+      try {
+        $response = $this->tryOnce($ctx, 'errors/500');
+      } catch (Exception $e2) {
+        mcms::fatal($e);
+      }
     }
 
     return $response;
