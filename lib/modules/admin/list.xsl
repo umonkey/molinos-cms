@@ -202,10 +202,10 @@
             </xsl:otherwise>
           </xsl:choose>
           <td class="field-title">
-            <xsl:value-of select="title" />
+            <xsl:value-of select="@title" />
           </td>
           <td class="field-theme">
-            <xsl:value-of select="theme" />
+            <xsl:value-of select="@theme" />
           </td>
         </tr>
       </xsl:for-each>
