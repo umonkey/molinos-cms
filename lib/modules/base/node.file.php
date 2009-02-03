@@ -624,6 +624,9 @@ class FileNode extends Node implements iContentType
 
   public function getXML($em = 'node', $_content = null)
   {
+    if (!file_exists(os::path(mcms::config('filestorage'), $this->filepath)))
+      return null;
+
     if (!empty($this->data['versions'])) {
       $versions = '';
 
