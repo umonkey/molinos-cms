@@ -114,8 +114,12 @@ class mcms_sqlite_driver extends PDO_Singleton
     if (false === $log)
       $log = mcms::config('log.sql');
 
-    if ($log)
-      error_log($sql . "\n", 3, $log);
+    if ($log) {
+      error_log("> " . $sql . "\n", 3, $log);
+      foreach (debug_backtrace() as $item)
+        if (!empty($item['file']))
+          error_log(sprintf("  %s @ %s\n", os::localPath($item['file']), $item['line']), 3, $log);
+    }
 
     $newsql = $sql;
 
