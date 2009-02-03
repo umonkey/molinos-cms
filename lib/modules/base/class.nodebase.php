@@ -122,6 +122,9 @@ class NodeBase
    */
   protected function getRealXML($em, array $data, $_content)
   {
+    if (false !== ($cached = mcms::cache($ckey = 'node:' . $this->id . ',' . $this->rid . ':xml')))
+      return $cached;
+
     $content = '';
     $attrs = array();
     $schema = $this->getSchema();
@@ -167,7 +170,9 @@ class NodeBase
 
     $attrs['displayName'] = $this->getName();
 
-    return html::em($em, $attrs, $content . $_content);
+    mcms::cache($ckey, $output = html::em($em, $attrs, $content . $_content));
+
+    return $output;
   }
 
   /**
