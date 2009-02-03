@@ -136,36 +136,59 @@ class AttachmentControl extends Control
   public function format($value)
   {
     if ($value instanceof FileNode) {
+      if (!file_exists($url = mcms::config('filestorage') . '/' . $value->filepath))
+        return html::em('p', array(
+          'class' => 'error',
+          ), t('Ошибка: файл не найден.'));
+
       switch ($value->filetype) {
       case 'video/flv':
       case 'video/x-flv':
-        $url = new url(array(
-          'path' => 'lib/modules/attachment/player.swf',
-          ));
-        $url->setarg('file', mcms::config('filestorage') . '/' . $value->filepath);
-        $url->setarg('width', $value->width);
-        $url->setarg('height', $value->height);
-
-        $params = html::em('param', array(
-          'name' => 'movie',
-          'value' => $url->string(),
-          ));
-        $params .= html::em('param', array(
-          'name' => 'wmode',
-          'value' => 'transparent',
-          ));
-
-        $obj = array(
-          'type' => 'application/x-shockwave-flash',
-          'data' => $url->string(),
+        return $this->getPlayer(mcms::config('filestorage') . '/' . $value->filepath, array(
           'width' => $value->width,
           'height' => $value->height,
-          );
-
-        return html::em('object', $obj, $params);
+          ));
+      case 'audio/mpeg':
+        return $this->getPlayer(mcms::config('filestorage') . '/' . $value->filepath, array(
+          'width' => 300,
+          'height' => 20,
+          ));
       }
     }
 
     return $value;
+  }
+
+  private function getPlayer($url, array $options = array())
+  {
+    $options = array_merge(array(
+      'width' => 400,
+      'height' => 300,
+      ), $options);
+
+    $url = new url(array(
+      'path' => 'lib/modules/attachment/player.swf',
+      ));
+    $url->setarg('file', $url);
+    $url->setarg('width', $options['width']);
+    $url->setarg('height', $options['height']);
+
+    $params = html::em('param', array(
+      'name' => 'movie',
+      'value' => $url->string(),
+      ));
+    $params .= html::em('param', array(
+      'name' => 'wmode',
+      'value' => 'transparent',
+      ));
+
+    $obj = array(
+      'type' => 'application/x-shockwave-flash',
+      'data' => $url->string(),
+      'width' => $options['width'],
+      'height' => $options['height'],
+      );
+
+    return html::em('object', $obj, $params);
   }
 };
