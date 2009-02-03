@@ -64,8 +64,8 @@ class AdminListHandler implements iAdminList
     }
 
     $output = self::getNodeActions((array)$this->selectors, $this->actions);
-
     $output .= $data;
+    $output .= $this->getPager();
 
     return html::em('block', array(
       'name' => 'list',

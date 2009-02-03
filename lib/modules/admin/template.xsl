@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:import href="../base/forms.xsl" />
+  <xsl:import href="../base/pager.xsl" />
   <xsl:import href="list.xsl" />
 
   <xsl:output
@@ -53,13 +54,13 @@
       <div id="content_wrapper">
         <div id="center">
           <xsl:apply-templates select="blocks/block" mode="content" />
+          <xsl:apply-templates select="blocks/block/pager" />
         </div>
       </div>
     </div>
 
     <xsl:apply-templates select="blocks/block[@name = 'signature']" />
   </xsl:template>
-
 
   <!-- всякие ошибки -->
   <xsl:template match="page[@status != 200]" mode="body">
