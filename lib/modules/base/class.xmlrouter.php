@@ -97,11 +97,11 @@ class XMLRouter implements iRequestRouter
     $output = $ctx->url()->getArgsXML();
     $output .= mcms::user()->getNode()->getXML('user');
 
-    if ($ctx->section instanceof Node) {
+    if ($ctx->section instanceof Node and $ctx->section->id) {
       $output .= '<!-- requested section -->';
       $output .= $ctx->section->getXML('section');
     }
-    if ($ctx->root instanceof Node) {
+    if ($ctx->root instanceof Node and $ctx->root->id) {
       $output .= '<!-- default section for this page -->';
       $output .= $ctx->root->getXML('root');
     }
