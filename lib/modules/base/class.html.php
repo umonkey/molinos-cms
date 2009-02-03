@@ -128,7 +128,7 @@ class html
     if (empty($data))
       return null;
 
-    if (!is_string($data))
+    if (is_array($data) or is_object($data))
       throw new InvalidArgumentException(t('Параметр для html::cdata() должен быть строкой.'));
 
     if (strlen($data) != strcspn($data, '<>&'))
