@@ -95,6 +95,8 @@ class DocWidget extends Widget implements iWidget
 
       if ($this->showneighbors)
         $options['section'] = $ctx->section;
+
+      $options['docid'] = $ctx->document->id;
     }
 
     return $options;
