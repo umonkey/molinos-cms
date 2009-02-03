@@ -317,7 +317,7 @@ class Context
       elseif (is_numeric($this->_args[$key]))
         $this->_args[$key] = Node::load(array(
           'id' => $this->_args[$key],
-          '#cache' => true,
+          '#cache' => false,
           ));
       return $this->_args[$key];
 
