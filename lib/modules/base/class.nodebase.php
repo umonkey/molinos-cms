@@ -2027,6 +2027,10 @@ class NodeBase
           .'(SELECT `id` FROM `node` WHERE `class` = \'tag\' '
           .'AND `deleted` = 0 AND `published` = 1))';
 
+      // Подтягиваем авторов.
+      $sql .= " UNION SELECT `id`, `uid`, 'uid' AS `_key` FROM `node` WHERE `id` IN ("
+        . join(', ', array_keys($nodes)) . ")";
+
       foreach (mcms::db()->getResults($sql) as $l)
           $map[$l['nid']][] = $l;
 
