@@ -33,6 +33,8 @@ class VideoControl extends TextLineControl implements iFormControl
   {
     $options = array_merge(array('width' => 425, 'height' => 318), $options);
 
+    $nothing = 'You need Adobe Flash for this.';
+
     if (preg_match('%^http://vimeo.com/([0-9]+)%', $url, $m1)) {
       $link['type'] = 'video/x-flv';
       $link['embed'] = '<object width="'. $options['width'] .'" height="'. $options['height'] .'">'
