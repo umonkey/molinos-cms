@@ -122,57 +122,59 @@ class NodeBase
    */
   protected function getRealXML($em, array $data, $_content)
   {
-    if (false !== ($cached = mcms::cache($ckey = 'node:' . $this->id . ',' . $this->rid . ':' . $em . ':xml')))
-      return $cached;
+    $ckey = 'node:' . $this->id . ':xml';
 
-    $content = '';
-    $attrs = array();
-    $schema = $this->getSchema();
+    if (!is_array($attrs = mcms::cache($ckey))) {
+      $content = '';
+      $attrs = array();
+      $schema = $this->getSchema();
 
-    foreach ($data as $k => $v) {
-      // Стандартные поля делаем атрибутами.
-      if (self::isInternalField($k))
-        $attrs[$k] = $v;
+      foreach ($data as $k => $v) {
+        // Стандартные поля делаем атрибутами.
+        if (self::isInternalField($k))
+          $attrs[$k] = $v;
 
-      // Служебные поля игнорируем.
-      elseif (in_array($k, array('left', 'right')))
-        ;
+        // Служебные поля игнорируем.
+        elseif (in_array($k, array('left', 'right')))
+          ;
 
-      // Дальше идут субэлементы, пустые игнорируем.
-      elseif (empty($v))
-        continue;
+        // Дальше идут субэлементы, пустые игнорируем.
+        elseif (empty($v))
+          continue;
 
-      else {
-        $formatted = isset($schema[$k])
-          ? $schema[$k]->format($v)
-          : false;
-
-        $formatted = (empty($formatted) or $formatted == $v)
-          ? null
-          : html::em('html', html::cdata($formatted));
-
-        // Ноды разворачиваем в субэлементы.
-        if ($v instanceof Node)
-          $content .= $v->getXML($k, $formatted);
-
-        // Массивы — тоже (их тут вообще не должно быть).
-        elseif (is_array($v)) {
-          if (array_key_exists('class', $v))
-            $content .= html::em($k, $v, $formatted);
-        }
-
-        // Всё остальное — cdata.
         else {
-          $content .= html::em($k, null === $formatted ? html::cdata($v) : $formatted);
+          $formatted = isset($schema[$k])
+            ? $schema[$k]->format($v)
+            : false;
+
+          $formatted = (empty($formatted) or $formatted == $v)
+            ? null
+            : html::em('html', html::cdata($formatted));
+
+          // Ноды разворачиваем в субэлементы.
+          if ($v instanceof Node)
+            $content .= $v->getXML($k, $formatted);
+
+          // Массивы — тоже (их тут вообще не должно быть).
+          elseif (is_array($v)) {
+            if (array_key_exists('class', $v))
+              $content .= html::em($k, $v, $formatted);
+          }
+
+          // Всё остальное — cdata.
+          else {
+            $content .= html::em($k, null === $formatted ? html::cdata($v) : $formatted);
+          }
         }
       }
+
+      $attrs['displayName'] = $this->getName();
+      $attrs['#text'] = $content . $_content;
+
+      mcms::cache($ckey, $attrs);
     }
 
-    $attrs['displayName'] = $this->getName();
-
-    mcms::cache($ckey, $output = html::em($em, $attrs, $content . $_content));
-
-    return $output;
+    return html::em($em, $attrs);
   }
 
   /**
