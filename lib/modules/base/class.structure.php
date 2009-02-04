@@ -15,6 +15,8 @@
 
 class Structure
 {
+  const version = 1;
+
   private static $instance = null;
 
   private $loaded = false;
@@ -47,6 +49,11 @@ class Structure
       throw new RuntimeException(t('Не удалось загрузить структуру сайта.'));
 
     $data = include($file);
+
+    if (empty($data['version']) or $data['version'] < self::version) {
+      $this->rebuild();
+      $data = include($file);
+    }
 
     if (!is_array($data))
       throw new RuntimeException(t('Считанная из файла структура системы содержит мусор.'));
@@ -93,95 +100,33 @@ class Structure
     if (null === ($domain = $this->findDomain($domain, $overrides)))
       return false;
 
-    $path = '/' . rtrim($path, '/');
-    $match = null;
+    foreach ($this->domains[$domain] as $re => $meta) {
+      if (preg_match('#^' . $re . '$#', $path, $args)) {
+        // Удаляем первый параметр (всё выражение).
+        array_shift($args);
 
-    foreach ($this->domains[$domain] as $page => $meta) {
-      if (strlen($page) > strlen($match)) {
-        // Точное совпадение.
-        if ($path == $page) {
-          $match = $page;
-          $args = array();
-          break;
-        }
+        $params = empty($meta['params'])
+          ? array()
+          : explode('+', $meta['params']);
 
-        if (0 === strpos($path, $page)) {
-          if ('/' == ($realpage = $page))
-            $page = '';
+        if (count($args) <= count($params) and !empty($meta['published'])) {
+          $result = array(
+            'name' => $meta['name'],
+            'page' => $meta,
+            'args' => array(),
+            );
 
-          // Если запрошенный путь начинается с имени текущей страницы
-          // и содержит слэш — за ним, вероятно, следуют параметры.
-          if ('/' == substr($path, strlen($page), 1)) {
-            $args = explode('/', trim(substr($path, strlen($page) + 1), '/'));
+          foreach ($args as $k => $v)
+            $result['args'][$params[$k]] = intval($v);
 
-            // У страницы нет параметров, однако в запросе они есть — не то.
-            if (empty($meta['params']) and !empty($args))
-              continue;
+          $result['page'] = array_merge($result['page'], $overrides);
 
-            // У страницы меньше параметров, чем есть в запросе — не то.
-            if (count($args) > count(explode('+', $meta['params'])))
-              continue;
-
-            $match = $realpage;
-          }
+          return $result;
         }
       }
     }
 
-    if (null === $match)
-      return false;
-
-    $result = array(
-      'name' => ('/' == $match)
-        ? 'index'
-        : str_replace('/', '-', ltrim($match, '/')),
-      'page' => $this->domains[$domain][$match],
-      'args' => $args,
-      );
-
-    foreach ($overrides as $k => $v)
-      $result['page'][$k] = $v;
-
-    if (empty($result['page']['published']))
-      return false;
-
-    if (false === ($result['args'] = $this->findPageParameters($result['page'], $args)))
-      return false;
-
-    return $result;
-  }
-
-  /**
-   * Возвращает параметры страницы в виде массива или false в случае ошибки.
-   */
-  private function findPageParameters(array $page, array $path_args)
-  {
-    if (empty($page['params']))
-      return empty($path_args)
-        ? array()
-        : null;
-
-    $keys = explode('+', $page['params']);
-
-    if (empty($page['params']))
-      mcms::debug($page, $keys, $path_args);
-
-    // Параметров в урле больше, чем должно быть => мусор => 404.
-    if (count($path_args) > count($keys))
-      return false;
-
-    foreach ($path_args as $arg)
-      if (!is_numeric($arg))
-        throw new PageNotFoundException();
-
-    $result = array();
-
-    foreach ($keys as $k => $v)
-      $result[$v] = isset($path_args[$k])
-        ? $path_args[$k]
-        : null;
-
-    return $result;
+    return false;
   }
 
   /**
@@ -281,6 +226,7 @@ class Structure
   {
     if ($this->loaded)
       os::writeArray($this->getFileName(), array(
+        'version' => self::version,
         'widgets' => $this->widgets,
         'aliases' => $this->aliases,
         'domains' => $this->domains,

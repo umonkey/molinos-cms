@@ -94,28 +94,59 @@ class StructureMA
 
   private function addPage($domain, DomainNode $page, $name = '/')
   {
-    $data = array(
-      'published' => $page->published,
-      );
+    if ($page->published) {
+      $data = array(
+        'published' => $page->published,
+        );
 
-    foreach (array('title', 'http_code', 'theme', 'lang', 'html_charset', 'params', 'defaultsection', 'robots') as $k) {
-      if (isset($page->$k))
-        $data[$k] = $page->$k;
+      foreach (array('title', 'http_code', 'theme', 'lang', 'html_charset', 'params', 'defaultsection', 'robots') as $k) {
+        if (isset($page->$k))
+          $data[$k] = $page->$k;
+      }
+
+      $widgets = Node::find(array(
+        'class' => 'widget',
+        'tags' => $page->id,
+        ));
+
+      foreach ($widgets as $node)
+        $data['widgets']['default'][] = $node->name;
+
+      $data['name'] = ('/' == $name)
+        ? 'index'
+        : str_replace('/', '-', trim($name, '/'));
+
+      $re = $this->pageNameToRE($name, $page->params);
+      $this->domains[$domain][$re] = $data;
+
+      if (is_array($page->children))
+        foreach ($page->children as $child)
+          $this->addPage($domain, $child, rtrim($name, '/') . '/' . $child->name);
+    }
+  }
+
+  private function pageNameToRE($name, $params)
+  {
+    $name = trim($name, '/');
+
+    switch ($params) {
+    case 'sec':
+    case 'doc':
+      $args = '(\d+)?';
+      break;
+    case 'sec+doc':
+      $args = '(\d+)?(?/(\d+))';
+      break;
+    default:
+      $args = '';
     }
 
-    $widgets = Node::find(array(
-      'class' => 'widget',
-      'tags' => $page->id,
-      ));
+    $re = $name;
+    if (!empty($name) and !empty($args))
+      $re .= '/';
+    $re .= $args;
 
-    foreach ($widgets as $node)
-      $data['widgets']['default'][] = $node->name;
-
-    $this->domains[$domain][$name] = $data;
-
-    if (is_array($page->children))
-      foreach ($page->children as $child)
-        $this->addPage($domain, $child, rtrim($name, '/') . '/' . $child->name);
+    return $re;
   }
 
   private function getAccess()
