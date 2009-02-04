@@ -30,9 +30,7 @@ class User
 
     // Если пользоватль не найден — делаем анонимным.
     if (null === $this->node) {
-      $this->node = Node::create('user', array(
-        'name' => 'anonymous',
-        ));
+      $this->node = NodeStub::create(null, Context::last()->db);
     }
 
     // Если найден — загрузим группы.

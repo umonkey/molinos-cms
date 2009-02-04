@@ -304,7 +304,7 @@ class NodeStub
     if (null !== $this->id) {
       $params = array($this->id);
       $sql = "SELECT `nid` FROM `node__rel` WHERE `tid` = ? "
-        . "AND `nid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 1)";
+        . "AND `nid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 0)";
 
       if (null !== $class) {
         $sql .= " AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = ?)";
@@ -408,18 +408,44 @@ class NodeStub
   /**
    * Добавление объекта в стэк.
    */
-  public static function push(NodeStub $node)
+  public function push($em = 'node')
   {
-    if (null === $node->id)
-      throw new InvalidArgumentException(t('Нельзя добавить в стэк несуществующую ноду.'));
-    self::$stack[$node->id] = $node;
+    if (null === $this->id)
+      return null;
+    return $this->getXML($em);
+
+    // Когда научимся нормально работать с контекстом, можно будет
+    // сэкономить на размере, используя ссылки по ходу дерева и
+    // один общий массив с объектами.
+    /*
+    if (!array_key_exists($this->id, self::$stack))
+      self::$stack[$this->id] = $this;
+    */
   }
 
   /**
-   * Очистка стэка.
+   * Возврат стэка и очистка.
    */
-  public static function cleanStack()
+  public static function getStack($em = 'nodes')
   {
+    $result = '';
+
+    if (0 == ($count = count(self::$stack)))
+      return null;
+
+    ksort(self::$stack);
+    foreach (self::$stack as $node)
+      $result .= $node->getXML();
+
     self::$stack = array();
+
+    return html::em($em, array(
+      'count' => $count,
+      ), $result);
+  }
+
+  public function getObject()
+  {
+    return Node::create($this);
   }
 }

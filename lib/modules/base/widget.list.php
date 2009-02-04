@@ -166,9 +166,7 @@ class ListWidget extends Widget
       if ($this->allowoverride and ($o = $this->get('section')))
         $options['filter']['tags'] = array($o);
 
-      $options['document'] = $ctx->document
-        ? $ctx->document->getRaw()
-        : array();
+      $options['document'] = $ctx->document->id;
 
       if (is_array($tmp = $this->get('classes')))
         $options['filter']['class'] = array_unique($tmp);
@@ -283,10 +281,11 @@ class ListWidget extends Widget
 
     // Возращаем путь к текущему корню.
     // FIXME: это неверно, т.к. виджет может возвращать произвольный раздел!
-    if (null !== $this->ctx->section->id) {
+    if (null !== $this->ctx->section) {
       $tmp = '';
-      foreach ($this->ctx->section->getParents() as $node)
-        $tmp .= $node->getXML();
+      foreach ($this->ctx->section->getParents() as $node) {
+        $tmp .= $node->push('section');
+      }
       $output .= html::em('path', $tmp);
     }
 
@@ -294,10 +293,7 @@ class ListWidget extends Widget
       $result['section'] = null;
     else {
       $node = NodeStub::create($options['filter']['tags'][0], $this->ctx->db);
-      if (null === ($tmp = $node->getXML('section')))
-        throw new PageNotFoundException(t('Запрошенный раздел не найден.'));
-      else
-        $output .= $node->getXML('section');
+      $output .= $node->push('section');
     }
 
     // Получаем список документов.
@@ -307,7 +303,7 @@ class ListWidget extends Widget
     // Формируем список документов.
     $tmp = '';
     foreach ($nodes as $node)
-      $tmp .= $node->getXML();
+      $tmp .= $node->push('document');
     if (!empty($tmp))
       $output .= html::em('documents', $tmp);
 
