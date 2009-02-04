@@ -122,7 +122,7 @@ class NodeBase
    */
   protected function getRealXML($em, array $data, $_content)
   {
-    if (false !== ($cached = mcms::cache($ckey = 'node:' . $this->id . ',' . $this->rid . ':xml')))
+    if (false !== ($cached = mcms::cache($ckey = 'node:' . $this->id . ',' . $this->rid . ':' . $em . ':xml')))
       return $cached;
 
     $content = '';
