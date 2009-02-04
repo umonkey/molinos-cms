@@ -8,6 +8,7 @@ class StructureMA
   private $aliases = array();
   private $access = array();
   private $schema = array();
+  private $modules = array();
 
   public function import()
   {
@@ -22,7 +23,7 @@ class StructureMA
       'domains' => $this->domains,
       'schema' => $this->schema,
       'access' => $this->access,
-      'templates' => $this->getTemplates(),
+      'modules' => $this->getModules(),
       );
   }
 
@@ -200,15 +201,18 @@ class StructureMA
       $this->schema[$type] = Schema::load($type, /* $cached = */ false);
   }
 
-  private function getTemplates()
+  private function getModules()
   {
+    $data = mcms::db()->getResultsKV("name", "data", "SELECT `v`.`name`, `v`.`data` "
+      . "FROM `node` `n` "
+      . "INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
+      . "WHERE `n`.`deleted` = 0 AND `n`.`class` = 'moduleinfo'");
+
     $result = array();
 
-    foreach (Loader::getImplementors('iTemplateProcessor') as $class) {
-      if (class_exists($class))
-        foreach (call_user_func(array($class, 'getExtensions')) as $ext)
-          $result[$ext] = $class;
-    }
+    foreach ($data as $k => $v)
+      if (!empty($v) and is_array($conf = unserialize($v)))
+        $result[$k] = $conf;
 
     return $result;
   }

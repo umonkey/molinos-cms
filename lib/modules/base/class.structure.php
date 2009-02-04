@@ -15,7 +15,7 @@
 
 class Structure
 {
-  const version = 1;
+  const version = 2;
 
   private static $instance = null;
 
@@ -25,7 +25,7 @@ class Structure
   protected $domains = array();
   protected $access = array();
   protected $schema = array();
-  protected $templates = array();
+  protected $modules = array();
 
   public static function getInstance()
   {
@@ -232,7 +232,7 @@ class Structure
         'domains' => $this->domains,
         'schema' => $this->schema,
         'access' => $this->access,
-        'templates' => $this->templates,
+        'modules' => $this->modules,
         ));
   }
 
@@ -242,14 +242,13 @@ class Structure
       unlink($file);
   }
 
-  public function getTemplateEngines()
+  public function getModuleConf($name)
   {
     if (!$this->loaded)
       $this->load();
 
-    if (empty($this->templates))
-      $this->rebuild();
-
-    return $this->templates;
+    return array_key_exists($name, $this->modules)
+      ? $this->modules[$name]
+      : array();
   }
 }

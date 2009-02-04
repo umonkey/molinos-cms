@@ -175,34 +175,12 @@ class mcms
 
   public static function modconf($modulename, $key = null, $default = null)
   {
-    static $cache = array();
-
-    if (!array_key_exists($modulename, $cache)) {
-      $data = array();
-      $ckey = 'moduleinfo:'. $modulename;
-
-      if (is_array($tmp = mcms::cache($ckey)))
-        $data = $tmp;
-      else {
-        try {
-          $node = Node::load(array('class' => 'moduleinfo', 'name' => $modulename), true);
-
-          if (is_array($tmp = $node->config)) {
-            mcms::cache($ckey, $data = $tmp);
-          }
-        } catch (Exception $e) {
-          if (!($e instanceof ObjectNotFoundException) and !($e instanceof PDOException))
-            throw $e;
-        }
-      }
-
-      $cache[$modulename] = $tmp;
-    }
+    $conf = Structure::getInstance()->getModuleConf($modulename);
 
     if (null !== $key)
-      return empty($cache[$modulename][$key]) ? $default : $cache[$modulename][$key];
+      return empty($conf[$modulename][$key]) ? $default : $conf[$modulename][$key];
     else
-      return $cache[$modulename];
+      return $conf[$modulename];
   }
 
   public static function flush($flags = null)
