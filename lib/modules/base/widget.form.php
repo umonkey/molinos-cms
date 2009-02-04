@@ -66,19 +66,19 @@ class FormWidget extends Widget
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
     
-    $options['type'] = $ctx->get('type', $this->type);
-    $options['default'] = $ctx->get('default', array());
+    $options['type'] = $this->get('type', $this->type);
+    $options['default'] = $this->get('default', array());
     $options['#cache'] = false;
 
     if (null === ($options['root'] = $ctx->section->id))
       $options['root'] = $this->section_default;
 
-    if ('default' != ($options['status'] = $ctx->get('status', 'default')))
-      $options['node'] = $ctx->get('node');
+    if ('default' != ($options['status'] = $this->get('status', 'default')))
+      $options['node'] = $this->get('node');
 
     $options['stripped'] = empty($this->stripped) ? 0 : 1;
 
-    if ((null !== ($tmp = $ctx->get('parent'))) and is_numeric($tmp))
+    if ((null !== ($tmp = $this->get('parent'))) and is_numeric($tmp))
       $options['parent_id'] = intval($tmp);
     else
       $options['parent_id'] = null;

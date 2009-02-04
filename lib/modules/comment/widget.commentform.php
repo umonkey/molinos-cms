@@ -72,7 +72,7 @@ class CommentFormWidget extends Widget
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
 
-    $options['status'] = $ctx->get('status', 'form');
+    $options['status'] = $this->get('status', 'form');
     $options['user'] = mcms::user()->id;
 
     if (null === ($options['doc'] = $ctx->document->id))

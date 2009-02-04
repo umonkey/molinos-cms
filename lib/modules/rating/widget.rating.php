@@ -42,13 +42,13 @@ class RatingWidget extends Widget
     $halt = false;
 
     $options['#cache'] = false;
-    $options['action'] = $ctx->get('action', 'status');
-    $options['vote'] = $ctx->get('vote');
+    $options['action'] = $this->get('action', 'status');
+    $options['vote'] = $this->get('vote');
 
     if (null === ($options['node'] = $ctx->document->id))
       $halt = true;
 
-    if (null !== ($options['rate'] = $ctx->get('rate')))
+    if (null !== ($options['rate'] = $this->get('rate')))
       $options['action'] = 'rate';
 
     if ($halt)

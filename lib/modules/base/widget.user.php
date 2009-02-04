@@ -82,12 +82,12 @@ class UserWidget extends Widget implements iWidget
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
 
-    $options['uid'] = $ctx->get('uid');
+    $options['uid'] = $this->get('uid');
     $options['login'] = mcms::user()->login;
-    $options['status'] = $ctx->get('status');
-    $options['hash'] = $ctx->get('hash');
+    $options['status'] = $this->get('status');
+    $options['hash'] = $this->get('hash');
 
-    if ('default' == ($options['action'] = $ctx->get('action', 'default'))) {
+    if ('default' == ($options['action'] = $this->get('action', 'default'))) {
       if (mcms::user()->id)
         $options['action'] = 'logout';
       else
@@ -123,7 +123,7 @@ class UserWidget extends Widget implements iWidget
   protected function onGetLogin(array $options)
   {
     $url = $this->getMeLink('action', 'retry');
-    $url->setarg('destination', $this->ctx->get('destination'));
+    $url->setarg('destination', $this->get('destination'));
 
     $form = new Form(array(
       'title' => t('Вход'),

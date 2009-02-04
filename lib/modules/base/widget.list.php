@@ -135,19 +135,19 @@ class ListWidget extends Widget
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
 
-    $options['picker'] = $ctx->get('picker');
-    $options['limit'] = $ctx->get('limit', $this->limit);
+    $options['picker'] = $this->get('picker');
+    $options['limit'] = $this->get('limit', $this->limit);
 
     if (!empty($this->types))
       $options['classes'] = array_intersect($this->types, mcms::user()->getAccess('r'));
 
-    if (!is_array($options['filter'] = $ctx->get('filter')))
+    if (!is_array($options['filter'] = $this->get('filter')))
       $options['filter'] = array();
 
-    if (null !== ($tmp = $ctx->get('special')))
+    if (null !== ($tmp = $this->get('special')))
       $options['filter']['#special'] = $tmp;
     else {
-      if (null !== ($tmp = $ctx->get('search')))
+      if (null !== ($tmp = $this->get('search')))
         $options['filter']['#search'] = $tmp;
 
       // Выбор текущего раздела.  Если сказано всегда использовать
@@ -163,27 +163,27 @@ class ListWidget extends Widget
       elseif (null !== ($tmp = $ctx->section->id))
         $options['filter']['tags'] = array($tmp);
 
-      if ($this->allowoverride and ($o = $ctx->get('section')))
+      if ($this->allowoverride and ($o = $this->get('section')))
         $options['filter']['tags'] = array($o);
 
       $options['document'] = $ctx->document
         ? $ctx->document->getRaw()
         : array();
 
-      if (is_array($tmp = $ctx->get('classes')))
+      if (is_array($tmp = $this->get('classes')))
         $options['filter']['class'] = array_unique($tmp);
 
       // Добавляем выборку по архиву.
       foreach (array('year', 'month', 'day') as $key) {
-        if (null === ($tmp = $ctx->get($key)))
+        if (null === ($tmp = $this->get($key)))
           break;
         $options['filter']['node.created.'. $key] = $tmp;
       }
     }
 
-    if ($options['limit'] = $ctx->get('limit', $this->limit)) {
+    if ($options['limit'] = $this->get('limit', $this->limit)) {
       if ($this->pager)
-        $options['page'] = $ctx->get('page', 1);
+        $options['page'] = $this->get('page', 1);
       else
         $options['page'] = 1;
 
@@ -194,7 +194,7 @@ class ListWidget extends Widget
 
     // Определяем сортировку.
 
-    if (is_array($tmp = $ctx->get('sort')))
+    if (is_array($tmp = $this->get('sort')))
       $options['sort'] = $tmp;
 
     elseif (empty($this->sort))

@@ -41,7 +41,7 @@ class BlogWidget extends Widget
       $options['user'] = null;
 
     $options['limit'] = $this->limit ? $this->limit : 10;
-    $options['page'] = $ctx->get('page', 1);
+    $options['page'] = $this->get('page', 1);
 
     return $options;
   }

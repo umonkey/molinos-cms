@@ -34,7 +34,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
       return $options;
 
     $options['#cache'] = false;
-    $options['action'] = $ctx->get('action', 'default');
+    $options['action'] = $this->get('action', 'default');
 
     if (!($options['section'] = $this->fixed))
       $options['section'] = $ctx->section->id;

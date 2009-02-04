@@ -103,7 +103,7 @@ class CommentWidget extends Widget
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
 
-    $options['status'] = $ctx->get('status');
+    $options['status'] = $this->get('status');
 
     $options['mode'] = $this->mode;
     if (empty($options['mode']))
@@ -117,20 +117,20 @@ class CommentWidget extends Widget
       switch ($this->startwith) {
       case 'last':
         $options['default'] = 'last';
-        if (null === ($options['doc'] = $ctx->document->id))
+        if (null === ($options['doc'] = $ctx->document_id))
           throw new WidgetHaltedException();
         break;
 
       case 'first':
         $options['default'] = 1;
-        if (null === ($options['doc'] = $ctx->document->id))
+        if (null === ($options['doc'] = $ctx->document_id))
           throw new WidgetHaltedException();
         break;
 
       case 'tracker':
         $options['default'] = 1;
         $options['action'] = 'tracker';
-        $options['doc'] = $ctx->document->id;
+        $options['doc'] = $ctx->document_id;
 
         if (null === $this->perpage)
           throw new WidgetHaltedException(t('Свежие комментарии не выведены, т.к. не указано количество комментариев на странице.'));
@@ -138,7 +138,7 @@ class CommentWidget extends Widget
         break;
       }
 
-      $options['page'] = $ctx->get('page', $options['default']);
+      $options['page'] = $this->get('page', $options['default']);
       break;
 
     case 'last':

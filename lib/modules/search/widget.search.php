@@ -16,8 +16,8 @@ class SearchWidget extends Widget implements iWidget
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
 
-    $options['q'] = $ctx->get('query');
-    $options['page'] = $ctx->get('page', 1);
+    $options['q'] = $this->get('query');
+    $options['page'] = $this->get('page', 1);
     $options['limit'] = $this->per_page;
     $options['#cache'] = false;
 

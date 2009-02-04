@@ -38,7 +38,7 @@ class MessageListWidget extends Widget
   {
     $options = array(
       'uid' => mcms::user()->id,
-      'mode' => $this->mode ? $this->mode : $ctx->get('mode', 'inbox'),
+      'mode' => $this->mode ? $this->mode : $this->get('mode', 'inbox'),
       'limit' => $this->limit,
       );
 

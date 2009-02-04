@@ -217,7 +217,7 @@ abstract class Widget implements iWidget
   public final function render(Context $ctx)
   {
     try {
-      $this->ctx = $ctx->forWidget($this->name);
+      $this->ctx = $ctx;
 
       if (!is_array($options = $this->getRequestOptions($this->ctx))) {
         $this->debug(array(), array(), $options);
@@ -261,6 +261,16 @@ abstract class Widget implements iWidget
     }
 
     return $result;
+  }
+
+  /**
+   * Упрощённый доступ к GET параметрам.
+   */
+  protected function get($key, $default = null)
+  {
+    if ('destination' != $key)
+      $key = $this->name . '.' . $key;
+    return $this->ctx->get($key, $default);
   }
 
   private function debug(array $options, array $data, $result)
@@ -423,7 +433,7 @@ abstract class Widget implements iWidget
   /**
    * Возвращает конкретный виджет.
    */
-  public static function get($name)
+  public static function getFor($name)
   {
     $s = new Structure();
 

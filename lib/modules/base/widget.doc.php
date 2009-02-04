@@ -86,17 +86,17 @@ class DocWidget extends Widget implements iWidget
    */
   protected function getRequestOptions(Context $ctx)
   {
-    if (!$ctx->document->id)
+    if (!$ctx->document_id)
       return false;
 
     if (is_array($options = parent::getRequestOptions($ctx))) {
-      if (null === ($options['action'] = $ctx->get('action', $this->mode)))
+      if (null === ($options['action'] = $this->get('action', $this->mode)))
         $options['action'] = 'view';
 
       if ($this->showneighbors)
-        $options['section'] = $ctx->section;
+        $options['section'] = $ctx->section_id;
 
-      $options['docid'] = $ctx->document->id;
+      $options['docid'] = $ctx->document_id;
     }
 
     return $options;
@@ -150,10 +150,15 @@ class DocWidget extends Widget implements iWidget
 
       $output .= $node->getXML('document');
 
-      if (count($sids = $node->linkListParents('tag', true))) {
+      $parents = Node::find($f = array(
+        'class' => 'tag',
+        'tagged' => $node->id,
+        '#recurse' => 0,
+        ));
+      if (!empty($parents)) {
         $tmp = '';
-        foreach (Node::find(array('class' => 'tag', 'id' => $sids, 'published' => 1)) as $tag)
-          $tmp .= $tag->getXML('section');
+        foreach ($parents as $p)
+          $tmp .= $p->getXML('section');
         $output .= html::em('sections', $tmp);
       }
 

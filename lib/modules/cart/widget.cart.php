@@ -21,12 +21,12 @@ class CartWidget extends Widget
     $options['#cache'] = false;
 
     // Режим работы задаётся администратором, но переопределяется извне.
-    $options['mode'] = $ctx->get('mode', 'simple');
+    $options['mode'] = $this->get('mode', 'simple');
 
     // Добавление товара.
-    if (null !== ($options['add'] = $ctx->get('add'))) {
+    if (null !== ($options['add'] = $this->get('add'))) {
       $options['mode'] = 'add';
-      $options['qty'] = $ctx->get('qty', 1);
+      $options['qty'] = $this->get('qty', 1);
     }
 
     if (empty($options['mode']))
