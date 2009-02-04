@@ -116,21 +116,11 @@ class mcms_sqlite_driver extends PDO_Singleton
       $log = mcms::config('log.sql');
 
     if ($log) {
-      error_log('> ' . $sql . "\n", 3, $log);
-      error_log('@ ' . date('Y-m-d H:M:N') . ', #' . $count++ . "\n", 3, $log);
+      error_log('> ' . wordwrap($sql, 80, "\n  ") . "\n", 3, $log);
+      error_log('@ ' . mcms::now() . ', #' . $count++ . "\n", 3, $log);
       foreach (debug_backtrace() as $item)
-        if (!empty($item['file'])) {
-          $caller = empty($item['class'])
-            ? ''
-            : $item['class'];
-          $caller .= empty($item['type'])
-            ? ''
-            : $item['type'];
-          $caller .= empty($item['function'])
-            ? ''
-            : $item['function'] . '()';
-          error_log(sprintf("  %s @ %s — %s\n", os::localPath($item['file']), $item['line'], $caller), 3, $log);
-        }
+        error_log('  ' . mcms::formatStackElement($item) . "\n", 3, $log);
+      error_log("\n", 3, $log);
     }
 
     $newsql = $sql;
