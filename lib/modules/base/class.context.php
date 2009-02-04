@@ -321,6 +321,16 @@ class Context
           ));
       return $this->_args[$key];
 
+    case 'section_id':
+    case 'document_id':
+    case 'root_id':
+      $field = substr($key, 0, -3);
+      if (empty($this->_args[$field]))
+        return null;
+      return is_object($this->_args[$field])
+        ? $this->_args[$field]->id
+        : $this->_args[$field];
+
     case 'theme':
     case 'moderatoremail':
       if (!array_key_exists($key, $this->_args))
