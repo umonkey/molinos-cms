@@ -178,9 +178,9 @@ class mcms
     $conf = Structure::getInstance()->getModuleConf($modulename);
 
     if (null !== $key)
-      return empty($conf[$modulename][$key]) ? $default : $conf[$modulename][$key];
+      return empty($conf[$key]) ? $default : $conf[$key];
     else
-      return $conf[$modulename];
+      return $conf;
   }
 
   public static function flush($flags = null)
@@ -574,6 +574,7 @@ class mcms
     $libdir = 'lib'. DIRECTORY_SEPARATOR .'modules'. DIRECTORY_SEPARATOR;
 
     foreach ($stack as $k => $v) {
+      /*
       if (!empty($v['file']))
         $v['file'] = preg_replace('@.*'. preg_quote($libdir) .'@', $libdir, $v['file']);
 
@@ -581,15 +582,19 @@ class mcms
         $func = $v['class'] .$v['type']. $v['function'];
       else
         $func = $v['function'];
+      */
 
       $output .= sprintf("%2d. ", $k + 1);
+      $output .= mcms::formatStackElement($v);
 
+      /*
       if (!empty($v['file']) and !empty($v['line']))
         $output .= sprintf('%s(%d) — ', ltrim(str_replace(MCMS_ROOT, '', $v['file']), '/'), $v['line']);
       else
         $output .= '??? — ';
 
       $output .= $func .'()';
+      */
 
       $output .= "\n";
     }
@@ -1195,6 +1200,57 @@ class mcms
       );
 
     return str_replace(array_keys($xlat), array_values($xlat), mb_strtolower($string));
+  }
+
+  /**
+   * Форматирование элемента стэка.
+   */
+  public static function formatStackElement(array $em)
+  {
+    $output = '';
+
+    if (!empty($em['file']))
+      $output .= os::localPath($em['file']) . '(' . $em['line'] . ') — ';
+
+    $caller = empty($em['class'])
+      ? ''
+      : $em['class'];
+    $caller .= empty($em['type'])
+      ? ''
+      : $em['type'];
+    if (!empty($em['function'])) {
+      $caller .= $em['function'] . '(';
+      if (!empty($em['args'])) {
+        $args = array();
+        foreach ($em['args'] as $arg) {
+          if (is_array($arg))
+            $args[] = 'array';
+          elseif (is_object($arg))
+            $args[] = get_class($arg);
+          elseif (true === $arg)
+            $args[] = 'true';
+          elseif (false === $arg)
+            $args[] = 'false';
+          elseif (null === $arg)
+            $args[] = 'null';
+          elseif (is_string($arg)) {
+            $tmp = '"';
+            $tmp .= (mb_strlen($arg) > 10)
+              ? mb_substr($arg, 0, 10) . '...'
+              : $arg;
+            $tmp .= '"';
+            $args[] = $tmp;
+          } else
+            $args[] = $arg;
+        }
+        $caller .= join(', ', $args);
+      }
+      $caller .= ');';
+    }
+
+    $output .= $caller;
+
+    return $output;
   }
 };
 
