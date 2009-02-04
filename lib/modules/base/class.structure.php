@@ -15,7 +15,7 @@
 
 class Structure
 {
-  const version = 2;
+  const version = 1;
 
   private static $instance = null;
 

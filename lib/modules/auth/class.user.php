@@ -20,11 +20,7 @@ class User
     // Пользователь не указан, загружаем из сессии.
     elseif ($uid = mcms::session('uid')) {
       try {
-        $this->node = Node::load(array(
-          'class' => 'user',
-          'id' => $uid,
-          '#cache' => true,
-          ));
+        $this->node = NodeStub::create($uid, Context::last()->db);
       } catch (ObjectNotFoundException $e) {
         // Пользователя удалили — ничего страшного.
       }

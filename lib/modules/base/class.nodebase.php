@@ -274,6 +274,7 @@ class NodeBase
       '`node`.`created`', '`node`.`updated`', '`node`.`lang`',
       '`node`.`published`', '`node`.`deleted`', '`node`.`left`',
       '`node`.`right`', '`node__rev`.`name`', '`node__rev`.`data`');
+    $fields = array('`node`.`id`');
 
     $qb = new NodeQueryBuilder($query);
     $qb->getSelectQuery($sql, $params, $fields);
@@ -291,12 +292,9 @@ class NodeBase
     else
       $sql .= ' -- Node::find()';
 
-    $data = self::dbRead($sql, $params, empty($query['#recurse'])
-      ? 0 : intval($query['#recurse']));
-
-    if (!empty($query['#raw']))
-      foreach ($data as $k => $v)
-        $data[$k] = $v->getRaw();
+    $data = array();
+    foreach (mcms::db()->getResultsV("id", $sql, $params) as $nid)
+      $data[] = NodeStub::create($nid, mcms::db());
 
     return $data;
   }
@@ -1056,41 +1054,6 @@ class NodeBase
     }
 
     return $output;
-  }
-
-  // Возвращает родителей текущего объекта, опционально исключая текущий объект.
-  /**
-   * Получение списка родителей объекта.
-   *
-   * Если объект ещё не сохранён — возвращает список родителей родительского
-   * объекта.  Если и родительский объект не известен — возвращает NULL.
-   *
-   * @param bool $current false, если текущий объект возвращать не нужно.
-   *
-   * @return mixed массив нод или NULL, если родители не известны.
-   */
-  public function getParents($current = true)
-  {
-    if (null === ($tmp = $this->id))
-      $tmp = $this->parent_id;
-
-    if (null === $tmp)
-      return null;
-
-    $sql = "SELECT `parent`.`id` as `id`, `parent`.`parent_id` as `parent_id`, "
-      ."`parent`.`class` as `class`, `rev`.`name` as `name`, "
-      ."`rev`.`data` as `data` "
-      ."FROM `node` AS `self`, `node` AS `parent`, `node__rev` AS `rev` "
-      ."WHERE `self`.`left` BETWEEN `parent`.`left` "
-      ."AND `parent`.`right` AND `self`.`id` = {$tmp} AND `rev`.`rid` = `parent`.`rid` "
-      ."ORDER BY `parent`.`left` -- NodeBase::getParents({$tmp})";
-
-    $nodes = self::dbRead($sql);
-
-    if (!$current and array_key_exists($this->id, $nodes))
-      unset($nodes[$this->id]);
-
-    return $nodes;
   }
 
   // РАБОТА СО СВЯЗЯМИ.
@@ -2016,90 +1979,6 @@ class NodeBase
   private function dbGetNextValue($table, $field)
   {
     return mcms::db()->getResult("SELECT MAX(`{$field}`) FROM `{$table}`") + 1;
-  }
-
-  /**
-   * Загрузка объектов из БД.
-   *
-   * @param string $sql Запрос для получения даных.
-   *
-   * @param array $params Параметры SQL запроса.
-   *
-   * @param integer $recurse Уровень рекурсии.
-   *
-   * @return array массив нод.
-   */
-  public static function dbRead($sql, array $params = null, $recurse = 0)
-  {
-    $tags = false;
-    $nodes = array();
-
-    foreach ($res = mcms::db()->getResults($sql, $params) as $row) {
-      // Складывание массивов таким образом может привести к перетиранию
-      // системных полей, но в нормальной ситуации такого быть не должно:
-      // при сохранении мы удаляем всё системное перед сериализацией.
-      // Зато такой подход быстрее ручного перебора.
-      if (!empty($row['data']) and is_array($tmp = unserialize($row['data'])))
-        $row = array_merge($row, $tmp);
-
-      unset($row['data']);
-
-      $nodes[$row['id']] = Node::create($row['class'], $row);
-
-      if ('tag' == $row['class'])
-        $tags = true;
-    }
-
-    // Подгружаем прилинкованые ноды.
-    if ($recurse and !empty($nodes)) {
-      $map = array();
-
-      // FIXME: distinct надо убрать, но в Node::link* надо добавить
-      // форсирование уникальности, т.к. в SQLite REPLACE INTO по
-      // составным ключам, похоже, не работает.
-      $sql = "SELECT DISTINCT tid, nid, `key` AS _key "
-        ."FROM `node__rel` WHERE `nid` IN (SELECT `id` FROM `node` WHERE "
-        ."`deleted` = 0) AND `tid` "
-        ."IN (". join(', ', array_keys($nodes)) .") "
-        ;
-
-      // FIXME: для разделов загружаем ТОЛЬКО именованые ссылки,
-      // иначе мы загрузим ВСЕ документы, привязанные к разделам,
-      // что при среднем-большом объёме контента перестанет работать.
-      if ($tags)
-        $sql .= ' AND (`key` IS NOT NULL OR `tid` NOT IN '
-          .'(SELECT `id` FROM `node` WHERE `class` = \'tag\' '
-          .'AND `deleted` = 0 AND `published` = 1))';
-
-      // Добавляем загрузку пользователей.
-      $sql .= " UNION SELECT id, uid, 'uid' FROM node WHERE id "
-        ." IN (". join(', ', array_keys($nodes)) .")";
-
-      foreach (mcms::db()->getResults($sql) as $l)
-          $map[$l['nid']][] = $l;
-
-      if (!empty($map)) {
-        $extras = Node::find(array(
-          'id' => array_keys($map),
-          '#recurse' => $recurse - 1,
-          ));
-
-        foreach ($map as $k => $v) {
-          if (array_key_exists($k, $extras)) {
-            foreach ($v as $link) {
-              $extra = $extras[$link['nid']];
-
-              if (null !== $link['_key'])
-                $nodes[$link['tid']]->data[$link['_key']] = $extra;
-              elseif ('file' == $extra->class)
-                $nodes[$link['tid']]->files[] = $extra;
-            }
-          }
-        }
-      }
-    }
-
-    return $nodes;
   }
 
   /**

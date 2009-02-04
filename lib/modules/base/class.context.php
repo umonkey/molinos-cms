@@ -313,23 +313,8 @@ class Context
     case 'document':
     case 'root':
       if (!array_key_exists($key, $this->_args))
-        return Node::create('dummy');
-      elseif (is_numeric($this->_args[$key]))
-        $this->_args[$key] = Node::load(array(
-          'id' => $this->_args[$key],
-          '#cache' => false,
-          ));
-      return $this->_args[$key];
-
-    case 'section_id':
-    case 'document_id':
-    case 'root_id':
-      $field = substr($key, 0, -3);
-      if (empty($this->_args[$field]))
         return null;
-      return is_object($this->_args[$field])
-        ? $this->_args[$field]->id
-        : $this->_args[$field];
+      return $this->_args[$key];
 
     case 'theme':
     case 'moderatoremail':
@@ -357,10 +342,16 @@ class Context
     switch ($key) {
     case 'section':
     case 'document':
-    case 'theme':
-    case 'moderatoremail':
     case 'root': // основной раздел
+      if (array_key_exists($key, $this->_args))
+        throw new InvalidArgumentException(t('Свойство %name уже определено'
+          .' в этом контексте.', array('%name' => $key)));
+      $this->_args[$key] = NodeStub::create($value, $this->db);
+      break;
+
+    case 'moderatoremail':
     case 'method':
+    case 'theme':
       if (array_key_exists($key, $this->_args))
         throw new InvalidArgumentException(t('Свойство %name уже определено'
           .' в этом контексте.', array('%name' => $key)));

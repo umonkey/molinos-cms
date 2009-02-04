@@ -384,6 +384,25 @@ class url
       : html::em('getArgs', $tmp);
   }
 
+  public function getWidgetArgs($widgetName)
+  {
+    $result = array();
+    $len = strlen($widgetName) + 1;
+
+    $get = preg_split('/[?&]+/', $this->getArgsAsString(), -1, PREG_SPLIT_NO_EMPTY);
+    foreach ($get as $arg) {
+      $parts = explode('=', $arg);
+      if ('q' == $parts[0])
+        ;
+      elseif (false === strpos($parts[0], '.'))
+        $result[$parts[0]] = $parts[1];
+      elseif (0 === strpos($arg, $widgetName . '.'))
+        $result[substr($parts[0], $len)] = urldecode($parts[1]);
+    }
+
+    return $result;
+  }
+
   private function fixEscape($value)
   {
     return urlencode($value);

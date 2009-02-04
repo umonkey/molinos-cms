@@ -293,14 +293,11 @@ class ListWidget extends Widget
     if (empty($options['filter']['tags']))
       $result['section'] = null;
     else {
-      $node = array_values(Node::find(array(
-        'class' => 'tag',
-        'id' => $options['filter']['tags'][0],
-        )));
-      if (empty($node))
+      $node = NodeStub::create($options['filter']['tags'][0], $this->ctx->db);
+      if (null === ($tmp = $node->getXML('section')))
         throw new PageNotFoundException(t('Запрошенный раздел не найден.'));
       else
-        $output .= $node[0]->getXML('section');
+        $output .= $node->getXML('section');
     }
 
     // Получаем список документов.

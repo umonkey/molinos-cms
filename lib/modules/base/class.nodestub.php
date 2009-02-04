@@ -12,10 +12,39 @@ class NodeStub
 
   private $db = null;
 
-  public function __construct($id, PDO $db)
+  /**
+   * Стэк, используется для вывода общего массива нод в XML.
+   */
+  private static $stack = array();
+
+  private function __construct($id, PDO $db)
   {
+    if ($id instanceof NodeStub)
+      $id = $id->id;
+
+    if (null !== $id and !is_numeric($id)) {
+      $value = is_object($id)
+        ? '*' . get_class($id)
+        : $id;
+      throw new InvalidArgumentException(t('Идентификатор ноды должен быть числовым (получено: %id).', array(
+        '%id' => $value,
+        )));
+    }
+
     $this->id = $id;
     $this->db = $db;
+  }
+
+  /**
+   * Создание новой ноды.
+   */
+  public static function create($id, PDO $db)
+  {
+    if ($id instanceof NodeStub)
+      $id = $id->id;
+    if (null === $id or !array_key_exists($id, self::$stack))
+      return new NodeStub($id, $db);
+    return self::$stack[$id];
   }
 
   /**
@@ -34,7 +63,7 @@ class NodeStub
       : null;
 
     if ('uid' == $key)
-      return new NodeStub($value, $this->db);
+      return self::create($value, $this->db);
 
     return $value;
   }
@@ -114,9 +143,31 @@ class NodeStub
       if (!is_array($data = mcms::cache($ckey))) {
         $data = array(
           'id' => $this->id,
+          '#text' => null,
           );
+
+        // Форсируем загрузку всех параметров.
         $this->makeSureFieldIsAvailable('this_field_never_exists');
-        $data = array_merge($data, $this->data);
+
+        if (empty($this->data['class']))
+          throw new RuntimeException(t('Не удалось определить тип ноды.'));
+
+        $schema = Schema::load($this->data['class']);
+
+        foreach ($this->data as $k => $v) {
+          if ($v instanceof NodeStub)
+            $data['#text'] .= $v->getXML($k);
+
+          else {
+            if (isset($schema[$k]))
+              $v = $schema[$k]->format($v);
+
+            if ($this->isBasicField($k))
+              $data[$k] = $v;
+            else
+              $data['#text'] .= html::em($k, html::cdata($v));
+          }
+        }
 
         mcms::cache($ckey, $data);
       }
@@ -224,6 +275,58 @@ class NodeStub
   }
 
   /**
+   * Получение списка родителей.
+   */
+  public function getParents()
+  {
+    $result = array();
+
+    if (null !== $this->id) {
+      $sql = "SELECT `parent`.`id` as `id` "
+        ."FROM `node` AS `self`, `node` AS `parent`, `node__rev` AS `rev` "
+        ."WHERE `self`.`left` BETWEEN `parent`.`left` "
+        ."AND `parent`.`right` AND `self`.`id` = ? AND `rev`.`rid` = `parent`.`rid` "
+        ."ORDER BY `parent`.`left`";
+      foreach ($this->db->getResultsV("id", $sql, array($this->id)) as $id)
+        $result[] = self::create($id, $this->db);
+    }
+
+    return $result;
+  }
+
+  /**
+   * Получение списка связанных объектов.
+   */
+  public function getLinked($class = null)
+  {
+    $result = array();
+
+    if (null !== $this->id) {
+      $params = array($this->id);
+      $sql = "SELECT `nid` FROM `node__rel` WHERE `tid` = ? "
+        . "AND `nid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 1)";
+
+      if (null !== $class) {
+        $sql .= " AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = ?)";
+        $params[] = $class;
+      }
+
+      foreach ($this->db->getResultsV("nid", $sql, $params) as $id)
+        $result[] = self::create($id, $this->db);
+    }
+
+    return $result;
+  }
+
+  /**
+   * Возвращает имя объекта.  TODO: вынести.
+   */
+  public function getName()
+  {
+    return $this->name;
+  }
+
+  /**
    * Упаковывает ноду для сохранения в БД.
    */
   private function pack()
@@ -246,6 +349,18 @@ class NodeStub
   }
 
   /**
+   * Возвращает объект, управляющий нодой.
+   */
+  public function getManager()
+  {
+    if (null === $this->id)
+      $class = 'Node';
+    elseif (!class_exists($this->class . 'node'))
+      $class = 'Node';
+    return new $class($this);
+  }
+
+  /**
    * Проверяет, является ли поле стандартным.
    */
   private function isBasicField($fieldName)
@@ -253,6 +368,7 @@ class NodeStub
     switch ($fieldName) {
     case 'id':
     case 'parent_id':
+    case 'name':
     case 'lang':
     case 'class':
     case 'left':
@@ -270,7 +386,7 @@ class NodeStub
 
   private function retrieve()
   {
-    $this->data = $this->db->getResults("SELECT `node`.`parent_id`, "
+    $data = $this->db->getResults("SELECT `node`.`parent_id`, "
       . "`node`.`lang`, `node`.`class`, `node`.`left`, `node`.`right`, "
       . "`node`.`uid`, `node`.`created`, `node`.`updated`, "
       . "`node`.`published`, `node`.`deleted`, "
@@ -279,7 +395,31 @@ class NodeStub
       . "INNER JOIN `node__rev` ON `node__rev`.`rid` = `node`.`rid` "
       . "WHERE `node`.`id` = " . intval($this->id));
 
-    if (null === $this->data)
-      $this->data = array();
+    $this->data = (null === $data)
+      ? array()
+      : $data[0];
+
+    // Вытягиваем связанные объекты.
+    $data = $this->db->getResultsKV("key", "nid", "SELECT `key`, `nid` FROM `node__rel` WHERE `tid` = ? AND `key` IS NOT NULL AND `nid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 1)", array($this->id));
+    foreach ($data as $k => $v)
+      $this->data[$k] = self::create($v, $this->db);
+  }
+
+  /**
+   * Добавление объекта в стэк.
+   */
+  public static function push(NodeStub $node)
+  {
+    if (null === $node->id)
+      throw new InvalidArgumentException(t('Нельзя добавить в стэк несуществующую ноду.'));
+    self::$stack[$node->id] = $node;
+  }
+
+  /**
+   * Очистка стэка.
+   */
+  public static function cleanStack()
+  {
+    self::$stack = array();
   }
 }

@@ -23,7 +23,7 @@ class html
       if (empty($name))
         throw new InvalidArgumentException(t('Попытка создать HTML элемент без имени.'));
 
-      $parts = null;
+      $parts = array();
       $content = null;
 
       if (is_array($tmp = array_shift($args)))
