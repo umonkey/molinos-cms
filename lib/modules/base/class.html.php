@@ -35,6 +35,11 @@ class html
         $content = array_shift($args);
     }
 
+    if (array_key_exists('#text', $parts)) {
+      $content = $parts['#text'];
+      unset($parts['#text']);
+    }
+
     $output = '<'. $name;
 
     if (('td' == $name or 'th' == $name) and empty($content))
