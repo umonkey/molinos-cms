@@ -34,14 +34,6 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
   }
 
   /**
-   * @expectedException McmsPDOException
-   */
-  public function testExecFailSyntax()
-  {
-    mcms::db()->exec("SELECT oops.");
-  }
-
-  /**
    * @expectedException TableNotFoundException
    */
   public function testExecFailNoTable()
@@ -94,17 +86,6 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
   public function testFetchFail()
   {
     $this->assertNotEquals(456, mcms::db()->fetch("SELECT 123"));
-  }
-
-  public function testGetLog()
-  {
-    // NULL должен вернуться потому, что лог надо запрашивать явно, ?profile=1.
-    $this->assertEquals(null, mcms::db()->getLog());
-  }
-
-  public function testGetLogSize()
-  {
-    $this->assertEquals(0, mcms::db()->getLogSize());
   }
 
   // Таблица нужна, в основном, чтобы протестировать транзакции.

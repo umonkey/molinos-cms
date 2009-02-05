@@ -9,8 +9,6 @@ class PDO_Singleton extends PDO
   protected $dbtype = null;
 
   private $prepared_queries = array();
-  private $query_log = null;
-  private $log_size = 0;
 
   private $transaction = false;
 
@@ -22,10 +20,6 @@ class PDO_Singleton extends PDO
 
     if (version_compare(PHP_VERSION, "5.1.3", ">="))
       $this->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
-
-    if (($ctx = Context::last()) and $ctx->canDebug())
-      if (!empty($_GET['debug']) and $_GET['debug'] == 'profile')
-        $this->query_log = array();
   }
 
   public function getDbType()
@@ -88,12 +82,6 @@ class PDO_Singleton extends PDO
   public function prepare($sql)
   {
     $sth = parent::prepare($sql);
-
-    if ($this->query_log !== null) {
-      $this->query_log[] = $sql;
-      $this->log_size++;
-    }
-
     return $sth;
   }
 
@@ -101,27 +89,8 @@ class PDO_Singleton extends PDO
   {
     if (!$this->transaction and $this->isModifying($sql))
       throw new RuntimeException(t('Модификация данных вне транзакции.'));
-
-    try {
-      $sth = $this->prepare($sql);
-      $this->query_log[] = "\n-- params: ". var_export($params, true);
-      $sth->execute($params);
-    } catch (PDOException $e) {
-      if ('sqlite' == self::$dbtype) {
-        $info = $this->errorInfo();
-        $errorcode = $info[1];
-
-        switch ($errorcode) {
-        case 1: // General error: 1 no such table
-          throw new TableNotFoundException($e);
-        }
-      } else if ('42S02' == $e->getCode()) {
-        throw new TableNotFoundException($e);
-      }
-
-      throw new McmsPDOException($e, $sql);
-    }
-
+    $sth = $this->prepare($sql);
+    $sth->execute($params);
     return $sth;
   }
 
@@ -136,32 +105,6 @@ class PDO_Singleton extends PDO
       $res = null;
 
     return $res;
-  }
-
-  public function log($string)
-  {
-    if (null !== $this->query_log) {
-      if (substr($string, 0, 2) == '--') {
-        static $time = null;
-        if (null === $time)
-          $time = microtime(true);
-        $string .= ' '. (microtime(true) - $time);
-      } else {
-        $this->log_size++;
-      }
-      $this->query_log[] = $string;
-    }
-  }
-
-  /**
-   * Дополнение последней записи в логе.
-   */
-  protected function loga($string)
-  {
-    if (null !== $this->query_log) {
-      $msg = array_pop($this->query_log);
-      $this->query_log[] = $msg . $string;
-    }
   }
 
   // Возвращает результат запроса в виде ассоциативного массива k => v.
@@ -253,26 +196,12 @@ class PDO_Singleton extends PDO
       return array_pop($data);
   }
 
-  // Возвращает текущий лог запросов.
-  public function getLog()
-  {
-    return $this->query_log;
-  }
-
-  // Возвращает количество запросов.
-  public function getLogSize()
-  {
-    return $this->log_size;
-  }
-
   // Открываем транзакцию, запоминаем статус.
   public function beginTransaction($reentrant = false)
   {
     if (!$this->transaction) {
       parent::beginTransaction();
       $this->transaction = true;
-      $this->log('-- transaction: begin --');
-      // mcms::flog('transaction begins');
     } elseif (!$reentrant) {
       // throw new InvalidArgumentException("transaction is already running");
     }
@@ -284,8 +213,6 @@ class PDO_Singleton extends PDO
     if ($this->transaction) {
       parent::rollback();
       $this->transaction = false;
-      $this->log('-- transaction: rollback --');
-      // mcms::flog('transaction rolled back');
     }
   }
 
@@ -295,8 +222,6 @@ class PDO_Singleton extends PDO
     if ($this->transaction) {
       parent::commit();
       $this->transaction = false;
-      $this->log('-- transaction: commit --');
-      // mcms::flog('transaction committed');
     }
   }
 

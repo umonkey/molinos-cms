@@ -59,64 +59,8 @@ class mcms_mysql_driver extends PDO_Singleton
 
   public function exec($sql, array $params = null)
   {
-    try {
-      $sth = $this->prepare($sql);
-      $sth->execute($params);
-    } catch (PDOException $e) {
-      if ('42S02' == $e->getCode()) { // нет таблицы
-        if (preg_match("/Table '([^.]+)\.([^']+)' doesn/", $e->getMessage(), $m))
-          $tname = $m[2];
-        else
-          $tname = null;
-
-        if (stristr($sql, 'DESCRIBE')) {
-          // Это MySQL. Проверка существования таблицы идёт через DESCRIBE в getTableInfo()
-          // Если её нет, надо выкинуть TableNotFoundException, чтобы TableInfo::exists() вернул false
-          throw new TableNotFoundException($tname);
-        } else {
-          if (preg_match("/node__idx_(\w+)/i", $sql, $tblmatches)) {
-            //для индексных таблиц свой механизм пересоздания
-            try {
-              $node = Node::load(array('class' => 'type', 'name' => $tblmatches[1]));
-              $node->recreateIdxTable($tblmatches[1]);
-              return self::exec($sql, $params);
-            } catch (ObjectNotFoundException $x) {
-              mcms::debug($tblmatches);
-              throw $e;
-            }
-          } else {
-            TableManager::create($tname);
-            return self::exec($sql, $params);
-          }
-        }
-      } else if ('42S22' == $e->getCode()) {// нет поля
-        if (preg_match("/node__idx_(\w+)/i", $sql, $tblmatches)) {
-          //для индексных таблиц тупо занимаемся пересозданием
-          $node = Node::load(array('class' => 'type', 'name' => $tblmatches[1]));
-          if (!empty($node)) {
-            $node->recreateIdxTable($tblmatches[1]);
-            $sth = $this->prepare($sql);
-            $sth->execute($params);
-            return $sth;
-          }
-        }
-        else { //Это не индексная таблица, а одна из основных
-          $re = '@(FROM|UPDATE|JOIN|INTO)\s+`([^`]+)`@i';
-
-          if (!preg_match_all($re, $sql, $m)) {
-            mcms::flog('could not find table names in SQL');
-          } else {
-            TableManager::upgradeTables($m[2]);
-          }
-
-          $sth = $this->prepare($sql);
-          $sth->execute($params);
-        }
-      }
-
-      throw new McmsPDOException($e, $sql);
-    }
-
+    $sth = $this->prepare($sql);
+    $sth->execute($params);
     return $sth;
   }
 

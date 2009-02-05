@@ -57,12 +57,4 @@ class TableManager
 
     $t->commit();
   }
-
-  public static function upgradeTables(array $names)
-  {
-    foreach ($names as $table) {
-      mcms::flog($table .': upgrading structure');
-      self::create($table);
-    }
-  }
 }

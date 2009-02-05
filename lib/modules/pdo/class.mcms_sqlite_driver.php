@@ -33,78 +33,18 @@ class mcms_sqlite_driver extends PDO_Singleton
   public function exec($sql, array $params = null)
   {
     try {
-      $sth = $this->prepare($sql);
-      $time = microtime(true);
-      $sth->execute($params);
-      $time = microtime(true) - $time;
-
-      parent::loga("\n     -- params: "
-        . str_replace("\n", "", var_export($params, true))
-        . "\n     -- timing: ". number_format($time, 5));
+      return parent::exec($sql, $params);
     } catch (PDOException $e) {
       $info = $this->errorInfo();
 
       switch ($info[1]) {
-      case 1: // General error: 1 no such table: xyz. (или no such column)
-      case 17:
-        if (preg_match("/(no such column:|has no column named)\s*(\S+)/i", $info[2], $matches)) {
-          $cname = trim($matches[2]);
-
-          //В SQlite в $info имя таблицы не содержится, надо проанализировать sql-запрос
-          //Если в sql-запросе имеется строка node__idx_*** -
-          //считаем, что это индексная таблица, и пытаемся её создать заново
-          if (preg_match("/node__idx_(\w+)/i", $sql, $matches)) {
-            $node = Node::load(array('class' => 'type', 'name' => $matches[1]));
-            if (!empty($node)) {
-              mcms::flog($matches[1] .': updating index structure');
-              $node->recreateIdxTable($matches[1]);
-              return self::exec($sql, $params);
-            }
-          } else { // Это не индексная таблица, а одна из основных
-            $re = '@(FROM|UPDATE|JOIN|INTO)\s+`([^`]+)`@i';
-
-            if (!preg_match_all($re, $sql, $m)) {
-              mcms::flog('could not find table names in SQL');
-            } else {
-              TableManager::upgradeTables($m[2]);
-              return self::exec($sql, $params);
-            }
-          }
-        }
-
-        if (false !== strstr($info[2], 'no such table')) {
-          if (preg_match("/no such table:\s*(\S+)/i", $info[2], $matches)) {
-            if (preg_match("/node__idx_(\w+)/i", $sql, $tblmatches)) {
-              //для индексных таблиц свой механизм пересоздания
-               $node = Node::load(array('class' => 'type', 'name' => $tblmatches[1]));
-               if (!empty($node)) {
-                 if (!$node->recreateIdxTable($tblmatches[1]))
-                   throw new RuntimeException(t('Не удалось создать индексную таблицу для типа %type.', array(
-                     '%type' => $tblmatches[1],
-                     )));
-                 return self::exec($sql, $params);
-               }
-            }
-            else {
-              TableManager::create($matches[1]);
-              return self::exec($sql, $params);
-            }
-          }
-          throw new TableNotFoundException(trim(strrchr($info[2], ' ')), $sql, $params);
-        }
-
-        throw new McmsPDOException($e, $sql);
-        break;
-
       case 8:
         throw new ReadOnlyDatabaseException();
 
       default:
-        throw new McmsPDOException($e, $sql);
+        throw $e;
       }
     }
-
-    return $sth;
   }
 
   public function prepare($sql, array $options = null)
@@ -138,8 +78,6 @@ class mcms_sqlite_driver extends PDO_Singleton
       'strftime(\'%d\', ',
       'RANDOM()',
       ), $newsql);
-
-    // if ($sql != $newsql) mcms::flog($sql .' rewritten to: '. $newsql);
 
     return parent::prepare($newsql);
   }
