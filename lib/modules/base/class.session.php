@@ -130,7 +130,7 @@ class Session
         if (!empty($this->data))
           os::write($path, serialize($this->data));
         elseif (file_exists($path))
-          unink($path);
+          unlink($path);
         break;
 
       default:

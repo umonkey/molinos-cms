@@ -10,14 +10,9 @@ class User
 
   private static $instance = null;
 
-  public function __construct($uid = null, Context $ctx)
+  public function __construct(NodeStub $user)
   {
-    if (null === $uid)
-      $this->node = null;
-    elseif (!is_numeric($uid))
-      throw new InvalidArgumentException(t('Идентификатор пользователя должен быть числовым.'));
-    else
-      $this->node = NodeStub::create($uid, $ctx->db);
+    $this->node = $user;
   }
 
   public function hasAccess($mode, $type)
@@ -87,7 +82,7 @@ class User
   public static function identify(Context $ctx)
   {
     $uid = mcms::session('uid');
-    return new User($uid, $ctx);
+    return new User(NodeStub::create($uid, $ctx->db));
   }
 
   // Идентифицирует или разлогинивает пользователя.
@@ -95,18 +90,24 @@ class User
   {
     // Разлогинивание.
     if (empty($login))
-      $uid = null;
+      $user = NodeStub::create(null, $ctx->db);
 
     // Обычная авторизация.
     else {
       $uid = mcms::db()->getResult("SELECT `node`.`id` FROM `node` INNER JOIN `node__rev` ON `node__rev`.`rid` = `node`.`rid` WHERE `node`.`published` = 1 AND `node`.`deleted` = 0 AND `node`.`class` = 'user' AND `node__rev`.`name` = ?", array($login));
       if (empty($uid))
         throw new ForbiddenException(t('Нет такого пользователя.'));
-      // TODO: вернуть проверку пароля.
+      $user = NodeStub::create($uid, $ctx->db);
+
+      if (empty($user->password) and empty($password))
+        ;
+      elseif (md5($password) != $user->password)
+        throw new ForbiddenException(t('Неверный пароль.'));
     }
 
-    mcms::session('uid', $uid);
-    return new User($uid, $ctx);
+    mcms::session('uid', $user->id);
+
+    return new User($user);
   }
 
   public function __get($key)
