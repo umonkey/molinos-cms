@@ -306,14 +306,15 @@
     <h2>Документ какого типа вы хотите создать?</h2>
     <dl>
       <xsl:for-each select="type">
+        <xsl:sort select="title" />
         <dt>
           <a href="?q=admin.rpc&amp;action=create&amp;cgroup={/page/@cgroup}&amp;type={@name}&amp;destination={../@destination}">
-            <xsl:value-of select="@title" />
+            <xsl:value-of select="title" />
           </a>
         </dt>
-        <xsl:if test="@description">
+        <xsl:if test="description">
           <dd>
-            <xsl:value-of select="@description" />
+            <xsl:value-of select="description" />
           </dd>
         </xsl:if>
       </xsl:for-each>
