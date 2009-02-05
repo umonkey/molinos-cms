@@ -238,7 +238,7 @@ class AdminRPC implements iRemoteCall
         . urlencode($ctx->get('destination')));
 
     $output = html::em('typechooser', array(
-      'destination' => $ctx->get('destination'),
+      'destination' => urlencode($ctx->get('destination')),
       ), $output);
 
     return html::em('block', array(
