@@ -236,7 +236,7 @@ class PDO_Singleton extends PDO
   private function isModifying($sql)
   {
     return preg_match(
-      '(INSERT\s+INTO|REPLACE|UPDATE|DELETE)',
+      '^(INSERT\s+INTO|REPLACE|UPDATE|DELETE)',
       strtoupper($sql)
       );
   }
