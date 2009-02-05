@@ -157,17 +157,6 @@ class Installer
         ));
        $t->commit();
     }
-
-    $t = new TableInfo('node__seq');
-    if (!$t->exists()) {
-      $t->columnSet('id', array(
-        'type' => 'int',
-        'required' => true,
-        'key' => 'pri',
-        'autoincrement' => true
-        ));
-      $t->commit();
-    }
   }
 
   /**
