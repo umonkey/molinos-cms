@@ -251,7 +251,6 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
       'node__access',
       'node__log',
       'node__rel',
-      'node__rev',
       'node__session',
       );
 

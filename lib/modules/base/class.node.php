@@ -84,11 +84,14 @@ class Node
   /**
    * Поиск нод.
    */
-  public static function find(array $query)
+  public static function find(array $query, $limit = null, $offset = null)
   {
     $params = array();
     $nqb = new NodeQueryBuilder($query);
     $nqb->getSelectQuery($sql, $params, array('id'));
+
+    if (null !== $limit)
+      $sql .= ' LIMIT ' . intval($offset) . ', ' . intval($limit);
 
     $db = Context::last()->db;
     $data = $db->getResultsV("id", $sql, $params);
@@ -449,8 +452,8 @@ class Node
   {
     $allowed = mcms::db()->getResultsV("id", "SELECT id FROM node WHERE class = 'tag' AND deleted = 0 AND id IN "
       . "(SELECT tid FROM node__rel WHERE nid IN "
-      . "(SELECT n.id FROM node n INNER JOIN node__rev v ON v.rid = n.rid "
-      . "WHERE n.deleted = 0 AND n.class = 'type' AND v.name = ?))",
+      . "(SELECT `id` FROM `node` "
+      . "WHERE `deleted` = 0 AND `class` = 'type' AND `name` = ?))",
       array($this->class));
 
     if (null === ($permitted = Context::last()->user->getPermittedSections()))

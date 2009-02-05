@@ -72,24 +72,6 @@ class NodeApiModule implements iRemoteCall
   }
 
   /**
-   * Откат документа на нужную версию.
-   */
-  public static function rpc_get_revert(Context $ctx)
-  {
-    $info = $ctx->db->getResults("SELECT `v`.`nid` AS `id`, "
-      ."`n`.`class` AS `class` FROM `node__rev` `v` "
-      ."INNER JOIN `node` `n` ON `n`.`id` = `v`.`nid` "
-      ."WHERE `v`.`rid` = ?", array($rid = $ctx->get('rid')));
-
-    if (!empty($info)) {
-      $ctx->user->checkAccess('u', $info[0]['class']);
-      $ctx->db->exec("UPDATE `node` SET `rid` = ? WHERE `id` = ?",
-        array($rid, $info[0]['id']));
-      mcms::flush();
-    }
-  }
-
-  /**
    * Вывод содержимого объекта.
    */
   public static function rpc_get_dump(Context $ctx)

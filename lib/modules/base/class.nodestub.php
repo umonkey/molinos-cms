@@ -297,9 +297,9 @@ class NodeStub
 
     if (null !== $this->id) {
       $sql = "SELECT `parent`.`id` as `id` "
-        ."FROM `node` AS `self`, `node` AS `parent`, `node__rev` AS `rev` "
+        ."FROM `node` AS `self`, `node` AS `parent` "
         ."WHERE `self`.`left` BETWEEN `parent`.`left` "
-        ."AND `parent`.`right` AND `self`.`id` = ? AND `rev`.`rid` = `parent`.`rid` "
+        ."AND `parent`.`right` AND `self`.`id` = ? "
         ."ORDER BY `parent`.`left`";
       foreach ($this->db->getResultsV("id", $sql, array($this->id)) as $id)
         $result[] = self::create($id, $this->db);
@@ -431,9 +431,8 @@ class NodeStub
       . "`node`.`lang`, `node`.`class`, `node`.`left`, `node`.`right`, "
       . "`node`.`uid`, `node`.`created`, `node`.`updated`, "
       . "`node`.`published`, `node`.`deleted`, "
-      . "`node__rev`.`name`, `node__rev`.`data` "
+      . "`node`.`name`, `node`.`data` "
       . "FROM `node` "
-      . "INNER JOIN `node__rev` ON `node__rev`.`rid` = `node`.`rid` "
       . "WHERE `node`.`id` = " . intval($this->id));
 
     $this->data = (null === $data)

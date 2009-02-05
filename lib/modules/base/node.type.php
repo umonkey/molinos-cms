@@ -95,9 +95,6 @@ class TypeNode extends Node implements iContentType
     // удалим связанные с этим типом документы
     mcms::db()->exec("DELETE FROM `node` WHERE `class` = :type", array(':type' => $this->name));
 
-    // удалим бесхозные ревизии
-    mcms::db()->exec("DELETE FROM `node__rev` WHERE `nid` NOT IN (SELECT `id` FROM `node`)");
-
     $rc = parent::delete();
 
     $this->erase();

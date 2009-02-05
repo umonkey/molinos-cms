@@ -15,7 +15,6 @@ class TableNotFoundException extends Exception
 
     switch ($table) {
     case 'node':
-    case 'node__rev':
     case 'node__rel':
       throw new NotInstalledException('table');
     }

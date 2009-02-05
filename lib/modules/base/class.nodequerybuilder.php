@@ -61,10 +61,6 @@ class NodeQueryBuilder
 
     // Базовая оптимизация, актуальна для всех запросов.
     // $this->shrinkClasses();
-
-    // Если выборка по коду ревизии отсутствует -- выбираем текущую ревизию.
-    if (!array_key_exists('rid', $this->query))
-      $this->where[] = "`node`.`rid` = `node__rev`.`rid`";
   }
 
   /**
@@ -145,7 +141,7 @@ class NodeQueryBuilder
   private function reset()
   {
     $this->pidx = 1;
-    $this->tables = array('node', 'node__rev');
+    $this->tables = array('node');
     $this->where = array("`node`.`lang` = 'ru'");
     $this->params = array();
     $this->order = array();
@@ -159,12 +155,6 @@ class NodeQueryBuilder
 
     // Добавляем проверку прав.
     $this->addPermissionCheck();
-
-    // Если нет выборки по rid -- используем текущую ревизию.
-    if (empty($this->query['rid']))
-      $this->where[] = "`node__rev`.`rid` = `node`.`rid`";
-    else
-      $this->where[] = "`node__rev`.`nid` = `node`.`id`";
 
     $this->scanSpecialSearch();
 
@@ -240,7 +230,7 @@ class NodeQueryBuilder
 
     // Добавляем поиск по имени.
     $param = $this->getNextParam();
-    $matches[] = "`node__rev`.`name_lc` LIKE {$param}";
+    $matches[] = "`node`.`name_lc` LIKE {$param}";
     $this->params[$param] = mb_strtolower($needle);
 
     // Добавляем поиск по всем текстовым индексированным полям задействованных классов.
@@ -400,7 +390,7 @@ class NodeQueryBuilder
     if (!empty($this->query['#sort']) and is_array($this->query['#sort'])) {
       foreach ($this->query['#sort'] as $field => $dir) {
         if ($field == 'name')
-          $field = '`node__rev`.`name`';
+          $field = '`node`.`name`';
 
         elseif ($field == 'RAND()')
           ;
@@ -560,13 +550,10 @@ class NodeQueryBuilder
       case 'uid':
       case 'left':
       case 'right':
-        $mask = "`node`.`{$field}`";
-        break;
-
       case 'name':
       case 'html':
       case 'rid':
-        $mask = "`node__rev`.`{$field}`";
+        $mask = "`node`.`{$field}`";
         break;
 
       case 'tags':

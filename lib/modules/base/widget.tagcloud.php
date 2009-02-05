@@ -98,16 +98,16 @@ class TagCloudWidget extends Widget implements iWidget
       return null;
     $types = "'". join("', '", $options['types']) ."'";
 
-    $data = $this->ctx->db->getResults($sql = 'SELECT n.id AS id, v.name AS name, '
+    $data = $this->ctx->db->getResults($sql = 'SELECT n.id AS id, n.name AS name, '
       .'COUNT(*) AS `count` '
-      .'FROM node n INNER JOIN node__rev v ON v.rid = n.rid '
+      .'FROM node n '
       .'INNER JOIN node__rel r ON r.tid = n.id '
       .'WHERE n.class = \'tag\' '
       .'AND n.published = 1 '
       .'AND n.deleted = 0 '
       .'AND r.nid IN (SELECT id FROM node WHERE published = 1 AND deleted = 0 AND class IN ('. $types .')) '
       .'GROUP BY n.id, v.name '
-      .'ORDER BY v.name');
+      .'ORDER BY n.name');
 
     // Calculate the total number of docs.
     $total = 0;

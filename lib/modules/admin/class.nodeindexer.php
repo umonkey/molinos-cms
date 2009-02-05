@@ -15,8 +15,8 @@ class NodeIndexer
 
         mcms::db()->log('-- node indexer starts --');
 
-        $types = mcms::db()->getResultsV("name", "SELECT v.name AS name FROM node__rev v "
-          . "INNER JOIN node n ON n.rid = v.rid WHERE n.class = 'type' AND n.deleted = 0");
+        $types = mcms::db()->getResultsV("name", "SELECT name FROM node "
+          . "WHERE class = 'type' AND deleted = 0");
 
         foreach ($types as $type) {
           $schema = Schema::load($type);
@@ -105,30 +105,5 @@ class NodeIndexer
 
   private static function fixRevisions()
   {
-    $ids = mcms::db()->getResultsV("id", "SELECT id FROM node WHERE rid IS NULL AND deleted = 0");
-
-    if (!empty($ids)) {
-      mcms::db()->beginTransaction();
-
-      $sth1 = mcms::db()->prepare("SELECT rid FROM node__rev WHERE nid = ? ORDER BY rid DESC LIMIT 1");
-      $sth2 = mcms::db()->prepare("UPDATE node SET rid = ? WHERE id = ? AND rid IS NULL");
-
-      foreach ($ids as $id) {
-        $sth1->execute(array($id));
-        $row = $sth1->fetch();
-
-        if (empty($row['rid'])) {
-          mcms::flog("node {$id} has no revisions, deleting.");
-          mcms::db()->exec("UPDATE node SET deleted = 1 WHERE id = ?", array($id));
-        } else {
-          mcms::flog("node {$id} had no rid, setting to {$row['rid']}");
-          $sth2->execute(array($row['rid'], $id));
-        }
-
-        $sth1->closeCursor();
-      }
-
-      mcms::db()->commit();
-    }
   }
 }

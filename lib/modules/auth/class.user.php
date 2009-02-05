@@ -94,7 +94,7 @@ class User
 
     // Обычная авторизация.
     else {
-      $uid = mcms::db()->getResult("SELECT `node`.`id` FROM `node` INNER JOIN `node__rev` ON `node__rev`.`rid` = `node`.`rid` WHERE `node`.`published` = 1 AND `node`.`deleted` = 0 AND `node`.`class` = 'user' AND `node__rev`.`name` = ?", array($login));
+      $uid = mcms::db()->getResult("SELECT `id` FROM `node` WHERE `published` = 1 AND `deleted` = 0 AND `class` = 'user' AND `name` = ?", array($login));
       if (empty($uid))
         throw new ForbiddenException(t('Нет такого пользователя.'));
       $user = NodeStub::create($uid, $ctx->db);
@@ -135,7 +135,7 @@ class User
   public function getGroups()
   {
     if (null === $this->groups) {
-      $this->groups = (array)Context::last()->db->getResultsKV("id", "name", "SELECT `node`.`id`, `node__rev`.`name` FROM `node` INNER JOIN `node__rev` ON `node__rev`.`rid` = `node`.`rid` WHERE `node`.`deleted` = 0 AND `node`.`published` = 1 AND `node`.`class` = 'group' AND `node`.`id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ?)", array($this->node->id));
+      $this->groups = (array)Context::last()->db->getResultsKV("id", "name", "SELECT `id`, `name` FROM `node` WHERE `deleted` = 0 AND `published` = 1 AND `class` = 'group' AND `id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ?)", array($this->node->id));
       $this->groups[0] = t('Посетители');
     }
 

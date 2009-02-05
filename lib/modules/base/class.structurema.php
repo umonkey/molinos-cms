@@ -52,7 +52,7 @@ class StructureMA
         $result[$node->name]['config'] = $config;
       }
 
-      $types = mcms::db()->getResultsV("name", "SELECT v.name FROM node__rev v INNER JOIN node n ON n.rid = v.rid INNER JOIN node__rel r ON r.tid = n.id WHERE r.nid = ? AND n.class = 'type'", array($node->id));
+      $types = mcms::db()->getResultsV("name", "SELECT n.name FROM node n INNER JOIN node__rel r ON r.tid = n.id WHERE r.nid = ? AND n.class = 'type'", array($node->id));
       if (!empty($types))
         $result[$node->name]['config']['types'] = $types;
 
@@ -154,7 +154,7 @@ class StructureMA
   {
     $groups = $types = array();
 
-    $data = mcms::db()->getResults("SELECT `a`.`uid`, `v`.`name`, `a`.`c`, `a`.`r`, `a`.`u`, `a`.`d`, `a`.`p` FROM `node__access` `a` INNER JOIN `node` `n` ON `n`.`id` = `a`.`nid` INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` WHERE `n`.`deleted` = 0 AND `n`.`class` = 'type' ORDER BY `a`.`uid`");
+    $data = mcms::db()->getResults("SELECT `a`.`uid`, `n`.`name`, `a`.`c`, `a`.`r`, `a`.`u`, `a`.`d`, `a`.`p` FROM `node__access` `a` INNER JOIN `node` `n` ON `n`.`id` = `a`.`nid` WHERE `n`.`deleted` = 0 AND `n`.`class` = 'type' ORDER BY `a`.`uid`");
 
     foreach ($data as $row) {
       $gid = $row['uid']
@@ -185,8 +185,7 @@ class StructureMA
   private function getSchema()
   {
     // Получаем список сохранённых типов.
-    $types = (array)mcms::db()->getResultsV("name", "SELECT `v`.`name` FROM `node` `n` "
-      . "INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
+    $types = (array)mcms::db()->getResultsV("name", "SELECT `n`.`name` FROM `node` `n` "
       . "WHERE `n`.`deleted` = 0 AND `n`.`class` = 'type'");
 
     // Добавляем типы, известные только по классам.
@@ -203,9 +202,8 @@ class StructureMA
 
   private function getModules()
   {
-    $data = mcms::db()->getResultsKV("name", "data", "SELECT `v`.`name`, `v`.`data` "
+    $data = mcms::db()->getResultsKV("name", "data", "SELECT `n`.`name`, `n`.`data` "
       . "FROM `node` `n` "
-      . "INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` "
       . "WHERE `n`.`deleted` = 0 AND `n`.`class` = 'moduleinfo'");
 
     $result = array();

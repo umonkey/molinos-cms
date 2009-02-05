@@ -78,12 +78,6 @@ class StatusChecker implements iScheduler
     self::count($parts, 'SELECT COUNT(*) FROM `node` WHERE `published` = 0 AND `deleted` = 0',
       'в модерации: !count', '?q=admin/content/list/drafts');
 
-    self::count($parts, 'SELECT COUNT(*) FROM `node__rev`',
-      'ревизий: !count');
-
-    self::count($parts, 'SELECT COUNT(*) FROM `node__rev` WHERE `rid` NOT IN (SELECT `rid` FROM `node`)', 
-      'архивных: !count');
-
     self::count($parts, 'SELECT COUNT(*) FROM `node__session`',
       'сессий: !count');
 
@@ -104,7 +98,7 @@ class StatusChecker implements iScheduler
 
   private static function getBrokenTrees()
   {
-    if (!($count = mcms::db()->fetch("SELECT COUNT(*) FROM `node` `n` INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` WHERE `n`.`deleted` = 0 AND `n`.`left` >= `n`.`right`")))
+    if (!($count = mcms::db()->fetch("SELECT COUNT(*) FROM `node` `n` WHERE `n`.`deleted` = 0 AND `n`.`left` >= `n`.`right`")))
       return null;
 
     $fixxxer = new TreeBuilder();
@@ -131,7 +125,7 @@ class StatusChecker implements iScheduler
 
   private static function checkAccessRights()
   {
-    $types = mcms::db()->getResultsKV("id", "name", "SELECT n.id, v.name FROM node n INNER JOIN node__rev v ON v.rid = n.rid WHERE n.class = 'type' AND n.deleted = 0 AND n.id IN (SELECT nid FROM node__access WHERE uid = 0 AND (u = 1 OR d = 1 OR p = 1))");
+    $types = mcms::db()->getResultsKV("id", "name", "SELECT n.id, v.name FROM node n WHERE n.class = 'type' AND n.deleted = 0 AND n.id IN (SELECT nid FROM node__access WHERE uid = 0 AND (u = 1 OR d = 1 OR p = 1))");
 
     if (!empty($types)) {
       $list = array();

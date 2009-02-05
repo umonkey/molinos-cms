@@ -38,14 +38,6 @@ class BaseModule implements iModuleConfig, iNodeHook
   {
     switch ($op) {
     case 'erase':
-      // Удаляем расширенные данные.
-      $t = new TableInfo('node_'. $node->class);
-      if ($t->exists())
-        mcms::db()->exec("DELETE FROM `node_{$node->class}` WHERE `rid` IN (SELECT `rid` FROM `node__rev` WHERE `nid` = :nid)", array(':nid' => $node->id));
-
-      // Удаляем все ревизии.
-      mcms::db()->exec("DELETE FROM `node__rev` WHERE `nid` = :nid", array(':nid' => $node->id));
-
       // Удаляем связи.
       mcms::db()->exec("DELETE FROM `node__rel` WHERE `nid` = :nid OR `tid` = :tid", array(':nid' => $node->id, ':tid' => $node->id));
 

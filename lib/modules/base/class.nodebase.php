@@ -273,7 +273,7 @@ class NodeBase
       '`node`.`class`', '`node`.`parent_id`', '`node`.`uid`',
       '`node`.`created`', '`node`.`updated`', '`node`.`lang`',
       '`node`.`published`', '`node`.`deleted`', '`node`.`left`',
-      '`node`.`right`', '`node__rev`.`name`', '`node__rev`.`data`');
+      '`node`.`right`', '`node`.`name`', '`node`.`data`');
     $fields = array('`node`.`id`');
 
     $qb = new NodeQueryBuilder($query);
@@ -498,15 +498,6 @@ class NodeBase
    */
   private function purgeRevisions()
   {
-    if (0 !== ($limit = intval(mcms::modconf('node', 'archive_limit')))) {
-      $victim = mcms::db()->getResult("SELECT `rid` FROM `node__rev` WHERE `rid` < :current ORDER BY `rid` DESC LIMIT {$limit}, 1", array(
-        ':current' => $this->rid,
-        ));
-      mcms::db()->exec("DELETE FROM `node__rev` WHERE `nid` = :nid AND `rid` <= :rid", array(
-        ':nid' => $this->id,
-        ':rid' => $victim,
-        ));
-    }
   }
 
   /**

@@ -187,7 +187,7 @@ class TableInfo
       if (!$this->exists())
         throw new RuntimeException(t('Попытка удалить несуществующую таблицу.'));
 
-      if (in_array($this->name, array('node', 'node__rel', 'node__rev')))
+      if (in_array($this->name, array('node', 'node__rel')))
         throw new RuntimeException(t('Попытка удалить жизненно важную таблицу.'));
 
       $this->db->exec("DROP TABLE `{$this->name}`");

@@ -36,7 +36,7 @@ class SubscriptionControl extends SectionsControl implements iFormControl
     if (null === ($email = $this->findEmail($data)))
       return array();
 
-    $tags = mcms::db()->getResultsV("tid", "SELECT tid FROM node__rel WHERE nid IN (SELECT n.id FROM node n INNER JOIN node__rev v ON v.rid = n.rid WHERE n.class = 'subscription' AND n.deleted = 0 AND v.name = ?)", array($email));
+    $tags = mcms::db()->getResultsV("tid", "SELECT tid FROM node__rel WHERE nid IN (SELECT id FROM node WHERE class = 'subscription' AND deleted = 0 AND name = ?)", array($email));
 
     return is_array($tags)
       ? $tags
