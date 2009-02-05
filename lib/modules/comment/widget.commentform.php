@@ -73,7 +73,7 @@ class CommentFormWidget extends Widget
       return $options;
 
     $options['status'] = $this->get('status', 'form');
-    $options['user'] = mcms::user()->id;
+    $options['user'] = $ctx->user->id;
 
     if (null === ($options['doc'] = $ctx->document->id))
       throw new WidgetHaltedException();
@@ -108,7 +108,7 @@ class CommentFormWidget extends Widget
       )));
 
     if ($strip) {
-      if (mcms::user()->id)
+      if ($this->ctx->user->id)
         $skip = $this->hide_user;
       else
         $skip = $this->hide_anon;
@@ -143,7 +143,7 @@ class CommentFormWidget extends Widget
   private function sendNotifications(Node $c)
   {
     if (class_exists('RatingRPC')) {
-      if ($uid = mcms::user()->id)
+      if ($uid = $this->ctx->user->id)
         $me = Node::load(array('class' => 'user', 'id' => $uid));
       else
         $me = null;

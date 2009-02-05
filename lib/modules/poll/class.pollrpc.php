@@ -15,14 +15,14 @@ class PollRPC implements iRemoteCall
         foreach ($votes as $i => $vote)
           $ctx->db->exec("INSERT INTO `node__poll` (`nid`, `uid`, `ip`, `option`) VALUES (:nid, :uid, :ip, :option)", array(
             ':nid' => $ctx->get('nid'),
-            ':uid' => mcms::user()->id,
+            ':uid' => $ctx->user->id,
             ':ip' => $_SERVER['REMOTE_ADDR'],
             ':option' => $vote,
             ));
       } else {
         $ctx->db->exec("INSERT INTO `node__poll` (`nid`, `uid`, `ip`, `option`) VALUES (:nid, :uid, :ip, :option)", array(
           ':nid' => $ctx->get('nid'),
-          ':uid' => mcms::user()->id,
+          ':uid' => $ctx->user->id,
           ':ip' => $_SERVER['REMOTE_ADDR'],
           ':option' => $votes,
           ));

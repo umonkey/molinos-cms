@@ -22,16 +22,17 @@ class AdminStatus implements iAdminMenu
   public static function getMenuIcons()
   {
     $icons = array();
+    $user = Context::last()->user;
 
     if ('admin' != $_GET['q'])
       return $icons;
 
-    if (!($p = mcms::user()->password) or $p == md5(''))
-      if (0 !== strpos(mcms::user()->name, 'http://'))
+    if (!($p = $user->password) or $p == md5(''))
+      if (0 !== strpos($user->name, 'http://'))
         $icons[] = array(
           'group' => 'status',
           'message' => t('Пожалуйста, установите пароль на ваш аккаунт.'),
-          'link' => '?q=admin.rpc&action=edit&cgroup=access&node=' . mcms::user()->id
+          'link' => '?q=admin.rpc&action=edit&cgroup=access&node=' . $user->id
             . '&destination=CURRENT',
           );
 

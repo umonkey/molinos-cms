@@ -6,7 +6,7 @@ class RSSMenu implements iAdminMenu
   {
     $icons = array();
 
-    if (mcms::user()->hasAccess('u', 'rssfeed'))
+    if (Context::last()->user->hasAccess('u', 'rssfeed'))
       $icons[] = array(
         'group' => 'structure',
         'href' => '?action=list&module=rss',

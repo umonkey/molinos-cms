@@ -30,12 +30,12 @@ class TodoRPC implements iRemoteCall
   {
     switch ($ctx->get('action')) {
     case 'add':
-      mcms::user()->checkAccess('c', 'todo');
+      $ctx->user->checkAccess('c', 'todo');
 
       $node = Node::create('todo', array(
         'name' => $ctx->post('name'),
-        'uid' => mcms::user()->id,
-        'to' => $ctx->post('user', mcms::user()->id),
+        'uid' => $ctx->user->id,
+        'to' => $ctx->post('user', $ctx->user->id),
         'published' => 1,
         'rel' => $ctx->post('rel'),
         ));
@@ -81,8 +81,8 @@ class TodoRPC implements iRemoteCall
 
       if ($ctx->method('POST') and null !== ($comment = $ctx->post('comment'))) {
         $tmp = Node::create('comment', array(
-          'uid' => mcms::user()->id,
-          'author' => mcms::user()->name,
+          'uid' => $ctx->user->id,
+          'author' => $ctx->user->name,
           'name' => t('Комментарий к напоминанию'),
           'text' => $comment,
           ));

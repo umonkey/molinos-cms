@@ -47,7 +47,7 @@ class ModeratorModule implements iModuleConfig, iNodeHook
       return;
 
     // Пользователь сам себе публикатор.
-    if (mcms::user()->hasAccess('p', $node->class))
+    if (Context::last()->user->hasAccess('p', $node->class))
       return;
 
     switch ($op) {
@@ -76,7 +76,7 @@ class ModeratorModule implements iModuleConfig, iNodeHook
     }
 
     $body = '<p>'. t($prepend, array(
-      '%user' => mcms::user()->name,
+      '%user' => Context::last()->user->name,
       '%type' => isset($schema['title']) ? $schema['title'] : $node->class,
       )) .'</p>'. self::getNodeBody($node);
 
@@ -123,9 +123,9 @@ class ModeratorModule implements iModuleConfig, iNodeHook
     $config = mcms::modconf('moderator');
     $list = isset($config['super']) ? preg_split('/, */', $config['super']) : array();
 
-    if (mcms::user()->id) {
+    if (Context::last()->user->id) {
       try {
-        $tmp = Node::load(array('class' => 'user', 'id' => mcms::user()->id));
+        $tmp = Node::load(array('class' => 'user', 'id' => Context::last()->user->id));
 
         if (!empty($tmp->publisher) and is_numeric($tmp->publisher)) {
           $tmp = Node::load(array('class' => 'user', 'id' => $tmp->publisher));

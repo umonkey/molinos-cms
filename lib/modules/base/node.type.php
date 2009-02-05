@@ -236,8 +236,6 @@ class TypeNode extends Node implements iContentType
 
   public function updateTable()
   {
-    //mcms::user()->checkAccess('u', 'type');
-
     $t = new TableInfo('node__idx_'. $this->name);
 
     if (!$t->columnExists('id'))
@@ -337,7 +335,7 @@ class TypeNode extends Node implements iContentType
     $result = array();
 
     foreach (Node::find(array('class' => 'type', 'deleted' => 0)) as $type)
-      if (null === $mode or mcms::user()->hasAccess('r', $type->name))
+      if (null === $mode or Context::last()->user->hasAccess('r', $type->name))
         $result[$type->name] = empty($type->title) ? $type->name : $type->title;
 
     asort($result);

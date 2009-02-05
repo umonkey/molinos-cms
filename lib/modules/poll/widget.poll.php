@@ -157,7 +157,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
       if (null === ($poll = $this->getCurrentPoll($options)))
         return true;
 
-    if (!($uid = mcms::user()->id)) {
+    if (!($uid = $this->ctx->user->id)) {
       if ($this->ctx->db->getResult("SELECT COUNT(*) FROM `node__poll` WHERE `nid` = :nid AND `uid` IS NULL AND `ip` = :ip", array(':nid' => $poll->id, ':ip' => $_SERVER['REMOTE_ADDR'])))
         return true;
     } elseif ($this->ctx->db->getResult("SELECT COUNT(*) FROM `node__poll` WHERE `nid` = :nid AND `uid` = :uid AND `ip` = :ip", array(':nid' => $poll->id, ':uid' => $uid, ':ip' => $_SERVER['REMOTE_ADDR']))) {

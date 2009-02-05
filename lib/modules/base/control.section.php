@@ -21,7 +21,10 @@ class SectionControl extends EnumControl implements iFormControl
 
   protected function getData($data)
   {
-    return TagNode::getTags('select');
+    $output = array();
+    foreach (Node::listChildren('tag') as $item)
+      $output[$item[0]] = str_repeat('&nbsp;', 2 * $item[2]) . $item[1];
+    return $output;
   }
 
   public function set($value, Node &$node)

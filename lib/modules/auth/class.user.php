@@ -3,57 +3,21 @@
 
 class User
 {
-  private $node = null;
-  private $groups = array();
+  private $node;
+  private $groups = null;
   private $access = null;
   private $session = null;
 
   private static $instance = null;
 
-  public function __construct(UserNode $node = null)
+  public function __construct($uid = null, Context $ctx)
   {
-    // Указан конкретный пользователь, работаем с ним.
-    if (null !== $node) {
-      $this->node = $node;
-    }
-
-    // Пользователь не указан, загружаем из сессии.
-    elseif ($uid = mcms::session('uid')) {
-      try {
-        $this->node = NodeStub::create($uid, Context::last()->db);
-      } catch (ObjectNotFoundException $e) {
-        // Пользователя удалили — ничего страшного.
-      }
-    }
-
-    $this->groups[0] = t('Анонимные пользователи');
-
-    // Если пользоватль не найден — делаем анонимным.
-    if (null === $this->node) {
-      $this->node = NodeStub::create(null, Context::last()->db);
-    }
-
-    // Если найден — загрузим группы.
-    else {
-      if (!is_array($groups = mcms::cache("user:{$this->node->id}:groupnames"))) {
-        $groups = array();
-
-        $nodes = Node::find(array(
-          'class' => 'group',
-          'published' => 1,
-          'tagged' => array($this->node->id),
-          '#recurse' => 0,
-          '#files' => false,
-          ));
-
-        foreach ($nodes as $k => $v)
-          $groups[$k] = $v->getName();
-
-        mcms::cache("user:{$this->node->id}:groupnames", $groups);
-      }
-
-      $this->groups += $groups;
-    }
+    if (null === $uid)
+      $this->node = null;
+    elseif (!is_numeric($uid))
+      throw new InvalidArgumentException(t('Идентификатор пользователя должен быть числовым.'));
+    else
+      $this->node = NodeStub::create($uid, $ctx->db);
   }
 
   public function hasAccess($mode, $type)
@@ -120,69 +84,29 @@ class User
   // Восстановление пользователя из сессии.  Если пользователь не
   // идентифицирован, будет загружен обычный анонимный профиль, без
   // поддержки сессий.
-  public static function identify()
+  public static function identify(Context $ctx)
   {
-    if (null === self::$instance)
-      self::$instance = new User();
-
-    return self::$instance;
+    $uid = mcms::session('uid');
+    return new User($uid, $ctx);
   }
 
   // Идентифицирует или разлогинивает пользователя.
-  public static function authorize()
+  public static function authorize($login, $password, Context $ctx)
   {
-    $args = func_get_args();
+    // Разлогинивание.
+    if (empty($login))
+      $uid = null;
 
-    if (empty($args)) {
-      if (null !== mcms::session('uid'))
-        mcms::session('uid', null);
+    // Обычная авторизация.
+    else {
+      $uid = mcms::db()->getResult("SELECT `node`.`id` FROM `node` INNER JOIN `node__rev` ON `node__rev`.`rid` = `node`.`rid` WHERE `node`.`published` = 1 AND `node`.`deleted` = 0 AND `node`.`class` = 'user' AND `node__rev`.`name` = ?", array($login));
+      if (empty($uid))
+        throw new ForbiddenException(t('Нет такого пользователя.'));
+      // TODO: вернуть проверку пароля.
     }
 
-    // Авторизация без проверки.
-    elseif (count($args) >= 3 and !empty($args[2])) {
-      if (!is_object($node = $args[0]))
-        $node = Node::load(array(
-          'class' => 'user',
-          'name' => $args[0],
-          ));
-
-      mcms::session('uid', $node->id);
-      self::$instance = new User($node);
-    }
-
-    elseif (count($args) >= 2) {
-      if ((strpos($args[0], '@') or false === strpos($args[0], '.')) or (!empty($args[3]))) { //e-mail в качестве логина или же мы уже прошли процедуры openID-авторищации
-        try {
-          $node = Node::load($f = array(
-            'class' => 'user',
-            'name' => $args[0],
-            ));
-        } catch (ObjectNotFoundException $e) {
-          throw new ForbiddenException(t('Пользователь %name не '
-            .'зарегистрирован.', array('%name' => $args[0])));
-        }
-
-        if (empty($args[2]) and !$node->checkpw($args[1]))
-          throw new ForbiddenException(t('Введён неверный пароль.'));
-
-        if (!$node->published)
-          throw new ForbiddenException(t('Ваш профиль заблокирован.'));
-
-        mcms::session('uid', $node->id);
-
-        self::$instance = new User($node);
-      }
-
-      // Возможно, это не e-mail, а openID.
-      else {
-        if (!class_exists('OpenIdModule'))
-          throw new RuntimeException(t('Модуль OpenID отключен.'));
-        OpenIdModule::OpenIDVerify($args[0]);
-        exit();
-      }
-    } else {
-      throw new InvalidArgumentException(t('Метод User::authorize() принимает либо два параметра, либо ни одного.'));
-    }
+    mcms::session('uid', $uid);
+    return new User($uid, $ctx);
   }
 
   public function __get($key)
@@ -209,6 +133,11 @@ class User
 
   public function getGroups()
   {
+    if (null === $this->groups) {
+      $this->groups = (array)Context::last()->db->getResultsKV("id", "name", "SELECT `node`.`id`, `node__rev`.`name` FROM `node` INNER JOIN `node__rev` ON `node__rev`.`rid` = `node`.`rid` WHERE `node`.`deleted` = 0 AND `node`.`published` = 1 AND `node`.`class` = 'group' AND `node`.`id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ?)", array($this->node->id));
+      $this->groups[0] = t('Посетители');
+    }
+
     return $this->groups;
   }
 

@@ -190,7 +190,7 @@
                       <xsl:text>px</xsl:text>
                     </xsl:attribute>
                   </xsl:if>
-                  <xsl:value-of select="@displayName" />
+                  <xsl:value-of select="@name" />
                 </a>
               </td>
             </xsl:when>
@@ -243,7 +243,7 @@
                   </xsl:otherwise>
                 </xsl:choose>
               </xsl:attribute>
-              <xsl:value-of select="_widget_name" />
+              <xsl:value-of select="classname" />
             </a>
           </td>
         </tr>
@@ -372,7 +372,7 @@
             <xsl:text>px</xsl:text>
           </xsl:attribute>
         </xsl:if>
-        <xsl:value-of select="@displayName" />
+        <xsl:value-of select="@name" />
       </a>
     </td>
   </xsl:template>
@@ -381,7 +381,7 @@
     <td class="field-uid">
       <xsl:if test="uid">
         <a href="?q=admin.rpc&amp;action=edit&amp;cgroup=access&amp;node={@id}&amp;destination={/page/@urlEncoded}">
-          <xsl:value-of select="uid/@displayName" />
+          <xsl:value-of select="uid/@name" />
         </a>
       </xsl:if>
     </td>

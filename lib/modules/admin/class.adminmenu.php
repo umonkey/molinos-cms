@@ -126,7 +126,7 @@ class AdminMenu implements iAdminMenu
   public static function getMenuIcons()
   {
     $icons = array();
-    $user = mcms::user();
+    $user = Context::last()->user;
 
     if ($user->hasAccess('u', 'tag'))
       $icons[] = array(
@@ -157,7 +157,7 @@ class AdminMenu implements iAdminMenu
           'href' => '?action=list&preset=dictlist',
           'title' => t('Справочники'),
           );
-      if (Node::count(array('published' => 0, '-class' => TypeNode::getInternal())))
+      // FIXME. if (Node::count(array('published' => 0, '-class' => TypeNode::getInternal())))
         $icons[] = array(
           'group' => 'content',
           'href' => '?action=list&preset=drafts',
@@ -203,7 +203,7 @@ class AdminMenu implements iAdminMenu
         'description' => t('Просмотр, редактирование и добавление файлов.'),
         );
 
-    if (count($user->getAccess('u')) and Node::count(array('deleted' => 1, '-class' => TypeNode::getInternal())))
+    if (count($user->getAccess('u')) /* and Node::count(array('deleted' => 1, '-class' => TypeNode::getInternal())) */)
       $icons[] = array(
         'group' => 'content',
         'href' => '?action=list&preset=trash',
@@ -212,7 +212,7 @@ class AdminMenu implements iAdminMenu
         'weight' => 10,
         );
 
-    if (mcms::user()->hasAccess('u', 'type') and mcms::db()->fetch("SELECT COUNT(*) FROM `node__fallback`"))
+    if (Context::last()->user->hasAccess('u', 'type') and mcms::db()->fetch("SELECT COUNT(*) FROM `node__fallback`"))
       $icons[] = array(
         'group' => 'statistics',
         'title' => t('404'),
@@ -232,7 +232,7 @@ class AdminMenu implements iAdminMenu
     $columns = array();
     $idx = 0;
 
-    $result = null;
+    $result = '';
 
     if (is_string($cached = mcms::cache($ckey = 'admin:desktop:status')) and false)
       return $cached;

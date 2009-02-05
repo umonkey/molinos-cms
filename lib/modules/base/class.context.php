@@ -24,6 +24,7 @@ class Context
   private $_post;
   private $_files;
   private $_profile = array();
+  private $user = null;
 
   /**
    * Путь к инсталляции CMS относительно корня сайта.
@@ -334,6 +335,12 @@ class Context
       elseif (is_string($this->_db))
         $this->_db = PDO_Singleton::connect($this->_db);
       return $this->_db;
+
+    // Возвращает профиль пользователя.
+    case 'user':
+      if (null === $this->user)
+        $this->user = User::identify($this);
+      return $this->user;
     }
   }
 

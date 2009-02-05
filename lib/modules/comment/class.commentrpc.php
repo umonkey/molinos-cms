@@ -9,10 +9,10 @@ class CommentRPC implements iRemoteCall
 
   public static function rpc_add(Context $ctx)
   {
-    mcms::user()->checkAccess('c', 'comment');
+    $ctx->user->checkAccess('c', 'comment');
 
     $node = Node::create('comment', array(
-      'published' => mcms::user()->hasAccess('p', 'comment'),
+      'published' => $ctx->user->hasAccess('p', 'comment'),
       ));
 
     $node->formProcess($ctx->post);

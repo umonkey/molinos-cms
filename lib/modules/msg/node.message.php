@@ -77,7 +77,7 @@ class MessageNode extends Node
   // Доступ к сообщению имеют только отправитель и получатель.
   public function checkPermission($perm)
   {
-    $user = mcms::user();
+    $user = Context::last()->user;
 
     mcms::debug($this->uid, $this->re);
 

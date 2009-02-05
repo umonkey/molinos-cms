@@ -12,7 +12,7 @@ class ExchangeMenu implements iAdminMenu
 
     $icons = array();
 
-    if (zip::isAvailable() and mcms::user()->hasAccess('d', 'type'))
+    if (zip::isAvailable() and Context::last()->user->hasAccess('d', 'type'))
       $icons[] = array(
         'group' => 'system',
         'href' => '?q=admin&module=exchange&cgroup=system',

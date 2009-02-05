@@ -19,7 +19,7 @@ class MsgModule implements iRemoteCall
   private static function getUid($re)
   {
     if (empty($re))
-      return mcms::user()->id;
+      return Context::last()->user->id;
     elseif ($re instanceof Node)
       return $re->id;
     elseif (is_numeric($re))
@@ -40,7 +40,7 @@ class MsgModule implements iRemoteCall
   {
     $filter = array(
       'class' => 'message',
-      're' => mcms::user()->id,
+      're' => $ctx->user->id,
       );
 
     $ids = join(', ', array_keys(Node::find($filter)));

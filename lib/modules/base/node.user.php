@@ -110,8 +110,9 @@ class UserNode extends Node implements iContentType
   public function getActionLinks()
   {
     $links = parent::getActionLinks();
+    $user = Context::last()->user;
 
-    if (mcms::user()->id != $this->id and $this->published and mcms::user()->hasAccess('u', 'user'))
+    if ($user->id != $this->id and $this->published and $user->hasAccess('u', 'user'))
       $links['sudo'] = array(
         'href' => '?q=base.rpc&action=su&uid='. $this->id
           .'&destination=CURRENT',
@@ -191,7 +192,7 @@ class UserNode extends Node implements iContentType
    */
   public function getFormAction()
   {
-    if (!$this->id and !mcms::user()->id) {
+    if (!$this->id and !Context::last()->user->id) {
       $next = Context::last()->get('destination', '');
       return '?q=base.rpc&action=register&destination=' . urlencode($next);
     }
@@ -203,7 +204,7 @@ class UserNode extends Node implements iContentType
   {
     $schema = parent::getFormFields();
 
-    if (!mcms::user()->hasAccess('u', 'group') and isset($schema['groups']))
+    if (!Context::last()->user->hasAccess('u', 'group') and isset($schema['groups']))
       unset($schema['groups']);
 
     return $schema;

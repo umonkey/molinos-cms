@@ -220,7 +220,7 @@ class FormWidget extends Widget
     if ($this->anonymous)
       $u = new User(Node::create('user'));
     else
-      $u = mcms::user();
+      $u = Context::last()->user;
 
     return $u->getAccess('c');
   }
@@ -310,7 +310,7 @@ class FormWidget extends Widget
     $data = $this->options['default'];
 
     if (empty($data['uid']))
-      $data['uid'] = mcms::user()->id;
+      $data['uid'] = Context::last()->user->id;
 
     $data['parent_id'] = $this->options['parent_id'];
     $data['published'] = $this->publish;

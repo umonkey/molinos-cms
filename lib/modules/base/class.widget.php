@@ -425,7 +425,7 @@ abstract class Widget implements iWidget
   {
     $diff = array_intersect(
       (array)$this->groups,
-      array_keys(mcms::user()->getGroups()));
+      array_keys(Context::last()->user->getGroups()));
 
     return !empty($diff);
   }

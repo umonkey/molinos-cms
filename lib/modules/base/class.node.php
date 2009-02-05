@@ -21,8 +21,266 @@
  * @package mod_base
  * @subpackage Widgets
  */
-class Node extends NodeBase implements iContentType
+class Node
 {
+  private $stub;
+
+  public function __construct(NodeStub $stub)
+  {
+    $this->stub = $stub;
+  }
+
+  private final function __get($key)
+  {
+    return $this->stub->$key;
+  }
+
+  private final function __set($key, $value)
+  {
+    $this->stub->$key = $value;
+  }
+
+  private final function __isset($key)
+  {
+    return isset($this->stub->$key);
+  }
+
+  /**
+   * Проверяет, изменялся ли объект.
+   */
+  public function isNew()
+  {
+    return true;
+  }
+
+  /**
+   * Создание новой ноды нужного типа.
+   */
+  public static function create($class, array $data = array())
+  {
+    $stub = NodeStub::create(null, null);
+
+    $data['class'] = $class;
+    foreach ($data as $k => $v)
+      $stub->$k = $v;
+
+    if (!class_exists($className = $class . 'Node'))
+      $className = 'Node';
+
+    return new $className($stub);
+  }
+
+  /**
+   * Загрузка конкретной ноды.
+   */
+  public static function load($id)
+  {
+    if (!is_numeric($id))
+      throw new InvalidArgumentException(t('Идентификатор загружаемой ноды должен быть числовым.'));
+
+    return NodeStub::create($id, mcms::db());
+  }
+
+  /**
+   * Поиск нод.
+   */
+  public static function find(array $query)
+  {
+    $params = array();
+    $nqb = new NodeQueryBuilder($query);
+    $nqb->getSelectQuery($sql, $params, array('id'));
+
+    $db = Context::last()->db;
+    $data = $db->getResultsV("id", $sql, $params);
+
+    $result = array();
+    foreach ($data as $id)
+      $result[] = NodeStub::create($id, $db);
+
+    return $result;
+  }
+
+  /**
+   * Подсчёт нод.
+   */
+  public static function count(array $query)
+  {
+    $params = array();
+    $nqb = new NodeQueryBuilder($query);
+    $nqb->getCountQuery($sql, $params, array('id'));
+
+    $db = Context::last()->db;
+    return intval($db->getResult($sql, $params));
+  }
+
+  /**
+   * Проверка доступа.
+   */
+  public function checkPermission($perm)
+  {
+    if (empty($_SERVER['HTTP_HOST']))
+      return true;
+
+    $user = Context::last()->user;
+
+    if ($this->uid == $user->id)
+      if (in_array($perm, Structure::getInstance()->getOwnDocAccess($this->class)))
+        return true;
+
+    return $user->hasAccess($perm, $this->class);
+  }
+
+  /**
+   * Получение формы.
+   */
+  public function formGet()
+  {
+    if (!$this->checkPermission($this->id ? 'u' : 'c'))
+      throw new ForbiddenException(t('У вас недостаточно прав для работы с этим документом.'));
+
+    $form = $this->getFormFields()->getForm(array(
+      'action' => $this->getFormAction(),
+      'title' => $this->getFormTitle(),
+      ));
+
+    $form->addControl(new SubmitControl(array(
+      'text' => $this->getFormSubmitText(),
+      )));
+
+    if ($this->parent_id and !isset($schema['parent_id']))
+      $form->addControl(new HiddenControl(array(
+        'value' => 'parent_id',
+        'default' => $this->parent_id,
+        )));
+
+    return $form;
+  }
+
+  /**
+   * Возвращает контролы для формы.
+   */
+  protected function getFormFields()
+  {
+    $schema = $this->getSchema();
+
+    if (!$this->isNew() and isset($schema['parent_id']))
+      unset($schema['parent_id']);
+
+    if (!Context::last()->user->id and !$this->id and class_exists('CaptchaControl'))
+      $schema['captcha'] = new CaptchaControl(array(
+        'value' => 'captcha',
+        ));
+
+    return $schema;
+  }
+
+  /**
+   * Форвардим вызовы в стаб.
+   */
+  private function __call($method, $args)
+  {
+    if (!method_exists($this->stub, $method))
+      throw new RuntimeException(t('В классе %class нет метода %method.', array(
+        '%class' => __CLASS__,
+        '%method' => $method,
+        )));
+    $result = call_user_func(array($this->stub, $method), $args);
+    return $result;
+  }
+
+  /**
+   * Возвращает адрес отправки формы. Можно использовать для перегрузки.
+   */
+  public function getFormAction()
+  {
+    $next = empty($_GET['destination'])
+      ? $_SERVER['REQUEST_URI']
+      : $_GET['destination'];
+
+    return $this->id
+      ? "?q=nodeapi.rpc&action=edit&node={$this->id}&destination=". urlencode($next)
+      : "?q=nodeapi.rpc&action=create&type={$this->class}&destination=". urlencode($next);
+  }
+
+  /**
+   * Возвращает текст для кнопки сохранения формы.
+   * Используется для перегрузки.
+   */
+  public function getFormSubmitText()
+  {
+    return t('Сохранить');
+  }
+
+  /**
+   * Возвращает заголовок формы редактирования объекта.
+   * Используется для перегрузки.
+   */
+  public function getFormTitle()
+  {
+    return $this->id
+      ? $this->name
+      : t('Добавление нового документа');
+  }
+
+  /**
+   * Обрабатывает полученные от пользователя данные.
+   */
+  public function formProcess(array $data)
+  {
+    if (!$this->checkPermission($this->id ? 'u' : 'c'))
+      throw new ForbiddenException(t('Ваших полномочий недостаточно '
+        .'для редактирования этого объекта.'));
+
+    $schema = $this->getFormFields();
+
+    foreach ($schema as $name => $field) {
+      $value = array_key_exists($name, $data)
+        ? $data[$name]
+        : null;
+
+      $field->set($value, $this, $data);
+    }
+
+    return $this;
+  }
+
+  /**
+   * Возвращает базовый набор полей.
+   * Используется для перегрузки.
+   */
+  public static function getDefaultSchema()
+  {
+    return array(
+      'name' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Заголовок'),
+        'required' => true,
+        'recommended' => true,
+        ),
+      'created' => array(
+        'type' => 'DateTimeControl',
+        'label' => t('Дата добавления'),
+        'required' => false,
+        'recommended' => true,
+        ),
+      'section' => array(
+        'type' => 'SectionControl',
+        'label' => t('Раздел'),
+        'required' => true,
+        'recommended' => true,
+        ),
+      );
+  }
+
+  /**
+   * Возвращает полное описание полей этого типа, хранимое в кэше.
+   * Для построения форм следует использовать getFormFields().
+   */
+  public final function getSchema()
+  {
+    return Schema::load($this->class);
+  }
+
   /**
    * Рендеринг объекта в HTML.
    *
@@ -46,25 +304,6 @@ class Node extends NodeBase implements iContentType
     if (null === $data)
       $data = $this->data;
     return template::render($theme, 'type', $this->class, $data);
-  }
-
-  /**
-   * Обработка форм.
-   *
-   * Вызывается из nodeapi.rpc, в дополнение к родительским действиям
-   * обрабатывает изменения в правах доступа.
-   *
-   * @return mixed см. NodeBase::formProcess()
-   */
-  public function formProcess(array $data)
-  {
-    if (!$this->checkPermission($this->id ? 'u' : 'c'))
-      throw new ForbiddenException(t('Ваших полномочий недостаточно '
-        .'для редактирования этого объекта.'));
-
-    $res = parent::formProcess($data);
-
-    return $res;
   }
 
   public function getActionLinks()
@@ -156,10 +395,12 @@ class Node extends NodeBase implements iContentType
         'parent_id' => null,
         ));
 
+      /* FIXME
       foreach ($roots as $root) {
         foreach ($root->getChildren('flat') as $em)
           $result[$em['id']] = str_repeat('&nbsp;', 2 * $em['depth']) . $em['name'];
       }
+      */
     }
 
     // Вывод обычных списков
@@ -212,7 +453,7 @@ class Node extends NodeBase implements iContentType
       . "WHERE n.deleted = 0 AND n.class = 'type' AND v.name = ?))",
       array($this->class));
 
-    if (null === ($permitted = mcms::user()->getPermittedSections()))
+    if (null === ($permitted = Context::last()->user->getPermittedSections()))
       return array();
 
     return (null === $allowed)
@@ -253,5 +494,50 @@ class Node extends NodeBase implements iContentType
         )));
 
     return $img;
+  }
+
+  public static function getNodesXML($em, array $nodes)
+  {
+    $output = '';
+
+    foreach ($nodes as $node)
+      $output .= $node->getXML($em);
+
+    return empty($output)
+      ? null
+      : html::em($em . 's', $output);
+  }
+
+  /**
+   * Возвращает список дочерних объектов в виде дерева.
+   */
+  public static function listChildren($class, $parent_id = null)
+  {
+    $db = Context::last()->db;
+
+    if (null === $parent_id) {
+      $sql = "SELECT `id`, `parent_id`, `name` FROM `node` WHERE `deleted` = 0 AND `class` = ? ORDER BY `left`";
+      $params = array($class);
+    } else {
+      $sql = "SELECT `n1`.`id`, `n1`.`parent_id`, `n1`.`name` FROM `node` `n1`, `node` `n2` WHERE `n1`.`deleted` = 0 AND `n1`.`class` = ? AND `n1`.`left` >= `n2`.`left` AND `n1`.`right` <= `n2`.`right` AND `n2`.`id` = ?";
+      $params = array($class, $parent_id);
+    }
+
+    $data = $db->getResultsK("id", $sql, $params);
+
+    $output = array();
+    self::indentList($data, $output, $parent_id);
+
+    return $output;
+  }
+
+  private static function indentList(array &$data, array &$output, $parent_id, $indent = 0)
+  {
+    foreach ($data as $k => $v) {
+      if ($v['parent_id'] == $parent_id) {
+        $output[] = array($k, $v['name'], $indent);
+        self::indentList($data, $output, $k, $indent + 1);
+      }
+    }
   }
 };

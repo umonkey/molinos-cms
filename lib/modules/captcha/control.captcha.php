@@ -55,7 +55,7 @@ class CaptchaControl extends Control implements iFormControl
     if ($data->id)
       return false;
 
-    if (mcms::user()->id)
+    if (Context::last()->user->id)
       return false;
 
     if (!is_array($types = mcms::modconf('captcha', 'types')))

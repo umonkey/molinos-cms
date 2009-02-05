@@ -429,7 +429,7 @@ class AdminListHandler implements iAdminList
     }
 
     $result = '';
-    $itypes = TypeNode::getInternal();
+    $filter = $this->getNodeFilter();
 
     foreach ($nodes = Node::find($filter = $this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit) as $node) {
       if ('dictlist' != $this->preset or !empty($node->isdictionary))
@@ -457,7 +457,7 @@ class AdminListHandler implements iAdminList
 
   protected function filterImmutable(array $types)
   {
-    $user = mcms::user();
+    $user = Context::last()->user;
 
     $result = array_intersect($types,
       $user->getAccess('c') +

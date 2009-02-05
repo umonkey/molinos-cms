@@ -39,10 +39,10 @@ class SubscriptionWidget extends Widget
         : $options['section']->getRaw(),
       );
 
-    if (false !== strpos($e = mcms::user()->name, '@'))
+    if (false !== strpos($e = $this->ctx->user->name, '@'))
       $result['email'] = $e;
     else
-      $result['email'] = mcms::user()->email;
+      $result['email'] = $this->ctx->user->email;
 
     return $result;
   }

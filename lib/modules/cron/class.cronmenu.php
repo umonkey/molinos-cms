@@ -4,6 +4,8 @@ class CronMenu implements iAdminMenu
 {
   public static function getMenuIcons()
   {
+    /*
+       FIXME
     try {
       $node = Node::load(array('class' => 'cronstats'));
 
@@ -19,6 +21,7 @@ class CronMenu implements iAdminMenu
         'link' => '?q=cron.rpc&destination=CURRENT',
         ),
       );
+    */
   }
 
   private static function getIcon($msg)

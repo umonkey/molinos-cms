@@ -77,7 +77,7 @@ class RatingWidget extends Widget
     $result = array(
       'average' => $this->ctx->db->getResult("SELECT AVG(`rate`) FROM `node__rating` WHERE `nid` = :nid AND `rate` <> 0", array(':nid' => $options['node'])),
       'count' => $this->ctx->db->getResult("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `rate` <> 0", array(':nid' => $options['node'])),
-      'user' => $this->ctx->db->getResult("SELECT `rate` FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(':nid' => $options['node'], ':uid' => mcms::user()->id)),
+      'user' => $this->ctx->db->getResult("SELECT `rate` FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(':nid' => $options['node'], ':uid' => $this->ctx->user->id)),
       );
 
     for ($idx = 1; $idx <= 5; $idx++)
@@ -92,7 +92,7 @@ class RatingWidget extends Widget
     $result = array();
 
     $pdo = $this->ctx->db;
-    $user = mcms::user();
+    $user = $this->ctx->user;
 
     // Статистика по текущему документу.
     $stats = $pdo->getResult("SELECT AVG(`rate`) FROM `node__rating` WHERE `nid` = :nid", array(':nid' => $options['node']));
@@ -170,17 +170,9 @@ class RatingWidget extends Widget
   {
     $db = $this->ctx->db;
 
-    /*
-    // Пока не очень понятно, зачем это нужно, потому что для системы рейтингов удалять ничего нельзя.
-    $db->exec("DELETE FROM `node__rating` WHERE `nid` = :nid AND `uid` = :uid", array(
-      ':nid' => $options['node'],
-      ':uid' => mcms::user()->id,
-      ));
-    */
-
     $db->exec("INSERT INTO `node__rating` (`nid`, `uid`, `ip`, `rate`) VALUES (:nid, :uid, :ip, :rate)", array(
       ':nid' => $options['node'],
-      ':uid' => mcms::user()->id,
+      ':uid' => $this->ctx->user->id,
       ':ip' => $_SERVER['REMOTE_ADDR'],
       ':rate' => $options['rate'],
       ));

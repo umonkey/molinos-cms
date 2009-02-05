@@ -101,7 +101,7 @@ class XMLRouter implements iRequestRouter
       'remoteIP' => $_SERVER['REMOTE_ADDR'],
       );
 
-    if (null !== ($tmp = mcms::user()->getNode()))
+    if (null !== ($tmp = Context::last()->user->getNode()))
       $output .= $tmp->push('user');
 
     if (null !== ($tmp = $ctx->section))

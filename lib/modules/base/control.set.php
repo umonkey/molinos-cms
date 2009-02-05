@@ -104,8 +104,8 @@ class SetControl extends Control
   protected function getSelected($data)
   {
     $f = $this->parents
-      ? 'linkListParents'
-      : 'linkListChildren';
+      ? 'getLinkedTo'
+      : 'getLinked';
 
     if (!empty($this->dictionary) and $data instanceof Node)
       return (array)$data->$f($this->dictionary, true);

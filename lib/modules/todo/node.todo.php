@@ -42,7 +42,7 @@ class TodoNode extends Node
 
   private function notify($isnew)
   {
-    if ($this->to and ($this->to == mcms::user()->id))
+    if ($this->to and ($this->to == Context::last()->user->id))
       return;
 
     $data = array(

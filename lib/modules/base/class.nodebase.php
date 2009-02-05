@@ -341,14 +341,14 @@ class NodeBase
 
     if (empty($this->data['uid']) and $this->data['class'] != 'user' and $this->data['class'] != 'group')
       if (empty($this->data['anonymous']))
-        $this->data['uid'] = mcms::user()->id;
+        $this->data['uid'] = Context::last()->user->id;
 
     // FIXME: вынести детей из data в отдельную переменную.
     if (isset($this->data['children']))
       unset($this->data['children']);
 
     if (!$this->id and !array_key_exists('published', $this->data))
-      $this->data['published'] = mcms::user()->hasAccess('p', $this->data['class']);
+      $this->data['published'] = Context::last()->user->hasAccess('p', $this->data['class']);
 
     /*
     // таки надо анонимные комментарии уметь оставлять
@@ -639,8 +639,6 @@ class NodeBase
     // Скрываем документ.
     mcms::db()->exec("UPDATE `node` SET `published` = 0 WHERE `id` = :id", array(':id' => $this->id));
     $this->data['published'] = false;
-
-    $user = mcms::user();
 
     // Даём другим модулям возможность обработать событие (например, mod_moderator).
     mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'unpublish'));
@@ -1422,121 +1420,6 @@ class NodeBase
     return $this;
   }
 
-  // РАБОТА С ПРАВАМИ.
-  // Документация: http://code.google.com/p/molinos-cms/wiki/Permissions
-
-  /**
-   * Получение прав на объект.
-   *
-   * Возвращает таблицу с правами на текущий объект.
-   * @todo описать формат таблицы.
-   *
-   * @return array описание прав.
-   */
-  public function getAccess()
-  {
-    static $default = null;
-
-    $pdo = mcms::db();
-
-    // Формируем список групп.
-    if ($default === null) {
-      $default[0] = array('name' => 'Анонимные пользователи');
-
-      $data = $pdo->getResultsKV('id', 'name', "SELECT `v`.`nid` AS `id`, "
-        ."`v`.`name` as `name` FROM `node` `n` INNER JOIN `node__rev` `v` "
-        ."ON `v`.`rid` = `n`.`rid` WHERE `n`.`class` = 'group' "
-        ."AND `n`.`deleted` = 0 ORDER BY `v`.`name`");
-
-      foreach ($data as $k => $v)
-        $default[$k]['name'] = $v;
-    }
-
-    $data = $default;
-    $gids = join(', ', array_keys($default));
-
-    $acl = mcms::db()->getResultsK('id', "SELECT `a`.`uid` as `id`, "
-      ."`a`.`c` as `c`, "
-      ."`a`.`r` as `r`, "
-      ."`a`.`u` as `u`, "
-      ."`a`.`d` as `d`, "
-      ."`a`.`p` as `p` "
-      ."FROM `node__access` `a` "
-      ."WHERE `a`.`nid` = ? AND `a`.`uid` IN ({$gids})",
-      array($this->id));
-
-    // Формируем таблицу с правами.
-    foreach ($acl as $id => $perms) {
-      $data[$id]['c'] = $perms['c'];
-      $data[$id]['r'] = $perms['r'];
-      $data[$id]['u'] = $perms['u'];
-      $data[$id]['d'] = $perms['d'];
-      $data[$id]['p'] = $perms['p'];
-    }
-
-    return $data;
-  }
-
-  /**
-   * Устанавливает права на объект.
-   *
-   * После изменения прав сбрасывается кэш.
-   *
-   * @param array $perms нужные права.
-   *
-   * @param bool $reset true — сбросить старые, false — дополнить.
-   *
-   * @return Node $this
-   */
-  public function setAccess(array $perms, $reset = true)
-  {
-    $pdo = mcms::db();
-
-    if ($reset)
-      $pdo->exec("DELETE FROM `node__access` WHERE `nid` = :nid", array(':nid' => $this->id));
-
-    foreach ($perms as $uid => $values) {
-      $args = array(
-        ':nid' => $this->id,
-        ':c' => in_array('c', $values) ? 1 : 0,
-        ':r' => in_array('r', $values) ? 1 : 0,
-        ':u' => in_array('u', $values) ? 1 : 0,
-        ':d' => in_array('d', $values) ? 1 : 0,
-        ':p' => in_array('p', $values) ? 1 : 0,
-        );
-
-      if (is_numeric($uid)) {
-        $args[':uid'] = $uid;
-        $pdo->exec($sql = "REPLACE INTO `node__access` (`nid`, `uid`, "
-          ."`c`, `r`, `u`, `d`, `p`) VALUES (:nid, :uid, :c, :r, :u, :d, :p)",
-          $args);
-      } else {
-        $args[':name'] = $uid;
-        $pdo->exec($sql = "REPLACE INTO `node__access` (`nid`, `uid`, "
-          ."`c`, `r`, `u`, `d`, `p`) SELECT :nid, `n`.`id` as `id`, "
-          .":c, :r, :u, :d, :p FROM `node` `n` INNER JOIN `node__rev` `v` "
-          ."ON `v`.`rid` = `n`.`rid` WHERE `n`.`class` = 'group' "
-          ."AND `n`.`deleted` = 0 AND `v`.`name` = :name", $args);
-      }
-    }
-
-    mcms::flush();
-
-    return $this;
-  }
-
-  public function checkPermission($perm)
-  {
-    if (empty($_SERVER['HTTP_HOST']))
-      return true;
-
-    if ($this->uid == mcms::user()->id)
-      if (in_array($perm, Structure::getInstance()->getOwnDocAccess($this->class)))
-        return true;
-
-    return mcms::user()->hasAccess($perm, $this->class);
-  }
-
   // Если есть ноды с пустым `order`, надо бы их починить
 
   private function orderFix()
@@ -1561,7 +1444,7 @@ class NodeBase
    */
   public function orderUp($parent = null)
   {
-    mcms::user()->checkAccess('u', $this->class);
+    Context::last()->user->checkAccess('u', $this->class);
 
     if (null === $parent) {
       $tmp = new NodeMover(mcms::db());
@@ -1608,7 +1491,7 @@ class NodeBase
    */
   public function orderDown($parent = null)
   {
-    mcms::user()->checkAccess('u', $this->class);
+    Context::last()->user->checkAccess('u', $this->class);
 
     if (null === $parent) {
       $tmp = new NodeMover(mcms::db());
@@ -1676,311 +1559,6 @@ class NodeBase
       );
   }
 
-  // РАБОТА С ФОРМАМИ.
-  // Документация: http://code.google.com/p/molinos-cms/wiki/Forms
-  /**
-   * Получение формы редактирования объекта.
-   *
-   * При отсутствии прав на создание/редактирование объекта кидает
-   * ForbiddenException.
-   *
-   * @param bool $simple Должна ли быть форма простой, или может содержать
-   * вкладки для редактирования привязки к разделам итд?
-   *
-   * @return Control форма.
-   */
-  public function formGet($simple = false)
-  {
-    if (null !== $this->id and !$this->checkPermission('u')) {
-      if (mcms::user()->id != $this->id)
-        throw new ForbiddenException(t('У вас недостаточно прав для редактирования этого документа.'));
-    } elseif (null === $this->id and !$this->checkPermission('c')) {
-      throw new ForbiddenException(t('У вас недостаточно прав для создания такого документа.'));
-    }
-
-    $form = $this->getFormFields()->getForm(array(
-      'action' => $this->getFormAction(),
-      'title' => $this->getFormTitle(),
-      ));
-
-    $form->addControl(new SubmitControl(array(
-      'text' => $this->getFormSubmitText(),
-      )));
-
-    if ($this->parent_id and !isset($schema['parent_id']))
-      $form->addControl(new HiddenControl(array(
-        'value' => 'parent_id',
-        'default' => $this->parent_id,
-        )));
-
-    return $form;
-  }
-
-  /**
-   * Возвращает заголовок формы редактирования объекта.
-   */
-  public function getFormTitle()
-  {
-    return $this->id
-      ? $this->getName()
-      : t('Добавление нового документа');
-  }
-
-  public function getFormSubmitText()
-  {
-    return t('Сохранить');
-  }
-
-  public function getFormAction()
-  {
-    $next = empty($_GET['destination'])
-      ? $_SERVER['REQUEST_URI']
-      : $_GET['destination'];
-
-    return $this->id
-      ? "?q=nodeapi.rpc&action=edit&node={$this->id}&destination=". urlencode($next)
-      : "?q=nodeapi.rpc&action=create&type={$this->class}&destination=". urlencode($next);
-  }
-
-  /**
-   * Возвращает контролы для формы.
-   */
-  public function getFormFields()
-  {
-    $schema = $this->getSchema();
-
-    if (!$this->isNew() and isset($schema['parent_id']))
-      unset($schema['parent_id']);
-
-    if (!mcms::user()->id and !$this->id and class_exists('CaptchaControl'))
-      $schema['captcha'] = new CaptchaControl(array(
-        'value' => 'captcha',
-        ));
-
-    return $schema;
-  }
-
-  /**
-   * Обработка данных формы.
-   *
-   * Вызывается при получении от пользователя формы, для применения полученных
-   * данных к текущему объекту.
-   *
-   * @param array $data полученные данные.
-   *
-   * @return Node $this
-   */
-  public function formProcess(array $data)
-  {
-    $schema = $this->getFormFields();
-
-    foreach ($schema as $name => $field) {
-      $value = array_key_exists($name, $data)
-        ? $data[$name]
-        : null;
-
-      $field->set($value, $this, $data);
-    }
-
-    return $this;
-  }
-
-  /**
-   * Проверка возможности опубликовать объект.
-   *
-   * @return bool true, если прав на публикацию хватает.
-   */
-  public function canPublish()
-  {
-    if (!mcms::user()->hasAccess('p',$this->class))
-      return false;
-
-    return !in_array($this->class, array('group', 'user', 'type', 'widget'));
-  }
-
-  // Сохранение объекта в БД.
-  private function dbWrite()
-  {
-    $extra = $this->data;
-
-    if (array_key_exists('_links', $extra))
-      unset($extra['_links']);
-
-    // Вытаскиваем данные, которые идут в поля таблиц.
-    $node = $this->dbWriteExtract($extra, array(
-      'id', 'lang', 'parent_id', 'class', 'left', 'right',
-      'uid', 'created', 'published', 'deleted', '__want_id'));
-    $node_rev = $this->dbWriteExtract($extra, array('name'));
-
-    if (empty($node['created']))
-      $node['created'] = strftime('%Y-%m-%d %H:%M:%S');
-
-    // Выделяем место в иерархии, если это необходимо.
-    $this->dbExpandParent($node);
-
-    // Удаляем лишние поля.
-    $this->dbWriteExtract($extra, array('rid', 'updated', 'files'), true);
-
-    // Создание новой ноды.
-    if (empty($node['id'])) {
-      if (!empty($node['__want_id']))
-        $node_id = $node['__want_id'];
-      else
-        $node_id = $this->dbGetNextId();
-
-      mcms::db()->exec($sql = "INSERT INTO `node` (`id`, `lang`, `parent_id`, `class`, `left`, `right`, `uid`, `created`, `updated`, `published`, `deleted`) VALUES (:id, :lang, :parent_id, :class, :left, :right, :uid, :created, :updated, :published, :deleted)", $params = array(
-        'id' => $node_id,
-        'lang' => $node['lang'],
-        'parent_id' => $node['parent_id'],
-        'class' => $node['class'],
-        'left' => $node['left'],
-        'right' => $node['right'],
-        'uid' => self::dbId($node['uid']),
-        'created' => empty($node['created']) ? mcms::now() : $node['created'],
-        'updated' => mcms::now(),
-        'published' => empty($node['published']) ? 0 : 1,
-        'deleted' => empty($node['deleted']) ? 0 : 1,
-        ));
-
-      $this->data['id'] = $node['id'] = $node_id;
-    }
-
-    // Обновление существующей ноды.
-    else {
-      mcms::db()->exec("UPDATE `node` SET `uid` = :uid, `created` = :created, `updated` = :updated, `published` = :published, `deleted` = :deleted WHERE `id` = :id AND `lang` = :lang", array(
-        'uid' => self::dbId($node['uid']),
-        'created' => $node['created'],
-        'updated' => mcms::now(),
-        'published' => empty($node['published']) ? 0 : 1,
-        'deleted' => empty($node['deleted']) ? 0 : 1,
-        'id' => $node['id'],
-        'lang' => $node['lang'],
-        ));
-    }
-
-    // Сохранение ревизии.
-    mcms::db()->exec($sql = "INSERT INTO `node__rev` (`nid`, `uid`, `name`, `name_lc`, `created`, `data`) VALUES (:nid, :uid, :name, :name_lc, :created, :data)", $params = array(
-      'nid' => $node['id'],
-      'uid' => self::dbId($node['uid']),
-      'name' => $node_rev['name'],
-      'name_lc' => mb_strtolower($node_rev['name']),
-      'created' => mcms::now(),
-      'data' => empty($extra) ? null : self::dbSerialize($extra),
-      ));
-    $this->data['rid'] = mcms::db()->lastInsertId();
-
-    if (empty($this->data['rid'])) {
-      mcms::debug('Error saving revision', $this->data, $sql, $params);
-      throw new RuntimeException(t('Не удалось получить номер сохранённой ревизии.'));
-    }
-
-    // Замена старой ревизии новой.
-    mcms::db()->exec("UPDATE `node` SET `rid` = :rid WHERE `id` = :id AND `lang` = :lang", array(
-      'rid' => $this->data['rid'],
-      'id' => $node['id'],
-      'lang' => $node['lang'],
-      ));
-
-    // При ошибке сохранения кидаем исключение, чтобы откатить транзакцию.
-    if (empty($this->data['id']) or empty($this->data['rid']))
-      throw new RuntimeException('При сохранении объекта не был получен '
-        .'код ревизии.');
-
-    $this->reindex();
-  }
-
-  // Вытаскиывает из $data значения полей, перечисленных в $fields.  Возвращает
-  // их в виде массива, из исходного массива поля удаляются.  При $cleanup из
-  // него также удаляются пустые значения (empty()).
-  private function dbWriteExtract(array &$data, array $fields, $cleanup = false)
-  {
-    $tmp = array();
-
-    foreach ($fields as $f) {
-      if (array_key_exists($f, $data)) {
-        $tmp[$f] = $data[$f];
-        unset($data[$f]);
-      } else {
-        $tmp[$f] = null;
-      }
-    }
-
-    if ($cleanup) {
-      foreach ($data as $k => $v) {
-        if (empty($v))
-          unset($data[$k]);
-      }
-    }
-
-    return $tmp;
-  }
-
-  // Если создаётся новый документ, и для него указан родитель — вписываем
-  // в иерархию, в противном случае ничего не делаем.
-  private function dbExpandParent(array &$node)
-  {
-    if (empty($node['id']) and !empty($node['parent_id'])) {
-      $parent = array_shift(mcms::db()->getResults("SELECT `left`, `right` FROM `node` WHERE `id` = :parent AND `lang` = :lang",
-        array(':parent' => $node['parent_id'], 'lang' => $node['lang'])));
-
-      if (!empty($parent) and !empty($parent['left']) and !empty($parent['right']) and ($parent['left'] >= $parent['right']))
-        throw new RuntimeException(t('Серьёзное нарушение целостности БД: границы ветки %id нарушены (left=%left ≥ right=%right).', array(
-          '%id' => $node['parent_id'],
-          '%left' => $parent['left'],
-          '%right' => $parent['right'],
-          )));
-
-      // Родитель сам вне дерева — прописываем его.
-      if (empty($parent['left']) or empty($parent['right'])) {
-        $pos = $this->dbGetNextValue('node', 'right');
-
-        $parent['left'] = $pos;
-        $parent['right'] = $pos + 3;
-
-        $node['left'] = $pos + 1;
-        $node['right'] = $pos + 2;
-
-        mcms::db()->exec("UPDATE `node` SET `left` = :left, `right` = :right WHERE `id` = :id AND `lang` = :lang", array(
-          'left' => $parent['left'],
-          'right' => $parent['right'],
-          'id' => $node['parent_id'],
-          'lang' => $node['lang'],
-          ));
-      }
-
-      // Раздвигаем родителя.
-      else {
-        $node['left'] = $parent['right'];
-        $node['right'] = $node['left'] + 1;
-
-        $ou = mcms::db()->hasOrderedUpdates();
-
-        $order = $ou ? ' ORDER BY `left` DESC' : '';
-        mcms::db()->exec("UPDATE `node` SET `left` = `left` + 2 "
-          ."WHERE `left` >= :pos". $order, array(':pos' => $node['left']));
-
-        $order = $ou ? ' ORDER BY `right` DESC' : '';
-        mcms::db()->exec("UPDATE `node` SET `right` = `right` + 2 "
-          ."WHERE `right` >= :pos". $order, array(':pos' => $node['left']));
-      }
-    }
-  }
-
-  // Возвращает следующий доступный идентификатор для таблицы node.
-  private function dbGetNextId()
-  {
-    mcms::db()->exec("INSERT INTO `node__seq` (`n`) VALUES (1)");
-    $k = mcms::db()->lastInsertId();
-    return $k;
-  }
-
-  // Возвращает следующий доступный идентификатор для таблицы.
-  // FIXME: при большой конкуренции будут проблемы.
-  private function dbGetNextValue($table, $field)
-  {
-    return mcms::db()->getResult("SELECT MAX(`{$field}`) FROM `{$table}`") + 1;
-  }
-
   /**
    * Обновление информации об объекте в индексе.
    *
@@ -2008,53 +1586,6 @@ class NodeBase
     }
 
     return $this;
-  }
-
-  /**
-   * Получение списка ревизий.
-   *
-   * @return array Массив с ключами: created, uid, username, active.
-   */
-  public function getRevisions()
-  {
-    $sql = 'SELECT `v`.`rid` AS `rid`, `v`.`created` AS `created`, '
-      .'`v`.`uid` AS `uid`, `u`.`name` AS `username` '
-      .'FROM `node__rev` `v` LEFT JOIN `node` `n` '
-      .'ON `n`.`id` = `v`.`uid` LEFT JOIN `node__rev` `u` '
-      .'ON `u`.`rid` = `n`.`rid` WHERE v.nid = ? '
-      .'ORDER BY `v`.`created` DESC';
-
-    $data = array();
-
-    foreach (mcms::db()->getResults($sql, array($this->id)) as $row) {
-      $data[$row['rid']] = array(
-        'created' => $row['created'],
-        'uid' => $row['uid'],
-        'username' => $row['username'],
-        'active' => $row['rid'] == $this->rid,
-        );
-    }
-
-    return $data;
-  }
-
-  private static function dbId($value)
-  {
-    if (is_array($value))
-      return $value['id'];
-    elseif ($value instanceof Node)
-      return $value->id;
-    else
-      return $value;
-  }
-
-  private static function dbSerialize(array $arr)
-  {
-    foreach ($arr as $k => $v)
-      if ($v instanceof Node)
-        $arr[$k] = $v->id;
-
-    return serialize($arr);
   }
 
   protected function addFile($field, array $fileinfo, Node &$node = null)
@@ -2109,51 +1640,6 @@ class NodeBase
       else
         $node->$field = $file;
     }
-  }
-
-  public final function getSchema()
-  {
-    return Schema::load($this->class);
-  }
-
-  public function formGetFields()
-  {
-    $schema = $this->getSchema();
-
-    // Выбор родителя возможен только при создании.
-    if ($this->id and isset($schema['parent_id']))
-      unset($schema['parent_id']);
-
-    return $schema;
-  }
-
-  public static function getDefaultSchema()
-  {
-    return array(
-      'name' => array(
-        'type' => 'TextLineControl',
-        'label' => t('Заголовок'),
-        'required' => true,
-        'recommended' => true,
-        ),
-      'created' => array(
-        'type' => 'DateTimeControl',
-        'label' => t('Дата добавления'),
-        'required' => false,
-        'recommended' => true,
-        ),
-      'section' => array(
-        'type' => 'SectionControl',
-        'label' => t('Раздел'),
-        'required' => true,
-        'recommended' => true,
-        ),
-      );
-  }
-
-  public function isNew()
-  {
-    return empty($this->olddata['id']);
   }
 
   public function canEditFields()

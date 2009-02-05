@@ -108,7 +108,7 @@ class ExchangeModule implements iRemoteCall
       self::import($xmlstr);
 
       // Логинимся в качестве рута.
-      User::authorize(mcms::user()->name, null, true);
+      User::authorize(Context::last()->user->name, null, true);
 
       return new Redirect('?q=admin&module=exchange&preset=export&result=upgradeok');
     }
@@ -330,7 +330,7 @@ class ExchangeModule implements iRemoteCall
   {
     $icons = array();
 
-    if (class_exists('ZipArchive') and mcms::user()->hasAccess('d', 'type'))
+    if (class_exists('ZipArchive') and Context::last()->user->hasAccess('d', 'type'))
       $icons[] = array(
         'group' => 'system',
         'href' => '?q=admin&cgroup=system&module=exchange',

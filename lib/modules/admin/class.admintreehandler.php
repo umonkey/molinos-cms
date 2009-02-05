@@ -117,7 +117,7 @@ class AdminTreeHandler
   private function getNodeTree()
   {
     $output = '';
-    $user = mcms::user();
+    $user = Context::last()->user;
 
     $filter = array(
       'class' => $this->type,

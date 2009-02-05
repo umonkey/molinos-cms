@@ -13,7 +13,7 @@ class AdminRPC implements iRemoteCall
       TinyMceModule::add_extras($ctx);
 
     try {
-      if (!mcms::user()->id)
+      if (!$ctx->user->id)
         throw new UnauthorizedException();
       $output = mcms::dispatch_rpc(__CLASS__, $ctx, 'status');
     }
@@ -27,6 +27,7 @@ class AdminRPC implements iRemoteCall
     }
 
     catch (Exception $e) {
+      mcms::fatal($e);
       return self::render($ctx, array(
         'status' => 500,
         'error' => get_class($e),
@@ -47,7 +48,7 @@ class AdminRPC implements iRemoteCall
 
     switch ($action) {
     case '404':
-      mcms::user()->checkAccess('u', 'type');
+      $ctx->user->checkAccess('u', 'type');
 
       if ('update' == $ctx->get('mode')) {
         if (null !== ($src = $ctx->post('src')) and null !== ($dst = $ctx->post('dst'))) {
@@ -158,11 +159,7 @@ class AdminRPC implements iRemoteCall
     if (null === ($nid = $ctx->get('node')))
       throw new PageNotFoundException();
 
-    $node = Node::load(array(
-      'id' => $nid,
-      'deleted' => array(0, 1),
-      '#recurse' => true
-      ));
+    $node = Node::load($nid)->getObject();
 
     $form = $node->formGet(false);
     $form->addClass('tabbed');
@@ -230,7 +227,7 @@ class AdminRPC implements iRemoteCall
     $names = array();
 
     foreach ($types as $type) {
-      if (mcms::user()->hasAccess('c', $type->name)) {
+      if ($ctx->user->hasAccess('c', $type->name)) {
         $output .= $type->getXML('type');
         $names[] = $type->name;
       }
@@ -635,7 +632,7 @@ class AdminRPC implements iRemoteCall
    */
   private static function checkAccessAndAutoLogin(Context $ctx)
   {
-    if (!mcms::user()->id) {
+    if (!$ctx->user->id) {
       if (null === $ctx->get('noautologin')) {
         try {
           $node = Node::load(array(
@@ -663,7 +660,7 @@ class AdminRPC implements iRemoteCall
       }
     }
 
-    if (!count(mcms::user()->getAccess('u') + mcms::user()->getAccess('c')))
+    if (!count($ctx->user->getAccess('u') + $ctx->user->getAccess('c')))
       throw new ForbiddenException(t('У вас нет доступа '
         .'к администрированию сайта.'));
   }
@@ -704,10 +701,10 @@ class AdminRPC implements iRemoteCall
     $toolbar = html::em('a', array(
       'class' => 'editprofile',
       'href' => '?q=admin&cgroup=access&mode=edit&id='
-        . mcms::user()->id
+        . Context::last()->user->id
         . '&destination=CURRENT',
       'title' => t('Редактирование профиля'),
-      ), mcms::user()->getName());
+      ), Context::last()->user->getName());
     $toolbar .= html::em('a', array(
       'class' => 'home',
       'href' => '?q=admin',

@@ -82,7 +82,7 @@ class NodeApiModule implements iRemoteCall
       ."WHERE `v`.`rid` = ?", array($rid = $ctx->get('rid')));
 
     if (!empty($info)) {
-      mcms::user()->checkAccess('u', $info[0]['class']);
+      $ctx->user->checkAccess('u', $info[0]['class']);
       $ctx->db->exec("UPDATE `node` SET `rid` = ? WHERE `id` = ?",
         array($rid, $info[0]['id']));
       mcms::flush();
@@ -137,7 +137,7 @@ class NodeApiModule implements iRemoteCall
   public static function rpc_get_reindex(Context $ctx)
   {
     $node = Node::load(array('id' => $ctx->get('node'), '#recurse' => 1));
-    mcms::user()->checkAccess('u', $node->class);
+    $ctx->user->checkAccess('u', $node->class);
 
     if ($node->class == 'type')
       $node->updateTable();

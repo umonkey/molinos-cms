@@ -52,7 +52,7 @@ class ModManRPC implements iRemoteCall
   {
     $conf = array();
 
-    mcms::user()->checkAccess('u', 'moduleinfo');
+    $ctx->user->checkAccess('u', 'moduleinfo');
 
     foreach ($ctx->post as $k => $v) {
       if (substr($k, 0, 7) == 'config_' and !empty($v)) {

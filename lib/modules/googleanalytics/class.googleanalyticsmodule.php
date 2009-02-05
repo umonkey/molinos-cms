@@ -13,7 +13,7 @@ class GoogleAnalyticsModule implements iPageHook
       $html .= "_uacct = '{$config['account']}';";
 
       if (!empty($config['log_uids']))
-        $html .= "__utmSetVar('". mcms_plain(mcms::user()->getName()) ."');";
+        $html .= "__utmSetVar('". mcms_plain(Context::last()->user->getName()) ."');";
 
       $html .= "urchinTracker();";
       $html .= '</script>';

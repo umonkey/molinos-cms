@@ -20,7 +20,7 @@ class RatingRPC implements iRemoteCall
 
     $ctx->db->exec("INSERT INTO `node__rating` (`nid`, `uid`, `ip`, `rate`) VALUES (:nid, :uid, :ip, :rate)", array(
       ':nid' => $node,
-      ':uid' => mcms::user()->id,
+      ':uid' => $ctx->user->id,
       ':ip' => $_SERVER['REMOTE_ADDR'],
       ':rate' => $rate,
       ));
@@ -60,7 +60,7 @@ class RatingRPC implements iRemoteCall
    */
   protected function checkUserVoted(Context $ctx, $nid)
   {
-    $user = mcms::user();
+    $user = $ctx->user;
 
     if ($user->id == 0)
       $status = $ctx->db->fetch("SELECT COUNT(*) FROM `node__rating` WHERE `nid` = :nid AND `uid` = 0 AND `ip` = :ip", array(':nid' => $this->ctx->document->id, ':ip' => $_SERVER['REMOTE_ADDR']));

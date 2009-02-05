@@ -37,7 +37,7 @@ class MessageListWidget extends Widget
   protected function getRequestOptions(Context $ctx)
   {
     $options = array(
-      'uid' => mcms::user()->id,
+      'uid' => Context::last()->user->id,
       'mode' => $this->mode ? $this->mode : $this->get('mode', 'inbox'),
       'limit' => $this->limit,
       );

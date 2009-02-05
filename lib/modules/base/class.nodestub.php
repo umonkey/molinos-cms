@@ -17,7 +17,7 @@ class NodeStub
    */
   private static $stack = array();
 
-  private function __construct($id, PDO $db)
+  private function __construct($id, PDO $db = null)
   {
     if ($id instanceof NodeStub)
       $id = $id->id;
@@ -38,7 +38,7 @@ class NodeStub
   /**
    * Создание новой ноды.
    */
-  public static function create($id, PDO $db)
+  public static function create($id, PDO $db = null)
   {
     if ($id instanceof NodeStub)
       $id = $id->id;
@@ -108,6 +108,17 @@ class NodeStub
 
     $this->makeSureFieldIsAvailable($key);
     return !empty($this->data[$key]);
+  }
+
+  /**
+   * Сообщение при обращении к несуществующему методу.
+   */
+  private final function __call($method, $args)
+  {
+    throw new RuntimeException(t('Метод %class::%method() не существует.', array(
+      '%class' => get_class($this),
+      '%method' => $method,
+      )));
   }
 
   /**
@@ -193,6 +204,9 @@ class NodeStub
 
       // Создание новой ноды.
       if (null === $this->id) {
+        if (null !== $this->parent_id)
+          throw new RuntimeException(t("Создание дочерних нод пока не работает."));
+
         $fields = '`' . join('`, `', array_keys($data)) . '`';
         $params = substr(str_repeat('?,', count($data)), 0, -1);
 
@@ -319,6 +333,30 @@ class NodeStub
   }
 
   /**
+   * Получение списка объектов, к которым привязан текущий.
+   */
+  public function getLinkedTo($class = null)
+  {
+    $result = array();
+
+    if (null !== $this->id) {
+      $params = array($this->id);
+      $sql = "SELECT `tid` FROM `node__rel` WHERE `nid` = ? "
+        . "AND `tid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 0)";
+
+      if (null !== $class) {
+        $sql .= " AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = ?)";
+        $params[] = $class;
+      }
+
+      foreach ((array)$this->db->getResultsV("tid", $sql, $params) as $id)
+        $result[] = self::create($id, $this->db);
+    }
+
+    return $result;
+  }
+
+  /**
    * Возвращает имя объекта.  TODO: вынести.
    */
   public function getName()
@@ -386,6 +424,9 @@ class NodeStub
 
   private function retrieve()
   {
+    if (null === $this->db)
+      return $this->data = array();
+
     $data = $this->db->getResults("SELECT `node`.`parent_id`, "
       . "`node`.`lang`, `node`.`class`, `node`.`left`, `node`.`right`, "
       . "`node`.`uid`, `node`.`created`, `node`.`updated`, "
@@ -446,6 +487,10 @@ class NodeStub
 
   public function getObject()
   {
-    return Node::create($this);
+    if (null === $this->id)
+      $class = 'Node';
+    elseif (!class_exists($class = $this->class . 'Node'))
+      $class = 'Node';
+    return new $class($this);
   }
 }

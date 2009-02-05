@@ -6,13 +6,18 @@ class CommentMenu implements iAdminMenu
   {
     $icons = array();
 
-    if (mcms::user()->hasAccess('u', 'comment') and Node::count(array('class' => 'comment')))
-      $icons[] = array(
-        'group' => 'content',
-        'href' => '?action=list&module=comment',
-        'title' => t('Комментарии'),
-        'description' => t('Управление комментариями пользователей.'),
-        );
+    $ctx = Context::last();
+
+    if ($ctx->user->hasAccess('u', 'comment')) {
+      if ($ctx->db->getResult("SELECT COUNT(*) FROM `node` WHERE `class` = 'comment' AND `deleted` = 0")) {
+        $icons[] = array(
+          'group' => 'content',
+          'href' => '?action=list&module=comment',
+          'title' => t('Комментарии'),
+          'description' => t('Управление комментариями пользователей.'),
+          );
+      }
+    }
 
     return $icons;
   }

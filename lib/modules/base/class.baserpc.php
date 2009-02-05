@@ -59,9 +59,9 @@ class BaseRPC implements iRemoteCall
       $ctx->checkMethod('post');
 
       if (null === $ctx->post('login'))
-        User::authorize($ctx->get('id'), null);
+        User::authorize($ctx->get('id'), null, $ctx);
       else
-        User::authorize($ctx->post('login'), $ctx->post('password'));
+        User::authorize($ctx->post('login'), $ctx->post('password'), $ctx);
     }
 
     catch (ForbiddenException $e) {
@@ -140,7 +140,7 @@ class BaseRPC implements iRemoteCall
         throw new PageNotFoundException(t('Нет такого пользователя.'));
     }
 
-    $curuid = mcms::user()->id;
+    $curuid = $ctx->user->id;
 
     if ($uid and $uid != $curuid) {
       if (!is_array($stack = mcms::session('uidstack')))

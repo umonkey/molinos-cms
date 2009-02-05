@@ -28,7 +28,7 @@ class CommentNodeHook implements iNodeHook
 
         $uids = array_diff(
           array_unique(array_merge($l1, $l2)),
-          array(mcms::user()->id)
+          array(Context::last()->user->id)
           );
 
         $body = mcms::render(__CLASS__, array(

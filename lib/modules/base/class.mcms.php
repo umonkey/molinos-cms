@@ -196,16 +196,6 @@ class mcms
     return $ctx->db;
   }
 
-  public static function user()
-  {
-    if (func_num_args())
-      throw new InvalidArgumentException(t('mcms::user() не принимает '
-        .'параметров и возвращает объект, описывающий текущего '
-        .'пользователя, анонимного или идентифицированного.  Для '
-        .'идентификации используйте User::authorize().'));
-    return User::identify();
-  }
-
   public static function invoke($interface, $method, array $args = array())
   {
     $res = array();
@@ -316,51 +306,6 @@ class mcms
       $message = get_class($message) . ': ' . $message->getMessage();
 
     error_log($prefix . $message, 0);
-  }
-
-  public static function report(Exception $e)
-  {
-    if (null === ($recipient = mcms::config('backtracerecipient')))
-      return;
-
-    switch (get_class($e)) {
-    case 'ObjectNotFoundException':
-    case 'UnauthorizedException':
-    case 'ForbiddenException':
-    case 'PageNotFoundException':
-      return;
-    }
-
-    $body = t('<p>%method request for %url from %ip resulted in an %class exception (code %code) with the following message:</p>', array(
-      '%method' => $_SERVER['REQUEST_METHOD'],
-      '%url' => 'http://'. $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
-      '%ip' => $_SERVER['REMOTE_ADDR'],
-      '%class' => get_class($e),
-      '%code' => $e->getCode(),
-      ));
-
-    $body .= '<blockquote><em>'. mcms_plain($e->getMessage()) .'</em></blockquote>';
-
-    $body .= t('<p>Here is the stack trace:</p><pre>%stack</pre>', array(
-      '%stack' => mcms::backtrace($e),
-      ));
-
-    if (mcms::user()->id)
-      $body .= t('<p>The user was identified as %user (#%uid).</p>', array(
-        '%user' => l(mcms::user()->getRaw()),
-        '%uid' => mcms::user()->id,
-        ));
-    else
-      $body .= t('<p>The user responsible for this action could not be identified.</p>');
-
-    $body .= t('<p>The server runs Molinos.CMS version %version (<a href="%buglist">see the bug list</a>).</p>', array(
-      '%version' => mcms::version(),
-      '%buglist' => preg_replace('/^(\d+\.\d+)\..*$/', 'http://code.google.com/p/molinos-cms/issues/list?q=label:Milestone-R\1', mcms::version()),
-      ));
-
-    $subject = 'Molinos.CMS crash report for '. $_SERVER['HTTP_HOST'];
-
-    $rc = BebopMimeMail::send('cms-bugs@molinos.ru', $recipient, $subject, $body);
   }
 
   // Возвращает список доступных классов и файлов, в которых они описаны.

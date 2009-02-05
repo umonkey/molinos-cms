@@ -11,6 +11,7 @@ class Redirect extends Response
 
   public function __construct($url = '', $code = 302)
   {
+    mcms::debug($url);
     $u = new url($url);
     $url = $u->getAbsolute(Context::last());
 

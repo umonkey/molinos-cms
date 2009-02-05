@@ -67,7 +67,11 @@ class ListWidget extends Widget
       'recurse' => array(
         'type' => 'BoolControl',
         'label' => t('Включить документы из подразделов'),
-        'description' => t('Если этот флаг установлен, будут возвращены не только документы из запрошенного раздела, но и из всех его подразделов.'),
+        ),
+      'showpath' => array(
+        'type' => 'BoolControl',
+        'label' => t('Возвращать информацию о разделе'),
+        'description' => t('Снижает производительность.'),
         ),
       'limit' => array(
         'type' => 'NumberControl',
@@ -76,17 +80,14 @@ class ListWidget extends Widget
       'onlyiflast' => array(
         'type' => 'BoolControl',
         'label' => t('Возвращать список только если не запрошен документ'),
-        'description' => t('Если этот флаг установлен, и в адресной строке после идентификатора раздела есть ещё какое-нибудь значение, виджет ничего не вернёт (при просмотре конкретного документа список обычно не нужен).'),
         ),
       'onlyathome' => array(
         'type' => 'BoolControl',
-        'label' => t('Возвращать список только на главной странице'),
-        'description' => t('Если этот флаг установлен, список документов будет возвращён только если страница запрошена по своему основному адресу, без дополнительных параметров.&nbsp; Например, если виджет прикреплен к главной странице, а запрошена страница /xyz/, ничего возвращено не будет.'),
+        'label' => t('Возвращать список только если не запрошен конкретный раздел'),
         ),
       'skipcurrent' => array(
         'type' => 'BoolControl',
         'label' => t('Не возвращать текущий документ'),
-        'description' => t('Исключить из списка документ, который уже отображается на странице.'),
         ),
       'count_comments' => array(
         'type' => 'BoolControl',
@@ -135,50 +136,39 @@ class ListWidget extends Widget
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
 
-    $options['picker'] = $this->get('picker');
-    $options['limit'] = $this->get('limit', $this->limit);
+    if ($this->onlyiflast and $ctx->document->id)
+      return false;
+
+    // Выбор текущего раздела.
+    if ($this->allowoverride and ($tmp = $this->get('section')))
+      $options['section'] = $tmp;
+    elseif ('root' == $this->fixed)
+      $options['section'] = $ctx->root->id;
+    elseif ('always' == $this->fallbackmode and $this->fixed)
+      $options['section'] = $this->fixed;
+    elseif (null !== ($tmp = $ctx->section->id))
+      $options['section'] = $tmp;
 
     if (!empty($this->types))
-      $options['classes'] = array_intersect($this->types, mcms::user()->getAccess('r'));
+      $options['classes'] = array_intersect($this->types, Context::last()->user->getAccess('r'));
 
-    if (!is_array($options['filter'] = $this->get('filter')))
-      $options['filter'] = array();
+    if ($this->onlyathome and $options['section'] != $ctx->root->id)
+      return false;
 
-    if (null !== ($tmp = $this->get('special')))
-      $options['filter']['#special'] = $tmp;
-    else {
-      if (null !== ($tmp = $this->get('search')))
-        $options['filter']['#search'] = $tmp;
-
-      // Выбор текущего раздела.  Если сказано всегда использовать
-      // фиксированный -- используем его, в противном случае
-      // используем текущий раздел в зависимости от запроса и
-      // настроек текущей страницы.
-
-      if ('root' == $this->fixed) {
-        if ($ctx->root->id)
-          $options['filter']['tags'] = array($ctx->root->id);
-      } elseif ('always' == $this->fallbackmode and $this->fixed)
-        $options['filter']['tags'] = array($this->fixed);
-      elseif (null !== ($tmp = $ctx->section->id))
-        $options['filter']['tags'] = array($tmp);
-
-      if ($this->allowoverride and ($o = $this->get('section')))
-        $options['filter']['tags'] = array($o);
-
+    if ($this->skipcurrent)
       $options['document'] = $ctx->document->id;
 
-      if (is_array($tmp = $this->get('classes')))
-        $options['filter']['class'] = array_unique($tmp);
+    if (is_array($tmp = $this->get('classes')))
+      $options['filter']['class'] = array_unique($tmp);
 
-      // Добавляем выборку по архиву.
-      foreach (array('year', 'month', 'day') as $key) {
-        if (null === ($tmp = $this->get($key)))
-          break;
-        $options['filter']['node.created.'. $key] = $tmp;
-      }
+    // Добавляем выборку по архиву.
+    foreach (array('year', 'month', 'day') as $key) {
+      if (null === ($tmp = $this->get($key)))
+        break;
+      $options['filter']['node.created.'. $key] = $tmp;
     }
 
+    // Добавляем выбор страницы.
     if ($options['limit'] = $this->get('limit', $this->limit)) {
       if ($this->pager)
         $options['page'] = $this->get('page', 1);
@@ -190,45 +180,7 @@ class ListWidget extends Widget
       $options['offset'] = null;
     }
 
-    // Определяем сортировку.
-
-    if (is_array($tmp = $this->get('sort')))
-      $options['sort'] = $tmp;
-
-    elseif (empty($this->sort))
-      ;
-
-    elseif (!is_array($this->sort)) {
-      $fields = explode(' ', $this->sort);
-
-      foreach (explode(' ', $this->sort) as $field) {
-        // Это происходит если пользователь ввёл больше одного пробела.
-        if (empty($field))
-          continue;
-
-        $dir = 'ASC';
-
-        switch (substr($field, 0, 1)) {
-        case '-':
-          $dir = 'DESC';
-        case '+':
-          $field = substr($field, 1);
-          break;
-        }
-
-        $options['sort'][$field] = $dir;
-      }
-    }
-
-    elseif (!empty($this->sort['fields'])) {
-      foreach ($this->sort['fields'] as $field) {
-        $reverse = empty($this->sort['reverse']) ? array() : $this->sort['reverse'];
-        $options['sort'][$field] = in_array($field, $reverse) ? 'DESC' : 'ASC';
-      }
-    }
-
-    if (!empty($options['sort']) and array_key_exists('RAND()', $options['sort']))
-      $options['#cache'] = false;
+    $options['sort'] = $this->get('sort', $this->sort);
 
     return $options;
   }
@@ -358,151 +310,136 @@ class ListWidget extends Widget
    */
   public function onGet(array $options)
   {
-    try {
-      $options['mode'] = 'list';
-      return $this->dispatch(array($options['mode']), $options);
-    } catch (NoIndexException $e) {
-      return array('error' => t('Не удалось получить список документов: отсутствуют индексы.'));
+    if (!count($ids = $this->getDocumentIds($options))) {
+      // Обработать fallback.
     }
-  }
 
-  private function getNodePerms(array $nodes, $op)
-  {
-    return $this->ctx->db->getResultsKV("nid", "nid", "SELECT `nid` FROM `node__access` WHERE `nid` IN ({$op}CHECK) AND `nid` IN (". join(", ", $nodes) .")");
-  }
+    $result = '';
 
-  private function getTagList($root, $recurse)
-  {
-    if (empty($root))
-      return array();
-
-    if (!$recurse)
-      return array($root);
-
-    $tags = $this->ctx->db->getResultsV("id", "SELECT `n`.`id` as `id` FROM `node` `n`, `node` `t` "
-      ."WHERE `t`.`id` = :tid AND `n`.`left` >= `t`.`left` AND `n`.`right` <= `t`.`right` "
-      ."AND `n`.`deleted` = 0 AND `n`.`published` = 1 "
-      ."ORDER BY `n`.`left` -- ListWidget::getTagList()", array(':tid' => $root));
-
-    return $tags;
-  }
-
-  // Возвращает таблицу с параметрами сортировки.
-  private function getSortTable()
-  {
-    $result = array(
-      '#type' => 'TableControl',
-      '#text' => 'Сортировка документов',
-      '#description' => "Сортировать по другим полям пока нельзя.",
-      '#header' => array(null, 'Название поля', 'Обратная'),
-      '#rows' => array(
-        array(),
-        ),
-      );
-
-    foreach (array('id' => 'Код документа', 'name' => 'Название', 'created' => 'Дата создания', 'updated' => 'Дата изменения', 'RAND()' => 'В случайном порядке') as $field => $title) {
-      $result['#rows'][] = array(
-        array(
-          '#type' => 'BoolControl',
-          '#name' => 'config[sort][fields][]',
-          '#value' => $field,
-          '#checked' => empty($this->config['sort']['fields']) ? false : in_array($field, $this->config['sort']['fields']),
-          ),
-        $title,
-        array(
-          '#type' => 'BoolControl',
-          '#name' => 'config[sort][reverse][]',
-          '#value' => $field,
-          '#checked' => empty($this->config['sort']['reverse']) ? false : in_array($field, $this->config['sort']['reverse']),
-          '#disabled' => ($field == 'RAND()'),
-          ),
-        );
+    // Добавляем информацию о разделе.
+    if ($this->showpath and !empty($options['section'])) {
+      $tmp = '';
+      $section = NodeStub::create($options['section'], $this->ctx->db);
+      foreach ($section->getParents() as $node)
+        $tmp .= $node->push('section');
+      if (!empty($tmp))
+        $result .= html::em('path', $tmp);
     }
+
+    // Формируем список документов.
+    $tmp = '';
+    foreach ($ids as $id) {
+      $node = NodeStub::create($id, $this->ctx->db);
+      $tmp .= $node->getXML('document');
+    }
+    if (!empty($tmp))
+      $result .= html::em('documents', $tmp);
 
     return $result;
   }
 
-  // Возвращает объект NodeQueryBuilder для получения данных.
-  /**
-   * Возвращает запрос для получения данных.
-   *
-   * Формулирует запрос к БД на основании полученных параметров.
-   *
-   * @param array $options параметры, полученные от getRequestOptions().
-   *
-   * @return NodeQueryBuilder описание запроса.
-   */
-  public function queryGet(array $options = null)
+  private function getDocumentIds(array $options)
   {
-    $query = array(
-      'class' => array(),
-      );
+    $tables = array('`node`');
+    $where = $params = array();
 
-    if (!empty($options['special']))
-      $query['#special'] = $options['special'];
+    $this->getBasicQuery($options, $where, $params);
 
-    else {
-      if (!empty($options['filter']))
-        foreach ($options['filter'] as $k => $v)
-          if ('' !== $v)
-            $query[$k] = $v;
+    if (!empty($options['sort']))
+      $order = $this->getSortQuery($options['sort'], $tables, $where, $params);
+    else
+      $order = null;
 
-      if (!empty($options['classes']) and is_array($options['classes']))
-        $query['class'] = $options['classes'];
-      elseif (empty($query['class']) and empty($query['-class'])) {
-        if (is_array($types = $this->types))
-          $query['class'] += $types;
-      }
+    $sql = "SELECT `id` FROM `node` WHERE " . join(' AND ', $where);
+    $sql .= $order;
 
-      if (!array_key_exists('published', $query))
-        $query['published'] = 1;
-
-      if (!empty($options['search']))
-        $query['#search'] = $options['search'];
-
-      if ($this->skipcurrent and null !== $this->ctx->document->id)
-        $query['-id'] = $this->ctx->document->id;
-
-      if (!empty($query['tags'])) {
-        if (!is_array($query['tags']))
-          $query['tags'] = $this->queryGetTags($query['tags']);
-        elseif (count($query['tags']) == 1)
-          $query['tags'] = $this->queryGetTags($query['tags'][0]);
-      }
-
-      // Переключаемся на дефолтный раздел, если это нужно.
-      if (!empty($this->fixed) and 'empty' == $this->fallbackmode) {
-        if (empty($query['tags']) or !($count = Node::count($query)))
-          $query['tags'] = $this->queryGetTags($this->fixed);
-      }
+    if (!empty($options['limit'])) {
+      $lim = intval($options['limit']);
+      $off = empty($options['page'])
+        ? 0
+        : ($options['page'] - 1) * $lim;
+      $sql .= " LIMIT {$off}, {$lim}";
     }
 
-    if (!empty($options['sort'])) {
-      $query['#sort'] = $options['sort'];
-    } else {
-      // Этого здесь НЕ должно быть, иначе в админке нельзя будет сортировать документы в рамках раздела.
-      // $query['#sort'] = array('id' => 'desc');
-    }
-
-    $query['#permcheck'] = true;
-    $query['#recurse'] = 1;
-
-    return $query;
+    return (array)$this->ctx->db->getResultsV('id', $sql, $params);
   }
 
-  private function queryGetTags($root)
+  private function getBasicQuery(array $options, array &$where, array &$params)
   {
-    if (empty($root))
-      return array();
+    $where[] = "`node`.`published` = 1";
+    $where[] = "`node`.`deleted` = 0";
 
-    if (!$this->recurse)
-      return array($root);
+    if (!empty($options['classes']))
+      $where[] = "`node`.`class` " . $this->getIn($options['classes'], $params);
 
-    $tags = $this->ctx->db->getResultsV("id", "SELECT `n`.`id` as `id` FROM `node` `n`, `node` `t` "
-      ."WHERE `t`.`id` = :root AND `n`.`left` >= `t`.`left` AND `n`.`right` <= `t`.`right` "
-      ."AND `n`.`deleted` = 0 AND `n`.`published` = 1 "
-      ."ORDER BY `n`.`left` -- ListWidget::getTagList()", array(':root' => $root));
+    if (!empty($options['section'])) {
+      if ($this->recurse) {
+        $where[] = "`node`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` IN (SELECT n1.id FROM node n1, node n2 WHERE n1.left >= n2.left AND n1.right <= n2.right AND n1.class = 'tag' AND n1.deleted = 0 AND n1.published = 1 AND n2.id = ?))";
+        $params[] = $options['section'];
+      } else {
+        $in = $this->getIn($options['section'], $params);
+        $where[] = "`node`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` {$in})";
+      }
+    }
+  }
 
-    return $tags;
+  private function getSortQuery($order, array &$tables, array &$where, array &$params)
+  {
+    $parts = array();
+    $order = preg_split('@[, ]+@', $order, -1, PREG_SPLIT_NO_EMPTY);
+
+    foreach ($order as $part) {
+      if ('-' == substr($part, 0, 1)) {
+        $mode = 'DESC';
+        $part = substr($part, 1);
+      } else {
+        $mode = 'ASC';
+      }
+
+      if (1 == count($fspec = explode('.', $part, 2))) {
+        $table = '`node`';
+        $field = $fspec[0];
+      } else {
+        $table = '`node__idx_' . $fspec[0] . '`';
+        $field = $fspec[1];
+      }
+
+      if (!in_array($table, $tables)) {
+        $tables[] = $table;
+        $where[] = $table . '.`id` = `node`.`id`';
+      }
+
+      $parts[] = $table . '.`' . $field . '` ' . $mode;
+    }
+
+    return empty($parts)
+      ? null
+      : ' ORDER BY ' . join(', ', $parts);
+  }
+
+  /**
+   * Возвращает SQL инструкцию для выборки по списку значений.
+   * Варианты: IS NULL, = ?, IN (?..).
+   */
+  private function getIn($values, array &$params)
+  {
+    if (empty($values))
+      return 'IS NULL';
+
+    if (!is_array($values))
+      $values = array($values);
+
+    if (1 == count($values)) {
+      $params[] = array_shift($values);
+      return ' = ?';
+    }
+
+    $qs = array();
+    foreach ($values as $v) {
+      $qs[] = '?';
+      $params[] = $v;
+    }
+
+    return 'IN (' . join(', ', $qs) . ')';
   }
 };

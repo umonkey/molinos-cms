@@ -139,34 +139,17 @@ class DocWidget extends Widget implements iWidget
     $output = '';
 
     if (null !== ($node = $this->ctx->document)) {
-      $node = $node->getObject();
-
       if (in_array($node->class, array('tag', 'config')))
         throw new PageNotFoundException();
 
       if (!$node->published)
         throw new ForbiddenException(t('Документ не опубликован.'));
 
-      if (!$node->checkPermission('r'))
+      if (!$node->getObject()->checkPermission('r'))
         throw new ForbiddenException(t('У вас нет доступа к этому документу.'));
 
       $output .= $node->getXML('document');
-
-      $parents = Node::find($f = array(
-        'class' => 'tag',
-        'tagged' => $node->id,
-        '#recurse' => 0,
-        ));
-      if (!empty($parents)) {
-        $tmp = '';
-        foreach ($parents as $p)
-          $tmp .= $p->getXML('section');
-        $output .= html::em('sections', $tmp);
-      }
-
-      /*
-      $result['schema'] = $node->getSchema();
-      */
+      $output .= Node::getNodesXML('section', $node->getLinkedTo('tag'));
 
       if ($this->showneighbors and $this->ctx->section->id and in_array($this->ctx->section->id, $sections)) {
         if (null !== ($n = $node->getNeighbors($this->ctx->section->id))) {

@@ -448,7 +448,7 @@ class NodeQueryBuilder
 
       switch ($mode) {
       case 'class':
-        $filter = mcms::user()->getAccess('r');
+        $filter = Context::last()->user->getAccess('r');
 
         if (array_key_exists('class', $this->query))
           $tmp = (array)$this->query['class'];
@@ -470,7 +470,7 @@ class NodeQueryBuilder
       case 'u':
       case 'd':
       case 'p':
-        $this->where[] = "`node`.`id` IN (SELECT nid FROM node__access WHERE {$mode} = 1 AND uid IN (" . join(', ', array_keys(mcms::user()->getGroups())) . "))";
+        $this->where[] = "`node`.`id` IN (SELECT nid FROM node__access WHERE {$mode} = 1 AND uid IN (" . join(', ', array_keys(Context::last()->user->getGroups())) . "))";
         break;
       }
 

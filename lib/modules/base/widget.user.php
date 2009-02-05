@@ -83,12 +83,12 @@ class UserWidget extends Widget implements iWidget
       return $options;
 
     $options['uid'] = $this->get('uid');
-    $options['login'] = mcms::user()->login;
+    $options['login'] = $ctx->user->login;
     $options['status'] = $this->get('status');
     $options['hash'] = $this->get('hash');
 
     if ('default' == ($options['action'] = $this->get('action', 'default'))) {
-      if (mcms::user()->id)
+      if ($ctx->user->id)
         $options['action'] = 'logout';
       else
         $options['action'] = 'login';
@@ -203,7 +203,7 @@ class UserWidget extends Widget implements iWidget
    */
   protected function onGetRegister(array $options)
   {
-    if (mcms::user()->id) {
+    if ($this->ctx->user->id) {
       $url = new url();
       $url->setarg($this->getInstanceName() .'.action', 'edit');
 
@@ -253,10 +253,10 @@ class UserWidget extends Widget implements iWidget
    */
   protected function onGetEdit(array $options)
   {
-    if (!mcms::user()->id)
+    if (!$this->ctx->user->id)
       $this->ctx->redirect($this->getMeLink('action', 'register')->string());
 
-    $node = mcms::user()->getNode();
+    $node = $this->ctx->user->getNode();
     return $node->formGet()->getXML($node);
   }
 
@@ -302,7 +302,7 @@ class UserWidget extends Widget implements iWidget
 
     switch ($options['action']) {
     case 'edit':
-      $user = mcms::user();
+      $user = $this->ctx->user;
 
       if ($options['uid'] != $user->id and !$user->hasAccess('u', 'user'))
         throw new PageNotFoundException(); // FIXME: 403
@@ -368,7 +368,7 @@ class UserWidget extends Widget implements iWidget
    */
   public function formGet($id)
   {
-    $user = mcms::user();
+    $user = $this->ctx->user;
 
     switch ($id) {
     case 'user-logout-form':
@@ -450,7 +450,7 @@ class UserWidget extends Widget implements iWidget
       return array();
 
     case 'profile-edit-form':
-      $uid = empty($_GET['profile_uid']) ? mcms::user()->id : $_GET['profile_uid'];
+      $uid = empty($_GET['profile_uid']) ? $this->ctx->user->id : $_GET['profile_uid'];
       $user = Node::load(array('class' => 'user', 'id' => $uid));
       return $user;
 

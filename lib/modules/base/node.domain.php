@@ -72,7 +72,7 @@ class DomainNode extends Node implements iContentType
   {
     $result = array();
 
-    $su = mcms::user()->hasAccess('u', 'domain');
+    $su = Context::last()->user->hasAccess('u', 'domain');
     $themes = glob(MCMS_ROOT .'/themes/'.'*');
 
     if (!empty($themes)) {
@@ -137,7 +137,7 @@ class DomainNode extends Node implements iContentType
     if ($admin)
       $dev = true;
     else
-      $dev = mcms::user()->hasAccess('u', 'domain');
+      $dev = Context::last()->user->hasAccess('u', 'domain');
 
     $result = array();
 
@@ -170,7 +170,7 @@ class DomainNode extends Node implements iContentType
       return $this->formGetAlias();
 
     $form = parent::formGet($simple);
-    $user = mcms::user();
+    $user = Context::last()->user;
 
     $form->hideControl('redirect');
 
