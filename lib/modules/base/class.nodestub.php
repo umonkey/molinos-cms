@@ -4,6 +4,7 @@ class NodeStub
 {
   private $id = null;
   private $data = null;
+  private $onsave = array();
 
   /**
    * Устанавливается при необходимости сохранить объект.
@@ -87,9 +88,10 @@ class NodeStub
     case 'published':
     case 'deleted':
     case 'parent_id':
-      throw new InvalidArgumentException(t('Свойство %name нельзя изменять стандартными средствами, используйте специальные методы.', array(
-        '%name' => $key,
-        )));
+      if (null !== $this->id)
+        throw new InvalidArgumentException(t('Свойство %name нельзя изменять стандартными средствами, используйте специальные методы.', array(
+          '%name' => $key,
+          )));
     }
 
     if (!array_key_exists($key, $this->data) or $this->data[$key] !== $value) {
@@ -144,14 +146,28 @@ class NodeStub
   }
 
   /**
+   * Возвращает ключ в кэше для этого объекта.
+   */
+  private function getCacheKey()
+  {
+    return 'node:' . $this->id . ':xml';
+  }
+
+  /**
+   * Удаляет ноду из кэша.
+   */
+  private function flush()
+  {
+    mcms::cache($this->getCacheKey(), false);
+  }
+
+  /**
    * Возвращает объект в виде XML.
    */
   public final function getXML($em = 'node', $extraContent = null)
   {
     if (null !== $this->id) {
-      $ckey = 'node:' . $this->id . ':xml';
-
-      if (!is_array($data = mcms::cache($ckey))) {
+      if (!is_array($data = mcms::cache($ckey = $this->getCacheKey()))) {
         $data = array(
           'id' => $this->id,
           '#text' => null,
@@ -199,41 +215,62 @@ class NodeStub
    */
   public function save()
   {
-    if ($this->dirty) {
+    if ($this->dirty or !empty($this->onsave)) {
       $data = $this->pack();
+      $data['lang'] = 'ru';
 
       // Создание новой ноды.
       if (null === $this->id) {
         if (null !== $this->parent_id)
           throw new RuntimeException(t("Создание дочерних нод пока не работает."));
+        if (null === $this->db)
+          throw new RuntimeException(t('Сохранение невозможно: не получен указатель на БД.'));
 
-        $fields = '`' . join('`, `', array_keys($data)) . '`';
-        $params = substr(str_repeat('?,', count($data)), 0, -1);
+        $data['created'] = $data['updated'] = gmdate('Y-m-d H:i:s');
 
-        $sql = "INSERT INTO `node` ({$fields}) VALUES ({$params})";
+        list($sql, $params) = sql::getInsert('node', $data);
         $sth = $this->db->prepare($sql);
-        $sth->execute($data);
+        $sth->execute($params);
         $this->id = $this->db->lastInsertId();
       }
 
       // Обновление существующей ноды.
       else {
         // Сохраняем текущую версию в архиве.
-        $fields = '`id`, `lang`, `class`, `left`, `right`, `uid`, `created`, `updated`, `name`, `data`';
-        $sth = $this->db->prepare("INSERT INTO `node__archive` ({$fields}) SELECT {$fields} FROM `node` WHERE `id` = ?");
-        $sth->execute($this->id);
+        try {
+          $fields = '`id`, `lang`, `class`, `left`, `right`, `uid`, `created`, `updated`, `name`, `data`';
+          $sth = $this->db->prepare("INSERT INTO `node__archive` ({$fields}) SELECT {$fields} FROM `node` WHERE `id` = ?");
+          $sth->execute($this->id);
+        } catch (PDOException $e) {
+          // TODO
+        }
 
         // Обновляем текущую версию.
-        $pairs = array();
-        foreach ($data as $k => $v)
-          $pairs[] = "`{$k}` = ?";
-        $data[] = $this->id;
-        $sth = $this->db->prepare("UPDATE `node` SET " . join(', ', $pairs) . " WHERE `id` = ?");
-        $sth->execute($data);
+        $data['updated'] = gmdate('Y-m-d H:i:s');
+        list($sql, $params) = sql::getUpdate('node', $data, 'id');
+        $sth = $this->db->prepare($sql);
+        $sth->execute($params);
       }
 
+      foreach ($this->onsave as $query) {
+        list($sql, $params) = $query;
+        $sth = $this->db->prepare(str_replace('%ID%', intval($this->id), $sql));
+        $sth->execute($params);
+      }
+
+      $this->onsave = array();
       $this->dirty = false;
+
+      $this->flush();
     }
+  }
+
+  /**
+   * Добавление запроса в пост-обработку.
+   */
+  public function onSave($sql, array $params = null)
+  {
+    $this->onsave[] = array($sql, $params);
   }
 
   /**
@@ -260,6 +297,7 @@ class NodeStub
   {
     $sth = $this->db->prepare("UPDATE `node` SET `deleted` = ? WHERE `id` = ?");
     $sth->execute(array($value, $this->id));
+    $this->flush();
   }
 
   /**
@@ -286,6 +324,7 @@ class NodeStub
   {
     $sth = $this->db->prepare("UPDATE `node` SET `published` = ? WHERE `id` = ?");
     $sth->execute(array($value, $this->id));
+    $this->flush();
   }
 
   /**
@@ -375,7 +414,9 @@ class NodeStub
       $fields['id'] = $this->id;
 
     foreach ($this->data as $k => $v) {
-      if ($this->isBasicField($k))
+      if ($v instanceof NodeStub)
+        $this->onSave("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) VALUES (%ID%, ?, ?)", array($v->id, $k));
+      elseif ($this->isBasicField($k))
         $fields[$k] = $v;
       else
         $extra[$k] = $v;
@@ -491,5 +532,13 @@ class NodeStub
     elseif (!class_exists($class = $this->class . 'Node'))
       $class = 'Node';
     return new $class($this);
+  }
+
+  /**
+   * Заглушка для сериализаторов.
+   */
+  private function __sleep()
+  {
+    throw new RuntimeException(t('NodeStub не может быть сериализован.'));
   }
 }

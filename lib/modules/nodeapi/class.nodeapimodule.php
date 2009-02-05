@@ -37,7 +37,7 @@ class NodeApiModule implements iRemoteCall
       throw new ForbiddenException();
 
     $node->$field = $value;
-    $node->save();
+    $node->save($ctx->db);
   }
 
   /**
@@ -185,7 +185,7 @@ class NodeApiModule implements iRemoteCall
       'parent_id' => empty($parent) ? null : $parent,
       ));
 
-    $node->formProcess($ctx->post)->save();
+    $node->formProcess($ctx->post)->save($ctx->db);
 
     $next = $ctx->post('destination', $ctx->get('destination', ''));
 
@@ -197,8 +197,8 @@ class NodeApiModule implements iRemoteCall
    */
   public static function rpc_post_edit(Context $ctx)
   {
-    $node = Node::load($ctx->get('node'));
-    $node->formProcess($ctx->post)->save();
+    $node = Node::load($ctx->get('node'))->getObject();
+    $node->formProcess($ctx->post)->save($ctx->db);
   }
 
   /**

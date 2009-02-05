@@ -33,8 +33,10 @@ class SectionControl extends EnumControl implements iFormControl
 
     if ($this->store)
       $node->{$this->value} = $value;
-    else
-      $node->linkSetParents(array($value), 'tag', $this->getEnabled($node));
+    else {
+      $params = array();
+      $node->onSave("INSERT INTO `node__rel` (`nid`, `tid`) SELECT %ID%, `id` FROM `node` WHERE `class` = 'tag' AND `id` " . sql::in($value, $params), $params);
+    }
   }
 
   protected function getSelected($data)
