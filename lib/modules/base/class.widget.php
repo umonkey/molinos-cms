@@ -399,28 +399,6 @@ abstract class Widget implements iWidget
     return null;
   }
 
-  /**
-   * Проверка применимости документа к виджету.
-   *
-   * Если виджет не привязан к документам такого типа — возвращает false.
-   * @todo проверить на использование, устранить.
-   *
-   * @param Node $node обрабатываемый документ.
-   *
-   * @return bool true, если виджет с такими документами работает.
-   */
-  protected function checkDocType(Node $node)
-  {
-    $types = $this->me->linkListParents('type', true);
-
-    $schema = $this->getSchema();
-
-    if (!empty($types) and !in_array($schema['id'], (array)$types))
-      throw new PageNotFoundException();
-
-    return true;
-  }
-
   protected function checkGroups()
   {
     $diff = array_intersect(

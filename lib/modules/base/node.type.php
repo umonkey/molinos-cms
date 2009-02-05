@@ -345,9 +345,10 @@ class TypeNode extends Node implements iContentType
 
   public function getAllowedSections()
   {
-    if (count($ids = $this->linkListParents('tag', true)))
-      return Node::find(array('id' => $ids));
-    return array();
+    $list = array();
+    foreach ($this->getLinkedTo('tag') as $node)
+      $list[] = $node->id;
+    return $list;
   }
 
   /**

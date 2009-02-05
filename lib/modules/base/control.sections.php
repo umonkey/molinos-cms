@@ -25,10 +25,12 @@ class SectionsControl extends SetControl implements iFormControl
       return (array)$data->{$this->value};
     elseif (!($data instanceof Node))
       return array();
-    elseif (null === ($links = $data->linkListParents('tag', true)))
-      return array();
-
-    return $links;
+    else {
+      $links = array();
+      foreach ($data->getLinkedTo('tag') as $node)
+        $links[] = $node->id;
+      return $links;
+    }
   }
 
   protected function getEnabled($data)

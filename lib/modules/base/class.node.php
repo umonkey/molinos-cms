@@ -180,7 +180,7 @@ class Node
   private function __call($method, $args)
   {
     if (!method_exists($this->stub, $method))
-      throw new RuntimeException(t('В классе %class нет метода %method.', array(
+      throw new RuntimeException(t('Метод %class::%method() не существует.', array(
         '%class' => __CLASS__,
         '%method' => $method,
         )));

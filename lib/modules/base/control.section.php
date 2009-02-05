@@ -42,12 +42,10 @@ class SectionControl extends EnumControl implements iFormControl
     if ($this->store or !($data instanceof Node))
       return array($data->{$this->value});
 
-    $links = $data->linkListParents('tag', true);
-
-    if (null === $links)
-      return array();
-
-    return $links;
+    $result = array();
+    foreach ($data->getLinkedTo('tag') as $node)
+      $result[$node->id] = $node->name;
+    return $result;
   }
 
   protected function getEnabled($data)
