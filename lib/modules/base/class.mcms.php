@@ -259,23 +259,6 @@ class mcms
           printf("\n--- memory usage ---\nnow:  %s\npeak: %s\n",
             self::filesize(memory_get_usage()),
             self::filesize(memory_get_peak_usage()));
-
-        try {
-          if (isset($ctx->db) and null !== ($log = $ctx->db->getLog())) {
-            $idx = 1;
-            printf("\n--- SQL log ---\n");
-
-            foreach ($log as $sql) {
-              if (substr($sql, 0, 2) == '--')
-                printf("     %s\n", $sql);
-              else {
-                if (false !== ($pos = strpos($sql, ', -- timing: ')))
-                  $sql = substr($sql, 0, $pos) ."\n       ". substr($sql, $pos + 5);
-                printf("%3d. %s\n", $idx++, $sql);
-              }
-            }
-          }
-        } catch (Exception $e) { }
       }
 
       die();
