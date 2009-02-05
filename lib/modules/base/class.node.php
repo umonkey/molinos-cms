@@ -58,7 +58,7 @@ class Node
    */
   public static function create($class, array $data = array())
   {
-    $stub = NodeStub::create(null, null);
+    $stub = NodeStub::create(null, mcms::db());
 
     $data['class'] = $class;
     foreach ($data as $k => $v)
@@ -187,7 +187,7 @@ class Node
         '%class' => __CLASS__,
         '%method' => $method,
         )));
-    $result = call_user_func(array($this->stub, $method), $args);
+    $result = call_user_func_array(array($this->stub, $method), $args);
     return $result;
   }
 
