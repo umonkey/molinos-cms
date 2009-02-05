@@ -125,16 +125,12 @@ class XMLRouter implements iRequestRouter
         if (null !== $target and $name !== $target)
           continue;
 
-        mcms::profile('start', $name);
-
         if (class_exists($widget['class'])) {
           $o = new $widget['class']($name, $widget);
           $result[$name] = $o->render($ctx);
         } else {
           $result[$name] = "<!-- widget {$name} halted: class {$widget['class']} not found. -->";
         }
-
-        mcms::profile('stop', $name);
       }
     }
 

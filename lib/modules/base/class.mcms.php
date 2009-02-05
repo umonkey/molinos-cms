@@ -1060,31 +1060,6 @@ class mcms
     return $text;
   }
 
-  public static function profile($mode, $name = null)
-  {
-    static $data = array();
-
-    if (!(($ctx = Context::last()) and $ctx->canDebug()))
-      return;
-
-    switch ($mode) {
-    case 'get':
-      return $data;
-
-    case 'start':
-      $data[$name] = array(
-        'time' => microtime(true),
-        'queries' => $ctx->db->getLogSize(),
-        );
-      break;
-
-    case 'stop':
-      $data[$name]['time'] = microtime(true) - $data[$name]['time'];
-      $data[$name]['queries'] = $ctx->db->getLogSize() - $data[$name]['queries'];
-      break;
-    }
-  }
-
   public static function mkpath(array $elements)
   {
     return join(DIRECTORY_SEPARATOR, $elements);
