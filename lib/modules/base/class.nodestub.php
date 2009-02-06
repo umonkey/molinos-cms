@@ -64,7 +64,9 @@ class NodeStub
       : null;
 
     if ('uid' == $key)
-      return self::create($value, $this->db);
+      return $value
+        ? self::create($value, $this->db)
+        : null;
 
     return $value;
   }
@@ -164,7 +166,7 @@ class NodeStub
   /**
    * Возвращает объект в виде XML.
    */
-  public final function getXML($em = 'node', $extraContent = null)
+  public final function getXML($em = 'node', $extraContent = null, $recurse = true)
   {
     if (null !== $this->id) {
       if (!is_array($data = mcms::cache($ckey = $this->getCacheKey()))) {
@@ -182,7 +184,10 @@ class NodeStub
         $schema = Schema::load($this->data['class']);
 
         foreach ($this->data as $k => $v) {
-          if ($v instanceof NodeStub)
+          if ('uid' == $k and !empty($v) and $recurse)
+            $data['#text'] .= $this->uid->getXML('uid', null, false);
+
+          elseif ($v instanceof NodeStub)
             $data['#text'] .= $v->getXML($k);
 
           else {
@@ -215,7 +220,7 @@ class NodeStub
    */
   public function save()
   {
-    if ($this->dirty or !empty($this->onsave)) {
+    if ($this->dirty) {
       $data = $this->pack();
       $data['lang'] = 'ru';
 
@@ -271,6 +276,7 @@ class NodeStub
   public function onSave($sql, array $params = null)
   {
     $this->onsave[] = array($sql, $params);
+    $this->dirty = true;
   }
 
   /**
@@ -418,6 +424,7 @@ class NodeStub
       if (($v instanceof NodeStub) or ($v instanceof Node)) {
         if (null === $v->id)
           $v->save();
+        $this->onSave("DELETE FROM `node__rel` WHERE `tid` = %ID% AND `key` = ?", array($k));
         $this->onSave("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) VALUES (%ID%, ?, ?)", array($v->id, $k));
       } elseif ($this->isBasicField($k))
         $fields[$k] = $v;
