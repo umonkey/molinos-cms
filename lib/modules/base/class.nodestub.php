@@ -169,7 +169,7 @@ class NodeStub
   public final function getXML($em = 'node', $extraContent = null, $recurse = true)
   {
     if (null !== $this->id) {
-      if (!is_array($data = mcms::cache($ckey = $this->getCacheKey()))) {
+      if (null === $ckey or !is_array($data = mcms::cache($ckey = $this->getCacheKey()))) {
         $data = array(
           'id' => $this->id,
           '#text' => null,
@@ -187,8 +187,13 @@ class NodeStub
           if ('uid' == $k and !empty($v) and $recurse)
             $data['#text'] .= $this->uid->getXML('uid', null, false);
 
-          elseif ($v instanceof NodeStub)
-            $data['#text'] .= $v->getXML($k);
+          elseif ($v instanceof NodeStub) {
+            try {
+              $data['#text'] .= $v->getXML($k);
+            } catch (ObjectNotFoundException $e) {
+              // игнорируем
+            }
+          }
 
           else {
             if (isset($schema[$k]))
@@ -210,6 +215,59 @@ class NodeStub
         $data['#text'] = $extraContent;
       else
         $data['#text'] .= $extraContent;
+    }
+
+    return html::em($em, $data);
+  }
+
+  /**
+   * Возвращает дерево объектов в виде XML.
+   * Кэш не используется, следует реализовывать во вне.
+   */
+  public final function getTreeXML($em = 'node', $children = 'children')
+  {
+    $data = array();
+
+    if (null !== $this->id) {
+      $data = array(
+        'id' => $this->id,
+        '#text' => null,
+        );
+
+      // Форсируем загрузку всех параметров.
+      $this->makeSureFieldIsAvailable('this_field_never_exists');
+
+      $schema = empty($this->data['class'])
+        ? null
+        : Schema::load($this->data['class']);
+
+      foreach ($this->data as $k => $v) {
+        if ('uid' == $k and !empty($v))
+          $data['uid'] = is_object($v)
+            ? $v->id
+            : $v;
+
+        elseif ($v instanceof NodeStub)
+          ;
+
+        else {
+          if (isset($schema[$k]))
+            $v = $schema[$k]->format($v);
+
+          if ($this->isBasicField($k))
+            $data[$k] = $v;
+          else
+            $data['#text'] .= html::em($k, html::cdata($v));
+        }
+      }
+
+      if ($this->left and $this->right) {
+        $tmp = '';
+        foreach ($ids = (array)$this->db->getResultsV("id", "SELECT `id` FROM `node` WHERE `deleted` = 0 AND `class` = ? AND `parent_id` = ? ORDER BY `left`", array($this->class, $this->id)) as $child_id)
+          $tmp .= NodeStub::create($child_id, $this->db)->getTreeXML($em, $children);
+        if (!empty($tmp))
+          $data['#text'] .= html::em($children, $tmp);
+      }
     }
 
     return html::em($em, $data);
@@ -496,9 +554,12 @@ class NodeStub
       . "FROM `node` "
       . "WHERE `node`.`id` = " . intval($this->id));
 
-    $this->data = (null === $data)
-      ? array()
-      : $data[0];
+    if (empty($data))
+      throw new ObjectNotFoundException(t('Объект с номером %id не существует.', array(
+        '%id' => intval($this->id),
+        )));
+
+    $this->data = $data[0];
 
     // Вытягиваем связанные объекты.
     $data = $this->db->getResultsKV("key", "nid", "SELECT `key`, `nid` FROM `node__rel` WHERE `tid` = ? AND `key` IS NOT NULL AND `nid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 1)", array($this->id));

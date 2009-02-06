@@ -101,37 +101,47 @@
       </tr>
     </thead>
     <tbody>
-      <xsl:for-each select="node">
-        <tr>
-          <xsl:call-template name="odd_row" />
-          <td class="icon">
-            <a class="icon-add" title="Добавить подраздел" href="?q=admin.rpc&amp;action=create&amp;type=tag&amp;parent={@id}&amp;cgroup={/page/@cgroup}&amp;destination={/page/@urlEncoded}">
-              <span/>
-            </a>
-          </td>
-          <td class="icon">
-            <xsl:if test="position() != 1">
-              <a class="icon-raise" title="Поднять раздел" href="?q=nodeapi.rpc&amp;action=raise&amp;node={@id}&amp;destination={/page/@urlEncoded}">
-                <span/>
-              </a>
-            </xsl:if>
-          </td>
-          <td class="icon">
-            <xsl:if test="position() != last()">
-              <a class="icon-sink" title="Опустить раздел" href="?q=nodeapi.rpc&amp;action=sink&amp;node={@id}&amp;destination={/page/@urlEncoded}">
-                <span/>
-              </a>
-            </xsl:if>
-          </td>
-          <td class="icon">
-            <a class="icon-zoom" title="Найти все документы из этого раздела" href="?q=admin.rpc&amp;action=list&amp;cgroup=content&amp;columns=name,class,uid,created&amp;search=tags%3A{@id}">
-              <span/>
-            </a>
-          </td>
-          <xsl:apply-templates select="." mode="mcms_list_name" />
-        </tr>
-      </xsl:for-each>
+      <xsl:apply-templates select="node" mode="mcms_taxonomy_tree">
+        <xsl:with-param name="depth" select="0" />
+      </xsl:apply-templates>
     </tbody>
+  </xsl:template>
+
+  <xsl:template match="node" mode="mcms_taxonomy_tree">
+    <xsl:param name="depth" />
+    <tr>
+      <xsl:call-template name="odd_row" />
+      <td class="icon">
+        <a class="icon-add" title="Добавить подраздел" href="?q=admin.rpc&amp;action=create&amp;type=tag&amp;parent={@id}&amp;cgroup={/page/@cgroup}&amp;destination={/page/@urlEncoded}">
+          <span/>
+        </a>
+      </td>
+      <td class="icon">
+        <xsl:if test="position() != 1">
+          <a class="icon-raise" title="Поднять раздел" href="?q=nodeapi.rpc&amp;action=raise&amp;node={@id}&amp;destination={/page/@urlEncoded}">
+            <span/>
+          </a>
+        </xsl:if>
+      </td>
+      <td class="icon">
+        <xsl:if test="position() != last()">
+          <a class="icon-sink" title="Опустить раздел" href="?q=nodeapi.rpc&amp;action=sink&amp;node={@id}&amp;destination={/page/@urlEncoded}">
+            <span/>
+          </a>
+        </xsl:if>
+      </td>
+      <td class="icon">
+        <a class="icon-zoom" title="Найти все документы из этого раздела" href="?q=admin.rpc&amp;action=list&amp;cgroup=content&amp;columns=name,class,uid,created&amp;search=tags%3A{@id}">
+          <span/>
+        </a>
+      </td>
+      <xsl:apply-templates select="." mode="mcms_list_name">
+        <xsl:with-param name="depth" select="$depth" />
+      </xsl:apply-templates>
+    </tr>
+    <xsl:apply-templates select="children/node" mode="mcms_taxonomy_tree">
+      <xsl:with-param name="depth" select="$depth + 1" />
+    </xsl:apply-templates>
   </xsl:template>
 
 
@@ -173,43 +183,56 @@
       </tr>
     </thead>
     <tbody>
-      <xsl:for-each select="node">
-        <tr>
-          <xsl:call-template name="odd_row" />
-          <xsl:choose>
-            <xsl:when test="$domains">
-              <td class="icon">
-                <a class="icon-edit" href="?q=admin.rpc&amp;action=edit&amp;cgroup=structure&amp;node={@id}&amp;destination={/page/@urlEncoded}" />
-              </td>
-              <td class="field-name">
-                <a href="?q=admin.rpc&amp;action=tree&amp;preset=pages&amp;subid={@id}&amp;cgroup={/page/@cgroup}">
-                  <xsl:if test="@depth">
-                    <xsl:attribute name="style">
-                      <xsl:text>padding-left:</xsl:text>
-                      <xsl:value-of select="@depth * 10" />
-                      <xsl:text>px</xsl:text>
-                    </xsl:attribute>
-                  </xsl:if>
-                  <xsl:value-of select="@name" />
-                </a>
-              </td>
-            </xsl:when>
-            <xsl:otherwise>
-              <td class="icon">
-                <a class="icon-add" href="?q=admin.rpc&amp;action=create&amp;type=domain&amp;parent={@id}&amp;destination={/page/@urlEncoded}" />
-              </td>
-              <xsl:apply-templates select="." mode="mcms_list_name" />
-            </xsl:otherwise>
-          </xsl:choose>
-          <td class="field-title">
-            <xsl:value-of select="@title" />
-          </td>
-          <td class="field-theme">
-            <xsl:value-of select="@theme" />
-          </td>
-        </tr>
-      </xsl:for-each>
+      <xsl:apply-templates select="node" mode="node_pages_tree">
+        <xsl:with-param name="domains" select="$domains" />
+        <xsl:with-param name="depth" select="0" />
+      </xsl:apply-templates>
     </tbody>
+  </xsl:template>
+
+  <xsl:template match="node" mode="node_pages_tree">
+    <xsl:param name="domains" />
+    <xsl:param name="depth" />
+    <tr>
+      <xsl:call-template name="odd_row" />
+      <xsl:choose>
+        <xsl:when test="$domains">
+          <td class="icon">
+            <a class="icon-edit" href="?q=admin.rpc&amp;action=edit&amp;cgroup=structure&amp;node={@id}&amp;destination={/page/@urlEncoded}" />
+          </td>
+          <td class="field-name">
+            <a href="?q=admin.rpc&amp;action=tree&amp;preset=pages&amp;subid={@id}&amp;cgroup={/page/@cgroup}">
+              <xsl:if test="$depth">
+                <xsl:attribute name="style">
+                  <xsl:text>padding-left:</xsl:text>
+                  <xsl:value-of select="$depth * 10" />
+                  <xsl:text>px</xsl:text>
+                </xsl:attribute>
+              </xsl:if>
+              <xsl:value-of select="@name" />
+            </a>
+          </td>
+        </xsl:when>
+        <xsl:otherwise>
+          <td class="icon">
+            <a class="icon-add" href="?q=admin.rpc&amp;action=create&amp;type=domain&amp;parent={@id}&amp;destination={/page/@urlEncoded}" />
+          </td>
+          <xsl:apply-templates select="." mode="mcms_list_name">
+            <xsl:with-param name="depth" select="$depth" />
+          </xsl:apply-templates>
+        </xsl:otherwise>
+      </xsl:choose>
+      <td class="field-title">
+        <xsl:value-of select="title" />
+      </td>
+      <td class="field-theme">
+        <xsl:value-of select="theme" />
+      </td>
+    </tr>
+    <xsl:apply-templates select="children/node" mode="node_pages_tree">
+      <xsl:with-param name="domains" select="$domains" />
+      <xsl:with-param name="depth" select="$depth + 1" />
+    </xsl:apply-templates>
   </xsl:template>
 
   <!-- вывод виджетов -->
@@ -363,12 +386,13 @@
   </xsl:template>
 
   <xsl:template match="node" mode="mcms_list_name">
+    <xsl:param name="depth" />
     <td class="field-name">
       <a class="picker" href="?q=admin.rpc&amp;action=edit&amp;cgroup={/page/@cgroup}&amp;node={@id}&amp;destination={/page/@urlEncoded}">
-        <xsl:if test="@depth">
+        <xsl:if test="$depth">
           <xsl:attribute name="style">
             <xsl:text>padding-left:</xsl:text>
-            <xsl:value-of select="@depth * 10" />
+            <xsl:value-of select="$depth * 10" />
             <xsl:text>px</xsl:text>
           </xsl:attribute>
         </xsl:if>

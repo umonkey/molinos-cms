@@ -117,24 +117,14 @@ class AdminTreeHandler
   private function getNodeTree()
   {
     $output = '';
-    $user = Context::last()->user;
 
-    $filter = array(
-      'class' => $this->type,
-      'parent_id' => $this->ctx->get('subid'),
-      '#recurse' => 0,
-      '#files' => 0,
-      '#deleted' => 0,
-      );
+    if (null === ($parent_id = $this->ctx->get('subid')))
+      $ids = $this->ctx->db->getResultsV("id", "SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0 AND `parent_id` IS NULL ORDER BY `left`", array($this->type));
+    else
+      $ids = $this->ctx->db->getResultsV("id", "SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0 AND `parent_id` = ? ORDER BY `left`", array($this->type, $parent_id));
 
-    foreach (Node::find($filter) as $root) {
-      $root->loadChildren($root->class, true);
-
-      $children = $root->getChildren('flat');
-
-      foreach ($children as $node)
-        $output .= html::em('node', $node);
-    }
+    foreach ($ids as $id)
+      $output .= NodeStub::create($id, $this->ctx->db)->getTreeXML('node', 'children');
 
     return empty($output)
       ? null
