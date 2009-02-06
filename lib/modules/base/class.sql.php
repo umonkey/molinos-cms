@@ -15,7 +15,7 @@ class sql
     foreach ($value as $v)
       $params[] = $v;
 
-    return 'IN (' . substr(str_repeat('?, ', count($value)), 0, -3) . ')';
+    return 'IN (' . rtrim(str_repeat('?, ', count($value)), ', ') . ')';
   }
 
   public static function getUpdate($tableName, array $values, $keyName)
