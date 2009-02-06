@@ -13,7 +13,12 @@ chdir(MCMS_ROOT);
 
 set_include_path(MCMS_ROOT);
 
-require implode(DIRECTORY_SEPARATOR, array('lib', 'modules', 'base', 'class.os.php'));
+if (file_exists($whole = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'whole-molinos-cms.php')) {
+  require $whole;
+  define('WHOLE_MOLINOS_CMS', true);
+} else {
+  require implode(DIRECTORY_SEPARATOR, array('lib', 'modules', 'base', 'class.os.php'));
+}
 
 class Loader
 {
@@ -247,7 +252,7 @@ class Loader
 if (function_exists('mb_internal_encoding'))
   mb_internal_encoding('UTF-8');
 
-spl_autoload_register(array('Loader', 'autoload'));
-
-// FIXME: вынести в класс util.
-require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'bebop_functions.php';
+if (!defined('WHOLE_MOLINOS_CMS')) {
+  spl_autoload_register(array('Loader', 'autoload'));
+  require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'bebop_functions.php';
+}
