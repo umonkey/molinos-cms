@@ -415,11 +415,13 @@ class NodeStub
       $fields['id'] = $this->id;
 
     foreach ($this->data as $k => $v) {
-      if ($v instanceof NodeStub)
+      if (($v instanceof NodeStub) or ($v instanceof Node)) {
+        if (null === $v->id)
+          $v->save();
         $this->onSave("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) VALUES (%ID%, ?, ?)", array($v->id, $k));
-      elseif ($this->isBasicField($k))
+      } elseif ($this->isBasicField($k))
         $fields[$k] = $v;
-      else
+      elseif (!empty($v))
         $extra[$k] = $v;
     }
 
