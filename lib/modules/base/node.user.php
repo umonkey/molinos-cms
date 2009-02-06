@@ -24,26 +24,6 @@
 class UserNode extends Node implements iContentType
 {
   /**
-   * При загрузке сюда сохраняется старый пароль, чтобы знать, когда его нужно
-   * сохранить (т.к. при редактировании, если пользователь не ввёл пароль, его
-   * не надо сбрасывать, а надо оставить неизменным).
-   */
-  private $origpassword = null;
-
-  /**
-   * Расширенный конструктор.
-   *
-   * Сохранянет пароль в свойстве origpassword.
-   *
-   * @param array $data содержимое ноды, передаётся базовому конструктору.
-   */
-  protected function __construct(array $data)
-  {
-    $this->origpassword = empty($data['password']) ? null : $data['password'];
-    return parent::__construct($data);
-  }
-
-  /**
    * Сохранение профиля.
    *
    * Шифрует пароль при его изменении (MD5), проверяет имя на уникальность.
@@ -52,28 +32,10 @@ class UserNode extends Node implements iContentType
    */
   public function save()
   {
-    $isnew = empty($this->id);
-
-    // Возвращаем старый пароль, если не изменился.
-    if (empty($this->password))
-      $this->password = $this->origpassword;
-
-    // Шифруем новый пароль.
-    elseif ($this->password != $this->origpassword)
-      $this->origpassword = $this->password = md5($this->password);
-
     parent::checkUnique('name', t('Пользователь с именем %name уже есть.',
       array('%name' => $this->name)));
 
-    parent::save();
-
-    if ($isnew and is_array($authconf = mcms::modconf('auth'))) {
-      if (!empty($authconf['groups'])) {
-        $this->linkSetParents($authconf['groups'], 'group');
-      }
-    }
-
-    return $this;
+    return parent::save();
   }
 
   /**
@@ -208,5 +170,22 @@ class UserNode extends Node implements iContentType
       unset($schema['groups']);
 
     return $schema;
+  }
+
+  /**
+   * Обработка формы, шифрует пароль.
+   */
+  public function formProcess(array $data)
+  {
+    if (!$this->id)
+      if (is_array($list = mcms::modconf('auth', 'groups', array())))
+        $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, %ID% FROM `node` WHERE `class` = 'group' AND `id` " . sql::in($list));
+
+    $oldpassword = $this->password;
+    $res = parent::formProcess($data);
+    $this->password = empty($this->password)
+      ? $oldpassword
+      : md5($this->password);
+    return $res;
   }
 };
