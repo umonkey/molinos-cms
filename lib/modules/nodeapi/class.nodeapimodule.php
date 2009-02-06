@@ -197,10 +197,12 @@ class NodeApiModule implements iRemoteCall
    */
   public static function rpc_post_edit(Context $ctx)
   {
+    $ctx->db->beginTransaction();
     $node = Node::load($ctx->get('node'))->getObject();
     if (null === $node->uid)
       $node->uid = $ctx->user->id;
     $node->formProcess($ctx->post)->save($ctx->db);
+    $ctx->db->commit();
   }
 
   /**
