@@ -169,7 +169,7 @@ class NodeStub
   public final function getXML($em = 'node', $extraContent = null, $recurse = true)
   {
     if (null !== $this->id) {
-      if (null === $ckey or !is_array($data = mcms::cache($ckey = $this->getCacheKey()))) {
+      if (!is_array($data = mcms::cache($ckey = $this->getCacheKey()))) {
         $data = array(
           'id' => $this->id,
           '#text' => null,
