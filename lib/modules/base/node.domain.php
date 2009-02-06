@@ -21,20 +21,6 @@
  */
 class DomainNode extends Node implements iContentType
 {
-  private $oldname;
-
-  /**
-   * Обработка изменения имени домена.
-   *
-   * Обновляются ссылки во всех доменах, ссылающихся на этот.
-   */
-  public function __set($key, $val)
-  {
-    if ('name' == $key and empty($this->oldname))
-      $this->oldname = $this->name;
-    return parent::__set($key, $val);
-  }
-
   /**
    * Сохранение объекта.
    *
@@ -46,15 +32,6 @@ class DomainNode extends Node implements iContentType
   public function save()
   {
     parent::checkUnique('name', t('Страница с таким именем уже существует.'), array('parent_id' => $this->parent_id));
-
-    if (!empty($this->oldname) and $this->oldname != $this->name) {
-      foreach (Node::find(array('class' => 'domain')) as $node)
-        if ($node->redirect == $this->oldname) {
-          $node->redirect = $this->name;
-          $node->save();
-        }
-    }
-
     return parent::save();
   }
 
@@ -239,6 +216,7 @@ class DomainNode extends Node implements iContentType
 
   public function formProcess(array $data)
   {
+    $oldname = $this->name;
     $isnew = (null === $this->id);
 
     if ($data['page_type'] == 'domain')
@@ -252,6 +230,15 @@ class DomainNode extends Node implements iContentType
           : null;
     } else {
       parent::formProcess($data);
+    }
+
+    // При изменении имени домена обновляем все ссылки.
+    if (!empty($oldname) and $oldname != $this->name) {
+      foreach (Node::find(array('class' => 'domain')) as $node)
+        if ($node->redirect == $oldname) {
+          $node->redirect = $this->name;
+          $node->save();
+        }
     }
 
     // Если это — новый домен, редиректим на его редактирование.
