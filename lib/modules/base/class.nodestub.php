@@ -380,12 +380,13 @@ class NodeStub
 
     if (null !== $this->id) {
       $params = array($this->id);
-      $sql = "SELECT `tid` FROM `node__rel` WHERE `nid` = ? "
-        . "AND `tid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 0)";
+      $sql = "SELECT `tid` FROM `node__rel` WHERE `nid` = ?";
 
       if (null !== $class) {
-        $sql .= " AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = ?)";
+        $sql .= " AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0)";
         $params[] = $class;
+      } else {
+        $sql .= ' AND `tid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 1)';
       }
 
       foreach ((array)$this->db->getResultsV("tid", $sql, $params) as $id)
