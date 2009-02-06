@@ -362,85 +362,15 @@ class mcms
 
   public static function fatal()
   {
-    $message = 'Unknown fatal error.';
-    $extras = array();
-    $backtrace = mcms::backtrace();
-
-    $args = func_get_args();
-
-    if (count($args)) {
-      if ($args[0] instanceof Exception) {
-        $message = $args[0]->getMessage();
-        $backtrace = mcms::backtrace($args[0]);
-        array_shift($args);
-      } elseif (is_string($args[0])) {
-        $message = $args[0];
-        array_shift($args);
-      }
-    }
-
-    if (!(($ctx = Context::last()) and $ctx->canDebug()))
-      $backtrace = null;
-
-    foreach ($args as $arg)
-      $extras[] = var_export($arg, true) .';';
-
-    if (ob_get_length())
-      ob_end_clean();
-
-    if (!empty($_SERVER['REQUEST_METHOD'])) {
-      $html = '<html><head><title>Fatal Error</title></head>'
-        . '<body>'
-        . '<h1>Fatal Error</h1><p>'. $message .'</p>';
-
-      if (null !== $ctx and $ctx->canDebug()) {
-        $url = new url($ctx->url()->getAbsolute($ctx));
-        $url->setarg('debug', 'errors');
-
-        if ('errors' != $url->arg('debug'))
-          $html .= html::em('p', l($url->string(), t('Просмотреть стэк исходной ошибки.')));
-      }
-
-      if (null !== $backtrace)
-        $html .= '<h2>Стэк вызова</h2><pre>'. $backtrace .'</pre>';
-
-      $sig = self::getSignature();
-      $html .= sprintf('<hr/><em><a href="%s">Molinos CMS v%s</a> at <a href="http://%s/">%s</a> for %s</em>',
-          $sig['version_link'], $sig['version'], $sig['at'], $sig['at'], $sig['client']);
-
-      $html .= '</body></html>';
-
-      $report = sprintf("--- Request method: %s ---\n--- Host: %s ---\n--- URL: %s ---\n\n%s", $_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], $_SERVER['REQUEST_URI'], $html);
-
-      try {
-        self::writeCrashDump($report);
-      } catch (Exception $e) { }
-
-      try {
-        if (class_exists('Response')) {
-          $r = new Response($html, 'text/html', 500);
-          $r->send();
-        }
-      } catch (Exception $e) { }
-
-      // Сырой вывод используется в самом крайнем случае, когда ошибки
-      // валятся отовсюду, даже — из автозагрузчика классов.  Обычно
-      // это означает ошибку записи конфигурационного файла.
-      header('HTTP/1.1 500 FUBAR');
-      header('Content-Type: text/html; charset=utf-8');
-      header('Content-Length: ' . strlen($html));
-      die($html);
-    } else {
-      $message = trim(strip_tags(str_replace("</p>", "</p>\n", $message))) . "\n";
-      $message .= $backtrace;
-      die($message);
-    }
-    
-    $backtrace = sprintf("--- backtrace (time: %s) ---\n\n%s", microtime(), $backtrace);
-    self::writeCrashDump($backtrace);
-    echo $backtrace;
-
+    $report = new CrashReport(func_get_args());
+    $report->send();
+    $report->show();
     die();
+  }
+
+  private static function fatalSendReport($message, array $extras, array $backtrace)
+  {
+    mcms::debug($message, $extras, $backtrace);
   }
 
   private static function writeCrashDump($contents)
@@ -1159,6 +1089,98 @@ class mcms
     return $output;
   }
 };
+
+class CrashReport
+{
+  private $stack;
+  private $message;
+  private $args;
+  private $_send;
+
+  public function __construct(array $args)
+  {
+    $this->_send = true;
+
+    if (null === ($e = array_shift($args)))
+      $this->message = 'Unknown fatal error.';
+
+    elseif ($e instanceof Exception) {
+      $this->message = $e->getMessage();
+      if ($e instanceof UserErrorException) {
+        $this->_send = false;
+        $this->message = 'Ошибка ' . $e->getCode() . ': ' . $this->message;
+      }
+      $this->stack = $e->getTrace();
+      array_unshift($this->stack, array(
+        'file' => $e->getFile(),
+        'line' => $e->getLine(),
+        'function' => 'throw new ' . get_class($e),
+        ));
+    }
+
+    else {
+      $this->message = $e;
+      $this->stack = debug_backtrace();
+      array_shift($this->stack);
+    }
+
+    // Удаляем лишние пути.
+    foreach ($this->stack as $k => $v)
+      if (!empty($v['file']))
+        $this->stack[$k]['file'] = os::localPath($v['file']);
+
+    $this->args = $args;
+  }
+
+  public function show()
+  {
+    $html = '<html><head><title>Fatal Error</title></head>'
+      . '<body>'
+      . '<h1>Fatal Error</h1><p>'. $this->message .'</p>';
+
+    if (null !== $this->stack)
+      $html .= '<h2>Стэк вызова</h2><pre>'. mcms::backtrace($this->stack) .'</pre>';
+
+    $sig = mcms::getSignature();
+    $html .= sprintf('<hr/><em><a href="%s">Molinos CMS v%s</a> at <a href="http://%s/">%s</a> for %s</em>',
+        $sig['version_link'], $sig['version'], $sig['at'], $sig['at'], $sig['client']);
+
+    $html .= '</body></html>';
+
+    if (ob_get_length())
+      ob_end_clean();
+
+    header('HTTP/1.1 500 FUBAR');
+    header('Content-Type: text/html; charset=utf-8');
+    header('Content-Length: ' . strlen($html));
+    print $html;
+  }
+
+  public function send()
+  {
+    if (!$this->_send)
+      return;
+
+    $to = mcms::config('backtracerecipients', 'cms-bugs@molinos.ru');
+
+    if (class_exists('BebopMimeMail') and !empty($to)) {
+      $output = html::em('p', $this->message);
+
+      $output .= html::em('p', 'HOST: ' . $_SERVER['HTTP_HOST']);
+      $output .= html::em('p', 'METHOD: ' . $_SERVER['REQUEST_METHOD']);
+      $output .= html::em('p', 'URI: ' . $_SERVER['REQUEST_URI']);
+
+      if (!empty($this->stack))
+        $output .= html::em('pre', mcms::backtrace($this->stack));
+
+      if (!empty($_POST))
+        $output .= html::em('pre', html::cdata('$_POST = ' . var_export($_POST, true) . ';'));
+
+      $subject = 'Molinos CMS v' . MCMS_VERSION . ' crashed at ' . $_SERVER['HTTP_HOST'];
+      BebopMimeMail::send(null, $to, $subject, $output);
+    }
+  }
+}
 
 set_exception_handler('mcms::fatal');
 set_error_handler('mcms::error_handler', E_ERROR /*|E_WARNING|E_PARSE*/);
