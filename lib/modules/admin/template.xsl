@@ -358,19 +358,6 @@
     <script type="text/javascript" src="{@value}"></script>
   </xsl:template>
 
-
-  <!-- форматирование даты -->
-  <xsl:template name="FormatDate">
-    <xsl:param name="timestamp" />
-    <xsl:value-of select="substring($timestamp,9,2)" />
-    <xsl:text>.</xsl:text>
-    <xsl:value-of select="substring($timestamp,6,2)" />
-    <xsl:text>.</xsl:text>
-    <xsl:value-of select="substring($timestamp,3,2)" />
-    <xsl:text>, </xsl:text>
-    <xsl:value-of select="substring($timestamp,12,5)" />
-  </xsl:template>
-
   <!-- расширенный файловый контрол -->
   <xsl:template match="control[@type = 'attachment' and not(@newfile)]">
     <div id="file-{@id}">

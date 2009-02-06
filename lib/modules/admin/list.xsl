@@ -469,4 +469,19 @@
   <!-- подавление неопознанных блоков -->
   <xsl:template match="block" mode="content">
   </xsl:template>
+
+
+  <!-- форматирование даты -->
+  <xsl:template name="FormatDate">
+    <xsl:param name="timestamp" />
+    <xsl:if test="$timestamp">
+      <xsl:value-of select="substring($timestamp,9,2)" />
+      <xsl:text>.</xsl:text>
+      <xsl:value-of select="substring($timestamp,6,2)" />
+      <xsl:text>.</xsl:text>
+      <xsl:value-of select="substring($timestamp,3,2)" />
+      <xsl:text>, </xsl:text>
+      <xsl:value-of select="substring($timestamp,12,5)" />
+    </xsl:if>
+  </xsl:template>
 </xsl:stylesheet>
