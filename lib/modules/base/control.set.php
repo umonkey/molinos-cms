@@ -132,14 +132,25 @@ class SetControl extends Control
       $this->validate($value);
     }
 
-    $f = $this->parents
-      ? 'linkSetParents'
-      : 'linkSetChildren';
-
-    if (!empty($this->dictionary)) {
-      $node->$f(array_unique((array)$value), $this->dictionary);
-    } else {
+    if (empty($this->dictionary))
       $node->{$this->value} = $value;
-    }
+    elseif ($this->parents)
+      $this->setParents($node, (array)$value);
+    else
+      $this->setChildren($node, (array)$value);
+  }
+
+  private function setParents(Node &$node, array $value)
+  {
+    $node->onSave("DELETE FROM `node__rel` WHERE `nid` = %ID% AND `key` IS NULL AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = ?)", array($this->dictionary));
+    $params = array();
+    $node->onSave("INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, %ID% FROM `node` WHERE `id` " . sql::in($value, $params), $params);
+  }
+
+  private function setChildren(Node &$node, array $value)
+  {
+    $node->onSave("DELETE FROM `node__rel` WHERE `tid` = %ID AND `key` IS NULL AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = ?)", array($this->dictionary));
+    $params = array();
+    $node->onSave("INSERT INTO `node__rel` (`tid`, `nid`) SELECT %ID%, `id` FROM `node` WHERE `id` " . sql::in($value, $params), $params);
   }
 };
