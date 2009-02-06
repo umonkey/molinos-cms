@@ -404,7 +404,10 @@ class mcms
       if (null !== $backtrace)
         $html .= '<h2>Стэк вызова</h2><pre>'. $backtrace .'</pre>';
 
-      $html .= '<hr/>'. self::getSignature();
+      $sig = self::getSignature();
+      $html .= sprintf('<hr/><em><a href="%s">Molinos CMS v%s</a> at <a href="http://%s/">%s</a> for %s</em>',
+          $sig['version_link'], $sig['version'], $sig['at'], $sig['at'], $sig['client']);
+
       $html .= '</body></html>';
 
       $report = sprintf("--- Request method: %s ---\n--- Host: %s ---\n--- URL: %s ---\n\n%s", $_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], $_SERVER['REQUEST_URI'], $html);
