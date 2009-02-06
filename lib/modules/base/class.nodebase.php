@@ -63,37 +63,6 @@ class NodeBase
     $this->olddata['id'] = $this->id;
   }
 
-  // Проверяет наличие других объектов с таким именем.
-  /**
-   * Проверка уникальности.
-   *
-   * @param string $field имя поля, по которому проверяется уникальность.  Поле
-   * должно быть базовым или должно быть проиндексировано.  Обычно используется
-   * "name".
-   *
-   * @param string $message сообщение об ошибке при нарушении уникальности. По
-   * умолчанию: "Такой объект уже существует".
-   *
-   * @param array $filter Дополнительные условия, накладываемые на проверяемые
-   * объекты.  Например, можно указать "parent_id" для обеспечния уникальности в
-   * рамках одной ветки — так работает проверка имени страницы, например.
-   *
-   * @return void
-   */
-  protected function checkUnique($field, $message = null, array $filter = array())
-  {
-    $filter['class'] = $this->class;
-    $filter[$field] = $this->$field;
-
-    if ($this->id)
-      $filter['-id'] = $this->id;
-
-    try {
-      if (Node::count($filter))
-        throw new DuplicateException($message ? $message : t('Такой объект уже существует.'));
-    } catch (PDOException $e) { }
-  }
-
   /**
    * Возвращает содержимое объекта в виде массива.
    *
