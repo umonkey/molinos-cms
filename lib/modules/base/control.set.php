@@ -149,7 +149,7 @@ class SetControl extends Control
 
   private function setChildren(Node &$node, array $value)
   {
-    $node->onSave("DELETE FROM `node__rel` WHERE `tid` = %ID AND `key` IS NULL AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = ?)", array($this->dictionary));
+    $node->onSave("DELETE FROM `node__rel` WHERE `tid` = %ID% AND `key` IS NULL AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = ?)", array($this->dictionary));
     $params = array();
     $node->onSave("INSERT INTO `node__rel` (`tid`, `nid`) SELECT %ID%, `id` FROM `node` WHERE `id` " . sql::in($value, $params), $params);
   }
