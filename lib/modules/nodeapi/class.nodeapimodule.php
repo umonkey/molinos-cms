@@ -179,15 +179,14 @@ class NodeApiModule implements iRemoteCall
    */
   public static function rpc_post_create(Context $ctx)
   {
+    $ctx->db->beginTransaction();
     $parent = $ctx->post('parent_id');
-
     $node = Node::create($ctx->get('type'), array(
       'parent_id' => empty($parent) ? null : $parent,
       ));
-
     $node->formProcess($ctx->post)->save($ctx->db);
-
     $next = $ctx->post('destination', $ctx->get('destination', ''));
+    $ctx->db->commit();
 
     return new Redirect(self::fixredir($next, $node));
   }
