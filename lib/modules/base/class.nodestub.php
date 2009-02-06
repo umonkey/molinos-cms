@@ -257,10 +257,15 @@ class NodeStub
         $sth->execute($params);
       }
 
-      foreach ($this->onsave as $query) {
-        list($sql, $params) = $query;
-        $sth = $this->db->prepare(str_replace('%ID%', intval($this->id), $sql));
-        $sth->execute($params);
+      try {
+        foreach ($this->onsave as $query) {
+          list($sql, $params) = $query;
+          $sth = $this->db->prepare(str_replace('%ID%', intval($this->id), $sql));
+          $sth->execute($params);
+        }
+      } catch (PDOException $e) {
+        mcms::debug($sql, $params);
+        throw $e;
       }
 
       $this->onsave = array();
@@ -356,7 +361,7 @@ class NodeStub
   /**
    * Получение списка связанных объектов.
    */
-  public function getLinked($class = null)
+  public function getLinked($class = null, $ids = false)
   {
     $result = array();
 
@@ -371,7 +376,9 @@ class NodeStub
       }
 
       foreach ($this->db->getResultsV("nid", $sql, $params) as $id)
-        $result[] = self::create($id, $this->db);
+        $result[] = $ids
+          ? $id
+          : self::create($id, $this->db);
     }
 
     return $result;
@@ -380,7 +387,7 @@ class NodeStub
   /**
    * Получение списка объектов, к которым привязан текущий.
    */
-  public function getLinkedTo($class = null)
+  public function getLinkedTo($class = null, $ids = false)
   {
     $result = array();
 
@@ -396,7 +403,9 @@ class NodeStub
       }
 
       foreach ((array)$this->db->getResultsV("tid", $sql, $params) as $id)
-        $result[] = self::create($id, $this->db);
+        $result[] = $ids
+          ? $id
+          : self::create($id, $this->db);
     }
 
     return $result;
