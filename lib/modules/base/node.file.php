@@ -590,15 +590,6 @@ class FileNode extends Node implements iContentType
     return $list;
   }
 
-  public function __get($key)
-  {
-    if ('_url' == $key)
-      return empty($_GET['__cleanurls'])
-        ? '?q=attachment/'. $this->id .'/'. urlencode($this->filename)
-        : 'attachment/'. $this->id .'/'. urlencode($this->filename);
-    return parent::__get($key);
-  }
-
   public static function fromURL($url)
   {
     $node = Node::create('file');
