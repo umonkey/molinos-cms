@@ -278,42 +278,20 @@ class NodeStub
    */
   public function save()
   {
+    if (null === $this->db)
+      throw new RuntimeException(t('Сохранение невозможно: не получен указатель на БД.'));
+
     if ($this->dirty) {
       $data = $this->pack();
       $data['lang'] = 'ru';
+      $data['updated'] = gmdate('Y-m-d H:i:s');
+      if (empty($data['created']))
+        $data['created'] = $data['updated'];
 
-      // Создание новой ноды.
-      if (null === $this->id) {
-        if (null !== $this->parent_id)
-          throw new RuntimeException(t("Создание дочерних нод пока не работает."));
-        if (null === $this->db)
-          throw new RuntimeException(t('Сохранение невозможно: не получен указатель на БД.'));
-
-        $data['created'] = $data['updated'] = gmdate('Y-m-d H:i:s');
-
-        list($sql, $params) = sql::getInsert('node', $data);
-        $sth = $this->db->prepare($sql);
-        $sth->execute($params);
-        $this->id = $this->db->lastInsertId();
-      }
-
-      // Обновление существующей ноды.
-      else {
-        // Сохраняем текущую версию в архиве.
-        try {
-          $fields = '`id`, `lang`, `class`, `left`, `right`, `uid`, `created`, `updated`, `name`, `data`';
-          $sth = $this->db->prepare("INSERT INTO `node__archive` ({$fields}) SELECT {$fields} FROM `node` WHERE `id` = ?");
-          $sth->execute($this->id);
-        } catch (PDOException $e) {
-          // TODO
-        }
-
-        // Обновляем текущую версию.
-        $data['updated'] = gmdate('Y-m-d H:i:s');
-        list($sql, $params) = sql::getUpdate('node', $data, 'id');
-        $sth = $this->db->prepare($sql);
-        $sth->execute($params);
-      }
+      if (null === $this->id)
+        $this->saveNew($data);
+      else
+        $this->saveOld($data);
 
       try {
         foreach ($this->onsave as $query) {
@@ -331,6 +309,60 @@ class NodeStub
 
       $this->flush();
     }
+  }
+
+  private function saveNew(array $data)
+  {
+    if (null !== $this->parent_id) {
+      $position = $this->db->getResult("SELECT `right` FROM `node` WHERE `id` = ?", array($this->parent_id));
+      $max = intval($this->db->getResult("SELECT MAX(`right`) FROM `node`"));
+
+      // Превращаем простую ноду в родительску.
+      if (null === $position) {
+        $this->db->exec("UPDATE `node` SET `left` = ?, `right` = ? WHERE `id` = ?", array($max, $max + 4, $this->parent_id));
+        $data['left'] = $this->data['left'] = $max + 1;
+        $data['right'] = $this->data['right'] = $max + 2;
+      }
+
+      // Расширяем существующую ноду.
+      else {
+        $delta = $max - $position;
+
+        // Вообще можно было бы обойтись сортированным обновлением, но не все серверы
+        // это поддерживают, поэтому делаем в два захода: сначала выносим хвост за
+        // пределы текущего пространства, затем — возвращаем на место + 2.
+        $this->db->exec("UPDATE `node` SET `left` = `left` + ? WHERE `left` >= ?", array($max, $delta));
+        $this->db->exec("UPDATE `node` SET `right` = `right` + ? WHERE `right` >= ?", array($max, $delta));
+
+        $this->db->exec("UPDATE `node` SET `left` = `left` - ? WHERE `left` >= ?", array($max, $delta - 2));
+        $this->db->exec("UPDATE `node` SET `right` = `right` - ? WHERE `right` >= ?", array($max, $delta - 2));
+
+        $data['left'] = $this->data['left'] = $position;
+        $data['right'] = $this->data['right'] = $position + 1;
+      }
+    }
+
+    list($sql, $params) = sql::getInsert('node', $data);
+    $sth = $this->db->prepare($sql);
+    $sth->execute($params);
+    $this->id = $this->db->lastInsertId();
+  }
+
+  private function saveOld(array $data)
+  {
+    // Сохраняем текущую версию в архиве.
+    try {
+      $fields = '`id`, `lang`, `class`, `left`, `right`, `uid`, `created`, `updated`, `name`, `data`';
+      $sth = $this->db->prepare("INSERT INTO `node__archive` ({$fields}) SELECT {$fields} FROM `node` WHERE `id` = ?");
+      $sth->execute($this->id);
+    } catch (PDOException $e) {
+      // TODO
+    }
+
+    // Обновляем текущую версию.
+    list($sql, $params) = sql::getUpdate('node', $data, 'id');
+    $sth = $this->db->prepare($sql);
+    $sth->execute($params);
   }
 
   /**
@@ -543,7 +575,7 @@ class NodeStub
 
   private function retrieve()
   {
-    if (null === $this->db)
+    if (null === $this->db or null === $this->id)
       return $this->data = array();
 
     $data = $this->db->getResults("SELECT `node`.`parent_id`, "
