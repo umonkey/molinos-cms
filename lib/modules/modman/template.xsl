@@ -59,7 +59,9 @@
       <form method="post" action="?q=modman.rpc&amp;action=addremove&amp;destination={/page/@urlEncoded}">
         <table>
           <tbody>
-            <xsl:apply-templates select="module" />
+            <xsl:apply-templates select="module">
+              <xsl:sort select="@id" />
+            </xsl:apply-templates>
           </tbody>
         </table>
         <p class="note">Если при установке модулей возникают проблемы, вы можете скачать и установить их вручную, воспользовавшись специальной ссылкой.</p>
@@ -86,15 +88,18 @@
 
       <xsl:if test="../@mode = 'addremove'">
         <td>
-          <xsl:if test="@url">
-            <input type="checkbox" name="modules[]" value="{@id}" id="check-{@id}">
-              <xsl:if test="@installed">
-                <xsl:attribute name="checked">
-                  <xsl:text>checked</xsl:text>
-                </xsl:attribute>
-              </xsl:if>
-            </input>
-          </xsl:if>
+          <input type="checkbox" name="modules[]" value="{@id}" id="check-{@id}">
+            <xsl:if test="@installed">
+              <xsl:attribute name="checked">
+                <xsl:text>checked</xsl:text>
+              </xsl:attribute>
+            </xsl:if>
+            <xsl:if test="not(@url)">
+              <xsl:attribute name="disabled">
+                <xsl:text>disabled</xsl:text>
+              </xsl:attribute>
+            </xsl:if>
+          </input>
         </td>
       </xsl:if>
 
