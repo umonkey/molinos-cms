@@ -7,8 +7,10 @@ class sql
     if (empty($value))
       return 'IS NULL';
 
-    if (!is_array($value)) {
-      $params[] = $value;
+    $value = array_unique((array)$value);
+
+    if (1 == count($value)) {
+      $params[] = array_shift($value);
       return '= ?';
     }
 
