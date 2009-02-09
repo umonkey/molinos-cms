@@ -59,9 +59,14 @@ class AllTests
  */
 function get_test_context()
 {
-  return new Context(array(
-    'url' => 'http://test.cms.molinos.ru/',
-    ));
+  static $ctx = null;
+
+  if (null === $ctx)
+    $ctx = new Context(array(
+      'url' => 'http://test.cms.molinos.ru/',
+      ));
+
+  return $ctx;
 }
 
 try {
