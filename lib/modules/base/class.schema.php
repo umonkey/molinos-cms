@@ -60,19 +60,14 @@ class Schema extends ArrayObject
   {
     // Загружаем из БД.
     try {
-      $node = Node::load(array(
-        'class' => 'type',
-        'deleted' => 0,
-        'name' => $class,
-        ));
-
+      $node = NodeStub::loadByName(Context::last()->db, $class, 'type');
       $schema = $node->fields;
     } catch (ObjectNotFoundException $e) {
       $schema = array();
     }
 
     // Применяем дефолтные поля.
-    if (null !== ($host = Node::getClassName($class))) {
+    if (null !== ($host = NodeStub::getClassName($class))) {
       if (method_exists($host, 'getDefaultSchema')) {
         if (is_array($default = call_user_func(array($host, 'getDefaultSchema')))) {
           $hasfields = count($schema);
