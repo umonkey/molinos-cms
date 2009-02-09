@@ -350,7 +350,7 @@ class ListWidget extends Widget
     else
       $order = null;
 
-    $sql = "SELECT `id` FROM `node` WHERE " . join(' AND ', $where);
+    $sql = "SELECT `node`.`id` FROM " . join(', ', $tables) . " WHERE " . join(' AND ', $where);
     $sql .= $order;
 
     if (!empty($options['limit'])) {
@@ -370,14 +370,14 @@ class ListWidget extends Widget
     $where[] = "`node`.`deleted` = 0";
 
     if (!empty($options['classes']))
-      $where[] = "`node`.`class` " . $this->getIn($options['classes'], $params);
+      $where[] = "`node`.`class` " . sql::in($options['classes'], $params);
 
     if (!empty($options['section'])) {
       if ($this->recurse) {
         $where[] = "`node`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` IN (SELECT n1.id FROM node n1, node n2 WHERE n1.left >= n2.left AND n1.right <= n2.right AND n1.class = 'tag' AND n1.deleted = 0 AND n1.published = 1 AND n2.id = ?))";
         $params[] = $options['section'];
       } else {
-        $in = $this->getIn($options['section'], $params);
+        $in = sql::in($options['section'], $params);
         $where[] = "`node`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` {$in})";
       }
     }
@@ -415,31 +415,5 @@ class ListWidget extends Widget
     return empty($parts)
       ? null
       : ' ORDER BY ' . join(', ', $parts);
-  }
-
-  /**
-   * Возвращает SQL инструкцию для выборки по списку значений.
-   * Варианты: IS NULL, = ?, IN (?..).
-   */
-  private function getIn($values, array &$params)
-  {
-    if (empty($values))
-      return 'IS NULL';
-
-    if (!is_array($values))
-      $values = array($values);
-
-    if (1 == count($values)) {
-      $params[] = array_shift($values);
-      return ' = ?';
-    }
-
-    $qs = array();
-    foreach ($values as $v) {
-      $qs[] = '?';
-      $params[] = $v;
-    }
-
-    return 'IN (' . join(', ', $qs) . ')';
   }
 };
