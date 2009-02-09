@@ -4,8 +4,6 @@ class BaseModuleTests extends PHPUnit_Framework_TestCase
 {
   public function testInit()
   {
-    copy(MCMS_ROOT.'/conf/default.db', MCMS_ROOT.'/conf/test.db');
-    copy(MCMS_ROOT.'/conf/default.ini', MCMS_ROOT.'/conf/default_backup.ini');
     $config = Config::getInstance();
     $config->set('default','sqlite:conf/test.db','db');
     PDO_Singleton::getInstance('default', true);
@@ -163,7 +161,7 @@ class BaseModuleTests extends PHPUnit_Framework_TestCase
       'parent_id' => '',
     );
 
-    $node = Node::create('type', null);
+    $node = Node::create('type');
     $node->formProcess($post);
 
     $node = Node::load($node->id); //проверка создания типа
@@ -248,9 +246,6 @@ class BaseModuleTests extends PHPUnit_Framework_TestCase
 
   public function testRestore()
   {
-    unlink(MCMS_ROOT.'/conf/test.db');
-    copy(MCMS_ROOT.'/conf/default_backup.ini', MCMS_ROOT.'/conf/default.ini');
-    unlink(MCMS_ROOT.'/conf/default_backup.ini');
     $config = Config::getInstance();
     $config->set('default','sqlite:conf/default.db','db');
     PDO_Singleton::getInstance('default', true);

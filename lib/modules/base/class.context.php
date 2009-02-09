@@ -82,6 +82,8 @@ class Context
 
   public static function last()
   {
+    if (null === self::$_last)
+      throw new RuntimeException(t('Контекст ещё не инициализирован.'));
     return self::$_last;
   }
 

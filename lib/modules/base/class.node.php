@@ -24,6 +24,7 @@
 class Node
 {
   private $stub;
+  private $onsave = array();
 
   public function __construct(NodeStub $stub)
   {

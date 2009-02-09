@@ -12,10 +12,13 @@ class UrlTests extends PHPUnit_Framework_TestCase
       );
 
     foreach ($urls as $k => $v) {
-      if (is_numeric($k))
-        $link = strval(new url($v));
-      else
-        $link = strval(new url($k));
+      if (is_numeric($k)) {
+        $u = new url($v);
+        $link = $u->string();
+      } else {
+        $u = new url($k);
+        $link = $u->string();
+      }
       $this->assertEquals($v, $link);
     }
   }
@@ -30,7 +33,6 @@ class UrlTests extends PHPUnit_Framework_TestCase
 
   public function testRedirect()
   {
-    url::__setclean(false);
     $urls = array(
       // 'admin?n=1' => mcms::path() .'/'. 'admin?n=1&q=admin',
       'http://ya.ru' => 'http://ya.ru/',
@@ -43,7 +45,6 @@ class UrlTests extends PHPUnit_Framework_TestCase
       $this->assertEquals($v, $link);
     }
 
-    url::__setclean(true);
     $urls = array(
       'admin' => mcms::path().'/admin',
       'http://ya.ru' => 'http://ya.ru/',

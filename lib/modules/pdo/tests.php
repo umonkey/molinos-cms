@@ -6,7 +6,6 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
 
   public function testInit()
   {
-    copy(MCMS_ROOT.'/conf/default.ini', MCMS_ROOT.'/conf/default_backup.ini');
     $config = Config::getInstance();
     $config->set('default','sqlite::memory:','db');
     PDO_Singleton::getInstance('default', true);
@@ -244,8 +243,6 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
 
   public function testRestore()
   {
-    copy(MCMS_ROOT.'/conf/default_backup.ini', MCMS_ROOT.'/conf/default.ini');
-    unlink(MCMS_ROOT.'/conf/default_backup.ini');
     $config = Config::getInstance();
     $config->set('default','sqlite:conf/default.db','db');
     PDO_Singleton::getInstance('default', true);
