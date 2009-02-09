@@ -127,7 +127,7 @@ class Node
 
     $user = Context::last()->user;
 
-    if ($this->uid == $user->id)
+    if ($this->uid and $this->uid->id == $user->id)
       if (in_array($perm, Structure::getInstance()->getOwnDocAccess($this->class)))
         return true;
 
