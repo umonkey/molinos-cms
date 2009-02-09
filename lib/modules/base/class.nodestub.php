@@ -538,18 +538,6 @@ class NodeStub
   }
 
   /**
-   * Возвращает объект, управляющий нодой.
-   */
-  public function getManager()
-  {
-    if (null === $this->id)
-      $class = 'Node';
-    elseif (!class_exists($this->class . 'node'))
-      $class = 'Node';
-    return new $class($this);
-  }
-
-  /**
    * Проверяет, является ли поле стандартным.
    */
   private function isBasicField($fieldName)
@@ -638,12 +626,16 @@ class NodeStub
       ), $result);
   }
 
+  public static function getClassName($class, $default = 'Node')
+  {
+    if (!class_exists($host = ucfirst(strtolower($class)) . 'Node'))
+      $host = $default;
+    return $host;
+  }
+
   public function getObject()
   {
-    if (null === $this->id)
-      $class = 'Node';
-    elseif (!class_exists($class = $this->class . 'Node'))
-      $class = 'Node';
+    $className = self::getClassName($this->class);
     return new $class($this);
   }
 
@@ -653,5 +645,35 @@ class NodeStub
   private function __sleep()
   {
     throw new RuntimeException(t('NodeStub не может быть сериализован.'));
+  }
+
+  /**
+   * Загружает дочерние ноды.
+   */
+  public static function getChildrenOf(PDO $db, $class, $parent_id = null)
+  {
+    $result = array();
+
+    if (null === $parent_id)
+      $ids = $db->getResultsV("id", "SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0 AND `parent_id` IS NULL ORDER BY `left`", array($class));
+    else
+      $ids = $db->getResultsV("id", "SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0 AND `parent_id` = ? ORDER BY `left`", array($class, $parent_id));
+
+    foreach ((array)$ids as $id)
+      $result[] = NodeStub::create($id, $db);
+
+    return $result;
+  }
+
+  /**
+   * Загружает объект по имени.
+   */
+  public static function loadByName(PDO $db, $name, $class)
+  {
+    $id = $db->getResult("SELECT `id` FROM `node` WHERE `class` = ? AND `name` = ? AND `deleted` = 0", array($class, $name));
+    if (null === $id)
+      throw new ObjectNotFoundException();
+    else
+      return NodeStub::create($id, $db);
   }
 }

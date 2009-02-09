@@ -755,13 +755,6 @@ class NodeBase
     return new $host($data);
   }
 
-  public static function getClassName($class, $default = 'Node')
-  {
-    if (!class_exists($host = ucfirst(strtolower($class)) . 'Node'))
-      $host = $default;
-    return $host;
-  }
-
   /**
    * Удаление объекта.
    *
