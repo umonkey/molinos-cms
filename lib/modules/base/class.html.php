@@ -82,14 +82,13 @@ class html
     $result = '';
 
     foreach ($attrs as $k => $v) {
-      if (is_array($v)) {
-        if ('class' == $k)
-          $v = join(' ', array_unique($v));
-        else
-          continue;
+      if ('class' == $k) {
+        if (!is_array($v))
+          $v = preg_split('/\s+/', $v, -1, PREG_SPLIT_NO_EMPTY);
+        $v = join(' ', array_unique($v));
       }
 
-      if (null === $v or '' === $v)
+      if (null === $v or '' === $v or is_array($v))
         continue;
 
       if (!empty($v)) {
