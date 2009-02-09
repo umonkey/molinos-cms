@@ -261,9 +261,11 @@ class NodeBase
     else
       $sql .= ' -- Node::find()';
 
+    $db = Context::last()->db;
+
     $data = array();
-    foreach (mcms::db()->getResultsV("id", $sql, $params) as $nid)
-      $data[] = NodeStub::create($nid, mcms::db());
+    foreach ($db->getResultsV("id", $sql, $params) as $nid)
+      $data[] = NodeStub::create($nid, $db);
 
     return $data;
   }
@@ -286,7 +288,7 @@ class NodeBase
     if (!empty($query['#debug']))
       mcms::debug($query, $sql, $params);
 
-    return mcms::db()->getResult($sql . " -- Node::count()", $params);
+    return Context::last()->db->getResult($sql . " -- Node::count()", $params);
   }
 
   /**
@@ -449,7 +451,7 @@ class NodeBase
 
     try {
       foreach ($queries as $idx => $q)
-        mcms::db()->exec($q['sql'], $q['params']);
+        $this->getDB()->exec($q['sql'], $q['params']);
     } catch (PDOException $e) {
       mcms::debug($e->getMessage() . ' in query ' . $idx, $queries);
     }
@@ -568,7 +570,7 @@ class NodeBase
       $this->data['published'] = true;
 
       if (isset($this->id)) {
-        mcms::db()->exec("UPDATE `node` SET `published` = 1, `rid` = :rid WHERE `id` = :id", array(':rid' => $rev ? $rev : $this->rid, ':id' => $this->id));
+        $this->getDB()->exec("UPDATE `node` SET `published` = 1, `rid` = :rid WHERE `id` = :id", array(':rid' => $rev ? $rev : $this->rid, ':id' => $this->id));
 
         // Даём другим модулям возможность обработать событие (например, mod_moderator).
         mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'publish'));
@@ -597,7 +599,7 @@ class NodeBase
       return $this;
 
     // Скрываем документ.
-    mcms::db()->exec("UPDATE `node` SET `published` = 0 WHERE `id` = :id", array(':id' => $this->id));
+    $this->getDB()->exec("UPDATE `node` SET `published` = 0 WHERE `id` = :id", array(':id' => $this->id));
     $this->data['published'] = false;
 
     // Даём другим модулям возможность обработать событие (например, mod_moderator).
@@ -633,7 +635,7 @@ class NodeBase
 
       $this->save();
 
-      $pdo = mcms::db();
+      $pdo = $this->getDB();
       $params = array(':new' => $this->id, ':old' => $id);
 
       if ($with_children) {
@@ -684,7 +686,7 @@ class NodeBase
     if (!$this->checkPermission('d'))
       throw new ForbiddenException(t('У вас нет прав на удаление этого объекта.'));
 
-    $pdo = mcms::db();
+    $pdo = $this->getDB();
 
     $meta = $pdo->getResult("SELECT `left`, `right`, `right` - `left` + 1 AS `width` FROM `node` WHERE `id` = :id", array(':id' => $this->id));
 
@@ -784,7 +786,7 @@ class NodeBase
       throw new ForbiddenException(t("У вас нет прав на удаление объекта."));
 
     $this->data['deleted'] = true;
-    $pdo = mcms::db()->exec("UPDATE `node` SET `deleted` = 1 WHERE id = :nid", array('nid' => $this->id));
+    $this->getDB()->exec("UPDATE `node` SET `deleted` = 1 WHERE id = :nid", array('nid' => $this->id));
 
     mcms::invoke('iNodeHook', 'hookNodeUpdate', array($this, 'delete'));
 
@@ -846,7 +848,7 @@ class NodeBase
       $class = $this->class;
 
     if ((empty($this->left) or empty($this->right)) and !empty($this->id)) {
-      $tmp = mcms::db()->getResults("SELECT `left`, `right` FROM `node` WHERE `id` = :id", array(':id' => $this->id));
+      $tmp = $this->getDB()->getResults("SELECT `left`, `right` FROM `node` WHERE `id` = :id", array(':id' => $this->id));
 
       if (!empty($tmp[0])) {
         $this->data['left'] = $tmp[0]['left'];
@@ -1012,13 +1014,13 @@ class NodeBase
     mcms::debug('DEPRECATED!', $tid, $nid, $key);
 
     if (null !== $key)
-      mcms::db()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
+      $this->getDB()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
         ."AND `key` = ?", array($tid, $key));
     elseif (null !== $nid)
-      mcms::db()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
+      $this->getDB()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
         ."AND `nid` = ?", array($tid, $nid));
 
-    mcms::db()->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) "
+    $this->getDB()->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) "
       ."VALUES (?, ?, ?, ?)", array($tid, $nid, $key,
         self::getNextOrder($tid)));
 
@@ -1032,11 +1034,11 @@ class NodeBase
     mcms::debug('DEPRECATED!', $tid, $nid, $key);
 
     if (null !== $nid)
-      mcms::db()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
+      $this->getDB()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
         ."AND `nid` = ?", array($tid, $nid));
 
     elseif (null !== $key)
-      mcms::db()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
+      $this->getDB()->exec("DELETE FROM `node__rel` WHERE `tid` = ? "
         ."AND `key` = ?", array($tid, $key));
 
     else
@@ -1227,7 +1229,7 @@ class NodeBase
 
   private static function getNextOrder($tid)
   {
-    return mcms::db()->getResult("SELECT MAX(`order`) FROM `node__rel` WHERE `tid` = :tid", array(':tid' => $tid)) + 1;
+    return Context::last()->db->getResult("SELECT MAX(`order`) FROM `node__rel` WHERE `tid` = :tid", array(':tid' => $tid)) + 1;
   }
 
   /**
@@ -1242,7 +1244,7 @@ class NodeBase
     // Прописываем дефолтные порядки.
     $this->orderFix();
 
-    $pdo = mcms::db();
+    $pdo = $this->getDB();
 
     $he = $pdo->getResult("SELECT `nid`, `tid`, `order` "
       ."FROM `node__rel` WHERE `nid` >= :nid",
@@ -1278,7 +1280,7 @@ class NodeBase
     // Прописываем дефолтные порядки.
     $this->orderFix();
 
-    $pdo = mcms::db();
+    $pdo = $this->getDB();
     $he = $pdo->getResult("SELECT `nid`, `tid`, `order` FROM `node__rel` "
       ."WHERE `nid` >= :nid", array(':nid' => $tid));
     $me = $pdo->getResults("SELECT `nid`, `tid`, `order` FROM `node__rel` "
@@ -1303,7 +1305,7 @@ class NodeBase
 
   private function orderFix()
   {
-    $pdo = mcms::db();
+    $pdo = $this->getDB();
     $pdo->exec("UPDATE `node__rel` SET `order` = `nid` WHERE `order` IS NULL AND `tid` = :tid AND `key` IS NULL", array(':tid' => $parent));
   }
 
@@ -1324,30 +1326,29 @@ class NodeBase
   public function orderUp($parent = null)
   {
     Context::last()->user->checkAccess('u', $this->class);
+    $db = $this->getDB();
 
     if (null === $parent) {
-      $tmp = new NodeMover(mcms::db());
+      $tmp = new NodeMover($db);
       $tmp->moveUp($this->id);
     } elseif (null !== $this->id) {
-      $pdo = mcms::db();
-
       // Прописываем дефолтные порядки.
       $this->orderFix();
 
       // Определяем ближайшее верхнее значение.
-      $my = $pdo->getResult("SELECT `order` FROM `node__rel` WHERE `tid` = :tid AND `nid` = :nid", array(':tid' => $parent, ':nid' => $this->id));
-      $order = $pdo->getResult("SELECT MAX(`order`) FROM `node__rel` WHERE `tid` = :tid AND `order` < :order", array(':tid' => $parent, ':order' => $my));
+      $my = $db->getResult("SELECT `order` FROM `node__rel` WHERE `tid` = :tid AND `nid` = :nid", array(':tid' => $parent, ':nid' => $this->id));
+      $order = $db->getResult("SELECT MAX(`order`) FROM `node__rel` WHERE `tid` = :tid AND `order` < :order", array(':tid' => $parent, ':order' => $my));
 
       // Двигать некуда.
       if (null === $order)
         return false;
 
       // Сдвигаем всё вниз, под себя.
-      $pdo->exec("UPDATE `node__rel` SET `order` = `order` + :delta WHERE `order` >= :order AND `tid` = :tid AND `nid` <> :nid ORDER BY `order` DESC",
+      $db->exec("UPDATE `node__rel` SET `order` = `order` + :delta WHERE `order` >= :order AND `tid` = :tid AND `nid` <> :nid ORDER BY `order` DESC",
         array(':tid' => $parent, ':nid' => $this->id, ':order' => $order, ':delta' => $my - $order + 1));
 
       // Теперь сдвигаем всё наверх, на прежнее место, чтобы не было дырок.
-      $pdo->exec("UPDATE `node__rel` SET `order` = `order` - :delta WHERE `order` >= :order AND `tid` = :tid ORDER BY `order` ASC",
+      $db->exec("UPDATE `node__rel` SET `order` = `order` - :delta WHERE `order` >= :order AND `tid` = :tid ORDER BY `order` ASC",
         array(':tid' => $parent, ':order' => $my, ':delta' => $my - $order));
     }
 
@@ -1373,10 +1374,10 @@ class NodeBase
     Context::last()->user->checkAccess('u', $this->class);
 
     if (null === $parent) {
-      $tmp = new NodeMover(mcms::db());
+      $tmp = new NodeMover($this->getDB());
       $tmp->moveDown($this->id);
     } elseif (null !== $this->id) {
-      $pdo = mcms::db();
+      $pdo = $this->getDB();
 
       // Прописываем дефолтные порядки.
       $pdo->exec("UPDATE `node__rel` SET `order` = `nid` WHERE `order` IS NULL AND `tid` = :tid AND `key` IS NULL", array(':tid' => $parent));
@@ -1410,7 +1411,7 @@ class NodeBase
    */
   public function getNeighbors($parent, array $classes = null)
   {
-    $pdo = mcms::db();
+    $pdo = $this->getDB();
 
     if (null === ($order = $pdo->getResult("SELECT `order` FROM `node__rel` WHERE `tid` = :tid AND `nid` = :nid", array(':tid' => $parent, ':nid' => $this->id))))
       return null;
@@ -1461,7 +1462,7 @@ class NodeBase
 
     if (count($fields) > 1) {
       $sql = "REPLACE INTO `node__idx_{$this->class}` (`". join('`, `', $fields) ."`) VALUES (". join(', ', array_keys($params)) .")";
-      mcms::db()->exec($sql, $params);
+      $this->getDB()->exec($sql, $params);
     }
 
     return $this;

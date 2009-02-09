@@ -168,8 +168,10 @@ class mcms
     if (!class_exists('Config'))
       self::fatal('Отсутствует поддержка конфигурационных файлов.');
 
-    return isset(Config::getInstance()->$key)
-      ? Config::getInstance()->$key
+    $config = Context::last()->config;
+
+    return isset($config->$key)
+      ? $config->$key
       : $default;
   }
 
@@ -187,13 +189,6 @@ class mcms
   {
     if (null !== ($cache = BebopCache::getInstance()))
       $cache->flush($flags & self::FLUSH_NOW ? true : false);
-  }
-
-  public static function db($name = 'default')
-  {
-    if (null === ($ctx = Context::last()))
-      throw new RuntimeException(t('Обращение к БД вне контекста.'));
-    return $ctx->db;
   }
 
   public static function invoke($interface, $method, array $args = array())
@@ -222,7 +217,7 @@ class mcms
   // Отладочные функции.
   public static function debug()
   {
-    if (($ctx = Context::last()) and $ctx->canDebug()) {
+    if (empty($_SERVER['HTTP_HOST']) or ($ctx = Context::last()) and $ctx->canDebug()) {
       if (ob_get_length())
         ob_end_clean();
 
@@ -298,15 +293,6 @@ class mcms
   {
     $tmp = self::getModuleMap();
     return $tmp['classes'];
-  }
-
-  public static function enableModules(array $list)
-  {
-    $tmp = Config::getInstance();
-    $tmp->set('runtime.modules', $list);
-    $tmp->write();
-
-    Loader::rebuild();
   }
 
   public static function pager($total, $current, $limit, $paramname = 'page', $default = 1)

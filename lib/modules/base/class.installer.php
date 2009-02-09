@@ -29,7 +29,7 @@ class Installer
    */
   public static function CreateTables()
   {
-    mcms::db()->clearDB();
+    Context::last()->db->clearDB();
     $t = new TableInfo('node');
 
     if (!$t->exists()) {
@@ -176,7 +176,7 @@ class Installer
     if (empty($data['confirm']))
       throw new InvalidArgumentException("Вы не подтвердили свои намерения.");
 
-    $config = Config::getInstance();
+    $config = Context::last()->config;
 
     if ($olddsn)
       $config->set('default_backup', $olddsn, 'db');

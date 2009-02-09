@@ -59,27 +59,27 @@ class Node
    */
   public static function create($class, array $data = array())
   {
-    $stub = NodeStub::create(null, mcms::db());
+    $stub = NodeStub::create(null, Context::last()->db);
 
     $data['class'] = $class;
     foreach ($data as $k => $v)
       $stub->$k = $v;
 
-    if (!class_exists($className = $class . 'Node'))
-      $className = 'Node';
-
-    return new $className($stub);
+    return $stub->getObject();
   }
 
   /**
    * Загрузка конкретной ноды.
    */
-  public static function load($id)
+  public static function load($id, PDO $db = null)
   {
     if (!is_numeric($id))
       throw new InvalidArgumentException(t('Идентификатор загружаемой ноды должен быть числовым.'));
 
-    return NodeStub::create($id, mcms::db());
+    if (null === $db)
+      $db = Context::last()->db;
+
+    return NodeStub::create($id, $db)->getObject();
   }
 
   /**
@@ -98,7 +98,7 @@ class Node
     $data = $db->getResultsV("id", $sql, $params);
 
     $result = array();
-    foreach ($data as $id)
+    foreach ((array)$data as $id)
       $result[] = NodeStub::create($id, $db);
 
     return $result;
@@ -409,7 +409,7 @@ class Node
 
     // Вывод обычных списков
     else {
-      foreach (Node::find(array('class' => $class, 'deleted' => 0)) as $n) {
+      foreach ((array)Node::find(array('class' => $class, 'deleted' => 0)) as $n) {
         $value = ('name' == $field)
           ? $n->getName()
           : $n->$field;
@@ -431,16 +431,6 @@ class Node
     return $result;
   }
 
-  public static function _id($node)
-  {
-    if (is_object($node))
-      return $node->id;
-    elseif (is_array($node))
-      return $node['id'];
-    else
-      return $node;
-  }
-
   public function getName()
   {
     return $this->name;
@@ -451,13 +441,15 @@ class Node
    */
   public function getEnabledSections()
   {
-    $allowed = mcms::db()->getResultsV("id", "SELECT id FROM node WHERE class = 'tag' AND deleted = 0 AND id IN "
+    $ctx = Context::last();
+
+    $allowed = $ctx->db->getResultsV("id", "SELECT id FROM node WHERE class = 'tag' AND deleted = 0 AND id IN "
       . "(SELECT tid FROM node__rel WHERE nid IN "
       . "(SELECT `id` FROM `node` "
       . "WHERE `deleted` = 0 AND `class` = 'type' AND `name` = ?))",
       array($this->class));
 
-    if (null === ($permitted = Context::last()->user->getPermittedSections()))
+    if (null === ($permitted = $ctx->user->getPermittedSections()))
       return array();
 
     return (null === $allowed)
@@ -520,7 +512,7 @@ class Node
     $db = Context::last()->db;
 
     if (null === $parent_id) {
-      $sql = "SELECT `id`, `parent_id`, `name` FROM `node` WHERE `deleted` = 0 AND `class` = ? ORDER BY `left`";
+      $sql = "SELECT `id`, `parent_id`, `name` FROM `node` WHERE `deleted` = 0 AND `class` = ? AND `parent_id` IS NULL ORDER BY `left`";
       $params = array($class);
     } else {
       $sql = "SELECT `n1`.`id`, `n1`.`parent_id`, `n1`.`name` FROM `node` `n1`, `node` `n2` WHERE `n1`.`deleted` = 0 AND `n1`.`class` = ? AND `n1`.`left` >= `n2`.`left` AND `n1`.`right` <= `n2`.`right` AND `n2`.`id` = ?";

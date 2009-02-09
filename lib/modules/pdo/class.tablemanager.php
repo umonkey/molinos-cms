@@ -32,7 +32,7 @@ class TableManager
       $spec = $tbl->getColumn($columnname);
 
       if (!empty($spec))
-        mcms::db()->addColumn($table_name, $columnname, $spec);
+        Context::last()->db->addColumn($table_name, $columnname, $spec);
 
       return $spec;
     }

@@ -8,16 +8,9 @@ class Config
   private $path = null;
   private $isok = false;
 
-  private function __construct()
+  public function __construct($hostName)
   {
-    $this->path = $this->findFile();
-  }
-
-  static public function getInstance()
-  {
-    if (self::$instance === null)
-      self::$instance = new Config();
-    return self::$instance;
+    $this->path = $this->findFile($hostName);
   }
 
   private function readData()
@@ -57,11 +50,14 @@ class Config
     }
   }
 
-  private function findFile()
+  private function findFile($hostName)
   {
     $options = array();
 
-    for ($parts = array_reverse(explode('.', $_SERVER['HTTP_HOST'])); !empty($parts); array_pop($parts)) {
+    if (null === $hostName)
+      $hostName = $_SERVER['HTTP_HOST'];
+
+    for ($parts = array_reverse(explode('.', $hostName)); !empty($parts); array_pop($parts)) {
       $path = 'conf' . DIRECTORY_SEPARATOR . join('.', $parts);
       $options[] = $path . '.config.php';
       $options[] = $path . '.ini';

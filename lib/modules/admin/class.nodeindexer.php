@@ -3,7 +3,7 @@
 
 class NodeIndexer
 {
-  public static function stats($cache = true)
+  public static function stats(Context $ctx, $cache = true)
   {
     static $stat = null;
 
@@ -13,15 +13,13 @@ class NodeIndexer
           '_total' => 0,
           );
 
-        mcms::db()->log('-- node indexer starts --');
-
-        $types = mcms::db()->getResultsV("name", "SELECT name FROM node "
+        $types = $ctx->db->getResultsV("name", "SELECT name FROM node "
           . "WHERE class = 'type' AND deleted = 0");
 
         foreach ($types as $type) {
           $schema = Schema::load($type);
           if ($schema->hasIndexes())
-            self::countTable($type, $stat, $schema);
+            self::countTable($ctx, $type, $stat, $schema);
         }
 
         mcms::cache('nodeindexer:stats', $stat);
@@ -31,7 +29,7 @@ class NodeIndexer
     return empty($stat['_total']) ? null : $stat;
   }
 
-  private static function countTable($type, array &$stat, Schema $schema)
+  private static function countTable(Context $ctx, $type, array &$stat, Schema $schema)
   {
     $table = 'node__idx_'. $type;
 
@@ -42,7 +40,7 @@ class NodeIndexer
         ."AND NOT EXISTS (SELECT 1 FROM `{$table}` `n1` "
         ."WHERE `n1`.`id` = `n`.`id`)";
 
-      if ($count = mcms::db()->getResult($sql)) {
+      if ($count = $ctx->db->getResult($sql)) {
         $stat[$type] = $count;
         $stat['_total'] += $count;
       }
@@ -53,7 +51,7 @@ class NodeIndexer
         $node = Node::create('type', $schema);
         $node->updateTable();
 
-        return self::countTable($type, $stat, $schema);
+        return self::countTable($ctx, $type, $stat, $schema);
       } else {
         throw $e;
       }

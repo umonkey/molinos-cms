@@ -68,7 +68,7 @@ class ModManRPC implements iRemoteCall
         ? null
         : preg_split('/,\s*/', $conf['debuggers'], -1, PREG_SPLIT_NO_EMPTY);
 
-      $cfg = Config::getInstance();
+      $cfg = get_test_context()->config;
       $cfg->debuggers = $debuggers;
       $cfg->write();
 

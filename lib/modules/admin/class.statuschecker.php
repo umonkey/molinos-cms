@@ -8,7 +8,7 @@ class StatusChecker implements iScheduler
 
     NodeIndexer::run();
 
-    if ($message = self::getBrokenTrees())
+    if ($message = self::getBrokenTrees($ctx))
       $parts[] = $message;
 
     if ($idx = NodeIndexer::stats(false)) {
@@ -25,13 +25,13 @@ class StatusChecker implements iScheduler
         ));
     }
 
-    if (null !== ($message = self::checkAccessRights()))
+    if (null !== ($message = self::checkAccessRights($ctx)))
       $parts[] = $message;
 
     if (class_exists('UpdateMenu') and ($message = UpdateMenu::getMessage()))
       $parts[] = $message;
 
-    if (null !== ($message = self::checkDbAccess()))
+    if (null !== ($message = self::checkDbAccess($ctx)))
       $parts[] = $message;
 
     if (!empty($parts) and ($email = self::getEmail())) {
@@ -65,25 +65,25 @@ class StatusChecker implements iScheduler
     }
   }
 
-  private static function getSummary(array &$parts)
+  private static function getSummary(Context $ctx, array &$parts)
   {
     $parts = array();
 
-    self::count($parts, 'SELECT COUNT(*) FROM `node`',
+    self::count($ctx, $parts, 'SELECT COUNT(*) FROM `node`',
       'Объектов: !count', '?q=admin/content/list&columns=name,class,uid,created');
 
-    self::count($parts, 'SELECT COUNT(*) FROM `node` WHERE `deleted` = 1',
+    self::count($ctx, $parts, 'SELECT COUNT(*) FROM `node` WHERE `deleted` = 1',
       'удалённых: !count', '?q=admin/content/list/trash');
 
-    self::count($parts, 'SELECT COUNT(*) FROM `node` WHERE `published` = 0 AND `deleted` = 0',
+    self::count($ctx, $parts, 'SELECT COUNT(*) FROM `node` WHERE `published` = 0 AND `deleted` = 0',
       'в модерации: !count', '?q=admin/content/list/drafts');
 
-    self::count($parts, 'SELECT COUNT(*) FROM `node__session`',
+    self::count($ctx, $parts, 'SELECT COUNT(*) FROM `node__session`',
       'сессий: !count');
 
-    if ('SQLite' == mcms::db()->getDbType())
+    if ('SQLite' == $ctx->db->getDbType())
       $parts[] = t('объём&nbsp;БД:&nbsp;%size', array(
-        '%size' => mcms::filesize(mcms::db()->getDbName()),
+        '%size' => mcms::filesize($ctx->db->getDbName()),
         ));
 
     if ($tmp = mcms::config('runtime.modules')) {
@@ -96,9 +96,9 @@ class StatusChecker implements iScheduler
     return join(', ', $parts);
   }
 
-  private static function getBrokenTrees()
+  private static function getBrokenTrees(Context $ctx)
   {
-    if (!($count = mcms::db()->fetch("SELECT COUNT(*) FROM `node` `n` WHERE `n`.`deleted` = 0 AND `n`.`left` >= `n`.`right`")))
+    if (!($count = $ctx->db->fetch("SELECT COUNT(*) FROM `node` `n` WHERE `n`.`deleted` = 0 AND `n`.`left` >= `n`.`right`")))
       return null;
 
     $fixxxer = new TreeBuilder();
@@ -111,9 +111,9 @@ class StatusChecker implements iScheduler
     return $result;
   }
 
-  private static function count(array &$parts, $query, $text, $link = null)
+  private static function count(Context $ctx, array &$parts, $query, $text, $link = null)
   {
-    if ($count = mcms::db()->fetch($query)) {
+    if ($count = $ctx->db->fetch($query)) {
       if (null !== $link)
         $count = l($link, $count);
 
@@ -123,9 +123,9 @@ class StatusChecker implements iScheduler
     }
   }
 
-  private static function checkAccessRights()
+  private static function checkAccessRights(Context $ctx)
   {
-    $types = mcms::db()->getResultsKV("id", "name", "SELECT n.id, v.name FROM node n WHERE n.class = 'type' AND n.deleted = 0 AND n.id IN (SELECT nid FROM node__access WHERE uid = 0 AND (u = 1 OR d = 1 OR p = 1))");
+    $types = $ctx->db->getResultsKV("id", "name", "SELECT n.id, v.name FROM node n WHERE n.class = 'type' AND n.deleted = 0 AND n.id IN (SELECT nid FROM node__access WHERE uid = 0 AND (u = 1 OR d = 1 OR p = 1))");
 
     if (!empty($types)) {
       $list = array();
@@ -139,9 +139,9 @@ class StatusChecker implements iScheduler
     }
   }
 
-  private static function checkDbAccess()
+  private static function checkDbAccess(Context $ctx)
   {
-    if (null !== ($file = Context::last()->db->getDbFile())) {
+    if (null !== ($file = $ctx->db->getDbFile())) {
       if (0 === strpos(realpath($file), MCMS_ROOT . DIRECTORY_SEPARATOR)) {
         $url = 'http://' . url::host() . mcms::path() . '/' . str_replace(DIRECTORY_SEPARATOR, '/', $file);
 

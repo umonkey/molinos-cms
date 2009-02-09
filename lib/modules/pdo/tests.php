@@ -4,32 +4,26 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
 {
   const tbl = 'xyz_abc';
 
-  public function testInit()
-  {
-    $config = Config::getInstance();
-    $config->set('default','sqlite::memory:','db');
-    PDO_Singleton::getInstance('default', true);
-  }
-
   public function testGetDbType()
   {
-    $this->assertEquals('SQLite', mcms::db()->getDbType());
+    $ctx = get_test_context();
+    $this->assertEquals('SQLite', $ctx->db->getDbType());
   }
 
   public function testGetDbName()
   {
-    $this->assertEquals(':memory:', mcms::db()->getDbName());
+    $this->assertEquals('conf/test.db', get_test_context()->db->getDbName());
   }
 
   public function testGetConfig()
   {
-    $this->assertTrue(mcms::db()->prepare("SELECT 1") instanceof PDOStatement);
+    $this->assertTrue(get_test_context()->db->prepare("SELECT 1") instanceof PDOStatement);
   }
 
   public function testExecOk()
   {
     $want = array(array(1 => '1'));
-    $this->assertEquals($want, mcms::db()->getResults("SELECT 1"));
+    $this->assertEquals($want, get_test_context()->db->getResults("SELECT 1"));
   }
 
   /**
@@ -37,13 +31,13 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
    */
   public function testExecFailNoTable()
   {
-    mcms::db()->exec("SELECT * FROM this_table_never_exists");
+    get_test_context()->db->exec("SELECT * FROM this_table_never_exists");
   }
 
   public function testGetResultsKV()
   {
     $a = array(1 => 2);
-    $b = mcms::db()->getResultsKV('a', 'b', 'SELECT 1 AS a, 2 AS b');
+    $b = get_test_context()->db->getResultsKV('a', 'b', 'SELECT 1 AS a, 2 AS b');
     $this->assertEquals($a, $b);
   }
 
@@ -55,64 +49,75 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
         'b' => '2',
         ),
       );
-    $b = mcms::db()->getResultsK('a', 'SELECT 1 AS a, 2 AS b');
+    $b = get_test_context()->db->getResultsK('a', 'SELECT 1 AS a, 2 AS b');
     $this->assertEquals($a, $b);
   }
 
   public function testGetResultsV()
   {
     $a = array(0 => '2');
-    $b = mcms::db()->getResultsV('b', 'SELECT 1 AS a, 2 AS b');
+    $b = get_test_context()->db->getResultsV('b', 'SELECT 1 AS a, 2 AS b');
     $this->assertEquals($a, $b);
   }
 
   public function testGetResult()
   {
+    $db = get_test_context()->db;
+
     $a = array('a' => '1', 'b' => '2');
-    $b = mcms::db()->getResult('SELECT 1 AS a, 2 AS b');
+    $b = $db->getResult('SELECT 1 AS a, 2 AS b');
     $this->assertEquals($a, $b);
 
     $a = 1;
-    $b = mcms::db()->getResult('SELECT 1 AS a');
+    $b = $db->getResult('SELECT 1 AS a');
     $this->assertEquals($a, $b);
   }
 
   public function testFetchOk()
   {
-    $this->assertEquals(123, mcms::db()->fetch("SELECT 123"));
+    $this->assertEquals(123, get_test_context()->db->fetch("SELECT 123"));
   }
 
   public function testFetchFail()
   {
-    $this->assertNotEquals(456, mcms::db()->fetch("SELECT 123"));
+    $this->assertNotEquals(456, get_test_context()->db->fetch("SELECT 123"));
   }
 
   // Таблица нужна, в основном, чтобы протестировать транзакции.
   public function testCreateTable()
   {
-    mcms::db()->exec('CREATE TABLE tmp123(a int)');
-    mcms::db()->exec('SELECT * FROM tmp123');
+    $db = get_test_context()->db;
+    $db->exec('CREATE TABLE tmp123(a int)');
+    $db->exec('SELECT * FROM tmp123');
   }
 
   public function testCommit()
   {
-    mcms::db()->beginTransaction();
-    mcms::db()->exec('INSERT INTO tmp123 VALUES (?)', array(123));
-    mcms::db()->commit();
+    $db = get_test_context()->db;
+    $db->beginTransaction();
+    $db->exec('INSERT INTO tmp123 VALUES (?)', array(123));
+    $db->commit();
 
-    $this->assertEquals(123, mcms::db()->fetch('SELECT * FROM tmp123'));
+    $this->assertEquals(123, $db->fetch('SELECT * FROM tmp123'));
 
-    mcms::db()->exec('DELETE FROM tmp123');
-    $this->assertEquals(null, mcms::db()->fetch('SELECT * FROM tmp123'));
+    $db->beginTransaction();
+    $db->exec('DELETE FROM tmp123');
+    $db->commit();
+
+    $this->assertEquals(null, $db->fetch('SELECT * FROM tmp123'));
   }
 
   public function testRollback()
   {
-    mcms::db()->beginTransaction();
-    mcms::db()->exec('INSERT INTO tmp123 VALUES (?)', array(123));
-    mcms::db()->rollback();
+    $db = get_test_context()->db;
 
-    $this->assertEquals(null, mcms::db()->fetch('SELECT * FROM tmp123'));
+    $db->exec("CREATE TABLE `tmp1234` (`value` INTEGER)");
+    $db->beginTransaction();
+    $db->exec('INSERT INTO `tmp1234` VALUES (?)', array(123));
+    $db->rollback();
+
+    $this->assertEquals(null, $db->fetch('SELECT * FROM `tmp1234`'));
+    $db->exec("DROP TABLE `tmp1234`");
   }
 
   /**
@@ -120,40 +125,20 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
    */
   public function testDropTable()
   {
-    mcms::db()->exec('DROP TABLE tmp123');
-    mcms::db()->fetch('SELECT * FROM tmp123');
+    $db = get_test_context()->db;
+    $db->exec('DROP TABLE tmp123');
+    $db->fetch('SELECT * FROM tmp123');
   }
 
   public function hasOrderedUpdates()
   {
-    $this->assertFalse(mcms::db()->hasOrderedUpdates());
-  }
-
-  public function testCreateNodeTable()
-  {
-    $t = new TableInfo('node');
-    $this->assertFalse($t->exists());
-
-    $c = mcms::db()->fetch('SELECT COUNT(*) FROM node');
-    $this->assertEquals(0, $c);
-
-    $t = new TableInfo('node');
-    $this->assertTrue($t->exists());
-  }
-
-
-  public function testSetDSN()
-  {
-    $config = Config::getInstance();
-    $config->set('default', $path = 'sqlite:conf/test.db', 'db');
-
-    $this->assertEquals($path, $config->db_default);
+    $this->assertFalse(get_test_context()->db->hasOrderedUpdates());
   }
 
   public function testConnect()
   {
-    $tmp = mcms::db()->getResult("SELECT COUNT(*) FROM `node`");
-    $this->assertEquals(0, $tmp);
+    $tmp = get_test_context()->db->getResult("SELECT 1");
+    $this->assertEquals(1, $tmp);
   }
 
   public function testTableInfoCreate()
@@ -221,7 +206,7 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
 
   private function getTableDef()
   {
-    return mcms::db()->getResult("SELECT `sql` FROM `sqlite_master` WHERE `tbl_name` = 'test' AND `type` = 'table'");
+    return get_test_context()->db->getResult("SELECT `sql` FROM `sqlite_master` WHERE `tbl_name` = 'test' AND `type` = 'table'");
   }
 
   public function testInternalTables()
@@ -229,22 +214,15 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
     $tables = array(
       'node',
       'node__access',
-      'node__log',
       'node__rel',
-      'node__session',
       );
 
+    $ctx = get_test_context();
+
     foreach ($tables as $table) {
-      $c = mcms::db()->fetch("SELECT COUNT(*) FROM `{$table}`");
+      $c = $ctx->db->fetch("SELECT COUNT(*) FROM `{$table}`");
       $t = new TableInfo($table);
       $this->assertTrue($t->exists());
     }
-  }
-
-  public function testRestore()
-  {
-    $config = Config::getInstance();
-    $config->set('default','sqlite:conf/default.db','db');
-    PDO_Singleton::getInstance('default', true);
   }
 }

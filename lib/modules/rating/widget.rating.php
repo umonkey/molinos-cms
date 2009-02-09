@@ -81,7 +81,7 @@ class RatingWidget extends Widget
       );
 
     for ($idx = 1; $idx <= 5; $idx++)
-      $result['rates'][$idx] = mcms::db()->getResult("SELECT COUNT(`nid`) FROM `node__rating` WHERE `nid` = :nid AND `rate` = :rate", array(':nid' => $options['node'], ':rate' => $idx));
+      $result['rates'][$idx] = $this->ctx->db->getResult("SELECT COUNT(`nid`) FROM `node__rating` WHERE `nid` = :nid AND `rate` = :rate", array(':nid' => $options['node'], ':rate' => $idx));
  
     return $result;
   }

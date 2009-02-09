@@ -84,7 +84,7 @@ class Structure
    */
   protected function getFileName()
   {
-    return Config::getInstance()->getBaseName() . '.structure.php';
+    return Context::last()->config->getBaseName() . '.structure.php';
   }
 
   /**

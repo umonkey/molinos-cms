@@ -171,7 +171,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
   public static function hookNodeUpdate(Node $node, $op)
   {
     if ($op == 'erase')
-      mcms::db()->exec("DELETE FROM `node__poll` WHERE `nid` = :nid OR `uid` = :uid", array(':nid' => $node->id, ':uid' => $node->id));
+      $node->getDB()->exec("DELETE FROM `node__poll` WHERE `nid` = :nid OR `uid` = :uid", array(':nid' => $node->id, ':uid' => $node->id));
   }
 
   public static function formGetModuleConfig()

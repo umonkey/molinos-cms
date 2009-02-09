@@ -206,64 +206,7 @@ class ExchangeModule implements iRemoteCall
   //экспорт профиля
   public static function export($profilename, $profiledescr, $arg = array())
   {
-    // Сортировка по левой границе обеспечивает нам
-    // восстановление родителей перед восстановлением детей.
-    $arg['#sort'] = array('left' => 'asc');
-
-    $list = Node::find($arg);
-
-    $str = "<?xml version=\"1.0\" standalone=\"yes\"?>\n";
-    $str .= "<root>\n"
-      ."<info name='{$profilename}'>\n"
-      ."<description><![CDATA[{$profiledescr}]]></description>\n"
-      ."</info>\n";
-    $str .= "<nodes>\n";
-
-    mcms::debug($list);
-
-    foreach ($list as $tmp) {
-      $arr = $tmp->getRaw();
-      $arrarr = array();
-      $srlz = "\n";
-
-      $stop = array('left', 'right', 'rid');
-
-      foreach ($arr as $key => $val) {
-        if (empty($val) or in_array($key, $stop)) {
-          unset($arr[$key]);
-          continue;
-        }
-
-        if (is_array($val)) {
-          $arrarr[$key] = $val;
-          $srlz .= html::em($key, "<![CDATA[". urlencode(serialize($val)) ."]]>") ."\n";
-          unset($arr[$key]);
-        }
-      }
-
-      $str .= html::em('node', $arr, $srlz) ."\n";
-    }
-
-    $str .= "</nodes>\n";
-    $str .= "<links>\n";
-
-    $arr = Context::last()->db->getResults("SELECT `tid`, `nid`, `key`, `order` FROM `node__rel` ORDER BY `tid`, `order`");
-
-    foreach ($arr as $el)
-      $str .= html::em('link', $el) ."\n";
-
-    $str .= "</links>\n";
-    $str .= "<accessrights>\n";
-
-    $arr = Context::last()->db->getResults("SELECT `nid`, `uid`, `c`, `r`, `u`, `d`, `p` FROM `node__access` ORDER BY `nid`");
-
-    foreach ($arr as $el)
-      $str .= html::em('access', $el) ."\n";
-
-    $str .= "</accessrights>\n";
-    $str .= "</root>\n";
-
-    return $str;
+    throw new RuntimeException(t('Устаревший вызов.'));
   }
 
   // импорт профиля
@@ -275,8 +218,9 @@ class ExchangeModule implements iRemoteCall
       $xmlstr = $source;
     }
 
-    mcms::db()->clearDB();
-    mcms::db()->beginTransaction();
+    $db = Context::last()->db;
+    $db->clearDB();
+    $db->beginTransaction();
 
     $sax = new SaxImport();
     $sax->parse($source);

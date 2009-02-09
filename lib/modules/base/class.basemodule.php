@@ -39,15 +39,15 @@ class BaseModule implements iModuleConfig, iNodeHook
     switch ($op) {
     case 'erase':
       // Удаляем связи.
-      mcms::db()->exec("DELETE FROM `node__rel` WHERE `nid` = :nid OR `tid` = :tid", array(':nid' => $node->id, ':tid' => $node->id));
+      $node->getDB()->exec("DELETE FROM `node__rel` WHERE `nid` = :nid OR `tid` = :tid", array(':nid' => $node->id, ':tid' => $node->id));
 
       // Удаляем доступ.
-      mcms::db()->exec("DELETE FROM `node__access` WHERE `nid` = :nid OR `uid` = :uid", array(':nid' => $node->id, ':uid' => $node->id));
+      $node->getDB()->exec("DELETE FROM `node__access` WHERE `nid` = :nid OR `uid` = :uid", array(':nid' => $node->id, ':uid' => $node->id));
 
       // Удаление статистики.
       $t = new TableInfo('node__astat');
       if ($t->exists())
-        mcms::db()->exec("DELETE FROM `node__astat` WHERE `nid` = :nid", array(':nid' => $node->id));
+        $node->getDB()->exec("DELETE FROM `node__astat` WHERE `nid` = :nid", array(':nid' => $node->id));
 
       break;
     }

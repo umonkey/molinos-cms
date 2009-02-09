@@ -49,12 +49,17 @@ class Context
   /**
    * Может ли текущий пользователь видеть отладочную информацию?
    */
-  private $_debug;
+  private $_debug = null;
 
   /**
    * Интерфейс к БД.
    */
   private $_db = null;
+
+  /**
+   * Конфигурация.
+   */
+  private $_config = null;
 
   /**
    * Создание простого контекста.
@@ -70,11 +75,6 @@ class Context
       'post' => $_POST,
       'files' => $_FILES,
       ), $args);
-
-    if (null === ($tmp = mcms::config('debuggers')))
-      $this->_debug = true;
-    else
-      $this->_debug = mcms::matchip($_SERVER['REMOTE_ADDR'], $tmp);
 
     if (null === self::$_last)
       self::$_last = $this;
@@ -328,15 +328,14 @@ class Context
 
     case 'db':
       if (null === $this->_db)
-        // Тип исключения не менять, многие на него ориентируются.
-        throw new NotConnectedException();
-      elseif (!class_exists('PDO_Singleton'))
-        // Нужно только для подавления ошибки в автозагрузке классов,
-        // которая иногда почему-то не срабатывает.
-        throw new RuntimeException(t('Отсутствует общий драйвер доступа к БД.'));
-      elseif (is_string($this->_db))
-        $this->_db = PDO_Singleton::connect($this->_db);
+        $this->_db = PDO_Singleton::getInstance($this->config->{'db.default'});
       return $this->_db;
+
+    // Доступ к конфигурационному файлу.
+    case 'config':
+      if (null === $this->_config)
+        $this->_config = new Config($this->host());
+      return $this->_config;
 
     // Возвращает профиль пользователя.
     case 'user':

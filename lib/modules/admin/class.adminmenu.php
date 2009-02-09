@@ -212,7 +212,9 @@ class AdminMenu implements iAdminMenu
         'weight' => 10,
         );
 
-    if (Context::last()->user->hasAccess('u', 'type') and mcms::db()->fetch("SELECT COUNT(*) FROM `node__fallback`"))
+    $ctx = Context::last();
+
+    if ($ctx->user->hasAccess('u', 'type') and $ctx->db->fetch("SELECT COUNT(*) FROM `node__fallback`"))
       $icons[] = array(
         'group' => 'statistics',
         'title' => t('404'),

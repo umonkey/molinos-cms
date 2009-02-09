@@ -65,11 +65,11 @@ class ModeratorModule implements iModuleConfig, iNodeHook
       break;
     case 'publish':
       $prepend = 'Пользователь %user просит <strong>опубликовать</strong> документ типа «%type»:';
-      mcms::db()->exec("UPDATE `node` SET `published` = 0 WHERE `id` = :id", array(':id' => $node->id));
+      $node->onSave("UPDATE `node` SET `published` = 0 WHERE `id` = %ID%");
       break;
     case 'unpublish':
       $prepend = 'Пользователь %user просит <strong>скрыть</strong> документ типа «%type»:';
-      mcms::db()->exec("UPDATE `node` SET `published` = 1 WHERE `id` = :id", array(':id' => $node->id));
+      $node->onSave("UPDATE `node` SET `published` = 1 WHERE `id` = %ID%");
       break;
     default:
       return;

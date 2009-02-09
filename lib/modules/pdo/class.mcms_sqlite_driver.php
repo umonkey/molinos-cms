@@ -9,6 +9,11 @@ class mcms_sqlite_driver extends PDO_Singleton
   {
     $this->dbfile = $this->dbname = trim($conf['path'], '/');
 
+    if (':memory:' != $this->dbfile and !file_exists($this->dbfile)) {
+      if (file_exists($dist = os::path('conf', 'default.db.dist')))
+        copy($dist, $this->dbfile);
+    }
+
     $dsn = 'sqlite:'. $this->dbfile;
 
     if (':memory:' != $this->dbfile) {
@@ -79,7 +84,13 @@ class mcms_sqlite_driver extends PDO_Singleton
       'RANDOM()',
       ), $newsql);
 
-    return parent::prepare($newsql);
+    try {
+      return parent::prepare($newsql);
+    } catch (PDOException $e) {
+      if (false !== ($pos = strpos($e->getMessage(), 'General error: 1 no such table: ')))
+        throw new TableNotFoundException(substr($e->getMessage(), $pos + 32));
+      throw $e;
+    }
   }
 
   public function clearDB()
@@ -220,6 +231,8 @@ class mcms_sqlite_driver extends PDO_Singleton
 
   public function recreateTable($tblname,  $columns, $oldcolumns)
   {
+    $this->beginTransaction();
+
     // В SQLite для удаление полей из таблицы или модификация их типа возможна только
     // путём пересоздания таблицы
     $n = rand(1000, 100000);
@@ -268,6 +281,8 @@ class mcms_sqlite_driver extends PDO_Singleton
 
     // удаляем старую таблицу
     $this->exec("DROP TABLE `{$tblname}_old{$n}`");
+
+    $this->commit();
   }
 
   public function addSql($name,  array $spec, $modify, $isnew)

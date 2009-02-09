@@ -40,10 +40,10 @@ class PDO_Singleton extends PDO
     return null;
   }
 
-  public static function getInstance($name, $reload = false)
+  public static function getInstance($dsn)
   {
-    if (!array_key_exists($name, self::$instances) or $reload)
-      self::$instances[$name] = self::connect(mcms::config('db.' . $name));
+    if (!array_key_exists($name, self::$instances))
+      self::$instances[$name] = self::connect($dsn);
 
     return self::$instances[$name];
   }
@@ -81,14 +81,14 @@ class PDO_Singleton extends PDO
 
   public function prepare($sql)
   {
+    if (!$this->transaction and $this->isModifying($sql))
+      throw new RuntimeException(t('Модификация данных вне транзакции.'));
     $sth = parent::prepare($sql);
     return $sth;
   }
 
   public function exec($sql, array $params = null)
   {
-    if (!$this->transaction and $this->isModifying($sql))
-      throw new RuntimeException(t('Модификация данных вне транзакции.'));
     $sth = $this->prepare($sql);
     $sth->execute($params);
     return $sth;

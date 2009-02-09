@@ -4,7 +4,7 @@ class TreeBuilder
 {
   public function run()
   {
-    $db = mcms::db();
+    $db = Context::last()->db;
     $data = $db->getResultsK("id", "SELECT `id`, `parent_id`, `class`, `deleted`, NULL AS `left`, NULL AS `right` FROM `node` WHERE `parent_id` IS NOT NULL OR `id` IN (SELECT `parent_id` FROM `node` WHERE `parent_id` IS NOT NULL) ORDER BY `class`, `left`");
 
     $db->beginTransaction();

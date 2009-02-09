@@ -48,7 +48,7 @@ class TagNode extends Node implements iContentType
 
     // При добавлении раздела копируем родительский список типов.
     if ($isnew and !empty($this->parent_id))
-      mcms::db()->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) "
+      Context::last()->db->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) "
         ."SELECT :me, `nid`, `key`, `order` FROM `node__rel` "
         ."WHERE `tid` = :parent AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = 'type')",
         array(':me' => $this->id, ':parent' => $this->parent_id));

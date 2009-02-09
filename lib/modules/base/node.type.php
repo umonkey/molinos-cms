@@ -21,9 +21,9 @@ class TypeNode extends Node implements iContentType
   // документы этого типа обновляются.
   private $oldname = null;
 
-  public function __construct(array $data)
+  public function __construct(NodeStub $stub)
   {
-    parent::__construct($data);
+    parent::__construct($stub);
 
     $this->oldname = $this->name;
   }
@@ -53,7 +53,7 @@ class TypeNode extends Node implements iContentType
 
     // Обновляем тип документов, если он изменился.
     if (null !== $this->oldname and $this->name != $this->oldname) {
-      mcms::db()->exec("UPDATE `node` SET `class` = ? WHERE `class` = ?",
+      $this->getDB()->exec("UPDATE `node` SET `class` = ? WHERE `class` = ?",
         array($this->name, $this->oldname));
     }
 
@@ -93,7 +93,7 @@ class TypeNode extends Node implements iContentType
     }
 
     // удалим связанные с этим типом документы
-    mcms::db()->exec("DELETE FROM `node` WHERE `class` = :type", array(':type' => $this->name));
+    $this->getDB()->exec("DELETE FROM `node` WHERE `class` = :type", array(':type' => $this->name));
 
     $rc = parent::delete();
 
@@ -165,7 +165,7 @@ class TypeNode extends Node implements iContentType
         '%b' => $tblname,
         )));
 
-    mcms::db()->exec("DROP TABLE IF EXISTS node__idx_{$tblname}");
+    $this->getDB()->exec("DROP TABLE IF EXISTS node__idx_{$tblname}");
 
     // $result = Node::create($tblname)->schema();
     // $this->fields = $result['fields'];
@@ -275,7 +275,7 @@ class TypeNode extends Node implements iContentType
     $t->commit();
 
     // Значения в индексной таблице обновляются по cron
-    mcms::db()->exec("DELETE FROM `node__idx_{$this->name}`");
+    $this->getDB()->exec("DELETE FROM `node__idx_{$this->name}`");
 
     return true;
   }

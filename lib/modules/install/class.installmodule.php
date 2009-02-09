@@ -307,7 +307,7 @@ class InstallerNode extends Node
     foreach (array('mail_server', 'mail_from', 'debuggers') as $k)
       $data[str_replace('_', '.', $k)] = $this->$k;
 
-    $config = Config::getInstance();
+    $config = get_test_context()->config;
 
     foreach ($data as $k => $v)
       $config->$k = $v;

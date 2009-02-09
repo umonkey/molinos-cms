@@ -60,7 +60,7 @@ class User
       return $result;
 
     $result = array();
-    $data = mcms::db()->getResults($sql);
+    $data = Context::last()->db->getResults($sql);
     $mask = array('c', 'r', 'u', 'd', 'p');
 
     foreach ($data as $row) {
@@ -94,7 +94,7 @@ class User
 
     // Обычная авторизация.
     else {
-      $uid = mcms::db()->getResult("SELECT `id` FROM `node` WHERE `published` = 1 AND `deleted` = 0 AND `class` = 'user' AND `name` = ?", array($login));
+      $uid = $ctx->db->getResult("SELECT `id` FROM `node` WHERE `published` = 1 AND `deleted` = 0 AND `class` = 'user' AND `name` = ?", array($login));
       if (empty($uid))
         throw new ForbiddenException(t('Нет такого пользователя.'));
       $user = NodeStub::create($uid, $ctx->db);
@@ -186,7 +186,7 @@ class User
   public function getPermittedSections()
   {
     $uids = join(", ", array_keys($this->getGroups()));
-    $list = mcms::db()->getResultsV("nid", "SELECT nid FROM node__access WHERE uid IN ({$uids}) AND c = 1 AND nid IN (SELECT id FROM node WHERE class = 'tag' AND deleted = 0)");
+    $list = Context::last()->db->getResultsV("nid", "SELECT nid FROM node__access WHERE uid IN ({$uids}) AND c = 1 AND nid IN (SELECT id FROM node WHERE class = 'tag' AND deleted = 0)");
     return $list;
   }
 }

@@ -74,7 +74,7 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
     $path = self::get_file_path();
 
     if (!is_readable($path))
-      self::write($path);
+      self::write($ctx, $path);
 
     if ($f = fopen($path, 'r')) {
       header('HTTP/1.1 200 OK');
@@ -86,7 +86,7 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
     }
   }
 
-  private static function write($filename)
+  private static function write(Context $ctx, $filename)
   {
     $f = fopen($filename, 'w');
 
@@ -95,16 +95,16 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
       ."/lib/modules/sitemap/sitemap.xsl\" type=\"text/xsl\" media=\"screen\"?>\n");
     fwrite($f, "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
 
-    self::write_sections($f);
-    self::write_nodes($f);
+    self::write_sections($ctx, $f);
+    self::write_nodes($ctx, $f);
 
     fwrite($f, "</urlset>\n");
     fclose($f);
   }
 
-  private static function write_sections($f)
+  private static function write_sections(Context $ctx, $f)
   {
-    $res = mcms::db()->getResultsV('id', "SELECT `n`.`id` AS `id` "
+    $res = $ctx->db->getResultsV('id', "SELECT `n`.`id` AS `id` "
       ."FROM `node` `n` "
       ."WHERE `n`.`deleted` = 0 AND `n`.`published` = 1 "
       ."AND `n`.`class` = 'tag' AND `n`.`id` IN "
@@ -118,7 +118,7 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
     }
   }
 
-  private static function write_nodes($f)
+  private static function write_nodes(Context $ctx, $f)
   {
     $conf = mcms::modconf('sitemap');
 

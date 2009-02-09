@@ -43,7 +43,7 @@ class SaxImport extends SaxParser
           if (array_key_exists('key', $attr))
             $key = $attr['key'];
 
-          mcms::db()->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order)", array(
+          Context::last()->db->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) VALUES (:tid, :nid, :key, :order)", array(
             ':tid' => $tid,
             ':nid' => $nid,
             ':key' => $key,
@@ -71,7 +71,7 @@ class SaxImport extends SaxParser
           $d = empty($at['d']) ? 0 : 1;
           $p = empty($at['p']) ? 0 : 1;
 
-          mcms::db()->exec("INSERT INTO `node__access`(`nid`, `uid`, `c`, `r`, `u`, `d`, `p`) VALUES (:nid, :uid, :c, :r, :u, :d, :p)", array(
+          Context::last()->db->exec("INSERT INTO `node__access`(`nid`, `uid`, `c`, `r`, `u`, `d`, `p`) VALUES (:nid, :uid, :c, :r, :u, :d, :p)", array(
             ':nid' => $nid,
             ':uid' => empty($uid) ? 0 : $uid,
             ':c' => $c,

@@ -74,7 +74,7 @@ function t($message, array $argv = array())
   static $sth = null;
 
   if (null == $sth)
-    $sth = mcms::db()->prepare("SELECT m2.* FROM `node__messages` m1 LEFT JOIN `node__messages` m2 ON m1.id = m2.id WHERE m2.lang = :lang AND m1.message = :message");
+    $sth = Context::last()->db->prepare("SELECT m2.* FROM `node__messages` m1 LEFT JOIN `node__messages` m2 ON m1.id = m2.id WHERE m2.lang = :lang AND m1.message = :message");
 
   $sth->execute(array(
     ':lang' => $lang,

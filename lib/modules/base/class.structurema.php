@@ -52,11 +52,13 @@ class StructureMA
         $result[$node->name]['config'] = $config;
       }
 
-      $types = mcms::db()->getResultsV("name", "SELECT n.name FROM node n INNER JOIN node__rel r ON r.tid = n.id WHERE r.nid = ? AND n.class = 'type'", array($node->id));
+      $db = Context::last()->db;
+
+      $types = $db->getResultsV("name", "SELECT n.name FROM node n INNER JOIN node__rel r ON r.tid = n.id WHERE r.nid = ? AND n.class = 'type'", array($node->id));
       if (!empty($types))
         $result[$node->name]['config']['types'] = $types;
 
-      $groups = mcms::db()->getResultsV("uid", "SELECT uid FROM node__access WHERE nid = ? AND r = 1", array($node->id));
+      $groups = $db->getResultsV("uid", "SELECT uid FROM node__access WHERE nid = ? AND r = 1", array($node->id));
 
       if (null === $groups)
         $groups = array(0);
@@ -149,7 +151,7 @@ class StructureMA
   {
     $groups = $types = array();
 
-    $data = mcms::db()->getResults("SELECT `a`.`uid`, `n`.`name`, `a`.`c`, `a`.`r`, `a`.`u`, `a`.`d`, `a`.`p` FROM `node__access` `a` INNER JOIN `node` `n` ON `n`.`id` = `a`.`nid` WHERE `n`.`deleted` = 0 AND `n`.`class` = 'type' ORDER BY `a`.`uid`");
+    $data = Context::last()->db->getResults("SELECT `a`.`uid`, `n`.`name`, `a`.`c`, `a`.`r`, `a`.`u`, `a`.`d`, `a`.`p` FROM `node__access` `a` INNER JOIN `node` `n` ON `n`.`id` = `a`.`nid` WHERE `n`.`deleted` = 0 AND `n`.`class` = 'type' ORDER BY `a`.`uid`");
 
     foreach ($data as $row) {
       $gid = $row['uid']
@@ -180,7 +182,7 @@ class StructureMA
   private function getSchema()
   {
     // Получаем список сохранённых типов.
-    $types = (array)mcms::db()->getResultsV("name", "SELECT `n`.`name` FROM `node` `n` "
+    $types = (array)Context::last()->db->getResultsV("name", "SELECT `n`.`name` FROM `node` `n` "
       . "WHERE `n`.`deleted` = 0 AND `n`.`class` = 'type'");
 
     // Добавляем типы, известные только по классам.
@@ -197,7 +199,7 @@ class StructureMA
 
   private function getModules()
   {
-    $data = mcms::db()->getResultsKV("name", "data", "SELECT `n`.`name`, `n`.`data` "
+    $data = Context::last()->db->getResultsKV("name", "data", "SELECT `n`.`name`, `n`.`data` "
       . "FROM `node` `n` "
       . "WHERE `n`.`deleted` = 0 AND `n`.`class` = 'moduleinfo'");
 

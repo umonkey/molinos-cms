@@ -86,7 +86,7 @@ class AccessRevControl extends Control
     $names = Node::getSortedList($this->dictionary, 'title');
 
     if (!empty($names)) {
-      $rows = mcms::db()->getResultsK("nid", "SELECT nid, c, r, u, d, p FROM node__access WHERE uid = ?", array($data->id));
+      $rows = $data->getDB()->getResultsK("nid", "SELECT nid, c, r, u, d, p FROM node__access WHERE uid = ?", array($data->id));
 
       foreach ($names as $id => $name) {
         $row = array_key_exists($id, $rows)
@@ -131,10 +131,10 @@ class AccessRevControl extends Control
     $this->validate($value);
 
     // Удаляем старые записи.
-    mcms::db()->exec("DELETE FROM node__access WHERE uid = ? AND nid IN (SELECT id FROM node WHERE class = ?)",
+    $node->getDB()->exec("DELETE FROM node__access WHERE uid = ? AND nid IN (SELECT id FROM node WHERE class = ?)",
       array($node->id, $this->dictionary));
 
-    $sth = mcms::db()->prepare("INSERT INTO node__access (uid, nid, c, r, u, d, p) VALUES (:uid, :nid, :c, :r, :u, :d, :p)");
+    $sth = $node->getDB()->prepare("INSERT INTO node__access (uid, nid, c, r, u, d, p) VALUES (:uid, :nid, :c, :r, :u, :d, :p)");
 
     foreach ($value as $nid => $row) {
       $params = array(

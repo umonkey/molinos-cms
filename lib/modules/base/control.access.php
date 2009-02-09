@@ -125,7 +125,7 @@ class AccessControl extends Control
         $id = null;
 
     if (!empty($names)) {
-      $rows = mcms::db()->getResultsK("uid", "SELECT uid, c, r, u, d, p FROM node__access WHERE nid = ?", array($id));
+      $rows = $data->getDB()->getResultsK("uid", "SELECT uid, c, r, u, d, p FROM node__access WHERE nid = ?", array($id));
 
       foreach ($names as $id => $name) {
         $row = array_key_exists($id, $rows)
@@ -198,9 +198,9 @@ class AccessControl extends Control
     $this->validate($value);
 
     // Удаляем старые записи.
-    mcms::db()->exec("DELETE FROM node__access WHERE nid IN (" . join(", ", $ids) . ") AND (uid = 0 OR uid IN (SELECT id FROM node WHERE class = 'group'))");
+    $node->getDB()->exec("DELETE FROM node__access WHERE nid IN (" . join(", ", $ids) . ") AND (uid = 0 OR uid IN (SELECT id FROM node WHERE class = 'group'))");
 
-    $sth = mcms::db()->prepare("INSERT INTO node__access (uid, nid, c, r, u, d, p) SELECT :uid, id, :c, :r, :u, :d, :p FROM node WHERE id IN (" . join(", ", $ids) . ")");
+    $sth = $node->getDB()->prepare("INSERT INTO node__access (uid, nid, c, r, u, d, p) SELECT :uid, id, :c, :r, :u, :d, :p FROM node WHERE id IN (" . join(", ", $ids) . ")");
 
     foreach ($value as $uid => $row) {
       if ('all' == $uid)

@@ -14,7 +14,7 @@ class SearchIndexer implements iNodeHook
     case 'delete':
     case 'erase':
     case 'unpublish':
-      mcms::db()->exec("DELETE FROM `node__searchindex` WHERE `nid` = :nid",
+      $node->getDB()->exec("DELETE FROM `node__searchindex` WHERE `nid` = :nid",
         array(':nid' => $node->id));
       break;
     }
@@ -42,9 +42,9 @@ class SearchIndexer implements iNodeHook
       ."<body><h1>{$node->name}</h1>{$html}</body></html>";
 
     try {
-      mcms::db()->exec('DELETE FROM `node__searchindex` WHERE `nid` = :nid',
+      $node->getDB()->exec('DELETE FROM `node__searchindex` WHERE `nid` = :nid',
         array(':nid' => $node->id));
-      mcms::db()->exec('INSERT INTO `node__searchindex` (`nid`, `url`, `html`) '
+      $node->getDB()->exec('INSERT INTO `node__searchindex` (`nid`, `url`, `html`) '
         .'VALUES (:nid, :url, :html)', array(
           ':nid' => $node->id,
           ':url' => self::getNodeUrl($node),

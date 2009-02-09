@@ -17,7 +17,6 @@ class AllTests
 {
   public static function main()
   {
-    mcms::flush(mcms::FLUSH_NOW);
     PHPUnit_TextUI_TestRunner::run(self::suite());
   }
 
@@ -41,7 +40,7 @@ class AllTests
       require_once $file;
 
       if (class_exists($class, false)) {
-        printf("%s => %s\n", $file, $class);
+        printf("%s => %s\n", os::localPath($file), $class);
         $suite->addTestSuite($class);
       } else {
         die("Class {$class} not found in {$file}.\n");
@@ -55,5 +54,23 @@ class AllTests
   }
 }
 
-if (PHPUnit_MAIN_METHOD == 'AllTests::main')
-  AllTests::main();
+/**
+ * Возвращает контекст для использования в тестах.
+ */
+function get_test_context()
+{
+  return new Context(array(
+    'url' => 'http://test.cms.molinos.ru/',
+    ));
+}
+
+try {
+  if (file_exists($db = os::path('conf', 'test.db')))
+    unlink($db);
+  copy(os::path('conf', 'default.db.dist'), $db);
+
+  if (PHPUnit_MAIN_METHOD == 'AllTests::main')
+    AllTests::main();
+} catch (Exception $e) {
+  printf("%s: %s\n%s\n", get_class($e), $e->getMessage(), mcms::backtrace($e));
+}

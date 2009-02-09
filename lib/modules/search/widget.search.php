@@ -291,7 +291,7 @@ class SearchWidget extends Widget implements iWidget
   {
     return 'http://'. $_SERVER['HTTP_HOST'] .'/node/'. $node->id .'/';
 
-    $tag = mcms::db()->getResults("SELECT `id`, `code` FROM `node` `n` "
+    $tag = $node->getDB()->getResults("SELECT `id`, `code` FROM `node` `n` "
       ."INNER JOIN `node__rel` `r` ON `r`.`tid` = `n`.`id` "
       ."WHERE `r`.`nid` = :nid AND `n`.`class` = 'tag' AND `n`.`deleted` = 0 AND `n`.`published` = 1", array(
         ':nid' => $node->id,

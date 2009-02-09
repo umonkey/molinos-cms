@@ -18,7 +18,7 @@ class NodeStub
    */
   private static $stack = array();
 
-  private function __construct($id, PDO $db = null)
+  private function __construct($id, PDO_Singleton $db = null)
   {
     if ($id instanceof NodeStub)
       $id = $id->id;
@@ -39,10 +39,12 @@ class NodeStub
   /**
    * Создание новой ноды.
    */
-  public static function create($id, PDO $db = null)
+  public static function create($id, PDO_Singleton $db = null)
   {
     if ($id instanceof NodeStub)
       $id = $id->id;
+    if (null !== $id)
+      $id = intval($id);
     if (null === $id or !array_key_exists($id, self::$stack))
       return new NodeStub($id, $db);
     return self::$stack[$id];
@@ -81,7 +83,7 @@ class NodeStub
         throw new InvalidArgumentException(t('Идентификатор объекта нельзя изменить.'));
       if (!is_integer($value))
         throw new InvalidArgumentException(t('Идентификатор объекта должен быть числовым.'));
-      $this->id = $value;
+      return $this->id = $value;
     }
 
     $this->makeSureFieldIsAvailable($key);
@@ -95,6 +97,9 @@ class NodeStub
           '%name' => $key,
           )));
     }
+
+    if (null === $this->data)
+      $this->data = array();
 
     if (!array_key_exists($key, $this->data) or $this->data[$key] !== $value) {
       $this->data[$key] = $value;
@@ -168,6 +173,8 @@ class NodeStub
    */
   public final function getXML($em = 'node', $extraContent = null, $recurse = true)
   {
+    $data = array();
+
     if (null !== $this->id) {
       if (!is_array($data = mcms::cache($ckey = $this->getCacheKey()))) {
         $data = array(
@@ -300,7 +307,7 @@ class NodeStub
           $sth->execute($params);
         }
       } catch (PDOException $e) {
-        mcms::debug($sql, $params);
+        // mcms::debug($sql, $params);
         throw $e;
       }
 
@@ -309,6 +316,8 @@ class NodeStub
 
       $this->flush();
     }
+
+    return $this;
   }
 
   private function saveNew(array $data)
@@ -636,13 +645,13 @@ class NodeStub
   public function getObject()
   {
     $className = self::getClassName($this->class);
-    return new $class($this);
+    return new $className($this);
   }
 
   /**
    * Заглушка для сериализаторов.
    */
-  private function __sleep()
+  public function __sleep()
   {
     throw new RuntimeException(t('NodeStub не может быть сериализован.'));
   }
@@ -650,7 +659,7 @@ class NodeStub
   /**
    * Загружает дочерние ноды.
    */
-  public static function getChildrenOf(PDO $db, $class, $parent_id = null)
+  public static function getChildrenOf(PDO_Singleton $db, $class, $parent_id = null)
   {
     $result = array();
 
@@ -668,12 +677,20 @@ class NodeStub
   /**
    * Загружает объект по имени.
    */
-  public static function loadByName(PDO $db, $name, $class)
+  public static function loadByName(PDO_Singleton $db, $name, $class)
   {
     $id = $db->getResult("SELECT `id` FROM `node` WHERE `class` = ? AND `name` = ? AND `deleted` = 0", array($class, $name));
     if (null === $id)
       throw new ObjectNotFoundException();
     else
       return NodeStub::create($id, $db);
+  }
+
+  /**
+   * Возвращает ссылку на БД.
+   */
+  public function getDB()
+  {
+    return $this->db;
   }
 }

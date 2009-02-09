@@ -100,7 +100,9 @@ class NodeQueryBuilder
       $fields = join(', ', $fields);
 
     $sql = 'SELECT '. $fields .' '. $this->getFromPart();
-    $sql .= ' '. $this->getOrderPart();
+
+    if ('' != ($order = $this->getOrderPart()))
+      $sql .= ' '. $order;
 
     $params = $this->params;
 

@@ -15,10 +15,10 @@ class AccessLogRequest implements iRequestHook
       try {
         if (!empty($conf['options']) and is_array($conf['options'])) {
           if (in_array('section', $conf['options']) and isset($ctx->section->id))
-            self::logNode($ctx->section->id);
+            self::logNode($ctx, $ctx->section->id);
 
           if (in_array('document', $conf['options']) and isset($ctx->document->id))
-            self::logNode($ctx->document->id);
+            self::logNode($ctx, $ctx->document->id);
         }
       } catch (PDOException $e) {
         // Обычно здесь обламываемя при обращении к несуществующему урлу.
@@ -26,7 +26,7 @@ class AccessLogRequest implements iRequestHook
     }
   }
 
-  public static function logNode($nid)
+  private static function logNode(Context $ctx, $nid)
   {
     $args = array(
       ':ip' => empty($_SERVER['REMOTE_ADDR']) ? null : $_SERVER['REMOTE_ADDR'],
@@ -34,6 +34,6 @@ class AccessLogRequest implements iRequestHook
       ':nid' => $nid,
       );
 
-    mcms::db()->exec("INSERT INTO `node__astat` (`nid`, `timestamp`, `ip`, `referer`) VALUES (:nid, UTC_TIMESTAMP(), :ip, :referer)", $args);
+    $ctx->db->exec("INSERT INTO `node__astat` (`nid`, `timestamp`, `ip`, `referer`) VALUES (:nid, UTC_TIMESTAMP(), :ip, :referer)", $args);
   }
 }
