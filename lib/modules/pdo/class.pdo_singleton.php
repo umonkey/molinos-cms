@@ -3,8 +3,6 @@
 
 class PDO_Singleton extends PDO
 {
-  static private $instances = array();
-
   protected $dbname = null;
   protected $dbtype = null;
 
@@ -40,14 +38,6 @@ class PDO_Singleton extends PDO
     return null;
   }
 
-  public static function getInstance($dsn)
-  {
-    if (!array_key_exists($name, self::$instances))
-      self::$instances[$name] = self::connect($dsn);
-
-    return self::$instances[$name];
-  }
-
   /**
    * Подключение к БД.
    */
@@ -67,16 +57,6 @@ class PDO_Singleton extends PDO
         )));
 
     return new $driver($conf);
-  }
-
-  public static function disconnect()
-  {
-    /*
-    // FIXME: это сработает только если нет ссылок, что не факт.
-    // Предлагаю забить, hex, 2008-04-23.
-    if (null !== self::$instance)
-      self::$instance = null;
-    */
   }
 
   public function prepare($sql)

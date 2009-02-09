@@ -68,50 +68,6 @@ class ExchangeModule implements iRemoteCall
 
       return new Redirect('?q=admin&mode=exchange&preset=export&result=importok');
     }
-
-    else if ($exchmode == 'upgradetoMySQL') {
-      $data = $ctx->post;
-      $data['confirm'] = 1;
-      $data['config']['debuggers'] = $_SERVER['REMOTE_ADDR'] .', 127.0.0.1';
-      $data['db']['type'] = 'mysql';
-
-      // Сперва нужно проверить, запущена ли база данных, а то можно
-      // грохнуть инсталяцию и при этом не выгрузить никаких данных.
-      // Восстановить потом можно, но все-таки лучше семь раз отмерить,
-      // а потом один раз отлить.  Если имя базы не задано, то PDO
-      // ругаться не будет, так что надо проверить вручную.
-      if (empty($data['db']['name']))
-      	throw new RuntimeException('Не задано имя базы данных MySQL.');
-
-      // Поскольку в PDO_Singleton нет возможности задать DSN из вне,
-      // то проверку нужно осуществить вручную.  Перехватывать исключение
-      // нет смысла, так как развернутое описание будет и так присутствовать.
-      $newdsn = "mysql:host={$data['db']['host']};dbname={$data['db']['name']}";
-      new PDO($newdsn, $data['db']['user'], $data['db']['pass'][0]);
-
-      // Конфигурацию нужно сначала записать в файл, иначе при получении
-      // инстанса PDO будет возвращаться старый коннектор.
-      $olddsn = $ctx->db->getConfig('default');
-
-      $xmlstr = self::export('Mysql-upgrade', 'Профиль для апгрейда до MySQL');
-
-      // запишем конфиг новым dsn
-      InstallModule::writeConfig($data, $olddsn);
-
-      // принудительный перевод PDO_Singleton в Mysql
-      PDO_Singleton::getInstance('default', true);
-
-      // Перед импортом нужно очистить целевую базу данных,
-      // чтобы не получить исключение о дубликатах.
-      // Функция очистки базы делает также её бэкап.
-      $ctx->db->clearDB();
-      self::import($xmlstr);
-
-      // Логинимся в качестве рута.
-      User::authorize(Context::last()->user->name, null, true);
-
-      return new Redirect('?q=admin&module=exchange&preset=export&result=upgradeok');
-    }
   }
 
   public static function rpc_redirect(Context $ctx)

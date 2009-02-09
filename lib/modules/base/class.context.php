@@ -328,7 +328,7 @@ class Context
 
     case 'db':
       if (null === $this->_db)
-        $this->_db = PDO_Singleton::getInstance($this->config->{'db.default'});
+        $this->_db = PDO_Singleton::connect($this->config->{'db.default'});
       return $this->_db;
 
     // Доступ к конфигурационному файлу.
