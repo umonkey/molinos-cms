@@ -70,10 +70,7 @@ class StructureMA
 
   private function getDomains()
   {
-    $nodes = Node::find(array(
-      'class' => 'domain',
-      'parent_id' => null,
-      ));
+    $nodes = NodeStub::getChildrenOf(Context::last()->db, 'domain');
 
     foreach ($nodes as $node) {
       if ($node->redirect) {
@@ -87,13 +84,12 @@ class StructureMA
       }
 
       else {
-        $node->loadChildren();
         $this->addPage($node->name, $node);
       }
     }
   }
 
-  private function addPage($domain, DomainNode $page, $name = '/')
+  private function addPage($domain, NodeStub $page, $name = '/')
   {
     if ($page->published) {
       $data = array(
@@ -120,9 +116,8 @@ class StructureMA
       $re = $this->pageNameToRE($name, $page->params);
       $this->domains[$domain][$re] = $data;
 
-      if (is_array($page->children))
-        foreach ($page->children as $child)
-          $this->addPage($domain, $child, rtrim($name, '/') . '/' . $child->name);
+      foreach (NodeStub::getChildrenOf(Context::last()->db, 'domain', $page->id) as $child)
+        $this->addPage($domain, $child, rtrim($name, '/') . '/' . $child->name);
     }
   }
 
