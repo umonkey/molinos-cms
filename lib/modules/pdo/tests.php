@@ -143,7 +143,9 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
 
   public function testTableInfoCreate()
   {
-    $t = new TableInfo(self::tbl);
+    $db = get_test_context()->db;
+
+    $t = new TableInfo($db, self::tbl);
     $t->columnSet('id', array(
       'type' => 'integer',
       'required' => 1,
@@ -158,32 +160,36 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
 
     $t->commit();
 
-    $t = new TableInfo(self::tbl);
+    $t = new TableInfo($db, self::tbl);
     $this->assertTrue($t->exists());
   }
 
   public function testTableInfoAddColumn()
   {
-    $t = new TableInfo(self::tbl);
+    $db = get_test_context()->db;
+
+    $t = new TableInfo($db, self::tbl);
     $t->columnSet('value', array(
       'type' => 'text',
       ));
     $t->commit();
 
-    $t = new TableInfo(self::tbl);
+    $t = new TableInfo($db, self::tbl);
     $this->assertEquals(2, $t->columnCount());
   }
 
   public function testTableInfoDropColumn()
   {
-    $t = new TableInfo(self::tbl);
+    $db = get_test_context()->db;
+    $t = new TableInfo($db, self::tbl);
     $t->columnDel('value');
     $this->assertEquals(1, $t->columnCount());
   }
 
   public function testTableInfoDropTable()
   {
-    $t = new TableInfo(self::tbl);
+    $db = get_test_context()->db;
+    $t = new TableInfo($db, self::tbl);
     $t->delete();
   }
 
@@ -192,7 +198,8 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
    */
   public function testTableInfoDropTableFail()
   {
-    $t = new TableInfo(self::tbl);
+    $db = get_test_context()->db;
+    $t = new TableInfo($db, self::tbl);
     $t->delete();
   }
 
@@ -221,7 +228,7 @@ class PdoModuleTests extends PHPUnit_Framework_TestCase
 
     foreach ($tables as $table) {
       $c = $ctx->db->fetch("SELECT COUNT(*) FROM `{$table}`");
-      $t = new TableInfo($table);
+      $t = new TableInfo($ctx->db, $table);
       $this->assertTrue($t->exists());
     }
   }

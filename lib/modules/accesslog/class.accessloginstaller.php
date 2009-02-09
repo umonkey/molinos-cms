@@ -4,7 +4,7 @@ class AccessLogInstaller implements iInstaller
 {
   public static function onInstall(Context $ctx)
   {
-    $t = new TableInfo('node__astat');
+    $t = new TableInfo($ctx->db, 'node__astat');
 
     if (!$t->exists()) {
       $t->columnSet('id', array(
@@ -37,7 +37,7 @@ class AccessLogInstaller implements iInstaller
 
   public static function onUninstall(Context $ctx)
   {
-    $t = new TableInfo('node__astat');
+    $t = new TableInfo($ctx->db, 'node__astat');
 
     if ($t->exists())
       $t->delete();

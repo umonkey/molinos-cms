@@ -87,7 +87,7 @@ class TypeNode extends Node implements iContentType
 
   public function delete()
   {
-    $t = new TableInfo('node__idx_'. $this->name);
+    $t = new TableInfo($this->getDB(), 'node__idx_'. $this->name);
     if ($t->exists()) {
       $t->delete();
     }
@@ -233,7 +233,7 @@ class TypeNode extends Node implements iContentType
 
   public function updateTable()
   {
-    $t = new TableInfo('node__idx_'. $this->name);
+    $t = new TableInfo($this->getDB(), 'node__idx_'. $this->name);
 
     if (!$t->columnExists('id'))
       $t->columnSet('id', array(

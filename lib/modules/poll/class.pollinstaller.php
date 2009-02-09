@@ -4,7 +4,7 @@ class PollInstaller implements iInstaller
 {
   public static function onInstall(Context $ctx)
   {
-    $t = new TableInfo('node__poll');
+    $t = new TableInfo($ctx->db, 'node__poll');
 
     if (!$t->exists()) {
       $t->columnSet('nid', array(
@@ -34,7 +34,7 @@ class PollInstaller implements iInstaller
 
   public static function onUninstall(Context $ctx)
   {
-    $t = new TableInfo('node__poll');
+    $t = new TableInfo($ctx->db, 'node__poll');
 
     if ($t->exists())
       $t->delete();

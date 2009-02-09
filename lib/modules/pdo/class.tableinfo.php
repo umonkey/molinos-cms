@@ -3,21 +3,16 @@
 
 class TableInfo
 {
-    protected static $dbname = null;
-
     protected $isnew;
     protected $name;
     protected $columns;
     protected $alter;
+    protected $db;
 
-    public function __construct($name)
+    public function __construct(PDO_Singleton $db, $name)
     {
-      $this->db = Context::last()->db;
-
-      self::$dbname = $this->db->getDbName();
-
+      $this->db = $db;
       $this->name = $name;
-
       $this->coldel = $this->index = $this->columns = $this->alter = array();
       $this->isnew = false;
       $info = $this->scan($name);

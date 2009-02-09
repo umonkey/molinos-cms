@@ -29,8 +29,10 @@ class Installer
    */
   public static function CreateTables()
   {
-    Context::last()->db->clearDB();
-    $t = new TableInfo('node');
+    $db = Context::last()->db;
+    $db->clearDB();
+
+    $t = new TableInfo($db, 'node');
 
     if (!$t->exists()) {
       $t->columnSet('id', array(
@@ -98,7 +100,7 @@ class Installer
       $t->commit();
     }
 
-    $t = new TableInfo('node__rel');
+    $t = new TableInfo($db, 'node__rel');
     if (!$t->exists()) {
       $t->columnSet('nid', array(
         'type' => 'int',
@@ -123,7 +125,7 @@ class Installer
        $t->commit();
     }
 
-    $t = new TableInfo('node__access');
+    $t = new TableInfo($db, 'node__access');
     if (!$t->exists()) {
       $t->columnSet('nid', array(
         'type' => 'int',

@@ -45,7 +45,7 @@ class BaseModule implements iModuleConfig, iNodeHook
       $node->getDB()->exec("DELETE FROM `node__access` WHERE `nid` = :nid OR `uid` = :uid", array(':nid' => $node->id, ':uid' => $node->id));
 
       // Удаление статистики.
-      $t = new TableInfo('node__astat');
+      $t = new TableInfo($node->getDB(), 'node__astat');
       if ($t->exists())
         $node->getDB()->exec("DELETE FROM `node__astat` WHERE `nid` = :nid", array(':nid' => $node->id));
 

@@ -50,7 +50,7 @@ class TableManager
   //создаёт таблицу
   public function createTable($table_name)
   {
-    $t = new TableInfo($table_name);
+    $t = new TableInfo(Context::last()->db, $table_name);
 
     foreach ($this->columns as $name => $spec)
        $t->columnSet($name, $spec);
