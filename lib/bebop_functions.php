@@ -67,26 +67,6 @@ function l($url, $title = null, array $options = null, $absolute = false)
 
 function t($message, array $argv = array())
 {
-  /*
-  // TODO lang detection
-  $lang = 'ru';
-
-  static $sth = null;
-
-  if (null == $sth)
-    $sth = Context::last()->db->prepare("SELECT m2.* FROM `node__messages` m1 LEFT JOIN `node__messages` m2 ON m1.id = m2.id WHERE m2.lang = :lang AND m1.message = :message");
-
-  $sth->execute(array(
-    ':lang' => $lang,
-    ':message' => $message,
-  ));
-
-  $result = $sth->fetchColumn(2);
-
-  if (false !== $result)
-    $message = str_replace($message, $result, $message);
-  */
-
   foreach ($argv as $k => $v) {
     switch (substr($k, 0, 1)) {
     case '!':

@@ -25,5 +25,5 @@ interface iAdminMenu
    * description (всплывающая подсказка), group (группа, варианты: "content",
    * "access", "schema", "structure").
    */
-  public static function getMenuIcons();
+  public static function getMenuIcons(Context $ctx);
 };

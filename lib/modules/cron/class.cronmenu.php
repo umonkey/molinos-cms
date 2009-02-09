@@ -2,7 +2,7 @@
 
 class CronMenu implements iAdminMenu
 {
-  public static function getMenuIcons()
+  public static function getMenuIcons(Context $ctx)
   {
     /*
        FIXME

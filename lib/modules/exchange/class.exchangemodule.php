@@ -226,11 +226,11 @@ class ExchangeModule implements iRemoteCall
     return $plist;
   }
 
-  public static function getMenuIcons()
+  public static function getMenuIcons(Context $ctx)
   {
     $icons = array();
 
-    if (class_exists('ZipArchive') and Context::last()->user->hasAccess('d', 'type'))
+    if (class_exists('ZipArchive') and $ctx->user->hasAccess('d', 'type'))
       $icons[] = array(
         'group' => 'system',
         'href' => '?q=admin&cgroup=system&module=exchange',

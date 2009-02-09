@@ -2,11 +2,9 @@
 
 class CommentMenu implements iAdminMenu
 {
-  public static function getMenuIcons()
+  public static function getMenuIcons(Context $ctx)
   {
     $icons = array();
-
-    $ctx = Context::last();
 
     if ($ctx->user->hasAccess('u', 'comment')) {
       if ($ctx->db->getResult("SELECT COUNT(*) FROM `node` WHERE `class` = 'comment' AND `deleted` = 0")) {

@@ -2,10 +2,10 @@
 
 class SysLogMenu implements iAdminMenu
 {
-  public static function getMenuIcons()
+  public static function getMenuIcons(Context $ctx)
   {
     $icons = array();
-    $user = Context::last()->user;
+    $user = $ctx->user;
 
     $icons[] = array(
       'group' => 'statistics',

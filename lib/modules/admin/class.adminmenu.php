@@ -43,7 +43,7 @@ class AdminMenu implements iAdminMenu
       : $name;
   }
 
-  public function getXML()
+  public function getXML(Context $ctx)
   {
     $cgroup = $this->getCurrentGroup();
 
@@ -52,7 +52,7 @@ class AdminMenu implements iAdminMenu
 
     $output = '';
 
-    foreach ($this->getIcons() as $group => $icons) {
+    foreach ($this->getIcons($ctx) as $group => $icons) {
       $tmp = '';
 
       if (array_key_exists('href', $icons[0])) {
@@ -104,11 +104,11 @@ class AdminMenu implements iAdminMenu
     return $key;
   }
 
-  private function getIcons()
+  private function getIcons(Context $ctx)
   {
     $result = array();
 
-    foreach ($i = mcms::invoke('iAdminMenu', 'getMenuIcons') as $tmp) {
+    foreach ($i = mcms::invoke('iAdminMenu', 'getMenuIcons', array($ctx)) as $tmp) {
       if (is_array($tmp))
         foreach ($tmp as $icon)
           if (array_key_exists('group', $icon))
@@ -123,10 +123,10 @@ class AdminMenu implements iAdminMenu
   /**
    * Базовая навигация по CMS.
    */
-  public static function getMenuIcons()
+  public static function getMenuIcons(Context $ctx)
   {
     $icons = array();
-    $user = Context::last()->user;
+    $user = $ctx->user;
 
     if ($user->hasAccess('u', 'tag'))
       $icons[] = array(
@@ -212,8 +212,6 @@ class AdminMenu implements iAdminMenu
         'weight' => 10,
         );
 
-    $ctx = Context::last();
-
     if ($ctx->user->hasAccess('u', 'type') and $ctx->db->fetch("SELECT COUNT(*) FROM `node__fallback`"))
       $icons[] = array(
         'group' => 'statistics',
@@ -229,7 +227,7 @@ class AdminMenu implements iAdminMenu
     return $this->getHTML();
   }
 
-  public function getDesktop()
+  public function getDesktop(Context $ctx)
   {
     $columns = array();
     $idx = 0;
@@ -239,7 +237,7 @@ class AdminMenu implements iAdminMenu
     if (is_string($cached = mcms::cache($ckey = 'admin:desktop:status')) and false)
       return $cached;
 
-    foreach ($this->getIcons() as $grname => $gritems) {
+    foreach ($this->getIcons($ctx) as $grname => $gritems) {
       $items = '';
 
       foreach ($gritems as $item) {

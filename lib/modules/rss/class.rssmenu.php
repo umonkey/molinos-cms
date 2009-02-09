@@ -2,11 +2,11 @@
 
 class RSSMenu implements iAdminMenu
 {
-  public static function getMenuIcons()
+  public static function getMenuIcons(Context $ctx)
   {
     $icons = array();
 
-    if (Context::last()->user->hasAccess('u', 'rssfeed'))
+    if ($ctx->user->hasAccess('u', 'rssfeed'))
       $icons[] = array(
         'group' => 'structure',
         'href' => '?action=list&module=rss',

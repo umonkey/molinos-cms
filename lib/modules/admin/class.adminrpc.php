@@ -318,7 +318,7 @@ class AdminRPC implements iRemoteCall
   public static function rpc_get_status(Context $ctx)
   {
     $m = new AdminMenu();
-    return $m->getDesktop();
+    return $m->getDesktop($ctx);
   }
 
   /**
@@ -674,7 +674,7 @@ class AdminRPC implements iRemoteCall
     $content .= mcms::getSignatureXML($ctx);
 
     $menu = new AdminMenu();
-    $content .= $menu->getXML();
+    $content .= $menu->getXML($ctx);
 
     if (!empty($content))
       $content = html::em('blocks', $content);

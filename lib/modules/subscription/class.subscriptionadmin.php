@@ -2,10 +2,10 @@
 
 class SubscriptionAdmin implements iAdminMenu
 {
-  public static function getMenuIcons()
+  public static function getMenuIcons(Context $ctx)
   {
     $icons = array();
-    $user = Context::last()->user;
+    $user = $ctx->user;
 
     if ($user->hasAccess('u', 'user'))
       $icons[] = array(
