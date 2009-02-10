@@ -8,7 +8,9 @@ class http
   public static function head($url)
   {
     if (false === ($result = get_headers($url, 1)))
-      throw new RuntimeException('Bad URL: ' . $url);
+      throw new RuntimeException('Не удалось скачать <a href="@url">файл</a>. Скорее всего, настройки PHP запрещают соединяться с удалёнными серверами.', array(
+        '@url' => $url,
+        ));
 
     $parts = explode(' ', $result[0], 3);
 
