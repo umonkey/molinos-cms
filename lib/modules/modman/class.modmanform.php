@@ -79,6 +79,13 @@ class ModmanForm implements iAdminForm
       $modules = modman::getAllModules();
     }
 
+    // Удаляем из списка обязательные модули: их нельзя отключать.
+    // Это, за одно, позволит дробить модули без захламления интерфейса
+    // и смущения пользователя.
+    foreach ($modules as $k => $v)
+      if ('required' == $v['priority'])
+        unset($modules[$k]);
+
     return self::getXML($ctx, $modules, array(
       'mode' => 'addremove',
       'title' => t('Установка и удаление модулей'),

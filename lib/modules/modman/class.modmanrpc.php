@@ -100,7 +100,7 @@ class ModManRPC implements iRemoteCall
 
     // Удаляем отключенные модули.
     foreach (modman::getLocalModules() as $name => $info) {
-      if (!in_array($name, $enabled)) {
+      if ('required' != $info['priority'] and !in_array($name, $enabled)) {
         // Отказываемся удалять локальные модули, которые нельзя вернуть.
         if (!empty($info['url'])) {
           $args = array($ctx);
