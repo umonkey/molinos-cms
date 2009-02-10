@@ -162,6 +162,14 @@ class Page
 
   private static function checkRPC(Context $ctx, $query)
   {
+    if (is_array($data = Structure::getInstance()->findPage($ctx->host(), ''))) {
+      if (!empty($data['page']['theme']) and !isset($ctx->theme))
+        $ctx->theme = $data['page']['theme'];
+      $c2 = Context::last();
+      if (!empty($data['page']['theme']) and !isset($c2->theme))
+        $c2->theme = $data['page']['theme'];
+    }
+
     if ('admin' == $query or 0 === strpos($query, 'admin/'))
       $query = 'admin.rpc';
 
