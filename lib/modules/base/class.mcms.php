@@ -655,11 +655,6 @@ class mcms
 
   public static function shutdown_handler()
   {
-    try {
-      if (($ctx = Context::last()) and isset($ctx->db))
-        $ctx->db->rollback();
-    } catch (Exception $e) { }
-
     if (null !== ($e = error_get_last()) and ($e['type'] & (E_ERROR|E_RECOVERABLE_ERROR))) {
       if (null !== ($re = mcms::config('backtracerecipient'))) {
         $release = substr(mcms::version(), 0, -(strrpos(mcms::version(), '.') + 1));
@@ -1038,19 +1033,6 @@ class mcms
         throw new PageNotFoundException();
     }
 
-    catch (NotConnectedException $e) {
-      if ('install.rpc' == $ctx->query())
-        mcms::fatal($e);
-      $ctx->redirect('?q=install.rpc&action=db&destination=CURRENT');
-    }
-    
-    catch (NotInstalledException $e) {
-      if ('install.rpc' == $ctx->query())
-        mcms::fatal($e);
-      $ctx->redirect('?q=install.rpc&action=' . $e->get_type()
-        . '&destination=CURRENT');
-    }
-    
     catch (UserErrorException $e) {
       if (404 == $e->getCode()) {
         $row = $ctx->db->getResult("SELECT * FROM node__fallback WHERE old = ?", array($ctx->query()));

@@ -40,8 +40,12 @@ class Structure
 
   private function load()
   {
-    if (!file_exists($file = $this->getFileName()))
-      $this->rebuild();
+    try {
+      if (!file_exists($file = $this->getFileName()))
+        $this->rebuild();
+    } catch (NotConnectedException $e) {
+      return;
+    }
 
     if (!file_exists($file))
       throw new RuntimeException(t('Не удалось загрузить структуру сайта.'));
@@ -301,8 +305,20 @@ class Structure
     if (!$this->loaded)
       $this->load();
 
-    if (empty($this->templates))
-      $this->rebuild();
+    try {
+      if (empty($this->templates))
+        $this->rebuild();
+    } catch (NotConnectedException $e) {
+      $result = array();
+
+      foreach (Loader::getImplementors('iTemplateProcessor') as $class) {
+        if (class_exists($class))
+          foreach (call_user_func(array($class, 'getExtensions')) as $ext)
+            $result[$ext] = $class;
+      }
+
+      return $result;
+    }
 
     return $this->templates;
   }

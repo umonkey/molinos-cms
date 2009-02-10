@@ -13,8 +13,8 @@ class mcms_sqlite_driver extends PDO_Singleton
 
     if (':memory:' != $this->dbfile) {
       // Создаём новую БД, если её нет.
-      if (!file_exists($this->dbfile) and file_exists($this->dbfile . '.dist'))
-        copy($this->dbfile . '.dist', $this->dbfile);
+      if (!file_exists($this->dbfile) and file_exists($dist = 'default.db.dist'))
+        copy($dist, $this->dbfile);
       if (!file_exists(realpath($this->dbfile)))
         throw new NotInstalledException('db');
     }

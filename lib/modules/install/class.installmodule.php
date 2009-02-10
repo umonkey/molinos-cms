@@ -6,8 +6,7 @@ class InstallModule implements iRemoteCall
   public static function hookRemoteCall(Context $ctx)
   {
     try {
-      if (false === ($output = mcms::dispatch_rpc(__CLASS__, $ctx)))
-        $output = self::onGet($ctx);
+      $output = mcms::dispatch_rpc(__CLASS__, $ctx, 'install');
     } catch (Exception $e) {
       mcms::fatal($e);
       $output = template::renderClass(__CLASS__, array(
@@ -30,6 +29,16 @@ class InstallModule implements iRemoteCall
    */
   public static function rpc_db(Context $ctx)
   {
+    $dsn = mcms::config('db.default');
+
+    switch (substr($dsn, 0, strpos($dsn, ':'))) {
+    case 'sqlite':
+      throw new RuntimeException(t('База данных SQLite должна была проинсталлироваться автоматически. <a href="@url">Обратитесь к разработчикам</a>.', array(
+        '@url' => 'http://code.google.com/p/molinos-cms/issues/list',
+        )));
+    }
+    mcms::debug();
+
     if (0 === strpos($dsn = mcms::config('db.default'), 'sqlite:')) {
       // Позволяем отключить драйвер в конфиге.
       if (in_array('sqlite', PDO_Singleton::listDrivers())) {
@@ -44,13 +53,18 @@ class InstallModule implements iRemoteCall
     }
   }
 
-  public static function rpc_install(Context $ctx)
+  public static function rpc_post_install(Context $ctx)
   {
     $node = new InstallerNode();
     $node->formProcess($ctx->post);
     $node->writeConfig($ctx);
 
-    ExchangeModule::import(mcms::mkpath(array('lib', 'modules', 'exchange', 'profiles', $node->template)), true);
+    if (!file_exists($sql = substr(__FILE__, 0, -4) . '.' . strtolower($ctx->db->getDbType())))
+      throw new RuntimeException(t('Нет инструкций для установки в БД типа %type.', array(
+        '%type' => $ctx->db->getDbType(),
+        )));
+
+    $ctx->db->exec(file_get_contents($sql));
 
     $s = new Structure();
     $s->rebuild();
@@ -58,11 +72,8 @@ class InstallModule implements iRemoteCall
     return new Redirect('?q=admin');
   }
 
-  protected static function onGet(Context $ctx)
+  public static function rpc_get_install(Context $ctx)
   {
-    if (!$ctx->method('get'))
-      mcms::fatal('oops.');
-
     if (self::checkInstalled()) {
       mcms::fatal(t('Система уже установлена, см. <a href="@url1">сайт</a> или <a href="@url2">админку</a>.', array(
         '@url1' => '.',
@@ -77,6 +88,7 @@ class InstallModule implements iRemoteCall
     return array(
       'mode' => 'form',
       'form' => $node->formGet()->getHTML($node),
+      'base' => $ctx->url()->getBase($ctx),
       );
   }
 
