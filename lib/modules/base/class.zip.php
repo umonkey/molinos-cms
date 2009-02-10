@@ -64,9 +64,12 @@ class zip
         '%name' => basename($zipName),
         )));
 
+    $umask = umask(0002);
+
     if (!$z->extractTo($tmpDir)) {
       if ($tmpDir != $folderPath)
         os::rmdir($tmpDir);
+      umask($umask);
       throw new RuntimeException(t('Не удалось распаковать содержимое архива в папку %path.', array(
         '%path' => $tmpDir,
         )));
@@ -75,6 +78,7 @@ class zip
     if ($tmpDir != $folderPath) {
       if (!rename($folderPath, $old = $folderPath . '.old')) {
         os::rmdir($tmpDir);
+        umask($umask);
         throw new RuntimeException(t('Не удалось переименовать временную папку.'));
       }
 
@@ -82,5 +86,7 @@ class zip
 
       os::rmdir($old);
     }
+
+    umask($umask);
   }
 }
