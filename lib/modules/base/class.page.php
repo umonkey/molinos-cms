@@ -134,10 +134,14 @@ class Page
 
     $result = array();
     $target = $ctx->get('widget');
+    $user = mcms::user();
 
     foreach ($names as $region => $list) {
       foreach ($s->findWidgets($list) as $name => $widget) {
         if (null !== $target and $name !== $target)
+          continue;
+
+        if (!$user->hasGroups($widget['access']))
           continue;
 
         mcms::profile('start', $name);

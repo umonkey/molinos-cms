@@ -98,9 +98,6 @@ abstract class Widget implements iWidget
    */
   protected function getRequestOptions(Context $ctx)
   {
-    if (null != $this->groups and !$this->checkGroups())
-      throw new WidgetHaltedException();
-
     if ($this->onlyathome and $ctx->section->id)
       throw new WidgetHaltedException();
 
@@ -469,15 +466,6 @@ abstract class Widget implements iWidget
       throw new PageNotFoundException();
 
     return true;
-  }
-
-  protected function checkGroups()
-  {
-    $diff = array_intersect(
-      (array)$this->groups,
-      array_keys(mcms::user()->getGroups()));
-
-    return !empty($diff);
   }
 
   /**
