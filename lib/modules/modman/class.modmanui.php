@@ -151,6 +151,10 @@ class ModManUI implements iAdminUI
       $modules = modman::getAllModules();
     }
 
+    foreach ($modules as $k => $v)
+      if ('required' == $v['priority'])
+        unset($modules[$k]);
+
     ksort($modules);
 
     return $form->getHTML(Control::data(array(
