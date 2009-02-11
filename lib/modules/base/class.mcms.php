@@ -1047,7 +1047,7 @@ class mcms
       $ctx->method = 'GET';
 
       try {
-        $result = Page::render($ctx, $ctx->host(), 'errors/' . $e->getCode());
+        $result = Page::render($ctx, $ctx->host(), 'errors/' . $e->getCode(), $e->getMessage());
       } catch (Exception $e2) {
         mcms::fatal(t('<p>Ошибка %code: %message.</p><p>Более «красивый» обработчик этой ошибки можно сделать, добавив страницу «errors/%code».</p>', array(
           '%code' => $e->getCode(),

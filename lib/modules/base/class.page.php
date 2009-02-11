@@ -2,7 +2,7 @@
 
 class Page
 {
-  public static function render(Context $_ctx, $domain, $query, $debug = false)
+  public static function render(Context $_ctx, $domain, $query, $message = null)
   {
     // Клонируем контекст, чтобы не изменить исходные параметры,
     // т.к. это приводит к неверной работе страниц с ошибками.
@@ -28,9 +28,6 @@ class Page
       return false;
 
     mcms::invoke('iRequestHook', 'hookRequest', array($ctx));
-
-    if ($debug)
-      mcms::debug($data);
 
     // Устанавливаем распарсенные коды раздела и документа.
     if (!empty($data['args']['sec']))
@@ -74,6 +71,7 @@ class Page
       'section' => ($ctx->section instanceof Node) ? $ctx->section->getRaw() : null,
       'root' => ($ctx->root instanceof Node) ? $ctx->root->getRaw() : null,
       'base' => $ctx->url()->getBase($ctx),
+      'message' => $message,
       ));
 
     $args = array(&$result, Node::create('page'));
