@@ -53,27 +53,13 @@ class InstallModule implements iRemoteCall
     }
   }
 
-  public static function rpc_post_install(Context $ctx)
-  {
-    $node = new InstallerNode();
-    $node->formProcess($ctx->post);
-    $node->writeConfig($ctx);
-
-    if (!file_exists($sql = substr(__FILE__, 0, -4) . '.' . strtolower($ctx->db->getDbType())))
-      throw new RuntimeException(t('Нет инструкций для установки в БД типа %type.', array(
-        '%type' => $ctx->db->getDbType(),
-        )));
-
-    $ctx->db->exec(file_get_contents($sql));
-
-    $s = new Structure();
-    $s->rebuild();
-
-    return new Redirect('?q=admin');
-  }
-
   public static function rpc_get_install(Context $ctx)
   {
+    if (file_exists($lock = os::path('conf', '.install.lock')))
+      throw new ForbiddenException(t('Установка уже производилась. Если вам нужно произвести повторную установку, удалите файл <tt>%file</tt>.', array(
+        '%file' => $lock,
+        )));
+
     if (self::checkInstalled()) {
       mcms::fatal(t('Система уже установлена, см. <a href="@url1">сайт</a> или <a href="@url2">админку</a>.', array(
         '@url1' => '.',
@@ -90,6 +76,33 @@ class InstallModule implements iRemoteCall
       'form' => $node->formGet()->getHTML($node),
       'base' => $ctx->url()->getBase($ctx),
       );
+  }
+
+  public static function rpc_post_install(Context $ctx)
+  {
+    $node = new InstallerNode();
+    $node->formProcess($ctx->post);
+
+    $db = PDO_Singleton::connect($node->getDSN());
+    if (!file_exists($sql = substr(__FILE__, 0, -4) . '.' . strtolower($db->getDbType())))
+      throw new RuntimeException(t('Нет инструкций для установки в БД типа %type.', array(
+        '%type' => $db->getDbType(),
+        )));
+    $db->exec(file_get_contents($sql));
+
+    if (!isset($ctx->db))
+      $ctx->db = $node->getDSN();
+
+    $node->writeConfig($ctx);
+
+    /* Это будет сделано при нормальном обращении к сайту.
+    $s = new Structure();
+    $s->rebuild();
+    */
+
+    touch(os::path('conf', '.install.lock'));
+
+    return new Redirect('?q=admin');
   }
 
   private static function checkInstalled()
@@ -200,15 +213,6 @@ class InstallerNode extends Node
         'type' => 'PasswordControl',
         'label' => t('Пароль этого пользователя'),
         ),
-
-      'template' => array(
-        'group' => t('Заготовка'),
-        'type' => 'EnumControl',
-        'label' => t('Базовое наполнение'),
-        'required' => true,
-        'options' => $this->listProfiles(),
-        're' => '/^[a-z0-9]+\.xml$/',
-        ),
       ));
   }
 
@@ -285,36 +289,11 @@ class InstallerNode extends Node
     return $options;
   }
 
-  private function listProfiles()
-  {
-    $options = array();
-
-    foreach (ExchangeModule::getProfileList() as $pr)
-      $options[$pr['filename']] = $pr['name'];
-
-    return $options;
-  }
-
   public function writeConfig(Context $ctx)
   {
-    $data = array();
-
-    switch ($this->db_type) {
-    case 'sqlite':
-      $data['db.default'] = 'sqlite:' . $this->db_name;
-      break;
-    default:
-      $data['db.default'] = $this->db_type . '://';
-      if ($this->db_username) {
-        $data['db.default'] .= $this->db_username;
-        if ($this->db_password)
-          $data['db.default'] .= ':' . $this->db_password;
-        $data['db.default'] .= '@';
-      }
-      $data['db.default'] .= $this->db_host;
-      if ($this->db_name)
-        $data['db.default'] .= '/' . $this->db_name;
-    }
+    $data = array(
+      'db.default' => $this->getDSN(),
+      );
 
     foreach (array('mail_server', 'mail_from', 'debuggers') as $k)
       $data[str_replace('_', '.', $k)] = $this->$k;
@@ -330,5 +309,27 @@ class InstallerNode extends Node
 
     mcms::flush();
     mcms::flush(mcms::FLUSH_NOW);
+  }
+
+  public function getDSN()
+  {
+    switch ($this->db_type) {
+    case 'sqlite':
+      $dsn = 'sqlite:' . $this->db_name;
+      break;
+    default:
+      $dsn = $this->db_type . '://';
+      if ($this->db_username) {
+        $dsn .= $this->db_username;
+        if ($this->db_password)
+          $dsn .= ':' . $this->db_password;
+        $dsn .= '@';
+      }
+      $dsn .= $this->db_host;
+      if ($this->db_name)
+        $dsn .= '/' . $this->db_name;
+    }
+
+    return $dsn;
   }
 }

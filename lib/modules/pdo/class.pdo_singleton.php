@@ -63,10 +63,14 @@ class PDO_Singleton extends PDO
       throw new NotConnectedException(t('Неверные параметры подключения к БД.'));
 
     if (!in_array($conf['scheme'], self::listDrivers()))
-      throw new NotConnectedException();
+      throw new NotConnectedException(t('Отсутствует драйвер PDO_%name, указанный в конфигурационном файле.', array(
+        '%name' => strtoupper($conf['scheme']),
+        )));
 
     if (!class_exists($driver = 'mcms_'. $conf['scheme'] .'_driver'))
-      throw new NotConnectedException();
+      throw new RuntimeException(t('Molinos CMS не поддерживает БД типа %type.', array(
+        '%type' => $conf['scheme'],
+        )));
 
     return new $driver($conf);
   }

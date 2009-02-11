@@ -1065,6 +1065,11 @@ class mcms
     }
 
     catch (Exception $e) {
+      if ($e instanceof NotConnectedException)
+        if (!file_exists($lock = os::path('conf', '.install.lock')))
+          if (class_exists('InstallModule'))
+            $ctx->redirect('?q=install.rpc');
+
       mcms::fatal($e);
     }
 
