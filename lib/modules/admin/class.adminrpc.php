@@ -17,8 +17,9 @@ class AdminRPC implements iRemoteCall
     case 'reload':
       $tmpdir = mcms::config('tmpdir');
 
-      foreach (glob($tmpdir .'/mcms-fetch.*') as $tmp)
-        unlink($tmp);
+      if (is_array($files = glob(os::path($tmpdir, 'mcms-fetch.*'))))
+        foreach ($files as $tmp)
+          unlink($tmp);
 
       mcms::flush();
       mcms::flush(mcms::FLUSH_NOW);
