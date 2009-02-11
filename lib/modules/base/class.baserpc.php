@@ -98,6 +98,7 @@ class BaseRPC implements iRemoteCall
    */
   public static function rpc_logout(Context $ctx)
   {
+    $uid = null;
     $ctx->checkMethod('get');
 
     if (is_array($stack = mcms::session('uidstack'))) {
