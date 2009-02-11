@@ -252,7 +252,7 @@ class Structure
       : $this->access['groups']['anonymous'];
 
     foreach ($groups as $gid) {
-      if ($gid) {
+      if ($gid and !empty($this->access['groups'])) {
         if (array_key_exists($gid = 'group:' . $gid, $this->access['groups'])) {
           foreach ($this->access['groups'][$gid] as $mode => $types) {
             if (array_key_exists($mode, $result))
