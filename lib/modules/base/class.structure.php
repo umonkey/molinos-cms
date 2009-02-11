@@ -101,6 +101,9 @@ class Structure
     $match = null;
 
     foreach ($this->domains[$domain] as $page => $meta) {
+      if (empty($meta['published']))
+        continue;
+
       if (strlen($page) > strlen($match)) {
         // Точное совпадение.
         if ($path == $page) {
