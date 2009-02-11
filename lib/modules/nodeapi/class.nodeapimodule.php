@@ -129,6 +129,9 @@ class NodeApiModule implements iRemoteCall
       else
         $link = '?q=node/ID';
 
+      if (!empty($_GET['__cleanurls']))
+        $link = substr($link, 3);
+
       return new Redirect(str_replace('ID', $node->id, $link));
 
     case 'reindex':
