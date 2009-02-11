@@ -9,11 +9,4 @@
   'tmpdir' => 'tmp',
   'file.cache.ttl' => '3600',
   'db.default' => 'sqlite:conf/default.db',
-  'debuggers' => array(
-    '127.0.0.1',
-    ),
-  'runtime.modules' => array (
-    'compressor',
-    'tinymce',
-  ),
 );
