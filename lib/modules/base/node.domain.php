@@ -241,8 +241,9 @@ class DomainNode extends Node implements iContentType
   {
     $isnew = (null === $this->id);
 
-    if ($data['page_type'] == 'domain')
-      $data['parent_id'] = null;
+    if (array_key_exists('page_type', $data))
+      if ($data['page_type'] == 'domain')
+        $data['parent_id'] = null;
 
     // Специальная обработка редиректов, которые не укладываются в схему.
     if (!empty($data['redirect'])) {
@@ -356,11 +357,13 @@ class DomainNode extends Node implements iContentType
         'label' => t('Заголовок'),
         'required' => false,
         ),
+      /*
       'parent_id' => array(
         'type' => 'EnumControl',
         'label' => t('Родительский объект'),
         'volatile' => true,
         ),
+      */
       'language' => array(
         'type' => 'EnumControl',
         'label' => t('Язык'),
@@ -439,5 +442,15 @@ class DomainNode extends Node implements iContentType
   {
     return "User-agent: *\n"
       . "Disallow: /themes";
+  }
+
+  public function getFormFields()
+  {
+    $schema = parent::getFormFields();
+
+    if (isset($schema['parent_id']))
+      unset($schema['parent_id']);
+
+    return $schema;
   }
 };
