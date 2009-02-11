@@ -59,7 +59,7 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
         if (file_exists($path = self::get_file_path()))
           unlink($path);
 
-        if (empty($conf['no_ping'])) {
+        if (empty($conf['no_ping']) and !empty($conf['ping'])) {
           if (count($hosts = explode("\n", $conf['ping']))) {
             $sm = 'http://'. url::host() . mcms::path() .'/?q=sitemap.rpc';
 
