@@ -54,7 +54,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
       return array(
         'mode' => 'form',
         'node' => $poll->getRaw(),
-        'options' => self::getPollOptions($poll),
+        'options' => $poll->getOptions(),
         'schema' => $poll->getSchema(),
         'form' => parent::formRender('vote-form', $poll),
         );
@@ -65,7 +65,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
       $options = array(
         );
 
-      foreach (self::getPollOptions($poll) as $k => $v)
+      foreach ($poll->getOptions() as $k => $v)
         $options[$k] = array('text' => $v, 'count' => 0);
 
       foreach ($this->ctx->db->getResultsKV('option', 'count', 'SELECT `option`, COUNT(*) AS `count` FROM `node__poll` WHERE `nid` = :nid GROUP BY `option`', array(':nid' => $poll->id)) as $k => $v) {
@@ -95,7 +95,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
         $options = array(
           'label' => $node->name,
           'required' => true,
-          'options' => self::getPollOptions($node),
+          'options' => $node->getOptions(),
           'value' => 'vote',
           );
 
@@ -139,16 +139,6 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
       return $nodes[key($nodes)];
 
     return null;
-  }
-
-  protected static function getPollOptions(Node $poll)
-  {
-    $options = array();
-
-    foreach (preg_split('/[\r\n]+/', $poll->answers) as $idx => $name)
-      $options[$idx + 1] = $name;
-
-    return $options;
   }
 
   protected function checkUserVoted(array $options, Node $poll = null)

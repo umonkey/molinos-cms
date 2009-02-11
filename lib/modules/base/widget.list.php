@@ -331,6 +331,7 @@ class ListWidget extends Widget
     }
 
     $this->countComments($result);
+    $this->countPolls($result['documents']);
 
     $result['options'] = $options;
     $result['root'] = $this->ctx->section;
@@ -353,6 +354,18 @@ class ListWidget extends Widget
           : 0;
 
         $result['documents'][$k]['_comments'] = $count;
+      }
+    }
+  }
+
+  private function countPolls(array &$documents)
+  {
+    if (class_exists('PollNode')) {
+      foreach ($documents as $k => $v) {
+        if ('poll' == $v['class']) {
+          $node = Node::create('poll', $v);
+          $documents[$k]['results'] = $node->getResults($this->ctx);
+        }
       }
     }
   }
