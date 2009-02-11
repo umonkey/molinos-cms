@@ -132,6 +132,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
       'class' => 'poll',
       'tags' => $options['section'],
       '#sort' => '-id',
+      'published' => 1,
       ), 1, 0);
 
     if (!empty($nodes))
