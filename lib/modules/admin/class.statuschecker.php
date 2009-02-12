@@ -11,7 +11,7 @@ class StatusChecker implements iScheduler
     if ($message = self::getBrokenTrees($ctx))
       $parts[] = $message;
 
-    if ($idx = NodeIndexer::stats(false)) {
+    if ($idx = NodeIndexer::stats($ctx, false)) {
       $total = $idx['_total'];
       unset($idx['_total']);
 
@@ -125,7 +125,7 @@ class StatusChecker implements iScheduler
 
   private static function checkAccessRights(Context $ctx)
   {
-    $types = $ctx->db->getResultsKV("id", "name", "SELECT n.id, v.name FROM node n WHERE n.class = 'type' AND n.deleted = 0 AND n.id IN (SELECT nid FROM node__access WHERE uid = 0 AND (u = 1 OR d = 1 OR p = 1))");
+    $types = $ctx->db->getResultsKV("id", "name", "SELECT `id`, `name` FROM `node` WHERE `class` = 'type' AND `deleted` = 0 AND `id` IN (SELECT `nid` FROM `node__access` WHERE `uid` = 0 AND (`u` = 1 OR `d` = 1 OR `p` = 1))");
 
     if (!empty($types)) {
       $list = array();

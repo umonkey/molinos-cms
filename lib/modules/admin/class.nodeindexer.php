@@ -62,9 +62,9 @@ class NodeIndexer
   {
     self::fixRevisions();
 
-    if (null !== ($stat = self::stats(false))) {
-      $ctx = Context::last();
+    $ctx = Context::last();
 
+    if (null !== ($stat = self::stats($ctx, false))) {
       if (array_key_exists('_total', $stat))
         unset($stat['_total']);
 

@@ -22,7 +22,7 @@ class CronModule implements iModuleConfig, iRemoteCall
       throw new ForbiddenException(t('Настройки модуля cron не позволяют вам '
         .'запускать периодические задачи.'));
 
-    set_time_limit(0);
+    @set_time_limit(0);
 
     header('HTTP/1.1 200 OK');
     header('Content-Type: text/plain; charset=utf-8');
@@ -30,7 +30,7 @@ class CronModule implements iModuleConfig, iRemoteCall
     $args = array($ctx);
     mcms::invoke('iScheduler', 'taskRun', $args);
 
-    self::touch();
+    self::touch($ctx);
 
     if (null !== ($next = $ctx->get('destination')))
       $ctx->redirect($next);
@@ -53,14 +53,15 @@ class CronModule implements iModuleConfig, iRemoteCall
     return mcms::matchip($_SERVER['REMOTE_ADDR'], $ips);
   }
 
-  private static function touch()
+  private static function touch(Context $ctx)
   {
-    try {
-      $node = Node::load(array('class' => 'cronstats'));
-    } catch (ObjectNotFoundException $e) {
+    $node = Node::find(array('class' => 'cronstats'));
+    if (empty($node))
       $node = Node::create('cronstats');
-    }
-
+    else
+      $node = array_shift($node);
+    $ctx->db->beginTransaction();
     $node->save();
+    $ctx->db->commit();
   }
 };
