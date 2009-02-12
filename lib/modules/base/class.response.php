@@ -30,6 +30,8 @@ class Response
         // вряд ли мы не проинсталлированы. Хотя хорошо бы
         // разобраться, как мы сюда вообще попадаем.
         catch (NotInstalledException $e) { }
+
+        mcms::flush(mcms::FLUSH_NOW);
       }
     }
 
