@@ -14,9 +14,10 @@ class SectionsControl extends SetControl implements iFormControl
     if (($data instanceof TypeNode) and $data->name == 'file')
       return null;
 
-    $result = TagNode::getTags('select');
-
-    return $result;
+    $output = array();
+    foreach (Node::listChildren('tag') as $item)
+      $output[$item[0]] = str_repeat('&nbsp;', 2 * $item[2]) . $item[1];
+    return $output;
   }
 
   protected function getSelected($data)
@@ -49,6 +50,10 @@ class SectionsControl extends SetControl implements iFormControl
 
     $this->validate($value);
 
-    $node->linkSetParents($value, 'tag');
+    $node->onSave("DELETE FROM `node__rel` WHERE `nid` = %ID% AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = 'tag')");
+    if (!empty($value)) {
+      $params = array();
+      $node->onSave($sql = "INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, %ID% FROM `node` WHERE `class` = 'tag' AND `id` " . sql::in($value, $params), $params);
+    }
   }
 }

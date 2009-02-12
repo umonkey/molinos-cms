@@ -36,7 +36,7 @@ class SectionControl extends EnumControl implements iFormControl
     else {
       $node->onsave("DELETE FROM `node__rel` WHERE `nid` = %ID% AND `key` IS NULL AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = 'tag')");
       $params = array();
-      $node->onSave("INSERT INTO `node__rel` (`nid`, `tid`) SELECT %ID%, `id` FROM `node` WHERE `class` = 'tag' AND `id` " . sql::in($value, $params), $params);
+      $node->onSave($sql = "INSERT INTO `node__rel` (`nid`, `tid`) SELECT %ID%, `id` FROM `node` WHERE `class` = 'tag' AND `id` " . sql::in($value, $params), $params);
     }
   }
 

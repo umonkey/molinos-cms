@@ -64,48 +64,6 @@ class TagNode extends Node implements iContentType
     return parent::duplicate($parent);
   }
 
-  // Возвращает список существующих разделов, в виде плоского списка
-  // с элементом depth, для рендеринга в виде дерева.
-  /**
-   * Возвращает полный список разделов.
-   *
-   * Используется для построения плоских списков разделов, например — в
-   * выпадающих списках.
-   *
-   * @see Node::getChildren()
-   *
-   * @param string $mode передаётся в Node::getChildren().
-   *
-   * @param array $options дополнительные параметры, передаются в
-   * Node::getChildren().
-   *
-   * @return array массив описаний разделов.
-   */
-  public static function getTags($mode, array $options = array())
-  {
-    $result = array();
-
-    if (is_array($cached = mcms::cache($ckey = 'tags:' . $mode)))
-      return $cached;
-
-    // Загружаем все корневые разделы (в нормальных условиях такой должен быть один,
-    // но на случае ошибок в БД мы всё таки даём возможность работать с ошибочными
-    // разделами).
-    foreach (Node::find(array('class' => 'tag', 'parent_id' => null)) as $node) {
-      if ($mode == 'select') {
-        $node->loadChildren(null, true);
-        foreach ($node->getChildren($mode, $options) as $k => $v)
-          $result[$k] = $v;
-       } else {
-        $result = array_merge($result, $node->getChildren($mode, $options));
-       }
-    }
-
-    mcms::cache($ckey, $result);
-
-    return $result;
-  }
-
   public function getFormTitle()
   {
     return $this->id
