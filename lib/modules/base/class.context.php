@@ -541,10 +541,6 @@ class Context
       if (!class_exists('XSLTProcessor'))
         $messages[] = t('Для работы этой версии Molinos CMS необходимо расширение xslt.');
 
-      mcms::mkdir(mcms::config('filestorage'), 'Каталог для загружаемых '
-        .'пользователями файлов (<tt>%path</tt>) закрыт для записи. '
-        .'Очень важно, чтобы в него можно было писать.');
-
       if (!empty($errors) or !empty($messages)) {
         $output = "<html><head><title>Ошибка конфигурации</title></head><body>";
 
