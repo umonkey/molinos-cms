@@ -215,6 +215,8 @@ class NodeStub
           }
         }
 
+        $data['#text'] .= $this->getObject()->getExtraXMLContent();
+
         mcms::cache($ckey, $data);
       }
     }

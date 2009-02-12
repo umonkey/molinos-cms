@@ -63,9 +63,11 @@ class ImgTransformNode extends Node implements iContentType
    */
   public function apply(FileNode &$file)
   {
+    $ctx = Context::last();
+
     $source = $file->filepath;
     $destination = $this->getTargetFileName($file);
-    $prefix = mcms::config('filestorage') . DIRECTORY_SEPARATOR;
+    $prefix = $ctx->config->getPath('files') . DIRECTORY_SEPARATOR;
 
     if (!file_exists($prefix . $destination)) {
       $im = ImageMagick::getInstance();
@@ -147,7 +149,7 @@ class ImgTransformNode extends Node implements iContentType
    */
   private function deleteTransformedFiles()
   {
-    $files = glob(os::path(mcms::config('filestorage'), '?', '?', '*_' . $this->name . '.*'));
+    $files = glob(os::path(Context::last()->config->getPath('files'), '?', '?', '*_' . $this->name . '.*'));
 
     foreach ($files as $file)
       unlink($file);

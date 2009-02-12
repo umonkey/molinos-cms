@@ -482,7 +482,7 @@ class Node
         '%type' => $this->filetype,
         )));
 
-    $img = call_user_func($func, mcms::config('filestorage') . DIRECTORY_SEPARATOR . $this->filepath);
+    $img = call_user_func($func, os::path(Context::last()->config->getPath('files'), $this->filepath));
 
     if (null === $img)
       throw new RuntimeException(t('Не удалось открыть файл %name (возможно, он повреждён).', array(
@@ -573,5 +573,13 @@ class Node
   public function canEditFields()
   {
     return true;
+  }
+
+  /**
+   * Позволяет объектам сериализовать дополнительные данные,
+   * для примера см. класс FileNode.
+   */
+  public function getExtraXMLContent()
+  {
   }
 };

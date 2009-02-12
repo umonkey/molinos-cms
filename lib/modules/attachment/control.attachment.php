@@ -32,7 +32,7 @@ class AttachmentControl extends Control
     if (!array_key_exists('fetch', $form))
       $form['fetch'] = true;
 
-    if (null === mcms::config('ftpfolder'))
+    if (null === Context::last()->config->getPath('files_ftp'))
       $form['ftp'] = false;
 
     parent::__construct($form, array('value'));
@@ -136,7 +136,10 @@ class AttachmentControl extends Control
   public function format($value)
   {
     if ($value instanceof FileNode) {
-      if (!file_exists($url = mcms::config('filestorage') . '/' . $value->filepath))
+      $ctx = Context::last();
+      $url = os::path($ctx->config->getPath('files'), $value->filepath);
+
+      if (!file_exists($url))
         return html::em('p', array(
           'class' => 'error',
           ), t('Ошибка: файл не найден.'));
@@ -144,12 +147,12 @@ class AttachmentControl extends Control
       switch ($value->filetype) {
       case 'video/flv':
       case 'video/x-flv':
-        return $this->getPlayer(mcms::config('filestorage') . '/' . $value->filepath, array(
+        return $this->getPlayer($url, array(
           'width' => $value->width,
           'height' => $value->height,
           ));
       case 'audio/mpeg':
-        return $this->getPlayer(mcms::config('filestorage') . '/' . $value->filepath, array(
+        return $this->getPlayer($url, array(
           'width' => 300,
           'height' => 20,
           ));

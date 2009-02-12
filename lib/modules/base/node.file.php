@@ -37,8 +37,7 @@ class FileNode extends Node implements iContentType
     if (empty($this->filepath))
       throw new RuntimeException(t('Ошибка загрузки файла.'));
 
-    $path = mcms::config('filestorage');
-    $path .= '/'. $this->filepath;
+    $path = os::path(Context::last()->config->getPath('files'), $this->filepath);
 
     if ('image/' == substr($this->filetype, 0, 6)) {
       if (is_readable($path) and ($info = @getimagesize($path))) {
@@ -108,7 +107,7 @@ class FileNode extends Node implements iContentType
 
     $this->purge();
 
-    if (file_exists($filename = mcms::config('filestorage') .'/'. $this->filepath))
+    if (file_exists($filename = os::path(Context::last()->config->getPath('files'), $this->filepath)))
       unlink($filename);
   }
 
@@ -128,7 +127,7 @@ class FileNode extends Node implements iContentType
    *
    * Используется как для обработки полученных от браузера файлов, так и для
    * ручного добавления файлов в архив.  Путь к файловому архиву определяется
-   * конфигурационным файлом (параметр filestorage).
+   * конфигурационным файлом (параметр files).
    *
    * Внутреннее имя файла при копировании в архив формируется с использованием
    * md5-суммы его содержимого, поэтому в архив нельзя два раза добавить один
@@ -151,7 +150,7 @@ class FileNode extends Node implements iContentType
    */
   public function import(array $file, $uploaded = true)
   {
-    $storage = mcms::config('filestorage');
+    $storage = Context::last()->config->getPath('files');
 
     // Немного валидации.
     if (empty($file['tmp_name']) or !file_exists($file['tmp_name']))
@@ -360,7 +359,7 @@ class FileNode extends Node implements iContentType
    *
    * Папка FTP используется для загрузки больших файлов, которые проблематично
    * загрузить через браузер.  Путь указывается в конфигурационном файле,
-   * параметром ftpfolder; если такого параметра нет — используется
+   * параметром files_ftp; если такого параметра нет — используется
    * подпапка "ftp" в обычном файловом хранилище.
    *
    * @todo вынести из конфига в настройки модуля base.
@@ -369,8 +368,9 @@ class FileNode extends Node implements iContentType
    */
   public static function getFTPRoot()
   {
-    if (null === ($path = mcms::config('ftpfolder')))
-      $path = mcms::config('filestorage') . DIRECTORY_SEPARATOR . 'ftp';
+    $config = Context::last()->config;
+    if (null === ($path = $config->getPath('files_ftp')))
+      $path = os::path($config->getPath('files'), 'ftp');
     return $path;
   }
 
@@ -569,7 +569,7 @@ class FileNode extends Node implements iContentType
   public function getRaw()
   {
     $result = parent::getRaw();
-    if (file_exists($tmp = os::path(mcms::config('filestorage'), $this->filepath)))
+    if (file_exists($tmp = os::path(Context::last()->config->getPath('files'), $this->filepath)))
       $result['url'] = $tmp;
     return $result;
   }
@@ -615,14 +615,16 @@ class FileNode extends Node implements iContentType
 
   public function getXML($em = 'node', $_content = null)
   {
-    if (!file_exists(os::path(mcms::config('filestorage'), $this->filepath)))
+    $ctx = Context::last();
+
+    if (!file_exists(os::path($ctx->config->getPath('files'), $this->filepath)))
       return null;
 
     if (!empty($this->data['versions'])) {
       $versions = '';
 
       foreach ($this->data['versions'] as $k => $v)
-        if (file_exists($path = os::path(mcms::config('filestorage'), $v))) {
+        if (file_exists($path = os::path($ctx->config->getPath('files'), $v))) {
           $versions .= html::em('version', array(
             'name' => $k,
             'url' => $path,
@@ -634,14 +636,39 @@ class FileNode extends Node implements iContentType
 
     $data = $this->data;
 
-    if (file_exists($tmp = os::path(mcms::config('filestorage'), $this->filepath)))
+    if (file_exists($tmp = os::path($ctx->config->getPath('files'), $this->filepath)))
       $data['url'] = $tmp;
 
     return parent::getRealXML($em, $data, $_content);
   }
 
+  public function getExtraXMLContent()
+  {
+    $config = Context::last()->config;
+
+    if (!file_exists(os::path($config->getPath('files'), $this->filepath)))
+      return null;
+
+    $content = html::em('version', array(
+      'name' => 'original',
+      'url' => os::webpath($config->getDirName(), $config->files, $this->filepath),
+      ));
+
+    if (is_array($this->versions)) {
+      foreach ($this->versions as $k => $v)
+        if (file_exists($path = os::path($config->getPath('files'), $v))) {
+          $content .= html::em('version', array(
+            'name' => $k,
+            'url' => os::webpath($path),
+            ));
+        }
+    }
+
+    return html::em('versions', $content);
+  }
+
   public function getRealURL()
   {
-    return os::path(mcms::config('filestorage'), $this->filepath);
+    return os::path(Context::last()->config->getPath('files'), $this->filepath);
   }
 };

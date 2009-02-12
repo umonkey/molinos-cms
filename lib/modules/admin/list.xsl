@@ -304,8 +304,8 @@
         <tr id="file-{@id}">
           <xsl:call-template name="odd_row" />
           <td class="icon">
-            <xsl:if test="url">
-              <a class="picker icon-download" href="{url}"></a>
+            <xsl:if test="versions/version[@name='original']">
+              <a class="picker icon-download" href="{versions/version[@name='original']/@url}"></a>
             </xsl:if>
           </td>
           <xsl:apply-templates select="." mode="mcms_list_name" />
