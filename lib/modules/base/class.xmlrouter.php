@@ -62,10 +62,9 @@ class XMLRouter implements iRequestRouter
       }
     }
 
-    if (!isset($ctx->theme))
-      throw new RuntimeException(t('Невозможно отобразить страницу %name: не указана тема.', array(
-        '%name' => $data['name'],
-        )));
+    $theme = isset($ctx->theme)
+      ? $ctx->theme
+      : 'default';
 
     $output = $this->getRequestOptions($ctx);
     $output .= NodeStub::getStack('nodes');
@@ -139,15 +138,13 @@ class XMLRouter implements iRequestRouter
 
   private static function findStyleSheet($themeName, $pageName)
   {
+    if (!is_dir($prefix = os::path(MCMS_SITE_FOLDER, 'themes', $themeName)))
+      $prefix = os::path(MCMS_SITE_FOLDER, 'themes', 'default');
+
     foreach (array($pageName, 'default') as $name) {
-      $path = os::path('themes', $themeName, 'templates', 'page.' . $name . '.xsl');
+      $path = os::path($prefix, 'templates', 'page.' . $name . '.xsl');
       if (file_exists($path))
-        /*
-        return '<?xml-stylesheet type="text/xsl" href="' . $path . '"?>';
-        */
         return $path;
     }
-
-    return os::path('lib', 'modules', 'admin', 'template.xsl');
   }
 }
