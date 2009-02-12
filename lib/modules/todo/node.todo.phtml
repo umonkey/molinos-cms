@@ -1,8 +1,0 @@
-<?php if ('mail' == $mode): ?>
-<blockquote><p><?php print l($node); ?></p></blockquote>
-<p>Автор: <?php print l('node/'. $node['uid']['id'],
-    empty($node['uid']['fullname'])
-      ? $node['uid']['name']
-      : $node['uid']['fullname']); ?>,
-<a href='todo/<?php print $node['to']; ?>'>полный список задач</a></p>
-<?php endif; ?>
