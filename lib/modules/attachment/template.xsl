@@ -4,8 +4,6 @@
 
   <!-- вывод трансформаторов -->
   <xsl:template match="data[../@type = 'imgtransform']" mode="mcms_list">
-    <xsl:variable name="versions" select="not(not(node/version))" />
-
     <thead>
       <tr>
         <th/>
@@ -21,13 +19,13 @@
           <xsl:call-template name="odd_row" />
           <xsl:apply-templates select="." mode="mcms_list_name" />
           <td>
-            <xsl:value-of select="@size" />
+            <xsl:value-of select="size" />
           </td>
           <td>
-            <xsl:value-of select="@scalemode" />
+            <xsl:value-of select="scalemode" />
           </td>
           <td>
-            <xsl:value-of select="@quality" />
+            <xsl:value-of select="quality" />
           </td>
         </tr>
       </xsl:for-each>
