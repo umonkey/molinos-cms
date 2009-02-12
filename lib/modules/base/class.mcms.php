@@ -528,7 +528,7 @@ class mcms
 
   public static function mkdir($path, $msg = null)
   {
-    if (!mkdir($path, 0775, true)) {
+    if (!is_dir($path) and !mkdir($path, 0775, true)) {
       if (null === $msg)
         $msg = 'Каталог %path отсутствует и не может быть создан.';
       throw new RuntimeException(t($msg, array(
