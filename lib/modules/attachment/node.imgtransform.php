@@ -132,7 +132,9 @@ class ImgTransformNode extends Node implements iContentType
         if ($this->apply($node))
           $node->save();
 
-    return parent::save();
+    $res = parent::save();
+    $this->publish();
+    return $res;
   }
 
   /**
@@ -151,8 +153,9 @@ class ImgTransformNode extends Node implements iContentType
   {
     $files = glob(os::path(Context::last()->config->getPath('files'), '?', '?', '*_' . $this->name . '.*'));
 
-    foreach ($files as $file)
-      unlink($file);
+    if (!empty($files))
+      foreach ($files as $file)
+        unlink($file);
   }
 
   public function canEditFields()
