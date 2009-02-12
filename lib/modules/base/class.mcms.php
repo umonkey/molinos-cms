@@ -528,27 +528,12 @@ class mcms
 
   public static function mkdir($path, $msg = null)
   {
-    // Быстрая проверка на случай существования, чтобы не парсить лишний раз.
-    if (!is_dir($path)) {
-      $parts = explode('/', $path);
-      $path = substr($path, 0, 1) == '/' ? '' : MCMS_ROOT;
-
-      while (!empty($parts)) {
-        $dir = array_shift($parts);
-        $next = $path .'/'. $dir;
-
-        if (!is_dir($next)) {
-          if (!is_writable($path)) {
-            if (null === $msg)
-              $msg = 'Каталог %path отсутствует и не может быть создан.';
-            throw new RuntimeException(t($msg, array('%path' => $next)));
-          } else {
-            mkdir($next, 0770);
-          }
-        }
-
-        $path = $next;
-      }
+    if (!mkdir($path, 0775, true)) {
+      if (null === $msg)
+        $msg = 'Каталог %path отсутствует и не может быть создан.';
+      throw new RuntimeException(t($msg, array(
+        '%path' => $next,
+        )));
     }
 
     return realpath($path);
