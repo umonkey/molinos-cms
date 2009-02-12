@@ -14,6 +14,9 @@
         <meta name="generator" content="Molinos CMS v{@version}" />
       </head>
       <body>
+        <div id="navigation">
+          <xsl:apply-templates select="widgets/widget[@name='sections']" />
+        </div>
         <div id="content">
           <h1 id="logo">
             <a href=".">
@@ -21,58 +24,63 @@
             </a>
           </h1>
 
-          <xsl:apply-templates select="widgets/widget" />
+          <xsl:apply-templates select="widgets/widget[@name='doclist']" />
         </div>
       </body>
     </html>
   </xsl:template>
 
 
-  <!-- Базовый шаблон для списка документов -->
-  <xsl:template match="widget[@class='ListWidget']">
-    <div class="ListWidget">
-      <ul class="nodes">
-        <xsl:apply-templates select="documents/node" mode="ListWidget" />
-      </ul>
-    </div>
+  <!-- Список документов -->
+  <xsl:template match="widget[@name='doclist']">
+    <xsl:for-each select="documents/document">
+      <xsl:apply-templates select="." />
+    </xsl:for-each>
   </xsl:template>
 
-  <xsl:template match="node" mode="ListWidget">
+  <!-- Меню -->
+  <xsl:template match="widget[@name='sections']">
+    <ul>
+      <xsl:apply-templates select="section/children/section" mode="menu" />
+    </ul>
+  </xsl:template>
+
+  <xsl:template match="section" mode="menu">
     <li>
-      <h2>
-        <a href="?q=node/{@id}">
-          <xsl:value-of select="@name" />
-        </a>
-      </h2>
-      <div class="teaser">
-        <xsl:if test="@text">
-          <xsl:value-of select="@text" disable-output-escaping="yes" />
+      <xsl:attribute name="class">
+        <xsl:if test="position() = 1">
+          <xsl:text>first </xsl:text>
         </xsl:if>
-        <xsl:if test="not(@text)">
-          <xsl:value-of select="@teaser" disable-output-escaping="yes" />
+        <xsl:if test="position() = last()">
+          <xsl:text>last </xsl:text>
         </xsl:if>
-      </div>
-    </li>
-  </xsl:template>
+        <xsl:text>level-1</xsl:text>
+      </xsl:attribute>
 
-
-  <!-- Базовый шаблон для виджета "меню". -->
-  <xsl:template match="widget[@class='MenuWidget']">
-    <div class="MenuWidget">
-      <ul>
-        <xsl:apply-templates select="section" mode="MenuWidget" />
-      </ul>
-    </div>
-  </xsl:template>
-
-  <xsl:template match="section" mode="MenuWidget">
-    <li>
-      <a href="{@_link}">
+      <a href="?q={@id}">
+        <xsl:if test="description">
+          <xsl:attribute name="title">
+            <xsl:value-of select="description" />
+          </xsl:attribute>
+        </xsl:if>
         <xsl:value-of select="@name" />
+        <xsl:if test="children/section">
+          <ul>
+            <xsl:apply-templates select="children/section" mode="menu" />
+          </ul>
+        </xsl:if>
       </a>
     </li>
   </xsl:template>
 
+  <xsl:template match="document">
+    <h2>
+      <xsl:value-of select="@name" />
+    </h2>
+    <xsl:if test="text">
+      <xsl:value-of select="text" disable-output-escaping="yes" />
+    </xsl:if>
+  </xsl:template>
 
   <!-- Базовый шаблон для просмотра документа. -->
   <xsl:template match="widget[@class='DocWidget']">
@@ -82,9 +90,7 @@
           <xsl:value-of select="document/@displayName" />
         </a>
       </h2>
-      <div class="content">
-        <xsl:value-of select="document/@text" disable-output-escaping="yes" />
-      </div>
+      <xsl:value-of select="document/@text" disable-output-escaping="yes" />
     </div>
   </xsl:template>
 </xsl:stylesheet>
