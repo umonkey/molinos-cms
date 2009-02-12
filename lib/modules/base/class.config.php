@@ -109,7 +109,7 @@ class Config
     if (null === ($value = $this->$key))
       return null;
     else
-      return $this->getRealPath($key);
+      return $this->getRealPath($value);
   }
 
   private function getRealPath($shortPath)

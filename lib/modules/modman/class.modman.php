@@ -7,7 +7,7 @@ class modman
    */
   public static function getInfoPath()
   {
-    return os::path(mcms::config('tmpdir'), 'modules.ini');
+    return os::path(Context::last()->config->getPath('tmpdir'), 'modules.ini');
   }
 
   /**

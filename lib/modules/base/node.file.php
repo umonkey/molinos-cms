@@ -245,7 +245,7 @@ class FileNode extends Node implements iContentType
   public static function unzip($zipfile, $folder = null, $parent_id = null)
   {
     $node = null;
-    $tmpdir = mcms::mkdir(mcms::config('tmpdir') .'/upload');
+    $tmpdir = mcms::mkdir(os::path(Context::last()->config->getPath('tmpdir'), 'upload'));
 
     if (function_exists('zip_open')) {
       if (file_exists($zipfile)) {

@@ -108,7 +108,7 @@ class AdminRPC implements iRemoteCall
    */
   public static function rpc_get_reload(Context $ctx)
   {
-    $tmpdir = mcms::config('tmpdir');
+    $tmpdir = $ctx->config->getPath('tmpdir');
 
     $files = glob(os::path($tmpdir, 'mcms-fetch.*'));
     if (!empty($files))

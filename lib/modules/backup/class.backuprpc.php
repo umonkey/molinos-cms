@@ -14,8 +14,8 @@ class BackupRPC implements iRemoteCall
 
   public static function rpc_get_download(Context $ctx)
   {
-    zip::fromFolder($zipFile = os::path('.', mcms::config('tmpdir'), 'backup.zip'), MCMS_ROOT,
-      realpath(mcms::config('tmpdir')));
+    zip::fromFolder($zipFile = os::path('.', $ctx->config->getPath('tmpdir'), 'backup.zip'), MCMS_ROOT,
+      realpath($ctx->config->getPath('tmpdir')));
 
     $filename = $ctx->host() . '-' . date('Y-m-d', time() - date('Z', time())) . '.zip';
 

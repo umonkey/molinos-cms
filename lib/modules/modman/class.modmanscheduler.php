@@ -5,24 +5,6 @@ class ModManScheduler implements iScheduler
   public static function taskRun(Context $ctx)
   {
     modman::updateDB();
-
-    /*
-    if (($a = self::getAvailable()) == mcms::version())
-      return;
-
-    $url = 'http://molinos-cms.googlecode.com/files/'
-      .'molinos-cms-'. $a .'.zip';
-
-    try {
-      if ($filename = http::fetch($url, http::CONTENT)) {
-        $tmp = mcms::config('tmpdir') .'/update.txt';
-
-        file_put_contents($tmp, $a .','. $tmp);
-      }
-    } catch (RuntimeException $e) {
-      printf("error downloading an update: %s\n", $e->getMessage());
-    }
-    */
   }
 
   /**

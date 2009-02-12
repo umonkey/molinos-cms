@@ -98,25 +98,6 @@ class ImageMagickGD
         return ($rc === TRUE);
     }
 
-    public function dump()
-    {
-      $result = array(
-        'type' => $this->mime,
-        );
-
-      if (false === ($tmp = tempnam(mcms::config('tmpdir'), 'gd')))
-        throw new RuntimeException(t('Could not scale the image.'));
-
-      if (!$this->save($tmp))
-        throw new RuntimeException(t('Could not scale the image.'));
-
-      $result['data'] = file_get_contents($tmp);
-
-      unlink($tmp);
-
-      return $result;
-    }
-
     private function getScale($nw, $nh)
     {
         $w = imagesx($this->img);

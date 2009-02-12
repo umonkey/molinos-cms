@@ -206,7 +206,7 @@ class FileCache_provider extends BebopCache
 
   public static function isAvailable()
   {
-    if (!(self::$path = mcms::mkdir(mcms::config('tmpdir') . DIRECTORY_SEPARATOR . 'cache')))
+    if (!(self::$path = mcms::mkdir(Context::last()->config->getPath('tmpdir') . DIRECTORY_SEPARATOR . 'cache')))
       return false;
     return true;
   }
@@ -236,9 +236,11 @@ class FileCache_provider extends BebopCache
 
   public function flush($now = false)
   {
-    if ($now)
-      foreach (glob(self::$path . DIRECTORY_SEPARATOR . '*') as $file)
-        unlink($file);
+    if ($now) {
+      if (is_array($files = glob(self::$path . DIRECTORY_SEPARATOR . '*')))
+        foreach ($files as $file)
+          unlink($file);
+    }
     return parent::flush($now);
   }
 
