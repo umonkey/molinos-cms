@@ -90,15 +90,13 @@ class ImgTransformNode extends Node implements iContentType
 
       if (!$im->save($prefix . $destination, $this->quality == 'png' ? 'image/png' : 'image/jpeg'))
         return false;
-
-      $ver = $file->versions;
-      $ver[$this->name] = $destination;
-      $file->versions = $ver;
-
-      return true;
     }
 
-    return false;
+    $ver = $file->versions;
+    $ver[$this->name] = $destination;
+    $file->versions = $ver;
+
+    return true;
   }
 
   private function getTargetFileName(FileNode $file)
@@ -127,10 +125,12 @@ class ImgTransformNode extends Node implements iContentType
       'filetype' => 'image/%',
       ));
 
-    foreach ($nodes as $node)
-      if (file_exists($node->getRealURL()))
-        if ($this->apply($node))
-          $node->save();
+    foreach ($nodes as $node) {
+      $o = $node->getObject();
+      if (file_exists($o->getRealURL()))
+        if ($this->apply($o))
+          $o->save();
+    }
 
     $res = parent::save();
     $this->publish();

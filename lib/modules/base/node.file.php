@@ -55,27 +55,13 @@ class FileNode extends Node implements iContentType
       }
     }
 
+    // Применяем трансформации.
+    foreach ($ts = Node::find(array('class' => 'imgtransform')) as $t)
+      $t->getObject()->apply($this);
+
     $res = parent::save();
 
-    $this->purge();
-
     return $res;
-  }
-
-  /**
-   * Удаление версий файла из кэша.
-   */
-  private function purge()
-  {
-    $path = MCMS_ROOT .'/attachment/'. $this->id .'*';
-
-    if (false !== ($files = glob($path))) {
-      foreach ($files as $filename) {
-        $parts = explode(',', $filename);
-        if (basename($parts[0]) == $this->id)
-          unlink($filename);
-      }
-    }
   }
 
   /**
@@ -89,7 +75,6 @@ class FileNode extends Node implements iContentType
    */
   public function delete()
   {
-    $this->purge();
     parent::delete();
   }
 
@@ -104,8 +89,6 @@ class FileNode extends Node implements iContentType
   public function erase()
   {
     parent::erase();
-
-    $this->purge();
 
     if (file_exists($filename = os::path(Context::last()->config->getPath('files'), $this->filepath)))
       unlink($filename);
@@ -177,22 +160,22 @@ class FileNode extends Node implements iContentType
     // Сюда будем копировать файл.
     $dest = os::path($storage, $this->filepath);
 
-    if (file_exists($dest))
-      throw new RuntimeException(t('Такой файл уже есть.'));
+    if (file_exists($dest)) {
+      if ($dest == $this->getRealURL())
+        unlink($dest);
+      else
+        throw new RuntimeException(t('Такой файл уже есть.'));
+    }
 
     // Создаём каталог для него.
     mcms::mkdir(dirname($dest), 'Файл не удалось сохранить, т.к. отсутствуют права на запись в каталог, где этот файл должен был бы храниться (%path).  Сообщите об этой проблеме администратору сайта.');
 
     // Копируем файл.
-    if ($uploaded) {
-      if (!($c1 = is_uploaded_file($file['tmp_name'])) or !($c2 = move_uploaded_file($file['tmp_name'], $dest))) {
-        $debug = sprintf("File could not be uploaded.\nis_uploaded_file: %d\nmove_uploaded_file: %d\ndestination: %s", $c1, $c2, $storage .'/'. $this->filepath);
-        mcms::debug($debug, $file, $this);
-        throw new UserErrorException("Ошибка загрузки", 400, "Ошибка загрузки", "Не удалось загрузить файл: ошибка {$file['error']}");
-      }
-    } elseif (!copy($file['tmp_name'], $dest)) {
-      throw new UserErrorException("Ошибка загрузки", 400, "Ошибка загрузки", "Не удалось скопировать файл {$file['tmp_name']} в {$dest}.");
-    }
+    if (!os::copy($file['tmp_name'], $dest))
+      throw new RuntimeException(t('Не удалось скопировать файл %src в %dst.', array(
+        '%src' => $file['tmp_name'],
+        '%dst' => $dest,
+        )));
 
     // Прикрепляем файл к родительскому объекту.
     if (!empty($file['parent_id']))
@@ -656,7 +639,7 @@ class FileNode extends Node implements iContentType
 
     if (is_array($this->versions)) {
       foreach ($this->versions as $k => $v)
-        if (file_exists($path = os::path($config->getPath('files'), $v))) {
+        if (file_exists($path = os::path($config->getDirName(), $config->files, $v))) {
           $content .= html::em('version', array(
             'name' => $k,
             'url' => os::webpath($path),
