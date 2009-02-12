@@ -110,8 +110,10 @@ class AdminRPC implements iRemoteCall
   {
     $tmpdir = mcms::config('tmpdir');
 
-    foreach (glob($tmpdir .'/mcms-fetch.*') as $tmp)
-      unlink($tmp);
+    $files = glob(os::path($tmpdir, 'mcms-fetch.*'));
+    if (!empty($files))
+      foreach ($files as $tmp)
+        unlink($tmp);
 
     mcms::flush();
     mcms::flush(mcms::FLUSH_NOW);
