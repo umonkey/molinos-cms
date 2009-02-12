@@ -566,4 +566,12 @@ class Node
         throw new DuplicateException($message ? $message : t('Такой объект уже существует.'));
     } catch (PDOException $e) { }
   }
+
+  /**
+   * Позволяет запретить редактирование полей конкретных типов.
+   */
+  public function canEditFields()
+  {
+    return true;
+  }
 };
