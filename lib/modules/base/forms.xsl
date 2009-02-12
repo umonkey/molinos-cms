@@ -173,7 +173,7 @@
     </div>
   </xsl:template>
 
-  <xsl:template match="control[@type = 'textarea' or @type = 'texthtml']">
+  <xsl:template match="control[@type = 'textarea' or @type = 'texthtml' or @type='markdown']">
     <div>
       <xsl:call-template name="default_control_classes" />
       <xsl:call-template name="default_control_label" />
