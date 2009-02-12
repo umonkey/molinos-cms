@@ -77,7 +77,7 @@ class XMLRouter implements iRequestRouter
 
     $data['page']['base'] = $ctx->url()->getBase($ctx);
     $data['page']['name'] = $data['name'];
-    $data['page']['prefix'] = 'themes/' . $ctx->theme;
+    $data['page']['prefix'] = os::webpath(MCMS_SITE_FOLDER, 'themes', $ctx->theme);
     $data['page']['execution_time'] = microtime(true) - MCMS_START_TIME;
     $data['page']['version'] = mcms::version();
 
