@@ -117,16 +117,13 @@ class MenuWidget extends Widget implements iWidget
       return $options;
 
     if ('root' == $this->fixed)
-      $options['root'] = $ctx->root;
+      $options['root'] = $ctx->root_id;
     elseif ('parent' == $this->fixed)
       $options['root'] = $ctx->section->parent_id;
     elseif (is_numeric($this->fixed))
       $options['root'] = $this->fixed;
     else
-      $options['root'] = $ctx->section;
-
-    $options['current'] = $ctx->section;
-    $options['document'] = $ctx->document;
+      $options['root'] = $ctx->section_id;
 
     return $this->options = $options;
   }
@@ -157,84 +154,6 @@ class MenuWidget extends Widget implements iWidget
         '%class' => $root->class,
         )));
 
-    // Определяем путь к текущему разделу.
-    if (null === $this->ctx->section->id)
-      $path = array();
-    elseif (!is_array($path = $this->ctx->section->getParents()))
-      $path = array();
-
-    // Загружаем детей.
-    $root->loadChildren(null, true);
-
-    if (!self::countChildren($root) and ('anything' == $this->fixed)) {
-      $root = Node::load($root->parent_id);
-      $root->loadChildren(null, true);
-    }
-
-    if ($this->ctx->section->id)
-      $current = $this->ctx->section->id;
-    elseif (null !== $toplevel)
-      $current = $toplevel->id;
-    else
-      $current = null;
-
-    $output = $this->renderMenu($root, $this->depth ? $this->depth : 1, $path, $current);
-
-    return $output;
-  }
-
-  private function renderMenu(TagNode $root, $depth, array $path, $myid)
-  {
-    $output = '';
-    $ndepth = $depth - 1;
-
-    if  (!empty($root->children)) {
-      foreach ($root->children as $idx => $child) {
-        if (empty($child->published))
-          continue;
-
-        if (!empty($child->hidden))
-          continue;
-
-        $li = $a = array();
-
-        if (array_key_exists($child->id, $path))
-          $child->_active = 'active';
-
-        if ($myid == $child->id)
-          $child->_current = 'current';
-
-        if (null !== $this->external and !empty($child->{$this->external}))
-          $link = $child->{$this->external};
-        else
-          $link = '?q=' . $this->prefix . $child->id;
-
-        $child->_link = $link;
-
-        if ($this->hidecurrent and in_array('current', $li['class'])) {
-          if (empty($this->options['document']->id)) {
-            unset($child->_link);
-          }
-        }
-
-        $output .= $child->getXML('section', $ndepth
-          ? $this->renderMenu($child, $ndepth, $path, $myid)
-          : null);
-      }
-    }
-
-    return $output;
-  }
-
-  private static function countChildren(Node $node)
-  {
-    $count = 0;
-
-    if (!empty($node->children))
-      foreach ($node->children as $child)
-        if (!empty($child->published) and empty($child->hidden))
-          $count++;
-
-    return $count;
+    return $root->getTreeXML('section');
   }
 };
