@@ -11,7 +11,6 @@ class InstallModule implements iRemoteCall
   public static function rpc_get_install(Context $ctx)
   {
     $xml = self::listDriversXML();
-    $xml .= self::getForm()->getXML(Control::data());
     $xsl = os::path('lib', 'modules', 'install', 'template.xsl');
     return xslt::transform(html::em('installer', array(
       'base' => $ctx->url()->getBase($ctx),
@@ -39,17 +38,9 @@ class InstallModule implements iRemoteCall
     $config->write();
     $ctx->redirect('?q=admin');
 
-
     /*
-    $node = new InstallerNode();
-    $node->formProcess($ctx->post);
-    $node->writeConfig($ctx);
-
-    ExchangeModule::import(mcms::mkpath(array('lib', 'modules', 'exchange', 'profiles', $node->template)), true);
-
     $s = new Structure();
     $s->rebuild();
-
     */
   }
 
@@ -76,97 +67,6 @@ class InstallModule implements iRemoteCall
     } catch (Exception $e) { }
 
     return false;
-  }
-
-  private static function getForm()
-  {
-    $schema = new Schema(array(
-      'debuggers' => array(
-        'group' => t('Управление'),
-        'type' => 'ListControl',
-        'label' => t('Адреса разработчиков сайта'),
-        'default' => '127.0.0.1, ' . $_SERVER['REMOTE_ADDR'],
-        'required' => true,
-        'description' => t('Пользователям с этих адресов будут доступны отладочные функции.'),
-        ),
-
-      'filestorage' => array(
-        'group' => t('Файлы'),
-        'type' => 'TextLineControl',
-        'label' => t('Папка для файлов, загружаемых через браузер'),
-        'default' => 'storage',
-        'required' => true,
-        ),
-      'ftpfolder' => array(
-        'group' => t('Файлы'),
-        'type' => 'TextLineControl',
-        'label' => t('Папка для файлов, загружаемых по FTP'),
-        'description' => t('Доступ к этой папке по протоколу FTP нужно настраивать отдельно, CMS сделать это не в состоянии.'),
-        'default' => 'storage' . DIRECTORY_SEPARATOR .'ftp',
-        ),
-      'tmpdir' => array(
-        'group' => t('Файлы'),
-        'type' => 'TextLineControl',
-        'label' => t('Папка для временных файлов'),
-        'description' => t('Желательно сделать так, чтоб эта папка была недоступна извне'),
-        'default' => 'tmp',
-        'required' => true,
-        ),
-
-      'mail_server' => array(
-        'group' => t('Почта'),
-        'type' => 'TextLineControl',
-        'label' => t('Адрес почтового сервера'),
-        'default' => 'localhost',
-        'required' => true,
-        ),
-      'mail_from' => array(
-        'group' => t('Почта'),
-        'type' => 'EmailControl',
-        'label' => t('Отправитель сообщений'),
-        'default' => 'no-reply@' . $_SERVER['HTTP_HOST'],
-        'required' => true,
-        ),
-      'backtracerecipients' => array(
-        'group' => t('Почта'),
-        'type' => 'EmailControl',
-        'label' => t('Получатели сообщений об ошибках'),
-        'description' => t('Сообщения об ошибках в коде CMS отправляются на эти адреса в момент обнаружения.'),
-        'default' => 'cms-bugs@molinos.ru',
-        ),
-
-      'db_type' => array(
-        'group' => t('База данных'),
-        'type' => 'EnumControl',
-        'label' => t('Тип базы данных'),
-        'required' => true,
-        'options' => self::listDrivers(),
-        ),
-      'db_name' => array(
-        'group' => t('База данных'),
-        'type' => 'TextLineControl',
-        'label' => t('Имя базы данных'),
-        'description' => t('Перед инсталляцией база данных будет очищена от существующих данных, сделайте резервную копию!'),
-        ),
-      'db_host' => array(
-        'group' => t('База данных'),
-        'type' => 'TextLineControl',
-        'label' => t('Адрес сервера'),
-        'default' => 'localhost',
-        ),
-      'db_username' => array(
-        'group' => t('База данных'),
-        'type' => 'TextLineControl',
-        'label' => t('Имя пользователя'),
-        ),
-      'db_password' => array(
-        'group' => t('База данных'),
-        'type' => 'PasswordControl',
-        'label' => t('Пароль этого пользователя'),
-        ),
-      ));
-    
-    return $schema->getForm();
   }
 
   private static function listDrivers()
