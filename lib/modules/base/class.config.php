@@ -22,21 +22,7 @@ class Config
 
   private function findFile($hostName)
   {
-    $options = array();
-    for ($parts = array_reverse(explode('.', $hostName)); !empty($parts); array_pop($parts))
-      $options[] = 'sites' . DIRECTORY_SEPARATOR . join('.', $parts);
-    $options[] = $default = 'sites' . DIRECTORY_SEPARATOR . 'default';
-
-    foreach ($options as $path)
-      if (is_dir($path))
-        break;
-
-    if (!is_dir($path))
-      throw new PageNotFoundException(t('Домен %name не обслуживается.', array(
-        '%name' => $hostName,
-        )));
-
-    return $path . DIRECTORY_SEPARATOR . 'config.php';
+    return MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'config.php';
   }
 
   private function __isset($varname)

@@ -11,29 +11,63 @@ define('MCMS_ROOT', dirname(MCMS_LIB));
 
 chdir(MCMS_ROOT);
 
+/**
+ * Определяет папку, в которой хранятся файлы текущего сайта.
+ * Доменное имя определяется из заголовка HTTP_HOST, но может
+ * быть заранее определено константой MCMS_HOST (используется
+ * при работе из консоли).
+ *
+ * Относительное имя папки помещается в константу MCMS_SITE_FOLDER.
+ *
+ * При невозможности определения папки выводится сообщение об ошибке.
+ */
+function find_site_folder()
+{
+  $hostName = defined('MCMS_HOST')
+    ? MCMS_HOST
+    : $_SERVER['HTTP_HOST'];
+
+  $options = array();
+  for ($parts = array_reverse(explode('.', $hostName)); !empty($parts); array_pop($parts))
+    $options[] = 'sites' . DIRECTORY_SEPARATOR . join('.', $parts);
+  $options[] = $default = 'sites' . DIRECTORY_SEPARATOR . 'default';
+
+  foreach ($options as $path) {
+    if (is_dir($path)) {
+      define('MCMS_SITE_FOLDER', $path);
+      return;
+    }
+  }
+
+  header('Content-Type: text/plain; charset=utf-8');
+  die('Домен ' . MCMS_HOST . ' не обслуживается.');
+}
+
+find_site_folder();
 set_include_path(MCMS_ROOT);
 
-if (file_exists($whole = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'whole-molinos-cms.php')) {
+if (file_exists($whole = MCMS_ROOT . DIRECTORY_SEPARATOR . MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'whole-molinos-cms.php')) {
   require $whole;
   define('WHOLE_MOLINOS_CMS', true);
 } else {
-  require implode(DIRECTORY_SEPARATOR, array('lib', 'modules', 'base', 'class.os.php'));
+  require implode(DIRECTORY_SEPARATOR, array(MCMS_ROOT, 'lib', 'modules', 'base', 'class.os.php'));
 }
 
 class Loader
 {
   private static $map = null;
 
+  private static function getClassPathFileName()
+  {
+    return MCMS_ROOT . DIRECTORY_SEPARATOR . MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'classpath.php';
+  }
+
   // Подгружает карту классов, если ещё не загружена.
   private static function load()
   {
     if (null === self::$map) {
-      foreach (array('classpath.inc', 'classpath.base.inc') as $key) {
-        if (file_exists($path = os::path(MCMS_LIB, $key)) and is_array($tmp = include $path)) {
-          self::$map = $tmp;
-          break;
-        }
-      }
+      if (file_exists($path = self::getClassPathFileName()) and is_array($tmp = include $path))
+        self::$map = $tmp;
 
       if (null === self::$map) {
         // Исключение обрабатываем именно здесь потому, что именно здесь
@@ -53,13 +87,9 @@ class Loader
     }
   }
 
-  public static function rebuild($local = false)
+  public static function rebuild()
   {
-    $path = MCMS_LIB . DIRECTORY_SEPARATOR . ($local
-      ? 'classpath.base.inc'
-      : 'classpath.inc');
-
-    os::writeArray($path, self::scan($local), true);
+    os::writeArray(self::getClassPathFileName(), self::scan(), true);
   }
 
   private static function scan($local = false)
@@ -140,7 +170,7 @@ class Loader
       if (true) {
         // Добавляем в список только первый найденный класс.
         if (!array_key_exists($classname, $result['classes'])) {
-          $result['classes'][$classname] = os::localpath($classpath);
+          $result['classes'][$classname] = os::localPath($classpath);
           $result['rclasses'][$classname] = $modname;
         }
 
@@ -189,8 +219,8 @@ class Loader
     $path = self::$map['classes'][$className];
 
     return $local
-      ? os::localpath($path)
-      : $path;
+      ? $path
+      : MCMS_ROOT . DIRECTORY_SEPARATOR . $path;
   }
 
   public static function autoload($className)
