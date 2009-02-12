@@ -192,7 +192,9 @@ class NodeStub
 
         foreach ($this->data as $k => $v) {
           if ('uid' == $k and !empty($v) and $recurse)
-            $data['#text'] .= $this->uid->getXML('uid', null, false);
+            try {
+              $data['#text'] .= $this->uid->getXML('uid', null, false);
+            } catch (ObjectNotFoundException $e) { }
 
           elseif ($v instanceof NodeStub) {
             try {
@@ -364,7 +366,7 @@ class NodeStub
       $fields = '`id`, `lang`, `class`, `left`, `right`, `uid`, `created`, `updated`, `name`, `data`';
       $sth = $this->db->prepare("INSERT INTO `node__archive` ({$fields}) SELECT {$fields} FROM `node` WHERE `id` = ?");
       $sth->execute($this->id);
-    } catch (PDOException $e) {
+    } catch (TableNotFoundException $e) {
       // TODO
     }
 
