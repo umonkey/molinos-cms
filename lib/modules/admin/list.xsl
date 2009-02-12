@@ -277,7 +277,7 @@
 
   <!-- вывод файлов -->
   <xsl:template match="data[../@preset = 'files']" mode="mcms_list">
-    <xsl:variable name="versions" select="not(not(node/version))" />
+    <xsl:variable name="versions" select="not(not(node/versions/version[@name!='original']))" />
 
     <thead>
       <tr>
@@ -311,7 +311,7 @@
           <xsl:apply-templates select="." mode="mcms_list_name" />
           <xsl:if test="$versions">
             <td class="versions">
-              <xsl:for-each select="version">
+              <xsl:for-each select="versions/version[@name!='original']">
                 <a href="{@url}">
                   <xsl:value-of select="@name" />
                 </a>
