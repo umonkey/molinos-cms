@@ -23,6 +23,15 @@ class os
   }
 
   /**
+   * Возвращает путь, пригодный для использования в вебе.
+   */
+  public static function webpath()
+  {
+    $components = func_get_args();
+    return str_replace(DIRECTORY_SEPARATOR, '/', implode('/', $components));
+  }
+
+  /**
    * Формирует из абсолютного пути относительный.
    *
    * PS: относительно корня инсталляции CMS, т.е.
