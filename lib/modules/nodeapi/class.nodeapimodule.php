@@ -6,7 +6,11 @@ class NodeApiModule implements iRemoteCall
   public static function hookRemoteCall(Context $ctx)
   {
     try {
+      if ($commit = $ctx->method('post'))
+        $ctx->db->beginTransaction();
       $next = mcms::dispatch_rpc(__CLASS__, $ctx);
+      if ($commit)
+        $ctx->db->commit();
     } catch (Exception $e) {
       mcms::fatal($e);
     }
@@ -154,12 +158,10 @@ class NodeApiModule implements iRemoteCall
    */
   public static function rpc_post_delete(Context $ctx)
   {
-    $ctx->db->beginTransaction();
     foreach (self::getNodes($ctx) as $nid) {
       $node = Node::load($nid);
       $node->delete();
     }
-    $ctx->db->commit();
   }
 
   /**
@@ -181,14 +183,12 @@ class NodeApiModule implements iRemoteCall
    */
   public static function rpc_post_create(Context $ctx)
   {
-    $ctx->db->beginTransaction();
     $parent = $ctx->post('parent_id');
     $node = Node::create($ctx->get('type'), array(
       'parent_id' => empty($parent) ? null : $parent,
       ));
     $node->formProcess($ctx->post)->save($ctx->db);
     $next = $ctx->post('destination', $ctx->get('destination', ''));
-    $ctx->db->commit();
 
     return new Redirect(self::fixredir($next, $node));
   }
@@ -198,12 +198,10 @@ class NodeApiModule implements iRemoteCall
    */
   public static function rpc_post_edit(Context $ctx)
   {
-    $ctx->db->beginTransaction();
     $node = Node::load($ctx->get('node'))->getObject();
     if (null === $node->uid)
       $node->uid = $ctx->user->id;
     $node->formProcess($ctx->post)->save($ctx->db);
-    $ctx->db->commit();
   }
 
   /**
