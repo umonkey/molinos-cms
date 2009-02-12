@@ -154,10 +154,12 @@ class NodeApiModule implements iRemoteCall
    */
   public static function rpc_post_delete(Context $ctx)
   {
+    $ctx->db->beginTransaction();
     foreach (self::getNodes($ctx) as $nid) {
       $node = Node::load($nid);
       $node->delete();
     }
+    $ctx->db->commit();
   }
 
   /**
