@@ -84,7 +84,8 @@ class Structure
    */
   protected function getFileName()
   {
-    return Context::last()->config->getBaseName() . '.structure.php';
+    $path = MCMS_ROOT . DIRECTORY_SEPARATOR . Context::last()->config->getDirName() . DIRECTORY_SEPARATOR . 'structure.php';
+    return $path;
   }
 
   /**

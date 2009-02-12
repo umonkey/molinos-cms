@@ -328,7 +328,7 @@ class Context
 
     case 'db':
       if (null === $this->_db)
-        $this->_db = PDO_Singleton::connect($this->config->{'db.default'});
+        $this->_db = PDO_Singleton::connect($this->config->db);
       return $this->_db;
 
     // Доступ к конфигурационному файлу.
@@ -511,13 +511,12 @@ class Context
         'magic_quotes_gpc' => 0,
         'magic_quotes_runtime' => 0,
         'magic_quotes_sybase' => 0,
-        '@upload_tmp_dir' => mcms::mkdir(os::path($this->config->tmpdir, 'upload')),
         );
 
       $errors = $messages = array();
 
       foreach ($htreq as $k => $v) {
-        $key = substr($k, 0, 1) == '@' ? substr($k, 1) : $k;
+        $key = ltrim($k, '@');
 
         ini_set($key, $v);
 
@@ -538,6 +537,9 @@ class Context
       elseif (!mb_internal_encoding('UTF-8'))
         $messages[] = t('Не удалось установить UTF-8 в качестве '
           .'базовой кодировки для модуля mbstr.');
+
+      if (!class_exists('XSLTProcessor'))
+        $messages[] = t('Для работы этой версии Molinos CMS необходимо расширение xslt.');
 
       mcms::mkdir(mcms::config('filestorage'), 'Каталог для загружаемых '
         .'пользователями файлов (<tt>%path</tt>) закрыт для записи. '

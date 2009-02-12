@@ -9,10 +9,8 @@ class mcms_sqlite_driver extends PDO_Singleton
   {
     $this->dbfile = $this->dbname = trim($conf['path'], '/');
 
-    if (':memory:' != $this->dbfile and !file_exists($this->dbfile)) {
-      if (file_exists($dist = os::path('conf', 'default.db.dist')))
-        copy($dist, $this->dbfile);
-    }
+    if (':memory:' != $this->dbfile and !file_exists($this->dbfile))
+      os::copy(os::path('lib', 'modules', 'pdo', 'default.sqlite'), $this->dbfile);
 
     $dsn = 'sqlite:'. $this->dbfile;
 

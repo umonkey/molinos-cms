@@ -5,47 +5,42 @@ class InstallModule implements iRemoteCall
 {
   public static function hookRemoteCall(Context $ctx)
   {
-    try {
-      if (false === ($output = mcms::dispatch_rpc(__CLASS__, $ctx)))
-        $output = self::onGet($ctx);
-    } catch (Exception $e) {
-      mcms::fatal($e);
-      $output = template::renderClass(__CLASS__, array(
-        'mode' => 'error',
-        'message' => $e->getMessage(),
-        ));
-    }
-
-    if (is_array($output))
-      $output = template::renderClass(__CLASS__, $output);
-
-    if (false === $output)
-      mcms::fatal(t('Не удалось обработать запрос.'));
-
-    return $output;
+    return mcms::dispatch_rpc(__CLASS__, $ctx, 'install');
   }
 
-  /**
-   * Обработка отсутствия БД.
-   */
-  public static function rpc_db(Context $ctx)
+  public static function rpc_get_install(Context $ctx)
   {
-    if (0 === strpos($dsn = mcms::config('db.default'), 'sqlite:')) {
-      // Позволяем отключить драйвер в конфиге.
-      if (in_array('sqlite', PDO_Singleton::listDrivers())) {
-        if (file_exists($dist = 'conf' . DIRECTORY_SEPARATOR . 'default.db.dist')) {
-          $target = substr($dsn, 7);
-
-          if (!file_exists($target))
-            if (!copy($dist, $target))
-              throw new RuntimeException(t('Не удалось проинсталлировать новую базу данных.'));
-        }
-      }
-    }
+    $xml = self::listDriversXML();
+    $xml .= self::getForm()->getXML(Control::data());
+    $xsl = os::path('lib', 'modules', 'install', 'template.xsl');
+    return xslt::transform(html::em('installer', array(
+      'base' => $ctx->url()->getBase($ctx),
+      'dirname' => $ctx->config->getDirName(),
+      ), $xml), $xsl);
   }
 
-  public static function rpc_install(Context $ctx)
+  public static function rpc_post_install(Context $ctx)
   {
+    $data = $ctx->post;
+
+    if (empty($data['dbtype']))
+      throw new RuntimeException(t('Вы не выбрали тип БД.'));
+
+    $config = $ctx->config;
+    $config->db = self::getDSN($data['dbtype'], $data['db'][$data['dbtype']]);
+
+    foreach (array('mail_server', 'mail_from', 'mail_errors', 'tmpdir', 'files', 'files_ftp', 'themes') as $key)
+      if (!empty($data[$key]))
+        $config->$key = $data[$key];
+
+    // Проверим соединение с БД.
+    $pdo = PDO_Singleton::connect($config->db);
+
+    $config->write();
+    $ctx->redirect('?q=admin');
+
+
+    /*
     $node = new InstallerNode();
     $node->formProcess($ctx->post);
     $node->writeConfig($ctx);
@@ -55,29 +50,21 @@ class InstallModule implements iRemoteCall
     $s = new Structure();
     $s->rebuild();
 
-    return new Redirect('?q=admin');
+    */
   }
 
-  protected static function onGet(Context $ctx)
+  private static function getDSN($type, array $settings)
   {
-    if (!$ctx->method('get'))
-      mcms::fatal('oops.');
-
-    if (self::checkInstalled()) {
-      mcms::fatal(t('Система уже установлена, см. <a href="@url1">сайт</a> или <a href="@url2">админку</a>.', array(
-        '@url1' => '.',
-        '@url2' => '?q=admin',
+    switch ($type) {
+    case 'sqlite':
+      return 'sqlite:' . $settings['name'];
+    case 'mysql':
+      return 'mysql://' . $settings['user'] . ':' . $settings['pass'] . '@' . $settings['host'] . '/' . $settings['name'];
+    default:
+      throw new RuntimeException(t('БД типа "%type" не поддерживается.', array(
+        '%type' => $type,
         )));
     }
-
-    mcms::check();
-
-    $node = new InstallerNode();
-
-    return array(
-      'mode' => 'form',
-      'form' => $node->formGet()->getHTML($node),
-      );
   }
 
   private static function checkInstalled()
@@ -90,21 +77,10 @@ class InstallModule implements iRemoteCall
 
     return false;
   }
-}
 
-/**
- * Фиктивная нода, используется для построения формы инсталлера.
- */
-class InstallerNode extends Node
-{
-  public function __construct()
+  private static function getForm()
   {
-    return parent::__construct(array());
-  }
-
-  public function getFormFields()
-  {
-    return new Schema(array(
+    $schema = new Schema(array(
       'debuggers' => array(
         'group' => t('Управление'),
         'type' => 'ListControl',
@@ -164,7 +140,7 @@ class InstallerNode extends Node
         'type' => 'EnumControl',
         'label' => t('Тип базы данных'),
         'required' => true,
-        'options' => $this->listDrivers(),
+        'options' => self::listDrivers(),
         ),
       'db_name' => array(
         'group' => t('База данных'),
@@ -188,56 +164,12 @@ class InstallerNode extends Node
         'type' => 'PasswordControl',
         'label' => t('Пароль этого пользователя'),
         ),
-
-      'template' => array(
-        'group' => t('Заготовка'),
-        'type' => 'EnumControl',
-        'label' => t('Базовое наполнение'),
-        'required' => true,
-        'options' => $this->listProfiles(),
-        're' => '/^[a-z0-9]+\.xml$/',
-        ),
       ));
+    
+    return $schema->getForm();
   }
 
-  public function checkPermission($mode)
-  {
-    switch ($mode) {
-    case 'c':
-    case 'u':
-      return true;
-    default:
-      return false;
-    }
-  }
-
-  public function formGet()
-  {
-    $form = parent::formGet();
-    $form->addClass('tabbed');
-    return $form;
-  }
-
-  public function getFormTitle()
-  {
-    return t('Установка Molinos CMS');
-  }
-
-  public function getFormSubmitText()
-  {
-    return t('Начать установку');
-  }
-
-  public function getFormAction()
-  {
-    $next = empty($_GET['destination'])
-      ? '?q=admin'
-      : $_GET['destination'];
-
-    return '?q=install.rpc&action=install&destination=' . urlencode($next) . '&debug=errors';
-  }
-
-  private function listDrivers()
+  private static function listDrivers()
   {
     $options = array();
 
@@ -273,50 +205,16 @@ class InstallerNode extends Node
     return $options;
   }
 
-  private function listProfiles()
+  private static function listDriversXML()
   {
-    $options = array();
+    $output = '';
 
-    foreach (ExchangeModule::getProfileList() as $pr)
-      $options[$pr['filename']] = $pr['name'];
+    foreach (self::listDrivers() as $k => $v)
+      $output .= html::em('driver', array(
+        'name' => $k,
+        'title' => $v,
+        ));
 
-    return $options;
-  }
-
-  public function writeConfig(Context $ctx)
-  {
-    $data = array();
-
-    switch ($this->db_type) {
-    case 'sqlite':
-      $data['db.default'] = 'sqlite:' . $this->db_name;
-      break;
-    default:
-      $data['db.default'] = $this->db_type . '://';
-      if ($this->db_username) {
-        $data['db.default'] .= $this->db_username;
-        if ($this->db_password)
-          $data['db.default'] .= ':' . $this->db_password;
-        $data['db.default'] .= '@';
-      }
-      $data['db.default'] .= $this->db_host;
-      if ($this->db_name)
-        $data['db.default'] .= '/' . $this->db_name;
-    }
-
-    foreach (array('mail_server', 'mail_from', 'debuggers') as $k)
-      $data[str_replace('_', '.', $k)] = $this->$k;
-
-    $config = get_test_context()->config;
-
-    foreach ($data as $k => $v)
-      $config->$k = $v;
-
-    $config->write();
-
-    $ctx->db = $data['db.default'];
-
-    mcms::flush();
-    mcms::flush(mcms::FLUSH_NOW);
+    return html::em('drivers', $output);
   }
 }

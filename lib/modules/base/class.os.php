@@ -194,4 +194,22 @@ class os
 
     return $result;
   }
+
+  /**
+   * Копирование файла. Поддерживает загруженные файлы.
+   */
+  public static function copy($src, $dst)
+  {
+    if (is_uploaded_file($src))
+      return move_uploaded_file($src, $dst);
+    if (!file_exists($src))
+      throw new InvalidArgumentException(t('Попытка скопировать несуществующий файл (%path).', array(
+        '%path' => $src,
+        )));
+    if (!is_writable(dirname($dst)))
+      throw new RuntimeException(t('Каталог %path закрыт от записи.', array(
+        '%path' => dirname($dst),
+        )));
+    return copy($src, $dst);
+  }
 }

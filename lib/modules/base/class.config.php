@@ -6,7 +6,6 @@ class Config
   private static $instance = null;
   private $data = null;
   private $path = null;
-  private $isok = false;
 
   public function __construct($hostName)
   {
@@ -17,66 +16,27 @@ class Config
   {
     if (!is_readable($this->path))
       $this->data = array();
-
-    elseif (substr($this->path, -4) == '.ini') {
-      $this->data = array();
-
-      foreach (parse_ini_file($this->path, true) as $k => $v) {
-        if (!is_array($v))
-          $this->data[str_replace('_', '.', $k)] = $v;
-        else foreach ($v as $sk => $sv) {
-          $this->data[str_replace('_', '.', $k . '.' . $sk)] = $sv;
-        }
-      }
-
-      // Заменяем "off", который парсится в "", на bool.
-      foreach ($this->data as $k => $v)
-        if ('' === $v)
-          $this->data[$k] = false;
-
-      // Разворачиваем известные массивы.
-      foreach (array('backtracerecipients', 'runtime.modules') as $k)
-        if (array_key_exists($k, $this->data))
-          $this->data[$k] = preg_split('/,\s*/', $this->data[$k], -1, PREG_SPLIT_NO_EMPTY);
-        else
-          $this->data[$k] = array();
-
-      $this->isok = true;
-    }
-
-    else {
+    else
       $this->data = include $this->path;
-      $this->isok = true;
-    }
   }
 
   private function findFile($hostName)
   {
     $options = array();
-
-    if (null === $hostName)
-      $hostName = $_SERVER['HTTP_HOST'];
-
-    for ($parts = array_reverse(explode('.', $hostName)); !empty($parts); array_pop($parts)) {
-      $path = 'conf' . DIRECTORY_SEPARATOR . join('.', $parts);
-      $options[] = $path . '.config.php';
-      $options[] = $path . '.ini';
-    }
-
-    $options[] = 'conf' . DIRECTORY_SEPARATOR . 'default.config.php';
-    $options[] = 'conf' . DIRECTORY_SEPARATOR . 'default.ini';
+    for ($parts = array_reverse(explode('.', $hostName)); !empty($parts); array_pop($parts))
+      $options[] = 'sites' . DIRECTORY_SEPARATOR . join('.', $parts);
+    $options[] = $default = 'sites' . DIRECTORY_SEPARATOR . 'default';
 
     foreach ($options as $path)
-      if (file_exists($path) and is_readable($path))
-        return $path;
+      if (is_dir($path))
+        break;
 
-    // Ничего не найдено, пытаемся использовать фабричный конфиг.
-    if (file_exists($src = 'conf' . DIRECTORY_SEPARATOR . 'default.config.php.dist')) {
-      os::write($dst = os::path('conf', 'default.config.php'), file_get_contents($src), true);
-      return $dst;
-    }
+    if (!is_dir($path))
+      throw new PageNotFoundException(t('Домен %name не обслуживается.', array(
+        '%name' => $hostName,
+        )));
 
-    throw new RuntimeException(t('Не удалось найти конфигурационный файл.'));
+    return $path . DIRECTORY_SEPARATOR . 'config.php';
   }
 
   private function __isset($varname)
@@ -89,17 +49,15 @@ class Config
     if (null === $this->data)
       $this->readData();
 
+    $res = array_key_exists($varname, $this->data)
+      ? $this->data[$varname]
+      : null;
+
     switch ($varname) {
-    case 'filename':
-      $res = basename($this->path);
+    case 'db':
+      if (0 === strpos($res, 'sqlite:'))
+        $res = 'sqlite:' . $this->getDirName() . DIRECTORY_SEPARATOR . substr($res, 7);
       break;
-    case 'fullpath':
-      $res = $this->path;
-      break;
-    default:
-      $res = array_key_exists($varname, $this->data)
-        ? $this->data[$varname]
-        : null;
     }
 
     return $res;
@@ -127,7 +85,7 @@ class Config
 
   public function isok()
   {
-    return $this->isok;
+    return file_exists($this->path);
   }
 
   public function reload()
@@ -136,28 +94,10 @@ class Config
       $this->readData();
   }
 
-  public function set($varname, $value, $section = null)
-  {
-    if (null !== $section)
-      $varname = $section . '.' . $varname;
-    return $this->__set($varname, $value);
-  }
-
   public function write()
   {
-    if (strrchr($this->path, '.') == '.ini')
-      $this->path = substr($this->path, 0, -4) . '.config.php';
-
     ksort($this->data);
-
-    // Запись в новый файл.
     os::writeArray($this->path, $this->data);
-
-    // Удаление старых файлов.
-    if (file_exists($old = substr($this->path, 0, -11) . '.ini')) {
-      mcms::flog($old . ': removing (deprecated).');
-      unlink($old);
-    }
   }
 
   public function isWritable()
@@ -168,5 +108,26 @@ class Config
   public function getBaseName()
   {
     return preg_replace('/\.(ini|config\.php)$/', '', $this->path);
+  }
+
+  public function getDirName()
+  {
+    return dirname($this->path);
+  }
+
+  /**
+   * Возвращает полный путь, описанный определённым ключом.
+   */
+  public function getPath($key)
+  {
+    if (null === ($value = $this->$key))
+      return null;
+    else
+      return $this->getRealPath($key);
+  }
+
+  private function getRealPath($shortPath)
+  {
+    return MCMS_ROOT . DIRECTORY_SEPARATOR . $this->getDirName() . DIRECTORY_SEPARATOR . $shortPath;
   }
 }

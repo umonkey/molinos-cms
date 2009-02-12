@@ -217,7 +217,7 @@ class mcms
   // Отладочные функции.
   public static function debug()
   {
-    if (empty($_SERVER['HTTP_HOST']) or ($ctx = Context::last()) and $ctx->canDebug()) {
+    if (true /* empty($_SERVER['HTTP_HOST']) or ($ctx = Context::last()) and $ctx->canDebug() */) {
       if (ob_get_length())
         ob_end_clean();
 
@@ -747,7 +747,7 @@ class mcms
       if ($full) {
         $options = array();
 
-        if (count($parts = explode(':', mcms::config('db.default'))))
+        if (count($parts = explode(':', mcms::config('db'))))
           if (in_array($parts[0], PDO_Singleton::listDrivers()))
             $options[] = $parts[0];
 
@@ -780,11 +780,16 @@ class mcms
 
       $ctx->checkEnvironment();
 
+      if (!$ctx->config->isok() and 'install.rpc' != $ctx->query())
+        $ctx->redirect('?q=install.rpc');
+
       $request = new Request();
       $response = $request->process($ctx);
 
       $response->send();
-    } catch (Exception $e) {
+    }
+
+    catch (Exception $e) {
       $output = $e->getMessage() . "\n\n" . mcms::backtrace($e);
       header('Content-Type: text/plain; charset=utf-8');
       header('Content-Length: ' . strlen($output));

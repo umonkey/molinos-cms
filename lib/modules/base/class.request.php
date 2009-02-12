@@ -24,19 +24,6 @@ class Request
       $response = $this->tryOnce($ctx, $ctx->query());
     }
 
-    catch (NotConnectedException $e) {
-      if ('install.rpc' == $ctx->query())
-        mcms::fatal($e);
-      $ctx->redirect('?q=install.rpc&action=db&destination=CURRENT');
-    }
-
-    catch (NotInstalledException $e) {
-      if ('install.rpc' == $ctx->query())
-        mcms::fatal($e);
-      $ctx->redirect('?q=install.rpc&action=' . $e->get_type()
-        . '&destination=CURRENT');
-    }
-
     catch (UserErrorException $e) {
       try {
         $response = $this->tryOnce($ctx, 'errors/' . $e->getCode());

@@ -1,6 +1,0 @@
-<Files *.ini>
-    Order allow,deny
-</Files>
-<Files *.db*>
-    Order allow,deny
-</Files>
