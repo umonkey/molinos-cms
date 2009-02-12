@@ -469,7 +469,9 @@ class AdminRPC implements iRemoteCall
         } catch (ObjectNotFoundException $e) {
         }
 
-        $result = template::render(dirname(__FILE__), 'page', 'login');
+        $result = template::render(dirname(__FILE__), 'page', 'login', array(
+          'base' => $ctx->url()->getBase($ctx),
+          ));
 
         if (false === $result)
           throw new RuntimeException(t('Не удалось вывести страницу для входа '
