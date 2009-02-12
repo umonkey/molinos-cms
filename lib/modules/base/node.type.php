@@ -42,13 +42,12 @@ class TypeNode extends Node implements iContentType
       throw new ValidationException('name', t('Внутреннее имя типа может '
         .'содержать только латинские буквы, арабские цифры и прочерк.'));
 
-    $this->data['published'] = 1;
-
     parent::checkUnique('name', t('Тип документа со внутренним именем %name уже есть.', array('%name' => $this->name)));
 
     // Всегда сохраняем без очистки.
     parent::save();
 
+    $this->publish();
     $this->updateTable();
 
     // Обновляем тип документов, если он изменился.
