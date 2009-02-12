@@ -89,7 +89,7 @@ class Node
   {
     $params = array();
     $nqb = new NodeQueryBuilder($query);
-    $nqb->getSelectQuery($sql, $params, array('id'));
+    $nqb->getSelectQuery($sql, $params, array('`node`.`id`'));
 
     if (null !== $limit)
       $sql .= ' LIMIT ' . intval($offset) . ', ' . intval($limit);
@@ -581,5 +581,29 @@ class Node
    */
   public function getExtraXMLContent()
   {
+  }
+
+  /**
+   * Сохранение объекта. Добавляет индексацию.
+   */
+  public function save()
+  {
+    $this->stub->save();
+
+    if (count($indexes = $this->getSchema()->getIndexes())) {
+      $db = $this->stub->getDB();
+      $data = array('id' => $this->id);
+      $table = 'node__idx_' . $this->class;
+
+      list($sql, $params) = sql::getDelete($table, $data);
+      $db->exec($sql, $params);
+
+      foreach ($indexes as $idx)
+        $data[$idx] = $this->$idx;
+      list($sql, $params) = sql::getInsert($table, $data);
+      $db->exec($sql, $params);
+    }
+
+    return $this;
   }
 };

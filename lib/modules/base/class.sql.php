@@ -42,4 +42,16 @@ class sql
     $sql = 'INSERT INTO `' . $tableName . '` (`' . join('`, `', array_keys($values)) . '`) VALUES (' . substr(str_repeat('?, ', count($values)), 0, -2) . ')';
     return array($sql, array_values($values));
   }
+
+  public static function getDelete($tableName, array $conditions)
+  {
+    $where = $params = array();
+    foreach ($conditions as $k => $v) {
+      $where[] = '`' . $k . '` = ?';
+      $params[] = $v;
+    }
+
+    $sql = 'DELETE FROM `' . $tableName . '` WHERE ' . join(' AND ', $where);
+    return array($sql, $params);
+  }
 }
