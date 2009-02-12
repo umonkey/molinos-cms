@@ -780,7 +780,7 @@ class mcms
 
       $ctx->checkEnvironment();
 
-      if (!$ctx->config->isok() and 'install.rpc' != $ctx->query())
+      if (!$ctx->config->isok() and 'install.rpc' != $ctx->query() and class_exists('InstallModule'))
         $ctx->redirect('?q=install.rpc');
 
       $request = new Request();
