@@ -204,6 +204,9 @@ class NodeStub
             }
           }
 
+          elseif (is_array($v))
+            ;
+
           else {
             if (isset($schema[$k]))
               $v = $schema[$k]->format($v);

@@ -381,4 +381,14 @@ class ImageMagickGD
 
       return $result;
     }
+
+    public function getWidth()
+    {
+      return imagesx($this->img);
+    }
+
+    public function getHeight()
+    {
+      return imagesy($this->img);
+    }
 };

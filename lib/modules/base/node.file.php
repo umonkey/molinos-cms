@@ -61,6 +61,9 @@ class FileNode extends Node implements iContentType
 
     $res = parent::save();
 
+    if ($this->isNew())
+      $this->publish();
+
     return $res;
   }
 
@@ -596,35 +599,6 @@ class FileNode extends Node implements iContentType
     return $node;
   }
 
-  public function getXML($em = 'node', $_content = null)
-  {
-    $ctx = Context::last();
-
-    if (!file_exists(os::path($ctx->config->getPath('files'), $this->filepath)))
-      return null;
-
-    if (!empty($this->data['versions'])) {
-      $versions = '';
-
-      foreach ($this->data['versions'] as $k => $v)
-        if (file_exists($path = os::path($ctx->config->getPath('files'), $v))) {
-          $versions .= html::em('version', array(
-            'name' => $k,
-            'url' => $path,
-            ));
-        }
-
-      $_content .= $versions;
-    }
-
-    $data = $this->data;
-
-    if (file_exists($tmp = os::path($ctx->config->getPath('files'), $this->filepath)))
-      $data['url'] = $tmp;
-
-    return parent::getRealXML($em, $data, $_content);
-  }
-
   public function getExtraXMLContent()
   {
     $config = Context::last()->config;
@@ -635,15 +609,20 @@ class FileNode extends Node implements iContentType
     $content = html::em('version', array(
       'name' => 'original',
       'url' => os::webpath($config->getDirName(), $config->files, $this->filepath),
+      'width' => $this->width,
+      'height' => $this->height,
       ));
 
     if (is_array($this->versions)) {
-      foreach ($this->versions as $k => $v)
-        if (file_exists($path = os::path($config->getDirName(), $config->files, $v))) {
+      foreach ($this->versions as $k => $v) {
+        if (file_exists($path = os::path($config->getDirName(), $config->files, $v['path']))) {
           $content .= html::em('version', array(
             'name' => $k,
             'url' => os::webpath($path),
+            'width' => $v['width'],
+            'height' => $v['height'],
             ));
+          }
         }
     }
 

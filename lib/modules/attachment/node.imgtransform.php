@@ -90,13 +90,21 @@ class ImgTransformNode extends Node implements iContentType
 
       if (!$im->save($prefix . $destination, $this->quality == 'png' ? 'image/png' : 'image/jpeg'))
         return false;
+
+      $info = array(
+        'width' => $im->getWidth(),
+        'height' => $im->getHeight(),
+        'path' => $destination,
+        );
+
+      $ver = $file->versions;
+      $ver[$this->name] = $info;
+      $file->versions = $ver;
+
+      return true;
     }
 
-    $ver = $file->versions;
-    $ver[$this->name] = $destination;
-    $file->versions = $ver;
-
-    return true;
+    return false;
   }
 
   private function getTargetFileName(FileNode $file)
@@ -152,7 +160,6 @@ class ImgTransformNode extends Node implements iContentType
   private function deleteTransformedFiles()
   {
     $files = glob(os::path(Context::last()->config->getPath('files'), '?', '?', '*_' . $this->name . '.*'));
-
     if (!empty($files))
       foreach ($files as $file)
         unlink($file);
