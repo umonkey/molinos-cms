@@ -369,6 +369,11 @@ class ListWidget extends Widget
     $where[] = "`node`.`published` = 1";
     $where[] = "`node`.`deleted` = 0";
 
+    if ($this->skipcurrent and !empty($options['document'])) {
+      $where[] = "`node`.`id` <> ?";
+      $params[] = $options['document'];
+    }
+
     if (!empty($options['classes']))
       $where[] = "`node`.`class` " . sql::in($options['classes'], $params);
 
