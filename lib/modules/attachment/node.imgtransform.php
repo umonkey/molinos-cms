@@ -128,6 +128,8 @@ class ImgTransformNode extends Node implements iContentType
   {
     $this->deleteTransformedFiles();
 
+    @set_time_limit(0);
+
     $nodes = Node::find(array(
       'class' => 'file',
       'filetype' => 'image/%',
