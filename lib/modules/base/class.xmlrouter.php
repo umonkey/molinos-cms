@@ -69,7 +69,6 @@ class XMLRouter implements iRequestRouter
     $output = $this->getRequestOptions($ctx);
     $output .= NodeStub::getStack('nodes');
 
-    $server = ($ctx->get('xslt') != 'client');
     $stylesheet = self::findStyleSheet($ctx->theme, $data['name']);
 
     $output .= html::em('widgets', join('', $widgets));
@@ -81,15 +80,10 @@ class XMLRouter implements iRequestRouter
     $data['page']['version'] = mcms::version();
 
     $result = '<?xml version="1.0" encoding="utf-8"?>';
-    if (!$server and $stylesheet)
-      $result .= '<?xml-stylesheet type="text/xsl" href="' . $stylesheet . '"?>';
     $result .= html::em('page', $data['page'], $output);
 
-    if ($server)
-      return xslt::transform($result,
-        self::findStyleSheet($ctx->theme, $data['name']));
-    else
-      return new Response($result, 'text/xml');
+    return xslt::transform($result,
+      self::findStyleSheet($ctx->theme, $data['name']));
   }
 
   private function getRequestOptions(Context $ctx)

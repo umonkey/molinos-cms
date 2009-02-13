@@ -4,22 +4,22 @@ class xslt
 {
   public static function transform($xml, $xsltName)
   {
+    $mode = empty($_GET['xslt'])
+      ? 'server'
+      : $_GET['xslt'];
+
+    if ('none' == $mode or empty($xsltName))
+      return new Response($xml, 'text/xml');
+
     if (!file_exists($xsltName))
       throw new RuntimeException(t('Шаблон %name не найден.', array(
         '%name' => $xsltName,
         )));
 
-    if (!empty($_GET['xslt'])) {
-      switch ($_GET['xslt']) {
-      case 'client':
-        $xml = str_replace('?>',
-          '?><?xml-stylesheet type="text/xsl" href="' . $xsltName . '"?>',
-          $xml);
-        break;
-      case 'none':
-        break;
-      }
-
+    if ('client' == $mode) {
+      $xml = str_replace('?>',
+        '?><?xml-stylesheet type="text/xsl" href="' . $xsltName . '"?>',
+        $xml);
       return new Response($xml, 'text/xml');
     }
 
