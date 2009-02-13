@@ -37,7 +37,7 @@ class ImageMagickGD
 
     public static function getFileType($path)
     {
-      return bebop_get_file_type($path);
+      return os::getFileType($path);
     }
 
     public function open($path, $mimetype = null)

@@ -169,6 +169,14 @@ class NodeStub
   }
 
   /**
+   * Форсирует сохранение объекта.
+   */
+  public function touch()
+  {
+    $this->dirty = true;
+  }
+
+  /**
    * Возвращает объект в виде XML.
    */
   public final function getXML($em = 'node', $extraContent = null, $recurse = true)

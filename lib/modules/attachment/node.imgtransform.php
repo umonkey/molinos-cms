@@ -61,15 +61,13 @@ class ImgTransformNode extends Node implements iContentType
   /**
    * Трансформирует указанный файл.
    */
-  public function apply(FileNode &$file)
+  public function apply(FileNode &$file, Context $ctx, $overwrite = false)
   {
-    $ctx = Context::last();
-
     $source = $file->filepath;
     $destination = $this->getTargetFileName($file);
     $prefix = $ctx->config->getPath('files') . DIRECTORY_SEPARATOR;
 
-    if (!file_exists($prefix . $destination)) {
+    if (!file_exists($prefix . $destination) or $overwrite) {
       $im = ImageMagick::getInstance();
 
       if (!($im->open($prefix . $source, $file->filetype)))
@@ -97,6 +95,8 @@ class ImgTransformNode extends Node implements iContentType
         'path' => $destination,
         );
 
+      // mcms::flog(sprintf('%s (%ux%u)', $info['path'], $info['width'], $info['height']));
+
       $ver = $file->versions;
       $ver[$this->name] = $info;
       $file->versions = $ver;
@@ -109,7 +109,12 @@ class ImgTransformNode extends Node implements iContentType
 
   private function getTargetFileName(FileNode $file)
   {
-    $name = substr($file->filepath, 0, strpos($file->filepath, '.'));
+    if (false === ($pos = strpos($file->filepath, '.')))
+      $name = $file->filepath;
+    else
+      $name = substr($file->filepath, 0, $pos);
+
+    $name = dirname($name) . DIRECTORY_SEPARATOR . os::getCleanFileName(basename($name));
 
     $name .= '_' . $this->name;
 
@@ -126,6 +131,7 @@ class ImgTransformNode extends Node implements iContentType
    */
   public function save()
   {
+    /*
     $this->deleteTransformedFiles();
 
     @set_time_limit(0);
@@ -141,6 +147,7 @@ class ImgTransformNode extends Node implements iContentType
         if ($this->apply($o))
           $o->save();
     }
+    */
 
     $res = parent::save();
     $this->publish();

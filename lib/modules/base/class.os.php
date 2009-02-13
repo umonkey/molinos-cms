@@ -221,4 +221,15 @@ class os
         )));
     return copy($src, $dst);
   }
+
+  /**
+   * Очистка имени файла от мусора.
+   */
+  public static function getCleanFileName($fileName)
+  {
+    if ($sfx = strrchr($fileName, '.'))
+      $fileName = substr($fileName, 0, - strlen($sfx));
+    $fileName = trim(preg_replace('/[^a-z0-9_-]+/', '_', $fileName), '_') . $sfx;
+    return $fileName;
+  }
 }

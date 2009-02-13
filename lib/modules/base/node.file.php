@@ -44,6 +44,14 @@ class FileNode extends Node implements iContentType
         $this->width = $info[0];
         $this->height = $info[1];
       }
+
+      // TODO: удалить старые версии файлов.
+      if (isset($this->versions))
+        unset($this->versions);
+
+      // Применяем трансформации.
+      foreach ($ts = Node::find(array('class' => 'imgtransform')) as $t)
+        $t->getObject()->apply($this, Context::last(), true);
     }
 
     elseif ('.swf' == strtolower(substr($this->filename, -4))) {
@@ -54,10 +62,6 @@ class FileNode extends Node implements iContentType
         $this->height = $y;
       }
     }
-
-    // Применяем трансформации.
-    foreach ($ts = Node::find(array('class' => 'imgtransform')) as $t)
-      $t->getObject()->apply($this);
 
     $res = parent::save();
 
