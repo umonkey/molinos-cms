@@ -117,20 +117,20 @@ class CommentWidget extends Widget
       switch ($this->startwith) {
       case 'last':
         $options['default'] = 'last';
-        if (null === ($options['doc'] = $ctx->document_id))
+        if (null === ($options['doc'] = $ctx->document->id))
           throw new WidgetHaltedException();
         break;
 
       case 'first':
         $options['default'] = 1;
-        if (null === ($options['doc'] = $ctx->document_id))
+        if (null === ($options['doc'] = $ctx->document->id))
           throw new WidgetHaltedException();
         break;
 
       case 'tracker':
         $options['default'] = 1;
         $options['action'] = 'tracker';
-        $options['doc'] = $ctx->document_id;
+        $options['doc'] = $ctx->document->id;
 
         if (null === $this->perpage)
           throw new WidgetHaltedException(t('Свежие комментарии не выведены, т.к. не указано количество комментариев на странице.'));
