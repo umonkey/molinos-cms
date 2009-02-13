@@ -761,7 +761,11 @@ class mcms
   {
     try {
       if (null === $ctx)
-        $ctx = new Context(array('url' => '?' . $_SERVER['QUERY_STRING']));
+        $ctx = new Context(array(
+          'url' => defined('MCMS_REQUEST_URI')
+            ? MCMS_REQUEST_URI
+            : '?' . $_SERVER['QUERY_STRING'],
+          ));
 
       $ctx->checkEnvironment();
 
