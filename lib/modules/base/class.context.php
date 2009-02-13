@@ -316,8 +316,15 @@ class Context
     case 'document':
     case 'root':
       if (!array_key_exists($key, $this->_args))
-        return null;
+        return NodeStub::create(null);
       return $this->_args[$key];
+
+    case 'section_id':
+    case 'document_id':
+    case 'root_id':
+      throw new InvalidArgumentException(t('Используйте обращение к %property->id.', array(
+        '%property' => substr($key, 0, -3),
+        )));
 
     case 'theme':
     case 'moderatoremail':
