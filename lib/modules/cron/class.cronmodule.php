@@ -18,6 +18,9 @@ class CronModule implements iModuleConfig, iRemoteCall
 
   public static function hookRemoteCall(Context $ctx)
   {
+    if (!empty($_SERVER['HTTP_HOST']))
+      throw new BadRequestException(t('Запуск планировщика возможен только из консоли.'));
+
     if (!self::isClientAllowed())
       throw new ForbiddenException(t('Настройки модуля cron не позволяют вам '
         .'запускать периодические задачи.'));
