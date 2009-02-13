@@ -288,7 +288,10 @@ class BaseRPC implements iRemoteCall
 
     $node = Node::create('user', array(
       'published' => true,
-      ))->formProcess($data)->save();
+      ))->formProcess($data);
+    if (is_array($groups = mcms::modconf('base', 'new_user_groups')))
+      $node->linkSetParents($groups, 'group');
+    $node->save();
 
     User::authorize($node->name, null, true);
 

@@ -1,4 +1,5 @@
 <?php
+
 class BaseModule implements iModuleConfig, iNodeHook
 {
   /**
@@ -17,6 +18,12 @@ class BaseModule implements iModuleConfig, iNodeHook
       'label' => t('Количество архивных ревизий'),
       'default' => 10,
       'description' => t('При сохранении документов будет оставлено указанное количество архивных ревизий, все остальные будут удалены.'),
+      )));
+    $form->addControl(new SetControl(array(
+      'value' => 'config_new_user_groups',
+      'label' => t('Группы для регистрирующихся пользователей'),
+      'options' => Node::getSortedList('group'),
+      'store' => true,
       )));
 
     return $form;
