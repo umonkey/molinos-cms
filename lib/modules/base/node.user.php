@@ -205,4 +205,33 @@ class UserNode extends Node implements iContentType
       return true;
     return parent::checkPermission($perm);
   }
+
+  public function getFormFields()
+  {
+    $schema = parent::getFormFields();
+    $user = mcms::user();
+
+    if (isset($schema['groups']) and !$user->hasAccess('u', 'group'))
+      unset($schema['groups']);
+
+    if ($this->id) {
+      $conf = mcms::modconf('base');
+
+      if (!empty($conf['special_profile_fields']))
+        foreach ($conf['special_profile_fields'] as $k)
+          if (isset($schema[$k]))
+            unset($schema[$k]);
+
+      // При редактировании собственного профиля запрашиваем подтверждение пароля.
+      if ($user->id == $this->id and !empty($conf['check_pw_on_profile_edit']))
+        $schema['confirm_password'] = new PasswordCheckControl(array(
+          'value' => 'confirm_password',
+          'label' => t('Ваш текущий пароль'),
+          'description' => t('Это нужно для предотвращения несанкционированного изменения информации.'),
+          'required' => true,
+          ));
+    }
+
+    return $schema;
+  }
 };
