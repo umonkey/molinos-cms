@@ -117,18 +117,18 @@ class WidgetNode extends Node implements iContentType
 
     $config = array();
 
-    foreach ($this->data as $k => $v) {
+    foreach ($this->getProperties() as $k) {
       if (0 === strpos($k, 'config_')) {
-        if (!empty($v))
-          $config[substr($k, 7)] = $v;
-        unset($this->data[$k]);
+        if (!empty($this->$k))
+          $config[substr($k, 7)] = $this->$k;
+        unset($this->$k);
       }
     }
 
     if (!empty($config))
-      $this->data['config'] = $config;
-    elseif (array_key_exists('config', $this->data))
-      unset($this->data['config']);
+      $this->config = $config;
+    else
+      unset($this->config);
 
     return $this;
   }

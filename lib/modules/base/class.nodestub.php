@@ -119,6 +119,15 @@ class NodeStub
     return !empty($this->data[$key]);
   }
 
+  public final function __unset($key)
+  {
+    $this->makeSureFieldIsAvailable($key);
+    if (array_key_exists($key, $this->data)) {
+      unset($this->data[$key]);
+      $this->dirty = true;
+    }
+  }
+
   /**
    * Сообщение при обращении к несуществующему методу.
    */
@@ -150,6 +159,15 @@ class NodeStub
         unset($this->data['data']);
       }
     }
+  }
+
+  /**
+   * Возвращает список свойств.
+   */
+  public function getProperties()
+  {
+    $this->makeSureFieldIsAvailable('iAmAnIdiotIfIAddedSuchAField');
+    return array_keys($this->data);
   }
 
   /**

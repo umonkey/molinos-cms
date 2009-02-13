@@ -46,6 +46,11 @@ class Node
     return isset($this->stub->$key);
   }
 
+  private final function __unset($key)
+  {
+    unset($this->stub->$key);
+  }
+
   /**
    * Проверяет, изменялся ли объект.
    */
@@ -394,17 +399,9 @@ class Node
 
     // Вывод дерева страниц и разделов
     if (in_array($class, array('tag', 'domain'))) {
-      $roots = Node::find(array(
-        'class' => $class,
-        'parent_id' => null,
-        ));
-
-      /* FIXME
-      foreach ($roots as $root) {
-        foreach ($root->getChildren('flat') as $em)
-          $result[$em['id']] = str_repeat('&nbsp;', 2 * $em['depth']) . $em['name'];
-      }
-      */
+      $result = array();
+      foreach (Node::listChildren($class) as $item)
+        $result[$item[0]] = str_repeat('&nbsp;', 2 * $item[2]) . $item[1];
     }
 
     // Вывод обычных списков
@@ -512,7 +509,8 @@ class Node
     $db = Context::last()->db;
 
     if (null === $parent_id) {
-      $sql = "SELECT `id`, `parent_id`, `name` FROM `node` WHERE `deleted` = 0 AND `class` = ? AND `parent_id` IS NULL ORDER BY `left`";
+      $sql = "SELECT `id`, `parent_id`, `name` FROM `node` WHERE `deleted` = 0 AND `class` = ? ORDER BY `left`";
+      // $sql = "SELECT `id`, `parent_id`, `name` FROM `node` WHERE `deleted` = 0 AND `class` = ? AND `parent_id` IS NULL ORDER BY `left`";
       $params = array($class);
     } else {
       $sql = "SELECT `n1`.`id`, `n1`.`parent_id`, `n1`.`name` FROM `node` `n1`, `node` `n2` WHERE `n1`.`deleted` = 0 AND `n1`.`class` = ? AND `n1`.`left` >= `n2`.`left` AND `n1`.`right` <= `n2`.`right` AND `n2`.`id` = ?";
