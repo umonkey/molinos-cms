@@ -40,7 +40,7 @@ function find_site_folder()
   }
 
   header('Content-Type: text/plain; charset=utf-8');
-  die('Домен ' . MCMS_HOST . ' не обслуживается.');
+  die('Домен ' . $hostName . ' не обслуживается.');
 }
 
 find_site_folder();
