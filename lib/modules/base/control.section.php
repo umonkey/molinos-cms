@@ -31,6 +31,8 @@ class SectionControl extends EnumControl implements iFormControl
   {
     $this->validate($value);
 
+    if ('pages' == $this->value)
+      mcms::debug($this, $value);
     if ($this->store)
       $node->{$this->value} = $value;
     else {

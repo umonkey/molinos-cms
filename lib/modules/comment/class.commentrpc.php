@@ -1,12 +1,7 @@
 <?php
 
-class CommentRPC implements iRemoteCall
+class CommentRPC extends RPCHandler implements iRemoteCall
 {
-  public static function hookRemoteCall(Context $ctx)
-  {
-    return mcms::dispatch_rpc(__CLASS__, $ctx);
-  }
-
   public static function rpc_add(Context $ctx)
   {
     $ctx->user->checkAccess('c', 'comment');

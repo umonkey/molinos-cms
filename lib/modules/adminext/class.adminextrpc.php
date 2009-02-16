@@ -1,12 +1,7 @@
 <?php
 
-class AdminExtRPC implements iRemoteCall
+class AdminExtRPC extends RPCHandler implements iRemoteCall
 {
-  public static function hookRemoteCall(Context $ctx)
-  {
-    return mcms::dispatch_rpc(__CLASS__, $ctx);
-  }
-
   public static function rpc_getlinks(Context $ctx)
   {
     $hide = mcms::modconf('adminext', 'hide', array());

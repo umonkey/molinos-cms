@@ -16,7 +16,7 @@ class CronModule implements iModuleConfig, iRemoteCall
     return $form;
   }
 
-  public static function hookRemoteCall(Context $ctx)
+  public static function hookRemoteCall(Context $ctx, $className)
   {
     if (!empty($_SERVER['HTTP_HOST']))
       throw new BadRequestException(t('Запуск планировщика возможен только из консоли.'));

@@ -1,12 +1,12 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class AdminRPC implements iRemoteCall
+class AdminRPC extends RPCHandler implements iRemoteCall
 {
   /**
    * Основная точка входа.
    */
-  public static function hookRemoteCall(Context $ctx)
+  public static function hookRemoteCall(Context $ctx, $className)
   {
     // Быстрый и грязный хак для добавления TinyMCE.
     if (class_exists('TinyMceModule'))
@@ -719,7 +719,7 @@ class AdminRPC implements iRemoteCall
       ));
     $toolbar .= html::em('a', array(
       'class' => 'exit',
-      'href' => '?q=base.rpc&action=logout&from='
+      'href' => '?q=user.rpc&action=logout&from='
         . urlencode($_SERVER['REQUEST_URI']),
       ));
     if ($xslmode != 'none') {

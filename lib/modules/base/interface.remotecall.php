@@ -29,5 +29,5 @@ interface iRemoteCall
    * @return Response результат работы или Redirect. Если ничего не вернулось,
    * редиректит происходит на адрес, указанный в параметре destination.
    */
-  public static function hookRemoteCall(Context $ctx);
+  public static function hookRemoteCall(Context $ctx, $className);
 };

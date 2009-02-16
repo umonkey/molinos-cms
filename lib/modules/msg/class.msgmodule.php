@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class MsgModule implements iRemoteCall
+class MsgModule extends RPCHandler implements iRemoteCall
 {
   public static function send($from, $to, $subject, $text)
   {
@@ -29,11 +29,6 @@ class MsgModule implements iRemoteCall
       return self::getUid(array_shift($re));
 
     throw new InvalidArgumentException(t('Получатель сообщения должен быть указан числом или объектом Node.'));
-  }
-
-  public static function hookRemoteCall(Context $ctx)
-  {
-    return mcms::dispatch_rpc(__CLASS__, $ctx);
   }
 
   public static function rpc_purge(Context $ctx)

@@ -31,6 +31,7 @@ class NodeIndexer
 
   private static function countTable(Context $ctx, $type, array &$stat, Schema $schema)
   {
+    return;
     $table = 'node__idx_'. $type;
 
     try {

@@ -20,7 +20,7 @@
 
 class CaptchaModule implements iRemoteCall
 {
-  public static function hookRemoteCall(Context $ctx)
+  public static function hookRemoteCall(Context $ctx, $className)
   {
     $cp = new CaptchaModule($ctx->get('seed'));
     $cp->drawImage();

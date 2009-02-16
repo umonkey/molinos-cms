@@ -207,8 +207,11 @@ class mcms
     $res = false;
 
     foreach (Loader::getImplementors($interface, $module) as $class) {
-      if (class_exists($class) and method_exists($class, $method))
+      if (class_exists($class) and method_exists($class, $method)) {
+        $args[] = $class;
         $res = call_user_func_array(array($class, $method), $args);
+        array_pop($args);
+      }
     }
 
     return $res;
@@ -854,25 +857,6 @@ class mcms
 
   public static function dispatch_rpc($class, Context $ctx, $default = 'default')
   {
-    if ($ctx->method('post'))
-      $default = $ctx->post('action', $default);
-
-    $action = $ctx->get('action', $default);
-
-    $call = array(
-      array($class, 'rpc_' . strtolower($ctx->method()) . '_' . $action),
-      array($class, 'rpc_' . $action),
-      );
-
-    foreach ($call as $args) {
-      if (method_exists($args[0], $args[1])) {
-        if (null === ($result = call_user_func(array($args[0], $args[1]), $ctx)))
-          $result = $ctx->getRedirect();
-        return $result;
-      }
-    }
-
-    return false;
   }
 
   public static function format($text)

@@ -1,13 +1,8 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class ModManRPC implements iRemoteCall
+class ModManRPC extends RPCHandler implements iRemoteCall
 {
-  public static function hookRemoteCall(Context $ctx)
-  {
-    return mcms::dispatch_rpc(__CLASS__, $ctx);
-  }
-
   public static function rpc_update(Context $ctx)
   {
     modman::updateDB();

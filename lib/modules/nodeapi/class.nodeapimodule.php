@@ -3,7 +3,7 @@
 
 class NodeApiModule implements iRemoteCall
 {
-  public static function hookRemoteCall(Context $ctx)
+  public static function hookRemoteCall(Context $ctx, $className)
   {
     try {
       if ($commit = $ctx->method('post'))

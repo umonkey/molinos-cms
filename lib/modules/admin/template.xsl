@@ -78,7 +78,7 @@
   <!-- авторизация -->
   <xsl:template match="page[@status = '401']" mode="body">
     <div id="login-form">
-      <form method="post" action="?q=base.rpc&amp;action=login&amp;destination={/page/@back}" enctype="multipart/form-data">
+      <form method="post" action="?q=user.rpc&amp;action=login&amp;destination={/page/@back}" enctype="multipart/form-data">
         <fieldset>
           <legend><span>Требуется авторизация</span></legend>
           <div class="control">

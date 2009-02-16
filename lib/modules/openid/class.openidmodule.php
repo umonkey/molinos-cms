@@ -2,7 +2,7 @@
 
 class OpenIdModule implements iRemoteCall
 {
-  public static function hookRemoteCall(Context $ctx)
+  public static function hookRemoteCall(Context $ctx, $className)
   {
     switch ($ctx->get('action')) {
     default:
@@ -80,7 +80,7 @@ class OpenIdModule implements iRemoteCall
     } else {
       // Login canceled
       mcms::flog('login cancelled ?!');
-      $ctx->redirect("?q=base.rpc&action=logout");
+      $ctx->redirect("?q=user.rpc&action=logout");
     }
   }
 
@@ -96,7 +96,7 @@ class OpenIdModule implements iRemoteCall
       mcms::fatal(t('Не удалось соединиться с провайдером OpenID, '
         .'попробуйте повторить попытку позже.'));
 
-      $r = new Redirect('?q=base.rpc&action=logout');
+      $r = new Redirect('?q=user.rpc&action=logout');
       $r->send();
     }
 

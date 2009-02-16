@@ -3,7 +3,7 @@
 
 class RSSRPC implements iRemoteCall
 {
-  public static function hookRemoteCall(Context $ctx)
+  public static function hookRemoteCall(Context $ctx, $className)
   {
     if (null === ($name = $ctx->get('feed')))
       throw new PageNotFoundException(t('Вы не указали имя RSS ленты: '
