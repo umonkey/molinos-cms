@@ -31,11 +31,6 @@ class PasswordControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public static function getSQL()
-  {
-    return 'VARCHAR(255)';
-  }
-
   public function getXML($data)
   {
     $this->addClass('form-text');

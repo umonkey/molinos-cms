@@ -36,7 +36,7 @@ interface iFormControl
    * в котором можно хранить данные, с которыми работает этот
    * элемент.  Если вернулся NULL — данные не индексируются.
    */
-  public static function getSQL();
+  public function getSQL();
 
   /**
    * Возвращает XML код элемента.

@@ -508,7 +508,7 @@ class NodeStub
         $sql .= " AND `nid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 1)";
       }
 
-      foreach ($this->db->getResultsV("nid", $sql, $params) as $id)
+      foreach ((array)$this->db->getResultsV("nid", $sql, $params) as $id)
         $result[] = $ids
           ? $id
           : self::create($id, $this->db);

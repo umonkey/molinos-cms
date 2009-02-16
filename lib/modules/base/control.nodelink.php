@@ -34,7 +34,7 @@ class NodeLinkControl extends Control
   public static function getInfo()
   {
     return array(
-      'name' => t('Связь с документом'),
+      'name' => t('Выбор из справочника'),
       );
   }
 
@@ -52,9 +52,9 @@ class NodeLinkControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public static function getSQL()
+  public function getSQL()
   {
-    return 'int';
+    return 'INTEGER';
   }
 
   public function getXML($data)
@@ -66,20 +66,8 @@ class NodeLinkControl extends Control
     if (!$this->readonly)
       $this->addClass('autocomplete');
 
-    if (null !== ($output = $this->getSelect(strval($this->getCurrentValue($data)))))
-      return parent::wrapXML(array(), $output);
-
-    $parts = explode('.', $this->values, 2);
-
-    if (($value = $this->getCurrentValue($data)) instanceof Node)
-      $name = $value->$parts[1];
-    elseif (is_numeric($value))
-      $name = Node::load($value)->$parts[1];
-    else
-      $name = '';
-
     return parent::wrapXML(array(
-      'value' => $name,
+      'value' => $this->getCurrentValue($data),
       ));
   }
 
@@ -118,7 +106,9 @@ class NodeLinkControl extends Control
   // Возвращает текущее значение поля.
   private function getCurrentValue($data)
   {
-    return $data->{$this->value};
+    if (($tmp = $data->{$this->value}) instanceof NodeStub)
+      return $tmp->name;
+    return null;
   }
 
   public function set($value, Node &$node)
@@ -151,5 +141,19 @@ class NodeLinkControl extends Control
   {
     if (null !== ($value = $data->{$this->value}))
       return Node::_id($value);
+  }
+
+  public function getExtraSettings()
+  {
+    $fields = array(
+      'dictionary' => array(
+        'type' => 'EnumControl',
+        'label' => t('Справочник'),
+        'required' => true,
+        'options' => TypeNode::getDictionaries(),
+        ),
+      );
+
+    return $fields;
   }
 };

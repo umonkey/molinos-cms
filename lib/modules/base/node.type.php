@@ -381,17 +381,19 @@ class TypeNode extends Node implements iContentType
         'volatile' => true,
         ));
 
-    if ($this->name) {
+    if (!empty($this->id)) {
       $tmp = Node::create($this->name);
-      if (!$tmp->canEditFields())
-        return $schema;
+      if ($tmp->canEditFields()) {
+        $schema['fields'] = new SetControl(array(
+          'value' => 'fields',
+          'label' => t('Используемые поля'),
+          'dictionary' => 'field',
+          'field' => 'label',
+          'required' => true,
+          'group' => t('Поля'),
+          ));
+      }
     }
-
-    $schema['fields'] = new FieldControl(array(
-      'value' => 'fields',
-      'label' => null,
-      'group' => t('Поля'),
-      ));
 
     return $schema;
   }
@@ -427,5 +429,23 @@ class TypeNode extends Node implements iContentType
       'class' => 'type',
       'deleted' => 0,
       ));
+  }
+
+  /**
+   * Возвращает список справочников.
+   */
+  public static function getDictionaries()
+  {
+    static $result = null;
+
+    if (null === $result) {
+      $result = array();
+
+      foreach (Node::find(array('class' => 'type')) as $t)
+        if ($t->isdictionary and $t->name != 'field')
+          $result[$t->name] = $t->title;
+    }
+
+    return $result;
   }
 };

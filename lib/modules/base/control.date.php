@@ -39,7 +39,7 @@ class DateControl extends Control
       ));
   }
 
-  public static function getSQL()
+  public function getSQL()
   {
     return 'DATE';
   }

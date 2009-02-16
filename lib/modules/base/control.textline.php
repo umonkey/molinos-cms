@@ -29,7 +29,7 @@ class TextLineControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public static function getSQL()
+  public function getSQL()
   {
     return 'VARCHAR(255)';
   }
@@ -57,5 +57,16 @@ class TextLineControl extends Control
     $this->validate($value);
 
     $node->{$this->value} = $value;
+  }
+
+  public function getExtraSettings()
+  {
+    return array(
+      're' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Проверка значений'),
+        'description' => t('Здесь можно ввести регулярное выражение, например, @^[a-z0-9]+$@ позволит ввести только цифры и буквы.'),
+        ),
+      );
   }
 };

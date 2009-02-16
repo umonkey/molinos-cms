@@ -53,6 +53,11 @@ abstract class Control implements iFormControl
 
   public function __construct(array $form = array(), array $required_fields = null)
   {
+    if (!empty($form['#nocheck'])) {
+      $this->form = array();
+      return;
+    }
+
     static $lastid = 0;
 
     if (null !== $required_fields)
@@ -148,7 +153,7 @@ abstract class Control implements iFormControl
       ));
   }
 
-  public static function getSQL()
+  public function getSQL()
   {
     return null;
   }
@@ -358,6 +363,36 @@ abstract class Control implements iFormControl
   public function format($value)
   {
     return $value;
+  }
+
+  /**
+   * Возвращает список известных типов полей.
+   */
+  public static function getKnownTypes()
+  {
+    $types = array();
+
+    foreach ($tmp = Loader::getImplementors('iFormControl') as $class) {
+      if (class_exists($class)) {
+        if ('control' != $class) {
+          $info = call_user_func(array($class, 'getInfo'));
+          if (empty($info['hidden']))
+            $types[$class] = $info['name'];
+        }
+      }
+    }
+
+    asort($types);
+
+    return $types;
+  }
+
+  /**
+   * Получение дополнительных настроек поля.
+   */
+  public function getExtraSettings()
+  {
+    return array();
   }
 };
 

@@ -20,12 +20,8 @@
             <xsl:value-of select="blocks/block[position() = 1]/@title" />
             <xsl:text> — </xsl:text>
           </xsl:if>
-          <xsl:text>Molinos CMS</xsl:text>
-          <xsl:if test="blocks/block[@name = 'signature']">
-            <xsl:text> [v</xsl:text>
-            <xsl:value-of select="blocks/block[@name = 'signature']/@version" />
-            <xsl:text>]</xsl:text>
-          </xsl:if>
+          <xsl:text>Molinos CMS v</xsl:text>
+          <xsl:value-of select="@version" />
         </title>
         <link rel="stylesheet" type="text/css" href="lib/modules/admin/template.css" />
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
@@ -49,7 +45,7 @@
 
     <div id="all">
       <xsl:apply-templates select="blocks/block[@name = 'menu']" />
-      <xsl:apply-templates select="blocks/block[@name = 'toolbar']" />
+      <xsl:apply-templates select="request/user" mode="toolbar" />
 
       <div id="content_wrapper">
         <div id="center">
@@ -65,11 +61,9 @@
   <!-- всякие ошибки -->
   <xsl:template match="page[@status != 200]" mode="body">
     <div id="exception">
-      <h2>Фатальная ошибка</h2>
+      <h2>Ошибка <xsl:value-of select="@status" /></h2>
       <p>
-        <xsl:value-of select="@error" />
-        <xsl:text>: </xsl:text>
-        <xsl:value-of select="@message" />
+        <xsl:value-of select="@title" />
       </p>
     </div>
   </xsl:template>
@@ -136,17 +130,7 @@
 
   <xsl:template match="link" mode="top_menu_controls">
     <li>
-      <a>
-        <xsl:if test="@url != /page/@url">
-          <xsl:attribute name="href">
-            <xsl:value-of select="@url" />
-          </xsl:attribute>
-        </xsl:if>
-        <xsl:if test="@url = /page/@url">
-          <xsl:attribute name="class">
-            <xsl:text>active</xsl:text>
-          </xsl:attribute>
-        </xsl:if>
+      <a href="{@url}">
         <xsl:value-of select="@title" />
       </a>
     </li>
@@ -154,11 +138,22 @@
 
 
   <!-- панель с иконками -->
-  <xsl:template match="block[@name = 'toolbar']">
+  <xsl:template match="user" mode="toolbar">
     <div id="navbar">
       <div id="top_toolbar">
         <div class="right">
-          <xsl:apply-templates select="a" mode="mcms_toolbar" />
+          <a class="editprofile" href="?q=admin&amp;cgroup=access&amp;action=edit&amp;node={@id}&amp;destination={/page/request/@uri}">
+            <xsl:value-of select="@name" />
+          </a>
+          <a title="Вернуться на главную" href="?q=admin">
+            <img src="lib/modules/admin/img/icons/icon-home.png" alt="home" width="16" height="16" />
+          </a>
+          <a title="Очистить кэш" href="?q=admin.rpc&amp;action=reload&amp;destination={/page/request/@uri}">
+            <img src="lib/modules/admin/img/icons/icon-reload.png" alt="reload" width="16" height="16" />
+          </a>
+          <a title="Выйти" href="?q=user.rpc&amp;action=logout&amp;from={/page/request/@uri}">
+            <img src="lib/modules/admin/img/icons/icon-exit.png" alt="logout" width="16" height="16" />
+          </a>
         </div>
       </div>
       <div id="top_menu_controls_bottom"></div>

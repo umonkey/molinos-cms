@@ -444,16 +444,6 @@ form textarea.resizable {
   height: 50px;
 }
 
-.control-FieldControl-wrapper td {
-  vertical-align: top;
-}
-.control-FieldControl-wrapper .selector {
-  text-decoration: none;
-}
-.control-FieldControl-wrapper td.right {
-  text-align: right !important;
-}
-
 a.bold {
   font-weight: bold;
 }

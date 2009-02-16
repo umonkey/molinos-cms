@@ -39,7 +39,7 @@ class DateTimeControl extends Control
       ));
   }
 
-  public static function getSQL()
+  public function getSQL()
   {
     return 'DATETIME';
   }

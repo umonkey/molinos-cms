@@ -168,7 +168,7 @@ class Node
   /**
    * Возвращает контролы для формы.
    */
-  protected function getFormFields()
+  public function getFormFields()
   {
     $schema = $this->getSchema();
 
@@ -569,6 +569,14 @@ class Node
    * Позволяет запретить редактирование полей конкретных типов.
    */
   public function canEditFields()
+  {
+    return true;
+  }
+
+  /**
+   * Позволяет запретить привязку к разделам.
+   */
+  public function canEditSections()
   {
     return true;
   }

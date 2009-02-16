@@ -3,104 +3,40 @@
 
 class AdminRPC extends RPCHandler implements iRemoteCall
 {
-  /**
-   * Основная точка входа.
-   */
   public static function hookRemoteCall(Context $ctx, $className)
   {
-    // Быстрый и грязный хак для добавления TinyMCE.
-    if (class_exists('TinyMceModule'))
-      TinyMceModule::add_extras($ctx);
+    $page = array(
+      'status' => 200,
+      'base' => $ctx->url()->getBase($ctx),
+      'folder' => $ctx->folder(),
+      'version' => MCMS_VERSION,
+      );
 
     try {
-      if (!$ctx->user->id)
-        throw new UnauthorizedException();
-      $output = mcms::dispatch_rpc(__CLASS__, $ctx, 'status');
-    }
+      $result = parent::hookRemoteCall($ctx, $className);
 
-    catch (UserErrorException $e) {
-      return self::render($ctx, array(
-        'status' => $e->getCode(),
-        'error' => get_class($e),
-        'message' => $e->getMessage(),
-        ));
-    }
-
-    catch (Exception $e) {
-      mcms::fatal($e);
-      return self::render($ctx, array(
-        'status' => 500,
-        'error' => get_class($e),
-        'message' => $e->getMessage(),
-        ));
-    }
-
-    if (true === $output)
-      return $output;
-
-    return self::getPage($ctx, array(
-      'content' => $output,
-      ));
-
-    $action = $ctx->get('action');
-
-    $next = $ctx->get('destination', '');
-
-    switch ($action) {
-    case '404':
-      $ctx->user->checkAccess('u', 'type');
-
-      if ('update' == $ctx->get('mode')) {
-        if (null !== ($src = $ctx->post('src')) and null !== ($dst = $ctx->post('dst'))) {
-          $ctx->db->exec("UPDATE `node__fallback` SET `new` = ? "
-            ."WHERE `old` = ?", array($dst, $src));
-        }
-      } elseif ('delete' == $ctx->get('mode')) {
-        $ctx->db->exec("DELETE FROM `node__fallback` WHERE `old` = ?",
-          array($ctx->get('src')));
-      }
-
-      $next = $ctx->get('destination');
-      break;
-
-    case 'reindex':
-      if (NodeIndexer::run())
-        $next = '?q=admin.rpc&action=reindex';
+      $menu = new AdminMenu();
+      $result .= $menu->getXML($ctx);
+    } catch (Exception $e) {
+      $result = '';
+      if ($e instanceof UserErrorException)
+        $page['status'] = $e->getCode();
       else
-        $next = 'admin';
-      break;
-
-    case 'search':
-      $terms = array();
-
-      foreach (array('term' => '', 'author' => 'uid:', 'type' => 'class:') as $k => $v)
-        if (null !== ($tmp = $ctx->post('search_'. $k)) and !empty($tmp))
-          $terms[] = $v . $tmp;
-
-      if ($tmp = $ctx->post('search_tags')) {
-        if ($ctx->post('search_tags_recurse')) {
-          if (is_array($ids = $ctx->db->getResultsV('id', 'SELECT `n`.`id` FROM `node` `n`, `node` `parent` WHERE `n`.`class` = \'tag\' AND `n`.`deleted` = 0 AND `parent`.`id` = :tid AND `n`.`left` >= `parent`.`left` AND `n`.`right` <= `parent`.`right`', array(':tid' => $tmp))))
-            $tmp = join(',', $ids);
-        }
-        $terms[] = 'tags:'. $tmp;
-      }
-
-      $url = new url($ctx->post('search_from'));
-      $url->setarg('search', trim(join(' ', $terms)));
-      $url->setarg('page', null);
-
-      $next = $url->string();
-
-      break;
-
-    default:
-      if ('GET' == $ctx->method())
-        return self::onGet(self::fixCleanURLs($ctx));
-      else
-        return mcms::dispatch_rpc(__CLASS__, $ctx);
+        $page['status'] = 500;
+      $page['title'] = $e->getMessage();
     }
 
-    $ctx->redirect($next);
+    if (is_string($result)) {
+      $result = html::em('request', array(
+        'remoteIP' => $_SERVER['REMOTE_ADDR'],
+        'uri' => urlencode($_SERVER['REQUEST_URI']),
+        ), $ctx->user->getNode()->getXML('user')) . html::em('blocks', $result);
+
+      $output = html::em('page', $page, $result);
+      $result = xslt::transform($output, os::path('lib', 'modules', 'admin', 'template.xsl'));
+    }
+
+    return $result;
   }
 
   /**
@@ -317,7 +253,7 @@ class AdminRPC extends RPCHandler implements iRemoteCall
   /**
    * Вывод приветствия админки.
    */
-  public static function rpc_get_status(Context $ctx)
+  public static function rpc_get_default(Context $ctx)
   {
     $m = new AdminMenu();
     return $m->getDesktop($ctx);

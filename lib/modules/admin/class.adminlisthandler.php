@@ -278,6 +278,10 @@ class AdminListHandler implements iAdminList
         case 'group':
           $this->title = t('Список групп');
           break;
+        case 'field':
+          $this->title = t('Список полей');
+          $this->limit = null;
+          break;
         default:
           $tmp = Schema::load($type);
 

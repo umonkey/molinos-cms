@@ -29,7 +29,7 @@ class NumberControl extends Control
     parent::__construct($form, array('value'));
   }
 
-  public static function getSQL()
+  public function getSQL()
   {
     return 'DECIMAL(10,2)';
   }

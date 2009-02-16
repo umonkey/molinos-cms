@@ -41,7 +41,7 @@ class EmailControl extends Control
       ));
   }
 
-  public static function getSQL()
+  public function getSQL()
   {
     return 'VARCHAR(255)';
   }

@@ -20,7 +20,7 @@
         </xsl:if>
         <xsl:apply-templates select="massctl" mode="mcms_list" />
 
-        <form id="nodeList" method="post" action="?q=nodeapi.rpc&amp;destination={/page/@urlEncoded}">
+        <form id="nodeList" method="post" action="?q=nodeapi.rpc&amp;destination={/page/request/@uri}">
           <input id="nodeListCommand" type="hidden" name="action" value="" />
           <table class="mcms nodelist">
             <xsl:apply-templates select="data" mode="mcms_list" />
@@ -92,6 +92,35 @@
     </tbody>
   </xsl:template>
 
+  <!-- список полей -->
+  <xsl:template match="data[../@type='field']" mode="mcms_list">
+    <thead>
+      <tr>
+        <th colspan="1" />
+        <th>Имя</th>
+        <th>Название</th>
+        <th>Индекс</th>
+      </tr>
+    </thead>
+    <tbody>
+      <xsl:for-each select="node">
+        <xsl:sort select="@name" />
+        <tr>
+          <xsl:call-template name="odd_row" />
+          <xsl:apply-templates select="." mode="mcms_list_name" />
+          <td>
+            <xsl:value-of select="label" />
+          </td>
+          <td>
+            <xsl:if test="indexed">
+              <xsl:text>X</xsl:text>
+            </xsl:if>
+          </td>
+        </tr>
+      </xsl:for-each>
+    </tbody>
+  </xsl:template>
+
   <!-- вывод разделов -->
   <xsl:template match="data[../@preset = 'taxonomy']" mode="mcms_list">
     <thead>
@@ -112,20 +141,20 @@
     <tr>
       <xsl:call-template name="odd_row" />
       <td class="icon">
-        <a class="icon-add" title="Добавить подраздел" href="?q=admin.rpc&amp;action=create&amp;type=tag&amp;parent={@id}&amp;cgroup={/page/@cgroup}&amp;destination={/page/@urlEncoded}">
+        <a class="icon-add" title="Добавить подраздел" href="?q=admin.rpc&amp;action=create&amp;type=tag&amp;parent={@id}&amp;cgroup={/page/@cgroup}&amp;destination={/page/request/@uri}">
           <span/>
         </a>
       </td>
       <td class="icon">
         <xsl:if test="position() != 1">
-          <a class="icon-raise" title="Поднять раздел" href="?q=nodeapi.rpc&amp;action=raise&amp;node={@id}&amp;destination={/page/@urlEncoded}">
+          <a class="icon-raise" title="Поднять раздел" href="?q=nodeapi.rpc&amp;action=raise&amp;node={@id}&amp;destination={/page/request/@uri}">
             <span/>
           </a>
         </xsl:if>
       </td>
       <td class="icon">
         <xsl:if test="position() != last()">
-          <a class="icon-sink" title="Опустить раздел" href="?q=nodeapi.rpc&amp;action=sink&amp;node={@id}&amp;destination={/page/@urlEncoded}">
+          <a class="icon-sink" title="Опустить раздел" href="?q=nodeapi.rpc&amp;action=sink&amp;node={@id}&amp;destination={/page/request/@uri}">
             <span/>
           </a>
         </xsl:if>
@@ -146,26 +175,57 @@
 
 
   <!-- вывод типов документов -->
-  <xsl:template match="data[../@preset = 'schema']" mode="mcms_list">
+  <xsl:template match="data[../@preset='schema']" mode="mcms_list">
     <thead>
       <tr>
         <th colspan="2" />
         <th>Имя</th>
-        <th>Описание</th>
       </tr>
     </thead>
     <tbody>
       <xsl:for-each select="node">
-        <tr>
-          <xsl:call-template name="odd_row" />
-          <td class="icon">
-            <a class="icon-zoom" href="?q=admin.rpc&amp;action=list&amp;cgroup=content&amp;type={@name}" />
-          </td>
-          <xsl:apply-templates select="." mode="mcms_list_name" />
-          <td class="field-title nowrap">
-            <xsl:value-of select="title" />
-          </td>
-        </tr>
+        <xsl:sort select="title" />
+        <xsl:if test="not(isdictionary)">
+          <tr>
+            <xsl:call-template name="odd_row" />
+            <td class="icon">
+              <a class="icon-zoom" href="?q=admin.rpc&amp;action=list&amp;cgroup=content&amp;type={@name}" />
+            </td>
+            <td>
+              <a href="?q=admin.rpc&amp;cgroup=structure&amp;action=edit&amp;node={@id}&amp;destination={/page/request/@uri}">
+                <xsl:value-of select="title" />
+              </a>
+            </td>
+          </tr>
+        </xsl:if>
+      </xsl:for-each>
+    </tbody>
+  </xsl:template>
+
+  <!-- вывод справочников -->
+  <xsl:template match="data[../@preset='dictlist']" mode="mcms_list">
+    <thead>
+      <tr>
+        <th colspan="2" />
+        <th>Имя</th>
+      </tr>
+    </thead>
+    <tbody>
+      <xsl:for-each select="node">
+        <xsl:sort select="title" />
+        <xsl:if test="isdictionary and @name != 'field'">
+          <tr>
+            <xsl:call-template name="odd_row" />
+            <td class="icon">
+              <a class="icon-zoom" href="?q=admin.rpc&amp;action=list&amp;cgroup=content&amp;type={@name}" />
+            </td>
+            <td>
+              <a href="?q=admin.rpc&amp;cgroup=content&amp;action=edit&amp;node={@id}&amp;destination={/page/request/@uri}">
+                <xsl:value-of select="title" />
+              </a>
+            </td>
+          </tr>
+        </xsl:if>
       </xsl:for-each>
     </tbody>
   </xsl:template>
@@ -198,7 +258,7 @@
       <xsl:choose>
         <xsl:when test="$domains">
           <td class="icon">
-            <a class="icon-edit" href="?q=admin.rpc&amp;action=edit&amp;cgroup=structure&amp;node={@id}&amp;destination={/page/@urlEncoded}" />
+            <a class="icon-edit" href="?q=admin.rpc&amp;action=edit&amp;cgroup=structure&amp;node={@id}&amp;destination={/page/request/@uri}" />
           </td>
           <td class="field-name">
             <a href="?q=admin.rpc&amp;action=tree&amp;preset=pages&amp;subid={@id}&amp;cgroup={/page/@cgroup}">
@@ -215,7 +275,7 @@
         </xsl:when>
         <xsl:otherwise>
           <td class="icon">
-            <a class="icon-add" href="?q=admin.rpc&amp;action=create&amp;type=domain&amp;parent={@id}&amp;destination={/page/@urlEncoded}" />
+            <a class="icon-add" href="?q=admin.rpc&amp;action=create&amp;type=domain&amp;parent={@id}&amp;destination={/page/request/@uri}" />
           </td>
           <xsl:apply-templates select="." mode="mcms_list_name">
             <xsl:with-param name="depth" select="$depth" />
@@ -388,7 +448,7 @@
   <xsl:template match="node" mode="mcms_list_name">
     <xsl:param name="depth" />
     <td class="field-name">
-      <a class="picker" href="?q=admin.rpc&amp;action=edit&amp;cgroup={/page/@cgroup}&amp;node={@id}&amp;destination={/page/@urlEncoded}">
+      <a class="picker" href="?q=admin.rpc&amp;action=edit&amp;cgroup={/page/@cgroup}&amp;node={@id}&amp;destination={/page/request/@uri}">
         <xsl:if test="$depth">
           <xsl:attribute name="style">
             <xsl:text>padding-left:</xsl:text>
@@ -404,7 +464,7 @@
   <xsl:template match="node" mode="mcms_list_author">
     <td class="field-uid">
       <xsl:if test="uid">
-        <a href="?q=admin.rpc&amp;action=edit&amp;cgroup=access&amp;node={@id}&amp;destination={/page/@urlEncoded}">
+        <a href="?q=admin.rpc&amp;action=edit&amp;cgroup=access&amp;node={@id}&amp;destination={/page/request/@uri}">
           <xsl:value-of select="uid/@name" />
         </a>
       </xsl:if>
@@ -457,16 +517,16 @@
 
   <!-- Форма поиска. -->
   <xsl:template name="mcms_list_search" mode="mcms_list">
-    <form method="post" action="?q=admin.rpc&amp;action=search&amp;from={/page/@urlEncoded}">
+    <form method="post" action="?q=admin.rpc&amp;action=search&amp;from={/page/request/@uri}">
       <input type="hidden" name="search_from" value="{/page/@url}" />
       <div class="tb_1">
         <div class="ctrl_left">
-          <a class="newlink" href="?q=admin.rpc&amp;action=create&amp;cgroup={/page/@cgroup}&amp;type={@type}&amp;destination={/page/@urlEncoded}">Добавить</a>
+          <a class="newlink" href="?q=admin.rpc&amp;action=create&amp;cgroup={/page/@cgroup}&amp;type={@type}&amp;destination={/page/request/@uri}">Добавить</a>
           <xsl:text> | </xsl:text>
           <input type="text" name="search_term" class="search_field" value="{/page/@search}" />
           <input type="submit" value="Найти" />
           <xsl:text> | </xsl:text>
-          <a href="?q=admin.rpc&amp;action=search&amp;cgroup={/page/@cgroup}&amp;destination={/page/@urlEncoded}">Расширенный поиск</a>
+          <a href="?q=admin.rpc&amp;action=search&amp;cgroup={/page/@cgroup}&amp;destination={/page/request/@uri}">Расширенный поиск</a>
         </div>
       </div>
     </form>

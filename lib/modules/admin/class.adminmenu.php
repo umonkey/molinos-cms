@@ -59,15 +59,13 @@ class AdminMenu implements iAdminMenu
         $first = null;
 
         foreach ($icons as $icon) {
-          $u = new url($icon['href']);
-          $u->setarg('q', 'admin.rpc');
-          $u->setarg('cgroup', $group);
+          $url = '?q=admin&cgroup=' . $group . '&' . trim($icon['href'], '?&');
 
           if (null === $first)
-            $first = $u->string();
+            $first = $url;
 
           $tmp .= html::em('link', array(
-            'url' => $u->string(),
+            'url' => $url,
             'description' => empty($icon['description']) ? null : $icon['description'],
             'title' => $icon['title'],
             ));

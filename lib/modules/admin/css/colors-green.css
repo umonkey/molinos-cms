@@ -72,10 +72,6 @@ table.mcms.nodelist td {
   color: #414141;
 }
 
-.control-FieldControl-wrapper .selector {
-  color: black;
-}
-
 /* выбранная группа элементов в основной навигации */
 .choosen { background:#E4ECEE; }
 
