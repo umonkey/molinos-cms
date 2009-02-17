@@ -45,11 +45,16 @@ class FieldNode extends Node implements iContentType
       if (!empty($ids)) {
         if ($commit = !$db->isTransactionRunning())
           $db->beginTransaction();
+
         $upd = $db->prepare("INSERT into `{$tableName}` (`id`, `value`) VALUES (?, ?)");
 
         foreach ($ids as $id) {
           $node = NodeStub::create($id, $db);
-          $upd->execute(array($id, $node->{$this->name}));
+          try {
+            $upd->execute(array($id, $node->{$this->name}));
+          } catch (PDOException $e) {
+            mcms::flog(sprintf('not indexing %s/%d: %s', $node->class, $node->id, $e->getMessage()));
+          }
         }
 
         if ($commit)
