@@ -358,6 +358,8 @@ class AdminListHandler implements iAdminList
     if (array_key_exists('class', $filter) and empty($filter['class']))
       unset($filter['class']);
 
+    $filter['deleted'] = !empty($this->deleted);
+
     // $q = new Query($filter); mcms::debug($q, $q->getSelect());
 
     return $filter;
@@ -423,7 +425,7 @@ class AdminListHandler implements iAdminList
     $result = '';
     $filter = $this->getNodeFilter();
 
-    foreach ($nodes = Node::find($this->ctx->db, $this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit) as $node) {
+    foreach ($nodes = Node::find($this->ctx->db, $filter, $this->limit, ($this->page - 1) * $this->limit) as $node) {
       if ('dictlist' != $this->preset or !empty($node->isdictionary))
         $result .= $node->getXML('node');
     }
