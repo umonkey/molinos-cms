@@ -3,6 +3,18 @@
 
 class CommentNode extends Node
 {
+  public function save()
+  {
+    if ($this->anonymous)
+      unset($this->uid);
+    else
+      $this->uid = Context::last()->user->getNode();
+
+    parent::save();
+    $this->publish();
+    return $this;
+  }
+
   public function getName()
   {
     $name = $this->uid
@@ -32,8 +44,10 @@ class CommentNode extends Node
     if (empty($this->node))
       throw new ValidationException(t('Не указан документ, '
         .'к которому добавлен комментарий.'));
-    else
-      $this->linkAddParent($this->node);
+    else {
+      $this->onSave("DELETE FROM `node__rel` WHERE `nid` = %ID%");
+      $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`) VALUES (?, %ID%)", array($this->node));
+    }
 
     return $res;
   }
@@ -41,16 +55,23 @@ class CommentNode extends Node
   public static function getDefaultSchema()
   {
     return array(
-      'name' => array(
-        'label' => t('Заголовок'),
-        'type' => 'TextLineControl',
-        'description' => t('Отображается в списках документов как в административном интерфейсе, так и на самом сайте.'),
-        'required' => true,
-        ),
       'text' => array(
         'type' => 'TextHTMLControl',
         'label' => t('Текст'),
         ),
     );
+  }
+
+  public function getFormFields()
+  {
+    $schema = parent::getFormFields();
+
+    $schema['anonymous'] = new BoolControl(array(
+      'value' => 'anonymous',
+      'label' => t('Оставить анонимный комментарий'),
+      'weight' => 100,
+      ));
+
+    return $schema;
   }
 };
