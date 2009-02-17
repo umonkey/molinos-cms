@@ -557,7 +557,7 @@ class Node
       $filter['-id'] = $this->id;
 
     try {
-      if (Node::count($filter))
+      if (Node::count($this->getDB(), $filter))
         throw new DuplicateException($message ? $message : t('Такой объект уже существует.'));
     } catch (PDOException $e) { }
   }
@@ -595,16 +595,19 @@ class Node
 
     if (count($indexes = $this->getSchema()->getIndexes())) {
       $db = $this->stub->getDB();
-      $data = array('id' => $this->id);
-      $table = 'node__idx_' . $this->class;
 
-      list($sql, $params) = sql::getDelete($table, $data);
-      $db->exec($sql, $params);
+      foreach ($indexes as $idx) {
+        $data = array('id' => $this->id);
+        $table = 'node__idx_' . $idx;
 
-      foreach ($indexes as $idx)
-        $data[$idx] = $this->$idx;
-      list($sql, $params) = sql::getInsert($table, $data);
-      $db->exec($sql, $params);
+        list($sql, $params) = sql::getDelete($table, $data);
+        $db->exec($sql, $params);
+
+        foreach ($indexes as $idx)
+          $data['value'] = $this->$idx;
+        list($sql, $params) = sql::getInsert($table, $data);
+        $db->exec($sql, $params);
+      }
     }
 
     return $this;
