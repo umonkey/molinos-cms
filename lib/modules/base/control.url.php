@@ -23,4 +23,9 @@ class URLControl extends EmailControl implements iFormControl
       'name' => 'Адрес страницы или сайта',
       );
   }
+
+  public function getSQL()
+  {
+    return null;
+  }
 };

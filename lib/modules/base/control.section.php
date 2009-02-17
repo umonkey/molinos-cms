@@ -59,4 +59,9 @@ class SectionControl extends EnumControl implements iFormControl
       return null;
     return Node::create($data->class)->getEnabledSections();
   }
+
+  public function getSQL()
+  {
+    return null;
+  }
 }

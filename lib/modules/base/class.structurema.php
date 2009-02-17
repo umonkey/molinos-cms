@@ -7,7 +7,6 @@ class StructureMA
   private $domains = array();
   private $aliases = array();
   private $access = array();
-  private $schema = array();
   private $modules = array();
 
   public function import()
@@ -15,13 +14,11 @@ class StructureMA
     $this->getWidgets();
     $this->getDomains();
     $this->getAccess();
-    $this->getSchema();
 
     return array(
       'widgets' => $this->widgets,
       'aliases' => $this->aliases,
       'domains' => $this->domains,
-      'schema' => $this->schema,
       'access' => $this->access,
       'modules' => $this->getModules(),
       );
@@ -177,24 +174,6 @@ class StructureMA
       'groups' => $groups,
       'types' => $types,
       );
-  }
-
-  private function getSchema()
-  {
-    // Получаем список сохранённых типов.
-    $types = (array)Context::last()->db->getResultsV("name", "SELECT `n`.`name` FROM `node` `n` "
-      . "WHERE `n`.`deleted` = 0 AND `n`.`class` = 'type'");
-
-    // Добавляем типы, известные только по классам.
-    foreach (Loader::getImplementors('iContentType') as $class) {
-      if ('' !== ($name = strtolower(substr($class, 0, -4)))) {
-        if (!in_array($name, $types))
-          $types[] = $name;
-      }
-    }
-
-    foreach ($types as $type)
-      $this->schema[$type] = Schema::load($type, /* $cached = */ false);
   }
 
   private function getModules()

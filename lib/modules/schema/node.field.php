@@ -63,6 +63,12 @@ class FieldNode extends Node implements iContentType
         'label' => t('Подсказка'),
         'description' => t('Помогает пользователю понять, что следует вводить в это поле.'),
         ),
+      'weight' => array(
+        'type' => 'NumberControl',
+        'label' => t('Вес'),
+        'default' => 50,
+        'description' => t('Используется для сортировки полей в форме. Чем меньше значение, тем выше поле.'),
+        ),
       'required' => array(
         'type' => 'BoolControl',
         'label' => t('Обязательное'),
@@ -89,6 +95,9 @@ class FieldNode extends Node implements iContentType
           $fields[$k] = $v;
       }
     }
+
+    if (isset($fields['indexed']) and NodeStub::isBasicField($this->name))
+      unset($fields['indexed']);
 
     $fields['types'] = array(
       'type' => 'SetControl',

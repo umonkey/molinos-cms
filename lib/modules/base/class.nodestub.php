@@ -150,7 +150,7 @@ class NodeStub
     if (null === $this->data)
       $this->retrieve();
 
-    if (!$this->isBasicField($fieldName)) {
+    if (!self::isBasicField($fieldName)) {
       if (array_key_exists('data', $this->data)) {
         $fields = empty($this->data['data'])
           ? array()
@@ -237,7 +237,7 @@ class NodeStub
             if (isset($schema[$k]))
               $v = $schema[$k]->format($v);
 
-            if ($this->isBasicField($k))
+            if (self::isBasicField($k))
               $data[$k] = $v;
             else
               $data['#text'] .= html::em($k, html::cdata($v));
@@ -294,7 +294,7 @@ class NodeStub
           if (isset($schema[$k]))
             $v = $schema[$k]->format($v);
 
-          if ($this->isBasicField($k))
+          if (self::isBasicField($k))
             $data[$k] = $v;
           else
             $data['#text'] .= html::em($k, html::cdata($v));
@@ -568,7 +568,7 @@ class NodeStub
           $v->save();
         $this->onSave("DELETE FROM `node__rel` WHERE `tid` = %ID% AND `key` = ?", array($k));
         $this->onSave("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) VALUES (%ID%, ?, ?)", array($v->id, $k));
-      } elseif ($this->isBasicField($k))
+      } elseif (self::isBasicField($k))
         $fields[$k] = $v;
       elseif (!empty($v))
         $extra[$k] = $v;
@@ -582,7 +582,7 @@ class NodeStub
   /**
    * Проверяет, является ли поле стандартным.
    */
-  private function isBasicField($fieldName)
+  public static function isBasicField($fieldName)
   {
     switch ($fieldName) {
     case 'id':

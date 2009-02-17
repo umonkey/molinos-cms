@@ -97,6 +97,7 @@
     <thead>
       <tr>
         <th colspan="1" />
+        <th>№</th>
         <th>Имя</th>
         <th>Название</th>
         <th>Индекс</th>
@@ -104,9 +105,13 @@
     </thead>
     <tbody>
       <xsl:for-each select="node">
-        <xsl:sort select="@name" />
+        <xsl:sort select="weight" data-type="number" />
+        <xsl:sort select="@name" data-type="text" />
         <tr>
           <xsl:call-template name="odd_row" />
+          <td class="r">
+            <xsl:value-of select="weight" />
+          </td>
           <xsl:apply-templates select="." mode="mcms_list_name" />
           <td>
             <xsl:value-of select="label" />

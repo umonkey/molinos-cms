@@ -54,7 +54,7 @@ class NodeLinkControl extends Control
 
   public function getSQL()
   {
-    return 'INTEGER';
+    return null;
   }
 
   public function getXML($data)

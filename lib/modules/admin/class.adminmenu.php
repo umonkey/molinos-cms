@@ -135,13 +135,6 @@ class AdminMenu implements iAdminMenu
         'weight' => -1,
         );
 
-    if ($user->hasAccess('u', 'type'))
-      $icons[] = array(
-        'group' => 'structure',
-        'href' => '?action=list&preset=schema',
-        'title' => t('Типы документов'),
-        );
-
     if (count($user->getAccess('u') + $user->getAccess('c'))) {
       $icons[] = array(
         'group' => 'content',

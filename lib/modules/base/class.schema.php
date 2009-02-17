@@ -45,9 +45,9 @@ class Schema extends ArrayObject
    */
   public static function load($class, $cached = true)
   {
-    return $cached
-      ? new Schema(Structure::getInstance()->findSchema($class, array()))
-      : self::rebuild($class);
+    if (!is_array($cached = mcms::cache($ckey = 'schema:' . $class)))
+      mcms::cache($ckey, $cached = new Schema(self::rebuild($class)));
+    return $cached;
   }
 
   /**
@@ -60,8 +60,12 @@ class Schema extends ArrayObject
   {
     // Загружаем из БД.
     try {
-      $node = NodeStub::loadByName(Context::last()->db, $class, 'type');
-      $schema = $node->fields;
+      $db = Context::last()->db;
+      // В будущем выборку по классу можно будет удалить, и получать все данные одним запросом.
+      $data = $db->getResultsKV("name", "data", "SELECT DISTINCT f.name AS name, f.data AS data FROM node f INNER JOIN node__rel r ON r.nid = f.id INNER JOIN node t ON t.id = r.tid WHERE t.class = 'type' AND f.class = 'field' AND t.name = ? AND f.deleted = 0 ORDER BY t.name, f.name", array($class));
+      $schema = array();
+      foreach ($data as $k => $v)
+        $schema[$k] = unserialize($v);
     } catch (ObjectNotFoundException $e) {
       $schema = array();
     }
@@ -87,12 +91,6 @@ class Schema extends ArrayObject
         }
       }
     }
-
-    // Очистка от мусора.
-    foreach ($schema as $field => $meta)
-      foreach ($meta as $k => $v)
-        if (empty($v))
-          unset($schema[$field][$k]);
 
     return $schema;
   }
