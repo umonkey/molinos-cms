@@ -119,8 +119,16 @@ class XMLRouter implements iRequestRouter
           continue;
 
         if (class_exists($widget['class'])) {
-          $o = new $widget['class']($name, $widget);
-          $result[$name] = $o->render($ctx);
+          try {
+            $o = new $widget['class']($name, $widget);
+            $result[$name] = $o->render($ctx);
+          } catch (Exception $e) {
+            $result[$name] = html::em('widget', array(
+              'name' => $name,
+              'error' => $e->getMessage(),
+              'type' => get_class($e),
+              ));
+          }
         } else {
           $result[$name] = "<!-- widget {$name} halted: class {$widget['class']} not found. -->";
         }
