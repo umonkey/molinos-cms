@@ -48,7 +48,6 @@ class TypeNode extends Node implements iContentType
     parent::save();
 
     $this->publish();
-    $this->updateTable();
 
     // Обновляем тип документов, если он изменился.
     if (null !== $this->oldname and $this->name != $this->oldname) {
@@ -86,11 +85,6 @@ class TypeNode extends Node implements iContentType
 
   public function delete()
   {
-    $t = new TableInfo($this->getDB(), 'node__idx_'. $this->name);
-    if ($t->exists()) {
-      $t->delete();
-    }
-
     // удалим связанные с этим типом документы
     $this->getDB()->exec("DELETE FROM `node` WHERE `class` = :type", array(':type' => $this->name));
 
@@ -114,110 +108,6 @@ class TypeNode extends Node implements iContentType
     // FIXME: удалить
   }
 
-  // Возвращает информацию о типе документа, включая поля.
-  public function getFields()
-  {
-    return empty($this->fields) ? array() : $this->fields;
-  }
-
-  // Возвращает описание отдельного поля.
-  public function fieldGet($name)
-  {
-    if (!empty($this->data['fields'][$name]) and is_array($this->data['fields'][$name]))
-      return $this->data['fields'][$name];
-    return null;
-  }
-
-  // Изменяет (или добавляет) поле.
-  public function fieldSet($name, array $data)
-  {
-    $fields = $this->fields;
-
-    if (!empty($fields[$name])) {
-      ksort($fields[$name]);
-      ksort($data);
-
-      if (serialize($fields[$name]) === serialize($data))
-        return false;
-    }
-
-    $fields[$name] = $data;
-    $this->fields = $fields;
-
-    return true;
-  }
-
-  // Удаляет поле.
-  public function fieldDelete($name)
-  {
-    if (empty($this->data['fields'][$name]))
-      return false;
-    unset($this->data['fields'][$name]);
-    return true;
-  }
-
-  public function recreateIdxTable($tblname)
-  {
-    if ($tblname != $this->name)
-      throw new InvalidArgumentException(t('Пересоздание полей не в том объекте: %a vs. %b', array(
-        '%a' => $this->name,
-        '%b' => $tblname,
-        )));
-
-    $this->getDB()->exec("DROP TABLE IF EXISTS node__idx_{$tblname}");
-
-    // $result = Node::create($tblname)->schema();
-    // $this->fields = $result['fields'];
-    // $this->name = $tblname;
-    return $this->updateTable();
-  }
-
-  public function fieldMove($name, $delta = 0)
-  {
-    if (empty($this->data['fields'][$name]))
-      return false;
-
-    self::move_array_element($this->data['fields'], $name, $delta);
-    return true;
-  }
-
-  // Перемещение элемента массива.
-  private static function move_array_element(array &$array, $key, $offset)
-  {
-    $keys = array_keys($array);
-
-    // Валидация.
-    if (empty($key) or empty($array[$key]))
-      return;
-
-    // Пока сокращаем до одного шага в любую сторону.
-    $offset = ($offset < 1) ? -1 : 1;
-
-    // Определяем позицию перемещаемого элемента.
-    if (($src = array_search($key, $keys)) === false)
-      return;
-
-    // Определяем позицию элемента, с которым производим обмен.
-    $dst = $src + $offset;
-
-    // Валидация.
-    if ($dst < 0 or $dst >= count($keys))
-      return;
-
-    // Обмен.
-    $old = $keys[$dst];
-    $keys[$dst] = $keys[$src];
-    $keys[$src] = $old;
-
-    // Формирование нового массива.
-    $data = array();
-    foreach ($keys as $k)
-      $data[$k] = $array[$k];
-
-    // Замещаем.
-    $array = $data;
-  }
-
   public function getFormTitle()
   {
     if ($this->isdictionary)
@@ -230,100 +120,9 @@ class TypeNode extends Node implements iContentType
       : t('Добавление нового типа документа');
   }
 
-  public function updateTable()
-  {
-    $t = new TableInfo($this->getDB(), 'node__idx_'. $this->name);
-
-    if (!$t->columnExists('id'))
-      $t->columnSet('id', array(
-        'type' => 'int(10)',
-        'required' => true,
-        'key' => 'pri',
-        ));
-
-    // Добавляем новые поля.
-    foreach ((array)$this->fields as $k => $v) {
-      if (self::isReservedFieldName($k))
-        $v['indexed'] = false;
-
-      if (!empty($v['indexed'])) {
-        self::checkFieldName($k);
-
-        if (!empty($v['type']) and class_exists($v['type'])) {
-          $spec = array(
-            'type' => call_user_func(array($v['type'], 'getSQL')),
-            'required' => false, // !empty($v['required']),
-            'key' => 'mul',
-            'default' => (isset($v['default']) and '' !== $v['default']) ? $v['default'] : null,
-            );
-          $t->columnSet($k, $spec);
-        }
-      }
-    }
-
-    // Удалим ненужные индексы.
-    foreach (array_keys($t->getColumns()) as $idx) {
-      if ($idx != 'id' and empty($this->fields[$idx]['indexed']))
-        $t->columnDel($idx);
-    }
-
-    // Если таблица создаётся, и колонка всего одна — rid — пропускаем.
-    if (!$t->exists() and $t->columnCount() == 1 and $t->columnExists('id'))
-      return false;
-
-    $t->commit();
-
-    // Значения в индексной таблице обновляются по cron
-    $this->getDB()->exec("DELETE FROM `node__idx_{$this->name}`");
-
-    return true;
-  }
-
-  private static function checkFieldName($name)
-  {
-    $ok = true;
-
-    if (strspn(strtolower($name), 'abcdefghijklmnopqrstuvwxyz0123456789_') != strlen($name))
-      $ok = false;
-
-    if ($ok and (substr($name, 0, 1) == '_' or substr($name, -1) == '_'))
-      $ok = false;
-
-    if ($ok and (false !== strstr($name, '__')))
-      $ok = false;
-
-    if (!$ok)
-      throw new ValidationException('name', t("Имя поля может содержать только буквы латинского алфавита, арабские цифры и символ подчёркивания (\"_\"), вы ввели: %name.", array('%name' => $name)));
-  }
-
-  public static function isReservedFieldName($field)
-  {
-    return in_array($field, self::getReservedNames());
-  }
-
   public static function getInternal()
   {
     return array('type', 'tag', 'widget', 'domain', 'moduleinfo', 'file', 'user', 'group', 'comment', 'moduleinfo');
-  }
-
-  public static function getReservedNames()
-  {
-    return array(
-      'id',
-      'nid',
-      'rid',
-      'parent_id',
-      'class',
-      'left',
-      'right',
-      'created',
-      'updated',
-      'lang',
-      'uid',
-      'name',
-      'data',
-      'published',
-      );
   }
 
   public static function getAccessible($mode = 'r')

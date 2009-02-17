@@ -6,24 +6,8 @@ class StatusChecker implements iScheduler
   {
     $parts = array();
 
-    NodeIndexer::run();
-
     if ($message = self::getBrokenTrees($ctx))
       $parts[] = $message;
-
-    if ($idx = NodeIndexer::stats($ctx, false)) {
-      $total = $idx['_total'];
-      unset($idx['_total']);
-
-      $list = array();
-
-      foreach ($idx as $k => $v)
-        $list[] = $k . ': ' . $v;
-
-      $parts[] = t('Есть непроиндексированные объекты (!list); они будут выпадать из запросов, использующих поиск и сортировку по нестандартным полям.', array(
-        '!list' => join(', ', $list),
-        ));
-    }
 
     if (null !== ($message = self::checkAccessRights($ctx)))
       $parts[] = $message;
