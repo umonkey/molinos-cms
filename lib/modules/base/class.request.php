@@ -74,6 +74,9 @@ class Request
     if ('admin' == $query or 0 === strpos($query, 'admin/'))
       $query = 'admin.rpc';
 
+    if (0 === strpos($query, 'attachment/'))
+      $query = 'attachment.rpc';
+
     switch (strtolower(substr($query, strrpos($query, '.')))) {
     case '.rpc':
       return new RPCRouter($query);
