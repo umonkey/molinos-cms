@@ -105,7 +105,7 @@ class TypeNode extends Node implements iContentType
 
   private function flush()
   {
-    // FIXME: удалить
+    Schema::flush($this->name);
   }
 
   public function getFormTitle()
