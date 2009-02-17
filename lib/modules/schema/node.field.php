@@ -129,12 +129,14 @@ class FieldNode extends Node implements iContentType
         're' => '@^[a-z0-9]+$@',
         'description' => t('Используется внутри системы и в шаблонах. Только латинские буквы и арабские цифры.'),
         'readonly' => !empty($this->id),
+        'weight' => 1,
         ),
       'label' => array(
         'type' => 'TextLineControl',
         'label' => t('Отображаемое имя'),
         'required' => true,
         'description' => t('Используется в формах редактирования документов.'),
+        'weight' => 2,
         ),
       'type' => array(
         'type' => 'EnumControl',
@@ -142,21 +144,24 @@ class FieldNode extends Node implements iContentType
         'options' => Control::getKnownTypes(),
         'required' => true,
         'default' => 'TextLineControl',
+        'weight' => 3,
         ),
       'description' => array(
         'type' => 'TextAreaControl',
         'label' => t('Подсказка'),
         'description' => t('Помогает пользователю понять, что следует вводить в это поле.'),
+        'weight' => 50,
         ),
       'weight' => array(
         'type' => 'NumberControl',
         'label' => t('Вес'),
-        'default' => 50,
+        'default' => 55,
         'description' => t('Используется для сортировки полей в форме. Чем меньше значение, тем выше поле.'),
         ),
       'required' => array(
         'type' => 'BoolControl',
         'label' => t('Обязательное'),
+        'weight' => 60,
         ),
       );
 
@@ -174,6 +179,7 @@ class FieldNode extends Node implements iContentType
           $fields['indexed'] = array(
             'type' => 'BoolControl',
             'label' => t('Используется для поиска и сортировки'),
+            'weight' => 61,
             );
 
         foreach ((array)$tmp->getExtraSettings() as $k => $v)

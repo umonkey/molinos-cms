@@ -153,6 +153,7 @@ class NodeLinkControl extends Control
         'label' => t('Справочник'),
         'required' => true,
         'options' => TypeNode::getDictionaries(),
+        'weight' => 4,
         ),
       );
 
