@@ -184,11 +184,10 @@ class CommentWidget extends Widget
 
     $cids = $this->listComments($options['doc'], empty($options['page']) ? 1 : $options['page']);
 
-    $nodes = Node::find(array(
+    $nodes = Node::find($this->ctx->db, array(
       'class' => 'comment',
       'id' => $cids,
-      '#sort' => array('id' => 'asc'),
-      '#recurse' => $this->deep ? 2 : 1,
+      '#sort' => 'id',
       ));
 
     $tmp = null;
@@ -219,7 +218,7 @@ class CommentWidget extends Widget
     $limit = $this->perpage;
     $offset = ($page - 1) * $limit;
 
-    $result['comments'] = self::fixNames(Node::find($filter, $limit, $offset));
+    $result['comments'] = self::fixNames(Node::find($this->ctx->db, $filter, $limit, $offset));
 
     if (!empty($result['comments'])) {
       $parents = array();
@@ -227,7 +226,7 @@ class CommentWidget extends Widget
 
       $map = $this->ctx->db->getResultsKV("nid", "tid", "SELECT `r`.`nid` as `nid`, `r`.`tid` as `tid` FROM `node__rel` `r` WHERE `r`.`nid` IN ({$cids})");
 
-      $nodes = Node::find(array('id' => array_unique($map)));
+      $nodes = Node::find($this->ctx->db, array('id' => array_unique($map)));
 
       foreach ($map as $k => $v)
         $result['comments'][$k]['node'] = $nodes[$v]->getRaw();
@@ -253,9 +252,8 @@ class CommentWidget extends Widget
     if (empty($uids))
       $users = array();
     else
-      $users = Node::find(array(
+      $users = Node::find(context::last()->db, array(
         'id' => array_unique($uids),
-        '#recurse' => 0,
         ));
 
     foreach ($nodes as $k => $v) {

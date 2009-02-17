@@ -8,12 +8,26 @@ class FieldNode extends Node implements iContentType
       '%name' => $this->name,
       )));
 
+    // Сбрасываем кэш старых типов.
+    $this->flushSchema();
+
     parent::save();
+
+    // Сбрасываем кэш новых типов.
+    $this->flushSchema();
 
     $this->publish();
     $this->checkIndex();
 
     return $this;
+  }
+
+  private function flushSchema()
+  {
+    if ($this->id) {
+      foreach ($this->getDB()->getResultsV("name", "SELECT `name` FROM `node` WHERE `class` = 'type' AND `id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ?)", array($this->id)) as $name)
+        Schema::flush($name);
+    }
   }
 
   /**

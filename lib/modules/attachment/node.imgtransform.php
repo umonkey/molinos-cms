@@ -136,7 +136,7 @@ class ImgTransformNode extends Node implements iContentType
 
     @set_time_limit(0);
 
-    $nodes = Node::find(array(
+    $nodes = Node::find($this->getDB(), array(
       'class' => 'file',
       'filetype' => 'image/%',
       ));

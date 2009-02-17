@@ -71,7 +71,7 @@ class ModManRPC extends RPCHandler implements iRemoteCall
         unset($conf['debuggers']);
     }
 
-    if (count($tmp = array_values(Node::find(array('class' => 'moduleinfo', 'name' => $module)))))
+    if (count($tmp = array_values(Node::find($ctx->db, array('class' => 'moduleinfo', 'name' => $module)))))
       $node = $tmp[0];
     else
       $node = Node::create('moduleinfo', array(

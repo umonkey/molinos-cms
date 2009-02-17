@@ -17,7 +17,7 @@ class NodeIndexer
           . "WHERE class = 'type' AND deleted = 0");
 
         foreach ($types as $type) {
-          $schema = Schema::load($type);
+          $schema = Schema::load($ctx->db, $type);
           if ($schema->hasIndexes())
             self::countTable($ctx, $type, $stat, $schema);
         }
@@ -84,8 +84,6 @@ class NodeIndexer
             $node = Node::load(array(
               'id' => $id,
               'class' => $class,
-              '#recurse' => 1,
-              '#cache' => false,
               ));
 
             $node->reindex();

@@ -53,9 +53,7 @@ class MessageListWidget extends Widget
       'class' => 'message',
       're' => $options['uid'],
       'deleted' => 0,
-      '#sort' => array(
-        'id' => 'desc',
-        ),
+      '#sort' => '-id',
       );
 
     foreach (Node::find($filter, $options['limit']) as $n)

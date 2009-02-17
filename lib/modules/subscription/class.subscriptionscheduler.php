@@ -17,11 +17,11 @@ class SubscriptionScheduler implements iScheduler
       return;
 
     // Обрабатываем активных пользователей.
-    foreach (Node::find(array('class' => 'subscription')) as $user) {
+    foreach (Node::find($ctx->db, array('class' => 'subscription')) as $user) {
       $olast = $last = intval($user->last);
 
       // Получаем список разделов, на которые распространяется подписка.
-      $tags = Node::find(array(
+      $tags = Node::find($ctx->db, array(
         'class' => 'tag',
         'published' => 1,
         'tagged' => $user->id,
@@ -30,7 +30,7 @@ class SubscriptionScheduler implements iScheduler
       if (empty($tags))
         continue;
 
-      $nodes = Node::find(array(
+      $nodes = Node::find($ctx->db, array(
         'class' => $types,
         'tags' => array_keys($tags),
         'id' => array('>'. $last),

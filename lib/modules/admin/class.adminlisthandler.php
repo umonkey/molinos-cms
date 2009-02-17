@@ -141,6 +141,8 @@ class AdminListHandler implements iAdminList
 
   protected function setUp($preset = null)
   {
+    $this->deleted = 0;
+
     unset($this->title);
     // Некоторые заготовки.
     if (null !== ($this->preset = $preset)) {
@@ -191,7 +193,7 @@ class AdminListHandler implements iAdminList
         $this->columns = array('name', 'title', 'description', 'created');
         $this->limit = null;
         $this->page = 1;
-        $this->sort = array('name');
+        $this->sort = 'name';
         $this->zoomlink = "?q=admin&cgroup=content&columns=name,class,uid,created&mode=list&search=class%3ANODENAME";
         break;
       case 'widgets':
@@ -200,13 +202,13 @@ class AdminListHandler implements iAdminList
         $this->columns = array('name', 'title', 'classname', 'description', 'created');
         $this->limit = null;
         $this->page = 1;
-        $this->sort = array('name');
+        $this->sort = 'name';
         break;
       case 'comments':
         $this->types = array('comment');
         $this->title = t('Список комментариев');
         $this->columns = array('uid', 'text', 'created');
-        $this->sort = array('-id');
+        $this->sort = '-id';
         break;
       case 'dictlist':
         $this->title = t('Справочники');
@@ -219,7 +221,7 @@ class AdminListHandler implements iAdminList
           'created' => 'Дата создания',
           );
         $this->linkfield = 'title';
-        $this->sort = array('name');
+        $this->sort = 'name';
         $this->limit = null;
         $this->page = 1;
         break;
@@ -230,7 +232,7 @@ class AdminListHandler implements iAdminList
           'description' => 'Описание',
           'created' => 'Добавлено',
           );
-        $this->sort = array('name');
+        $this->sort = 'name';
         break;
       case '404':
         $this->columns = array('old', 'new', 'ref');
@@ -254,7 +256,7 @@ class AdminListHandler implements iAdminList
         $this->hidesearch = true;
         $this->addlink = '?q=admin.rpc&action=create&type=domain&cgroup=structure'
           .'&destination=CURRENT';
-        $this->sort = array('name');
+        $this->sort = 'name';
         $this->limit = null;
         break;
       }
@@ -283,7 +285,7 @@ class AdminListHandler implements iAdminList
           $this->limit = null;
           break;
         default:
-          $tmp = Schema::load($type);
+          $tmp = Schema::load($this->ctx->db, $type);
 
           if (!empty($tmp['isdictionary']))
             $this->title = t('Справочник «%name»', array('%name' => mb_strtolower($tmp['title'])));
@@ -323,33 +325,18 @@ class AdminListHandler implements iAdminList
       $filter['class'] = array();
       $itypes = TypeNode::getInternal();
 
-      foreach (Node::find(array('class' => 'type', '#recurse' => 0)) as $n) {
+      foreach (Node::find($this->ctx->db, array('class' => 'type')) as $n) {
         if (empty($n->isdictionary) and $this->haveModule($n->adminmodule) and !in_array($n->name, $itypes))
           $filter['class'][] = $n->name;
       }
 
       $filter['class'] = self::filterImmutable($filter['class']);
-
-      if (empty($filter['class']))
-        $filter['class'][] = null;
     }
 
-    if (!empty($this->sort)) {
-      foreach ($this->sort as $field) {
-        if (substr($field, 0, 1) == '-') {
-          $mode = 'desc';
-          $field = substr($field, 1);
-        } else {
-          $mode = 'asc';
-        }
-
-        $filter['#sort'][$field] = $mode;
-      }
-    } else {
-      $filter['#sort'] = array(
-        'id' => 'desc',
-        );
-    }
+    if (!empty($this->sort))
+      $filter['#sort'] = $this->sort;
+    else
+      $filter['#sort'] = '-id';
 
     if (null !== ($tmp = $this->ctx->get('search')))
       $filter['#search'] = $tmp;
@@ -365,12 +352,13 @@ class AdminListHandler implements iAdminList
       }
     }
 
-    if (!$this->nopermcheck)
-      $filter['#permcheck'] = true;
-    $filter['#recurse'] = 1;
-
     if ('pages' == $this->preset)
       $filter['parent_id'] = null;
+
+    if (array_key_exists('class', $filter) and empty($filter['class']))
+      unset($filter['class']);
+
+    // $q = new Query($filter); mcms::debug($q, $q->getSelect());
 
     return $filter;
   }
@@ -435,7 +423,7 @@ class AdminListHandler implements iAdminList
     $result = '';
     $filter = $this->getNodeFilter();
 
-    foreach ($nodes = Node::find($filter = $this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit) as $node) {
+    foreach ($nodes = Node::find($this->ctx->db, $this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit) as $node) {
       if ('dictlist' != $this->preset or !empty($node->isdictionary))
         $result .= $node->getXML('node');
     }
@@ -452,7 +440,7 @@ class AdminListHandler implements iAdminList
         break;
       default:
         $filter = $this->getNodeFilter();
-        $this->pgcount = Node::count($filter);
+        $this->pgcount = Node::count($this->ctx->db, $filter);
       }
     }
 

@@ -90,20 +90,16 @@ class Node
   /**
    * Поиск нод.
    */
-  public static function find(array $query, $limit = null, $offset = null)
+  public static function find(PDO_Singleton $db, array $query, $limit = null, $offset = null)
   {
-    $params = array();
-    $nqb = new NodeQueryBuilder($query);
-    $nqb->getSelectQuery($sql, $params, array('`node`.`id`'));
+    $query = new Query($query);
+    list($sql, $params) = $query->getSelect($limit, $offset);
 
-    if (null !== $limit)
-      $sql .= ' LIMIT ' . intval($offset) . ', ' . intval($limit);
-
-    $db = Context::last()->db;
-    $data = $db->getResultsV("id", $sql, $params);
+    $sth = $db->prepare($sql);
+    $sth->execute($params);
 
     $result = array();
-    foreach ((array)$data as $id)
+    while ($id = $sth->fetchColumn(0))
       $result[] = NodeStub::create($id, $db);
 
     return $result;
@@ -112,14 +108,15 @@ class Node
   /**
    * Подсчёт нод.
    */
-  public static function count(array $query)
+  public static function count(PDO_Singleton $db, array $query)
   {
-    $params = array();
-    $nqb = new NodeQueryBuilder($query);
-    $nqb->getCountQuery($sql, $params, array('id'));
+    $query = new Query($query);
+    list($sql, $params) = $query->getCount();
 
-    $db = Context::last()->db;
-    return intval($db->getResult($sql, $params));
+    $sth = $db->prepare($sql);
+    $sth->execute($params);
+
+    return intval($sth->fetchColumn(0));
   }
 
   /**
@@ -287,7 +284,7 @@ class Node
    */
   public final function getSchema()
   {
-    return Schema::load($this->class);
+    return Schema::load($this->getDB(), $this->class);
   }
 
   /**
@@ -406,7 +403,7 @@ class Node
 
     // Вывод обычных списков
     else {
-      foreach ((array)Node::find(array('class' => $class, 'deleted' => 0)) as $n) {
+      foreach ((array)Node::find(Context::last()->db, array('class' => $class, 'deleted' => 0)) as $n) {
         $value = ('name' == $field)
           ? $n->getName()
           : $n->$field;

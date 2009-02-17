@@ -13,7 +13,7 @@ class SearchScheduler implements iScheduler
       ."AND `class` NOT IN ('". join("', '", TypeNode::getInternal()) ."') "
       ."AND `id` NOT IN (SELECT `nid` FROM `node__searchindex`)");
 
-    foreach (Node::find(array('id' => $nids), 100) as $node)
+    foreach (Node::find($ctx->db, array('id' => $nids), 100) as $node)
       self::reindexNode($node);
     */
   }

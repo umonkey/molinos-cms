@@ -12,7 +12,7 @@ class AttachmentNodeHook implements iNodeHook
 
   private static function transform(FileNode $file)
   {
-    $modes = Node::find(array(
+    $modes = Node::find($file->getDB(), array(
       'class' => 'imgtransform',
       ));
 

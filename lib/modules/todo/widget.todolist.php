@@ -93,7 +93,7 @@ class TodoListWidget extends Widget
   {
     $result = array();
     
-    foreach (Node::find(array('class' => 'user')) as $node)
+    foreach (Node::find($this->ctx->db, array('class' => 'user')) as $node)
       $result[$node->id] = empty($node->fullname) ? $node->name : $node->fullname;
       
     asort($result);
@@ -105,10 +105,7 @@ class TodoListWidget extends Widget
   {
     $filter = array(
       'class' => 'todo',
-      '#sort' => array(
-        'created' => 'asc',
-        ),
-      '#recurse' => 1,
+      '#sort' => 'created',
       );
 
     if (!empty($this->options['rel'])) {
@@ -122,6 +119,6 @@ class TodoListWidget extends Widget
           array($rel, $rel, $rel));
     }
 
-    return Node::find($filter);
+    return Node::find($ctx->db, $filter);
   }
 }

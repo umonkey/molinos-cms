@@ -118,7 +118,7 @@ class DomainNode extends Node implements iContentType
 
     $result = array();
 
-    foreach ($roots = Node::find(array('class' => 'domain', 'parent_id' => null)) as $root) {
+    foreach ($roots = Node::find(Context::last()->db, array('class' => 'domain', 'parent_id' => null)) as $root) {
       if (empty($root->redirect)) {
         foreach ($root->getChildren('flat') as $em)
           if ($dev or $em['theme'] != 'admin')
@@ -234,7 +234,7 @@ class DomainNode extends Node implements iContentType
 
     // При изменении имени домена обновляем все ссылки.
     if (!empty($oldname) and $oldname != $this->name) {
-      foreach (Node::find(array('class' => 'domain')) as $node)
+      foreach (Node::find($this->getDB(), array('class' => 'domain')) as $node)
         if ($node->redirect == $oldname) {
           $node->redirect = $this->name;
           $node->save();

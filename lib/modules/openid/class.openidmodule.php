@@ -51,7 +51,7 @@ class OpenIdModule implements iRemoteCall
       if (null === $openid)
         throw new RuntimeException('OpenID провайдер не вернул идентификатор.');
 
-      if (!count($nodes = Node::find(array('class' => 'user', 'name' => $openid)))) {
+      if (!count($nodes = Node::find($ctx->db, array('class' => 'user', 'name' => $openid)))) {
         if ('open' != $mode)
           throw new ForbiddenException(t('Извините, автоматическая регистрация пользователей через OpenID отключена.'));
 

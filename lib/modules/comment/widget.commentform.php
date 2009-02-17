@@ -27,7 +27,7 @@ class CommentFormWidget extends Widget
   public static function getConfigOptions()
   {
     $fields = array();
-    $schema = Schema::load('comment');
+    $schema = Schema::load($this->ctx->db, 'comment');
     foreach ($schema as $k => $v)
       $fields[$k] = $v->label . ' (' . $k . ')';
 
@@ -190,7 +190,7 @@ class CommentFormWidget extends Widget
 
         $emails = array();
 
-        foreach (Node::find(array('class' => 'user', 'id' => $uids)) as $user)
+        foreach (Node::find($c->getDB(), array('class' => 'user', 'id' => $uids)) as $user)
           mcms::mail(null, $user, t('Новый комментарий на %site', array('%site' => $_SERVER['HTTP_HOST'])), $message, null, $headers);
       }
     }

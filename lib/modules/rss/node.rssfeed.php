@@ -134,19 +134,8 @@ class RssfeedNode extends Node
     $filter = array(
       'published' => 1,
       'class' => preg_split('/, */', $this->types),
-      '#recurse' => 1,
+      '#sort' => $this->sort,
       );
-
-    foreach (explode(' ', $this->sort) as $field) {
-      if (substr($field, 0, 1) == '-') {
-        $mode = 'desc';
-        $field = substr($field, 1);
-      } else {
-        $mode = 'asc';
-      }
-
-      $filter['#sort'][$field] = $mode;
-    }
 
     return Node::find($filter, $this->limit);
   }

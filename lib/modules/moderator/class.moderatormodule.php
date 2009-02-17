@@ -23,7 +23,7 @@ class ModeratorModule implements iModuleConfig, iNodeHook
 
     $types = array();
 
-    foreach (Node::find(array('class' => 'type')) as $t)
+    foreach (Node::find(Context::last()->db, array('class' => 'type')) as $t)
       $types[$t->name] = $t->title;
 
     $form->addControl(new SetControl(array(

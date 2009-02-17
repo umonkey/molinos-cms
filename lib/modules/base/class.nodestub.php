@@ -214,7 +214,7 @@ class NodeStub
         if (empty($this->data['class']))
           throw new RuntimeException(t('Не удалось определить тип ноды.'));
 
-        $schema = Schema::load($this->data['class']);
+        $schema = Schema::load($this->getDB(), $this->data['class']);
 
         foreach ($this->data as $k => $v) {
           if ('uid' == $k and !empty($v) and $recurse)
@@ -279,7 +279,7 @@ class NodeStub
 
       $schema = empty($this->data['class'])
         ? null
-        : Schema::load($this->data['class']);
+        : Schema::load($this->getDB(), $this->data['class']);
 
       foreach ($this->data as $k => $v) {
         if ('uid' == $k and !empty($v))

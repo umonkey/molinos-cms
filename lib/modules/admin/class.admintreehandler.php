@@ -89,7 +89,7 @@ class AdminTreeHandler
     }
 
     if (!empty($this->type) and !is_array($this->type)) {
-      $schema = Schema::load($this->type);
+      $schema = Schema::load($this->ctx->db, $this->type);
 
       // Удаляем отсутствующие колонки.
       foreach ($this->columns as $k => $v) {

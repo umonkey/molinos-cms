@@ -30,7 +30,7 @@ class UserConfig implements iModuleConfig
   {
     $result = array();
 
-    foreach (Schema::load('user') as $k => $v)
+    foreach (Schema::load(Context::last()->db, 'user') as $k => $v)
       $result[$k] = $v->label;
 
     if (isset($result['groups']))

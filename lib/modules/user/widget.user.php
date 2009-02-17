@@ -44,7 +44,7 @@ class UserWidget extends Widget implements iWidget
   {
     $groups = array();
 
-    foreach (Node::find(array('class' => 'group')) as $node)
+    foreach (Node::find(Context::last()->db, array('class' => 'group')) as $node)
       $groups[$node->id] = $node->name;
     
     return array(

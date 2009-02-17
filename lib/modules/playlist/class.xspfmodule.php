@@ -11,7 +11,7 @@ class XspfModule implements iRemoteCall, iModuleConfig
     $output = '';
     $tracks = array();
 
-    foreach ($nodes = Node::find(array('class' => 'file', 'id' => $nids)) as $node) {
+    foreach ($nodes = Node::find($ctx->db, array('class' => 'file', 'id' => $nids)) as $node) {
       $track = html::em('title', $node->name);
       $track .= html::em('location', 'http://'. $_SERVER['HTTP_HOST'] .'attachment/'. $node->id .'?'. $node->filename);
       $tracks[] = html::em('track', $track);

@@ -4,8 +4,13 @@ class sql
 {
   public static function in($value, array &$params)
   {
-    if (empty($value))
+    if (null === $value or array() === $value)
       return 'IS NULL';
+
+    if (false === $value)
+      $value = 0;
+    elseif (true === $value)
+      $value = 1;
 
     $value = array_unique((array)$value);
 
@@ -18,6 +23,24 @@ class sql
       $params[] = $v;
 
     return 'IN (' . rtrim(str_repeat('?, ', count($value)), ', ') . ')';
+  }
+
+  public static function notIn($value, array &$params)
+  {
+    if (empty($value))
+      return 'IS NOT NULL';
+
+    $value = array_unique((array)$value);
+
+    if (1 == count($value)) {
+      $params[] = array_shift($value);
+      return '<> ?';
+    }
+
+    foreach ($value as $v)
+      $params[] = $v;
+
+    return 'NOT IN (' . rtrim(str_repeat('?, ', count($value)), ', ') . ')';
   }
 
   public static function getUpdate($tableName, array $values, $keyName)
@@ -53,5 +76,16 @@ class sql
 
     $sql = 'DELETE FROM `' . $tableName . '` WHERE ' . join(' AND ', $where);
     return array($sql, $params);
+  }
+
+  public static function getSelect(array $fieldNames, array $tableNames, array $conditions)
+  {
+    $sql = "SELECT " . join(', ', $fieldNames)
+      . " FROM `" . join('`, `', $tableNames) . "`";
+
+    if (!empty($conditions))
+      $sql .= ' WHERE ' . join(' AND ', $conditions);
+
+    return $sql;
   }
 }

@@ -50,10 +50,10 @@ class BlogWidget extends Widget
   public function onGet(array $options)
   {
     $result = array();
-    $filter = array('class' => 'blog', 'published' => 1, '#sort' => array('id' => 'desc'));
+    $filter = array('class' => 'blog', 'published' => 1, '#sort' => '-id');
 
     if (null !== $options['user']) {
-      $user = array_pop(Node::find(array('class' => 'user', 'published' => 1, 'login' => $options['user'])));
+      $user = array_pop(Node::find($this->ctx->db, array('class' => 'user', 'published' => 1, 'login' => $options['user'])));
 
       if (empty($user))
         throw new PageNotFoundException();
@@ -66,11 +66,11 @@ class BlogWidget extends Widget
       $filter['uid'] = $user->id;
     }
 
-    $total = Node::count($filter);
+    $total = Node::count($this->ctx->db, $filter);
 
     $result['pager'] = parent::getPager($total, $options['page'], $options['limit']);
 
-    foreach (Node::find($filter, $options['limit'], $options['limit'] * ($options['page'] - 1)) as $post)
+    foreach (Node::find($this->ctx->db, $filter, $options['limit'], $options['limit'] * ($options['page'] - 1)) as $post)
       $result['documents'][] = $post->getRaw();
 
     return $result;
@@ -79,7 +79,7 @@ class BlogWidget extends Widget
   // FIXME: перетащить куда-нибудь, сейчас не используется.
   private function installTypes()
   {
-    if (!Node::count(array('class' => 'type', 'name' => 'blog'))) {
+    if (!Node::count($this->ctx->db, array('class' => 'type', 'name' => 'blog'))) {
       $type = Node::create('type', array(
         'name' => 'blog',
         'title' => t('Запись в дневнике'),

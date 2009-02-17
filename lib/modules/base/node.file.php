@@ -50,7 +50,7 @@ class FileNode extends Node implements iContentType
         unset($this->versions);
 
       // Применяем трансформации.
-      foreach ($ts = Node::find(array('class' => 'imgtransform')) as $t)
+      foreach ($ts = Node::find($this->getDB(), array('class' => 'imgtransform')) as $t)
         $t->getObject()->apply($this, Context::last(), true);
     }
 

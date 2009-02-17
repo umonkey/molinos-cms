@@ -9,7 +9,7 @@ class DrawTextModule implements iModuleConfig
 
     $fonts = array();
 
-    foreach (Node::find(array('class' => 'file', 'filetype' => 'application/x-font-ttf')) as $n)
+    foreach (Node::find(Context::last()->db, array('class' => 'file', 'filetype' => 'application/x-font-ttf')) as $n)
       $fonts[$n->id] = isset($n->name) ? $n->name : $n->filename;
 
     $form->addControl(new EnumControl(array(

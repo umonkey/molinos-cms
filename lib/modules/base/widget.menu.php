@@ -45,7 +45,7 @@ class MenuWidget extends Widget implements iWidget
   public static function getConfigOptions()
   {
     $fields = array();
-    $schema = Schema::load('tag');
+    $schema = Schema::load($this->ctx->db, 'tag');
 
     foreach ($schema as $k => $v)
       if ($v instanceof URLControl)

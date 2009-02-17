@@ -17,7 +17,7 @@ class CartRPC implements iRemoteCall
       $sum = $sumqty = 0;
       $ids = array_keys($cart);
 
-      foreach ($nodes = Node::find(array('id' => $ids)) as $node) {
+      foreach ($nodes = Node::find(Context::last()->db, array('id' => $ids)) as $node) {
         if (empty($items))
           $qty = $cart[$node->id];
         else {

@@ -28,7 +28,7 @@ class StructureMA
   {
     $result = array();
 
-    foreach (Node::find(array(
+    foreach (Node::find(Context::last()->db, array(
       'class' => 'widget',
       '#sort' => 'name',
       )) as $node)
@@ -100,7 +100,7 @@ class StructureMA
           $data[$k] = $page->$k;
       }
 
-      $widgets = Node::find(array(
+      $widgets = Node::find(Context::last()->db, array(
         'class' => 'widget',
         'tags' => $page->id,
         ));
@@ -161,7 +161,7 @@ class StructureMA
       }
     }
 
-    $data = Node::find(array(
+    $data = Node::find(Context::last()->db, array(
       'class' => 'type',
       'deleted' => 0,
       ));

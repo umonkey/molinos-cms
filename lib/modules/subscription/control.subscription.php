@@ -54,7 +54,7 @@ class SubscriptionControl extends SectionsControl implements iFormControl
     if (null === ($email = $this->findEmail($node)))
       throw new InvalidArgumentException(t('Не удалось подписать вас на новости: в профиле не обнаружен ни один почтовый адрес.'));
 
-    $s = Node::find(array(
+    $s = Node::find($node->getDB(), array(
       'class' => 'subscription',
       'name' => $email,
       ));

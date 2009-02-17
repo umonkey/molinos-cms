@@ -58,7 +58,7 @@ class CronModule implements iModuleConfig, iRemoteCall
 
   private static function touch(Context $ctx)
   {
-    $node = Node::find(array('class' => 'cronstats'));
+    $node = Node::find($ctx->db, array('class' => 'cronstats'));
     if (empty($node))
       $node = Node::create('cronstats');
     else

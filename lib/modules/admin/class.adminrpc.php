@@ -156,7 +156,7 @@ class AdminRPC extends RPCHandler implements iRemoteCall
         ), $form->getXML($node));
     }
 
-    $types = Node::find(array(
+    $types = Node::find($ctx->db, array(
       'class' => 'type',
       '-name' => TypeNode::getInternal(),
       ));

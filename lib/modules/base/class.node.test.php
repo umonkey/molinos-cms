@@ -47,7 +47,7 @@ class NodeTests extends PHPUnit_Framework_TestCase
 
   public function testFindNodes()
   {
-    $nodes = Node::find(array(
+    $nodes = Node::find(get_test_context()->db, array(
       'class' => 'type',
       ), 2);
 

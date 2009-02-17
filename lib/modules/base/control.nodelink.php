@@ -74,7 +74,7 @@ class NodeLinkControl extends Control
   private function getSelect($value)
   {
     if (count($parts = explode('.', $this->values, 2)) == 2) {
-      if (Node::count($filter = array('class' => $parts[0], 'published' => 1, '#sort' => array('name' => 'asc'))) < self::limit) {
+      if (Node::count($filter = array('class' => $parts[0], 'published' => 1, '#sort' => 'name')) < self::limit) {
         foreach ($z = Node::find($filter) as $tmp)
           $values[$tmp->id] = $tmp->getName();
 
@@ -123,12 +123,14 @@ class NodeLinkControl extends Control
       else {
         $parts = explode('.', $this->values);
 
-        $n = Node::load(array(
+        $n = Node::find($f = array(
           'class' => $parts[0],
           $parts[1] => $value,
           ));
 
-        $node->{$this->value} = $n;
+        $node->{$this->value} = empty($n)
+          ? null
+          : array_shift($n);
       }
     } catch (ObjectNotFoundException $e) {
       throw new PageNotFoundException(t('Объект «%name» не найден.', array(

@@ -43,56 +43,58 @@ class Schema extends ArrayObject
   /**
    * Возвращает схему указанного типа документа.
    */
-  public static function load($class, $cached = true)
+  public static function load(PDO_Singleton $db, $className)
   {
-    if (!is_array($cached = mcms::cache($ckey = 'schema:' . $class)))
-      mcms::cache($ckey, $cached = new Schema(self::rebuild($class)));
-    return $cached;
-  }
-
-  /**
-   * Возвращает схему указанного типа документа.
-   *
-   * Читает сохранённую версию из БД, применяет
-   * дефолтные поля при необходимости.
-   */
-  private static function rebuild($class)
-  {
-    // Загружаем из БД.
-    try {
-      $db = Context::last()->db;
-      // В будущем выборку по классу можно будет удалить, и получать все данные одним запросом.
-      $data = $db->getResultsKV("name", "data", "SELECT DISTINCT f.name AS name, f.data AS data FROM node f INNER JOIN node__rel r ON r.nid = f.id INNER JOIN node t ON t.id = r.tid WHERE t.class = 'type' AND f.class = 'field' AND t.name = ? AND f.deleted = 0 ORDER BY t.name, f.name", array($class));
+    if (!is_array($schema = mcms::cache($ckey = 'schema:' . $className))) {
       $schema = array();
-      foreach ($data as $k => $v)
-        $schema[$k] = unserialize($v);
-    } catch (ObjectNotFoundException $e) {
-      $schema = array();
-    }
 
-    // Применяем дефолтные поля.
-    if (null !== ($host = NodeStub::getClassName($class))) {
-      if (method_exists($host, 'getDefaultSchema')) {
-        if (is_array($default = call_user_func(array($host, 'getDefaultSchema')))) {
-          $hasfields = count($schema);
+      // Загружаем из БД.
+      try {
+        $data = $db->getResultsKV("name", "data", "SELECT DISTINCT `f`.`name` AS `name`, `f`.`data` AS `data` "
+          . "FROM `node` `f` INNER JOIN `node__rel` `r` ON `r`.`nid` = `f`.`id` "
+          . "INNER JOIN `node` `t` ON `t`.`id` = `r`.`tid` "
+          . "WHERE `t`.`class` = 'type' AND `f`.`class` = 'field' "
+          . "AND `t`.`name` = ? AND `f`.`deleted` = 0", array($className));
+        if (!empty($data))
+          foreach ($data as $k => $v)
+            $schema[$k] = unserialize($v);
+      } catch (ObjectNotFoundException $e) {
+      }
 
-          foreach ($default as $k => $v) {
-            if (!empty($v['recommended']) and $hasfields)
-              ;
+      // Применяем дефолтные поля.
+      if (null !== ($host = NodeStub::getClassName($className))) {
+        if (method_exists($host, 'getDefaultSchema')) {
+          if (is_array($default = call_user_func(array($host, 'getDefaultSchema')))) {
+            $hasfields = count($schema);
 
-            elseif (!empty($v['deprecated'])) {
-              if (isset($schema[$k]))
-                unset($schema[$k]);
+            foreach ($default as $k => $v) {
+              if (!empty($v['recommended']) and $hasfields)
+                ;
+
+              elseif (!empty($v['deprecated'])) {
+                if (isset($schema[$k]))
+                  unset($schema[$k]);
+              }
+
+              elseif (!isset($schema[$k]) or !empty($v['volatile']))
+                $schema[$k] = $v;
             }
-
-            elseif (!isset($schema[$k]) or !empty($v['volatile']))
-              $schema[$k] = $v;
           }
         }
       }
+
+      mcms::cache($ckey, $schema);
     }
 
-    return $schema;
+    return new Schema($schema);
+  }
+
+  /**
+   * Удаляет из кэша указанный тип документа.
+   */
+  public static function flush($className)
+  {
+    mcms::cache('schema:' . $className, null);
   }
 
   public function hasIndex($name)
@@ -129,6 +131,9 @@ class Schema extends ArrayObject
   public function getForm(array $defaults = array())
   {
     $tabs = array();
+
+    // Сортировка
+    usort($this, array($this, 'sortByWeight'));
 
     foreach ($this as $name => $ctl) {
       if (!($group = trim($ctl->group)))
@@ -169,6 +174,19 @@ class Schema extends ArrayObject
     }
 
     return $form;
+  }
+
+  private function sortByWeight($a, $b)
+  {
+    if (null === ($aweight = $a->weight))
+      $aweight = 50;
+    if (null === ($bweight = $b->weight))
+      $bweight = 50;
+
+    if (0 === ($delta = $aweight - $bweight))
+      $delta = strcasecmp($a->value, $b->value);
+
+    return $delta;
   }
 
   /**

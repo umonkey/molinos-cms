@@ -28,7 +28,7 @@ class SubscriptionRPC implements iRemoteCall
 
     $catlist = '';
 
-    foreach (Node::find(array('class' => 'tag', 'id' => $data['sections'], '#sort' => array('name' => 'asc'))) as $tmp)
+    foreach (Node::find($ctx->db, array('class' => 'tag', 'id' => $data['sections'], '#sort' => 'name')) as $tmp)
       $catlist .= '<li>'. mcms_plain($tmp->name) .'</li>';
 
     $link = new url(array(

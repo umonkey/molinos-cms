@@ -46,7 +46,7 @@ class TagCloudWidget extends Widget implements iWidget
   {
     $types = array();
 
-    foreach (Node::find(array('class' => 'type')) as $type)
+    foreach (Node::find(Context::last()->db, array('class' => 'type')) as $type)
       if (!in_array($type->name, TypeNode::getInternal()))
         $types[$type->name] = $type->title;
 

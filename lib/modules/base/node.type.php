@@ -330,7 +330,7 @@ class TypeNode extends Node implements iContentType
   {
     $result = array();
 
-    foreach (Node::find(array('class' => 'type', 'deleted' => 0)) as $type)
+    foreach (Node::find($this->getDB(), array('class' => 'type', 'deleted' => 0)) as $type)
       if (null === $mode or Context::last()->user->hasAccess('r', $type->name))
         $result[$type->name] = empty($type->title) ? $type->name : $type->title;
 
@@ -425,7 +425,7 @@ class TypeNode extends Node implements iContentType
 
   public static function getList()
   {
-    return Node::find(array(
+    return Node::find(Context::last()->db, array(
       'class' => 'type',
       'deleted' => 0,
       ));
@@ -441,7 +441,7 @@ class TypeNode extends Node implements iContentType
     if (null === $result) {
       $result = array();
 
-      foreach (Node::find(array('class' => 'type')) as $t)
+      foreach (Node::find(Context::last()->db, array('class' => 'type')) as $t)
         if ($t->isdictionary and $t->name != 'field')
           $result[$t->name] = $t->title;
     }

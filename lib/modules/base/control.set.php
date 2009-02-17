@@ -72,7 +72,7 @@ class SetControl extends Control
   {
     if (!empty($form['values']) and !is_array($form['values'])) {
       if (0 === strpos($form['values'], ':')) {
-        $nodes = Node::find(array(
+        $nodes = Node::find(Context::last()->db, array(
           'class' => substr($form['values'], 1),
           'published' => 1,
           '#sort' => 'name',
