@@ -11,8 +11,74 @@ class FieldNode extends Node implements iContentType
     parent::save();
 
     $this->publish();
+    $this->checkIndex();
 
     return $this;
+  }
+
+  /**
+   * Проверяет и обновляет индекс по этому полю.
+   */
+  public function checkIndex()
+  {
+    if ($tableName = $this->checkIndexTable()) {
+      $db = $this->getDB();
+      $ids = $db->getResultsV("id", "SELECT `id` FROM `node` WHERE `id` NOT IN "
+        . "(SELECT `id` FROM `{$tableName}`) AND `class` IN (SELECT `t`.`name` FROM `node` `t` "
+        . "INNER JOIN `node__rel` `r` ON `r`.`tid` = `t`.`id` INNER JOIN `node` `f` ON `f`.`id` = `r`.`nid` "
+        . "WHERE `f`.`class` = 'field' AND `f`.`name` = ?)", array($this->name));
+
+      if (!empty($ids)) {
+        if ($commit = !$db->isTransactionRunning())
+          $db->beginTransaction();
+        $upd = $db->prepare("INSERT into `{$tableName}` (`id`, `value`) VALUES (?, ?)");
+
+        foreach ($ids as $id) {
+          $node = NodeStub::create($id, $db);
+          $upd->execute(array($id, $node->{$this->name}));
+        }
+
+        if ($commit)
+          $db->commit();
+      }
+    }
+  }
+
+  private function checkIndexTable()
+  {
+    if (NodeStub::isBasicField($this->name))
+      $type = null;
+    elseif (empty($this->indexed))
+      $type = null;
+    elseif (!class_exists($this->type))
+      $type = null;
+    else {
+      $ctl = new $this->type(array(
+        '#nocheck' => true,
+        ));
+      $type = $ctl->getSQL();
+    }
+
+    $t = new TableInfo($this->getDB(), $tableName = 'node__idx_' . $this->name);
+
+    if (!$type) {
+      if ($t->exists())
+        $t->delete();
+      return false;
+    }
+
+    $t->columnSet('id', array(
+      'type' => 'INTEGER',
+      'key' => 'pri',
+      ));
+    $t->columnSet('value', array(
+      'type' => $type,
+      'required' => !empty($this->required),
+      'key' => 'mul',
+      ));
+    $t->commit();
+
+    return $tableName;
   }
 
   public function checkPermission($perm)
@@ -119,5 +185,20 @@ class FieldNode extends Node implements iContentType
   public function canEditSections()
   {
     return false;
+  }
+
+  /**
+   * Возвращает false, если поле не может иметь индекса, или его тип.
+   * Не могут иметь индекса системные поля и поля, чьи контролы
+   * не возвращают getSQL().
+   */
+  private function getIndexType()
+  {
+    if (NodeStub::isBasicField($this->name))
+      return false;
+    if (!class_exists($this->type))
+      return false;
+    $tmp = new $this->type(array('#nocheck' => true));
+    return $tmp->getSQL();
   }
 }
