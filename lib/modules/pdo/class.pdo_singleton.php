@@ -187,6 +187,11 @@ class PDO_Singleton extends PDO
     }
   }
 
+  public function isTransactionRunning()
+  {
+    return !empty($this->transaction);
+  }
+
   // Откатываем транзакцию, если открыта.
   public function rollback()
   {
