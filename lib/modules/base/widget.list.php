@@ -346,8 +346,10 @@ class ListWidget extends Widget
     if (!empty($options['section'])) {
       $filter['tags'] = $options['section'];
       if ($this->recurse)
-        $filter['tags'] += '+';
+        $filter['tags'] .= '+';
     }
+
+    // $q = new Query($filter); mcms::debug($filter, $options, $this->recurse, $q->getSelect());
 
     return Node::find($this->ctx->db, $filter, $options['limit'], $options['offset']);
   }
