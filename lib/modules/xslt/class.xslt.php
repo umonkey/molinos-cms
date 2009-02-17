@@ -23,25 +23,27 @@ class xslt
       return new Response($xml, 'text/xml');
     }
 
-    $doc = new DOMDocument;
-    $doc->loadXML($xml);
-    self::checkErrors();
+    if (false === ($output = mcms::cache($ckey = 'xml:xsl:' . md5($xml) . ',' . filemtime($xsltName)))) {
+      $doc = new DOMDocument;
+      $doc->loadXML($xml);
+      self::checkErrors();
 
-    if (class_exists('xsltCache') and false) {
-      $proc = new xsltCache;
-      $proc->importStyleSheet($xsltName);
-    } else {
-      $xsl = new DOMDocument;
-      $xsl->load($xsltName);
-      self::checkErrors($xsltName);
+      if (class_exists('xsltCache') and false) {
+        $proc = new xsltCache;
+        $proc->importStyleSheet($xsltName);
+      } else {
+        $xsl = new DOMDocument;
+        $xsl->load($xsltName);
+        self::checkErrors($xsltName);
 
-      $proc = new XSLTProcessor;
-      $proc->importStyleSheet($xsl);
+        $proc = new XSLTProcessor;
+        $proc->importStyleSheet($xsl);
+      }
+
+      self::checkErrors();
+
+      mcms::cache($ckey, $output = $proc->transformToXML($doc));
     }
-
-    self::checkErrors();
-
-    $output = $proc->transformToXML($doc);
 
     return new Response($output, 'text/html');
   }
