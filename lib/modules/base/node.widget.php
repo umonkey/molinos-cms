@@ -165,18 +165,21 @@ class WidgetNode extends Node implements iContentType
         'required' => true,
         're' => '/^[a-z0-9_]+$/i',
         'volatile' => true,
+        'weight' => 1,
         ),
       'title' => array(
         'type' => 'TextLineControl',
         'label' => t('Название'),
         'description' => t('Человеческое название виджета.'),
         'volatile' => true,
+        'weight' => 2,
         ),
       'description' => array(
         'label' => t('Описание'),
         'type' => 'TextAreaControl',
         'description' => t('Краткое описание выполняемых виджетом функций и особенностей его работы.'),
         'volatile' => true,
+        'weight' => 3,
         ),
       'classname' => array(
         'label' => t('Используемый класс'),
@@ -184,6 +187,7 @@ class WidgetNode extends Node implements iContentType
         'description' => t('Не рекоммендуется изменять это значение, если вы не представляете, чем это грозит.'),
         'required' => true,
         'volatile' => true,
+        'weight' => 4,
         ),
       'pages' => array(
         'type' => 'SetControl',
@@ -193,6 +197,7 @@ class WidgetNode extends Node implements iContentType
         'dictionary' => 'domain',
         'required' => false,
         'parents' => true,
+        'weight' => 10,
         ),
       'perms' => array(
         'type' => 'AccessControl',
@@ -200,6 +205,7 @@ class WidgetNode extends Node implements iContentType
         'group' => t('Доступ'),
         'volatile' => true,
         'columns' => array('r'),
+        'weight' => 11,
         ),
       );
   }
@@ -231,6 +237,8 @@ class WidgetNode extends Node implements iContentType
       $result = call_user_func(array($this->classname, 'getConfigOptions'));
 
       if (is_array($result))
+        $weight = 60;
+
         foreach ($result as $k => $v) {
           $v['value'] = 'config_' . $k;
           $v['volatile'] = true;
@@ -238,6 +246,7 @@ class WidgetNode extends Node implements iContentType
             $v['group'] = t('Настройки');
           if (array_key_exists('ifmodule', $v) and class_exists('modman') and !modman::isInstalled($v['ifmodule']))
             continue;
+          $v['weight'] = $weight++;
           $schema[$v['value']] = $v;
         }
     }
