@@ -235,6 +235,9 @@ class Context
         $mode = 'updated';
 
       $url = new url($next);
+      $url->setarg('pending', null);
+      $url->setarg('created', null);
+      $url->setarg('updated', null);
 
       if ('%ID' == $url->arg('id')) {
         $url->setarg('id', $node->id);

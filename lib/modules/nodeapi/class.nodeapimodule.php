@@ -282,6 +282,9 @@ class NodeApiModule extends RPCHandler implements iRemoteCall
       $mode = 'pending';
 
     $url = new url($path);
+    $url->setarg('created', null);
+    $url->setarg('updated', null);
+    $url->setarg('pending', null);
 
     if ('%ID' == $url->arg('id')) {
       $url->setarg('id', $node->id);
