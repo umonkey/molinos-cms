@@ -133,7 +133,7 @@ class Schema extends ArrayObject
     $tabs = array();
 
     // Сортировка
-    usort($this, array($this, 'sortByWeight'));
+    uasort($this, array($this, 'sortByWeight'));
 
     foreach ($this as $name => $ctl) {
       if (!($group = trim($ctl->group)))
