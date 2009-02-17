@@ -310,7 +310,7 @@ class ListWidget extends Widget
    */
   public function onGet(array $options)
   {
-    if (!count($ids = $this->getDocumentIds($options))) {
+    if (!count($nodes = $this->getDocumentIds($options))) {
       // Обработать fallback.
     }
 
@@ -328,10 +328,8 @@ class ListWidget extends Widget
 
     // Формируем список документов.
     $tmp = '';
-    foreach ($ids as $id) {
-      $node = NodeStub::create($id, $this->ctx->db);
+    foreach ($nodes as $node)
       $tmp .= $node->getXML('document');
-    }
     if (!empty($tmp))
       $result .= html::em('documents', $tmp);
 
@@ -340,85 +338,17 @@ class ListWidget extends Widget
 
   private function getDocumentIds(array $options)
   {
-    $tables = array('`node`');
-    $where = $params = array();
-
-    $this->getBasicQuery($options, $where, $params);
-
-    if (!empty($options['sort']))
-      $order = $this->getSortQuery($options['sort'], $tables, $where, $params);
-    else
-      $order = null;
-
-    $sql = "SELECT `node`.`id` FROM " . join(', ', $tables) . " WHERE " . join(' AND ', $where);
-    $sql .= $order;
-
-    if (!empty($options['limit'])) {
-      $lim = intval($options['limit']);
-      $off = empty($options['page'])
-        ? 0
-        : ($options['page'] - 1) * $lim;
-      $sql .= " LIMIT {$off}, {$lim}";
-    }
-
-    return (array)$this->ctx->db->getResultsV('id', $sql, $params);
-  }
-
-  private function getBasicQuery(array $options, array &$where, array &$params)
-  {
-    $where[] = "`node`.`published` = 1";
-    $where[] = "`node`.`deleted` = 0";
-
-    if ($this->skipcurrent and !empty($options['document'])) {
-      $where[] = "`node`.`id` <> ?";
-      $params[] = $options['document'];
-    }
-
-    if (!empty($options['classes']))
-      $where[] = "`node`.`class` " . sql::in($options['classes'], $params);
+    $filter = array(
+      'class' => $options['classes'],
+      '#sort' => $options['sort'],
+      );
 
     if (!empty($options['section'])) {
-      if ($this->recurse) {
-        $where[] = "`node`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` IN (SELECT n1.id FROM node n1, node n2 WHERE n1.left >= n2.left AND n1.right <= n2.right AND n1.class = 'tag' AND n1.deleted = 0 AND n1.published = 1 AND n2.id = ?))";
-        $params[] = $options['section'];
-      } else {
-        $in = sql::in($options['section'], $params);
-        $where[] = "`node`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` {$in})";
-      }
-    }
-  }
-
-  private function getSortQuery($order, array &$tables, array &$where, array &$params)
-  {
-    $parts = array();
-    $order = preg_split('@[, ]+@', $order, -1, PREG_SPLIT_NO_EMPTY);
-
-    foreach ($order as $part) {
-      if ('-' == substr($part, 0, 1)) {
-        $mode = 'DESC';
-        $part = substr($part, 1);
-      } else {
-        $mode = 'ASC';
-      }
-
-      if (1 == count($fspec = explode('.', $part, 2))) {
-        $table = '`node`';
-        $field = $fspec[0];
-      } else {
-        $table = '`node__idx_' . $fspec[0] . '`';
-        $field = $fspec[1];
-      }
-
-      if (!in_array($table, $tables)) {
-        $tables[] = $table;
-        $where[] = $table . '.`id` = `node`.`id`';
-      }
-
-      $parts[] = $table . '.`' . $field . '` ' . $mode;
+      $filter['tags'] = $options['section'];
+      if ($this->recurse)
+        $filter['tags'] += '+';
     }
 
-    return empty($parts)
-      ? null
-      : ' ORDER BY ' . join(', ', $parts);
+    return Node::find($this->ctx->db, $filter, $options['limit'], $options['offset']);
   }
 };
