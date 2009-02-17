@@ -40,12 +40,22 @@ class Query
   private function findBasics(array &$filters)
   {
     foreach ($filters as $k => $v) {
-      list($fieldName, $neg) = $this->getFieldSpec($k);
+      if ('tags' == $k) {
+        $this->conditions[] = "`node`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` = ?)";
+        $this->params[] = $v;
+      }
 
-      if ($neg)
-        $this->conditions[] = $fieldName . " " . sql::notIn($v, $this->params);
-      else
-        $this->conditions[] = $fieldName . " " . sql::in($v, $this->params);
+      else {
+        list($fieldName, $neg) = $this->getFieldSpec($k);
+
+        if ('tags' == $k)
+          mcms::debug($k, $v, $fieldName, $neg);
+
+        if ($neg)
+          $this->conditions[] = $fieldName . " " . sql::notIn($v, $this->params);
+        else
+          $this->conditions[] = $fieldName . " " . sql::in($v, $this->params);
+      }
     }
   }
 
@@ -79,6 +89,11 @@ class Query
 
   private function getFieldSpec($name)
   {
+    if (false !== strpos($name, '.'))
+      throw new InvalidArgumentException(t('Непонятно указано поле: %field.', array(
+        '%field' => $name,
+        )));
+
     if ($neg = ('-' == substr($name, 0, 1)))
       $name = substr($name, 1);
 
@@ -93,7 +108,7 @@ class Query
     if (!in_array($tableName, $this->tables)) {
       $this->tables[] = $tableName;
       if ('node' != $tableName)
-        $this->where[] = "`node`.`id` = `{$tableName}`.`id`";
+        $this->conditions[] = "`node`.`id` = `{$tableName}`.`id`";
     }
 
     return array("`{$tableName}`.`{$fieldName}`", $neg);
