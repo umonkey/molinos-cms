@@ -467,6 +467,8 @@ class NodeStub
   {
     $sth = $this->db->prepare("UPDATE `node` SET `published` = ? WHERE `id` = ?");
     $sth->execute(array($value, $this->id));
+    $this->makeSureFieldIsAvailable('published');
+    $this->data['published'] = true;
     $this->flush();
   }
 
