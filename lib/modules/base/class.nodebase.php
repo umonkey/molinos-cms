@@ -614,6 +614,8 @@ class NodeBase
         // Копируем права.
         $pdo->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`)"
           ."SELECT :new, `uid`, `c`, `r`, `u`, `d`, `p` FROM `node__access` WHERE `nid` = :old", $params);
+        $pdo->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`)"
+          ."SELECT `nid`, :new, `c`, `r`, `u`, `d`, `p` FROM `node__access` WHERE `uid` = :old", $params);
 
         // Копируем связи с другими объектами.
         $pdo->exec("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
