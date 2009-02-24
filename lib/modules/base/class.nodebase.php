@@ -2131,7 +2131,7 @@ class NodeBase
   {
     foreach ($arr as $k => $v)
       if ($v instanceof Node)
-        $arr[$k] = $v->id;
+        unset($arr[$k]);
 
     return serialize($arr);
   }
