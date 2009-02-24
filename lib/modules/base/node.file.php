@@ -510,16 +510,15 @@ class FileNode extends Node implements iContentType
   public function getFormFields()
   {
     if ($this->id) {
-      $fields = parent::getFormFields();
+      $fields = self::getDefaultSchema();
 
-      $fields['replace'] = new AttachmentControl(array(
-        'value' => 'replace',
+      $fields['replace'] = array(
         'label' => t('Заменить другим файлом'),
         'archive' => false,
         'unzip' => false,
-        ));
+        );
 
-      return $fields;
+      return new Schema($fields);
     }
 
     return new Schema(array(
