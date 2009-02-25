@@ -16,10 +16,10 @@ class AdminRPC extends RPCHandler implements iRemoteCall
       if (!$ctx->user->id)
         throw new UnauthorizedException();
 
-      $result = parent::hookRemoteCall($ctx, $className);
-
-      $menu = new AdminMenu();
-      $result .= $menu->getXML($ctx);
+      if (is_string($result = parent::hookRemoteCall($ctx, $className))) {
+        $menu = new AdminMenu();
+        $result .= $menu->getXML($ctx);
+      }
     } catch (Exception $e) {
       $result = '';
       if ($e instanceof UserErrorException)
@@ -60,7 +60,7 @@ class AdminRPC extends RPCHandler implements iRemoteCall
     Structure::getInstance()->rebuild();
     Loader::rebuild();
 
-    return true;
+    return $ctx->getRedirect();
   }
 
   /**
@@ -197,8 +197,20 @@ class AdminRPC extends RPCHandler implements iRemoteCall
     $url = new url($ctx->get('destination'));
 
     if (null === $url->arg('preset')) {
+      $types = Node::find($ctx->db, array(
+        'class' => 'type',
+        'published' => 1,
+        'deleted' => 0,
+        'name' => $ctx->user->getAccess('r'),
+        ));
+
+      $list = array();
+      foreach ($types as $type)
+        if (!$type->isdictionary)
+          $list[$type->name] = $type->title;
+
       $tmp = '';
-      foreach (Node::getSortedList('type', 'title', 'name') as $k => $v)
+      foreach ($list as $k => $v)
         $tmp .= html::em('type', array(
           'name' => $k,
           'title' => $v,
