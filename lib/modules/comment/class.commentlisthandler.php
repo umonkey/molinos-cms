@@ -9,5 +9,6 @@ class CommentListHandler extends AdminListHandler implements iAdminList
     $this->title = t('Комментарии пользователей');
     $this->columns = array('name', 'uid', 'created');
     $this->actions = array('publish', 'unpublish', 'delete');
+    $this->deleted = 0;
   }
 };
