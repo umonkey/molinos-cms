@@ -376,7 +376,7 @@ class url
       if ('q' != $parts[0])
         $tmp .= html::em('arg', array(
           'name' => $parts[0],
-          ), html::cdata($parts[1]));
+          ), html::cdata(trim(urldecode($parts[1]))));
     }
 
     return empty($tmp)
