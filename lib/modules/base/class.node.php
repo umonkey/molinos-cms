@@ -106,6 +106,19 @@ class Node
   }
 
   /**
+   * Поиск нод, результат — в XML.
+   */
+  public static function findXML(PDO_Singleton $db, array $query, $limit = null, $offset = null, $em = 'node')
+  {
+    $output = '';
+
+    foreach (self::find($db, $query, $limit, $offset) as $node)
+      $output .= $node->getXML($em);
+
+    return $output;
+  }
+
+  /**
    * Подсчёт нод.
    */
   public static function count(PDO_Singleton $db, array $query)
