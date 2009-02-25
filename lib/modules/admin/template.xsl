@@ -194,7 +194,7 @@
     </div>
   </xsl:template>
     <xsl:template match="block[@name='create']" mode="dashboard">
-      <xsl:for-each select="node">
+      <xsl:for-each select="node[not(isdictionary)]">
         <xsl:sort select="title" />
         <a class="create-{@name}" href="?q=admin&amp;action=create&amp;cgroup=content&amp;type={@name}&amp;destination={/page/request/@uri}">
           <xsl:if test="description">
