@@ -69,16 +69,16 @@ class TypeNode extends Node implements iContentType
     $this->flush();
   }
 
-  public function publish($rev = null)
+  public function publish()
   {
-    $rc = parent::publish($rev);
+    $rc = parent::publish();
     $this->flush();
     return $rc;
   }
 
   public function unpublish()
   {
-    $rc = parent::unpublish($rev);
+    $rc = parent::unpublish();
     $this->flush();
     return $rc;
   }
