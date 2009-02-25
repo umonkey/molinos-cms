@@ -340,6 +340,7 @@ class ListWidget extends Widget
   {
     $filter = array(
       'class' => $options['classes'],
+      'published' => 1,
       '#sort' => $options['sort'],
       );
 
