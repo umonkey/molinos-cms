@@ -161,17 +161,17 @@ class AdminRPC extends RPCHandler implements iRemoteCall
 
     $types = Node::find($ctx->db, array(
       'class' => 'type',
-      '-name' => TypeNode::getInternal(),
+      'name' => $ctx->user->getAccess('c'),
+      '-name' => User::getAnonymous()->getAccess('c'),
+      'published' => 1,
       ));
 
     $output = '';
     $names = array();
 
     foreach ($types as $type) {
-      if ($ctx->user->hasAccess('c', $type->name)) {
-        $output .= $type->getXML('type');
-        $names[] = $type->name;
-      }
+      $output .= $type->getXML('type');
+      $names[] = $type->name;
     }
 
     if (1 == count($names))
