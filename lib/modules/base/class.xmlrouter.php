@@ -11,79 +11,101 @@ class XMLRouter implements iRequestRouter
 
   public function route(Context $ctx)
   {
+    $domain = Structure::getinstance()->findPage($ctx->host(), '');
+
     if ('robots.txt' == $this->query) {
-      if (is_array($data = Structure::getInstance()->findPage($ctx->host(), '')) and !empty($data['robots']))
-        $robots = $data['robots'];
+      if (is_array($domain) and !empty($domain['robots']))
+        $robots = $domain['robots'];
       else
         $robots = DomainNode::getDefaultRobots();
-
       return new Response($robots, 'text/plain');
     }
 
-    // Находим страницу в структуре.
-    if (false === ($data = Structure::getInstance()->findPage($ctx->host(), $this->query)))
-      throw new PageNotFoundException();
+    $output = '';
 
-    mcms::invoke('iRequestHook', 'hookRequest', array($ctx));
-
-    // Устанавливаем распарсенные коды раздела и документа.
-    if (!empty($data['args']['sec']))
-      if (!isset($ctx->section))
-        $ctx->section = $data['args']['sec'];
-    if (!empty($data['args']['doc']))
-      if (!isset($ctx->document))
-        $ctx->document = $data['args']['doc'];
-
-    if (!empty($data['page']['defaultsection']) and !isset($ctx->root))
-      $ctx->root = $data['page']['defaultsection'];
-
-    if (!isset($ctx->section) and isset($ctx->root))
-      $ctx->section = $ctx->root;
-
-    // Устанавливаем шкуру.
-    if (!empty($data['page']['theme']) and !isset($ctx->theme))
-      $ctx->theme = $data['page']['theme'];
-
-    // Находим виджеты для этой страницы.
-    $widgets = array_key_exists('widgets', $data['page'])
-      ? self::renderWidgets($ctx, $data['page']['widgets'])
-      : array();
-
-    // Запрошен отдельный виджет — возвращаем.
-    if (null !== ($w = $ctx->get('widget'))) {
-      if (array_key_exists($w, $widgets)) {
-        $output = '<?xml version="1.0" encoding="utf-8"?>'
-          . $widgets[$w];
-        return new Response($output, 'text/xml');
-      } else {
-        throw new PageNotFoundException(t('Виджет «%name» на этой странице отсутствует.', array(
-          '%name' => $w,
-          )));
-      }
-    }
-
-    $theme = isset($ctx->theme)
-      ? $ctx->theme
+    // Определяем шкуру.
+    $theme = is_array($domain)
+      ? $domain['page']['theme']
       : 'default';
 
-    $output = $this->getRequestOptions($ctx);
-    $output .= NodeStub::getStack('nodes');
+    try {
+      // Находим страницу в структуре.
+      if (false === ($data = Structure::getInstance()->findPage($ctx->host(), $this->query)))
+        throw new PageNotFoundException();
 
-    $stylesheet = self::findStyleSheet($ctx->theme, $data['name']);
+      mcms::invoke('iRequestHook', 'hookRequest', array($ctx));
 
-    $output .= html::em('widgets', join('', $widgets));
+      // Устанавливаем распарсенные коды раздела и документа.
+      if (!empty($data['args']['sec']))
+        if (!isset($ctx->section))
+          $ctx->section = $data['args']['sec'];
+      if (!empty($data['args']['doc']))
+        if (!isset($ctx->document))
+          $ctx->document = $data['args']['doc'];
 
-    $data['page']['base'] = $ctx->url()->getBase($ctx);
+      if (!empty($data['page']['defaultsection']) and !isset($ctx->root))
+        $ctx->root = $data['page']['defaultsection'];
+
+      if (!isset($ctx->section) and isset($ctx->root))
+        $ctx->section = $ctx->root;
+
+      // Устанавливаем шкуру.
+      if (!empty($data['page']['theme']) and !isset($theme))
+        $theme = $data['page']['theme'];
+
+      // Находим виджеты для этой страницы.
+      $widgets = array_key_exists('widgets', $data['page'])
+        ? self::renderWidgets($ctx, $data['page']['widgets'])
+        : array();
+
+      // Запрошен отдельный виджет — возвращаем.
+      if (null !== ($w = $ctx->get('widget'))) {
+        if (array_key_exists($w, $widgets)) {
+          $output = '<?xml version="1.0" encoding="utf-8"?>'
+            . $widgets[$w];
+          return new Response($output, 'text/xml');
+        } else {
+          throw new PageNotFoundException(t('Виджет «%name» на этой странице отсутствует.', array(
+            '%name' => $w,
+            )));
+        }
+      }
+
+      $output .= html::em('widgets', join('', $widgets));
+      $data['status'] = 200;
+    }
+
+    catch (Exception $e) {
+      $code = ($e instanceof UserErrorException)
+        ? $e->getCode()
+        : 500;
+
+      $data = array(
+        'status' => $code,
+        'name' => 'error-' . $code,
+        'page' => array(
+          'errorMessage' => $e->getMessage(),
+          ),
+        );
+    }
+
+    $output = $this->getRequestOptions($ctx) . $output;
+
+    $stylesheet = self::findStyleSheet($theme, $data['name']);
+
+    $data['page']['status'] = $data['status'];
     $data['page']['name'] = $data['name'];
-    $data['page']['prefix'] = os::webpath(MCMS_SITE_FOLDER, 'themes', $ctx->theme);
+    $data['page']['base'] = $ctx->url()->getBase($ctx);
+    $data['page']['prefix'] = os::webpath(MCMS_SITE_FOLDER, 'themes', $theme);
     $data['page']['execution_time'] = microtime(true) - MCMS_START_TIME;
     $data['page']['version'] = mcms::version();
+    $data['page']['url'] = $ctx->url()->string();
 
     $result = '<?xml version="1.0" encoding="utf-8"?>';
     $result .= html::em('page', $data['page'], $output);
 
     return xslt::transform($result,
-      self::findStyleSheet($ctx->theme, $data['name']));
+      self::findStyleSheet($theme, $data['name']));
   }
 
   private function getRequestOptions(Context $ctx)

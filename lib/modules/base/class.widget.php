@@ -108,10 +108,8 @@ abstract class Widget implements iWidget
       throw new WidgetHaltedException();
 
     $options = array();
-    $options['__cleanurls'] = !empty($_GET['__cleanurls']);
-    $options['#cache'] = true;
+    $options['#cache'] = !$ctx->get('nocache');
     $options['#instance'] = $this->getInstanceName();
-    $options['theme'] = $ctx->theme;
 
     $this->ctx = $ctx;
 
