@@ -36,6 +36,12 @@
       </head>
       <body>
         <xsl:apply-templates select="." mode="body" />
+        <div id="signature">
+          <hr/>
+          <a href="http://molinos-cms.googlecode.com/">Molinos CMS</a>
+          <xsl:text> v</xsl:text>
+          <xsl:value-of select="/page/@version" />
+        </div>
       </body>
     </html>
   </xsl:template>

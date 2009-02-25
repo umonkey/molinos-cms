@@ -821,3 +821,10 @@ table.nodelist td.icon .icon-sink {
 #dashboard-create a {
   margin-right: 1em;
 }
+
+#signature {
+  clear: both;
+  margin: 1em 10px;
+  padding-bottom: 10px;
+  font-style: italic;
+}
