@@ -28,6 +28,28 @@ class Query
             $this->order[] = $fieldName . ($neg ? ' DESC' : ' ASC');
           }
           break;
+
+        case '#search':
+          $keywords = preg_split('/ +/', $v, -1, PREG_SPLIT_NO_EMPTY);
+
+          foreach ($keywords as $idx => $kw) {
+            if (count($parts = explode(':', $kw, 2)) == 2) {
+              $filters[$parts[0]] = $parts[1];
+              unset($keywords[$idx]);
+            }
+          }
+
+          // Если что-то осталось — используем обычный поиск.
+          if (!empty($keywords))
+            mcms::debug(join('%', $keywords));
+
+          break;
+
+        case '#public':
+          if (!empty($v))
+            $this->conditions[] = '`node`.`class` IN (SELECT `name` FROM `node` WHERE `class` = \'type\' AND `published` = 1 AND `deleted` = 0)';
+          break;
+
         default:
           throw new InvalidArgumentException(t('Неизвестный фильтр в запросе: %name.', array(
             '%name' => $k,
