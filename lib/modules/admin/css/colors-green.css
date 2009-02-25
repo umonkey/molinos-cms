@@ -120,8 +120,8 @@ ul#top_menu li.current a {
   background-color: #e4ecef;
 }
 
-.nodelist tr.unpublished .field-name a,
-.nodelist tr.disabled .field-name a
+.nodelist tr.unpublished a,
+.nodelist tr.disabled a
 {
   color: #7f99ff;
 }
