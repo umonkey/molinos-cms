@@ -13,6 +13,9 @@ class AdminRPC extends RPCHandler implements iRemoteCall
       );
 
     try {
+      if (!$ctx->user->id)
+        throw new UnauthorizedException();
+
       $result = parent::hookRemoteCall($ctx, $className);
 
       $menu = new AdminMenu();
@@ -30,7 +33,7 @@ class AdminRPC extends RPCHandler implements iRemoteCall
       $result = html::em('request', array(
         'remoteIP' => $_SERVER['REMOTE_ADDR'],
         'uri' => urlencode($_SERVER['REQUEST_URI']),
-        ), $ctx->user->getNode()->getXML('user')) . html::em('blocks', $result);
+        ), $ctx->user->getNode()->getXML('user') . $ctx->url()->getArgsXML()) . html::em('blocks', $result);
 
       $output = html::em('page', $page, $result);
       $result = xslt::transform($output, os::path('lib', 'modules', 'admin', 'template.xsl'));
@@ -255,8 +258,66 @@ class AdminRPC extends RPCHandler implements iRemoteCall
    */
   public static function rpc_get_default(Context $ctx)
   {
-    $m = new AdminMenu();
-    return $m->getDesktop($ctx);
+    $output = '';
+
+    $anon = User::getAnonymous();
+    $output .= self::getDashboardXML($ctx->db, array(
+      'published' => 1,
+      'class' => 'type',
+      'name' => $ctx->user->getAccess('c'),
+      '-name' => $anon->getAccess('c'),
+      ), array(
+      'name' => 'create',
+      'title' => t('Добавить документ'),
+      'more' => '?q=admin&cgroup=content&action=list&search=published%3A0+-uid%3A' . $ctx->user->id,
+      ));
+
+    $output .= self::getDashboardXML($ctx->db, array(
+      'uid' => $ctx->user->id,
+      'published' => 0,
+      '#sort' => '-id',
+      '#public' => true,
+      ), array(
+      'name' => 'drafts',
+      'title' => t('Ваши черновики'),
+      'more' => '?q=admin/content/list&search=uid%3A' . $ctx->user->id . '+published:0',
+      ));
+
+    $output .= self::getDashboardXML($ctx->db, array(
+      'uid' => $ctx->user->id,
+      'deleted' => 0,
+      '#sort' => '-id',
+      '#public' => true,
+      ), array(
+      'name' => 'recent',
+      'title' => t('Ваши последние документы'),
+      'more' => '?q=admin&cgroup=content&action=list&search=uid%3A' . $ctx->user->id,
+      ));
+
+    $output .= self::getDashboardXML($ctx->db, array(
+        '-uid' => $ctx->user->id,
+        'deleted' => 0,
+        'published' => 0,
+        '#sort' => '-id',
+        '#public' => true,
+        'class' => $ctx->user->getAccess('p'),
+      ), array(
+      'name' => 'queue',
+      'title' => t('Очередь модерации'),
+      'more' => '?q=admin&cgroup=content&action=list&search=published%3A0+-uid%3A' . $ctx->user->id,
+      ));
+
+    return html::em('block', array(
+      'name' => 'dashboard',
+      'title' => t('Рабочий стол'),
+      ), $output);
+  }
+
+  private static function getDashboardXML(PDO_Singleton $db, array $query, array $options)
+  {
+    $content = Node::findXML($db, $query);
+    if (!empty($content))
+      return html::em('block', $options, $content);
   }
 
   /**

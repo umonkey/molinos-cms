@@ -180,6 +180,51 @@
   </xsl:template>
 
 
+  <!-- рабочий стол -->
+  <xsl:template match="block[@name='dashboard']" mode="content">
+    <div id="dashboard">
+      <xsl:for-each select="block" mode="dashboard">
+        <fieldset id="dashboard-{@name}">
+          <legend>
+            <xsl:value-of select="@title" />
+          </legend>
+          <xsl:apply-templates select="." mode="dashboard" />
+        </fieldset>
+      </xsl:for-each>
+    </div>
+  </xsl:template>
+    <xsl:template match="block[@name='create']" mode="dashboard">
+      <xsl:for-each select="node">
+        <xsl:sort select="title" />
+        <a class="create-{@name}" href="?q=admin&amp;action=create&amp;cgroup=content&amp;type={@name}&amp;destination={/page/request/@uri}">
+          <xsl:if test="description">
+            <xsl:attribute name="title">
+              <xsl:value-of select="description" />
+            </xsl:attribute>
+          </xsl:if>
+          <span>
+            <xsl:value-of select="title" />
+          </span>
+        </a>
+      </xsl:for-each>
+    </xsl:template>
+    <xsl:template match="block" mode="dashboard">
+      <ol>
+        <xsl:for-each select="node">
+          <li>
+            <a href="?q=admin.rpc&amp;action=edit&amp;cgroup=content&amp;node={@id}&amp;destination={/page/request/@uri}">
+              <xsl:value-of select="@name" />
+            </a>
+          </li>
+        </xsl:for-each>
+      </ol>
+      <p>
+        <a href="{@more}">
+          <xsl:text>Полный список</xsl:text>
+        </a>
+      </p>
+    </xsl:template>
+
   <!-- информационные сообщения -->
   <xsl:template match="block[@name = 'messages']" mode="content">
     <div id="desktop">
@@ -392,5 +437,17 @@
 
       <xsl:call-template name="default_control_info" />
     </div>
+  </xsl:template>
+
+  <xsl:template match="@created">
+    <xsl:if test="text()">
+      <xsl:value-of select="substring(text(),9,2)" />
+      <xsl:text>.</xsl:text>
+      <xsl:value-of select="substring(text(),6,2)" />
+      <xsl:text>.</xsl:text>
+      <xsl:value-of select="substring(text(),3,2)" />
+      <xsl:text>, </xsl:text>
+      <xsl:value-of select="substring(text(),12,5)" />
+    </xsl:if>
   </xsl:template>
 </xsl:stylesheet>

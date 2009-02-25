@@ -807,3 +807,17 @@ table.nodelist td.icon .icon-sink {
 .attachment-wrapper th span.switch-info {
   background-image: url(../img/information.png);
 }
+
+#dashboard fieldset {
+  margin-bottom: 2em;
+}
+#dashboard legend {
+  font-size: 1.25em;
+}
+#dashboard fieldset ol {
+  margin: 0 0 .5em 2em;
+}
+
+#dashboard-create a {
+  margin-right: 1em;
+}

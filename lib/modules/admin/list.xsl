@@ -189,6 +189,7 @@
     </thead>
     <tbody>
       <xsl:for-each select="node">
+        <xsl:sort select="@published" order="descending" />
         <xsl:sort select="title" />
         <xsl:if test="not(isdictionary)">
           <tr>
@@ -528,7 +529,7 @@
         <div class="ctrl_left">
           <a class="newlink" href="?q=admin.rpc&amp;action=create&amp;cgroup={/page/@cgroup}&amp;type={@type}&amp;destination={/page/request/@uri}">Добавить</a>
           <xsl:text> | </xsl:text>
-          <input type="text" name="search_term" class="search_field" value="{/page/@search}" />
+          <input type="text" name="search_term" class="search_field" value="{/page/request/getArgs/arg[@name='search']}" />
           <input type="submit" value="Найти" />
           <xsl:text> | </xsl:text>
           <a href="?q=admin.rpc&amp;action=search&amp;cgroup={/page/@cgroup}&amp;destination={/page/request/@uri}">Расширенный поиск</a>
