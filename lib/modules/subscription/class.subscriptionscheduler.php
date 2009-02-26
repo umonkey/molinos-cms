@@ -40,7 +40,7 @@ class SubscriptionScheduler implements iScheduler
       // Отправляем документы.
       foreach ($nodes as $node) {
         BebopMimeMail::send(null, $user->name, $node->name, $node->text);
-        printf("    sent mail to %s: %s\n", $user->name, $node->name);
+        mcms::flog(sprintf("sent mail to %s: %s", $user->name, $node->name));
         $last = max($last, $node->id);
       }
 

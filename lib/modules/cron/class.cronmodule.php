@@ -27,6 +27,7 @@ class CronModule implements iModuleConfig, iRemoteCall
         .'запускать периодические задачи.'));
 
     set_time_limit(0);
+    ob_start();
 
     header('HTTP/1.1 200 OK');
     header('Content-Type: text/plain; charset=utf-8');
@@ -36,10 +37,12 @@ class CronModule implements iModuleConfig, iRemoteCall
 
     self::touch();
 
-    if (null !== ($next = $ctx->get('destination')))
+    if (null !== ($next = $ctx->get('destination'))) {
+      ob_end_clean();
       $ctx->redirect($next);
+    }
 
-    die("OK\n");
+    die(ob_get_clean() . "OK\n");
   }
 
   public static function isClientAllowed()
