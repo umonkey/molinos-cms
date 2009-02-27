@@ -75,6 +75,9 @@ class AdminUIListControl extends Control
         $row .= "<td class='field-{$field}'>";
         $value = array_key_exists($field, $node) ? $node[$field] : null;
 
+        if ('name' == $field and !empty($node['_name']))
+          $value = $node['_name'];
+
         if (null !== ($tmp = $this->resolveField($field, $value, $node)))
           $row .= $tmp;
         elseif ((null !== $linkfield) and ($linkfield == $field)) {
