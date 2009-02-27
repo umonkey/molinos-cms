@@ -40,6 +40,11 @@ class JSLibsConfig implements iModuleConfig
         'url' => 'http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js',
         'home' => 'http://jquery.com/',
         ),
+      'jQuery 1.3' => array(
+        'version' => '1.3.2',
+        'url' => 'http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js',
+        'home' => 'http://jquery.com/',
+        ),
       'jQuery UI' => array(
         'version' => '1.5.3',
         'url' => 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.5.3/jquery-ui.min.js',
