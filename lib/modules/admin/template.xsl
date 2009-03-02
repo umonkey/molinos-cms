@@ -195,15 +195,22 @@
     <div id="dashboard">
       <xsl:for-each select="block" mode="dashboard">
         <fieldset id="dashboard-{@name}">
-          <legend>
-            <xsl:value-of select="@title" />
+          <legend class="toggle">
+            <span>
+              <xsl:value-of select="@title" />
+            </span>
           </legend>
-          <xsl:apply-templates select="." mode="dashboard" />
+          <div>
+            <xsl:apply-templates select="." mode="dashboard" />
+          </div>
         </fieldset>
       </xsl:for-each>
     </div>
   </xsl:template>
     <xsl:template match="block[@name='create']" mode="dashboard">
+      <xsl:attribute name="class">
+        <xsl:text>hidden</xsl:text>
+      </xsl:attribute>
       <xsl:for-each select="node[not(isdictionary)]">
         <xsl:sort select="title" />
         <a class="create-{@name}" href="?q=admin&amp;action=create&amp;cgroup=content&amp;type={@name}&amp;destination={/page/request/@uri}">
@@ -219,6 +226,11 @@
       </xsl:for-each>
     </xsl:template>
     <xsl:template match="block" mode="dashboard">
+      <xsl:if test="@name != 'drafts'">
+        <xsl:attribute name="class">
+          <xsl:text>hidden</xsl:text>
+        </xsl:attribute>
+      </xsl:if>
       <ol>
         <xsl:for-each select="node">
           <li>

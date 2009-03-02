@@ -809,10 +809,26 @@ table.nodelist td.icon .icon-sink {
 }
 
 #dashboard fieldset {
+  padding-left: 20px;
+  border: none;
+  border-top: solid 2px gray;
+}
+#dashboard fieldset > div {
   margin-bottom: 2em;
+  margin-left: 10px;
 }
 #dashboard legend {
   font-size: 1.25em;
+  margin-left: 0;
+}
+#dashboard legend span {
+  font-size: 10pt;
+  cursor: pointer;
+  text-decoration: underline;
+  color: #000080;
+}
+#dashboard legend.toggle {
+  padding: 0 10px;
 }
 #dashboard fieldset ol {
   margin: 0 0 .5em 2em;
