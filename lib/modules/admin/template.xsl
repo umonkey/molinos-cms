@@ -199,6 +199,13 @@
             <span>
               <xsl:value-of select="@title" />
             </span>
+            <span class="more">
+              <xsl:if test="@more">
+                <xsl:text>(</xsl:text>
+                <a href="{@more}">ещё</a>
+                <xsl:text>)</xsl:text>
+              </xsl:if>
+            </span>
           </legend>
           <div>
             <xsl:apply-templates select="." mode="dashboard" />
@@ -240,11 +247,13 @@
           </li>
         </xsl:for-each>
       </ol>
+      <!--
       <p>
         <a href="{@more}">
           <xsl:text>Полный список</xsl:text>
         </a>
       </p>
+      -->
     </xsl:template>
 
   <!-- информационные сообщения -->

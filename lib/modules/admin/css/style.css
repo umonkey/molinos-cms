@@ -827,6 +827,13 @@ table.nodelist td.icon .icon-sink {
   text-decoration: underline;
   color: #000080;
 }
+#dashboard legend span.more {
+  margin-left: 1em;
+  opacity: 0.25;
+}
+#dashboard legend a {
+  color: #000080;
+}
 #dashboard legend.toggle {
   padding: 0 10px;
 }
@@ -840,7 +847,7 @@ table.nodelist td.icon .icon-sink {
   vertical-align: middle;
 }
 
-#dashboard-create a {
+#dashboard-create div a {
   margin-right: 1em;
 }
 
