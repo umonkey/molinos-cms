@@ -471,7 +471,7 @@
     <td class="field-uid">
       <xsl:if test="uid">
         <a href="?q=admin.rpc&amp;action=edit&amp;cgroup=access&amp;node={@id}&amp;destination={/page/request/@uri}">
-          <xsl:value-of select="uid/@name" />
+          <xsl:apply-templates select="uid" mode="username" />
         </a>
       </xsl:if>
     </td>

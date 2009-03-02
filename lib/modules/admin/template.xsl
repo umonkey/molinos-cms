@@ -153,7 +153,7 @@
       <div id="top_toolbar">
         <div class="right">
           <a class="editprofile" href="?q=admin&amp;cgroup=access&amp;action=edit&amp;node={@id}&amp;destination={/page/request/@uri}">
-            <xsl:value-of select="@name" />
+            <xsl:apply-templates select="." mode="username" />
           </a>
           <a title="Вернуться на главную" href="?q=admin">
             <img src="lib/modules/admin/img/icons/icon-home.png" alt="home" width="16" height="16" />
@@ -471,5 +471,16 @@
       <xsl:text>, </xsl:text>
       <xsl:value-of select="substring(text(),12,5)" />
     </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="*" mode="username">
+    <xsl:choose>
+      <xsl:when test="fullname">
+        <xsl:value-of select="fullname" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="@name" />
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 </xsl:stylesheet>
