@@ -3,6 +3,12 @@
 
 class RSSListHandler extends AdminListHandler implements iAdminList
 {
+  public function __construct(Context $ctx)
+  {
+    $ctx->theme = os::path('lib', 'modules', 'rss', 'template.xsl');
+    parent::__construct($ctx);
+  }
+
   protected function setUp($preset = null)
   {
     $this->types = array('rssfeed');
