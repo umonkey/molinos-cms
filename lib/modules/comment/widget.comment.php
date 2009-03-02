@@ -138,12 +138,15 @@ class CommentWidget extends Widget
         break;
       }
 
-      $options['page'] = $this->get('page', $options['default']);
       break;
 
     case 'last':
       break;
     }
+
+    if (empty($options['default']))
+      $options['default'] = 1;
+    $options['page'] = $this->get('page', $options['default']);
 
     return $options;
   }
@@ -211,7 +214,7 @@ class CommentWidget extends Widget
       '#sort' => '-id',
       );
 
-    if (($count = Node::count($filter)) > $this->perpage)
+    if (($count = Node::count($this->ctx->db, $filter)) > $this->perpage)
       $result['pager'] = $this->getPager($count, $options['page'], $this->perpage);
 
     $page = empty($result['pager']['current']) ? 1 : $result['pager']['current'];
