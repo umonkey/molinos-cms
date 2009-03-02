@@ -36,7 +36,11 @@ class AdminRPC extends RPCHandler implements iRemoteCall
         ), $ctx->user->getNode()->getXML('user') . $ctx->url()->getArgsXML()) . html::em('blocks', $result);
 
       $output = html::em('page', $page, $result);
-      $result = xslt::transform($output, os::path('lib', 'modules', 'admin', 'template.xsl'));
+
+      $xslt = isset($ctx->theme)
+        ? $ctx->theme
+        : os::path('lib', 'modules', 'admin', 'template.xsl');
+      $result = xslt::transform($output, $xslt);
     }
 
     return $result;
