@@ -219,9 +219,6 @@ class DomainNode extends Node implements iContentType
     $oldname = $this->name;
     $isnew = (null === $this->id);
 
-    if ($data['page_type'] == 'domain')
-      $data['parent_id'] = null;
-
     // Специальная обработка редиректов, которые не укладываются в схему.
     if (!empty($data['redirect'])) {
       foreach (array('name', 'redirect', 'moderatoremail', 'defaultsection') as $k)
@@ -289,7 +286,7 @@ class DomainNode extends Node implements iContentType
     if (null !== ($tmp = $form->findControl('theme'))) {
       $dirs = array();
 
-      foreach (glob(MCMS_ROOT .'/themes/'.'*', GLOB_ONLYDIR) as $dir) {
+      foreach ((array)glob(MCMS_ROOT .'/themes/'.'*', GLOB_ONLYDIR) as $dir) {
         if (!in_array($dir = basename($dir), array('all', 'admin')))
           $dirs[$dir] = $dir;
       }
