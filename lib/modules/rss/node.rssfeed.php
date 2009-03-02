@@ -16,43 +16,41 @@ class RssfeedNode extends Node
     parent::duplicate();
   }
 
-  public function formGet($simple = false)
+  public function formGet()
   {
-    $form = parent::formGet($simple);
+    $form = parent::formGet();
     $form->title = $this->id ? t('Настройка RSS ленты') : t('Добавление новой RSS ленты');
     return $form;
   }
 
-  public static function getDefaultSchema()
+  public function canEditFields()
   {
-    return array(
+    return false;
+  }
+
+  public function getFormFields()
+  {
+    $schema = array(
       'name' => array(
         'label' => t('Имя ленты'),
         'type' => 'TextLineControl',
         'required' => true,
+        'weight' => 1,
+        'group' => t('Основные свойства'),
         ),
       'title' => array(
         'label' => t('Видимый заголовок'),
         'type' => 'TextLineControl',
         'required' => true,
+        'weight' => 2,
+        'group' => t('Основные свойства'),
         ),
       'description' => array(
         'label' => t('Описание'),
         'type' => 'TextAreaControl',
         'required' => true,
-        ),
-      'limit' => array(
-        'label' => t('Количество элементов'),
-        'type' => 'NumberControl',
-        'required' => true,
-        'default' => 10,
-        ),
-      'link' => array(
-        'label' => t('Ссылка на HTML версию'),
-        'type' => 'URLControl',
-        'required' => true,
-        'default' => 'http://HOSTNAME/',
-        'description' => t('Ссылка на раздел сайта, в котором пользователи могут увидеть этот материал.  Можно использовать ключевое слово HOSTNAME: оно будет заменено на адрес сервера.'),
+        'weight' => 3,
+        'group' => t('Основные свойства'),
         ),
       'language' => array(
         'label' => t('Язык'),
@@ -63,27 +61,44 @@ class RssfeedNode extends Node
           'ru' => 'Русский',
           'en' => 'Английский',
           ),
+        'group' => t('Основные свойства'),
+        'weight' => 4,
+        ),
+      'types' => array(
+        'label' => t('Типы документов'),
+        'type' => 'SetControl',
+        'required' => true,
+        'dictionary' => 'type',
+        'group' => t('Формат выдачи'),
+        'weight' => 10,
+        ),
+      'contentfields' => array(
+        'label' => t('Поле с содержимым'),
+        'type' => 'EnumControl',
+        'required' => false,
+        'dictionary' => 'field',
+        'group' => t('Формат выдачи'),
+        'weight' => 20,
+        ),
+      'limit' => array(
+        'label' => t('Количество элементов'),
+        'type' => 'NumberControl',
+        'required' => true,
+        'default' => 10,
+        'group' => t('Формат выдачи'),
+        'weight' => 30,
         ),
       'sort' => array(
         'label' => t('Сортировка записей'),
         'type' => 'TextLineControl',
         'required' => true,
         'default' => '-id',
-        ),
-      'types' => array(
-        'label' => t('Типы документов'),
-        'type' => 'TextLineControl',
-        'required' => true,
-        'description' => t('Список внутренних имён типов документов, разделённый пробелами, например: "news article story".'),
-        ),
-      'contentfields' => array(
-        'label' => t('Поля с содержимым'),
-        'type' => 'TextLineControl',
-        'required' => false,
-        'description' => t('Имя одного или нескольких полей (через запятую), содержимое которых следует использовать в качестве текста записи.  Несколько значений обычно следует вводить только в том случае, если лента содержит документы разных типов, и поля с текстовым содержимым называются по-разному.  Если это поле не заполнять, записи будут отдаваться без текста (только заголовки).'),
-        'default' => 'text, body, teaser',
+        'group' => t('Формат выдачи'),
+        'weight' => 40,
         ),
       );
+
+    return new Schema($schema);
   }
 
   public function getRSS(Context $ctx)
