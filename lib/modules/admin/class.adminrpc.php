@@ -327,7 +327,7 @@ class AdminRPC extends RPCHandler implements iRemoteCall
 
   private static function getDashboardXML(PDO_Singleton $db, array $query, array $options)
   {
-    $content = Node::findXML($db, $query);
+    $content = Node::findXML($db, $query, 10);
     if (!empty($content))
       return html::em('block', $options, $content);
   }
