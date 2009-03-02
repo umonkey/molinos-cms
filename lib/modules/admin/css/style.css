@@ -831,7 +831,13 @@ table.nodelist td.icon .icon-sink {
   padding: 0 10px;
 }
 #dashboard fieldset ol {
-  margin: 0 0 .5em 2em;
+  list-style-type: circle;
+  list-style-image: url(../img/bullet.gif);
+  margin: 0;
+}
+#dashboard ol li {
+  margin-bottom: .25em;
+  vertical-align: middle;
 }
 
 #dashboard-create a {

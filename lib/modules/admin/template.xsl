@@ -231,7 +231,7 @@
           <xsl:text>hidden</xsl:text>
         </xsl:attribute>
       </xsl:if>
-      <ol>
+      <ol class="doclist">
         <xsl:for-each select="node">
           <li>
             <a href="?q=admin.rpc&amp;action=edit&amp;cgroup=content&amp;node={@id}&amp;destination={/page/request/@uri}">
