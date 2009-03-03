@@ -40,8 +40,12 @@ class Query
           }
 
           // Если что-то осталось — используем обычный поиск.
-          if (!empty($keywords))
-            mcms::debug(join('%', $keywords));
+          if (!empty($keywords)) {
+            $like = '%' . join('%', $keywords) . '%';
+            $this->conditions[] = '(`node`.`data` LIKE ? OR `node`.`name` LIKE ?)';
+            $this->params[] = $like;
+            $this->params[] = $like;
+          }
 
           break;
 
