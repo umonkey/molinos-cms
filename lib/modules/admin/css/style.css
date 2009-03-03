@@ -95,13 +95,6 @@ html>body .spacer_not_ie {
   cursor: help;
 }
 
-#top_toolbar .right a#lnk_update {
-  height: 19px;
-  padding: 1px 0 3px 23px;
-  position: relative;
-  background: url(../img/siteimage/ico_update.gif) left 2px no-repeat;
-}
-
 /*top - end*/
 
 #center {
@@ -110,18 +103,6 @@ html>body .spacer_not_ie {
   float: right;
   position: relative;
 }
-
-#center .star {
-	width: 15px;
-	height: 15px;
-	display: block;
-	position: absolute;
-	margin: 5px 0 0 -22px;
-	font-size: 0;
-	background-image: url(../img/siteimage/ico_star_dark.gif);
-}
-
-#center .star:hover {background-image: url(../img/siteimage/ico_star_light.gif);}
 
 #center p {margin-bottom: 5px;}
 
@@ -178,25 +159,6 @@ html>body .spacer_not_ie {
   background: left center no-repeat;
 }
 
-#center .tb_1 .ctrl_right a.ctrl_sort {
-  background-image: url(../img/siteimage/ico_sort.gif);
-}
-
-#center .tb_1 .ctrl_right a.ctrl_filter {
-  background-image: url(../img/siteimage/ico_filter.gif);
-}
-
-#center .tb_2_top {
-  padding-bottom: 4px;
-  background: url(../img/siteimage/ico_arrow_1.gif) 20px bottom no-repeat;
-}
-
-#center .tb_2_btm {
-  margin-top: 9px;
-  padding-top: 4px;
-  background: url(../img/siteimage/ico_arrow_2.gif) 20px top no-repeat;
-}
-
 #center .tb_2 .tb_2_inside {
   height: auto;
   _height: 25px;
@@ -225,17 +187,6 @@ html>body .spacer_not_ie {
   display: block;
   text-decoration: none;
   outline: none;
-}
-
-#center .tb_2 .action_select a.as_link span.arrow {
-  width: 4px;
-  height: 23px;
-  display: block;
-  float: left;
-  position: relative;
-  margin-right: -4px;
-  left: -12px;
-  background: url(../img/siteimage/tb_2_select_arrow.gif) left center no-repeat;
 }
 
 #center .tb_2 ul.as_actions {
