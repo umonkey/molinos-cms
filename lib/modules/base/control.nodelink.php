@@ -123,7 +123,7 @@ class NodeLinkControl extends Control
       else {
         $parts = explode('.', $this->values);
 
-        $n = Node::find($f = array(
+        $n = Node::find($node->getDB(), array(
           'class' => $parts[0],
           $parts[1] => $value,
           ));
