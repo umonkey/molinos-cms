@@ -120,7 +120,7 @@ class Schema extends ArrayObject
   {
     $result = array();
     foreach ($this as $k => $v)
-      if ($v->indexed and !in_array($k, array('name', 'uid', 'created', 'updated')))
+      if ($v->indexed and !in_array($k, array('name', 'uid', 'created', 'updated')) and null !== $v->getSQL())
         $result[] = $k;
     return $result;
   }
