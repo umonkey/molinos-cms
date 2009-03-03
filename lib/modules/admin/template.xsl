@@ -35,16 +35,6 @@
       </head>
       <body>
         <xsl:apply-templates select="." mode="body" />
-        <div id="signature">
-          <hr/>
-          <a href="http://molinos-cms.googlecode.com/">Molinos CMS</a>
-          <xsl:text> v</xsl:text>
-          <xsl:value-of select="/page/@version" />
-          <xsl:text> at </xsl:text>
-          <a href="{@base}">
-            <xsl:value-of select="@base" />
-          </a>
-        </div>
       </body>
     </html>
   </xsl:template>
@@ -62,9 +52,18 @@
           <xsl:apply-templates select="blocks/block/pager" />
         </div>
       </div>
-    </div>
 
-    <xsl:apply-templates select="blocks/block[@name = 'signature']" />
+      <div id="signature">
+        <hr/>
+        <a href="http://molinos-cms.googlecode.com/">Molinos CMS</a>
+        <xsl:text> v</xsl:text>
+        <xsl:value-of select="/page/@version" />
+        <xsl:text> at </xsl:text>
+        <a href="{@base}">
+          <xsl:value-of select="@base" />
+        </a>
+      </div>
+    </div>
   </xsl:template>
 
   <!-- всякие ошибки -->
