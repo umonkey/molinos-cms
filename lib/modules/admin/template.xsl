@@ -25,7 +25,6 @@
         </title>
         <link rel="stylesheet" type="text/css" href="lib/modules/admin/template.css" />
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
-        <script type='text/javascript' src='lib/modules/admin/js/jquery.mcms.tabber.js'></script>
         <script type='text/javascript' src='lib/modules/admin/js/bebop.js'></script>
         <script type='text/javascript'>
           <xsl:text>var mcms_path = '</xsl:text>
@@ -193,31 +192,30 @@
   <!-- рабочий стол -->
   <xsl:template match="block[@name='dashboard']" mode="content">
     <div id="dashboard">
-      <xsl:for-each select="block" mode="dashboard">
-        <fieldset id="dashboard-{@name}">
-          <legend class="toggle">
-            <span>
-              <xsl:value-of select="@title" />
-            </span>
-            <span class="more">
-              <xsl:if test="@more">
-                <xsl:text>(</xsl:text>
-                <a href="{@more}">ещё</a>
-                <xsl:text>)</xsl:text>
-              </xsl:if>
-            </span>
-          </legend>
-          <div>
-            <xsl:apply-templates select="." mode="dashboard" />
-          </div>
-        </fieldset>
-      </xsl:for-each>
+      <form class="tabbed">
+        <xsl:for-each select="block" mode="dashboard">
+          <fieldset id="dashboard-{@name}" class="tabable">
+            <legend class="toggle">
+              <span class="title">
+                <xsl:value-of select="@title" />
+              </span>
+              <span class="more">
+                <xsl:if test="@more">
+                  <xsl:text>(</xsl:text>
+                  <a href="{@more}">ещё</a>
+                  <xsl:text>)</xsl:text>
+                </xsl:if>
+              </span>
+            </legend>
+            <div>
+              <xsl:apply-templates select="." mode="dashboard" />
+            </div>
+          </fieldset>
+        </xsl:for-each>
+      </form>
     </div>
   </xsl:template>
     <xsl:template match="block[@name='create']" mode="dashboard">
-      <xsl:attribute name="class">
-        <xsl:text>hidden</xsl:text>
-      </xsl:attribute>
       <xsl:for-each select="node[not(isdictionary)]">
         <xsl:sort select="title" />
         <a class="create-{@name}" href="?q=admin&amp;action=create&amp;cgroup=content&amp;type={@name}&amp;destination={/page/request/@uri}">
@@ -233,11 +231,6 @@
       </xsl:for-each>
     </xsl:template>
     <xsl:template match="block" mode="dashboard">
-      <xsl:if test="@name != 'drafts'">
-        <xsl:attribute name="class">
-          <xsl:text>hidden</xsl:text>
-        </xsl:attribute>
-      </xsl:if>
       <ol class="doclist">
         <xsl:for-each select="node">
           <li>

@@ -759,35 +759,38 @@ table.nodelist td.icon .icon-sink {
   background-image: url(../img/information.png);
 }
 
-#dashboard fieldset {
-  padding-left: 20px;
+/**
+ * Вкладки в формах.
+ */
+
+form.tabbed fieldset.tabable {
   border: none;
-  border-top: solid 2px gray;
+  border-top: solid 4px #090;
+  margin: 0 0 1em 0;
+  padding: 10px 0 0 20px;
 }
-#dashboard fieldset > div {
-  margin-bottom: 2em;
-  margin-left: 10px;
+form.tabbed fieldset.tabable > legend {
+  padding-right: 10px;
+  padding-left: 4px;
 }
-#dashboard legend {
-  font-size: 1.25em;
-  margin-left: 0;
-}
-#dashboard legend span {
-  font-size: 10pt;
+form.tabbed fieldset.tabable > legend .title {
   cursor: pointer;
+  color: #008;
+  padding: 0 4px;
+  font-size: 1.25em;
   text-decoration: underline;
-  color: #000080;
 }
-#dashboard legend span.more {
+/* для вывода дополнительных ссылок в заголовке */
+form.tabbed fieldset.tabable legend .more {
   margin-left: 1em;
   opacity: 0.25;
 }
-#dashboard legend a {
-  color: #000080;
+form.tabbed fieldset.tabable > div {
+  margin-bottom: 2em;
+  margin-left: 10px;
 }
-#dashboard legend.toggle {
-  padding: 0 10px;
-}
+
+
 #dashboard fieldset ol {
   list-style-type: circle;
   list-style-image: url(../img/bullet.gif);

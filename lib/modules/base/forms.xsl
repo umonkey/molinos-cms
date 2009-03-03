@@ -17,7 +17,9 @@
     <xsl:if test="count(control)">
       <fieldset class="{@class}">
         <legend>
-          <xsl:value-of select="@label" />
+          <span class="title">
+            <xsl:value-of select="@label" />
+          </span>
         </legend>
         <xsl:apply-templates select="control" />
       </fieldset>
