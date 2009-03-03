@@ -163,6 +163,12 @@ class FieldNode extends Node implements iContentType
         'label' => t('Обязательное'),
         'weight' => 60,
         ),
+      'group' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Группа'),
+        'weight' => 70,
+        'description' => t('Используется для группировки полей.'),
+        ),
       );
 
     // Дополнительные настройки.
