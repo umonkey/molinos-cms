@@ -139,7 +139,7 @@ class Schema extends ArrayObject
       if (!($group = trim($ctl->group)))
         $group = count($tabs)
           ? array_shift(array_keys($tabs))
-          : t('Основные');
+          : t('Основные свойства');
 
       if ($ctl instanceof AttachmentControl)
         $group = t('Файлы');
