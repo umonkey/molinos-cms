@@ -808,3 +808,7 @@ table.nodelist td.icon .icon-sink {
   padding: 10px 0;
   font-style: italic;
 }
+
+input.autocomplete {
+  background: transparent url('../img/zoom.png') no-repeat center right;
+}

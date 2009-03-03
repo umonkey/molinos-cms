@@ -49,6 +49,9 @@ class NodeLinkControl extends Control
       unset($form['dictionary']);
     }
 
+    if (empty($form['description']))
+      $form['description'] = t('Введите часть названия для поиска по базе данных.');
+
     parent::__construct($form, array('value'));
   }
 
