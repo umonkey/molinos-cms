@@ -641,6 +641,10 @@ table.nodelist td.icon .icon-sink {
   white-space: nowrap;
 }
 
+table.access th {
+  text-align: center;
+}
+
 
 /**
  * Форма входа.
