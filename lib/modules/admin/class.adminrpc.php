@@ -276,18 +276,6 @@ class AdminRPC extends RPCHandler implements iRemoteCall
   {
     $output = '';
 
-    $anon = User::getAnonymous();
-    $output .= self::getDashboardXML($ctx->db, array(
-      'published' => 1,
-      'class' => 'type',
-      'name' => $ctx->user->getAccess('c'),
-      '-name' => $anon->getAccess('c'),
-      ), array(
-      'name' => 'create',
-      'title' => t('Добавить документ'),
-      'more' => '?q=admin&cgroup=content&action=list&search=published%3A0+-uid%3A' . $ctx->user->id,
-      ));
-
     $output .= self::getDashboardXML($ctx->db, array(
       'uid' => $ctx->user->id,
       'published' => 0,
@@ -297,6 +285,19 @@ class AdminRPC extends RPCHandler implements iRemoteCall
       'name' => 'drafts',
       'title' => t('Ваши черновики'),
       'more' => '?q=admin/content/list&search=uid%3A' . $ctx->user->id . '+published:0',
+      ));
+
+    $output .= self::getDashboardXML($ctx->db, array(
+        '-uid' => $ctx->user->id,
+        'deleted' => 0,
+        'published' => 0,
+        '#sort' => '-id',
+        '#public' => true,
+        'class' => $ctx->user->getAccess('p'),
+      ), array(
+      'name' => 'queue',
+      'title' => t('Очередь модерации'),
+      'more' => '?q=admin&cgroup=content&action=list&search=published%3A0+-uid%3A' . $ctx->user->id,
       ));
 
     $output .= self::getDashboardXML($ctx->db, array(
@@ -310,16 +311,15 @@ class AdminRPC extends RPCHandler implements iRemoteCall
       'more' => '?q=admin&cgroup=content&action=list&search=uid%3A' . $ctx->user->id,
       ));
 
+    $anon = User::getAnonymous();
     $output .= self::getDashboardXML($ctx->db, array(
-        '-uid' => $ctx->user->id,
-        'deleted' => 0,
-        'published' => 0,
-        '#sort' => '-id',
-        '#public' => true,
-        'class' => $ctx->user->getAccess('p'),
+      'published' => 1,
+      'class' => 'type',
+      'name' => $ctx->user->getAccess('c'),
+      '-name' => $anon->getAccess('c'),
       ), array(
-      'name' => 'queue',
-      'title' => t('Очередь модерации'),
+      'name' => 'create',
+      'title' => t('Добавить документ'),
       'more' => '?q=admin&cgroup=content&action=list&search=published%3A0+-uid%3A' . $ctx->user->id,
       ));
 
