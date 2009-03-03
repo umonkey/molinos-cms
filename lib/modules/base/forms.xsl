@@ -227,7 +227,7 @@
           <xsl:for-each select="row">
             <tr>
               <td>
-                <xsl:value-of select="@name" />
+                <xsl:value-of select="@name" disable-output-escaping="yes" />
               </td>
               <xsl:for-each select="perm">
                 <td>
