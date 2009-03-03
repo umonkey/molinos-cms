@@ -178,8 +178,10 @@ class UserNode extends Node implements iContentType
   public function formProcess(array $data)
   {
     if (!$this->id)
-      if (is_array($list = mcms::modconf('auth', 'groups', array())))
-        $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, %ID% FROM `node` WHERE `class` = 'group' AND `id` " . sql::in($list));
+      if (is_array($list = mcms::modconf('auth', 'groups', array()))) {
+        $params = array();
+        $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, %ID% FROM `node` WHERE `class` = 'group' AND `id` " . sql::in($list, $params));
+      }
 
     $oldpassword = $this->password;
     $res = parent::formProcess($data);
