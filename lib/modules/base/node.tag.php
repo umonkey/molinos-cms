@@ -76,17 +76,30 @@ class TagNode extends Node implements iContentType
     return Node::count(array('class' => 'tag', 'parent_id' => null, 'deleted' => 0));
   }
 
-  public static function getDefaultSchema()
+  public function getFormFields()
   {
-    return array(
+    $schema = new Schema(array(
+      'name' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Название раздела'),
+        'group' => t('Основные свойства'),
+        'weight' => 10,
+        ),
+      'description' => array(
+        'type' => 'TextAreaControl',
+        'label' => t('Описание'),
+        'group' => t('Основные свойства'),
+        'weight' => 20,
+        ),
       'perms' => array(
         'type' => 'AccessControl',
-        'label' => t('Права на раздел'),
         'volatile' => true,
-        'group' => t('Доступ'),
+        'group' => t('Права на добавление документов'),
         'columns' => array('c'),
-        'description' => t('Указанные группы смогут добавлять документы в этот раздел.'),
+        'description' => t('Пользователи из отмеченных групп смогут добавлять документы в этот раздел.'),
         ),
-      );
+      ));
+
+    return $schema;
   }
 };

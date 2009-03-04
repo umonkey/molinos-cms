@@ -171,7 +171,46 @@ class TypeNode extends Node implements iContentType
 
   public function getFormFields()
   {
-    $schema = $this->getSchema();
+    $schema = new Schema(array(
+      'name' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Внутреннее имя'),
+        'description' => t('Только небольшие латинские буквы, арабские цифры и прочерки.'),
+        'required' => true,
+        'group' => t('Основные свойства'),
+        'weight' => 10,
+        ),
+      'title' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Отображаемое имя'),
+        'description' => t('Название, понятное простому человеку, например: "Статья", или "Запись на приём".'),
+        'required' => true,
+        'group' => t('Основные свойства'),
+        'weight' => 10,
+        ),
+      'description' => array(
+        'type' => 'TextAreaControl',
+        'label' => t('Описание'),
+        'description' => t('Помогает неопытным пользователям ориентироваться при добавлении документов.'),
+        'group' => t('Основные свойства'),
+        'weight' => 20,
+        ),
+      'isdictionary' => array(
+        'type' => 'BoolControl',
+        'value' => 'isdictionary',
+        'label' => t('Тип является справочником'),
+        'weight' => 30,
+        ),
+      'perms' => array(
+        'type' => 'AccessControl',
+        'group' => t('Права для групп'),
+        ),
+      'tags' => array(
+        'type' => 'SectionsControl',
+        'group' => t('Разрешённые разделы'),
+        'dictionary' => 'tag',
+        ),
+      ));
 
     if (empty($this->id) or $this->name != 'type')
       $schema['isdictionary'] = new BoolControl(array(
@@ -195,31 +234,6 @@ class TypeNode extends Node implements iContentType
     }
 
     return $schema;
-  }
-
-  public static function getDefaultSchema()
-  {
-    return array(
-      'perms' => array(
-        'type' => 'AccessControl',
-        'label' => t('Права для групп'),
-        'group' => t('Доступ'),
-        'volatile' => true,
-        ),
-      'tags' => array(
-        'type' => 'SectionsControl',
-        'label' => t('Документы этого типа можно помещать в разделы'),
-        'group' => t('Разделы'),
-        'dictionary' => 'tag',
-        'volatile' => true,
-        ),
-      'notags' => array(
-        'deprecated' => true,
-        ),
-      'hasfiles' => array(
-        'deprecated' => true,
-        ),
-      );
   }
 
   public static function getList()
