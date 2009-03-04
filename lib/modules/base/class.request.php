@@ -58,13 +58,10 @@ class Request
     if (0 === strpos($query, 'attachment/'))
       $query = 'attachment.rpc';
 
-    switch (strtolower(substr($query, strrpos($query, '.')))) {
-    case '.rpc':
-      return new RPCRouter($query);
-    case '.json':
-      return new JSONRouter($query);
-    default:
-      return new XMLRouter($query);
-    }
+    if ($ext = substr($query, strrpos($query, '.') + 1))
+      if (class_exists($className = strtoupper($ext) . 'Router'))
+        return new $className($query);
+
+    return new XMLRouter($query);
   }
 }
