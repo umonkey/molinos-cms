@@ -605,6 +605,9 @@ class Node
    */
   public function save()
   {
+    if (!$this->uid)
+      $this->uid = mcms::user()->id;
+
     $this->stub->save();
 
     if (count($indexes = $this->getSchema()->getIndexes())) {
