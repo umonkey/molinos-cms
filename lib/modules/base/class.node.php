@@ -78,11 +78,16 @@ class Node
    */
   public static function load($id, PDO $db = null)
   {
-    if (!is_numeric($id))
-      throw new InvalidArgumentException(t('Идентификатор загружаемой ноды должен быть числовым.'));
-
     if (null === $db)
       $db = Context::last()->db;
+
+    if (is_array($id)) {
+      if (!is_array($node = array_shift(Node::find($db, $id))))
+        throw new ObjectNotFoundException();
+      return array_shift($node);
+    } elseif (!is_numeric($id)) {
+      throw new InvalidArgumentException(t('Идентификатор загружаемой ноды должен быть числовым.'));
+    }
 
     return NodeStub::create($id, $db)->getObject();
   }
@@ -606,7 +611,7 @@ class Node
   public function save()
   {
     if (!$this->uid)
-      $this->uid = mcms::user()->id;
+      $this->uid = Context::last()->user->id;
 
     $this->stub->save();
 
