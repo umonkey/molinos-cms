@@ -358,11 +358,10 @@ class DomainNode extends Node implements iContentType
           ),
         ),
       'theme' => array(
-        'type' => 'EnumControl',
+        'type' => 'TextLineControl',
         'label' => t('Шкура'),
         'description' => t('Имя папки с шаблонами для этой страницы.'),
         'volatile' => true,
-        'default_label' => t('(не выбрана)'),
         ),
       'content_type' => array(
         'type' => 'EnumControl',
