@@ -464,7 +464,6 @@ class FileNode extends Node implements iContentType
         'type' => 'TextLineControl',
         'description' => t('Имя, которое было у файла, когда пользователь добавлял его на сайт.  Под этим же именем файл будет сохранён, если пользователь попытается его сохранить.  Рекомендуется использовать только латинский алфавит: Internet Explorer некорректно обрабатывает кириллицу в именах файлов при скачивании файлов.'),
         'required' => true,
-        'indexed' => true,
         'volatile' => true,
         ),
       'filetype' => array (
@@ -479,14 +478,12 @@ class FileNode extends Node implements iContentType
         'label' => t('Размер в байтах'),
         'type' => 'NumberControl',
         'required' => true,
-        'indexed' => true,
         'volatile' => true,
         ),
       'filepath' => array (
         'label' => t('Локальный путь к файлу'),
         'type' => 'TextLineControl',
         'required' => true,
-        'indexed' => true,
         'volatile' => true,
         ),
       'width' => array (
