@@ -57,7 +57,7 @@ class RssfeedNode extends Node
         'type' => 'EnumControl',
         'required' => true,
         'default' => 'ru',
-        'values' => array(
+        'options' => array(
           'ru' => 'Русский',
           'en' => 'Английский',
           ),
@@ -65,20 +65,11 @@ class RssfeedNode extends Node
         'weight' => 4,
         ),
       'types' => array(
-        'label' => t('Типы документов'),
         'type' => 'SetControl',
         'required' => true,
         'dictionary' => 'type',
-        'group' => t('Формат выдачи'),
+        'group' => t('Типы документов'),
         'weight' => 10,
-        ),
-      'contentfields' => array(
-        'label' => t('Поле с содержимым'),
-        'type' => 'EnumControl',
-        'required' => false,
-        'dictionary' => 'field',
-        'group' => t('Формат выдачи'),
-        'weight' => 20,
         ),
       'limit' => array(
         'label' => t('Количество элементов'),
@@ -88,6 +79,7 @@ class RssfeedNode extends Node
         'group' => t('Формат выдачи'),
         'weight' => 30,
         ),
+      /*
       'sort' => array(
         'label' => t('Сортировка записей'),
         'type' => 'TextLineControl',
@@ -95,6 +87,14 @@ class RssfeedNode extends Node
         'default' => '-id',
         'group' => t('Формат выдачи'),
         'weight' => 40,
+        ),
+      */
+      'template' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Шаблон'),
+        'group' => t('Формат выдачи'),
+        'weight' => 40,
+        'description' => t('Если стандартный формат вас не устраивает, укажите путь к собственному шаблону. За основу можно взять lib/modules/rss/default.xsl.'),
         ),
       );
 
