@@ -45,7 +45,7 @@ class MenuWidget extends Widget implements iWidget
   public static function getConfigOptions()
   {
     $fields = array();
-    $schema = Schema::load($this->ctx->db, 'tag');
+    $schema = Schema::load(Context::last()->db, 'tag');
 
     foreach ($schema as $k => $v)
       if ($v instanceof URLControl)
@@ -59,7 +59,7 @@ class MenuWidget extends Widget implements iWidget
       'root' => t('Из настроек страницы'),
       );
 
-    foreach (TagNode::getTags('select') as $k => $v)
+    foreach (Node::getSortedList('tag') as $k => $v)
       $tags[$k] = $v;
 
     return array(
