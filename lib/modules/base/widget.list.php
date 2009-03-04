@@ -350,6 +350,9 @@ class ListWidget extends Widget
         $filter['tags'] .= '+';
     }
 
+    if (empty($filter['#sort']))
+      $filter['#sort'] = '-id';
+
     // $q = new Query($filter); mcms::debug($filter, $options, $this->recurse, $q->getSelect());
 
     return Node::find($this->ctx->db, $filter, $options['limit'], $options['offset']);
