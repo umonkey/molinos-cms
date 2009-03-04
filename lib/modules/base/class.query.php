@@ -6,6 +6,8 @@ class Query
   private $conditions = array();
   private $params = array();
   private $order = array();
+  private $limit = null;
+  private $offset = null;
 
   public function __construct(array $filters)
   {
@@ -54,6 +56,14 @@ class Query
             $this->conditions[] = '`node`.`class` IN (SELECT `name` FROM `node` WHERE `class` = \'type\' AND `published` = 1 AND `deleted` = 0)';
           break;
 
+        case '#limit':
+          $this->limit = intval($v);
+          break;
+
+        case '#offset':
+          $this->offset = intval($v);
+          break;
+
         default:
           throw new InvalidArgumentException(t('Неизвестный фильтр в запросе: %name.', array(
             '%name' => $k,
@@ -100,6 +110,11 @@ class Query
    */
   public function getSelect($limit = null, $offset = null)
   {
+    if (null === $limit)
+      $limit = $this->limit;
+    if (null === $offset)
+      $offset = $this->offset;
+
     $sql = sql::getSelect(array('`node`.`id`'), $this->tables, $this->conditions);
 
     if (!empty($this->order))
