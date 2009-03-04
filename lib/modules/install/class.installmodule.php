@@ -1,14 +1,9 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class InstallModule implements iRemoteCall
+class InstallModule extends RPCHandler implements iRemoteCall
 {
-  public static function hookRemoteCall(Context $ctx)
-  {
-    return mcms::dispatch_rpc(__CLASS__, $ctx, 'install');
-  }
-
-  public static function rpc_get_install(Context $ctx)
+  public static function rpc_get_default(Context $ctx)
   {
     $xml = self::listDriversXML();
     $xsl = os::path('lib', 'modules', 'install', 'template.xsl');
