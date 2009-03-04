@@ -82,19 +82,20 @@ class NodeApiModule extends RPCHandler implements iRemoteCall
   {
     $filter = array(
       'id' => $ctx->get('node'),
-      'deleted' => array(0),
-      '#recurse' => $ctx->get('bare') ? 0 : 1,
       );
 
-    if ($ctx->canDebug())
-      $filter['deleted'][] = 1;
+    if (!$ctx->canDebug())
+      $filter['deleted'] = 0;
 
-    $node = Node::load($filter);
-
-    mcms::debug(array(
-      'node' => $node,
-      'links' => $node->getActionLinks(),
-      ));
+    if (count($nodes = Node::find($ctx->db, $filter))) {
+      $node = array_shift($nodes);
+      if ('xml' != $ctx->get('mode', 'xml'))
+        mcms::debug($node);
+      else {
+        $res = new Response($node->getXML(), 'text/xml');
+        $res->send();
+      }
+    }
 
     throw new ForbiddenException();
   }
