@@ -427,6 +427,17 @@ class NodeStub
   }
 
   /**
+   * Полное удаление, мимо корзины.
+   */
+  public function erase()
+  {
+    if (null === $this->id)
+      throw new RuntimeException(t('Попытка удалить новый объект'));
+    $this->getDB()->exec("DELETE FROM `node` WHERE `id` = ?", array($this->id));
+    $this->id = null;
+  }
+
+  /**
    * Восстановление ноды.
    */
   public function undelete()
