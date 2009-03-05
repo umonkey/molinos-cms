@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:template match="form">
-    <xsl:if test="@title">
+    <xsl:param name="title" select="@title" />
+    <xsl:if test="$title">
       <h2>
-        <xsl:value-of select="@title" />
+        <xsl:value-of select="$title" />
       </h2>
     </xsl:if>
     <form method="{@method}" action="{@action}" enctype="{@enctype}" class="{@class}">
