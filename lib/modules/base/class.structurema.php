@@ -127,14 +127,17 @@ class StructureMA
     switch ($params) {
     case 'sec':
     case 'doc':
-      $args = '(?:/(\d+))?';
+      $args = '(\d+)?';
       break;
     case 'sec+doc':
-      $args = '(?:/(\d+)(?:/(\d+))?)?';
+      $args = '(?:(\d+)(?:/(\d+))?)?';
       break;
     default:
       $args = '';
     }
+
+    if (!empty($name) and !empty($args))
+      $args = '(?:/' . $args . ')';
 
     $re = $name . $args;
 
