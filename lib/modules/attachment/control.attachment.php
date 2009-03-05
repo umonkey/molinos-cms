@@ -135,9 +135,9 @@ class AttachmentControl extends Control
 
   public function format($value)
   {
-    if ($value instanceof FileNode) {
+    if (is_object($value) and 'file' == $value->class) {
       $ctx = Context::last();
-      $url = os::path($ctx->config->getPath('files'), $value->filepath);
+      $url = os::path($ctx->config->getDirName(), $ctx->config->files, $value->filepath);
 
       if (!file_exists($url))
         return html::em('p', array(
@@ -162,7 +162,7 @@ class AttachmentControl extends Control
     return $value;
   }
 
-  private function getPlayer($url, array $options = array())
+  private function getPlayer($_url, array $options = array())
   {
     $options = array_merge(array(
       'width' => 400,
@@ -172,7 +172,7 @@ class AttachmentControl extends Control
     $url = new url(array(
       'path' => 'lib/modules/attachment/player.swf',
       ));
-    $url->setarg('file', $url);
+    $url->setarg('file', os::webpath($_url));
     $url->setarg('width', $options['width']);
     $url->setarg('height', $options['height']);
 
