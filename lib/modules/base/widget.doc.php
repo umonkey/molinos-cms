@@ -142,6 +142,9 @@ class DocWidget extends Widget implements iWidget
       if (in_array($node->class, array('tag', 'config')))
         throw new PageNotFoundException();
 
+      if ($node->deleted)
+        throw new PageNotFoundException();
+
       if (!$node->published)
         throw new ForbiddenException(t('Документ не опубликован.'));
 
