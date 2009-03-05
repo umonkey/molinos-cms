@@ -99,24 +99,24 @@ class TagCloudWidget extends Widget implements iWidget
     $types = "'". join("', '", $options['types']) ."'";
 
     $data = $this->ctx->db->getResults($sql = 'SELECT n.id AS id, n.name AS name, '
-      .'COUNT(*) AS `count` '
+      .'COUNT(*) AS `cnt` '
       .'FROM node n '
       .'INNER JOIN node__rel r ON r.tid = n.id '
       .'WHERE n.class = \'tag\' '
       .'AND n.published = 1 '
       .'AND n.deleted = 0 '
       .'AND r.nid IN (SELECT id FROM node WHERE published = 1 AND deleted = 0 AND class IN ('. $types .')) '
-      .'GROUP BY n.id, v.name '
+      .'GROUP BY n.id, n.name '
       .'ORDER BY n.name');
 
     // Calculate the total number of docs.
     $total = 0;
     foreach ($data as $k => $v)
-      $total += $v['count'];
+      $total += $v['cnt'];
 
     // Подсчёт процентов и установка ссылок.
     foreach ($data as $k => $v) {
-      $data[$k]['percent'] = intval(100 / $total * $v['cnt'] / 10);
+      $data[$k]['percent'] = intval(100 / $total * $v['cnt']);
       $data[$k]['link'] = str_replace('$id', $v['id'], $this->linktpl);
     }
 
