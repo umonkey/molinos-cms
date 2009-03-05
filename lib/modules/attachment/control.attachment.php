@@ -147,6 +147,7 @@ class AttachmentControl extends Control
       switch ($value->filetype) {
       case 'video/flv':
       case 'video/x-flv':
+      case 'video/mp4':
         return $this->getPlayer($url, array(
           'width' => $value->width,
           'height' => $value->height,
@@ -164,15 +165,22 @@ class AttachmentControl extends Control
 
   private function getPlayer($_url, array $options = array())
   {
+    foreach ($options as $k => $v)
+      if (null === $v)
+        unset($options[$k]);
+
     $options = array_merge(array(
       'width' => 400,
       'height' => 300,
       ), $options);
 
+    $ctx = Context::last();
+    $_file = $ctx->url()->getBase($ctx) . $_url;
+
     $url = new url(array(
       'path' => 'lib/modules/attachment/player.swf',
       ));
-    $url->setarg('file', os::webpath($_url));
+    $url->setarg('file', os::webpath($_file));
     $url->setarg('width', $options['width']);
     $url->setarg('height', $options['height']);
 
