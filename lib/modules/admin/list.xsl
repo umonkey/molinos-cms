@@ -35,7 +35,7 @@
   <xsl:template match="data[../@preset = 'users']" mode="mcms_list">
     <thead>
       <tr>
-        <th colspan="2"/>
+        <th colspan="3"/>
         <th>Идентификатор</th>
         <th>Полное имя</th>
         <th>Email</th>
@@ -50,6 +50,13 @@
             <a class="icon-zoom" title="Найти все документы пользователя" href="?q=admin.rpc&amp;action=list&amp;cgroup=content&amp;search=uid%3A{@id}">
               <span/>
             </a>
+          </td>
+          <td class="icon">
+            <xsl:if test="@id != /page/request/user/@id">
+              <a class="icon-sudo" title="Переключиться в пользователя" href="?q=user.rpc&amp;action=su&amp;uid={@id}&amp;destination={/page/request/@uri}">
+                <span/>
+              </a>
+            </xsl:if>
           </td>
           <xsl:apply-templates select="." mode="mcms_list_name" />
           <td class="field-fullname">
