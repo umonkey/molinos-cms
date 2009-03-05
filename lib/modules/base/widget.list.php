@@ -339,11 +339,13 @@ class ListWidget extends Widget
   private function getDocumentIds(array $options)
   {
     $filter = array(
-      'class' => $options['classes'],
       'published' => 1,
       'deleted' => 0,
       '#sort' => $options['sort'],
       );
+
+    if (!empty($options['classes']))
+      $filter['class'] = $options['classes'];
 
     if (!empty($options['section'])) {
       $filter['tags'] = $options['section'];
