@@ -226,8 +226,10 @@ class Structure
 
   public function drop()
   {
-    if (file_exists($file = $this->getFileName()))
+    if (file_exists($file = $this->getFileName())) {
+      mcms::flog('removed ' . $file);
       unlink($file);
+    }
   }
 
   public function getModuleConf($name)

@@ -203,7 +203,7 @@ class NodeStub
     $data = array();
 
     if (null !== $this->id) {
-      if (!is_array($data = mcms::cache($ckey = $this->getCacheKey()))) {
+      if (!is_array($data = mcms::cache($ckey = $this->getCacheKey())) or true) {
         $data = array(
           'id' => $this->id,
           '#text' => null,
@@ -350,6 +350,16 @@ class NodeStub
 
       $this->onsave = array();
       $this->dirty = false;
+
+      switch ($this->class) {
+        case 'type':
+        case 'group':
+        case 'domain':
+        case 'widget':
+        case 'modconf':
+          Structure::getInstance()->drop();
+          break;
+      }
 
       $this->flush();
     }
