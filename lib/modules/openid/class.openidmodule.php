@@ -1,28 +1,32 @@
 <?php
 
-class OpenIdModule implements iRemoteCall
+class OpenIdModule extends RPCHandler implements iRemoteCall
 {
-  public static function hookRemoteCall(Context $ctx, $className)
+  protected static function rpc_get_openid(Context $ctx)
   {
-    switch ($ctx->get('action')) {
-    default:
-      $openidinfo = $ctx->get('openid');
+    $openidinfo = $ctx->get('openid');
 
-      try {
-        $node = self::openIDAuthorize($openidinfo['mode'], $ctx);
+    try {
+      $ctx->db->beginTransaction();
+      $node = self::openIDAuthorize($openidinfo['mode'], $ctx);
+      mcms::session('uid', $node->id);
+      mcms::session()->save();
+      $ctx->db->commit();
 
-        mcms::session('uid', $node->id);
-        mcms::session()->save();
-
-        $ctx->redirect($ctx->get('destination', ''));
-      } catch (ObjectNotFoundException $e) {
-        throw new ForbiddenException(t('Вы успешно авторизировались, '
-          .'но пользоваться сайтом не можете, т.к. прозрачная регистрация '
-          .'пользователей OpenID отключена. Соболезнования.'));
-      }
-
-      $ctx->redirect("?q=admin&openid=failed");
+      $ctx->redirect($ctx->get('destination', ''));
+    } catch (ObjectNotFoundException $e) {
+      throw new ForbiddenException(t('Вы успешно авторизировались, '
+        .'но пользоваться сайтом не можете, т.к. прозрачная регистрация '
+        .'пользователей OpenID отключена. Соболезнования.'));
     }
+
+    $ctx->redirect("?q=admin&openid=failed");
+  }
+
+  protected static function rpc_post_login(Context $ctx)
+  {
+    self::OpenIDVerify($ctx->post('name'));
+    mcms::debug();
   }
 
   public static function openIDAuthorize($openid_mode, Context $ctx)
@@ -162,7 +166,7 @@ class OpenIdModule implements iRemoteCall
      * created elsewhere.  After you're done playing with the example
      * script, you'll have to remove this directory manually.
      */
-    $store_path = mcms::mkdir(os::path(Context::last()->config->getPath('tmpdir'), 'openid', 'Could not create the FileStore directory (%path), please check the effective permissions.');
+    $store_path = mcms::mkdir(os::path(Context::last()->config->getPath('tmpdir'), 'openid'), 'Could not create the FileStore directory (%path), please check the effective permissions.');
     return new Auth_OpenID_FileStore($store_path);
   }
 
