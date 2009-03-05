@@ -82,9 +82,9 @@ class Node
       $db = Context::last()->db;
 
     if (is_array($id)) {
-      if (!is_array($node = array_shift(Node::find($db, $id))))
+      if (!is_array($nodes = Node::find($db, $id)))
         throw new ObjectNotFoundException();
-      return array_shift($node);
+      return array_shift($nodes);
     } elseif (!is_numeric($id)) {
       throw new InvalidArgumentException(t('Идентификатор загружаемой ноды должен быть числовым.'));
     }
@@ -146,6 +146,9 @@ class Node
       return true;
 
     $user = Context::last()->user;
+
+    if ('user' == $this->class and $user->id == $this->id and 'u' == $perm)
+      return true;
 
     if ($this->uid and $this->uid->id == $user->id)
       if (in_array($perm, Structure::getInstance()->getOwnDocAccess($this->class)))
@@ -610,10 +613,15 @@ class Node
    */
   public function save()
   {
+    $user = Context::last()->user;
+
     if (!$this->uid)
-      $this->uid = Context::last()->user->id;
+      $this->uid = $user->id;
 
     $this->stub->save();
+
+    if ($user->hasAccess('p', $this->class))
+      $this->stub->publish();
 
     if (count($indexes = $this->getSchema()->getIndexes())) {
       $db = $this->stub->getDB();

@@ -133,6 +133,7 @@ class NodeStub
    */
   private final function __call($method, $args)
   {
+    mcms::debug('bad method call', $method, $args);
     throw new RuntimeException(t('Метод %class::%method() не существует.', array(
       '%class' => get_class($this),
       '%method' => $method,
@@ -224,7 +225,10 @@ class NodeStub
 
           elseif ($v instanceof NodeStub) {
             try {
-              $data['#text'] .= $v->getXML($k);
+              $fmt = isset($schema[$k])
+                ? $schema[$k]->format($v)
+                : null;
+              $data['#text'] .= $v->getXML($k, html::em('html', html::cdata($fmt)));
             } catch (ObjectNotFoundException $e) {
               // игнорируем
             }
@@ -348,6 +352,55 @@ class NodeStub
       $this->dirty = false;
 
       $this->flush();
+    }
+
+    return $this;
+  }
+
+  /**
+   * Клонирование объекта.
+   */
+  public function duplicate($parent = null, $with_children = true)
+  {
+    if (null !== ($id = $this->id)) {
+      $this->makeSureFieldIsAvailable('I am stupid if I added this field');
+
+      $this->id = null;
+      $this->data['published'] = false;
+      $this->data['deleted'] = false;
+
+      // Даём возможность прикрепить клон к новому родителю.
+      if (null !== $parent)
+        $this->data['parent_id'] = $parent;
+
+      $this->dirty = true;
+      $this->save();
+
+      $pdo = $this->getDB();
+      $params = array(':new' => $this->id, ':old' => $id);
+
+      if ($with_children) {
+        // Копируем права.
+        $pdo->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`)"
+          ."SELECT :new, `uid`, `c`, `r`, `u`, `d`, `p` FROM `node__access` WHERE `nid` = :old", $params);
+
+        // Копируем связи с другими объектами.
+        $pdo->exec("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
+          ."SELECT :new, `nid`, `key` FROM `node__rel` WHERE `tid` = :old", $params);
+        $pdo->exec("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
+          ."SELECT `tid`, :new, `key` FROM `node__rel` WHERE `nid` = :old", $params);
+
+        /*
+        if (($this->right - $this->left) > 1) {
+          $children = Node::find(array(
+            'parent_id' => $id,
+            ));
+
+          foreach ($children as $c)
+            $c->duplicate($this->id);
+        }
+        */
+      }
     }
 
     return $this;
