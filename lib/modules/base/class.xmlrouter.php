@@ -89,7 +89,8 @@ class XMLRouter implements iRequestRouter
         );
     }
 
-    $output = $this->getRequestOptions($ctx) . $output;
+    $output = $this->getRequestOptions($ctx) . $output
+      . $ctx->getExtrasXML();
 
     $stylesheet = self::findStyleSheet($theme, $data['name']);
 
@@ -116,8 +117,13 @@ class XMLRouter implements iRequestRouter
       'remoteIP' => $_SERVER['REMOTE_ADDR'],
       );
 
-    if (null !== ($tmp = Context::last()->user->getNode()))
+    if (null !== ($tmp = Context::last()->user->getNode())) {
       $output .= $tmp->push('user');
+      if ($tmp->email)
+        $output .= html::em('email', array(
+          'hash' => md5($tmp->email),
+          ));
+    }
 
     if (null !== ($tmp = $ctx->section))
       $output .= $tmp->push('section');
