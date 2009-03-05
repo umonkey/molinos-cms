@@ -285,12 +285,13 @@ class AdminRPC extends RPCHandler implements iRemoteCall
     $output .= self::getDashboardXML($ctx->db, array(
       'uid' => $ctx->user->id,
       'published' => 0,
+      'deleted' => 0,
       '#sort' => '-id',
       '#public' => true,
       ), array(
       'name' => 'drafts',
       'title' => t('Ваши черновики'),
-      'more' => '?q=admin/content/list&search=uid%3A' . $ctx->user->id . '+published:0',
+      'more' => '?q=admin&cgroup=content&action=list&search=uid%3A' . $ctx->user->id . '+published%3A0',
       ));
 
     $output .= self::getDashboardXML($ctx->db, array(
@@ -309,6 +310,7 @@ class AdminRPC extends RPCHandler implements iRemoteCall
     $output .= self::getDashboardXML($ctx->db, array(
       'uid' => $ctx->user->id,
       'deleted' => 0,
+      'published' => 1,
       '#sort' => '-id',
       '#public' => true,
       ), array(
