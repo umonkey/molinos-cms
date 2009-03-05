@@ -9,7 +9,7 @@ class AttachmentScheduler implements iScheduler
     $fileids = $ctx->db->getResultsV("id", "SELECT `id` FROM `node` WHERE `class` = 'file' AND `deleted` = 0 AND `updated` < ?", array($timestamp));
 
     // Обработка всех устаревших файлов.
-    foreach ($fileids as $id) {
+    foreach ((array)$fileids as $id) {
       $file = NodeStub::create($id, $ctx->db);
       if (0 === strpos($file->filetype, 'image/')) {
         $file->touch();
