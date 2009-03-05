@@ -431,16 +431,18 @@ class NodeStub
 
       // Расширяем существующую ноду.
       else {
-        $delta = $max - $position;
+        $delta = $max - $position + 1;
+
+        // mcms::debug($position, $max, $delta);
 
         // Вообще можно было бы обойтись сортированным обновлением, но не все серверы
         // это поддерживают, поэтому делаем в два захода: сначала выносим хвост за
         // пределы текущего пространства, затем — возвращаем на место + 2.
-        $this->db->exec("UPDATE `node` SET `left` = `left` + ? WHERE `left` >= ?", array($max, $delta));
-        $this->db->exec("UPDATE `node` SET `right` = `right` + ? WHERE `right` >= ?", array($max, $delta));
+        $this->db->exec("UPDATE `node` SET `left` = `left` + ? WHERE `left` >= ?", array($delta + 2, $position));
+        $this->db->exec("UPDATE `node` SET `right` = `right` + ? WHERE `right` >= ?", array($delta + 2, $position));
 
-        $this->db->exec("UPDATE `node` SET `left` = `left` - ? WHERE `left` >= ?", array($max, $delta - 2));
-        $this->db->exec("UPDATE `node` SET `right` = `right` - ? WHERE `right` >= ?", array($max, $delta - 2));
+        $this->db->exec("UPDATE `node` SET `left` = `left` - ? WHERE `left` >= ?", array($delta, $position + 2));
+        $this->db->exec("UPDATE `node` SET `right` = `right` - ? WHERE `right` >= ?", array($delta, $position + 2));
 
         $data['left'] = $this->data['left'] = $position;
         $data['right'] = $this->data['right'] = $position + 1;
