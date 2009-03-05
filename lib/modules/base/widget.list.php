@@ -341,6 +341,7 @@ class ListWidget extends Widget
     $filter = array(
       'class' => $options['classes'],
       'published' => 1,
+      'deleted' => 0,
       '#sort' => $options['sort'],
       );
 
@@ -353,7 +354,7 @@ class ListWidget extends Widget
     if (empty($filter['#sort']))
       $filter['#sort'] = '-id';
 
-    // $q = new Query($filter); mcms::debug($filter, $options, $this->recurse, $q->getSelect());
+    // $q = new Query($filter); mcms::debug($options, $filter, $q->getSelect());
 
     return Node::find($this->ctx->db, $filter, $options['limit'], $options['offset']);
   }
