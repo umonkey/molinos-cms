@@ -211,7 +211,7 @@ class NodeApiModule extends RPCHandler implements iRemoteCall
    */
   public static function rpc_post_undelete(Context $ctx)
   {
-    $nodes = Node::find(array(
+    $nodes = Node::find($ctx->db, array(
       'id' => self::getNodes($ctx),
       'deleted' => 1,
       ));
