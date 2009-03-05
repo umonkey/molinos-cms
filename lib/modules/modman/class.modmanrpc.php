@@ -47,6 +47,7 @@ class ModManRPC extends RPCHandler implements iRemoteCall
   {
     $conf = array();
 
+    $ctx->db->beginTransaction();
     $ctx->user->checkAccess('u', 'moduleinfo');
 
     foreach ($ctx->post as $k => $v) {
@@ -83,6 +84,7 @@ class ModManRPC extends RPCHandler implements iRemoteCall
 
     $node->config = $conf;
     $node->save();
+    $ctx->db->commit();
   }
 
   /**
