@@ -23,7 +23,7 @@ class FormWidget extends Widget
       'section_default' => array(
         'type' => 'EnumControl',
         'label' => t('Раздел по умолчанию'),
-        'options' => TagNode::getTags('select'),
+        'options' => Node::getSortedList('tag'),
         'default' => t('Не используется'),
         ),
       'type' => array(
@@ -105,13 +105,13 @@ class FormWidget extends Widget
       return '<!-- no available types -->';
 
     // Запрошенный тип недоступен.
-    if (!empty($options['type']) and !array_key_exists($options['type'])) {
+    if (!empty($options['type']) and !array_key_exists($options['type'], $types)) {
       try {
         Node::load(array(
           'class' => 'type',
           'name' => $options['type'],
           ));
-        throw new ForbiddenException(t('Вы не можете создать документ этого типа.'));
+        throw new ForbiddenException(t('Вам нельзя добавлять документы этого типа в этот раздел.'));
       } catch (ObjectNotFoundException $e) {
         throw new ForbiddenException(t('Тип документа «%name» мне не известен.', array(
           '%name' => $options['type'],
@@ -201,9 +201,9 @@ class FormWidget extends Widget
       );
 
     if (!empty($root))
-      $filter['tags'] = array($root);
+      $filter['tags'] = $root;
 
-    $allowed = Node::find($filter);
+    $allowed = Node::find($this->ctx->db, $filter);
 
     $atypes = $this->getAllowedTypes();
 
@@ -218,7 +218,7 @@ class FormWidget extends Widget
   private function getAllowedTypes()
   {
     if ($this->anonymous)
-      $u = new User(Node::create('user'));
+      $u = User::getAnonymous();
     else
       $u = Context::last()->user;
 
