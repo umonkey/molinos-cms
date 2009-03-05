@@ -77,15 +77,13 @@ class Query
   {
     foreach ($filters as $k => $v) {
       if ('tags' == $k) {
-        $this->conditions[] = "`node`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` " . $this->getTagsFilter($v) . ")";
+        $this->conditions[] = "(`node`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` " . $this->getTagsFilter($v) . ") OR `node`.`uid` = ?)";
+        $this->params[] = intval($v);
         $this->params[] = intval($v);
       }
 
       else {
         list($fieldName, $neg) = $this->getFieldSpec($k);
-
-        if ('tags' == $k)
-          mcms::debug($k, $v, $fieldName, $neg);
 
         if ($neg)
           $this->conditions[] = $fieldName . " " . sql::notIn($v, $this->params);
