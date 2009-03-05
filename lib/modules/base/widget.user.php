@@ -61,12 +61,6 @@ class UserWidget extends Widget implements iWidget
           'h3' => t('H3'),
           ),
         ),
-      'page' => array(
-        'type' => 'EnumControl',
-        'label' => t('Отправлять запросы на страницу'),
-        'default' => t('Оставаться на текущей'),
-        'options' => DomainNode::getFlatSiteMap('select'),
-        ),
       );
   }
 
