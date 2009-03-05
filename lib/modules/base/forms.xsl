@@ -226,7 +226,7 @@
         </xsl:if>
         <tbody>
           <xsl:for-each select="row">
-            <tr>
+            <tr class="gid-{@id}">
               <td>
                 <xsl:value-of select="@name" disable-output-escaping="yes" />
               </td>

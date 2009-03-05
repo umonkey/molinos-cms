@@ -199,6 +199,9 @@ class Structure
    */
   public function getOwnDocAccess($type)
   {
+    if (!$this->loaded)
+      $this->load();
+
     if (empty($this->access['types'][$type]))
       return array();
     else

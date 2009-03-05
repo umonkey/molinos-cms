@@ -431,7 +431,10 @@
         <tr>
           <xsl:call-template name="odd_row" />
           <td class="icon">
+            <!--
             <a class="icon-locate" title="Найти документ на сайте" href="?q=nodeapi.rpc&amp;action=locate&amp;node={@id}">
+            -->
+            <a class="icon-locate" title="Найти документ на сайте" href="?q=node/{@id}">
               <span/>
             </a>
           </td>

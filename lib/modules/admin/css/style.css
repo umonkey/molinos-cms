@@ -644,6 +644,13 @@ table.nodelist td.icon .icon-sink {
 table.access th {
   text-align: center;
 }
+table.access .gid-own {
+  border-top: solid 1px gray;
+}
+table.access .gid-own .perm-c,
+table.access .gid-own .perm-r {
+  display: none;
+}
 
 
 /**

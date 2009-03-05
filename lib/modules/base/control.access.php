@@ -64,53 +64,9 @@ class AccessControl extends Control
         ), $tmp);
     }
 
+    // mcms::debug($output);
+
     return parent::wrapXML(array(), $output);
-  }
-
-  protected function getOwnPermissions($data)
-  {
-    if (!($data instanceof TypeNode))
-      return;
-
-    $own = is_array($data->perm_own)
-      ? $data->perm_own
-      : array();
-
-    $output = html::em('legend', 'Права на собственные объекты');
-
-    $output .= html::em('input', array(
-      'type' => 'hidden',
-      'name' => $this->value . '[own][__reset]',
-      'value' => 1,
-      ));
-
-    $ctl = html::em('input', array(
-      'type' => 'checkbox',
-      'name' => $this->value . '[own][]',
-      'value' => 'u',
-      'checked' => in_array('u', $own) ? 'checked' : null,
-      ));
-    $output .= html::em('label', $ctl . 'Изменение');
-
-    $ctl = html::em('input', array(
-      'type' => 'checkbox',
-      'name' => $this->value . '[own][]',
-      'value' => 'd',
-      'checked' => in_array('d', $own) ? 'checked' : null,
-      ));
-    $output .= html::em('label', $ctl . 'Удаление');
-
-    $ctl = html::em('input', array(
-      'type' => 'checkbox',
-      'name' => $this->value . '[own][]',
-      'value' => 'p',
-      'checked' => in_array('p', $own) ? 'checked' : null,
-      ));
-    $output .= html::em('label', $ctl . 'Публикация');
-
-    $output = html::em('fieldset', $output);
-
-    return $output;
   }
 
   protected function getData($data)
@@ -139,6 +95,18 @@ class AccessControl extends Control
       }
     }
 
+    if (is_object($data) and 'type' == $data->class) {
+      $perms = $data->perm_own;
+      $result[] = array(
+        'uid' => 0,
+        'u' => in_array('u', $perms),
+        'd' => in_array('d', $perms),
+        'p' => in_array('p', $perms),
+        'id' => 'own',
+        'label' => t('Собственные объекты'),
+        );
+    }
+
     return $result;
   }
 
@@ -162,10 +130,6 @@ class AccessControl extends Control
 
   public function set($value, Node &$node)
   {
-    // FIXME!!!
-    if (!$node->id)
-      $node->save();
-
     if (empty($value['__reset']))
       return;
 
@@ -175,50 +139,17 @@ class AccessControl extends Control
     if (array_key_exists('own', $value)) {
       $own = $value['own'];
       unset($value['own']);
-
-      if (!empty($own['__reset'])) {
-        unset($own['__reset']);
-
-        $node->perm_own = $own;
-      }
+      $node->perm_own = array_keys($own);
     }
 
-    $ids = array();
-    if (empty($value['__recurse'])) {
-      $ids[] = $node->id;
-    } else {
-      unset($value['__recurse']);
-      foreach ($node->getChildren('flat') as $c)
-        $ids[] = $c['id'];
-    }
-
-    if (empty($ids))
-      throw new RuntimeException(t('Не удалось получить список объектов для установки прав.'));
-
-    $this->validate($value);
-
-    // Удаляем старые записи.
-    $node->getDB()->exec("DELETE FROM node__access WHERE nid IN (" . join(", ", $ids) . ") AND (uid = 0 OR uid IN (SELECT id FROM node WHERE class = 'group'))");
-
-    $sth = $node->getDB()->prepare("INSERT INTO node__access (uid, nid, c, r, u, d, p) SELECT :uid, id, :c, :r, :u, :d, :p FROM node WHERE id IN (" . join(", ", $ids) . ")");
-
-    foreach ($value as $uid => $row) {
-      if ('all' == $uid)
-        $uid = 0;
-
-      $params = array(
-        ':uid' => intval($uid),
-        );
-
-      foreach (array('c', 'r', 'u', 'd', 'p') as $k)
-        $params[':' . $k] = empty($row[$k]) ? 0 : 1;
-
-      try {
-        $sth->execute($params);
-      } catch (PDOException $e) {
-        mcms::debug($e->getMessage(), $value, $params);
-        throw $e;
-      }
+    $node->onSave('DELETE FROM `node__access` WHERE `nid` = %ID%');
+    foreach ($value as $gid => $modes) {
+      $params = array(intval($gid));
+      foreach (array('c', 'r', 'u', 'd', 'p') as $mode)
+        $params[] = empty($modes[$mode])
+          ? 0
+          : 1;
+      $node->onSave('INSERT INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`) VALUES (%ID%, ?, ?, ?, ?, ?, ?)', $params);
     }
   }
 };
