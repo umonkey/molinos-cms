@@ -82,17 +82,29 @@ class StatusChecker implements iScheduler
 
   private static function getBrokenTrees(Context $ctx)
   {
-    if (!($count = $ctx->db->fetch("SELECT COUNT(*) FROM `node` `n` WHERE `n`.`deleted` = 0 AND `n`.`left` >= `n`.`right`")))
+    if (!self::checkBrokenTrees($ctx))
       return null;
 
     $fixxxer = new TreeBuilder();
-    $fixxxer->run();
+    $fixxxer->run($ctx);
 
-    $result = t('Были найдены повреждённые ветки дерева (%count шт). Всё дерево данных было перестроено.', array(
-      '%count' => $count,
-      ));
+    $result = t('Были найдены повреждённые ветки дерева. Всё дерево данных было перестроено.');
 
     return $result;
+  }
+
+  private static function checkBrokenTrees(Context $ctx)
+  {
+    if ($count = $ctx->db->fetch("SELECT COUNT(*) FROM `node` `n` WHERE `n`.`deleted` = 0 AND `n`.`left` >= `n`.`right`"))
+      return true;
+
+    if ($ctx->db->fetch("SELECT COUNT(*) AS `c` FROM `node` GROUP BY `left` HAVING `c` > 1"))
+      return true;
+
+    if ($ctx->db->fetch("SELECT COUNT(*) AS `c` FROM `node` GROUP BY `right` HAVING `c` > 1"))
+      return true;
+
+    return false;
   }
 
   private static function count(Context $ctx, array &$parts, $query, $text, $link = null)
