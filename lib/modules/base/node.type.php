@@ -210,6 +210,14 @@ class TypeNode extends Node implements iContentType
         'group' => t('Разрешённые разделы'),
         'dictionary' => 'tag',
         ),
+      'fields' => array(
+        'type' => 'SetControl',
+        'value' => 'fields',
+        'dictionary' => 'field',
+        'field' => 'label',
+        'required' => true,
+        'group' => t('Используемые поля'),
+        ),
       ));
 
     if (empty($this->id) or $this->name != 'type')
@@ -219,19 +227,8 @@ class TypeNode extends Node implements iContentType
         'volatile' => true,
         ));
 
-    if (!empty($this->id)) {
-      $tmp = Node::create($this->name);
-      if ($tmp->canEditFields()) {
-        $schema['fields'] = new SetControl(array(
-          'value' => 'fields',
-          'label' => t('Используемые поля'),
-          'dictionary' => 'field',
-          'field' => 'label',
-          'required' => true,
-          'group' => t('Поля'),
-          ));
-      }
-    }
+    if ($this->id and Node::create($this->name)->canEditFields())
+      unset($schema['fields']);
 
     return $schema;
   }

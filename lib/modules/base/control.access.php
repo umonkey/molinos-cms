@@ -96,7 +96,7 @@ class AccessControl extends Control
     }
 
     if (is_object($data) and 'type' == $data->class) {
-      $perms = $data->perm_own;
+      $perms = (array)$data->perm_own;
       $result[] = array(
         'uid' => 0,
         'u' => in_array('u', $perms),
