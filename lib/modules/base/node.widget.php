@@ -28,9 +28,6 @@ class WidgetNode extends Node implements iContentType
    */
   public function save()
   {
-    if ($isnew = (null === $this->id))
-      $this->data['published'] = true;
-
     if ($this->parent_id !== null)
       throw new InvalidArgumentException("Виджет не может быть дочерним объектом.");
 
