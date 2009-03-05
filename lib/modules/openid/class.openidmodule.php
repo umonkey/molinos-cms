@@ -26,7 +26,7 @@ class OpenIdModule extends RPCHandler implements iRemoteCall
   protected static function rpc_post_login(Context $ctx)
   {
     self::OpenIDVerify($ctx->post('name'));
-    mcms::debug();
+    exit();
   }
 
   public static function openIDAuthorize($openid_mode, Context $ctx)
