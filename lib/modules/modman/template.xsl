@@ -13,7 +13,7 @@
     <div class="modman">
       <xsl:apply-templates select="." mode="module-extras" />
       <p class="note">В этой таблице приведены только модули с настройками, полный список модулей доступен <a href="?q=admin.rpc&amp;action=form&amp;module=modman&amp;mode=addremove&amp;cgroup=system">отдельно</a>.</p>
-      <form method="post" action="?q=modman.rpc&amp;action=addremove&amp;destination={/page/@urlEncoded}">
+      <form method="post" action="?q=modman.rpc&amp;action=addremove&amp;destination={/page/request/@uri}">
         <table>
           <tbody>
             <xsl:apply-templates select="module" />
@@ -56,7 +56,7 @@
     </xsl:if>
     <div class="modman">
       <xsl:apply-templates select="." mode="module-extras" />
-      <form method="post" action="?q=modman.rpc&amp;action=addremove&amp;destination={/page/@urlEncoded}">
+      <form method="post" action="?q=modman.rpc&amp;action=addremove&amp;destination={/page/request/@uri}">
         <table>
           <tbody>
             <xsl:apply-templates select="module">
@@ -105,7 +105,7 @@
 
       <xsl:if test="../@mode = 'settings'">
         <td>
-          <a href="?q=admin.rpc&amp;action=form&amp;module=modman&amp;mode=config&amp;name={@id}&amp;cgroup=system&amp;destination={/page/@urlEncoded}">
+          <a href="?q=admin.rpc&amp;action=form&amp;module=modman&amp;mode=config&amp;name={@id}&amp;cgroup=system&amp;destination={/page/request/@uri}">
             <img src="lib/modules/modman/configure.png" alt="settings" />
           </a>
         </td>

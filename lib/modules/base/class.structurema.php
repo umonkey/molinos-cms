@@ -186,7 +186,8 @@ class StructureMA
 
     foreach ($data as $k => $v)
       if (!empty($v) and is_array($conf = unserialize($v)))
-        $result[$k] = $conf;
+        if (!empty($conf['config']))
+          $result[$k] = $conf['config'];
 
     return $result;
   }

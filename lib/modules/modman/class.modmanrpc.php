@@ -43,7 +43,7 @@ class ModManRPC extends RPCHandler implements iRemoteCall
     Loader::rebuild();
   }
 
-  public static function rpc_configure(Context $ctx)
+  public static function rpc_post_configure(Context $ctx)
   {
     $conf = array();
 
