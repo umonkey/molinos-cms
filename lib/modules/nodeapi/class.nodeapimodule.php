@@ -172,10 +172,7 @@ class NodeApiModule extends RPCHandler implements iRemoteCall
   public static function rpc_post_clone(Context $ctx)
   {
     foreach (self::getNodes($ctx) as $nid) {
-      $node = Node::load(array(
-        'id' => $nid,
-        'deleted' => array(0, 1),
-        ));
+      $node = Node::load($nid);
       $node->duplicate();
     }
   }

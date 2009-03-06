@@ -378,6 +378,7 @@ class NodeStub
       $this->id = null;
       $this->data['published'] = false;
       $this->data['deleted'] = false;
+      $this->data['created'] = null;
 
       // Даём возможность прикрепить клон к новому родителю.
       if (null !== $parent)
@@ -448,6 +449,12 @@ class NodeStub
         $data['right'] = $this->data['right'] = $position + 1;
       }
     }
+
+    foreach ($data as $k => $v)
+      if (false === $v)
+        $data[$k] = 0;
+      elseif (true === $v)
+        $data[$k] = 1;
 
     list($sql, $params) = sql::getInsert('node', $data);
     $sth = $this->db->prepare($sql);
