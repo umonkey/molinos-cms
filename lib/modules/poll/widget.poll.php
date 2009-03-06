@@ -20,7 +20,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
       'fixed' => array(
         'type' => 'EnumControl',
         'label' => t('Показывать последний опрос из раздела'),
-        'options' => TagNode::getTags('select'),
+        'options' => Node::getSortedList('tag'),
         'default' => t('Текущего (из пути или свойств страницы)'),
         'required' => true,
         ),

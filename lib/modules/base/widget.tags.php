@@ -47,7 +47,7 @@ class TagsWidget extends Widget implements iWidget
         'label' => t('Раздел по умолчанию'),
         'description' => t('Здесь можно выбрать раздел, который будет использован, если из адреса текущего запроса вытащить код раздела не удалось.'),
         'options' => array('page' => 'Из настроек страницы')
-          + TagNode::getTags('select'),
+          + Node::getSortedList('tag'),
         'default' => t('не используется'),
         ),
       'forcefixed' => array(

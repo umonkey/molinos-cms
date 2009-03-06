@@ -26,7 +26,7 @@ class SubscriptionWidget extends Widget
 
   public function onGet(array $options)
   {
-    $sections = array_intersect_key(TagNode::getTags('select'),
+    $sections = array_intersect_key(Node::getSortedList('tag'),
       array_flip(Node::create('subscription')->getEnabledSections()));
 
     $result = array(
