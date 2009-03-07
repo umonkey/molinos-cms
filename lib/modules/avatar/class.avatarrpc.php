@@ -11,7 +11,11 @@ class AvatarRPC extends RPCHandler implements iRemoteCall
       'id' => $ctx->get('id'),
       ));
 
-    $gurl = 'http://www.gravatar.com/avatar/' . md5($user->email);
+    $email = $user
+      ? $user->email
+      : 'john.doe@example.com';
+
+    $gurl = 'http://www.gravatar.com/avatar/' . md5($email);
     if (null !== ($s = $ctx->get('s')))
       $gurl .= '?s=' . intval($s);
 
