@@ -36,12 +36,6 @@ class OpenIdModule extends RPCHandler implements iRemoteCall
     if ('none' == ($mode = mcms::modconf('openid', 'mode', 'open')))
       throw new RuntimeException(t('Поддержка OpenID отключена администратором.'));
 
-    /*
-    if (null === mcms::session()->id())
-      throw new RuntimeException(t('Ваш браузер не поддерживает '
-        .'(или криво поддерживает) cookie, работа с OpenID невозможна.'));
-    */
-
     if ('id_res' == $openid_mode) {
       $openid = null;
 
@@ -55,7 +49,13 @@ class OpenIdModule extends RPCHandler implements iRemoteCall
       if (null === $openid)
         throw new RuntimeException('OpenID провайдер не вернул идентификатор.');
 
-      if (!count($nodes = Node::find($ctx->db, array('class' => 'user', 'name' => $openid)))) {
+      $nodes = Node::find($ctx->db, array(
+        'class' => 'user',
+        'name' => $openid,
+        'deleted' => 0,
+        ));
+
+      if (!count($nodes)) {
         if ('open' != $mode)
           throw new ForbiddenException(t('Извините, автоматическая регистрация пользователей через OpenID отключена.'));
 
@@ -75,9 +75,14 @@ class OpenIdModule extends RPCHandler implements iRemoteCall
           if (!empty($_GET[$key = 'openid_'. $k]))
             $node->$v = $_GET[$key];
         }
+
+        $node->setRegistered();
         $node->save();
       } else {
-        $node = Node::load(array('class' => 'user', 'name' => $openid));
+        $node = array_shift($nodes);
+
+        if (!$node->published)
+          throw new ForbiddenException(t('Ваш профиль заблокирован.'));
       }
 
       return $node;

@@ -173,13 +173,25 @@ class UserNode extends Node implements iContentType
   }
 
   /**
+   * Используется для выполнения всяких пост-регистрационных процедур,
+   * лучшего места пока найти не удалось. Вызывается при сохранении
+   * пользователя вручную или при авторизации через OpenID.
+   */
+  public function setRegistered()
+  {
+    if (is_array($list = mcms::modconf('auth', 'groups', array()))) {
+      $params = array();
+      $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, %ID% FROM `node` WHERE `class` = 'group' AND `id` " . sql::in($list, $params));
+    }
+  }
+
+  /**
    * Обработка формы, шифрует пароль.
    */
   public function formProcess(array $data)
   {
     if (!$this->id)
-      if (is_array($list = mcms::modconf('auth', 'groups', array())))
-        $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, %ID% FROM `node` WHERE `class` = 'group' AND `id` " . sql::in($list));
+      $this->setRegistered();
 
     $oldpassword = $this->password;
     $res = parent::formProcess($data);

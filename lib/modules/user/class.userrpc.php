@@ -175,10 +175,8 @@ class UserRPC extends RPCHandler implements iRemoteCall
   /**
    * Подтверждение регистрации.
    */
-  public static function rpc_register_confirm(Context $ctx)
+  public static function rpc_get_register_confirm(Context $ctx)
   {
-    $ctx->checkMethod('get');
-
     if (!is_array($data = unserialize(mcms_decrypt($ctx->get('hash')))))
       throw new PageNotFoundException(t('Не удалось расшифровать вашу просьбу, кто-то повредил ссылку.'));
 
@@ -226,7 +224,10 @@ class UserRPC extends RPCHandler implements iRemoteCall
 
   private static function login($uid)
   {
-    $node = Node::load(array('class' => 'user', 'id' => $uid));
+    $node = Node::load(array(
+      'class' => 'user',
+      'id' => $uid,
+      ));
 
     if (!$node->published)
       throw new ForbiddenException(t('Ваш профиль заблокирован.'));
