@@ -131,26 +131,17 @@ class AccessRevControl extends Control
     $this->validate($value);
 
     // Удаляем старые записи.
-    $node->getDB()->exec("DELETE FROM node__access WHERE uid = ? AND nid IN (SELECT id FROM node WHERE class = ?)",
-      array($node->id, $this->dictionary));
+    $node->onSave("DELETE FROM `node__access` WHERE `uid` = %ID% AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = ?)", array($this->dictionary));
 
-    $sth = $node->getDB()->prepare("INSERT INTO node__access (uid, nid, c, r, u, d, p) VALUES (:uid, :nid, :c, :r, :u, :d, :p)");
-
+    // Добавляем новые.
     foreach ($value as $nid => $row) {
       $params = array(
-        ':uid' => intval($node->id),
         ':nid' => $nid,
         );
-
       foreach (array('c', 'r', 'u', 'd', 'p') as $k)
         $params[':' . $k] = empty($row[$k]) ? 0 : 1;
-
-      try {
-        $sth->execute($params);
-      } catch (PDOException $e) {
-        mcms::debug($e->getMessage(), $value, $params);
-        throw $e;
-      }
+      $node->onSave("INSERT INTO `node__access` (`uid`, `nid`, `c`, `r`, `u`, `d`, `p`) "
+        . "VALUES (%ID%, :nid, :c, :r, :u, :d, :p)", $params);
     }
   }
 };
