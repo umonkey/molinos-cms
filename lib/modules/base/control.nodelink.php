@@ -65,6 +65,11 @@ class NodeLinkControl extends Control
     if ($this->hidden)
       return $this->getHidden($data);
 
+    if ($tmp = $this->getSelect($data))
+      return parent::wrapXML(array(
+        'value' => $this->getCurrentValue($data),
+        ), $tmp);
+
     $this->addClass('form-text');
     if (!$this->readonly)
       $this->addClass('autocomplete');
@@ -74,7 +79,7 @@ class NodeLinkControl extends Control
       ));
   }
 
-  private function getSelect($value)
+  private function XgetSelect($value)
   {
     if (count($parts = explode('.', $this->values, 2)) == 2) {
       if (Node::count($filter = array('class' => $parts[0], 'published' => 1, '#sort' => 'name')) < self::limit) {
@@ -161,5 +166,32 @@ class NodeLinkControl extends Control
       );
 
     return $fields;
+  }
+
+  /**
+   * Возвращает выпадающий список при небольшом количестве значений.
+   */
+  protected function getSelect($data)
+  {
+    $db = Context::last()->db;
+    $parts = explode('.', $this->values);
+
+    $q = new Query($filter = array(
+      'class' => $parts[0],
+      'published' => 1,
+      'deleted' => 0,
+      '#sort' => 'name',
+      ));
+
+    list($sql, $params) = $q->getCount();
+
+    if (($count = $db->fetch($sql, $params) < 50)) {
+      $result = '';
+      foreach (Node::find($db, $filter) as $node)
+        $result .= html::em('option', array(
+          'value' => $node->name,
+          ));
+      return html::em('options', $result);
+    }
   }
 };

@@ -351,9 +351,9 @@
       <xsl:call-template name="default_control_label" />
 
       <xsl:choose>
-        <xsl:when test="count(option)">
+        <xsl:when test="count(options/option)">
           <select name="{@name}">
-            <xsl:for-each select="option">
+            <xsl:for-each select="options/option">
               <option value="{@value}">
                 <xsl:if test="@selected">
                   <xsl:attribute name="selected">
@@ -361,6 +361,9 @@
                   </xsl:attribute>
                 </xsl:if>
                 <xsl:value-of select="@text" />
+                <xsl:if test="not(@text)">
+                  <xsl:value-of select="@value" />
+                </xsl:if>
               </option>
             </xsl:for-each>
           </select>
