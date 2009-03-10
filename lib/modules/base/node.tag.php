@@ -36,13 +36,8 @@ class TagNode extends Node implements iContentType
   {
     $isnew = empty($this->id);
 
-    if (null === $this->parent_id) {
-      try {
-        $node = Node::load(array('class' => 'tag', 'parent_id' => null, 'deleted' => 0));
-        $this->data['parent_id'] = $node->id;
-      } catch (ObjectNotFoundException $e) {
-      }
-    }
+    if ($isnew and !isset($this->parent_id))
+      throw new RuntimeException(t('Нельзя создать новый корневой раздел.'));
 
     parent::save();
 
