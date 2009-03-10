@@ -422,7 +422,7 @@ class DomainNode extends Node implements iContentType
   public static function getDefaultRobots()
   {
     return "User-agent: *\n"
-      . "Disallow: /themes";
+      . "Disallow: /sites";
   }
 
   public function getFormFields()
