@@ -25,7 +25,7 @@ class FieldNode extends Node implements iContentType
   private function flushSchema()
   {
     if ($this->id) {
-      foreach ($this->getDB()->getResultsV("name", "SELECT `name` FROM `node` WHERE `class` = 'type' AND `id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ?)", array($this->id)) as $name)
+      foreach ((array)$this->getDB()->getResultsV("name", "SELECT `name` FROM `node` WHERE `class` = 'type' AND `id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ?)", array($this->id)) as $name)
         Schema::flush($name);
     }
   }
