@@ -25,6 +25,7 @@ class Structure
   protected $domains = array();
   protected $access = array();
   protected $modules = array();
+  protected $types = array();
 
   public static function getInstance()
   {
@@ -167,6 +168,19 @@ class Structure
   }
 
   /**
+   * Возвращает структуру типа документа.
+   */
+  public function findSchema($className)
+  {
+    if (!$this->loaded)
+      $this->load();
+
+    return array_key_exists($className, $this->types)
+      ? $this->types[$className]
+      : array();
+  }
+
+  /**
    * Возвращает суммарные права для набора прав.
    */
   public function getGroupAccess(array $groups)
@@ -221,6 +235,7 @@ class Structure
         'domains' => $this->domains,
         'access' => $this->access,
         'modules' => $this->modules,
+        'types' => $this->types,
         ));
   }
 

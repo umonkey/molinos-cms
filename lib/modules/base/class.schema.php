@@ -43,50 +43,54 @@ class Schema extends ArrayObject
   /**
    * Возвращает схему указанного типа документа.
    */
-  public static function load(PDO_Singleton $db, $className)
+  public static function load($db, $className)
   {
-    if (!is_array($schema = mcms::cache($ckey = 'schema:' . $className))) {
-      $schema = array();
+    return new Schema(Structure::getInstance()->findSchema($className));
+  }
 
-      // Загружаем из БД.
-      try {
-        $data = $db->getResultsKV("name", "data", "SELECT DISTINCT `f`.`name` AS `name`, `f`.`data` AS `data` "
-          . "FROM `node` `f` INNER JOIN `node__rel` `r` ON `r`.`nid` = `f`.`id` "
-          . "INNER JOIN `node` `t` ON `t`.`id` = `r`.`tid` "
-          . "WHERE `t`.`class` = 'type' AND `f`.`class` = 'field' "
-          . "AND `t`.`name` = ? AND `f`.`deleted` = 0", array($className));
-        if (!empty($data))
-          foreach ($data as $k => $v)
-            $schema[$k] = unserialize($v);
-      } catch (ObjectNotFoundException $e) {
-      }
+  /**
+   * Воссоздаёт контрол из БД. Используется в StructureMA.
+   */
+  public static function rebuild(PDO_Singleton $db, $className)
+  {
+    $schema = array();
 
-      // Применяем дефолтные поля.
-      if (null !== ($host = NodeStub::getClassName($className))) {
-        if (method_exists($host, 'getDefaultSchema')) {
-          if (is_array($default = call_user_func(array($host, 'getDefaultSchema')))) {
-            $hasfields = count($schema);
+    // Загружаем из БД.
+    try {
+      $data = $db->getResultsKV("name", "data", "SELECT DISTINCT `f`.`name` AS `name`, `f`.`data` AS `data` "
+        . "FROM `node` `f` INNER JOIN `node__rel` `r` ON `r`.`nid` = `f`.`id` "
+        . "INNER JOIN `node` `t` ON `t`.`id` = `r`.`tid` "
+        . "WHERE `t`.`class` = 'type' AND `f`.`class` = 'field' "
+        . "AND `t`.`name` = ? AND `f`.`deleted` = 0", array($className));
+      if (!empty($data))
+        foreach ($data as $k => $v)
+          $schema[$k] = unserialize($v);
+    } catch (ObjectNotFoundException $e) {
+    }
 
-            foreach ($default as $k => $v) {
-              if (!empty($v['recommended']) and $hasfields)
-                ;
+    // Применяем дефолтные поля.
+    if (null !== ($host = NodeStub::getClassName($className))) {
+      if (method_exists($host, 'getDefaultSchema')) {
+        if (is_array($default = call_user_func(array($host, 'getDefaultSchema')))) {
+          $hasfields = count($schema);
 
-              elseif (!empty($v['deprecated'])) {
-                if (isset($schema[$k]))
-                  unset($schema[$k]);
-              }
+          foreach ($default as $k => $v) {
+            if (!empty($v['recommended']) and $hasfields)
+              ;
 
-              elseif (!isset($schema[$k]) or !empty($v['volatile']))
-                $schema[$k] = $v;
+            elseif (!empty($v['deprecated'])) {
+              if (isset($schema[$k]))
+                unset($schema[$k]);
             }
+
+            elseif (!isset($schema[$k]) or !empty($v['volatile']))
+              $schema[$k] = $v;
           }
         }
       }
-
-      mcms::cache($ckey, $schema);
     }
 
-    return new Schema($schema);
+    return $schema;
   }
 
   /**

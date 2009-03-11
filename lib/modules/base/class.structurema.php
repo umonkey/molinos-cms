@@ -8,6 +8,7 @@ class StructureMA
   private $aliases = array();
   private $access = array();
   private $modules = array();
+  private $types = array();
 
   public function import()
   {
@@ -21,6 +22,7 @@ class StructureMA
       'domains' => $this->domains,
       'access' => $this->access,
       'modules' => $this->getModules(),
+      'types' => $this->getTypes(),
       );
   }
 
@@ -190,6 +192,19 @@ class StructureMA
       if (!empty($v) and is_array($conf = unserialize($v)))
         if (!empty($conf['config']))
           $result[$k] = $conf['config'];
+
+    return $result;
+  }
+
+  private function getTypes()
+  {
+    $result = array();
+    $db = Context::last()->db;
+
+    $names = $db->getResultsV('name', "SELECT `name` FROM `node` WHERE `class` = 'type' AND `deleted` = 0");
+
+    foreach ($names as $name)
+      $result[$name] = Schema::rebuild($db, $name);
 
     return $result;
   }
