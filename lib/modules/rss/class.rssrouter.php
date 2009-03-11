@@ -27,7 +27,7 @@ class RSSRouter implements iRequestRouter
       'class' => array(),
       'deleted' => 0,
       'published' => 1,
-      '#sort' => '-id',
+      '#sort' => '-created',
       '#limit' => 10,
       );
 
@@ -69,6 +69,6 @@ class RSSRouter implements iRequestRouter
     else
       $template = os::path('lib', 'modules', 'rss', 'default.xsl');
 
-    return xslt::transform($output, $template);
+    return xslt::transform($output, $template, 'text/xml'); // 'application/rss+xml');
   }
 }
