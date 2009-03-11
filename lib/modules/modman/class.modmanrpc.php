@@ -85,6 +85,8 @@ class ModManRPC extends RPCHandler implements iRemoteCall
     $node->config = $conf;
     $node->save();
     $ctx->db->commit();
+
+    Structure::getInstance()->drop();
   }
 
   /**
