@@ -310,9 +310,11 @@ class ListWidget extends Widget
    */
   public function onGet(array $options)
   {
-    if (!count($nodes = $this->getDocumentIds($options))) {
-      // Обработать fallback.
-    }
+    $query = $this->getQuery($options);
+    $count = $query->getCount($this->ctx->db);
+
+    if (0 == $count)
+      return '<!-- nothing to show -->';
 
     $result = '';
 
@@ -327,16 +329,15 @@ class ListWidget extends Widget
     }
 
     // Формируем список документов.
-    $tmp = '';
-    foreach ($nodes as $node)
-      $tmp .= $node->getXML('document');
-    if (!empty($tmp))
-      $result .= html::em('documents', $tmp);
+    $result .= Node::findXML($this->ctx->db, $query, null, null, 'document', 'documents');
+
+    if ($this->pager)
+      $result .= $this->getPager($count, $options['page'], $options['limit']);
 
     return $result;
   }
 
-  private function getDocumentIds(array $options)
+  private function getQuery(array $options)
   {
     $filter = array(
       'published' => 1,
@@ -356,8 +357,12 @@ class ListWidget extends Widget
     if (empty($filter['#sort']))
       $filter['#sort'] = '-id';
 
-    // $q = new Query($filter); mcms::debug($options, $filter, $q->getSelect());
+    if (!empty($options['limit'])) {
+      $filter['#limit'] = $options['limit'];
+      if (!empty($options['offset']))
+        $filter['#offset'] = $options['offset'];
+    }
 
-    return Node::find($this->ctx->db, $filter, $options['limit'], $options['offset']);
+    return new Query($filter);
   }
 };
