@@ -45,6 +45,9 @@ class xslt
       mcms::cache($ckey, $output = $proc->transformToXML($doc));
     }
 
+    if (null === $mimeType)
+      return trim(str_replace('<?xml version="1.0"?>', '', $output));
+
     return new Response($output, $mimeType);
   }
 
