@@ -127,10 +127,11 @@ class TypeNode extends Node implements iContentType
 
   public static function getAccessible($mode = 'r')
   {
+    $ctx = Context::last();
     $result = array();
 
-    foreach (Node::find($this->getDB(), array('class' => 'type', 'deleted' => 0)) as $type)
-      if (null === $mode or Context::last()->user->hasAccess('r', $type->name))
+    foreach (Node::find($ctx->db, array('class' => 'type', 'deleted' => 0)) as $type)
+      if (null === $mode or $ctx->user->hasAccess('r', $type->name))
         $result[$type->name] = empty($type->title) ? $type->name : $type->title;
 
     asort($result);
@@ -215,7 +216,7 @@ class TypeNode extends Node implements iContentType
         'value' => 'fields',
         'dictionary' => 'field',
         'field' => 'label',
-        'required' => true,
+        'required' => false,
         'group' => t('Используемые поля'),
         ),
       ));
