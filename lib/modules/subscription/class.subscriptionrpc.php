@@ -1,15 +1,8 @@
 <?php
 
-class SubscriptionRPC implements iRemoteCall
+class SubscriptionRPC extends RPCHandler implements iRemoteCall
 {
-  public static function hookRemoteCall(Context $ctx)
-  {
-    $next = new url($ctx->get('destination', ''));
-    $next->setarg('message', mcms::dispatch_rpc(__CLASS__, $ctx));
-    return new Redirect($next->string());
-  }
-
-  public static function rpc_subscribe(Context $ctx)
+  public static function rpc_post_subscribe(Context $ctx)
   {
     $data = $ctx->post;
 
@@ -17,7 +10,7 @@ class SubscriptionRPC implements iRemoteCall
       throw new InvalidArgumentException("Не выбраны разделы для подписки.");
 
     if (false === strpos($data['email'], '@'))
-      throw new InvalidArgumentException(t('Email не похож на email.'));
+      throw new InvalidArgumentException(t('Введённый email не похож на email.'));
 
     // В массиве могут быть и другие данные, поэтому мы
     // выбираем только то, что нам нужно завернуть.
@@ -25,11 +18,6 @@ class SubscriptionRPC implements iRemoteCall
       'email' => $data['email'],
       'sections' => $data['sections'],
       );
-
-    $catlist = '';
-
-    foreach (Node::find($ctx->db, array('class' => 'tag', 'id' => $data['sections'], '#sort' => 'name')) as $tmp)
-      $catlist .= '<li>'. mcms_plain($tmp->name) .'</li>';
 
     $link = new url(array(
       'args' => array(
@@ -39,33 +27,39 @@ class SubscriptionRPC implements iRemoteCall
         ),
       ));
 
-    // Формируем текст почтового сообщения.
-    if (count($catlist) > 1)
-      $body = t("<p>Здравствуйте! Я — почтовый робот сайта %host, и я хотел бы уточнить, действительно ли "
-        ."Вы хотите подписаться на новости нашего сайта в следующих категориях:</p><ol>%list</ol>"
-        ."<p>Чтобы активировать подписку, пройдите, пожалуйста, по <a href='@link'>этой ссылке</a>.&nbsp; "
-        ."Вы можете проигнорировать это сообщение, тогда подписка на новости изменена не будет.</p>", array(
-        '%host' => url::host(),
-        '%list' => $catlist,
-        '@link' => $link->string(),
-        ));
-    else
-      $body = t("<p>Здравствуйте! Я — почтовый робот сайта %host, и я хотел бы уточнить, действительно ли "
-        ."Вы хотите подписаться на новости нашего сайта.</p>"
-        ."<p>Чтобы активировать подписку, пройдите, пожалуйста, по <a href='@link'>этой ссылке</a>.&nbsp; "
-        ."Вы можете проигнорировать это сообщение, тогда подписка на новости изменена не будет.</p>", array(
-        '%host' => url::host(),
-        '@link' => $link->string(),
-        ));
+    $sections = Node::findXML($ctx->db, array(
+      'class' => 'tag',
+      'deleted' => 0,
+      'published' => 1,
+      'id' => $data['sections'],
+      '#sort' => 'name',
+      ), null, null, 'section');
+    if (empty($sections))
+      throw new InvalidArgumentException("Выбраны несуществующие разделы для подписки.");
 
-    BebopMimeMail::send(null, $data['email'], t('Подписка на новости сайта %host', array(
+    $xml = html::em('message', array(
+      'mode' => 'confirm',
+      'host' => url::host(),
+      'email' => $data['email'],
+      'base' => $ctx->url()->getBase($ctx),
+      'confirmLink' => $link->string(),
+      ), html::em('sections', $sections));
+
+    $xsl = os::path('lib', 'modules', 'subscription', 'message.xsl');
+
+    if (false === ($body = xslt::transform($xml, $xsl, null)))
+      throw new RuntimeException(t('Возникла ошибка при форматировании почтового сообщения.'));
+
+    $subject = t('Подписка на новости сайта %host', array(
       '%host' => url::host(),
-      )), $body);
+      ));
 
-    return t('Инструкция для активации подписки отправлена на указанный почтовый адрес.');
+    // mcms::debug($data['email'], $subject, $body);
+
+    BebopMimeMail::send(null, $data['email'], $subject, $body);
   }
 
-  public static function rpc_confirm(Context $ctx)
+  public static function rpc_get_confirm(Context $ctx)
   {
     if (!is_array($data = unserialize(base64_decode($ctx->get('code')))))
       throw new BadRequestException();
@@ -83,6 +77,7 @@ class SubscriptionRPC implements iRemoteCall
       $node = Node::load(array(
         'class' => 'subscription',
         'name' => $data['email'],
+        'deleted' => 0,
         ));
 
       $status = t('Параметры подписки успешно изменены.');
@@ -96,19 +91,41 @@ class SubscriptionRPC implements iRemoteCall
       $status = t('Подписка активирована.');
     }
 
+    $ctx->db->beginTransaction();
+
     if (!empty($data['sections'])) {
-      $node->linkSetParents($data['sections'], 'tag');
+      foreach ($data['sections'] as $id)
+        $node->linkTo($id);
       $node->save();
     } elseif (!empty($node->id)) {
       $node->delete();
       $status = t('Подписка удалена.');
     }
 
-    bebop_on_json(array(
-      'status' => 'ok',
-      'message' => $status,
-      ));
+    $ctx->db->commit();
 
-    return $status;
+    return $ctx->getRedirect('?status=subscribed');
+  }
+
+  protected static function rpc_get_remove(Context $ctx)
+  {
+    $name = $ctx->get('name');
+
+    try {
+      $node = Node::load(array(
+        'class' => 'subscription',
+        'name' => $name,
+        'deleted' => 0,
+        'published' => 1,
+        ));
+      if (empty($node))
+        throw new PageNotFoundException(t('Этот адрес не подписан.'));
+      $ctx->db->beginTransaction();
+      $node->delete();
+      $ctx->db->commit();
+    } catch (ObjectNotFoundException $e) {
+    }
+
+    return $ctx->getRedirect('?unsubscribed=' . urlencode($name));
   }
 }

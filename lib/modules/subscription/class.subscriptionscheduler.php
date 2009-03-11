@@ -12,13 +12,24 @@ class SubscriptionScheduler implements iScheduler
       set_time_limit(0);
 
     $types = mcms::modconf('subscription', 'types', array());
+    $xsl = mcms::modconf('subscription', 'stylesheet', os::path('lib', 'modules', 'subscription', 'message.xsl'));
+    $sub = mcms::modconf('subscription', 'subject', 'Новости сайта %host');
 
     if (empty($types))
       return;
 
+    $ctx->db->beginTransaction();
+
+    $users = Node::find($ctx->db, array(
+      'class' => 'subscription',
+      'deleted' => 0,
+      'published' => 1,
+      '#sort' => 'name',
+      ));
+
     // Обрабатываем активных пользователей.
-    foreach (Node::find($ctx->db, array('class' => 'subscription')) as $user) {
-      $olast = $last = intval($user->last);
+    foreach ($users as $user) {
+      $olast = $last = 200; // intval($user->last);
 
       // Получаем список разделов, на которые распространяется подписка.
       $tags = Node::find($ctx->db, array(
@@ -30,17 +41,23 @@ class SubscriptionScheduler implements iScheduler
       if (empty($tags))
         continue;
 
-      $nodes = Node::find($ctx->db, array(
-        'class' => $types,
-        'tags' => array_keys($tags),
-        'id' => array('>'. $last),
-        '#sort' => 'id',
-        ));
+      $nodes = self::getNodes($ctx, $types, $tags, $last);
 
       // Отправляем документы.
       foreach ($nodes as $node) {
-        BebopMimeMail::send(null, $user->name, $node->name, $node->text);
-        printf("    sent mail to %s: %s\n", $user->name, $node->name);
+        $xml = html::em('message', array(
+          'mode' => 'regular',
+          'unsubscribe' => '?q=subscription.rpc&action=remove&name=' . urlencode($user->name),
+          'base' => $ctx->url()->getBase($ctx),
+          'host' => url::host(),
+          ), $node->getXML('document'));
+
+        $body = xslt::transform($xml, $xsl, null);
+        $subject = t($sub, array(
+          '%host' => $ctx->url()->host(),
+          ));
+
+        BebopMimeMail::send(null, $user->name, $subject, $body);
         $last = max($last, $node->id);
       }
 
@@ -48,5 +65,34 @@ class SubscriptionScheduler implements iScheduler
       $user->last = $last;
       $user->save();
     }
+
+    $ctx->db->commit();
+  }
+
+  private static function getTagIds(array $tags)
+  {
+    $result = array();
+    foreach ($tags as $tag)
+      $result[] = $tag->id;
+    return $result;
+  }
+
+  private static function getNodes(Context $ctx, array $types, array $sections, $last)
+  {
+    $params = array(intval($last));
+
+    $tags = array();
+    foreach ($sections as $section)
+      $tags[] = $section->id;
+
+    $sql = 'SELECT `id` FROM `node` WHERE `deleted` = 0 AND `published` = 1 AND `id` > ? AND `class` ' . sql::in($types, $params);
+    $sql .= ' AND `id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` ' . sql::in($tags, $params) . ')';
+    $sql .= ' ORDER BY `created` DESC';
+
+    $result = array();
+    foreach ((array)$ctx->db->getResultsV('id', $sql, $params) as $id)
+      $result[] = NodeStub::create($id, $ctx->db);
+
+    return $result;
   }
 }

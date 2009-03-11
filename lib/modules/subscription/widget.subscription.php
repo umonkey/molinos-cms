@@ -17,10 +17,7 @@ class SubscriptionWidget extends Widget
   {
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
-
     $options['#cache'] = false;
-    $options['section'] = $ctx->section;
-
     return $options;
   }
 
@@ -29,21 +26,10 @@ class SubscriptionWidget extends Widget
     $sections = array_intersect_key(Node::getSortedList('tag'),
       array_flip(Node::create('subscription')->getEnabledSections()));
 
-    $result = array(
-      'title' => $this->me->title,
-      'description' => $this->me->description,
-      'sections' => $sections,
-      'enabled' => array_keys($sections),
-      'section' => empty($options['section'])
-        ? array()
-        : $options['section']->getRaw(),
-      );
+    $output = html::simpleOptions($sections, 'section', 'sections');
+    if ($this->description)
+      $output .= html::em('description', html::cdata($this->description));
 
-    if (false !== strpos($e = $this->ctx->user->name, '@'))
-      $result['email'] = $e;
-    else
-      $result['email'] = $this->ctx->user->email;
-
-    return $result;
+    return $output;
   }
 };
