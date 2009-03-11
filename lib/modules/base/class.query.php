@@ -134,9 +134,12 @@ class Query
     return array($sql, $this->params);
   }
 
-  public function getCount()
+  public function getCount(PDO_Singleton $db = null)
   {
     $sql = sql::getSelect(array('COUNT(*)'), $this->tables, $this->conditions);
+
+    if (null !== $db)
+      return $db->fetch($sql, $this->params);
 
     return array($sql, $this->params);
   }
