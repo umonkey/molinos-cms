@@ -101,6 +101,7 @@ class XMLRouter implements iRequestRouter
     $data['page']['execution_time'] = microtime(true) - MCMS_START_TIME;
     $data['page']['version'] = mcms::version();
     $data['page']['url'] = $ctx->url()->string();
+    $data['page']['back'] = urlencode($_SERVER['REQUEST_URI']);
 
     $result = '<?xml version="1.0" encoding="utf-8"?>';
     $result .= html::em('page', $data['page'], $output);
