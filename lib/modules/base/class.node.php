@@ -82,7 +82,7 @@ class Node
       $db = Context::last()->db;
 
     if (is_array($id)) {
-      if (!is_array($nodes = Node::find($db, $id)))
+      if (!is_array($nodes = Node::find($db, $id)) or empty($nodes))
         throw new ObjectNotFoundException();
       return array_shift($nodes);
     } elseif (!is_numeric($id)) {
@@ -419,7 +419,7 @@ class Node
     if (in_array($class, array('tag', 'domain'))) {
       $result = array();
       foreach (Node::listChildren($class) as $item)
-        $result[$item[0]] = str_repeat('&nbsp;', 2 * $item[2]) . $item[1];
+        $result[$item[0]] = str_repeat(' ', 2 * $item[2]) . $item[1];
     }
 
     // Вывод обычных списков
