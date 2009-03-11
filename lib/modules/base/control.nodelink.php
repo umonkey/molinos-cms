@@ -133,12 +133,19 @@ class NodeLinkControl extends Control
 
         $n = Node::find($node->getDB(), array(
           'class' => $parts[0],
+          'deleted' => 0,
           $parts[1] => $value,
           ));
 
-        $node->{$this->value} = empty($n)
-          ? null
-          : array_shift($n);
+        if (!empty($n))
+          $n = array_shift($n);
+        else
+          $n = Node::create($parts[0], array(
+            $parts[1] => $value,
+            'published' => 1,
+            ));
+
+        $node->{$this->value} = $n;
       }
     } catch (ObjectNotFoundException $e) {
       throw new PageNotFoundException(t('Объект «%name» не найден.', array(
@@ -163,6 +170,11 @@ class NodeLinkControl extends Control
         'options' => TypeNode::getDictionaries(),
         'weight' => 4,
         ),
+      'nonew' => array(
+        'type' => 'BoolControl',
+        'label' => t('Запретить прозрачное добавление'),
+        'weight' => 5,
+        ),
       );
 
     return $fields;
@@ -173,6 +185,9 @@ class NodeLinkControl extends Control
    */
   protected function getSelect($data)
   {
+    if (!$this->nonew)
+      return null;
+
     $db = Context::last()->db;
     $parts = explode('.', $this->values);
 

@@ -94,6 +94,7 @@ class LinkedNodesWidget extends Widget
     $options['doc'] = $ctx->document->id;
     $options['classes'] = $this->classes;
     $options['field'] = $this->field;
+    $options['sort'] = $this->sort;
 
     return $options;
   }
@@ -108,6 +109,7 @@ class LinkedNodesWidget extends Widget
       'tagged' => $options['doc'],
       'published' => 1,
       'deleted' => 0,
+      '#sort' => $options['sort'],
       ), null, null, 'document');
 
     return $nodes;
