@@ -811,4 +811,9 @@ class NodeStub
   {
     return $this->db;
   }
+
+  public function linkTo($parent_id)
+  {
+    $this->onSave('INSERT INTO `node__rel` (`tid`, `nid`) VALUES (?, %ID%)', array($parent_id));
+  }
 }
