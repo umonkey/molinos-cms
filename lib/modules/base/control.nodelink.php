@@ -187,9 +187,11 @@ class NodeLinkControl extends Control
 
     if (($count = $db->fetch($sql, $params) < 50)) {
       $result = '';
+      $current = $this->getCurrentValue($data);
       foreach (Node::find($db, $filter) as $node)
         $result .= html::em('option', array(
           'value' => $node->name,
+          'selected' => ($current == $node->name) ? 'yes' : null,
           ));
       return html::em('options', $result);
     }
