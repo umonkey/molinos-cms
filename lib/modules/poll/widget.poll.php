@@ -129,7 +129,7 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
 
   protected function getCurrentPoll(array $options)
   {
-    $nodes = Node::find($filter = array(
+    $nodes = Node::find($this->ctx->db, $filter = array(
       'class' => 'poll',
       'tags' => $options['section'],
       '#sort' => '-id',
