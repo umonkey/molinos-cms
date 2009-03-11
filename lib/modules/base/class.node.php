@@ -95,9 +95,15 @@ class Node
   /**
    * Поиск нод.
    */
-  public static function find(PDO_Singleton $db, array $query, $limit = null, $offset = null)
+  public static function find(PDO_Singleton $db, $query, $limit = null, $offset = null)
   {
-    $query = new Query($query);
+    if ($query instanceof Query)
+      ;
+    elseif (is_array($query))
+      $query = new Query($query);
+    else
+      throw new InvalidArgumentException(t('Запрос должен быть описан массивом или объектом Query.'));
+
     list($sql, $params) = $query->getSelect($limit, $offset, '*');
 
     $result = array();
@@ -114,12 +120,15 @@ class Node
   /**
    * Поиск нод, результат — в XML.
    */
-  public static function findXML(PDO_Singleton $db, array $query, $limit = null, $offset = null, $em = 'node')
+  public static function findXML(PDO_Singleton $db, $query, $limit = null, $offset = null, $em = 'node', $wrapper = null)
   {
     $output = '';
 
     foreach (self::find($db, $query, $limit, $offset) as $node)
       $output .= $node->getXML($em);
+
+    if (null !== $wrapper and !empty($output))
+      return html::em($wrapper, $output);
 
     return $output;
   }
