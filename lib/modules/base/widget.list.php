@@ -347,6 +347,8 @@ class ListWidget extends Widget
 
     if (!empty($options['classes']))
       $filter['class'] = $options['classes'];
+    else
+      $filter['class'] = null; // блокируем вывод
 
     if (!empty($options['section'])) {
       $filter['tags'] = $options['section'];
