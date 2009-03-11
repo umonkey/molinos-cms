@@ -115,14 +115,17 @@ class html
     return $result;
   }
 
-  public static function simpleOptions(array $elements)
+  public static function simpleOptions(array $elements, $emName = 'option', $wrapperName = null)
   {
     $output = '';
 
     foreach ($elements as $k => $v)
-      $output .= html::em('option', array(
+      $output .= html::em($emName, array(
         'value' => $k,
         ), $v);
+
+    if (null !== $wrapperName and !empty($output))
+      return html::em($wrapperName, $output);
 
     return $output;
   }
