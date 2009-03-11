@@ -220,7 +220,7 @@ class mcms
   // Отладочные функции.
   public static function debug()
   {
-    if (true /* empty($_SERVER['HTTP_HOST']) or ($ctx = Context::last()) and $ctx->canDebug() */) {
+    if (empty($_SERVER['HTTP_HOST']) or ($ctx = Context::last()) and $ctx->canDebug()) {
       if (ob_get_length())
         ob_end_clean();
 

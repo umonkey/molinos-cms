@@ -467,6 +467,13 @@ class Context
 
   public function canDebug()
   {
+    if (null === $this->_debug) {
+      if (null === ($debuggers = $this->config->debuggers))
+        $this->_debug = true;
+      else
+        $this->_debug = mcms::matchip($_SERVER['REMOTE_ADDR'], $debuggers);
+    }
+
     return $this->_debug;
   }
 
