@@ -353,6 +353,9 @@
       <xsl:choose>
         <xsl:when test="count(options/option)">
           <select name="{@name}">
+            <xsl:if test="not(@required)">
+              <option value=""></option>
+            </xsl:if>
             <xsl:for-each select="options/option">
               <option value="{@value}">
                 <xsl:if test="@selected">
