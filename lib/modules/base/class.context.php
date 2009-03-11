@@ -99,6 +99,13 @@ class Context
     if (null === $this->_url)
       $this->_url = new url($this->getarg('url'), /* readonly = */ true);
 
+    if (2 == count($parts = explode('.', $key, 2))) {
+      $tmp = $this->_url->arg($parts[0]);
+      return empty($tmp[$parts[1]])
+        ? $default
+        : $tmp[$parts[1]];
+    }
+
     return $this->_url->arg($key, $default);
   }
 
