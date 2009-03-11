@@ -89,7 +89,6 @@ class NodeApiModule extends RPCHandler implements iRemoteCall
 
     $node = Node::load($filter, $ctx->db);
     $temp = $node->{'never should this field exist'};
-    mcms::debug($filter, $node);
     if ($ctx->get('raw'))
       mcms::debug($node);
     else {

@@ -844,7 +844,7 @@ class NodeStub
     $this->onSave('INSERT INTO `node__rel` (`tid`, `nid`) VALUES (?, %ID%)', array($parent_id));
   }
 
-  private function serialize()
+  public function serialize()
   {
     $this->makeSureFieldIsAvailable('no mercy');
     $data = array('id' => $this->id) + $this->data;
