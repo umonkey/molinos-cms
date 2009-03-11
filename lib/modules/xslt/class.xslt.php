@@ -2,7 +2,7 @@
 
 class xslt
 {
-  public static function transform($xml, $xsltName)
+  public static function transform($xml, $xsltName, $mimeType = 'text/html')
   {
     $mode = empty($_GET['xslt'])
       ? 'server'
@@ -45,7 +45,7 @@ class xslt
       mcms::cache($ckey, $output = $proc->transformToXML($doc));
     }
 
-    return new Response($output, 'text/html');
+    return new Response($output, $mimeType);
   }
 
   private static function checkErrors($fileName = null)
