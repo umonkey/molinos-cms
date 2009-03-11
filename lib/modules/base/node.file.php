@@ -471,7 +471,7 @@ class FileNode extends Node implements iContentType
         'type' => 'TextLineControl',
         'description' => t('Используется для определения способов обработки файла.  Проставляется автоматически при закачке.'),
         'required' => true,
-        'indexed' => true,
+        'indexed' => false,
         'volatile' => true,
         ),
       'filesize' => array (
