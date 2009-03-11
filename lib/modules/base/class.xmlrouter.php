@@ -21,6 +21,9 @@ class XMLRouter implements iRequestRouter
       return new Response($robots, 'text/plain');
     }
 
+    if (defined('MCMS_BENCHMARK'))
+      mcms::flog(sprintf('%f = before xmlrouter started', microtime(true) - MCMS_START_TIME));
+
     $output = '';
 
     // Определяем шкуру.
@@ -54,9 +57,12 @@ class XMLRouter implements iRequestRouter
         $theme = $data['page']['theme'];
 
       // Находим виджеты для этой страницы.
+      $time = microtime(true);
       $widgets = array_key_exists('widgets', $data['page'])
         ? self::renderWidgets($ctx, $data['page']['widgets'])
         : array();
+      if (defined('MCMS_BENCHMARK'))
+        mcms::flog(sprintf('%f = time(widgets)', microtime(true) - $time));
 
       // Запрошен отдельный виджет — возвращаем.
       if (null !== ($w = $ctx->get('widget'))) {
@@ -106,6 +112,9 @@ class XMLRouter implements iRequestRouter
     $result = '<?xml version="1.0" encoding="utf-8"?>';
     $result .= html::em('page', $data['page'], $output);
 
+    if (defined('MCMS_BENCHMARK'))
+      mcms::flog(sprintf('%f = before xslt::transform() in xmlrouter', microtime(true) - MCMS_START_TIME));
+
     return xslt::transform($result,
       self::findStyleSheet($theme, $data['name']));
   }
@@ -143,6 +152,8 @@ class XMLRouter implements iRequestRouter
           continue;
 
         if (class_exists($widget['class'])) {
+          $time = microtime(true);
+
           try {
             $o = new $widget['class']($name, $widget);
             $result[$name] = $o->render($ctx);
@@ -153,6 +164,9 @@ class XMLRouter implements iRequestRouter
               'type' => get_class($e),
               ));
           }
+
+          if (defined('MCMS_BENCHMARK'))
+            mcms::flog(sprintf('%f = time(widget/%s)', microtime(true) - $time, $name));
         } else {
           $result[$name] = "<!-- widget {$name} halted: class {$widget['class']} not found. -->";
         }
