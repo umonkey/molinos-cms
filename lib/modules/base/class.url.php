@@ -470,7 +470,9 @@ class url
     $u = new url($url);
 
     if (null === ($host = $u->host)) {
-      if (empty($_SERVER['HTTP_HOST']))
+      if (defined('MCMS_HOST'))
+        $host = MCMS_HOST;
+      elseif (empty($_SERVER['HTTP_HOST']))
         $host = Context::last()->host();
       else
         $host = $_SERVER['HTTP_HOST'];
