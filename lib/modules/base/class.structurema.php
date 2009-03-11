@@ -30,6 +30,8 @@ class StructureMA
 
     foreach (Node::find(Context::last()->db, array(
       'class' => 'widget',
+      'published' => 1,
+      'deleted' => 0,
       '#sort' => 'name',
       )) as $node)
     {
