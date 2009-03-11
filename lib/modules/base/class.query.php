@@ -82,6 +82,11 @@ class Query
         $this->params[] = intval($v);
       }
 
+      elseif ('tagged' == $k) {
+        $this->conditions[] = "`node`.`id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` " . $this->getTagsFilter($v) . ")";
+        $this->params[] = intval($v);
+      }
+
       else {
         list($fieldName, $neg) = $this->getFieldSpec($k);
 
