@@ -33,6 +33,8 @@ class Request
           '%class' => get_class($router),
           )));
 
+      ob_start();
+
       if (!(($response = $router->route($ctx))) instanceof Response)
         throw new RuntimeException(t('%class::route() вернул %type, а не объект класса Response.', array(
           '%type' => is_object($response)
@@ -40,6 +42,8 @@ class Request
             : gettype($response),
           '%class' => get_class($router),
           )));
+
+      ob_end_clean();
     } catch (Exception $e) {
       mcms::fatal($e);
     }
