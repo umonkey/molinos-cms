@@ -18,6 +18,11 @@ class NodeStub
    */
   private static $stack = array();
 
+  /**
+   * Кэш, помогает при повторной загрузке одного объекта.
+   */
+  private static $cache = array();
+
   private function __construct($id, PDO_Singleton $db = null)
   {
     if ($id instanceof NodeStub)
@@ -693,25 +698,34 @@ class NodeStub
     if (null === $this->db or null === $this->id)
       return $this->data = array();
 
-    $data = $this->db->getResults("SELECT `node`.`parent_id`, "
-      . "`node`.`lang`, `node`.`class`, `node`.`left`, `node`.`right`, "
-      . "`node`.`uid`, `node`.`created`, `node`.`updated`, "
-      . "`node`.`published`, `node`.`deleted`, "
-      . "`node`.`name`, `node`.`data` "
-      . "FROM `node` "
-      . "WHERE `node`.`id` = " . intval($this->id));
+    if (array_key_exists($this->id, self::$cache))
+      $this->data = self::$cache[$this->id];
 
-    if (empty($data))
-      throw new ObjectNotFoundException(t('Объект с номером %id не существует.', array(
-        '%id' => intval($this->id),
-        )));
+    else {
+      mcms::flog('retrieve node ' . $this->id);
 
-    $this->data = $data[0];
+      $data = $this->db->getResults("SELECT `node`.`parent_id`, "
+        . "`node`.`lang`, `node`.`class`, `node`.`left`, `node`.`right`, "
+        . "`node`.`uid`, `node`.`created`, `node`.`updated`, "
+        . "`node`.`published`, `node`.`deleted`, "
+        . "`node`.`name`, `node`.`data` "
+        . "FROM `node` "
+        . "WHERE `node`.`id` = " . intval($this->id));
 
-    // Вытягиваем связанные объекты.
-    $data = $this->db->getResultsKV("key", "nid", "SELECT `key`, `nid` FROM `node__rel` WHERE `tid` = ? AND `key` IS NOT NULL AND `nid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 1)", array($this->id));
-    foreach ($data as $k => $v)
-      $this->data[$k] = self::create($v, $this->db);
+      if (empty($data))
+        throw new ObjectNotFoundException(t('Объект с номером %id не существует.', array(
+          '%id' => intval($this->id),
+          )));
+
+      $this->data = $data[0];
+
+      // Вытягиваем связанные объекты.
+      $data = $this->db->getResultsKV("key", "nid", "SELECT `key`, `nid` FROM `node__rel` WHERE `tid` = ? AND `key` IS NOT NULL AND `nid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 1)", array($this->id));
+      foreach ($data as $k => $v)
+        $this->data[$k] = self::create($v, $this->db);
+
+      self::$cache[$this->id] = $this->data;
+    }
   }
 
   /**
