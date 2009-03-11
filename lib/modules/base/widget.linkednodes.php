@@ -91,7 +91,7 @@ class LinkedNodesWidget extends Widget
     if (!in_array($ctx->document->class, $this->hosts))
       return false;
 
-    $options['doc'] = $ctx->document;
+    $options['doc'] = $ctx->document->id;
     $options['classes'] = $this->classes;
     $options['field'] = $this->field;
 
@@ -103,21 +103,13 @@ class LinkedNodesWidget extends Widget
    */
   public function onGet(array $options)
   {
-    $filter = array(
+    $nodes = Node::findXML($this->ctx->db, $filter = array(
       'class' => $options['classes'],
-      'tagged' => $this->ctx->document->id,
-      'published' => true,
-      '#raw' => true,
-      );
+      'tagged' => $options['doc'],
+      'published' => 1,
+      'deleted' => 0,
+      ), null, null, 'document');
 
-    if (!empty($this->sort))
-      $filter['#sort'] = $this->sort;
-
-    $result = array(
-      'doc' => $options['doc']->getRaw(),
-      'documents' => Node::find($filter),
-      );
-
-    return $result;
+    return $nodes;
   }
 }
