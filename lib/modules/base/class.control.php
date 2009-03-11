@@ -305,7 +305,7 @@ abstract class Control implements iFormControl
   protected function validate($value)
   {
     if ($this->required and empty($value))
-      throw new ValidationException($this->label);
+      throw new ValidationException($this->label ? $this->label : $this->value);
 
     if (!empty($value) and !empty($this->re))
       if (!preg_match($this->re, $value))
