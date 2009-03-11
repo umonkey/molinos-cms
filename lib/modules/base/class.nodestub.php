@@ -4,6 +4,7 @@ class NodeStub
 {
   private $id = null;
   private $data = null;
+  private $links = array();
   private $onsave = array();
 
   /**
@@ -23,7 +24,7 @@ class NodeStub
    */
   private static $cache = array();
 
-  private function __construct($id, PDO_Singleton $db = null)
+  private function __construct($id, PDO_Singleton $db = null, array $data = null)
   {
     if ($id instanceof NodeStub)
       $id = $id->id;
@@ -39,19 +40,22 @@ class NodeStub
 
     $this->id = $id;
     $this->db = $db;
+    $this->data = $data;
   }
 
   /**
    * Создание новой ноды.
    */
-  public static function create($id, PDO_Singleton $db = null)
+  public static function create($id, PDO_Singleton $db = null, $data = null)
   {
+    if (null !== $data and array_key_exists('id', $data))
+      unset($data['id']);
     if ($id instanceof NodeStub)
       $id = $id->id;
     if (null !== $id)
       $id = intval($id);
     if (null === $id or !array_key_exists($id, self::$stack))
-      return new NodeStub($id, $db);
+      return new NodeStub($id, $db, $data);
     return self::$stack[$id];
   }
 
@@ -164,6 +168,12 @@ class NodeStub
         $this->data = array_merge($fields, $this->data);
         unset($this->data['data']);
       }
+
+      if (!empty($this->links)) {
+        foreach ($this->links as $k => $v)
+          $this->data[$k] = self::create($v['id'], $this->getDB(), $v);
+        $this->links = array();
+      }
     }
   }
 
@@ -182,6 +192,14 @@ class NodeStub
   private function getCacheKey()
   {
     return 'node:' . $this->id . ':xml';
+  }
+
+  /**
+   * Для внутреннего использования, см. Node::find().
+   */
+  public function __set_link($name, array $data)
+  {
+    $this->links[$name] = $data;
   }
 
   /**
@@ -702,8 +720,6 @@ class NodeStub
       $this->data = self::$cache[$this->id];
 
     else {
-      mcms::flog('retrieve node ' . $this->id);
-
       $data = $this->db->getResults("SELECT `node`.`parent_id`, "
         . "`node`.`lang`, `node`.`class`, `node`.`left`, `node`.`right`, "
         . "`node`.`uid`, `node`.`created`, `node`.`updated`, "
@@ -725,6 +741,8 @@ class NodeStub
         $this->data[$k] = self::create($v, $this->db);
 
       self::$cache[$this->id] = $this->data;
+
+      mcms::flog('retrieved node ' . $this->id . ' (' . $this->data['class'] . ')');
     }
   }
 

@@ -118,7 +118,7 @@ class Query
     if (null === $offset)
       $offset = $this->offset;
 
-    $sql = sql::getSelect(array('`node`.`id`'), $this->tables, $this->conditions);
+    $sql = sql::getSelect(array('*'), $this->tables, $this->conditions);
 
     if (!empty($this->order))
       $sql .= ' ORDER BY ' . join(', ', $this->order);

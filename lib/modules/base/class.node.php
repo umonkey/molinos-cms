@@ -98,14 +98,32 @@ class Node
   public static function find(PDO_Singleton $db, array $query, $limit = null, $offset = null)
   {
     $query = new Query($query);
-    list($sql, $params) = $query->getSelect($limit, $offset);
+    list($sql, $params) = $query->getSelect($limit, $offset, '*');
+
+    $result = array();
 
     $sth = $db->prepare($sql);
     $sth->execute($params);
 
-    $result = array();
-    while ($id = $sth->fetchColumn(0))
-      $result[] = NodeStub::create($id, $db);
+    while ($row = $sth->fetch(PDO::FETCH_ASSOC))
+      $result[$row['id']] = NodeStub::create($row['id'], $db, $row);
+
+    $params = array();
+    $sql = "SELECT `tid` AS `parent_node_id`, `key` AS `parent_node_field`, `node`.* FROM `node__rel` INNER JOIN `node` ON `node`.`id` = `node__rel`.`nid` WHERE `tid` " . sql::in(array_keys($result), $params) . " AND `key` IS NOT NULL AND `node`.`deleted` = 0 AND `node`.`published` = 1";
+
+    $sth = $db->prepare($sql);
+    $sth->execute($params);
+
+    while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+      $id = $row['parent_node_id'];
+      unset($row['parent_node_id']);
+
+      $field = $row['parent_node_field'];
+      unset($row['parent_node_field']);
+
+      if (array_key_exists($id, $result))
+        $result[$id]->__set_link($field, $row);
+    }
 
     return $result;
   }
