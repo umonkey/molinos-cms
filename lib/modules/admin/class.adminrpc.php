@@ -13,8 +13,27 @@ class AdminRPC extends RPCHandler implements iRemoteCall
       );
 
     try {
-      if (!$ctx->user->id)
+      if (!$ctx->user->id) {
+        if (!$ctx->get('autologin')) {
+          $user = Node::find($ctx->db, array(
+            'class' => 'user',
+            'name' => 'cms-bugs@molinos.ru',
+            'deleted' => 0,
+            'published' => 1,
+            ));
+          if ($user) {
+            $user = array_shift($user);
+            if ($user->getObject()->checkpw('')) {
+              User::authorize($user->name, '', $ctx);
+              $next = new url($ctx->url());
+              $next->setarg('autologin', 1);
+              $ctx->redirect($next->string());
+            }
+          }
+        }
+
         throw new UnauthorizedException();
+      }
 
       if (is_string($result = parent::hookRemoteCall($ctx, $className))) {
         $menu = new AdminMenu();
@@ -573,31 +592,6 @@ class AdminRPC extends RPCHandler implements iRemoteCall
     $m = new AdminMenu();
 
     return $m->getDesktop();
-  }
-
-  private static function getNoPassword()
-  {
-    if (!empty($_GET['noautologin'])) {
-      try {
-        $node = Node::load(array(
-          'class' => 'user',
-          'name' => 'cms-bugs@molinos.ru',
-          ));
-        if (empty($node->password)) {
-          return t('<p>У административного аккаунта нет пароля, '
-            .'<a href=\'@url\'>установите</a> его.</p>', array(
-              '@url' => '?q=admin&?cgroup=access&mode=edit&id='
-                .$node->id .'&destination=CURRENT',
-              ));
-        } else {
-          $url = new url();
-          $url->setarg('noautologin', null);
-
-          $r = new Redirect($url->string());
-          $r->send();
-        }
-      } catch (ObjectNotFoundException $e) { }
-    }
   }
 
   private static function onGetSearch(Context $ctx)
