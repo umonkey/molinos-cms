@@ -79,6 +79,9 @@ class NodeStub
         ? self::create($value, $this->db)
         : null;
 
+    if (is_array($value) and array_key_exists('id', $value))
+      return self::create($value['id'], $this->db, $value);
+
     return $value;
   }
 
@@ -168,12 +171,6 @@ class NodeStub
         $this->data = array_merge($fields, $this->data);
         unset($this->data['data']);
       }
-
-      if (!empty($this->links)) {
-        foreach ($this->links as $k => $v)
-          $this->data[$k] = self::create($v['id'], $this->getDB(), $v);
-        $this->links = array();
-      }
     }
   }
 
@@ -216,6 +213,7 @@ class NodeStub
   public function touch()
   {
     $this->dirty = true;
+    return $this;
   }
 
   /**
@@ -240,10 +238,15 @@ class NodeStub
 
         $schema = Schema::load($this->getDB(), $this->data['class']);
 
-        foreach ($this->data as $k => $v) {
+        foreach ($this->getProperties() as $k) {
+          if (empty($k))
+            continue;
+
+          $v = $this->$k;
+
           if ('uid' == $k and !empty($v) and $recurse)
             try {
-              $data['#text'] .= $this->uid->getXML('uid', null, false);
+              // $data['#text'] .= $v->getXML('uid', null, false);
             } catch (ObjectNotFoundException $e) { }
 
           elseif ($v instanceof NodeStub) {
@@ -251,6 +254,8 @@ class NodeStub
               $fmt = isset($schema[$k])
                 ? $schema[$k]->format($v)
                 : null;
+              if (empty($k))
+                mcms::debug($k, $v, $this->data);
               $data['#text'] .= $v->getXML($k, html::em('html', html::cdata($fmt)));
             } catch (ObjectNotFoundException $e) {
               // игнорируем
@@ -370,6 +375,8 @@ class NodeStub
         // mcms::debug($sql, $params);
         throw $e;
       }
+
+      $this->updateLinks();
 
       $this->onsave = array();
       $this->dirty = false;
@@ -670,12 +677,15 @@ class NodeStub
     if (null !== $this->id)
       $fields['id'] = $this->id;
 
+    $this->makeSureFieldIsAvailable('never again');
+
     foreach ($this->data as $k => $v) {
       if (($v instanceof NodeStub) or ($v instanceof Node)) {
         if (null === $v->id)
           $v->save();
         $this->onSave("DELETE FROM `node__rel` WHERE `tid` = %ID% AND `key` = ?", array($k));
         $this->onSave("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) VALUES (%ID%, ?, ?)", array($v->id, $k));
+        $extra[$k] = $v->serialize();
       } elseif (self::isBasicField($k))
         $fields[$k] = $v;
       elseif (!empty($v))
@@ -720,25 +730,10 @@ class NodeStub
       $this->data = self::$cache[$this->id];
 
     else {
-      $data = $this->db->getResults("SELECT `node`.`parent_id`, "
-        . "`node`.`lang`, `node`.`class`, `node`.`left`, `node`.`right`, "
-        . "`node`.`uid`, `node`.`created`, `node`.`updated`, "
-        . "`node`.`published`, `node`.`deleted`, "
-        . "`node`.`name`, `node`.`data` "
-        . "FROM `node` "
-        . "WHERE `node`.`id` = " . intval($this->id));
-
-      if (empty($data))
+      if (null === ($this->data = $this->db->fetch("SELECT * FROM `node` WHERE `id` = ?", array($this->id))))
         throw new ObjectNotFoundException(t('Объект с номером %id не существует.', array(
           '%id' => intval($this->id),
           )));
-
-      $this->data = $data[0];
-
-      // Вытягиваем связанные объекты.
-      $data = $this->db->getResultsKV("key", "nid", "SELECT `key`, `nid` FROM `node__rel` WHERE `tid` = ? AND `key` IS NOT NULL AND `nid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 1)", array($this->id));
-      foreach ($data as $k => $v)
-        $this->data[$k] = self::create($v, $this->db);
 
       self::$cache[$this->id] = $this->data;
 
@@ -847,5 +842,37 @@ class NodeStub
   public function linkTo($parent_id)
   {
     $this->onSave('INSERT INTO `node__rel` (`tid`, `nid`) VALUES (?, %ID%)', array($parent_id));
+  }
+
+  private function serialize()
+  {
+    $this->makeSureFieldIsAvailable('no mercy');
+    $data = array('id' => $this->id) + $this->data;
+    foreach ($data as $k => $v)
+      if (empty($v))
+        unset($data[$k]);
+      elseif ($v instanceof NodeStub)
+        $data[$k] = $v->serialize();
+    return $data;
+  }
+
+  /**
+   * Обновление ссылок на себя во всех объектах.
+   */
+  private function updateLinks()
+  {
+    $data = $this->serialize();
+
+    $sel = $this->db->prepare("SELECT `tid`, `key`, `data` FROM `node__rel` INNER JOIN `node` ON `node`.`id` = `node__rel`.`tid` WHERE `nid` = ? AND `key` IS NOT NULL");
+    $sel->execute(array($this->id));
+
+    $upd = $this->db->prepare("UPDATE `node` SET `data` = ? WHERE `id` = ?");
+
+    while ($row = $sel->fetch(PDO::FETCH_ASSOC)) {
+      $tmp = (array)@unserialize($row['data']);
+      $tmp[$row['key']] = $data;
+
+      $upd->execute(array(serialize($tmp), $row['tid']));
+    }
   }
 }

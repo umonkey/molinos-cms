@@ -113,6 +113,7 @@ class AdminListHandler implements iAdminList
       'undelete' => t('восстановить'),
       'erase' => t('удалить окончательно'),
       'reindex' => t('индексировать'),
+      'touch' => t('потрогать'),
       );
 
     $output = '';
@@ -188,7 +189,7 @@ class AdminListHandler implements iAdminList
         break;
       case 'schema':
         $this->types = array('type');
-        $this->actions = array('delete', 'publish', 'unpublish', 'clone', 'reindex');
+        $this->actions = array('delete', 'publish', 'unpublish', 'clone', 'reindex', 'touch');
         $this->title = t('Типы документов');
         $this->columns = array('name', 'title', 'description', 'created');
         $this->limit = null;
@@ -224,6 +225,7 @@ class AdminListHandler implements iAdminList
         $this->sort = 'name';
         $this->limit = null;
         $this->page = 1;
+        $this->actions = array('delete', 'publish', 'unpublish', 'clone', 'touch');
         break;
       case 'dict':
         $this->columns = array('name', 'description', 'created');

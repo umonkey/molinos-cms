@@ -87,15 +87,14 @@ class NodeApiModule extends RPCHandler implements iRemoteCall
     if (!$ctx->canDebug())
       $filter['deleted'] = 0;
 
-    if (count($nodes = Node::find($ctx->db, $filter))) {
-      $node = array_shift($nodes);
-      $temp = $node->{'never should this field exist'};
-      if ('xml' != $ctx->get('mode', 'xml'))
-        mcms::debug($node);
-      else {
-        $res = new Response($node->getXML(), 'text/xml');
-        $res->send();
-      }
+    $node = Node::load($filter, $ctx->db);
+    $temp = $node->{'never should this field exist'};
+    mcms::debug($filter, $node);
+    if ($ctx->get('raw'))
+      mcms::debug($node);
+    else {
+      $res = new Response($node->getXML(), 'text/xml');
+      $res->send();
     }
 
     throw new ForbiddenException();
@@ -255,6 +254,18 @@ class NodeApiModule extends RPCHandler implements iRemoteCall
     if (null === $ctx->get('section')) {
       $tmp = new NodeMover($ctx->db);
       $tmp->moveDown($ctx->get('node'));
+    }
+  }
+
+  protected static function rpc_post_touch(Context $ctx)
+  {
+    $params = array();
+    $sql = "SELECT `id` FROM `node` WHERE `deleted` = 0 AND `class` IN (SELECT `name` FROM `node` WHERE `deleted` = 0 AND `id` " . sql::in($ctx->post('nodes'), $params) . ")";
+    $ids = $ctx->db->getResultsV("id", $sql, $params);
+
+    foreach ($ids as $id) {
+      $node = Node::load($id);
+      $node->touch()->save();
     }
   }
 
