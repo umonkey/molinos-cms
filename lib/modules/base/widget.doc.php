@@ -86,17 +86,16 @@ class DocWidget extends Widget implements iWidget
    */
   protected function getRequestOptions(Context $ctx)
   {
-    if (null === $ctx->document)
-      return false;
-
     if (is_array($options = parent::getRequestOptions($ctx))) {
+      if (!($options['docid'] = $this->fixed))
+        if (!($options['docud'] = $ctx->document->id))
+          return '<!-- no document id found -->';
+
       if (null === ($options['action'] = $this->get('action', $this->mode)))
         $options['action'] = 'view';
 
       if ($this->showneighbors and null !== ($tmp = $ctx->section))
         $options['section'] = $tmp->id;
-
-      $options['docid'] = $ctx->document->id;
     }
 
     return $options;
@@ -138,10 +137,15 @@ class DocWidget extends Widget implements iWidget
   {
     $output = '';
 
-    if (null !== ($node = $this->ctx->document)) {
-      if (in_array($node->class, array('tag', 'config')))
-        throw new PageNotFoundException();
+    $node = Node::load(array(
+      'id' => $options['docid'],
+      '-class' => array(
+        'tag',
+        'config',
+        ),
+      ), $this->ctx->db);
 
+    if ($node) {
       if ($node->deleted)
         throw new PageNotFoundException();
 
