@@ -5,7 +5,7 @@
     <xsl:if test="@pages &gt; 1">
       <div class="pager">
         <xsl:if test="@prev">
-          <a href="{@prev}">←</a>
+          <a class="prev arrow" href="{@prev}">←</a>
         </xsl:if>
         <xsl:for-each select="page">
           <a>
@@ -13,6 +13,8 @@
               <xsl:attribute name="href">
                 <xsl:value-of select="@link" />
               </xsl:attribute>
+            </xsl:if>
+            <xsl:if test="not(@link)">
               <xsl:attribute name="class">
                 <xsl:text>current</xsl:text>
               </xsl:attribute>
@@ -21,7 +23,7 @@
           </a>
         </xsl:for-each>
         <xsl:if test="@next">
-          <a href="{@next}">→</a>
+          <a class="next arrow" href="{@next}">→</a>
         </xsl:if>
       </div>
     </xsl:if>
