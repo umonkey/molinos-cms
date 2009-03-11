@@ -29,6 +29,8 @@ class AdminRPC extends RPCHandler implements iRemoteCall
       $page['title'] = $e->getMessage();
     }
 
+    $page['debug'] = $ctx->canDebug();
+
     if (is_string($result)) {
       $xslt = isset($ctx->theme)
         ? $ctx->theme

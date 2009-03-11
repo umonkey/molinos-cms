@@ -108,6 +108,7 @@ class XMLRouter implements iRequestRouter
     $data['page']['version'] = mcms::version();
     $data['page']['url'] = $ctx->url()->string();
     $data['page']['back'] = urlencode($_SERVER['REQUEST_URI']);
+    $data['page']['debug'] = $ctx->canDebug();
 
     $result = '<?xml version="1.0" encoding="utf-8"?>';
     $result .= html::em('page', $data['page'], $output);

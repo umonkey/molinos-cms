@@ -354,7 +354,7 @@
 
     <thead>
       <tr>
-        <th colspan="2"/>
+        <th colspan="3"/>
         <th>Имя файла</th>
         <xsl:if test="$versions">
           <th>Версии</th>
@@ -381,6 +381,7 @@
               <a class="picker icon-download" href="{versions/version[@name='original']/@url}"></a>
             </xsl:if>
           </td>
+          <xsl:call-template name="dump_icon" />
           <xsl:apply-templates select="." mode="mcms_list_name" />
           <xsl:if test="$versions">
             <td class="versions">
@@ -417,7 +418,7 @@
     <xsl:variable name="showtype" select="not(../@type)" />
     <thead>
       <tr>
-        <th colspan="2"/>
+        <th colspan="3"/>
         <th>Заголовок</th>
         <xsl:if test="$showtype">
           <th>Тип</th>
@@ -438,6 +439,7 @@
               <span/>
             </a>
           </td>
+          <xsl:call-template name="dump_icon" />
           <xsl:apply-templates select="." mode="mcms_list_name" />
           <xsl:if test="$showtype">
             <td class="field-class">
@@ -568,6 +570,20 @@
 
   <!-- подавление неопознанных блоков -->
   <xsl:template match="block" mode="content">
+  </xsl:template>
+
+
+  <xsl:template name="dump_icon">
+    <td>
+      <xsl:if test="/page/@debug">
+        <xsl:attribute name="class">
+          <xsl:text>icon</xsl:text>
+        </xsl:attribute>
+        <a class="icon-dump" href="?q=nodeapi.rpc&amp;action=dump&amp;node={@id}">
+          <span/>
+        </a>
+      </xsl:if>
+    </td>
   </xsl:template>
 
 
