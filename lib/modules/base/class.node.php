@@ -336,11 +336,8 @@ class Node
   // Форматирует документ в соответствии с шаблоном.
   public function render($prefix = null, $theme = null, array $data = null)
   {
-    if (null === $theme)
-      $theme = Context::last()->theme;
-    if (null === $data)
-      $data = $this->data;
-    return template::render($theme, 'type', $this->class, $data);
+    // FIXME
+    throw new RuntimeException(t('Функция не реализована.'));
   }
 
   public function getActionLinks()
@@ -630,7 +627,7 @@ class Node
 
     $this->stub->save();
 
-    if ($this->isNew() and $this->checkPermission('p'))
+    if ($user->hasAccess('p', $this->class))
       $this->stub->publish();
 
     if (count($indexes = $this->getSchema()->getIndexes())) {

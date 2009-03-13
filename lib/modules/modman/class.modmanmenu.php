@@ -1,11 +1,12 @@
 <?php
 
-class ModManMenu implements iAdminMenu
+class ModManMenu
 {
-  public static function getMenuIcons(Context $ctx)
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu.enum
+   */
+  public static function getMenuIcons(Context $ctx, array &$icons)
   {
-    $icons = array();
-
     if (count(modman::getUpdatedModules()))
       $icons[] = array(
         'group' => 'status',
@@ -24,7 +25,5 @@ class ModManMenu implements iAdminMenu
       'href' => '?action=form&module=modman&mode=addremove',
       'title' => t('Модули'),
       );
-
-    return $icons;
   }
 }

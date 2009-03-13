@@ -1,8 +1,11 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class AutocompleteModule implements iRemoteCall
+class AutocompleteModule
 {
+  /**
+   * @mcms_message ru.molinos.cms.rpc.autocomplete
+   */
   public static function hookRemoteCall(Context $ctx)
   {
     if (null !== $ctx->get('source') and null !== $ctx->get('search')) {

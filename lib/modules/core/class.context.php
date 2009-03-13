@@ -24,7 +24,9 @@ class Context
   private $_post;
   private $_files;
   private $_profile = array();
+
   private $user = null;
+  private $registry = null;
 
   /**
    * Путь к инсталляции CMS относительно корня сайта.
@@ -351,7 +353,7 @@ class Context
     // Доступ к конфигурационному файлу.
     case 'config':
       if (null === $this->_config)
-        $this->_config = new Config($this->host());
+        $this->_config = new Config();
       return $this->_config;
 
     // Возвращает профиль пользователя.
@@ -359,6 +361,14 @@ class Context
       if (null === $this->user)
         $this->user = User::identify($this);
       return $this->user;
+
+    case 'registry':
+      if (null === $this->registry) {
+        $this->registry = new Registry();
+        if (!$this->registry->load())
+          $this->registry->rebuild($this->config->modules);
+      }
+      return $this->registry;
     }
   }
 
@@ -538,6 +548,9 @@ class Context
         );
 
       $errors = $messages = array();
+
+      if (function_exists('mb_internal_encoding'))
+        mb_internal_encoding('UTF-8');
 
       foreach ($htreq as $k => $v) {
         $key = ltrim($k, '@');

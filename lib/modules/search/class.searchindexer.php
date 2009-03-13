@@ -1,8 +1,11 @@
 <?php
 
-class SearchIndexer implements iNodeHook
+class SearchIndexer
 {
-  public static function hookNodeUpdate(Node $node, $op)
+  /**
+   * @mcms_message ru.molinos.cms.hook.node
+   */
+  public static function hookNodeUpdate(Context $ctx, Node $node, $op)
   {
     switch ($op) {
     case 'create':
@@ -29,7 +32,7 @@ class SearchIndexer implements iNodeHook
 
     foreach ($schema['fields'] as $k => $v) {
       if (isset($node->$k)) {
-        $html .= '<strong>'. mcms_plain($v['label']) .'</strong>';
+        $html .= '<strong>'. html::plain($v['label']) .'</strong>';
         $html .= '<div class=\'data\'>'. $node->$k .'</div>';
       }
     }

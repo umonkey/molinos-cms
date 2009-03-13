@@ -1,9 +1,12 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class CommentNodeHook implements iNodeHook
+class CommentNodeHook
 {
-  public static function hookNodeUpdate(Node $node, $op)
+  /**
+   * @mcms_message ru.molinos.cms.hook.node
+   */
+  public static function hookNodeUpdate(Context $ctx, Node $node, $op)
   {
     switch ($op) {
     case 'delete':
@@ -28,7 +31,7 @@ class CommentNodeHook implements iNodeHook
 
         $uids = array_diff(
           array_unique(array_merge($l1, $l2)),
-          array(Context::last()->user->id)
+          array($ctx->user->id)
           );
 
         $body = mcms::render(__CLASS__, array(

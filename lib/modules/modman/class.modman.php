@@ -79,8 +79,9 @@ class modman
    */
   public static function getConfigurableModules()
   {
+    $ctx = Context::last();
     foreach ($modules = self::getLocalModules() as $k => $v)
-      if (!count(Loader::getImplementors('iModuleConfig', $k)))
+      if (false === $ctx->registry->unicast('ru.molinos.cms.admin.config.module.' . $k))
         unset($modules[$k]);
 
     return $modules;
@@ -95,7 +96,13 @@ class modman
 
     // Получение информации из внешних источников.
     foreach (self::getSources() as $url) {
-      if (($file = http::fetch($url . '?random=' . rand(), http::NO_CACHE))) {
+      try {
+        $file = http::fetch($url . '?random=' . rand(), http::NO_CACHE);
+      } catch (Exception $e) {
+        $file = null;
+      }
+
+      if ($file) {
         $ini = ini::read($file);
 
         if (empty($ini['url_prefix']) or !is_string($ini['url_prefix']))

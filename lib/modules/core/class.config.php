@@ -7,9 +7,9 @@ class Config
   private $data = null;
   private $path = null;
 
-  public function __construct($hostName)
+  public function __construct()
   {
-    $this->path = $this->findFile($hostName);
+    $this->path = $this->findFile();
   }
 
   private function readData()
@@ -20,7 +20,7 @@ class Config
       $this->data = include $this->path;
   }
 
-  private function findFile($hostName)
+  private function findFile()
   {
     return MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'config.php';
   }

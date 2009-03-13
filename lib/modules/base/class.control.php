@@ -126,22 +126,10 @@ abstract class Control implements iFormControl
 
   public function getXML($data)
   {
-    throw new RuntimeException(t('В классе %class (%file) нет метода %method!', array(
+    throw new RuntimeException(t('В классе %class нет метода %method!', array(
       '%class' => get_class($this),
-      '%file' => Loader::getClassPath(get_class($this)),
       '%method' => 'getXML()',
       )));
-  }
-
-  protected function render(array $data)
-  {
-    $class = get_class($this);
-    $ctrln = mb_strtolower(substr($class, 0, -7));
-
-    return template::renderClass(get_class($this), array(
-      'd' => $data,
-      'c' => $this,
-      ), $class);
   }
 
   protected function getHidden(array $data)
@@ -369,16 +357,10 @@ abstract class Control implements iFormControl
   public static function getKnownTypes()
   {
     $types = array();
+    Context::last()->broadcast('ru.molinos.cms.control.enum', array(&$types));
 
-    foreach ($tmp = Loader::getImplementors('iFormControl') as $class) {
-      if (class_exists($class)) {
-        if ('control' != $class) {
-          $info = call_user_func(array($class, 'getInfo'));
-          if (empty($info['hidden']))
-            $types[$class] = $info['name'];
-        }
-      }
-    }
+    foreach ($types as $k => $v)
+      $types[$k] = $v['name'];
 
     asort($types);
 

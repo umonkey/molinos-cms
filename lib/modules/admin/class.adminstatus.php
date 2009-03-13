@@ -17,11 +17,13 @@
  * @package mod_admin
  * @subpackage Core
  */
-class AdminStatus implements iAdminMenu
+class AdminStatus
 {
-  public static function getMenuIcons(Context $ctx)
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu.enum
+   */
+  public static function getMenuIcons(Context $ctx, array &$icons)
   {
-    $icons = array();
     $user = $ctx->user;
 
     if ('admin' != $_GET['q'])
@@ -35,7 +37,5 @@ class AdminStatus implements iAdminMenu
           'link' => '?q=admin.rpc&action=edit&cgroup=access&node=' . $user->id
             . '&destination=CURRENT',
           );
-
-    return $icons;
   }
 }

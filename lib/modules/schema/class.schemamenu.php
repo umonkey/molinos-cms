@@ -1,10 +1,12 @@
 <?php
 
-class SchemaMenu implements iAdminMenu
+class SchemaMenu
 {
-  public static function getMenuIcons(Context $ctx)
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu.enum
+   */
+  public static function getMenuIcons(Context $ctx, array &$icons)
   {
-    $icons = array();
     $user = $ctx->user;
 
     if ($user->hasAccess('u', 'type'))
@@ -19,7 +21,5 @@ class SchemaMenu implements iAdminMenu
       'title' => t('Поля'),
       'href' => 'action=list&type=field',
       );
-
-    return $icons;
   }
 }

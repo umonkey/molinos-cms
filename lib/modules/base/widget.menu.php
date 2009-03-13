@@ -27,10 +27,12 @@ class MenuWidget extends Widget implements iWidget
    * Возвращает описание виджета.
    *
    * @return array массив с ключами: name, description.
+   * @mcms_message ru.molinos.cms.widget.enum
    */
   public static function getWidgetInfo()
   {
     return array(
+      'class' => __CLASS__,
       'name' => 'Меню',
       'description' => 'Выводит информацию о разделах в виде ненумерованного списка.',
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/MenuWidget',

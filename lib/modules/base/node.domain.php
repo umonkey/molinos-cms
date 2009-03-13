@@ -130,7 +130,7 @@ class DomainNode extends Node implements iContentType
       $options = array();
 
       foreach ($result as $k => $v) {
-        $options[$v['id']] = str_repeat('&nbsp;', 2 * $v['depth']) . mcms_plain($v['name']);
+        $options[$v['id']] = str_repeat('&nbsp;', 2 * $v['depth']) . html::plain($v['name']);
       }
 
       return $options;

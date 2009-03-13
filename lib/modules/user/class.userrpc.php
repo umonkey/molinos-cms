@@ -1,7 +1,15 @@
 <?php
 
-class UserRPC extends RPCHandler implements iRemoteCall
+class UserRPC extends RPCHandler
 {
+  /**
+   * @mcms_message ru.molinos.cms.rpc.user
+   */
+  public static function on_rpc(Context $ctx)
+  {
+    return parent::hookRemoteCall($ctx, __CLASS__);
+  }
+
   protected static function rpc_post_login(Context $ctx)
   {
     try {
@@ -156,7 +164,7 @@ class UserRPC extends RPCHandler implements iRemoteCall
         ."<p>Вы можете проигнорировать это сообщение, и ничего "
         ."не произойдёт.</p>", array(
           '%site' => $_SERVER['HTTP_HOST'],
-          '@url' => $link = l("?q=user.rpc&action=login&email={$email}"
+          '@url' => $link = html::link("?q=user.rpc&action=login&email={$email}"
             ."&otp={$node->otp}"
             ."&destination={$backstr}"),
           ));

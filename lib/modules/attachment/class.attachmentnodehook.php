@@ -1,8 +1,11 @@
 <?php
 
-class AttachmentNodeHook implements iNodeHook
+class AttachmentNodeHook
 {
-  public static function hookNodeUpdate(Node $node, $op)
+  /**
+   * @mcms_message ru.molinos.cms.hook.node
+   */
+  public static function hookNodeUpdate(Context $ctx, Node $node, $op)
   {
     if ($node instanceof FileNode and 0 === strpos($node->filetype, 'image/')) {
       if ('create' == $op or 'update' == $op)

@@ -3,9 +3,13 @@
 
 class MessageListWidget extends Widget
 {
+  /**
+   * @mcms_message ru.molinos.cms.widget.enum
+   */
   public static function getWidgetInfo()
   {
     return array(
+      'class' => __CLASS__,
       'name' => 'Список личных сообщений',
       'description' => 'Возвращает список сообщений пользователя',
       );

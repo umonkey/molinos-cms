@@ -19,10 +19,14 @@
  */
 class SetControl extends Control
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => t('Флаги (несколько галочек)'),
+      'class' => __CLASS__,
       );
   }
 

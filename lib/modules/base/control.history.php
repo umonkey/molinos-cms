@@ -23,10 +23,6 @@ class HistoryControl extends Control
 {
   public static function getInfo()
   {
-    return array(
-      'name' => t('Список ревизий документа'),
-      'hidden' => true,
-      );
   }
 
   public function __construct(array $form)

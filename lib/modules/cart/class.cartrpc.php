@@ -1,10 +1,13 @@
 <?php
 
-class CartRPC implements iRemoteCall
+class CartRPC
 {
+  /**
+   * @mcms_message ru.molinos.cms.rpc.cart
+   */
   public static function hookRemoteCall(Context $ctx)
   {
-    return mcms::dispatch_rpc(__CLASS__, $ctx);
+    return parent::hookRemoteCall($ctx, __CLASS__);
   }
 
   public static function getCartContent($items = array())

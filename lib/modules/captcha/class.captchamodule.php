@@ -18,8 +18,11 @@
 
 # See kcaptcha_config.ini for customizing
 
-class CaptchaModule implements iRemoteCall
+class CaptchaModule
 {
+  /**
+   * @mcms_message ru.molinos.cms.rpc.captcha
+   */
   public static function hookRemoteCall(Context $ctx, $className)
   {
     $cp = new CaptchaModule($ctx->get('seed'));

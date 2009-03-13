@@ -1,18 +1,13 @@
 <?php
 
-class CartSettings implements iModuleConfig
+class CartSettings
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.cart
+   */
   public static function formGetModuleConfig()
   {
-    $types = array();
-
-    foreach (TypeNode::getList() as $type) {
-      $schema = $type->getSchema();
-      if (isset($schema['price']))
-        $types[$type->id] = $type->title;
-    }
-
-    asort($types);
+    $types = Node::getSortedList('type', $title);
 
     $form = new Form(array(
       'title' => t('Настройка корзины'),
@@ -116,10 +111,7 @@ class CartSettings implements iModuleConfig
   private static function getDiscounters()
   {
     $result = array();
-
-    foreach (Loader::getImplementors('iCartDiscounter') as $k)
-      $result[$k] = $k;
-
+    Context::last()->registry->broadcast('ru.molinos.cms.cart.discounter.enum', array(&$result));
     return $result;
   }
 }

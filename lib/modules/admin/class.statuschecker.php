@@ -1,7 +1,10 @@
 <?php
 
-class StatusChecker implements iScheduler
+class StatusChecker
 {
+  /**
+   * @mcms_message ru.molinos.cms.cron
+   */
   public static function taskRun(Context $ctx)
   {
     $parts = array();
@@ -111,7 +114,7 @@ class StatusChecker implements iScheduler
   {
     if ($count = $ctx->db->fetch($query)) {
       if (null !== $link)
-        $count = l($link, $count);
+        $count = html::link($link, $count);
 
       $parts[] = t($text, array(
         '!count' => $count,
@@ -127,7 +130,7 @@ class StatusChecker implements iScheduler
       $list = array();
 
       foreach ($types as $id => $name)
-        $list[] = l('?q=admin/structure/edit/' . $id . '&destination=CURRENT', $name);
+        $list[] = html::link('?q=admin/structure/edit/' . $id . '&destination=CURRENT', $name);
 
       return t('<p class="important">Нарушение безопасности: документы типов !list могут быть изменены анонимно.</p>', array(
         '!list' => join(', ', $list),

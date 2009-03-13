@@ -22,10 +22,6 @@ class InfoControl extends Control
 {
   public static function getInfo()
   {
-    return array(
-      'name' => t('Текстовое сообщение'),
-      'hidden' => true,
-      );
   }
 
   public function __construct(array $form)

@@ -16,9 +16,13 @@ class CommentFormWidget extends Widget
     parent::__construct($name, $data);
   }
 
+  /**
+   * @mcms_message ru.molinos.cms.widget.enum
+   */
   public static function getWidgetInfo()
   {
     return array(
+      'class' => __CLASS__,
       'name' => 'Комментарий (добавление)',
       'description' => 'Позволяет пользователям оставлять комментарии.',
       );

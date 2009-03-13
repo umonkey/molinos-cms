@@ -1,7 +1,10 @@
 <?php
 
-class ModManScheduler implements iScheduler
+class ModManScheduler
 {
+  /**
+   * @mcms_message ru.molinos.cms.cron
+   */
   public static function taskRun(Context $ctx)
   {
     modman::updateDB();

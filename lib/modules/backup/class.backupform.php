@@ -1,7 +1,10 @@
 <?php
 
-class BackupForm implements iAdminForm
+class BackupForm
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.form.backup
+   */
   public function getAdminFormXML(Context $ctx)
   {
     $form = new Form(array(

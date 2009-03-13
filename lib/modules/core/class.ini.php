@@ -39,21 +39,26 @@ class ini
         if (!empty($output))
           $output .= "\n";
         $output .= sprintf("[%s]\n", $k);
-        $output .= self::write_keys($v);
+        $output .= self::write_keys($v, true);
       }
 
     os::write($filename, $output);
   }
 
-  private static function write_keys(array $data)
+  private static function write_keys(array $data, $with_arrays = false)
   {
     $output = "";
 
-    foreach ($data as $k => $v)
-      if (!is_array($v) and !empty($v))
-        $output .= (false === strpos($v, " "))
-          ? sprintf("%s = %s\n", $k, $v)
-          : sprintf("%s = \"%s\"\n", $k, $v);
+    foreach ($data as $k => $v) {
+      if (!empty($v)) {
+        if (is_array($v) and $with_arrays)
+          $v = join(',', $v);
+        if (!is_array($v))
+          $output .= (false === strpos($v, " "))
+            ? sprintf("%s = %s\n", $k, $v)
+            : sprintf("%s = \"%s\"\n", $k, $v);
+      }
+    }
 
     return $output;
   }

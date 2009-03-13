@@ -1,7 +1,10 @@
 <?php
 
-class BaseCron implements iScheduler
+class BaseCron
 {
+  /**
+   * @mcms_message ru.molinos.cms.cron
+   */
   public static function taskRun(Context $ctx)
   {
     $count = 0;

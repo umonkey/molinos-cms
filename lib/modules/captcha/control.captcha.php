@@ -1,13 +1,9 @@
 <?php
 
-class CaptchaControl extends Control implements iFormControl
+class CaptchaControl extends Control
 {
   public static function getInfo()
   {
-    return array(
-      'name' => t('Проверка капчи'),
-      'hidden' => true,
-      );
   }
 
   public function __construct(array $form)

@@ -20,10 +20,14 @@
  */
 class TextHTMLControl extends Control
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => t('Текст с форматированием'),
+      'class' => __CLASS__,
       );
   }
 

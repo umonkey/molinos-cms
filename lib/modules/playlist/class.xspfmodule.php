@@ -1,8 +1,11 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class XspfModule implements iRemoteCall, iModuleConfig
+class XspfModule
 {
+  /**
+   * @mcms_message ru.molinos.cms.rpc.playlist
+   */
   public static function hookRemoteCall(Context $ctx)
   {
     if (!count($nids = explode(',', $ctx->get('nodes'))))
@@ -30,6 +33,9 @@ class XspfModule implements iRemoteCall, iModuleConfig
     return new Response($output, 'application/xspf+xml');
   }
 
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.playlist
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array());

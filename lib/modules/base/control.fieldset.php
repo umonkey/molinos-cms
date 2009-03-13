@@ -21,10 +21,6 @@ class FieldSetControl extends Control
 {
   public static function getInfo()
   {
-    return array(
-      'name' => t('Набор вкладок'),
-      'hidden' => true,
-      );
   }
 
   public function __construct(array $form)

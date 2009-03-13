@@ -36,7 +36,7 @@ class XMLRouter implements iRequestRouter
       if (false === ($data = Structure::getInstance()->findPage($ctx->host(), $this->query)))
         throw new PageNotFoundException();
 
-      mcms::invoke('iRequestHook', 'hookRequest', array($ctx));
+      $ctx->registry->broadcast('ru.molinos.cms.hook.request.after', array($ctx));
 
       // Устанавливаем распарсенные коды раздела и документа.
       if (!empty($data['args']['sec']))

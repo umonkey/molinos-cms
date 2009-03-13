@@ -17,10 +17,14 @@
  */
 class DateTimeControl extends Control
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => t('Дата и время'),
+      'class' => __CLASS__,
       );
   }
 

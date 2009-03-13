@@ -1,7 +1,15 @@
 <?php
 
-class AvatarRPC extends RPCHandler implements iRemoteCall
+class AvatarRPC extends RPCHandler
 {
+  /**
+   * @mcms_message ru.molinos.cms.rpc.avatar
+   */
+  public static function on_rpc(Context $ctx)
+  {
+    return parent::hookRemoteCall($ctx, __CLASS__)
+  }
+
   protected static function rpc_get_default(Context $ctx)
   {
     $user = Node::load(array(

@@ -1,13 +1,17 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
+class PollWidget extends Widget
 {
   private $options;
 
+  /**
+   * @mcms_message ru.molinos.cms.widget.enum
+   */
   public static function getWidgetInfo()
   {
     return array(
+      'class' => __CLASS__,
       'name' => t('Голосование'),
       'description' => t('Выводит и обрабатывает форму для опроса пользователей.'),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/PollWidget',
@@ -174,6 +178,9 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
       $node->getDB()->exec("DELETE FROM `node__poll` WHERE `nid` = :nid OR `uid` = :uid", array(':nid' => $node->id, ':uid' => $node->id));
   }
 
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.poll
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array());

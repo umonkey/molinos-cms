@@ -1,7 +1,10 @@
 <?php
 
-class PollInstaller implements iInstaller
+class PollInstaller
 {
+  /**
+   * @mcms_message ru.molinos.cms.install
+   */
   public static function onInstall(Context $ctx)
   {
     $t = new TableInfo($ctx->db, 'node__poll');
@@ -32,6 +35,9 @@ class PollInstaller implements iInstaller
     }
   }
 
+  /**
+   * @mcms_message ru.molinos.cms.uninstall
+   */
   public static function onUninstall(Context $ctx)
   {
     $t = new TableInfo($ctx->db, 'node__poll');

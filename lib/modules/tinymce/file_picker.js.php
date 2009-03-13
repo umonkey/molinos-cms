@@ -1,7 +1,5 @@
 <?php
 
-require_once(dirname(dirname(dirname(__FILE__))) .'/bootstrap.php');
-
 header('Content-Type: text/javascript; charset=utf-8');
 
 ?>function mcms_picker_return(href)
@@ -32,7 +30,7 @@ header('Content-Type: text/javascript; charset=utf-8');
   } else {
     // Заменяем старый предпросмотр новым.
     window.opener.jQuery('#'+ mcms_picker_id +'-preview').remove();
-    window.opener.jQuery('#'+ mcms_picker_id +'-input').before("<img id='"+ mcms_picker_id +"-preview' src='<?php print l('attachment/'); ?>"+ fileid +",100,100,d' alt='preview' style='margin: 0 4px 4px 0; float: left;' />");
+    window.opener.jQuery('#'+ mcms_picker_id +'-input').before("<img id='"+ mcms_picker_id +"-preview' src='<?php print html::link('attachment/'); ?>"+ fileid +",100,100,d' alt='preview' style='margin: 0 4px 4px 0; float: left;' />");
 
     // Заменяем скрытое значение.
     window.opener.jQuery('#'+ mcms_picker_id +'-hidden').attr('value', fileid);

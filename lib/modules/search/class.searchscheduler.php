@@ -1,7 +1,10 @@
 <?php
 
-class SearchScheduler implements iScheduler
+class SearchScheduler
 {
+  /**
+   * @mcms_message ru.molinos.cms.cron
+   */
   public static function taskRun(Context $ctx)
   {
     // 1. Проиндексировать документы, отсутствующие в индексе.

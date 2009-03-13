@@ -5,9 +5,13 @@ class FormWidget extends Widget
 {
   private $options;
 
+  /**
+   * @mcms_message ru.molinos.cms.widget.enum
+   */
   public static function getWidgetInfo()
   {
     return array(
+      'class' => __CLASS__,
       'name' => 'Форма для создания документа',
       'description' => 'Выводит форму для создания документа.',
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/FormWidget',

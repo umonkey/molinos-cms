@@ -1,8 +1,11 @@
 <?php
 
-class AdminExtReqHook implements iRequestHook
+class AdminExtReqHook
 {
-  public static function hookRequest(Context $ctx = null)
+  /**
+   * @mcms_message ru.molinos.cms.hook.request.after
+   */
+  public static function hookRequest(Context $ctx)
   {
     $conf = mcms::modconf('adminext');
 

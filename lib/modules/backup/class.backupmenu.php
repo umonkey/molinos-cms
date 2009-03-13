@@ -1,17 +1,16 @@
 <?php
 
-class BackupMenu implements iAdminMenu
+class BackupMenu
 {
-  public static function getMenuIcons(Context $ctx)
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu.enum
+   */
+  public static function getMenuIcons(Context $ctx, array &$icons)
   {
-    $icons = array();
-
     $icons[] = array(
       'group' => 'system',
       'href' => '?action=form&module=backup',
       'title' => t('Архив сайта'),
       );
-
-    return $icons;
   }
 }

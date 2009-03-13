@@ -1,7 +1,10 @@
 <?php
 
-class TinyMCEConfig implements iModuleConfig
+class TinyMCEConfig
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.tinymce
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array());
@@ -65,7 +68,7 @@ class TinyMCEConfig implements iModuleConfig
     $tab->addControl(new SetControl(array(
       'value' => 'config_pages',
       'label' => t('Использовать редактор на страницах'),
-      'options' => DomainNode::getFlatSiteMap('select', true),
+      'options' => Node::getSortedList('domain'),
       )));
     $form->addControl($tab);
 

@@ -1,7 +1,10 @@
 <?php
 
-class PollRPC implements iRemoteCall
+class PollRPC
 {
+  /**
+   * @mcms_message ru.molinos.cms.rpc.poll
+   */
   public static function hookRemoteCall(Context $ctx)
   {
     switch ($ctx->get('action')) {

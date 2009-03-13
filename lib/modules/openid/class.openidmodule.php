@@ -1,7 +1,15 @@
 <?php
 
-class OpenIdModule extends RPCHandler implements iRemoteCall
+class OpenIdModule extends RPCHandler
 {
+  /**
+   * @mcms_message ru.molinos.cms.rpc.openid
+   */
+  public static function on_rpc(Context $ctx)
+  {
+    return parent::hookRemoteCall($ctx, __CLASS__);
+  }
+
   protected static function rpc_get_openid(Context $ctx)
   {
     $openidinfo = $ctx->get('openid');
@@ -206,10 +214,7 @@ class OpenIdModule extends RPCHandler implements iRemoteCall
 
   private static function getTrustRoot()
   {
-   // return l('/', null, null, true);
-   return sprintf("%s://%s:%s/",
-                   self::getScheme(), $_SERVER['SERVER_NAME'],
-                   $_SERVER['SERVER_PORT']);
+   return sprintf("%s://%s:%s/", self::getScheme(), $_SERVER['SERVER_NAME'], $_SERVER['SERVER_PORT']);
   }
 
   private static function includeOpenID()

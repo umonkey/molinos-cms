@@ -19,7 +19,7 @@ class Debugger
       . '</head>'
       . '<body><h1>Molinos CMS Profiler</h1>';
 
-    // $output .= '<p>Request: http://' . $_SERVER['HTTP_HOST'] . mcms::path() . '/' . mcms_plain($this->url()->string(true)) . '</p>';
+    // $output .= '<p>Request: http://' . $_SERVER['HTTP_HOST'] . mcms::path() . '/' . html::plain($this->url()->string(true)) . '</p>';
 
     $output .= html::em('div', array('class' => 'hidden cdata'));
 

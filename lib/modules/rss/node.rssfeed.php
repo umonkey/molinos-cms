@@ -110,12 +110,12 @@ class RssfeedNode extends Node
     $output .= '<?xml-stylesheet href="http://'. $_SERVER['HTTP_HOST'] .'/lib/modules/rss/style.css" type="text/css" media="screen"?>';
     $output .= '<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:wfw="http://wellformedweb.org/CommentAPI/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom">';
     $output .= '<channel>';
-    $output .= '<title>'. mcms_plain($this->title) .'</title>';
-    $output .= '<description>'. mcms_plain($this->description) .'</description>';
+    $output .= '<title>'. html::plain($this->title) .'</title>';
+    $output .= '<description>'. html::plain($this->description) .'</description>';
 
     if (isset($this->link)) {
       $output .= '<link>'. str_replace('HOSTNAME', $_SERVER['HTTP_HOST'], $this->link) .'</link>';
-      $output .= '<atom:link href=\'http://'. mcms_plain($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) .'\' rel=\'self\' type=\'application/rss+xml\' />';
+      $output .= '<atom:link href=\'http://'. html::plain($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) .'\' rel=\'self\' type=\'application/rss+xml\' />';
     }
 
     if (isset($this->language))
@@ -160,11 +160,11 @@ class RssfeedNode extends Node
     $output = '';
 
     if (!empty($node->name))
-      $output .= html::em('title', mcms_plain($node->name));
+      $output .= html::em('title', html::plain($node->name));
 
     if (!empty($node->uid))
       try {
-        $output .= html::em('dc:creator', mcms_plain(Node::load(array('class' => 'user', 'id' => $node->uid))->name));
+        $output .= html::em('dc:creator', html::plain(Node::load(array('class' => 'user', 'id' => $node->uid))->name));
       } catch (ObjectNotFoundException $e) {
       }
 

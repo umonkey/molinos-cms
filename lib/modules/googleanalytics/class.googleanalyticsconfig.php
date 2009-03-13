@@ -1,7 +1,10 @@
 <?php
 
-class GoogleAnalyticsConfig implements iModuleConfig
+class GoogleAnalyticsConfig
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.googleanalytics
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array(

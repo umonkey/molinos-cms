@@ -1,14 +1,17 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class NodeApiModule extends RPCHandler implements iRemoteCall
+class NodeApiModule extends RPCHandler
 {
-  public static function hookRemoteCall(Context $ctx, $className)
+  /**
+   * @mcms_message ru.molinos.cms.rpc.nodeapi
+   */
+  public static function hookRemoteCall(Context $ctx)
   {
     try {
       if ($commit = $ctx->method('post'))
         $ctx->db->beginTransaction();
-      $next = parent::hookRemoteCall($ctx, $className);
+      $next = parent::hookRemoteCall($ctx, __CLASS__);
       if ($commit)
         $ctx->db->commit();
     } catch (Exception $e) {

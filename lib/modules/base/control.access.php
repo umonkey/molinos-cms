@@ -26,10 +26,6 @@ class AccessControl extends Control
 {
   public static function getInfo()
   {
-    return array(
-      'name' => t('Таблица для работы с правами'),
-      'hidden' => true,
-      );
   }
 
   public function __construct(array $form)

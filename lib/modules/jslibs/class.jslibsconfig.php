@@ -1,7 +1,10 @@
 <?php
 
-class JSLibsConfig implements iModuleConfig
+class JSLibsConfig
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.jslibs
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array());
@@ -23,7 +26,7 @@ class JSLibsConfig implements iModuleConfig
     $result = array();
 
     foreach (self::getLibraries() as $k => $v)
-      $result[$k] = l($v['home'], $k) . ' v' . $v['version'];
+      $result[$k] = html::link($v['home'], $k) . ' v' . $v['version'];
 
     return $result;
   }

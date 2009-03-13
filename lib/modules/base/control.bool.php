@@ -17,10 +17,14 @@
  */
 class BoolControl extends Control
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => t('Флаг'),
+      'class' => __CLASS__,
       );
   }
 

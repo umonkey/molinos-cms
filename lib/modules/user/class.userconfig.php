@@ -1,7 +1,10 @@
 <?php
 
-class UserConfig implements iModuleConfig
+class UserConfig
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.user
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array());

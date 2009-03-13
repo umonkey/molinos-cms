@@ -1,7 +1,10 @@
 <?php
 
-class AdminSettings implements iModuleConfig
+class AdminSettings
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.admin
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array());

@@ -1,8 +1,11 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class CompressorSettings implements iModuleConfig
+class CompressorSettings
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.compressor
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array(

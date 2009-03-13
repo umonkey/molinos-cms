@@ -1,11 +1,15 @@
 <?php
 
-class VideoControl extends TextLineControl implements iFormControl
+class VideoControl extends TextLineControl
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => t('Видео'),
+      'class' => __CLASS__,
       );
   }
 

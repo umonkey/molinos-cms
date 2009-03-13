@@ -1,18 +1,17 @@
 <?php
 
-class AttachmentMenu implements iAdminMenu
+class AttachmentMenu
 {
-  public static function getMenuIcons(Context $ctx)
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu.enum
+   */
+  public static function getMenuIcons(Context $ctx, array &$icons)
   {
-    $icons = array();
-
     $icons[] = array(
       'group' => 'system',
       'href' => '?action=list&module=attachment',
       'title' => t('Трансформации'),
       'description' => t('Правила трансформации картинок.'),
       );
-
-    return $icons;
   }
 }

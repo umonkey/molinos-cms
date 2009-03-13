@@ -409,13 +409,13 @@ class AdminListHandler implements iAdminList
         if (!empty($row['new']))
           $row['new'] = html::em('a', array(
             'href' => '?q='. urlencode($row['new']),
-            ), mcms_plain($row['new']));
+            ), html::plain($row['new']));
 
         if (!empty($row['ref'])) {
           $url = new url($row['ref']);
           if (0 === strpos($name = $url->host, 'www.'))
             $name = substr($name, 4);
-          $row['ref'] = l($row['ref'], $name);
+          $row['ref'] = html::link($row['ref'], $name);
         }
 
         $data[] = $row;

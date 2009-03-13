@@ -1,7 +1,10 @@
 <?php
 
-class SearchConfig implements iModuleConfig
+class SearchConfig
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.search
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array());
@@ -64,7 +67,7 @@ class SearchConfig implements iModuleConfig
       'value' => 'config_mg_results',
       'label' => t('Страница для результатов'),
       'required' => true,
-      'options' => DomainNode::getFlatSiteMap('select'),
+      'options' => Node::getSortedList('domain'),
       'description' => t('Используется только в режиме индексирования базы данных.  На эту страницу будут вести ссылки, отображаемые в результатах поиска.  При индексировании в режиме обхода сайта этот параметр не используется.'),
       )));
     $form->addControl($tab);

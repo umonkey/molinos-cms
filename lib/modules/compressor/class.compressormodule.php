@@ -1,13 +1,16 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class CompressorModule implements iRemoteCall
+class CompressorModule
 {
   private static function path()
   {
     return mcms::mkdir(mcms::config('tmpdir') .'/compressor');
   }
 
+  /**
+   * @mcms_message ru.molinos.cms.rpc.compressor
+   */
   public static function hookRemoteCall(Context $ctx)
   {
     $type = $ctx->get('type');

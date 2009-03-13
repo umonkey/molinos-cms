@@ -51,7 +51,7 @@ class mcms
         $v = array(
           'id' => null,
           'filepath' => $v,
-          'filetype' => bebop_get_file_type($v),
+          'filetype' => os::getFileType($v),
           );
       }
 
@@ -189,32 +189,6 @@ class mcms
   {
     if (null !== ($cache = BebopCache::getInstance()))
       $cache->flush($flags & self::FLUSH_NOW ? true : false);
-  }
-
-  public static function invoke($interface, $method, array $args = array())
-  {
-    $res = array();
-
-    foreach (Loader::getImplementors($interface) as $class)
-      if (class_exists($class))
-        $res[] = call_user_func_array(array($class, $method), $args);
-
-    return $res;
-  }
-
-  public static function invoke_module($module, $interface, $method, array &$args = array())
-  {
-    $res = false;
-
-    foreach (Loader::getImplementors($interface, $module) as $class) {
-      if (class_exists($class) and method_exists($class, $method)) {
-        $args[] = $class;
-        $res = call_user_func_array(array($class, $method), $args);
-        array_pop($args);
-      }
-    }
-
-    return $res;
   }
 
   // Отладочные функции.
@@ -423,6 +397,7 @@ class mcms
 
     $libdir = 'lib'. DIRECTORY_SEPARATOR .'modules'. DIRECTORY_SEPARATOR;
 
+    $idx = 1;
     foreach ($stack as $k => $v) {
       /*
       if (!empty($v['file']))
@@ -434,7 +409,10 @@ class mcms
         $func = $v['function'];
       */
 
-      $output .= sprintf("%2d. ", $k + 1);
+      if (empty($v['file']))
+        continue;
+
+      $output .= sprintf("%2d. ", $idx++);
       $output .= mcms::formatStackElement($v);
 
       /*
@@ -495,7 +473,10 @@ class mcms
       if (null !== ($re = mcms::config('backtracerecipient'))) {
         $release = substr(mcms::version(), 0, -(strrpos(mcms::version(), '.') + 1));
 
-        $message = template::renderClass(__CLASS__, array(
+        $message = 'oops.';
+
+        /*
+        $message = templateX::XrenderClass(__CLASS__, array(
           'mode' => 'fatal',
           'url' => "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}",
           'host' => $_SERVER['HTTP_HOST'],
@@ -505,6 +486,7 @@ class mcms
           'text' => $e['message'],
           'version' => mcms::version(),
           ));
+        */
 
         $subject = t('Фатальная ошибка на %host', array('%host' => $_SERVER['HTTP_HOST']));
 
@@ -760,16 +742,12 @@ class mcms
     return html::em('block', $sig);
   }
 
-  public static function run(Context $ctx = null)
+  /**
+   * @mcms_message ru.molinos.cms.start
+   */
+  public static function run(Context $ctx)
   {
     try {
-      if (null === $ctx)
-        $ctx = new Context(array(
-          'url' => defined('MCMS_REQUEST_URI')
-            ? MCMS_REQUEST_URI
-            : '?' . $_SERVER['QUERY_STRING'],
-          ));
-
       $ctx->checkEnvironment();
 
       if (!$ctx->config->isok() and 'install.rpc' != $ctx->query() and class_exists('InstallModule'))

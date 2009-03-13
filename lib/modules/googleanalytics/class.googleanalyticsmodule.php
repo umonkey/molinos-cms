@@ -1,9 +1,12 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class GoogleAnalyticsModule implements iRequestHook
+class GoogleAnalyticsModule
 {
-  public static function hookRequest(Context $ctx = null)
+  /**
+   * @mcms_message ru.molinos.cms.hook.request.after
+   */
+  public static function hookRequest(Context $ctx)
   {
     $conf = mcms::modconf('googleanalytics', 'config');
     if (!empty($conf['account'])) {

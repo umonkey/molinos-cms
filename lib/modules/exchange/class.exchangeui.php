@@ -1,7 +1,10 @@
 <?php
 
-class ExchangeUI implements iAdminUI
+class ExchangeUI
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.ui.exchange
+   */
   public static function onGet(Context $ctx)
   {
     $form = self::getFormFields($mode = $ctx->get('mode'))->getForm();

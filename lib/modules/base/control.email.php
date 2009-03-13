@@ -17,10 +17,14 @@
  */
 class EmailControl extends Control
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => 'Адрес электронной почты',
+      'class' => __CLASS__,
       );
   }
 

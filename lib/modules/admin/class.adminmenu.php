@@ -1,8 +1,10 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class AdminMenu implements iAdminMenu
+class AdminMenu
 {
+  const msgEnum = 'ru.molinos.cms.admin.menu.enum';
+
   private function getCurrentGroup()
   {
     if (!empty($_GET['cgroup']))
@@ -104,14 +106,12 @@ class AdminMenu implements iAdminMenu
 
   private function getIcons(Context $ctx)
   {
-    $result = array();
+    $icons = $result = array();
+    $ctx->registry->broadcast(self::msgEnum, array($ctx, &$icons));
 
-    foreach ($i = mcms::invoke('iAdminMenu', 'getMenuIcons', array($ctx)) as $tmp) {
-      if (is_array($tmp))
-        foreach ($tmp as $icon)
-          if (array_key_exists('group', $icon))
-            $result[$icon['group']][] = $icon;
-    }
+    foreach ($icons as $icon)
+      if (array_key_exists('group', $icon))
+        $result[$icon['group']][] = $icon;
 
     ksort($result);
 
@@ -120,10 +120,10 @@ class AdminMenu implements iAdminMenu
 
   /**
    * Базовая навигация по CMS.
+   * @mcms_message ru.molinos.cms.admin.menu.enum
    */
-  public static function getMenuIcons(Context $ctx)
+  public static function getMenuIcons(Context $ctx, array &$icons)
   {
-    $icons = array();
     $user = $ctx->user;
 
     if ($user->hasAccess('u', 'tag'))
@@ -209,8 +209,6 @@ class AdminMenu implements iAdminMenu
         'title' => t('404'),
         'href' => '?action=list&preset=404',
         );
-
-    return $icons;
   }
 
   public function __toString()

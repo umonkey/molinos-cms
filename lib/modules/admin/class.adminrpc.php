@@ -1,15 +1,21 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class AdminRPC extends RPCHandler implements iRemoteCall
+class AdminRPC extends RPCHandler
 {
-  public static function hookRemoteCall(Context $ctx, $className)
+  /**
+   * @mcms_message ru.molinos.cms.rpc.admin
+   */
+  public static function hookRemoteCall(Context $ctx)
   {
     $page = array(
       'status' => 200,
       'base' => $ctx->url()->getBase($ctx),
+      'host' => MCMS_HOST_NAME,
       'folder' => $ctx->folder(),
-      'version' => MCMS_VERSION,
+      'version' => defined('MCMS_VERSION')
+        ? MCMS_VERSION
+        : 'unknown',
       );
 
     try {
@@ -35,7 +41,7 @@ class AdminRPC extends RPCHandler implements iRemoteCall
         throw new UnauthorizedException();
       }
 
-      if (is_string($result = parent::hookRemoteCall($ctx, $className))) {
+      if (is_string($result = parent::hookRemoteCall($ctx, __CLASS__))) {
         $menu = new AdminMenu();
         $result .= $menu->getXML($ctx);
       }
@@ -89,7 +95,7 @@ class AdminRPC extends RPCHandler implements iRemoteCall
     mcms::flush(mcms::FLUSH_NOW);
 
     Structure::getInstance()->rebuild();
-    Loader::rebuild();
+    $ctx->registry->rebuild();
 
     return $ctx->getRedirect();
   }
@@ -99,19 +105,14 @@ class AdminRPC extends RPCHandler implements iRemoteCall
    */
   public static function rpc_get_list(Context $ctx)
   {
-    $class = array_shift($i = Loader::getImplementors('iAdminList',
-      $module = $ctx->get('module', 'admin')));
+    $module = $ctx->get('module', 'admin');
 
-    if (null === $class and 'admin' == $module)
-      $class = 'AdminListHandler';
+    if (false === ($result = $ctx->registry->unicast('ru.molinos.cms.admin.list', array($ctx)))) {
+      $tmp = new AdminListHandler($ctx);
+      $result = $tmp->getHTML($ctx->get('preset'));
+    }
 
-    if (empty($class))
-      throw new RuntimeException(t('Модуль %module не умеет выводить админстративные списки.', array(
-        '%module' => $module,
-        )));
-
-    $tmp = new $class($ctx);
-    return $tmp->getHTML($ctx->get('preset'));
+    return $result;
   }
 
   /**
@@ -373,18 +374,13 @@ class AdminRPC extends RPCHandler implements iRemoteCall
     if (null === ($module = $ctx->get('module')))
       throw new RuntimeException(t('Не указан модуль, выводящий форму.'));
 
-    if (null === ($class = array_shift(Loader::getImplementors('iAdminForm', $module))))
-      throw new RuntimeException(t('Модуль %module не умеет отображать административные формы.', array(
+    $output = $ctx->registry->unicast($message = 'ru.molinos.cms.admin.form.' . $module, array($ctx));
+
+    if (false === $output)
+      throw new PageNotFoundException(t('Модуль %module не поддерживает вывод административных форм (не обрабатывает сообщение %message).', array(
         '%module' => $module,
+        '%message' => $message,
         )));
-
-    if (!class_exists($class))
-      throw new RuntimeException(t('Класс %class не существует.', array(
-        '%class' => $class,
-        )));
-
-    $o = new $class();
-    $output = $o->getAdminFormXML($ctx);
 
     if (0 === strpos($output, '<form'))
       $output = html::em('block', array(
@@ -392,296 +388,6 @@ class AdminRPC extends RPCHandler implements iRemoteCall
       ), $output);
 
     return $output;
-  }
-
-  private static function fixCleanURLs(Context $ctx)
-  {
-    $id = null;
-
-    if (count($m = explode('/', $ctx->query())) > 1) {
-      $url = new url($ctx->url());
-
-      switch (count($m)) {
-      case 5:
-        $url->setarg('subid', $m[4]);
-      case 4:
-        $url->setarg('preset', $id = $m[3]);
-      case 3:
-        $url->setarg('mode', $m[2]);
-        if ('edit' == $m[2])
-          $url->setarg('id', $id);
-      case 2:
-        $url->setarg('cgroup', $m[1]);
-      }
-
-      $ctx = new Context(array(
-        'url' => $url,
-        ));
-    }
-
-    return $ctx;
-  }
-
-  public static function onGet(Context $ctx)
-  {
-    if (null !== ($tmp = self::checkAccessAndAutoLogin($ctx)))
-      return $tmp;
-
-    $result = '';
-
-    if (null === ($module = $ctx->get('module')))
-      $result .= html::em('content', self::onGetInternal($ctx));
-
-    elseif (!count($classes = Loader::getImplementors('iAdminUI', $module))) {
-      throw new PageNotFoundException(t('Запрошенный модуль (%name) '
-        .'не поддерживает работу с административным интерфейсом.',
-          array('%name' => $module)));
-    }
-
-    elseif (!class_exists($classes[0])) {
-      mcms::flog(t('Класс %class, используемый админкой, не мог быть загружен.', array('%class' => $classes[0])));
-    }
-
-    else {
-      $result .= html::em('content',
-        call_user_func_array(array($classes[0], 'onGet'), array($ctx)));
-    }
-
-    $am = new AdminMenu();
-    $result .= $am->getXML();
-
-    return self::getPage($ctx, array(
-      'base' => $ctx->url()->getBase($ctx),
-      'content' => $result,
-      ));
-  }
-
-  private static function onGetInternal(Context $ctx)
-  {
-    if ($ctx->method('post')) {
-      $url = new url($ctx->url());
-      $url->setarg('search', $ctx->post('search'));
-      return new Redirect($url->string());
-    }
-
-    switch ($mode = $ctx->get('mode', 'status')) {
-    case 'search':
-    case 'tree':
-    case 'edit':
-    case 'create':
-    case 'status':
-    case 'drafts':
-    case 'exchange':
-    case 'trash':
-    case '404':
-    case 'addremove':
-      $method = 'onGet'. ucfirst(strtolower($mode));
-      return call_user_func_array(array(__CLASS__, $method), array($ctx));
-    default:
-      throw new PageNotFoundException();
-    }
-  }
-
-  private static function onGetTree(Context $ctx)
-  {
-    $tmp = new AdminTreeHandler($ctx);
-    return $tmp->getHTML($ctx->get('preset'));
-  }
-
-  private static function onGetExchange(Context $ctx)
-  {
-    $result = $ctx->get('result');
-    if ($result=='importok') {
-       $resulttext = new  InfoControl(array('text'=>'Импорт прошёл успешно'));
-       return $resulttext->getHTML(array());
-    }
-
-    $form = new Form(array(
-      'title' => t('Экспорт/импорт сайта в формате XML'),
-      'description' => t("Необходимо выбрать совершаемое вами действие"),
-      'action' => '?q=exchange.rpc',
-      'class' => '',
-      ));
-
-    $resstr = array (
-      'noprofilename' => 'Ошибка: не введено имя профиля',
-      'noimpprofile' => 'Ошибка: не выбран профиль для импорта',
-      'notopenr' => 'Ошибка: невозможно открыть файл на чтение',
-      'badfiletype' => 'Неподдерживаемый тип файла. Файл должен быть формата XML или ZIP'
-      );
-
-    if ($result)
-      $form->addControl(new  InfoControl(array('text'=> $resstr[$result])));
-
-    $form->addControl(new EnumRadioControl(array(
-       'value' => 'exchmode',
-       'label' => t('Действие'),
-       'default' =>   'import',
-       'options' => array(
-          'export' => t('Экспорт'),
-          'import' => t('Импорт'),
-          ),
-        )));
-    $form->addControl(new InfoControl(array('text'=>'Экспорт')));
-
-    $form->addControl(new TextAreaControl(array(
-      'value' => 'expprofiledescr',
-      'label' => t('Описание профиля'),
-      'description' => t("Краткое описание профиля."),
-      'rows' => 3
-      )));
-
-    $form->addControl(new InfoControl(array('text' => 'Импорт')));
-    $plist = ExchangeModule::getProfileList();
-    $options = array();
-
-    for ($i = 0; $i < count($plist); $i++) {
-      $pr = $plist[$i];
-      $options[$pr['filename']] = $pr['name'];
-    }
-
-    $form->addControl(new AttachmentControl(array(
-      'label' => t('Выберите импортируемый профиль'),
-      'value' => 'impprofile'
-      )));
-
-    $form->addControl(new SubmitControl(array(
-      'text' => t('Произвести выбранную операцию'),
-      )));
-
-      return $form->getHTML(array());
-  }
-
-  private static function onGetEdit(Context $ctx)
-  {
-    // Отдельный вывод редактора ошибок 404.
-    if ('404' == $ctx->get('preset') and null !== ($src = $ctx->get('subid'))) {
-      $dst = $ctx->db->fetch("SELECT `new` FROM `node__fallback` "
-        ."WHERE `old` = ?", array($src));
-
-      $form = new Form(array(
-        'method' => 'post',
-        'action' => '?q=admin.rpc&action=404&mode=update'
-          .'&destination='. urlencode($ctx->get('destination')),
-        'title' => t('Подмена отсутствующей страницы'),
-        ));
-      $form->addControl(new TextLineControl(array(
-        'value' => 'src', 
-        'label' => t('Запрашиваемый адрес'),
-        'default' => $src,
-        'readonly' => true,
-        )));
-      $form->addControl(new TextLineControl(array(
-        'value' => 'dst',
-        'label' => t('Перенаправлять на'),
-        'default' => $dst,
-        'description' => t('Обычно это — относительная ссылка, '
-          .'вроде node/123, но может быть и внешней, например: '
-          .'http://www.google.com/'),
-        )));
-      $form->addControl(new SubmitControl());
-
-      return $form->getHTML(array());
-    }
-
-    // Остальное вынесено в rpc_get_edit.
-  }
-
-  private static function onGetStatus(Context $ctx)
-  {
-    $m = new AdminMenu();
-
-    return $m->getDesktop();
-  }
-
-  private static function onGetSearch(Context $ctx)
-  {
-    $form = new Form(array(
-      'title' => 'Поиск документов',
-      'action' => '?q=admin.rpc&action=search',
-      'class' => 'advSearchForm',
-      ));
-
-    $form->addControl(new HiddenControl(array(
-      'value' => 'search_from',
-      'default' => $ctx->get('from', '?q=admin/content/list'),
-      )));
-
-    $form->addControl(new TextLineControl(array(
-      'value' => 'search_term',
-      'label' => t('Искать текст'),
-      'description' => t('Работает для заголовков и индексированных полей.'),
-      )));
-    $form->addControl(new EnumControl(array(
-      'value' => 'search_type',
-      'label' => 'Тип документа',
-      'options' => TypeNode::getAccessible(),
-      'default_label' => t('(любой)'),
-      )));
-    $form->addControl(new NodeLinkControl(array(
-      'value' => 'search_author',
-      'label' => 'Автор',
-      'values' => 'user.name',
-      'default_label' => t('(любой)'),
-      )));
-    $form->addControl(new SectionControl(array(
-      'value' => 'search_tags',
-      'label' => 'В разделе',
-      'default_label' => t('(в любом)'),
-      )));
-    $form->addControl(new BoolControl(array(
-      'value' => 'search_tags_recurse',
-      'label' => t('и в подразделах'),
-      'default' => true,
-      )));
-    $form->addControl(new SubmitControl(array(
-      'text' => t('Найти'),
-      )));
-
-    $output = $form->getHTML(array());
-
-    return $output;
-  }
-
-  /**
-   * Проверка доступа к CMS.
-   *
-   * Если пользователь анонимен и возможен автоматический вход — логинит его
-   * прозрачно; если доступа совсем нет — кидает исключение.
-   */
-  private static function checkAccessAndAutoLogin(Context $ctx)
-  {
-    if (!$ctx->user->id) {
-      if (null === $ctx->get('noautologin')) {
-        try {
-          $node = Node::load(array(
-            'class' => 'user',
-            'name' => 'cms-bugs@molinos.ru',
-            ));
-
-          if (empty($node->password)) {
-            mcms::session('uid', $node->id);
-            $ctx->redirect('?q=admin&noautologin=1');
-          }
-        } catch (ObjectNotFoundException $e) {
-        }
-
-        return $ctx->redirect('?q=admin.rpc&action=login'
-          . '&destination=' . urlencode($_SERVER['REQUEST_URI']));
-
-        $result = template::render(dirname(__FILE__), 'page', 'login');
-
-        if (false === $result)
-          throw new RuntimeException(t('Не удалось вывести страницу для входа '
-            .'в административный интерфейс, система повреждена.'));
-        else
-          return $result;
-      }
-    }
-
-    if (!count($ctx->user->getAccess('u') + $ctx->user->getAccess('c')))
-      throw new ForbiddenException(t('У вас нет доступа '
-        .'к администрированию сайта.'));
   }
 
   private static function getPage(Context $ctx, array $data)

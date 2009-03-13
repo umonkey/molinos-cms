@@ -1,11 +1,15 @@
 <?php
 
-class ListControl extends TextLineControl implements iFormControl
+class ListControl extends TextLineControl
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => t('Список значений (через запятую)'),
+      'class' => __CLASS__,
       );
   }
 

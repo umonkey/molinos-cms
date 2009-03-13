@@ -1,10 +1,13 @@
 <?php
 
-class RatingRPC implements iRemoteCall
+class RatingRPC
 {
-  public static function hookRemoteCall(Context $ctx)
+  /**
+   * @mcms_message ru.molinos.cms.rpc.rating
+   */
+  public static function on_rpc(Context $ctx)
   {
-    return mcms::dispatch_rpc(__CLASS__, $ctx);
+    return parent::hookRemoteCall($ctx, __CLASS__);
   }
 
   /**

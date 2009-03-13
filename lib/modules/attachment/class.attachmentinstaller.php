@@ -1,11 +1,11 @@
 <?php
 
-class AttachmentInstaller implements iInstaller
+class AttachmentInstaller
 {
   /**
-   * Инсталляция.
-   *
    * Добавляет тип документа imgtransform.
+   *
+   * @mcms_message ru.molinos.cms.install
    */
   public static function onInstall(Context $ctx)
   {
@@ -15,16 +15,12 @@ class AttachmentInstaller implements iInstaller
         'name' => 'imgtransform',
         ));
     } catch (ObjectNotFoundException $e) {
+      $ctx->db->beginTransaction();
       $node = Node::create('type', array(
         'name' => 'imgtransform',
         'title' => t('Правила трансформации'),
-        ));
-      $node->save();
+        ))->save();
+      $ctx->db->commit();
     }
-  }
-
-  public static function onUninstall(Context $ctx)
-  {
-    mcms::debug();
   }
 }

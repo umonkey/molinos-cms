@@ -1,7 +1,15 @@
 <?php
 
-class SubscriptionRPC extends RPCHandler implements iRemoteCall
+class SubscriptionRPC extends RPCHandler
 {
+  /**
+   * @mcms_message ru.molinos.cms.rpc.subscription
+   */
+  public static function on_rpc(Context $ctx)
+  {
+    return parent::hookRemoteCall($ctx, __CLASS__);
+  }
+
   public static function rpc_post_subscribe(Context $ctx)
   {
     $data = $ctx->post;

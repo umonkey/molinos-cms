@@ -1,7 +1,15 @@
 <?php
 
-class AttachmentRPC extends RPCHandler implements iRemoteCall
+class AttachmentRPC extends RPCHandler
 {
+  /**
+   * @mcms_message ru.molinos.cms.rpc.attachment
+   */
+  public static function on_rpc(Context $ctx)
+  {
+    return parent::hookRemoteCall($ctx, __CLASS__);
+  }
+
   public static function rpc_get_default(Context $ctx)
   {
     if (null === ($fid = $ctx->get('fid')))

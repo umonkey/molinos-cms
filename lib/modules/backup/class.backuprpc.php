@@ -1,7 +1,15 @@
 <?php
 
-class BackupRPC extends RPCHandler implements iRemoteCall
+class BackupRPC extends RPCHandler
 {
+  /**
+   * @mcms_message ru.molinos.cms.rpc.backup
+   */
+  public static function on_rpc(Context $ctx)
+  {
+    parent::hookRemoteCall($ctx, __CLASS__);
+  }
+
   public static function rpc_post_backup(Context $ctx)
   {
     return new Redirect('?q=backup.rpc&action=download');

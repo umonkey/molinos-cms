@@ -1,7 +1,10 @@
 <?php
 
-class SyslogInstaller implements iInstaller
+class SyslogInstaller
 {
+  /**
+   * @mcms_message ru.molinos.cms.install
+   */
   public static function onInstall(Context $ctx)
   {
     $t = new TableInfo($ctx->db, 'node__log');
@@ -39,6 +42,9 @@ class SyslogInstaller implements iInstaller
     $t->commit();
   }
 
+  /**
+   * @mcms_message ru.molinos.cms.uninstall
+   */
   public static function onUninstall(Context $ctx)
   {
     $t = new TableInfo($ctx->db, 'node__log');

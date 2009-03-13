@@ -1,6 +1,6 @@
 <?php
 
-class ImageEdit implements iRemoteCall
+class ImageEdit
 {
   private $folder;
   private $filename;
@@ -9,6 +9,9 @@ class ImageEdit implements iRemoteCall
   private $nw;
   private $nh;
 
+  /**
+   * @mcms_message ru.molinos.cms.rpc.imgtooklit
+   */
   public static function hookRemoteCall(Context $ctx)
   {
     $img = new ImageEdit($ctx);

@@ -3,9 +3,13 @@
 
 class BlogWidget extends Widget
 {
+  /**
+   * @mcms_message ru.molinos.cms.widget.enum
+   */
   public static function getWidgetInfo()
   {
     return array(
+      'class' => __CLASS__,
       'name' => 'Блоги',
       'description' => 'Используется для отображения сводной ленты блогов и отдельных лент пользователей.',
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/BlogWidget',

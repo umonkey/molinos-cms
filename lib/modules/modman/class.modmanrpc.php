@@ -1,12 +1,20 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class ModManRPC extends RPCHandler implements iRemoteCall
+class ModManRPC extends RPCHandler
 {
+  /**
+   * @mcms_message ru.molinos.cms.rpc.modman
+   */
+  public static function on_rpc(Context $ctx)
+  {
+    return parent::hookRemoteCall($ctx, __CLASS__);
+  }
+
   public static function rpc_update(Context $ctx)
   {
     modman::updateDB();
-    Loader::rebuild();
+    self::rpc_rebuild($ctx);
 
     $next = new url($ctx->get('destination'));
     $next->setarg('status', null);
@@ -40,7 +48,8 @@ class ModManRPC extends RPCHandler implements iRemoteCall
 
   public static function rpc_rebuild(Context $ctx)
   {
-    Loader::rebuild();
+    $ctx->registry->rebuild();
+    $ctx->registry->broadcast('ru.molinos.cms.install', array($ctx));
   }
 
   public static function rpc_post_configure(Context $ctx)
@@ -102,8 +111,6 @@ class ModManRPC extends RPCHandler implements iRemoteCall
       if ('required' != $info['priority'] and !in_array($name, $enabled)) {
         // Отказываемся удалять локальные модули, которые нельзя вернуть.
         if (!empty($info['url'])) {
-          $args = array($ctx);
-          mcms::invoke_module($name, 'iInstaller', 'onUninstall', $args);
           if (modman::uninstall($name))
             $status[$name] = 'removed';
         }
@@ -123,7 +130,7 @@ class ModManRPC extends RPCHandler implements iRemoteCall
     $next = new url($ctx->get('destination', '?q=admin'));
     $next->setarg('status', $status);
 
-    Loader::rebuild();
+    self::rpc_rebuild($ctx);
     Structure::getInstance()->rebuild();
 
     mcms::flush();
@@ -156,8 +163,6 @@ class ModManRPC extends RPCHandler implements iRemoteCall
   {
     $f = zip_open($zipname);
 
-    $bootstrap = null;
-
     while ($entry = zip_read($f)) {
       $path = zip_entry_name($entry);
 
@@ -173,9 +178,7 @@ class ModManRPC extends RPCHandler implements iRemoteCall
         if (file_exists($path))
           rename($path, $path .'.old');
 
-        // Этот файл переписываем в самом конце.
-        if (basename($new = $path) == 'bootstrap.php')
-          $bootstrap = $new = $path .'.new';
+        $new = $path;
 
         // Создаём новый.
         if (false === ($out = fopen($new, "wb"))) {
@@ -204,11 +207,5 @@ class ModManRPC extends RPCHandler implements iRemoteCall
     }
 
     zip_close($f);
-
-    // Архив успешно распакован, можно обновить загрузчик.
-    if (null !== $bootstrap)
-      rename($bootstrap, substr($bootstrap, 0, -4));
-    else
-      throw new RuntimeException(t('Не удалось распаковать загрузчик.'));
   }
 }

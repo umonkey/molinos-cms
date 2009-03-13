@@ -31,10 +31,14 @@ class NodeLinkControl extends Control
 {
   const limit = 50;
 
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => t('Выбор из справочника'),
+      'class' => __CLASS__,
       );
   }
 

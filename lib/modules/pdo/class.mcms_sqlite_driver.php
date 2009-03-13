@@ -134,11 +134,13 @@ class mcms_sqlite_driver extends PDO_Singleton
     $rows = $this->getResults($sql);
 
     foreach ($rows as $k => $el) {
-      $str = $el['sql'];
-      $col = preg_match("/\((.+)\)/", $str, $matches);
-      $col = $matches[1];
-      $col = str_replace('`', '', $col);
-      $indexes[$col] = 1;
+      if (null !== ($str = $el['sql'])) {
+        if ($col = preg_match("/\((.+)\)/", $str, $matches)) {
+          $col = $matches[1];
+          $col = str_replace('`', '', $col);
+          $indexes[$col] = 1;
+        }
+      }
     }
 
     // получим саму таблицу
@@ -305,7 +307,7 @@ class mcms_sqlite_driver extends PDO_Singleton
       $sql .= ' NULL';
 
     if (null !== $spec['default'])
-      $sql .= ' DEFAULT \''. sqlite_escape_string($spec['default']).'\'';
+      $sql .= ' DEFAULT \''. /*FIXME sqlite_escape_string*/($spec['default']).'\'';
 
     if ('pri' == $spec['key']) {
       if (!$modify)

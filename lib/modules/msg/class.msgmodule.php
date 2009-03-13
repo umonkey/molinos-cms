@@ -1,8 +1,16 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class MsgModule extends RPCHandler implements iRemoteCall
+class MsgModule extends RPCHandler
 {
+  /**
+   * @mcms_message ru.molinos.cms.rpc.msg
+   */
+  public static function on_rpc(Context $ctx)
+  {
+    return parent::hookRemoteCall($ctx, __CLASS__);
+  }
+
   public static function send($from, $to, $subject, $text)
   {
     $msg = Node::create('message', array(

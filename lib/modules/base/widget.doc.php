@@ -30,10 +30,12 @@ class DocWidget extends Widget implements iWidget
    * Возвращает информацию о виджете.
    *
    * @return array описание виджета, ключи: name, description.
+   * @mcms_message ru.molinos.cms.widget.enum
    */
   public static function getWidgetInfo()
   {
     return array(
+      'class' => __CLASS__,
       'name' => 'Отдельный документ',
       'description' => 'Выводит запрошенный пользователем документ.',
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/DocWidget',
@@ -88,7 +90,7 @@ class DocWidget extends Widget implements iWidget
   {
     if (is_array($options = parent::getRequestOptions($ctx))) {
       if (!($options['docid'] = $this->fixed))
-        if (!($options['docid'] = $ctx->document->id))
+        if (!($options['docud'] = $ctx->document->id))
           return '<!-- no document id found -->';
 
       if (null === ($options['action'] = $this->get('action', $this->mode)))

@@ -25,10 +25,12 @@ class TagCloudWidget extends Widget implements iWidget
    * Возвращает описание виджета.
    *
    * @return array описание виджета, ключи: name, description.
+   * @mcms_message ru.molinos.cms.widget.enum
    */
   public static function getWidgetInfo()
   {
     return array(
+      'class' => __CLASS__,
       'name' => 'Облако тэгов',
       'description' => 'Выводит список тэгов, содержащих доступные пользователю документы.',
       );

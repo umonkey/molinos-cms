@@ -1,7 +1,10 @@
 <?php
 
-class BaseInstaller implements iInstaller
+class BaseInstaller
 {
+  /**
+   * @mcms_message ru.molinos.cms.install
+   */
   public static function onInstall(Context $ctx)
   {
     $t = new TableInfo($ctx->db, 'node');
@@ -32,7 +35,7 @@ class BaseInstaller implements iInstaller
       ));
     $t->columnSet('right', array(
       'type' => 'int',
-      'required' => true,
+      'required' => false,
       'key' => 'mul',
       ));
     $t->columnSet('uid', array(
@@ -64,7 +67,7 @@ class BaseInstaller implements iInstaller
       ));
     $t->columnSet('name', array(
       'type' => 'varchar(255)',
-      'required' => true,
+      'required' => false,
       'key' => 'mul',
       ));
     $t->columnSet('data', array(
@@ -166,9 +169,5 @@ class BaseInstaller implements iInstaller
       'type' => 'varchar(255)',
       ));
     $t->commit();
-  }
-
-  public function onUninstall(Context $ctx)
-  {
   }
 }

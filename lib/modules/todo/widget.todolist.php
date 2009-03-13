@@ -28,9 +28,13 @@ class TodoListWidget extends Widget
 {
   private $options;
 
+  /**
+   * @mcms_message ru.molinos.cms.widget.enum
+   */
   public static function getWidgetInfo()
   {
     return array(
+      'class' => __CLASS__,
       'name' => 'Список задач',
       'description' => 'Выводит общий список задач или задачи по конкретному объекту.',
       );

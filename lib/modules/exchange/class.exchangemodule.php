@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class ExchangeModule implements iRemoteCall
+class ExchangeModule
 {
   // Добавляет в zip-архив указанный каталог
   function addToZip($fld, $zip, $from)
@@ -22,52 +22,12 @@ class ExchangeModule implements iRemoteCall
     closedir($hdl);
   }
 
-  public static function hookRemoteCall(Context $ctx)
+  /**
+   * @mcms_message ru.molinos.cms.rpc.exchange
+   */
+  public static function on_rpc(Context $ctx)
   {
-    return mcms::dispatch_rpc(__CLASS__, $ctx);
-
-    if (!class_exists('ZipArchive'))
-      throw new RuntimeException(t('Функции резервного копирования используют расширение zip, которое отсутствует.'));
-
-    $exchmode = $ctx->post('exchmode');
-    $result = '';
-    $themes = array();
-
-    if ($exchmode == 'export') { // Экспорт профиля
-    }
-    else if ($exchmode == 'import') { // Импорт профиля
-      $fn = basename($_FILES['impprofile']['name']);
-
-      $newfn = mcms::config('tmpdir') .'/import/'. $fn;
-
-      mcms::mkdir(dirname($newfn), t('Не удалось создать временный каталог для импорта данных.'));
-
-      move_uploaded_file($_FILES['impprofile']['tmp_name'], $newfn);
-
-      $filetype = substr($fn, -4);
-
-      if ($filetype == '.xml') { // Это не архив, а xml
-        $xmlstr = file_get_contents($newfn);
-      }
-      else if ($filetype == '.zip') { //Это zip-архив
-        $zip = new ZipArchive;
-        $zip->open($newfn);
-        $xmlstr = $zip->getFromName("siteprofile.xml");
-      }
-      else { // неизвестный тип файла
-        return new Redirect('?q=admin&mode=exchange&preset=export&result=badfiletype');
-      }
-
-      if ($filetype == '.zip') {
-        $zip->extractTo(MCMS_ROOT);
-        $zip->close();
-      }
-
-      self::import($xmlstr);
-      unlink($newfn);
-
-      return new Redirect('?q=admin&mode=exchange&preset=export&result=importok');
-    }
+    return parent::hookRemoteCall($ctx, __CLASS__);
   }
 
   public static function rpc_redirect(Context $ctx)
@@ -226,10 +186,11 @@ class ExchangeModule implements iRemoteCall
     return $plist;
   }
 
-  public static function getMenuIcons(Context $ctx)
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu.enum
+   */
+  public static function getMenuIcons(Context $ctx, array &$icons)
   {
-    $icons = array();
-
     if (class_exists('ZipArchive') and $ctx->user->hasAccess('d', 'type'))
       $icons[] = array(
         'group' => 'system',
@@ -237,8 +198,6 @@ class ExchangeModule implements iRemoteCall
         'title' => t('Бэкапы'),
         'description' => t('Бэкап и восстановление данных в формате XML.'),
         );
-
-    return $icons;
   }
 
   private static function getResult($mode)

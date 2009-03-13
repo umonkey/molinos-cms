@@ -15,12 +15,16 @@
  * @package mod_base
  * @subpackage Controls
  */
-class FloatControl extends NumberControl implements iFormControl
+class FloatControl extends NumberControl
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => t('Число (дробное)'),
+      'class' => __CLASS__,
       );
   }
 };

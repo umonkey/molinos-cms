@@ -24,10 +24,12 @@ class LinkedNodesWidget extends Widget
    * Возвращает описание виджета.
    *
    * @return array описание виджета, ключи: name, description.
+   * @mcms_message ru.molinos.cms.widget.enum
    */
   public static function getWidgetInfo()
   {
     return array(
+      'class' => __CLASS__,
       'name' => 'Связанные документы',
       'description' => 'Выводит список документов, привязанных к текущему.',
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/LinkedNodesWidget',

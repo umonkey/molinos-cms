@@ -60,7 +60,7 @@
         <xsl:value-of select="/page/@version" />
         <xsl:text> at </xsl:text>
         <a href="{@base}">
-          <xsl:value-of select="@base" />
+          <xsl:value-of select="@host" />
         </a>
       </div>
     </div>

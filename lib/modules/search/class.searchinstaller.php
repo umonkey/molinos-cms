@@ -1,7 +1,10 @@
 <?php
 
-class SearchInstaller implements iInstaller
+class SearchInstaller
 {
+  /**
+   * @mcms_message ru.molinos.cms.install
+   */
   public static function onInstall(Context $ctx)
   {
     $t = new TableInfo($ctx->db, 'node__searchindex');
@@ -20,6 +23,9 @@ class SearchInstaller implements iInstaller
     $t->commit();
   }
 
+  /**
+   * @mcms_message ru.molinos.cms.uninstall
+   */
   public static function onUninstall(Context $ctx)
   {
     $t = new TableInfo($ctx->db, 'node__searchindex');

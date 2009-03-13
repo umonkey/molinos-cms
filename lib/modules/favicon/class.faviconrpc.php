@@ -1,7 +1,15 @@
 <?php
 
-class FaviconRPC extends RPCHandler implements iRemoteCall
+class FaviconRPC extends RPCHandler
 {
+  /**
+   * @mcms_message ru.molinos.cms.rpc.favicon
+   */
+  public static function on_rpc(Context $ctx)
+  {
+    return parent::hookRemoteCall($ctx, __CLASS__);
+  }
+
   public static function rpc_get(Context $ctx)
   {
     $host = null;

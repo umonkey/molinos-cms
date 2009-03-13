@@ -1,7 +1,10 @@
 <?php
 
-class CaptchaSettings implements iModuleConfig
+class CaptchaSettings
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.captcha
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array());

@@ -1,8 +1,11 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class CronModule implements iModuleConfig, iRemoteCall
+class CronModule
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.cron
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array());
@@ -16,7 +19,10 @@ class CronModule implements iModuleConfig, iRemoteCall
     return $form;
   }
 
-  public static function hookRemoteCall(Context $ctx, $className)
+  /**
+   * @mcms_message ru.molinos.cms.rpc.cron
+   */
+  public static function on_rpc(Context $ctx)
   {
     if (!empty($_SERVER['HTTP_HOST']))
       throw new BadRequestException(t('Запуск планировщика возможен только из консоли.'));
@@ -30,8 +36,7 @@ class CronModule implements iModuleConfig, iRemoteCall
     header('HTTP/1.1 200 OK');
     header('Content-Type: text/plain; charset=utf-8');
 
-    $args = array($ctx);
-    mcms::invoke('iScheduler', 'taskRun', $args);
+    $ctx->registry->broadcast('ru.molinos.cms.cron', array($ctx));
 
     self::touch($ctx);
 

@@ -1,8 +1,11 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class ModeratorModule implements iModuleConfig, iNodeHook
+class ModeratorModule
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.moderator
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array(
@@ -35,7 +38,10 @@ class ModeratorModule implements iModuleConfig, iNodeHook
     return $form;
   }
 
-  public static function hookNodeUpdate(Node $node, $op)
+  /**
+   * @mcms_message ru.molinos.cms.hook.node
+   */
+  public static function hookNodeUpdate(Context $ctx, Node $node, $op)
   {
     $config = mcms::modconf('moderator');
 
@@ -47,7 +53,7 @@ class ModeratorModule implements iModuleConfig, iNodeHook
       return;
 
     // Пользователь сам себе публикатор.
-    if (Context::last()->user->hasAccess('p', $node->class))
+    if ($ctx->user->hasAccess('p', $node->class))
       return;
 
     switch ($op) {
@@ -76,7 +82,7 @@ class ModeratorModule implements iModuleConfig, iNodeHook
     }
 
     $body = '<p>'. t($prepend, array(
-      '%user' => Context::last()->user->name,
+      '%user' => $ctx->user->name,
       '%type' => isset($schema['title']) ? $schema['title'] : $node->class,
       )) .'</p>'. self::getNodeBody($node);
 
@@ -105,15 +111,15 @@ class ModeratorModule implements iModuleConfig, iNodeHook
           $value = $node->$k;
 
         if (null !== $value) {
-          $body .= '<dt>'. mcms_plain($v->label) .':</dt>';
-          $body .= '<dd>'. mcms_plain($value) .'</dd>';
+          $body .= '<dt>'. html::plain($v->label) .':</dt>';
+          $body .= '<dd>'. html::plain($value) .'</dd>';
         }
       }
     }
 
     $body .= '</dl>';
 
-    $body .= '<p>' . l('?q=admin/content/edit/' . $node->id . '&destination=admin', t('Открыть в админке')) . '</p>';
+    $body .= '<p>' . html::link('?q=admin/content/edit/' . $node->id . '&destination=admin', t('Открыть в админке')) . '</p>';
 
     return $body;
   }

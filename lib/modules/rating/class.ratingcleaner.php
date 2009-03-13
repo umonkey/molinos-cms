@@ -1,8 +1,11 @@
 <?php
 
-class RatingCleaner implements iNodeHook
+class RatingCleaner
 {
-  public static function hookNodeUpdate(Node $node, $op)
+  /**
+   * @mcms_message ru.molinos.cms.hook.node
+   */
+  public static function hookNodeUpdate(Context $ctx, Node $node, $op)
   {
     if ($op == 'erase') {
       $db = $node->getDB();

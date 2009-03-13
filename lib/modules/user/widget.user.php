@@ -25,10 +25,12 @@ class UserWidget extends Widget implements iWidget
    * Возвращает описание виджета.
    *
    * @return array описание виджета, ключи: name, description.
+   * @mcms_message ru.molinos.cms.widget.enum
    */
   public static function getWidgetInfo()
   {
     return array(
+      'class' => __CLASS__,
       'name' => 'Профиль пользователя',
       'description' => 'Выводит форму авторизации, выхода, регистрации, восстановления пароля и редактирования профиля.',
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/UserWidget',
@@ -60,12 +62,6 @@ class UserWidget extends Widget implements iWidget
           'h2' => t('H2'),
           'h3' => t('H3'),
           ),
-        ),
-      'page' => array(
-        'type' => 'EnumControl',
-        'label' => t('Отправлять запросы на страницу'),
-        'default' => t('Оставаться на текущей'),
-        'options' => DomainNode::getFlatSiteMap('select'),
         ),
       );
   }
@@ -127,7 +123,7 @@ class UserWidget extends Widget implements iWidget
 
     $form = new Form(array(
       'title' => t('Вход'),
-      'action' => '?q=user.rpc&action=login&destination=CURRENT',
+      'action' => '?q=base.rpc&action=login&destination=CURRENT',
       ));
     $form->addControl(new TextLineControl(array(
       'value' => 'login',
@@ -169,7 +165,7 @@ class UserWidget extends Widget implements iWidget
   protected function onGetLogout(array $options)
   {
     $form = new Form(array(
-      'action' => '?q=user.rpc&action=logout&destination=CURRENT',
+      'action' => '?q=base.rpc&action=logout&destination=CURRENT',
       ));
     $form->addControl(new SubmitControl(array(
       'text' => t('Выйти'),
@@ -225,7 +221,7 @@ class UserWidget extends Widget implements iWidget
 
     $form = new Form(array(
       'title' => t('Вход'),
-      'action' => '?q=user.rpc&action=restore&destination=' . urlencode($next->string()),
+      'action' => '?q=base.rpc&action=restore&destination=' . urlencode($next->string()),
       ));
     $form->addControl(new EmailControl(array(
       'value' => 'email',
@@ -278,6 +274,85 @@ class UserWidget extends Widget implements iWidget
   }
 
   /**
+   * Обработчик форм.
+   *
+   * @todo устранить в пользу nodeapi.rpc и base.rpc.
+   *
+   * @param array $options параметры виджета.
+   *
+   * @param array $post данные формы.
+   *
+   * @param array $files загруженные файлы, если есть.
+   *
+   * return string адрес для перенаправления пользователя.
+   */
+  public function onPost(array $options, array $post, array $files)
+  {
+    $status = null;
+
+    if (empty($post))
+      return;
+
+    if ($options['action'] == 'default' and !empty($post['action']))
+      $options['action'] = $post['action'];
+
+    switch ($options['action']) {
+    case 'edit':
+      $user = $this->ctx->user;
+
+      if ($options['uid'] != $user->id and !$user->hasAccess('u', 'user'))
+        throw new PageNotFoundException(); // FIXME: 403
+
+      $node = Node::load($options['uid']);
+
+      foreach ($post['node'] as $k => $v)
+        $node->$k = $v;
+
+      $node->save();
+      $node->publish($node->rid);
+
+      mcms::flush();
+
+      $status = 'ok';
+      break;
+
+    case 'register':
+      $node = Node::create('user');
+      $node->formProcess($post, $files);
+
+      BebopMimeMail::send(null, $node->email, "Регистрация на сайте {$_SERVER['HTTP_HOST']}", $body = 
+        t("<p>На сайте %host была произведена попытка регистрации с указанием этого почтового адреса.&nbsp; "
+        ."Если вы действительно хотите зарегистрироваться, вам необходимо <a href='{$confirm}'>активировать учётную запись</a>, "
+        ."в противном случае она будет автоматически удалена в течение недели.</p>", array(
+          '%host' => $_SERVER['HTTP_HOST'],
+          '%confirm' => html::link(null, array('widget' => null, $this->getInstanceName() => array(
+            'action' => 'confirm',
+            'confirm' => md5($node->id .':'. $node->email),
+            ))),
+          )));
+
+      $status = 'registered';
+      break;
+
+    default:
+      mcms::debug($options, $post);
+      throw new PageNotFoundException();
+    }
+
+    if (empty($_GET['destination']))
+      $dest = bebop_split_url();
+    else
+      $dest = bebop_split_url($_GET['destination']);
+
+    if ($status !== null)
+      $dest['args'][$this->me->name]['status'] = $status;
+
+    $dest['args']['widget'] = null;
+
+    return bebop_combine_url($dest, false);
+  }
+
+  /**
    * Возвращает указанную форму.
    *
    * @param string $id идентификатор формы (user-logout-form,
@@ -294,7 +369,7 @@ class UserWidget extends Widget implements iWidget
     switch ($id) {
     case 'user-logout-form':
       $form = new Form(array(
-        'action' => '?q=user.rpc&action=logout',
+        'action' => '?q=base.rpc&action=logout',
         ));
 
       if (null !== $this->header) {

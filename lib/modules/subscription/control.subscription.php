@@ -1,13 +1,17 @@
 <?php
 
-class SubscriptionControl extends SectionsControl implements iFormControl
+class SubscriptionControl extends SectionsControl
 {
   private $enabled = array();
 
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => t("Подписка на новости"),
+      'class' => __CLASS__,
       );
   }
 

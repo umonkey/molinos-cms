@@ -21,10 +21,12 @@ class ArchiveWidget extends Widget implements iWidget
    * Возвращает описание виджета для конструктора.
    *
    * @return array описание виджета, ключи: name, description.
+   * @mcms_message ru.molinos.cms.widget.enum
    */
   public static function getWidgetInfo()
   {
     return array(
+      'class' => __CLASS__,
       'name' => 'Архив документов',
       'description' => 'Позволяет фильтровать документы в разделе по дате, используя календарь. Работает только в паре со списком документов.',
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/ArchiveWidget',

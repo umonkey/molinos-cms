@@ -1,10 +1,12 @@
 <?php
 
-class SysLogMenu implements iAdminMenu
+class SysLogMenu
 {
-  public static function getMenuIcons(Context $ctx)
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu.enum
+   */
+  public static function getMenuIcons(Context $ctx, array &$icons)
   {
-    $icons = array();
     $user = $ctx->user;
 
     $icons[] = array(
@@ -13,7 +15,5 @@ class SysLogMenu implements iAdminMenu
       'title' => t('Журнал событий'),
       'description' => t('Кто, что, когда и с чем делал.'),
     );
-
-    return $icons;
   }
 }

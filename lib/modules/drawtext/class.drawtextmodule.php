@@ -1,8 +1,11 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class DrawTextModule implements iModuleConfig
+class DrawTextModule
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.drawtext
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array());

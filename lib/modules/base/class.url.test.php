@@ -22,12 +22,4 @@ class UrlTests extends PHPUnit_Framework_TestCase
       $this->assertEquals($v, $link);
     }
   }
-
-  public function testCurrent()
-  {
-    $url1 = '?q=test.rpc&destination=CURRENT';
-    $url2 = l($url1);
-
-    $this->assertNotEquals($url1, $url2);
-  }
 }

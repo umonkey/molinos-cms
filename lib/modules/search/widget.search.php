@@ -3,9 +3,13 @@
 
 class SearchWidget extends Widget implements iWidget
 {
+  /**
+   * @mcms_message ru.molinos.cms.widget.enum
+   */
   public static function getWidgetInfo()
   {
     return array(
+      'class' => __CLASS__,
       'name' => 'Поиск по сайту',
       'description' => 'Контекстный морфологический поиск по сайту.',
       );

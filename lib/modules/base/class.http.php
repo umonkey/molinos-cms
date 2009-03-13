@@ -17,7 +17,7 @@ class http
     return $result;
   }
 
-  function fetch($url, $options = null)
+  public static function fetch($url, $options = null)
   {
     $outfile = os::path(mcms::mkdir(Context::last()->config->getPath('tmpdir')), 'mcms-fetch.'. md5($url));
 
@@ -44,7 +44,7 @@ class http
         if (null !== ($time = ini_get('max_execution_time')))
           curl_setopt($ch, CURLOPT_TIMEOUT, $time);
 
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Molinos.CMS/' . mcms::version() . '; ' . l('/'));
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Molinos.CMS/' . mcms::version() . '; http://' . MCMS_HOST_NAME);
 
         if (!ini_get('safe_mode'))
           curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);

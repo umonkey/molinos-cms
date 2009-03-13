@@ -1,13 +1,9 @@
 <?php
 
-class BaseModule implements iModuleConfig, iNodeHook
+class BaseModule
 {
   /**
-   * Возвращает форму для настройки модуля.
-   *
-   * @todo вынести в BaseModuleSettings.
-   *
-   * @return Form форма для настройки модуля.
+   * @mcms_message ru.molinos.cms.admin.config.module.base
    */
   public static function formGetModuleConfig()
   {
@@ -30,11 +26,11 @@ class BaseModule implements iModuleConfig, iNodeHook
    * удаляемому объекту.  Это позволяет отказаться от требования InnoDB и других
    * типов БД, занимающихся каскадным удалением автоматически.
    *
-   * @todo вынести в BaseGarbageCollector, может?
+   * @mcms_message ru.molinos.cms.hook.node
    *
    * @return void
    */
-  public static function hookNodeUpdate(Node $node, $op)
+  public static function hookNodeUpdate(Context $ctx, Node $node, $op)
   {
     switch ($op) {
     case 'erase':

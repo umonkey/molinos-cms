@@ -15,12 +15,16 @@
  * @package mod_base
  * @subpackage Controls
  */
-class URLControl extends EmailControl implements iFormControl
+class URLControl extends EmailControl
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => 'Адрес страницы или сайта',
+      'class' => __CLASS__,
       );
   }
 

@@ -1,9 +1,9 @@
 <?php
 
-class SubscriptionScheduler implements iScheduler
+class SubscriptionScheduler
 {
   /**
-   * Рассылка новостей.
+   * @mcms_message ru.molinos.cms.cron
    */
   public static function taskRun(Context $ctx)
   {

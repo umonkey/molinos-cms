@@ -95,7 +95,7 @@ class html
         if (true === $v)
           $v = 'yes';
         else
-          $v = mcms_plain($v, false);
+          $v = html::plain($v, false);
         $result .= ' '.$k.'=\''. $v .'\'';
       } elseif ($k == 'value') {
         $result .= " value=''";
@@ -167,5 +167,24 @@ class html
     }
 
     return $output;
+  }
+
+  /**
+   * Экранирует спецсимволы HTML, опционально очищая от тэгов.
+   */
+  public static function plain($text, $strip = true)
+  {
+    if ($strip)
+      $text = strip_tags($text);
+    return str_replace(array('&amp;quot;'), array('&quot;'), htmlspecialchars($text, ENT_QUOTES));
+  }
+
+  /**
+   * Формирует ссылку.
+   */
+  public static function link($href, $text, array $options = array())
+  {
+    $options['href'] = $href;
+    return html::em('a', $options, $text);
   }
 }

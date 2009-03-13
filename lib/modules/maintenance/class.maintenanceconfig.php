@@ -1,7 +1,10 @@
 <?php
 
-class MaintenanceConfig implements iModuleConfig
+class MaintenanceConfig
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.maintenance
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array(

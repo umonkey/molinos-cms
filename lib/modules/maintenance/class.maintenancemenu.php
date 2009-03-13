@@ -1,10 +1,12 @@
 <?php
 
-class MaintenanceMenu implements iAdminMenu
+class MaintenanceMenu
 {
-  public static function getMenuIcons(Context $ctx)
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu.enum
+   */
+  public static function getMenuIcons(Context $ctx, array &$icons)
   {
-    $icons = array();
     $user = $ctx->user;
 
     if ($user->hasAccess('u', 'domain'))
@@ -15,7 +17,5 @@ class MaintenanceMenu implements iAdminMenu
         'title' => t('Профилактика'),
         'description' => t('Позволяет временно закрыть сайт для проведения технических работ.'),
         );
-
-    return $icons;
   }
 }

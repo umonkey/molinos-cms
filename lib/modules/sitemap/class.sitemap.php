@@ -1,8 +1,11 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
+class Sitemap
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.sitemap
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array());
@@ -32,7 +35,10 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
     return $form;
   }
 
-  public static function hookNodeUpdate(Node $node, $op)
+  /**
+   * @mcms_message ru.molinos.cms.hook.node
+   */
+  public static function hookNodeUpdate(Context $ctx, Node $node, $op)
   {
     $stop = array(
       'create',
@@ -69,7 +75,10 @@ class Sitemap implements iModuleConfig, iRemoteCall, iNodeHook
     }
   }
 
-  public static function hookRemoteCall(Context $ctx, $className)
+  /**
+   * @mcms_message ru.molinos.cms.rpc.sitemap
+   */
+  public static function hookRemoteCall(Context $ctx)
   {
     $path = self::get_file_path();
 

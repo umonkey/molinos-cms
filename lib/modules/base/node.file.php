@@ -279,7 +279,7 @@ class FileNode extends Node implements iContentType
               'tmp_name' => $tmpname,
               'name' => $name,
               'filename' => $name,
-              'type' => bebop_get_file_type($name),
+              'type' => os::getFileType($name),
               ), false);
 
             $node->save();

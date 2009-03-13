@@ -1,11 +1,15 @@
 <?php
 
-class SectionsControl extends SetControl implements iFormControl
+class SectionsControl extends SetControl
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => t("Привязка к разделам"),
+      'class' => __CLASS__,
       );
   }
 

@@ -132,24 +132,16 @@ class WidgetNode extends Node implements iContentType
 
   protected static function listWidgets()
   {
-    $classes = array();
+    $result = $widgets = array();
+    Context::last()->registry->broadcast('ru.molinos.cms.widget.enum', array(&$widgets));
 
-    foreach (Loader::getImplementors('iWidget') as $classname) {
-      if ($classname != 'widget' and substr($classname, -11) != 'adminwidget') {
-        $info = Widget::getInfo($classname);
-        if (empty($info['hidden']) and !empty($info['name'])) {
-          $classes[$classname] = $info['name'];
-          if (!empty($info['description']))
-            $classes[$classname] .= html::em('p', array(
-              'class' => 'note',
-              ), mcms_plain($info['description']));
-        }
-      }
-    }
+    foreach ($widgets as $info)
+      if (!empty($info['class']))
+        $result[$class] = $info['name'];
 
-    asort($classes);
+    asort($result);
 
-    return $classes;
+    return $result;
   }
 
   public static function getDefaultSchema()

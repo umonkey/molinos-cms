@@ -21,10 +21,6 @@ class SubmitControl extends Control
 {
   public static function getInfo()
   {
-    return array(
-      'name' => t('Кнопка отправки формы'),
-      'hidden' => true,
-      );
   }
 
   public function getXML($data)

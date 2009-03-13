@@ -17,10 +17,14 @@
  */
 class EnumRadioControl extends Control
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => t('Выбор из списка (радио)'),
+      'class' => __CLASS__,
       );
   }
 

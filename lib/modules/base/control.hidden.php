@@ -21,10 +21,6 @@ class HiddenControl extends Control
 {
   public static function getInfo()
   {
-    return array(
-      'name' => t('Скрытый элемент'),
-      'hidden' => true,
-      );
   }
 
   public function __construct(array $form)

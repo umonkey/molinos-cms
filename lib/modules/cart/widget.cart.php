@@ -3,9 +3,13 @@
 
 class CartWidget extends Widget
 {
+  /**
+   * @mcms_message ru.molinos.cms.widget.enum
+   */
   public static function getWidgetInfo()
   {
     return array(
+      'class' => __CLASS__,
       'name' => 'Корзина для покупок',
       'description' => 'Позволяет пользователю добавлять товар в корзину.',
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/CartWidget',

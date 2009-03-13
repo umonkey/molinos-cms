@@ -1,9 +1,12 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class TinyMceModule implements iPageHook
+class TinyMceModule
 {
-  public static function hookPage(&$output, Node $page)
+  /**
+   * @mcms_message ru.molinos.cms.hook.page
+   */
+  public static function hookPage(Context $ctx, &$output, Node $page)
   {
     if ('text/html' != $page->content_type)
       return;

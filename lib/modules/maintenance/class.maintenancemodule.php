@@ -1,9 +1,12 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class MaintenanceModule implements iRequestHook
+class MaintenanceModule
 {
-  public static function hookRequest(Context $ctx = null)
+  /**
+   * @mcms_message ru.molinos.cms.hook.request.before
+   */
+  public static function hookRequest(Context $ctx)
   {
     $conf = mcms::modconf('maintenance');
 

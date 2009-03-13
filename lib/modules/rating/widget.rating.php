@@ -3,9 +3,13 @@
 
 class RatingWidget extends Widget
 {
+  /**
+   * @mcms_message ru.molinos.cms.widget.enum
+   */
   public static function getWidgetInfo()
   {
     return array(
+      'class' => __CLASS__,
       'name' => t('Оценка документов'),
       'description' => t('Выводит и обрабатывает форму голосования за документы.'),
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/RatingWidget',
@@ -131,7 +135,7 @@ class RatingWidget extends Widget
     $links = array();
 
     for ($idx = 1; $idx <= 5; $idx++) {
-      $links[] = l($idx, array($this->getInstanceName() => array(
+      $links[] = html::link($idx, array($this->getInstanceName() => array(
         'action' => 'vote',
         'vote' => $idx,
         )));

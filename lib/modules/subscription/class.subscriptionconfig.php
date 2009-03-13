@@ -1,7 +1,10 @@
 <?php
 
-class SubscriptionConfig implements iModuleConfig
+class SubscriptionConfig
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.subscription
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array(

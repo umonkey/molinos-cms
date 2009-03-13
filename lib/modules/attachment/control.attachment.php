@@ -17,10 +17,14 @@
  */
 class AttachmentControl extends Control
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => t('Файл'),
+      'class' => __CLASS__,
       );
   }
 

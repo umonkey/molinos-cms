@@ -17,10 +17,14 @@
  */
 class EnumControl extends Control
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => t('Выбор из списка (выпадающего)'),
+      'class' => __CLASS__,
       );
   }
 

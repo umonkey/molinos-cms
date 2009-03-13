@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class BebopMimeMail implements iModuleConfig
+class BebopMimeMail
 {
   public static function send($from, $to, $subject, $body, array $attachments = null, array $headers = null)
   {
@@ -13,7 +13,7 @@ class BebopMimeMail implements iModuleConfig
         $from = "Molinos.CMS <no-reply@" . url::host() . ">";
 
     if (strstr($body, '<html>') === false)
-      $body = '<html><head><title>'. mcms_plain($subject) .'</title></head><body>'. $body .'</body></html>';
+      $body = '<html><head><title>'. html::plain($subject) .'</title></head><body>'. $body .'</body></html>';
 
     if (!is_array($to))
       $to = preg_split('/, */', $to, -1, PREG_SPLIT_NO_EMPTY);
@@ -49,6 +49,9 @@ class BebopMimeMail implements iModuleConfig
     return $mail->send($to, $transport);
   }
 
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.mimemail
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array());

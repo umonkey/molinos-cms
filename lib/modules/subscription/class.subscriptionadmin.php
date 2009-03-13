@@ -1,10 +1,12 @@
 <?php
 
-class SubscriptionAdmin implements iAdminMenu
+class SubscriptionAdmin
 {
-  public static function getMenuIcons(Context $ctx)
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu.enum
+   */
+  public static function getMenuIcons(Context $ctx, array &$icons)
   {
-    $icons = array();
     $user = $ctx->user;
 
     if ($user->hasAccess('u', 'user'))
@@ -14,7 +16,5 @@ class SubscriptionAdmin implements iAdminMenu
         'title' => t('Рассылка'),
         'description' => t('Управление подпиской на новости.'),
         );
-
-    return $icons;
   }
 }

@@ -1,11 +1,15 @@
 <?php
 
-class MarkdownControl extends TextAreaControl implements iFormControl
+class MarkdownControl extends TextAreaControl
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
     return array(
       'name' => t('Текст (markdown)'),
+      'class' => __CLASS__,
       );
   }
 

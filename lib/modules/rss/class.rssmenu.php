@@ -1,11 +1,12 @@
 <?php
 
-class RSSMenu implements iAdminMenu
+class RSSMenu
 {
-  public static function getMenuIcons(Context $ctx)
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu.enum
+   */
+  public static function getMenuIcons(Context $ctx, array &$icons)
   {
-    $icons = array();
-
     if ($ctx->user->hasAccess('u', 'rssfeed'))
       $icons[] = array(
         'group' => 'structure',
@@ -13,7 +14,5 @@ class RSSMenu implements iAdminMenu
         'title' => t('RSS ленты'),
         'description' => t('Управление экспортируемыми данными.'),
         );
-
-    return $icons;
   }
 }

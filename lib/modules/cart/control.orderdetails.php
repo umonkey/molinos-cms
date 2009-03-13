@@ -20,9 +20,6 @@ class OrderDetailsControl extends Control
 {
   public static function getInfo()
   {
-    return array(
-      'name' => t('Содержимое заказа (только вывод)'),
-      );
   }
 
   public function getHTML($data)
@@ -84,6 +81,6 @@ class OrderDetailsControl extends Control
     else
       $url = '?q=nodeapi.rpc&action=locate&node='. $item['id'];
 
-    return l($url, htmlspecialchars($item['name']));
+    return html::link($url, html::plain($item['name']));
   }
 }

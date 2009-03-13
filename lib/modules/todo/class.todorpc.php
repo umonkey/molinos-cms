@@ -24,8 +24,11 @@
  *
  * @package mod_todo
  */
-class TodoRPC implements iRemoteCall
+class TodoRPC
 {
+  /**
+   * @mcms_message ru.molinos.cms.rpc.todo
+   */
   public static function hookRemoteCall(Context $ctx)
   {
     switch ($ctx->get('action')) {

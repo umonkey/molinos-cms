@@ -1,7 +1,10 @@
 <?php
 
-class AttachmentScheduler implements iScheduler
+class AttachmentScheduler
 {
+  /**
+   * @mcms_message ru.molinos.cms.cron
+   */
   public static function taskRun(Context $ctx)
   {
     $ctx->db->beginTransaction();

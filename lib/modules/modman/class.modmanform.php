@@ -1,24 +1,27 @@
 <?php
 
-class ModmanForm implements iAdminForm
+class ModmanForm
 {
-  public function getAdminFormXML(Context $ctx)
+  /**
+   * @mcms_message ru.molinos.cms.admin.form.modman
+   */
+  public static function getAdminFormXML(Context $ctx)
   {
     $ctx->theme = os::path('lib', 'modules', 'modman', 'template.xsl');
 
     switch ($ctx->get('mode')) {
     case 'addremove':
-      return $this->getInstallForm($ctx);
+      return self::getInstallForm($ctx);
     case 'config':
-      return $this->getConfigForm($ctx);
+      return self::getConfigForm($ctx);
     case 'upgrade':
-      return $this->getUpgradeForm($ctx);
+      return self::getUpgradeForm($ctx);
     default:
-      return $this->getSettingsForm($ctx);
+      return self::getSettingsForm($ctx);
     }
   }
 
-  protected function getSettingsForm(Context $ctx)
+  protected static function getSettingsForm(Context $ctx)
   {
     if (!count($list = modman::getConfigurableModules())) {
       modman::updateDB();
@@ -31,12 +34,12 @@ class ModmanForm implements iAdminForm
       ));
   }
 
-  protected function getConfigForm(Context $ctx)
+  protected static function getConfigForm(Context $ctx)
   {
     if (!array_key_exists($name = $ctx->get('name'), modman::getConfigurableModules()))
       throw new PageNotFoundException();
 
-    $form = mcms::invoke_module($name, 'iModuleConfig', 'formGetModuleConfig');
+    $form = $ctx->registry->unicast('ru.molinos.cms.admin.config.module', array($ctx));
     if (!($form instanceof iFormControl))
       throw new RuntimeException(t('Модуль %name не поддерживает настройку. Скорее всего, в него совсем недавно были внесены изменения, ручная "перезагрузка" системы поможет.', array(
         '%name' => $name,
@@ -65,15 +68,8 @@ class ModmanForm implements iAdminForm
       ), $form->getXML(Control::data($data)));
   }
 
-  protected function getInstallForm(Context $ctx)
+  protected static function getInstallForm(Context $ctx)
   {
-    // Пост-инсталляционный хук для новых модулей.
-    foreach ($ctx->get('status', array()) as $name => $status)
-      if ('installed' == $status) {
-        $args = array($ctx);
-        mcms::invoke_module($name, 'iInstaller', 'onInstall', $args);
-      }
-
     if (!count($modules = modman::getAllModules())) {
       modman::updateDB();
       $modules = modman::getAllModules();

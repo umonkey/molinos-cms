@@ -1,7 +1,10 @@
 <?php
 
-class OpenIdSettings implements iModuleConfig
+class OpenIdSettings
 {
+  /**
+   * @mcms_message ru.molinos.cms.admin.config.module.openid
+   */
   public static function formGetModuleConfig()
   {
     $form = new Form(array(

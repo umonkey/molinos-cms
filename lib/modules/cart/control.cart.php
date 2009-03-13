@@ -3,12 +3,11 @@
 
 class CartControl extends Control
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
-    return array(
-      'name' => t('Управление корзиной'),
-      'hidden' => true,
-      );
   }
 
   public function __construct(array $form)
@@ -41,7 +40,7 @@ class CartControl extends Control
         'value' => $row['id'],
         )) ."</td>";
 
-      $output .= "<td class='name'>". mcms_plain($row['name']) ."</td>";
+      $output .= "<td class='name'>". html::plain($row['name']) ."</td>";
 
       $output .= "<td class='qty'>". html::em('input', array(
         'type' => 'text',

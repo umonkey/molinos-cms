@@ -1,11 +1,12 @@
 <?php
 
-class CommentMenu implements iAdminMenu
+class CommentMenu
 {
-  public static function getMenuIcons(Context $ctx)
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu.enum
+   */
+  public static function getMenuIcons(Context $ctx, array &$icons)
   {
-    $icons = array();
-
     if ($ctx->user->hasAccess('u', 'comment')) {
       if ($ctx->db->getResult("SELECT COUNT(*) FROM `node` WHERE `class` = 'comment' AND `deleted` = 0")) {
         $icons[] = array(
@@ -16,7 +17,5 @@ class CommentMenu implements iAdminMenu
           );
       }
     }
-
-    return $icons;
   }
 }

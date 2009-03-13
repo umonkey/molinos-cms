@@ -23,10 +23,8 @@ class JSONRouter implements iRequestRouter
 
   public function route(Context $ctx)
   {
-    $args = array($ctx);
-
     try {
-      $response = mcms::invoke_module($this->query, 'iJSONHandler', 'hookJSONCall', $args);
+      $response = $ctx->registry->unicast('ru.molinos.cms.json.' . $this->query, array($ctx));
 
       if (false === $response)
         throw new PageNotFoundException();

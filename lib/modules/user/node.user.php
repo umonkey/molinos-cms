@@ -205,4 +205,20 @@ class UserNode extends Node implements iContentType
   {
     $this->password = md5($password);
   }
+
+  /**
+   * @mcms_message ru.molinos.cms.install
+   */
+  public static function on_install(Context $ctx)
+  {
+    try {
+      $node = Node::load(array(
+        'class' => 'type',
+        'name' => 'user',
+        'deleted' => 0,
+        ), $ctx->db);
+    } catch (ObjectNotFoundException $e) {
+      // TODO: install
+    }
+  }
 };

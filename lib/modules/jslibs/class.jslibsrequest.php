@@ -1,8 +1,11 @@
 <?php
 
-class JSLibsRequest implements iRequestHook
+class JSLibsRequest
 {
-  public static function hookRequest(Context $ctx = null)
+  /**
+   * @mcms_message ru.molinos.cms.hook.request.after
+   */
+  public static function hookRequest(Context $ctx)
   {
     $libs = JSLibsConfig::getLibraries();
 
