@@ -185,107 +185,6 @@ class ListWidget extends Widget
     return $options;
   }
 
-  /**
-   * Формирование списка документов.
-   *
-   * Основной критерий отбора документов — привязка к определённому разделу.
-   *
-   * @param array $options параметры запроса.
-   *
-   * @return array результат работы, ключи:
-   *
-   * path — полный путь к текущему разделу, от корневого до текущего.  Содержит
-   * полные описания объектов.
-   *
-   * section — описание первого раздела, к которому привязан список.
-   * FIXME: оставить либо это, либо root.
-   *
-   * pager — данные для построения постраничной навигации, см.
-   * Widget::getPager().
-   *
-   * documents — массив описаний документов
-   *
-   * root — описание текущего раздела.
-   *
-   * schema — массив структур.  Содержит только те типы, которые использованы в
-   * documents.
-   *
-   * options — параметры, которые отобрал getRequestOptions().  Могут
-   * использоваться для вывода информации о документах.
-   */
-  protected function onGetList(array $options)
-  {
-    if (($filter = $this->queryGet($options)) === null)
-      return "<!-- widget {$this->name} halted: no query. -->";
-
-    if (empty($filter['tags']))
-      return "<!-- widget {$this->name} halted: no tags. -->";
-
-    $output = '';
-
-    $result = array(
-      'path' => array(),
-      'section' => array(),
-      'documents' => array(),
-      'schema' => array(),
-      'document' => $options['document'],
-      );
-
-    // Возращаем путь к текущему корню.
-    // FIXME: это неверно, т.к. виджет может возвращать произвольный раздел!
-    if (null !== $this->ctx->section) {
-      $tmp = '';
-      foreach ($this->ctx->section->getParents() as $node) {
-        $tmp .= $node->push('section');
-      }
-      $output .= html::em('path', $tmp);
-    }
-
-    if (empty($options['filter']['tags']))
-      $result['section'] = null;
-    else {
-      $node = NodeStub::create($options['filter']['tags'][0], $this->ctx->db);
-      $output .= $node->push('section');
-    }
-
-    // Получаем список документов.
-    $nodes = Node::find($filter, $options['limit'], $options['offset']);
-    $this->countComments($nodes);
-
-    // Формируем список документов.
-    $tmp = '';
-    foreach ($nodes as $node)
-      $tmp .= $node->push('document');
-    if (!empty($tmp))
-      $output .= html::em('documents', $tmp);
-
-    // Добавляем пэйджер.
-    if (!empty($options['limit'])) {
-      if ($this->pager and empty($filter['#sort']['RAND()'])) {
-        $options['count'] = Node::count($filter);
-
-        $output .= mcms::pager($options['count'], $options['page'],
-          $options['limit'], $this->getInstanceName() .'.page');
-      }
-    }
-
-    /*
-    // Добавляем информацию о поиске.
-    if (!empty($options['search'])) {
-      $result['search'] = array(
-        'string' => $options['search'],
-        'reset' => l(null, array($this->getInstanceName() => array('search' => null))),
-        );
-    }
-    */
-
-    // $this->countComments($result);
-
-    // $result['options'] = $options;
-
-    return $output;
-  }
-
   private function countComments(array &$result)
   {
     if ($this->count_comments) {
@@ -310,11 +209,18 @@ class ListWidget extends Widget
    */
   public function onGet(array $options)
   {
-    $query = $this->getQuery($options);
+    $query = $this->getQuery($options, $options['section']);
     $count = $query->getCount($this->ctx->db);
 
-    if (0 == $count)
-      return '<!-- nothing to show -->';
+    if (0 == $count) {
+      if ($this->fallbackmode != 'empty' or !$this->fixed)
+        return '<!-- nothing to show -->';
+
+      $query = $this->getQuery($options, $this->fixed);
+
+      if (!($count = $query->getCount($this->ctx->db)))
+        return '<!-- nothing to show, even in the fixed section -->';
+    }
 
     $result = '';
 
@@ -337,7 +243,7 @@ class ListWidget extends Widget
     return $result;
   }
 
-  private function getQuery(array $options)
+  private function getQuery(array $options, $section_id)
   {
     $filter = array(
       'published' => 1,
@@ -347,11 +253,9 @@ class ListWidget extends Widget
 
     if (!empty($options['classes']))
       $filter['class'] = $options['classes'];
-    else
-      $filter['class'] = null; // блокируем вывод
 
-    if (!empty($options['section'])) {
-      $filter['tags'] = $options['section'];
+    if (!empty($section_id)) {
+      $filter['tags'] = $section_id;
       if ($this->recurse)
         $filter['tags'] .= '+';
     }
