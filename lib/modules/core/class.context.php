@@ -366,7 +366,7 @@ class Context
       if (null === $this->registry) {
         $this->registry = new Registry();
         if (!$this->registry->load())
-          $this->registry->rebuild($this->config->modules);
+          $this->registry->rebuild((array)$this->config->modules);
       }
       return $this->registry;
     }
