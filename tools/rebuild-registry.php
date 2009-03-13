@@ -10,7 +10,12 @@ require os::path($rootPath, 'lib', 'modules', 'core', 'class.ini.php');
 $search = os::path($rootPath, 'lib', 'modules', '*', 'module.ini');
 
 foreach (glob($search) as $iniFileName) {
-  printf("processing %s...\n", basename(dirname($iniFileName)));
+  $moduleName = basename(dirname($iniFileName));
+
+  if (!empty($argv[1]) and $argv[1] != $moduleName)
+    continue;
+
+  printf("processing %s...\n", $moduleName);
 
   $ini = ini::read($iniFileName);
   $path = dirname($iniFileName);
@@ -33,9 +38,12 @@ foreach (glob($search) as $iniFileName) {
       $ini['classes'][$m[1]] = $baseName;
       printf(" + %s\n", $className = $m[1]);
 
-      if (preg_match('#(?:@mcms_message\s+)([a-z0-9.]+)(?:[^{]*public\s+static\s+function\s+)([^(]+)#s', $source, $m)) {
-        $ini['messages'][$m[1]] = $className . '::' . $m[2];
-        printf("   @%s = %s::%s()\n", $m[1], $className, $m[2]);
+      if (preg_match_all('#(?:@mcms_message\s+)([a-z0-9.]+)(?:[^{]*public\s+static\s+function\s+)([^(]+)#s', $source, $m)) {
+        foreach ($m[1] as $idx => $message) {
+          $method = $m[2][$idx];
+          $ini['messages'][$message][] = $className . '::' . $method;
+          printf("   @%s = %s::%s()\n", $message, $className, $method);
+        }
       }
     }
 
