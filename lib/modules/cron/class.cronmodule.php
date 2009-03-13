@@ -55,7 +55,7 @@ class CronModule
     if ('127.0.0.1' == $_SERVER['REMOTE_ADDR'])
       return true;
 
-    if (!($ips = mcms::modconf('cron', 'allowed')))
+    if (!($ips = $ctx->modconf('cron', 'allowed')))
       return true;
 
     return mcms::matchip($_SERVER['REMOTE_ADDR'], $ips);

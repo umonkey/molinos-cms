@@ -178,7 +178,7 @@ class UserNode extends Node implements iContentType
   public function formProcess(array $data)
   {
     if (!$this->id)
-      if (is_array($list = mcms::modconf('auth', 'groups', array()))) {
+      if (is_array($list = Context::last()->modconf('auth', 'groups', array()))) {
         $params = array();
         $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, %ID% FROM `node` WHERE `class` = 'group' AND `id` " . sql::in($list, $params));
       }

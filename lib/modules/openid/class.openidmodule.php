@@ -41,7 +41,7 @@ class OpenIdModule extends RPCHandler
   {
     self::includeOpenID();
 
-    if ('none' == ($mode = mcms::modconf('openid', 'mode', 'open')))
+    if ('none' == ($mode = $ctx->modconf('openid', 'mode', 'open')))
       throw new RuntimeException(t('Поддержка OpenID отключена администратором.'));
 
     if ('id_res' == $openid_mode) {
@@ -84,7 +84,7 @@ class OpenIdModule extends RPCHandler
             $node->$v = $_GET[$key];
         }
 
-        $node->setRegistered();
+        $node->setRegistered($ctx);
         $node->save();
       } else {
         $node = array_shift($nodes);

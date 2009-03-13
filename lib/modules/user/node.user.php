@@ -177,9 +177,9 @@ class UserNode extends Node implements iContentType
    * лучшего места пока найти не удалось. Вызывается при сохранении
    * пользователя вручную или при авторизации через OpenID.
    */
-  public function setRegistered()
+  public function setRegistered(Context $ctx)
   {
-    if (is_array($list = mcms::modconf('auth', 'groups', array()))) {
+    if (is_array($list = $ctx->modconf('auth', 'groups', array()))) {
       $params = array();
       $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, %ID% FROM `node` WHERE `class` = 'group' AND `id` " . sql::in($list, $params));
     }

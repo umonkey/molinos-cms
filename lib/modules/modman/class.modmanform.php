@@ -39,7 +39,7 @@ class ModmanForm
     if (!array_key_exists($name = $ctx->get('name'), modman::getConfigurableModules()))
       throw new PageNotFoundException();
 
-    $form = $ctx->registry->unicast('ru.molinos.cms.admin.config.module', array($ctx));
+    $form = $ctx->registry->unicast('ru.molinos.cms.admin.config.module.' . $name, array($ctx));
     if (!($form instanceof iFormControl))
       throw new RuntimeException(t('Модуль %name не поддерживает настройку. Скорее всего, в него совсем недавно были внесены изменения, ручная "перезагрузка" системы поможет.', array(
         '%name' => $name,
@@ -47,7 +47,7 @@ class ModmanForm
 
     $data = array();
 
-    if (is_array($tmp = mcms::modconf($name)))
+    if (is_array($tmp = $ctx->modconf($name)))
       foreach ($tmp as $k => $v)
         $data['config_'. $k] = $v;
 

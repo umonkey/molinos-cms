@@ -175,16 +175,6 @@ class mcms
       : $default;
   }
 
-  public static function modconf($modulename, $key = null, $default = null)
-  {
-    $conf = Structure::getInstance()->getModuleConf($modulename);
-
-    if (null !== $key)
-      return empty($conf[$key]) ? $default : $conf[$key];
-    else
-      return $conf;
-  }
-
   public static function flush($flags = null)
   {
     if (null !== ($cache = BebopCache::getInstance()))

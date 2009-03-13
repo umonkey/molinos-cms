@@ -607,4 +607,22 @@ class Context
       mcms::fatal($e);
     }
   }
+
+  /**
+   * Возвращает настройки конкретного модуля.
+   */
+  public function modconf($moduleName, $keyName = null, $default = null)
+  {
+    $conf = $this->config->modconf;
+    $conf = array_key_exists($moduleName, $conf)
+      ? $conf[$moduleName]
+      : array();
+
+    if (null === $keyName)
+      return $conf;
+    elseif (array_key_exists($keyName, $conf))
+      return $conf[$keyName];
+    else
+      return $default;
+  }
 }

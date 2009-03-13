@@ -24,7 +24,6 @@ class Structure
   protected $aliases = array();
   protected $domains = array();
   protected $access = array();
-  protected $modules = array();
   protected $types = array();
 
   public static function getInstance()
@@ -234,7 +233,6 @@ class Structure
         'aliases' => $this->aliases,
         'domains' => $this->domains,
         'access' => $this->access,
-        'modules' => $this->modules,
         'types' => $this->types,
         ));
   }
@@ -245,15 +243,5 @@ class Structure
       mcms::flog('removed ' . $file);
       unlink($file);
     }
-  }
-
-  public function getModuleConf($name)
-  {
-    if (!$this->loaded)
-      $this->load();
-
-    return array_key_exists($name, $this->modules)
-      ? $this->modules[$name]
-      : array();
   }
 }

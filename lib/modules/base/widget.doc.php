@@ -46,8 +46,7 @@ class DocWidget extends Widget implements iWidget
    * Возвращает форму для настройки виджета.
    *
    * Используемые параметры: mode = режим работы, fixed = код фиксированного
-   * документа, showneighbors = возвращать соседей.  Доступны через
-   * mcms::modconf().
+   * документа, showneighbors = возвращать соседей.
    *
    * @return Form описание формы.
    */

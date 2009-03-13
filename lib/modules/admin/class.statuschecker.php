@@ -21,7 +21,7 @@ class StatusChecker
     if (null !== ($message = self::checkDbAccess($ctx)))
       $parts[] = $message;
 
-    if (!empty($parts) and ($email = self::getEmail())) {
+    if (!empty($parts) and ($email = self::getEmail($ctx))) {
       $subject = t('Отчёт о состоянии %host', array(
         '%host' => url::host(),
         ));
@@ -37,9 +37,9 @@ class StatusChecker
     }
   }
 
-  private static function getEmail()
+  private static function getEmail(Context $ctx)
   {
-    if ($conf = mcms::modconf('admin', 'admin')) {
+    if ($conf = $ctx->modconf('admin', 'admin')) {
       try {
         $node = Node::load(array(
           'id' => $conf,

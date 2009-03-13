@@ -386,7 +386,6 @@ class NodeStub
         case 'group':
         case 'domain':
         case 'widget':
-        case 'modconf':
           Structure::getInstance()->drop();
           break;
       }

@@ -40,8 +40,6 @@ class ArchiveWidget extends Widget implements iWidget
    * виджет, с которым следует работать в паре.  Выбрать позволяют только один
    * из списков (ListWidget).
    *
-   * Выбранный виджет сохраняется в переменной host (см. mcms::modconf()).
-   *
    * @return Form вкладка формы, используется для настройки виджета.
    */
   public static function getConfigOptions()

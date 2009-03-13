@@ -56,44 +56,28 @@ class ModManRPC extends RPCHandler
   {
     $conf = array();
 
-    $ctx->db->beginTransaction();
-    $ctx->user->checkAccess('u', 'moduleinfo');
+    if (!($moduleName = $ctx->get('module')))
+      throw new RuntimeException(t('Не указано имя настраиваемого модуля.'));
 
     foreach ($ctx->post as $k => $v) {
       if (substr($k, 0, 7) == 'config_' and !empty($v)) {
         if (is_array($v) and array_key_exists('__reset', $v))
           unset($v['__reset']);
+        if (is_numeric($v))
+          $v = intval($v);
         if (!empty($v))
           $conf[substr($k, 7)] = $v;
       }
     }
 
-    if ('admin' == ($module = $ctx->get('module'))) {
-      $debuggers = empty($conf['debuggers'])
-        ? null
-        : preg_split('/,\s*/', $conf['debuggers'], -1, PREG_SPLIT_NO_EMPTY);
+    $cfg = $ctx->config;
+    $tmp = $cfg->modconf;
+    $tmp[$moduleName] = $conf;
+    $cfg->modconf = $tmp;
 
-      $cfg = get_test_context()->config;
-      $cfg->debuggers = $debuggers;
-      $cfg->write();
+    $cfg->write();
 
-      if (array_key_exists('debuggers', $conf))
-        unset($conf['debuggers']);
-    }
-
-    if (count($tmp = array_values(Node::find($ctx->db, array('class' => 'moduleinfo', 'name' => $module)))))
-      $node = $tmp[0];
-    else
-      $node = Node::create('moduleinfo', array(
-        'name' => $module,
-        'published' => true,
-        ));
-
-    mcms::flog($module . ': configuration updated.');
-
-    $node->config = $conf;
-    $node->save();
-    $ctx->db->commit();
+    mcms::flog($moduleName . ': configuration updated.');
 
     Structure::getInstance()->drop();
   }
