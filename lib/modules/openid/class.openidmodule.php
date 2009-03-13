@@ -179,7 +179,9 @@ class OpenIdModule extends RPCHandler
      * created elsewhere.  After you're done playing with the example
      * script, you'll have to remove this directory manually.
      */
-    $store_path = mcms::mkdir(os::path(Context::last()->config->getPath('tmpdir'), 'openid'), 'Could not create the FileStore directory (%path), please check the effective permissions.');
+    $store_path = os::mkdir($path = os::path(Context::last()->config->getPath('tmpdir'), 'openid'), 'Could not create the FileStore directory (%path), please check the effective permissions.', array(
+      '%path' => $path,
+      ));
     return new Auth_OpenID_FileStore($store_path);
   }
 

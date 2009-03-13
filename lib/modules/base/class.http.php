@@ -22,7 +22,7 @@ class http
     if (!($tmpdir = Context::last()->config->getPath('tmpdir')))
       $tmpdir = 'tmp';
 
-    $outfile = os::path(mcms::mkdir($tmpdir), 'mcms-fetch.'. md5($url));
+    $outfile = os::path(os::mkdir($tmpdir), 'mcms-fetch.'. md5($url));
 
     $ttl = mcms::config('file.cache.ttl', 3600);
 

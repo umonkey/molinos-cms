@@ -5,7 +5,7 @@ class CompressorModule
 {
   private static function path()
   {
-    return mcms::mkdir(mcms::config('tmpdir') .'/compressor');
+    return os::mkdir(os::path(mcms::config('tmpdir'), 'compressor'));
   }
 
   /**

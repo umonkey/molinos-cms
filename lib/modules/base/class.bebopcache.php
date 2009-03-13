@@ -206,7 +206,7 @@ class FileCache_provider extends BebopCache
 
   public static function isAvailable()
   {
-    if (!(self::$path = mcms::mkdir(Context::last()->config->getPath('tmpdir') . DIRECTORY_SEPARATOR . 'cache')))
+    if (!(self::$path = os::mkdir(Context::last()->config->getPath('tmpdir') . DIRECTORY_SEPARATOR . 'cache')))
       return false;
     return true;
   }

@@ -76,7 +76,7 @@ class ExchangeModule
     $zipfile = "siteprofile.zip";
     $zipfilepath = os::path(mcms::config('tmpdir'), 'export', $zipfile);
 
-    mcms::mkdir(dirname($zipfilepath), t('Не удалось создать временный каталог для экспорта данных.'));
+    os::mkdir(dirname($zipfilepath), t('Не удалось создать временный каталог для экспорта данных.'));
 
     $zip = new ZipArchive;
     $zip->open($zipfilepath, ZipArchive::OVERWRITE);

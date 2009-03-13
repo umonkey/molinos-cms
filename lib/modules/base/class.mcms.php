@@ -340,7 +340,7 @@ class mcms
   {
     // Узнаем, куда же складывать дампы.
     // Если такой директории нет, пытаемся создать.
-    $dumpdir = mcms::mkdir(mcms::config('dumpdir', os::path('tmp', 'crashdump')));
+    $dumpdir = os::mkdir(mcms::config('dumpdir', os::path('tmp', 'crashdump')));
 
     // Задаем файл для выгрузки дампа и проверяем на наличие,
     // если существует - добавляем случайный мусор в название.
@@ -509,19 +509,6 @@ class mcms
         $r->send();
       }
     }
-  }
-
-  public static function mkdir($path, $msg = null)
-  {
-    if (!is_dir($path) and !mkdir($path, 0775, true)) {
-      if (null === $msg)
-        $msg = 'Каталог %path отсутствует и не может быть создан.';
-      throw new RuntimeException(t($msg, array(
-        '%path' => $next,
-        )));
-    }
-
-    return realpath($path);
   }
 
   public static function now()

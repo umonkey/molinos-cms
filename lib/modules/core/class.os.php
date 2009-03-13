@@ -232,4 +232,18 @@ class os
     $fileName = trim(preg_replace('/[^a-z0-9_-]+/', '_', $fileName), '_') . $sfx;
     return $fileName;
   }
+
+  /**
+   * Создаёт папку со всеми необходимыми родителями.
+   */
+  public static function mkdir($path, $errormsg = null)
+  {
+    if (!is_dir($path) and !mkdir($path, 0775, true)) {
+      if (null === $errormsg)
+        return false;
+      throw new RuntimeException($errormsg);
+    }
+
+    return realpath($path);
+  }
 }

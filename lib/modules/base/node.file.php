@@ -175,7 +175,9 @@ class FileNode extends Node implements iContentType
     }
 
     // Создаём каталог для него.
-    mcms::mkdir(dirname($dest), 'Файл не удалось сохранить, т.к. отсутствуют права на запись в каталог, где этот файл должен был бы храниться (%path).  Сообщите об этой проблеме администратору сайта.');
+    os::mkdir(dirname($dest), 'Файл не удалось сохранить, т.к. отсутствуют права на запись в каталог, где этот файл должен был бы храниться (%path).  Сообщите об этой проблеме администратору сайта.', array(
+      '%path' => dirname($dest),
+      ));
 
     // Копируем файл.
     if (!os::copy($file['tmp_name'], $dest))
@@ -249,7 +251,7 @@ class FileNode extends Node implements iContentType
   public static function unzip($zipfile, $folder = null, $parent_id = null)
   {
     $node = null;
-    $tmpdir = mcms::mkdir(os::path(Context::last()->config->getPath('tmpdir'), 'upload'));
+    $tmpdir = os::mkdir(os::path(Context::last()->config->getPath('tmpdir'), 'upload'));
 
     if (function_exists('zip_open')) {
       if (file_exists($zipfile)) {
@@ -265,7 +267,7 @@ class FileNode extends Node implements iContentType
             if (file_exists($zdir))
               throw new Exception('Directory "<b>' . $zdir . '</b>" exists');
 
-            mcms::mkdir($zdir);
+            os::mkdir($zdir);
             */
           } else {
             $name = basename(zip_entry_name($zip_entry));

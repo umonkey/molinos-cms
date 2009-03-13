@@ -126,7 +126,8 @@ class Session
 
       switch ($this->getStorageType()) {
       case 'file':
-        mcms::mkdir(dirname($path = $this->getStoragePath($this->id)));
+        os::mkdir(dirname($path = $this->getStoragePath($this->id)),
+          t('Не удалось создать временный каталог для хранения сессий.'));
         if (!empty($this->data))
           os::write($path, serialize($this->data));
         elseif (file_exists($path))
