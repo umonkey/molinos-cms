@@ -2,10 +2,9 @@
 
 DIR=$(dirname $0)
 
-MCMS_VERSION=$(grep "define('MCMS_VERSION'" < $DIR/../lib/bootstrap.php | sed -e s"@define('MCMS_VERSION', '\|');@@g")
-
+MCMS_VERSION=$(php -r 'require "../lib/modules/core/class.loader.php"; echo MCMS_RELEASE; ')
 if [ -z "$MCMS_VERSION" ]; then
-    echo "Unable to find version number in lib/bootstrap.php"
+    echo "Unable to determine version number."
     exit 1
 fi
 
