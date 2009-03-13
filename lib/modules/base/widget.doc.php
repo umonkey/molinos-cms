@@ -88,7 +88,7 @@ class DocWidget extends Widget implements iWidget
   {
     if (is_array($options = parent::getRequestOptions($ctx))) {
       if (!($options['docid'] = $this->fixed))
-        if (!($options['docud'] = $ctx->document->id))
+        if (!($options['docid'] = $ctx->document->id))
           return '<!-- no document id found -->';
 
       if (null === ($options['action'] = $this->get('action', $this->mode)))
