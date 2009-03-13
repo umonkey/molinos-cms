@@ -25,9 +25,7 @@ echo "Preparing Molinos CMS v$MCMS_VERSION"
 zip -q9r molinos-cms-$MCMS_VERSION.zip \
   .htaccess.dist \
   *.php \
-  conf/*.dist \
   doc \
-  lib/*.php \
   lib/modules/admin \
   lib/modules/attachment \
   lib/modules/auth \
@@ -41,7 +39,7 @@ zip -q9r molinos-cms-$MCMS_VERSION.zip \
   themes
 
 echo -n "Preparing modules: "
-php -f tools/rebuild-modules.php $DIR/svn/modules.ini || exit 1
+php -f tools/rebuild-modules.php ${DIR}/svn/${MCMS_VERSION}/modules.ini || exit 1
 
 echo "done, uploading."
 
