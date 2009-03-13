@@ -2,7 +2,7 @@
 
 DIR=$(dirname $0)
 
-MCMS_VERSION=$(php -r 'require "../lib/modules/core/class.loader.php"; echo MCMS_RELEASE; ')
+MCMS_VERSION=$(php -r 'require "'$DIR'/../lib/modules/core/class.loader.php"; echo MCMS_RELEASE; ')
 if [ -z "$MCMS_VERSION" ]; then
     echo "Unable to determine version number."
     exit 1
@@ -49,7 +49,7 @@ for ZIP in tmp/modules/*.zip; do
     if [ -f "$ZIP" ]; then
         NAME=$(basename $ZIP)
         echo "$NAME: uploading."
-        googlecode_upload.py -s $NAME -p molinos-cms -l Type-Module $ZIP
+        googlecode_upload.py -s $NAME -p molinos-cms -l Type-Module,R${MCMS_VERSION} $ZIP
     fi
 done
 
