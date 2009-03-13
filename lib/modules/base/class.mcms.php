@@ -737,8 +737,12 @@ class mcms
     try {
       $ctx->checkEnvironment();
 
-      if (!$ctx->config->isok() and 'install.rpc' != $ctx->query() and class_exists('InstallModule'))
-        $ctx->redirect('?q=install.rpc');
+      if (!$ctx->config->isok() and 'install.rpc' != $ctx->query()) {
+        if (class_exists('InstallModule'))
+          $ctx->redirect('?q=install.rpc');
+        else
+          mcms::fatal(t('Система не готова к использованию, и инсталллера нет (модуль install); придётся инсталлировать вручную. Если будете добавлять модуль, не забудьте удалить файл sites/*/.registry.php'));
+      }
 
       $request = new Request();
       $response = $request->process($ctx);

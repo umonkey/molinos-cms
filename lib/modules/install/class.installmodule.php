@@ -31,15 +31,18 @@ class InstallModule extends RPCHandler
     $config = $ctx->config;
     $config->db = self::getDSN($data['dbtype'], $data['db'][$data['dbtype']]);
 
-    foreach (array('mail_server', 'mail_from', 'mail_errors', 'tmpdir', 'files', 'files_ftp', 'themes') as $key)
-      if (!empty($data[$key]))
-        $config->$key = $data[$key];
+    foreach (array('mail_server', 'mail_from', 'mail_errors', 'tmpdir', 'files', 'files_ftp', 'themes') as $key) {
+      if (!empty($data[$key])) {
+        $kname = str_replace('_', '.', $key);
+        $config->$kname = $data[$key];
+      }
+    }
 
     // Проверим соединение с БД.
     $pdo = PDO_Singleton::connect($config->db);
 
     $config->write();
-    $ctx->redirect('?q=admin');
+    $ctx->redirect('?q=admin&cgroup=system&action=form&module=modman&mode=addremove');
 
     /*
     $s = new Structure();

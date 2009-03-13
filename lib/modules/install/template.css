@@ -62,6 +62,13 @@ legend span {
   display: none;
 }
 
+fieldset {
+  border: none;
+  border-top: solid 4px #ccc;
+}
+fieldset > label > span {
+  margin: 1em 0 .5em;
+}
 fieldset table {
   margin-top: -0.5em;
   margin-bottom: 0.5em;
@@ -75,5 +82,10 @@ fieldset td {
 fieldset th {
   font-weight: normal;
   font-family: monospace;
+  white-space: nowrap;
   color: gray;
+}
+
+#fs-settings > div {
+  display: none;
 }
