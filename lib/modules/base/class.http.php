@@ -19,7 +19,10 @@ class http
 
   public static function fetch($url, $options = null)
   {
-    $outfile = os::path(mcms::mkdir(Context::last()->config->getPath('tmpdir')), 'mcms-fetch.'. md5($url));
+    if (!($tmpdir = Context::last()->config->getPath('tmpdir')))
+      $tmpdir = 'tmp';
+
+    $outfile = os::path(mcms::mkdir($tmpdir), 'mcms-fetch.'. md5($url));
 
     $ttl = mcms::config('file.cache.ttl', 3600);
 
