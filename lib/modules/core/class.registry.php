@@ -87,7 +87,7 @@ class Registry
    */
   public function rebuild(array $modules = array())
   {
-    $this->reg = array();
+    $this->modules = $this->reg = $this->paths = array();
 
     $search = os::path(dirname(dirname(__FILE__)), '*', 'module.ini');
 
@@ -147,7 +147,9 @@ class Registry
   private function autoload($className)
   {
     $className = strtolower($className);
-    if (array_key_exists($className, $this->paths))
-      require MCMS_ROOT . DIRECTORY_SEPARATOR . $this->paths[$className];
+    if (array_key_exists($className, $this->paths)) {
+      if (file_exists($fileName = MCMS_ROOT . DIRECTORY_SEPARATOR . $this->paths[$className]))
+        require $fileName;
+    }
   }
 }
