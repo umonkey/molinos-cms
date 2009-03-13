@@ -127,6 +127,9 @@ class ModManRPC extends RPCHandler
       }
     }
 
+    $ctx->config->modules = $enabled;
+    $ctx->config->write();
+
     $next = new url($ctx->get('destination', '?q=admin'));
     $next->setarg('status', $status);
 
