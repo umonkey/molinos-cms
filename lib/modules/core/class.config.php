@@ -83,7 +83,7 @@ class Config
   public function write()
   {
     ksort($this->data);
-    os::writeArray($this->path, $this->data);
+    os::writeArray($this->path, $this->data, true);
   }
 
   public function isWritable()
