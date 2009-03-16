@@ -7,7 +7,7 @@ class AvatarRPC extends RPCHandler
    */
   public static function on_rpc(Context $ctx)
   {
-    return parent::hookRemoteCall($ctx, __CLASS__)
+    return parent::hookRemoteCall($ctx, __CLASS__);
   }
 
   protected static function rpc_get_default(Context $ctx)
