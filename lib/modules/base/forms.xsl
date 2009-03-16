@@ -29,7 +29,7 @@
 
 
   <!-- обычные текстовые строки -->
-  <xsl:template match="control[@type = 'email' or @type = 'textline' or @type = 'url' or @type = 'date' or @type = 'datetime' or @type = 'number']">
+  <xsl:template match="control[@type = 'email' or @type = 'textline' or @type = 'url' or @type = 'date' or @type = 'datetime' or @type = 'number' or @type = 'list']">
     <div>
       <xsl:call-template name="default_control_classes" />
       <xsl:call-template name="default_control_label" />
