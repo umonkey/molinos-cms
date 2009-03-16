@@ -229,6 +229,17 @@
         </a>
       </xsl:for-each>
     </xsl:template>
+    <xsl:template match="block[@name='status']" mode="dashboard">
+      <xsl:if test="message">
+        <ol>
+          <xsl:for-each select="message">
+            <a href="{@link}">
+              <xsl:value-of select="text()" />
+            </a>
+          </xsl:for-each>
+        </ol>
+      </xsl:if>
+    </xsl:template>
     <xsl:template match="block" mode="dashboard">
       <ol class="doclist">
         <xsl:for-each select="node">

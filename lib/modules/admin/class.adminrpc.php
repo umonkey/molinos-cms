@@ -353,10 +353,34 @@ class AdminRPC extends RPCHandler
       'more' => '?q=admin&cgroup=content&action=list&search=published%3A0+-uid%3A' . $ctx->user->id,
       ));
 
+    $output .= self::getDesktopNotes($ctx);
+
     return html::em('block', array(
       'name' => 'dashboard',
       'title' => t('Рабочий стол'),
       ), $output);
+  }
+
+  private static function getDesktopNotes(Context $ctx)
+  {
+    $icons = array();
+    $ctx->registry->broadcast('ru.molinos.cms.admin.status.enum', array($ctx, &$icons));
+
+    foreach ($icons as $k => $v)
+      if (empty($v['message']))
+        unset($icons[$k]);
+
+    $output = '';
+    foreach ($icons as $icon)
+      $output .= html::em('message', array(
+        'link' => $icon['link'],
+        ), html::cdata($icon['message']));
+
+    if (!empty($output))
+      return html::em('block', array(
+        'name' => 'status',
+        'title' => t('Системные сообщения'),
+        ), $output);
   }
 
   private static function getDashboardXML(PDO_Singleton $db, array $query, array $options)
