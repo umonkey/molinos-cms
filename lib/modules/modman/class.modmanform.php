@@ -85,6 +85,15 @@ class ModmanForm
       ));
   }
 
+  protected static function getUpgradeForm(Context $ctx)
+  {
+    if (count($modules = modman::getUpdatedModules())) {
+      return self::getXML($ctx, $modules, array(
+        'title' => t('Обновление модулей'),
+        ));
+    }
+  }
+
   private static function getXML(Context $ctx, array $list, array $options)
   {
     $output = '';

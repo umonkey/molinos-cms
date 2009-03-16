@@ -26,7 +26,7 @@
     </div>
   </xsl:template>
 
-  <xsl:template match="block[@name = 'modman' and @mode = 'addremove']" mode="content">
+  <xsl:template match="block[@name='modman' and (@mode='addremove' or @mode='upgrade')]" mode="content">
     <h2>
       <xsl:value-of select="@title" />
     </h2>
@@ -56,7 +56,7 @@
     </xsl:if>
     <div class="modman">
       <xsl:apply-templates select="." mode="module-extras" />
-      <form method="post" action="?q=modman.rpc&amp;action=addremove&amp;destination={/page/request/@uri}">
+      <form method="post" action="?q=modman.rpc&amp;action={@mode}&amp;destination={/page/request/@uri}">
         <table>
           <tbody>
             <xsl:apply-templates select="module">
@@ -86,7 +86,7 @@
         <xsl:value-of select="@section" />
       </xsl:attribute>
 
-      <xsl:if test="../@mode = 'addremove'">
+      <xsl:if test="../@mode='addremove' or ../@mode='upgrade'">
         <td>
           <input type="checkbox" name="modules[]" value="{@id}" id="check-{@id}">
             <xsl:if test="@installed">
@@ -142,11 +142,25 @@
 
       <!-- Номер устанвленной версии, если модуль не установлен — номер доступной. -->
       <td class="version">
-        <xsl:text>v</xsl:text>
         <xsl:if test="@installed">
-          <xsl:value-of select="@version.local" />
+          <xsl:choose>
+            <xsl:when test="@version.local != @version">
+              <del title="Есть обновление">
+                <xsl:text>v</xsl:text>
+                <xsl:value-of select="@version.local" />
+              </del>
+              <br/>
+              <xsl:text>v</xsl:text>
+              <xsl:value-of select="@version" />
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>v</xsl:text>
+              <xsl:value-of select="@version.local" />
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:if>
         <xsl:if test="not(@installed)">
+          <xsl:text>v</xsl:text>
           <xsl:value-of select="@version" />
         </xsl:if>
       </td>
