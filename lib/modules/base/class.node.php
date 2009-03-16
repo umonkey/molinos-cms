@@ -24,11 +24,14 @@
 class Node
 {
   private $stub;
+  private $isnew = true;
   private $onsave = array();
 
   public function __construct(NodeStub $stub)
   {
     $this->stub = $stub;
+    if ($this->id)
+      $this->isnew = false;
   }
 
   private final function __get($key)
@@ -56,7 +59,7 @@ class Node
    */
   public function isNew()
   {
-    return true;
+    return $this->isnew;
   }
 
   /**
@@ -620,7 +623,8 @@ class Node
    */
   public function save()
   {
-    $user = Context::last()->user;
+    $ctx = Context::last();
+    $user = $ctx->user;
 
     if (!$this->uid)
       $this->uid = $user->id;
@@ -646,6 +650,8 @@ class Node
         $db->exec($sql, $params);
       }
     }
+
+    $ctx->registry->broadcast('ru.molinos.cms.hook.node', array($ctx, $this, $this->isNew() ? 'create' : 'update'));
 
     return $this;
   }
