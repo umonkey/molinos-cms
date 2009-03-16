@@ -60,7 +60,7 @@ class ModManRPC extends RPCHandler
       throw new RuntimeException(t('Не указано имя настраиваемого модуля.'));
 
     $conf = Control::data();
-    foreach ($ctx->registry->unicast('ru.molinos.cms.admin.config.module.' . $moduleName, array($ctx)) as $k => $v)
+    foreach ($schema = $ctx->registry->unicast('ru.molinos.cms.admin.config.module.' . $moduleName, array($ctx)) as $k => $v)
       $v->set($ctx->post($k, $v->default), $conf);
 
     $cfg = $ctx->config;

@@ -46,12 +46,7 @@ class ModmanForm
         )));
 
     $form = $form->getForm();
-
-    $data = array();
-
-    if (is_array($tmp = $ctx->modconf($name)))
-      foreach ($tmp as $k => $v)
-        $data['config_'. $k] = $v;
+    $data = $ctx->modconf($name);
 
     if (empty($form->title))
       $form->title = t('Настройка модуля %name', array('%name' => $name));
