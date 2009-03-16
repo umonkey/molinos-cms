@@ -396,4 +396,14 @@ class ControlData
   {
     return array_key_exists($key, $this->data);
   }
+
+  public function __set($key, $value)
+  {
+    $this->data[$key] = $value;
+  }
+
+  public function dump()
+  {
+    return $this->data;
+  }
 }
