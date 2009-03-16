@@ -14,6 +14,8 @@ class Sitemap
         'label' => t('Уведомлять поисковые серверы'),
         'default' => "www.google.com",
         'description' => t('Не все серверы поддерживают уведомления, не надо добавлять всё подряд!'),
+        'weight' => 1,
+        'group' => t('Серверы'),
         ),
       'no_ping' => array(
         'type' => 'BoolControl',
@@ -24,11 +26,16 @@ class Sitemap
           .'где следует брать карту сайта.', array(
             '@url' => 'http://www.google.com/webmasters/sitemaps/',
             )),
+        'weight' => 2,
+        'group' => t('Серверы'),
         ),
-      'skip_types' => array(
+      'send_types' => array(
         'type' => 'SetControl',
-        'label' => t('Игнорировать документы типов'),
-        'options' => self::get_possible_types(),
+        'label' => t('Сообщать о документах типов'),
+        'options' => Node::getSortedList('type', 'title', 'name'),
+        'weight' => 3,
+        'group' => t('Типы доокументов'),
+        'store' => true,
         ),
       ));
 
@@ -46,6 +53,7 @@ class Sitemap
       'restore',
       'publish',
       'unpublish',
+      'update',
       );
 
     if (!in_array($op, $stop))
@@ -54,16 +62,16 @@ class Sitemap
     if (!empty($node->class)) {
       $conf = (array)$ctx->modconf('sitemap');
 
-      if (!array_key_exists('skip_types', $conf))
-        $conf['skip_types'] = array();
-
-      if (!in_array($node->class, $conf['skip_types'])) {
-        if (file_exists($path = self::get_file_path()))
+      if (in_array($node->class, (array)$ctx->modconf('sitemap', 'send_types'))) {
+        if (file_exists($path = self::get_file_path($ctx)))
           unlink($path);
 
         if (empty($conf['no_ping'])) {
           if (count($hosts = explode("\n", $conf['ping']))) {
-            $sm = 'http://'. url::host() . mcms::path() .'/?q=sitemap.rpc';
+            $sm = 'http://'. MCMS_HOST_NAME . mcms::path() . '/';
+            $sm .= empty($_GET['__cleanurls'])
+              ? '?q=sitemap.rpc'
+              : 'sitemap.rpc';
 
             foreach ($hosts as $host) {
               mcms::flog('pinging '. $host .' with '. $sm);
@@ -80,7 +88,7 @@ class Sitemap
    */
   public static function hookRemoteCall(Context $ctx)
   {
-    $path = self::get_file_path();
+    $path = self::get_file_path($ctx);
 
     if (!is_readable($path))
       self::write($ctx, $path);
@@ -97,7 +105,7 @@ class Sitemap
 
   private static function write(Context $ctx, $filename)
   {
-    $f = fopen($filename, 'w');
+    $f = fopen($filename . '.tmp', 'w');
 
     fwrite($f, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     fwrite($f, "<?xml-stylesheet href=\"http://" . url::host() . mcms::path()
@@ -109,6 +117,8 @@ class Sitemap
 
     fwrite($f, "</urlset>\n");
     fclose($f);
+
+    rename($filename . '.tmp', $filename);
   }
 
   private static function write_sections(Context $ctx, $f)
@@ -129,20 +139,21 @@ class Sitemap
 
   private static function write_nodes(Context $ctx, $f)
   {
-    $conf = $ctx->modconf('sitemap');
-
     $filter = array(
-      '-class' => $conf['skip_types'],
+      'class' => (array)$ctx->modconf('sitemap', 'send_types'),
       'published' => 1,
       'deleted' => 0,
       );
 
-    if (count($nodes = Node::find($filter))) {
+    if (empty($filter))
+      throw new PageNotFoundException(t('Карта сайта не настроена.'));
+
+    if (count($nodes = Node::find($ctx->db, $filter))) {
       fwrite($f, "<!-- documents -->\n");
 
       foreach ($nodes as $node) {
         $line = "<url>"
-          ."<loc>http://" . url::host() . "/node/{$node->id}</loc>";
+          ."<loc>http://" . MCMS_HOST_NAME . "/node/{$node->id}</loc>";
         if (!empty($node->updated)) {
           $date = gmdate('Y-m-d', strtotime($node->updated));
           $line .= "<lastmod>{$date}</lastmod>";
@@ -153,25 +164,8 @@ class Sitemap
     }
   }
 
-  private static function get_file_path()
+  private static function get_file_path(Context $ctx)
   {
-    return mcms::config('tmpdir') . DIRECTORY_SEPARATOR . 'sitemap-' .  url::host() .'.xml';
-  }
-
-  private static function get_hard_skip_types()
-  {
-    return array('domain', 'file', 'group', 'moduleinfo', 'tag', 'widget', 'type');
-  }
-
-  private static function get_possible_types()
-  {
-    $result = array();
-    $skip = self::get_hard_skip_types();
-
-    foreach (Node::getSortedList('type', 'title', 'name') as $k => $v)
-      if (!in_array($k, $skip))
-        $result[$k] = $v;
-
-    return $result;
+    return os::path($ctx->config->getPath('tmpdir'), 'sitemap-' . MCMS_HOST_NAME . '.xml');
   }
 }

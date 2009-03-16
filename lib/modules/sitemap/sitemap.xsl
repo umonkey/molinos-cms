@@ -8,14 +8,15 @@
       <xsl:attribute name="id">sitemap</xsl:attribute>
       <head>
         <title>Molinos CMS Sitemap</title>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
       </head>
       <body>
-        <h1>Oops.</h1>
-        <p>This file is not for your reading pleasure; it's for web crawlers.</p>
-        <p>You may refer to <a href="http://www.sitemap.org/">sitemap.org</a> to learn about site maps.</p>
-        <p><small>PS: the fact that you can see this confirms that the <a href="http://code.google.com/p/molinos-cms/wiki/mod_sitemap">sitemap module</a> is working.</small></p>
+        <h1>Карта сайта</h1>
+        <p>Этот файл не предназначен для чтения, он предназначен для поисковых роботов.</p>
+        <p>Подробности можно узнать на сайте <a href="http://www.sitemap.org/">sitemap.org</a>.</p>
+        <p><small>PS: то, что вы видите этот текст, означает, что модуль <a href="http://code.google.com/p/molinos-cms/wiki/mod_sitemap">sitemap</a> для Molinos CMS работает нормально.</small></p>
         <hr />
-        <p><em><a href="http://cms.molinos.ru/">Molinos CMS v8.05</a> for your domains</em></p>
+        <p><em>Truly yours, <a href="http://cms.molinos.ru/">Molinos CMS</a>.</em></p>
       </body>
     </xsl:element>
    </xsl:template>
