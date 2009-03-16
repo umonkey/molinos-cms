@@ -73,4 +73,14 @@ class TextLineControl extends Control
         ),
       );
   }
+
+  /**
+   * Форматирование значения. Вызывает обработчики вроде типографа.
+   */
+  public function format($value)
+  {
+    $ctx = Context::last();
+    $ctx->registry->broadcast('ru.molinos.cms.format.text', array($ctx, $this->value, &$value));
+    return $value;
+  }
 };

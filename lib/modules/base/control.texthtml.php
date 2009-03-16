@@ -61,4 +61,14 @@ class TextHTMLControl extends Control
 
     $node->{$this->value} = $value;
   }
+
+  /**
+   * Форматирование значения. Вызывает обработчики вроде типографа.
+   */
+  public function format($value)
+  {
+    $ctx = Context::last();
+    $ctx->registry->broadcast('ru.molinos.cms.format.text', array($ctx, $this->value, &$value));
+    return $value;
+  }
 };
