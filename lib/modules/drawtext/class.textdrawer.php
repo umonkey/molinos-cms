@@ -24,7 +24,7 @@ class TextDrawer
 
   public function __construct()
   {
-    $conf = mcms::modconf('drawtext');
+    $conf = Context::last()->modconf('drawtext');
 
     if (isset($conf['font']))
       $this->setFont($conf['font']);

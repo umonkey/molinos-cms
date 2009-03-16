@@ -52,7 +52,7 @@ class Sitemap
       return;
 
     if (!empty($node->class)) {
-      $conf = (array)mcms::modconf('sitemap');
+      $conf = (array)$ctx->modconf('sitemap');
 
       if (!array_key_exists('skip_types', $conf))
         $conf['skip_types'] = array();
@@ -129,7 +129,7 @@ class Sitemap
 
   private static function write_nodes(Context $ctx, $f)
   {
-    $conf = mcms::modconf('sitemap');
+    $conf = $ctx->modconf('sitemap');
 
     $filter = array(
       '-class' => $conf['skip_types'],
@@ -156,21 +156,6 @@ class Sitemap
   private static function get_file_path()
   {
     return mcms::config('tmpdir') . DIRECTORY_SEPARATOR . 'sitemap-' .  url::host() .'.xml';
-  }
-
-  private static function get_disallowed_types()
-  {
-    $conf = mcms::modconf('sitemap');
-
-    $types = empty($conf['skip_types'])
-      ? array()
-      : $conf['skip_types'];
-
-    foreach (self::get_hard_skip_types() as $skip)
-      if (!in_array($skip, $types))
-        $types[] = $skip;
-
-    return $types;
   }
 
   private static function get_hard_skip_types()

@@ -12,8 +12,8 @@ class AdminExtRPC extends RPCHandler
 
   public static function rpc_getlinks(Context $ctx)
   {
-    $hide = mcms::modconf('adminext', 'hide', array());
-    $etpl = mcms::modconf('adminext', 'edit_tpl');
+    $hide = $ctx->modconf('adminext', 'hide', array());
+    $etpl = $ctx->modconf('adminext', 'edit_tpl');
 
     switch ($pos = strpos($url = $ctx->get('url'), '?')) {
     case 0:

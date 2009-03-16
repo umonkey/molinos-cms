@@ -38,7 +38,7 @@ class SubscriptionNode extends Node
 
   public function getEnabledSections()
   {
-    $conf = mcms::modconf('subscription');
+    $conf = Context::last()->modconf('subscription');
 
     if (!array_key_exists('sections', $conf))
       return array();

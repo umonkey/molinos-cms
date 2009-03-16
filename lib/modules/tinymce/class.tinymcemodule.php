@@ -11,7 +11,7 @@ class TinyMceModule
     if ('text/html' != $page->content_type)
       return;
 
-    $config = mcms::modconf('tinymce');
+    $config = $ctx->modconf('tinymce');
 
     $url = new url();
 
@@ -73,7 +73,7 @@ class TinyMceModule
 
   public static function add_extras(Context $ctx)
   {
-    $config = mcms::modconf('tinymce');
+    $config = $ctx->modconf('tinymce');
 
     if (empty($config['initializer']))
       $config['initializer'] = '';

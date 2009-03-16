@@ -8,7 +8,7 @@ class MaintenanceModule
    */
   public static function hookRequest(Context $ctx)
   {
-    $conf = mcms::modconf('maintenance');
+    $conf = $ctx->modconf('maintenance');
 
     if (!empty($conf['state']) and 'closed' === $conf['state'] and !$ctx->canDebug()) {
       $query = $ctx->query();

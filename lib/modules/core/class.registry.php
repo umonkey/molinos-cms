@@ -126,6 +126,7 @@ class Registry
     }
 
     ksort($this->reg);
+    ksort($this->paths);
 
     os::writeArray($this->getSavePath(), array(
       'modules' => $this->modules,

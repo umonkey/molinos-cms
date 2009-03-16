@@ -17,8 +17,9 @@ class OrderNode extends Node implements iContentType
     $res = parent::save();
 
     if ($isnew) {
+      $ctx = Context::last();
       $this->sendEmail($this->email, 'invoice');
-      $this->sendEmail(mcms::modconf('cart', 'email'), 'notification');
+      $this->sendEmail($ctx->modconf('cart', 'email'), 'notification');
     }
 
     CartRPC::resetCart();

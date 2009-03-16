@@ -7,7 +7,7 @@ class AdminExtReqHook
    */
   public static function hookRequest(Context $ctx)
   {
-    $conf = mcms::modconf('adminext');
+    $conf = $ctx->modconf('adminext');
 
     if (empty($conf['groups']))
       return;

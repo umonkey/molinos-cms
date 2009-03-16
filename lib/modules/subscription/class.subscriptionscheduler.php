@@ -11,9 +11,9 @@ class SubscriptionScheduler
     if (!ini_get('safe_mode'))
       set_time_limit(0);
 
-    $types = mcms::modconf('subscription', 'types', array());
-    $xsl = mcms::modconf('subscription', 'stylesheet', os::path('lib', 'modules', 'subscription', 'message.xsl'));
-    $sub = mcms::modconf('subscription', 'subject', 'Новости сайта %host');
+    $types = $ctx->modconf('subscription', 'types', array());
+    $xsl = $ctx->modconf('subscription', 'stylesheet', os::path('lib', 'modules', 'subscription', 'message.xsl'));
+    $sub = $ctx->modconf('subscription', 'subject', 'Новости сайта %host');
 
     if (empty($types))
       return;

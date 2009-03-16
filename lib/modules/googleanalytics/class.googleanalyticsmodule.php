@@ -8,7 +8,7 @@ class GoogleAnalyticsModule
    */
   public static function hookRequest(Context $ctx)
   {
-    $conf = mcms::modconf('googleanalytics', 'config');
+    $conf = $ctx->modconf('googleanalytics', 'config');
     if (!empty($conf['account'])) {
       $script = 'var gaJsHost = (("https:" == document.location.protocol) '
         . '? "https://ssl." : "http://www.");document.write(unescape("%3Cscript src=\'" + gaJsHost + '

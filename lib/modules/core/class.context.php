@@ -613,7 +613,7 @@ class Context
    */
   public function modconf($moduleName, $keyName = null, $default = null)
   {
-    $conf = $this->config->modconf;
+    $conf = (array)$this->config->modconf;
     $conf = array_key_exists($moduleName, $conf)
       ? $conf[$moduleName]
       : array();

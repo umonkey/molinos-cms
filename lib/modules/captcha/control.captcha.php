@@ -51,10 +51,12 @@ class CaptchaControl extends Control
     if ($data->id)
       return false;
 
-    if (Context::last()->user->id)
+    $ctx = Context::last();
+
+    if ($ctx->user->id)
       return false;
 
-    if (!is_array($types = mcms::modconf('captcha', 'types')))
+    if (!is_array($types = $ctx->modconf('captcha', 'types')))
       return false;
 
     if (isset($types['__reset']))

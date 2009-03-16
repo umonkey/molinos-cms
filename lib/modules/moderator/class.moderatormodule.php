@@ -33,7 +33,7 @@ class ModeratorModule
    */
   public static function hookNodeUpdate(Context $ctx, Node $node, $op)
   {
-    $config = mcms::modconf('moderator');
+    $config = $ctx->modconf('moderator');
 
     if (!empty($config['skip_types']) and in_array($node->class, $config['skip_types']))
       return;
@@ -76,7 +76,7 @@ class ModeratorModule
       '%type' => isset($schema['title']) ? $schema['title'] : $node->class,
       )) .'</p>'. self::getNodeBody($node);
 
-    if (count($to = self::getRecipients())) {
+    if (count($to = self::getRecipients($ctx))) {
       $rc = BebopMimeMail::send(
         null,
         $to,
@@ -114,9 +114,9 @@ class ModeratorModule
     return $body;
   }
 
-  private static function getRecipients()
+  private static function getRecipients(Context $ctx)
   {
-    $config = mcms::modconf('moderator');
+    $config = $ctx->modconf('moderator');
     $list = isset($config['super']) ? preg_split('/, */', $config['super']) : array();
 
     if (Context::last()->user->id) {

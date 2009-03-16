@@ -48,7 +48,7 @@ class CartRPC
 
       $total = $sum;
 
-      $conf = mcms::modconf('cart');
+      $conf = $ctx->modconf('cart');
 
       if (!empty($conf['discount_threshold'])) {
         if ($sum >= $conf['discount_threshold']) {
@@ -88,7 +88,7 @@ class CartRPC
       }
     }
 
-    if ($discounter = mcms::modconf('cart', 'discounter')) {
+    if ($discounter = $ctx->modconf('cart', 'discounter')) {
       if (class_exists($discounter)) {
         $d = new $discounter();
         $d->process($result);
