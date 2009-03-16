@@ -14,17 +14,17 @@ class RPCRouter implements iRequestRouter
     $response = $ctx->registry->unicast($msg = 'ru.molinos.cms.rpc.' . $this->query, array($ctx));
 
     if (false === $response)
-      $response = new Response(t('Не удалось обработать запрос: нет обработчика сообщения %msg.', array(
+      throw new PageNotFoundException(t('Не удалось обработать запрос: нет обработчика сообщения %msg.', array(
         '%msg' => $msg,
-        )), 'text/plain', 404);
+        )));
 
     elseif (true === $response)
       $response = $ctx->getRedirect();
 
     if (!($response instanceof Response))
-      $response = new Response(t('Обработчик сообщения %msg вернул что-то не то.', array(
+      throw new RuntimeException(t('Обработчик сообщения %msg вернул что-то не то.', array(
         '%msg' => $msg,
-        )), 'text/plain', 404);
+        )));
 
     return $response;
   }
