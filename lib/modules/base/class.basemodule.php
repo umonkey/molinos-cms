@@ -7,16 +7,14 @@ class BaseModule
    */
   public static function formGetModuleConfig()
   {
-    $form = new Form(array());
-
-    $form->addControl(new NumberControl(array(
-      'value' => 'config_archive_limit',
-      'label' => t('Количество архивных ревизий'),
-      'default' => 10,
-      'description' => t('При сохранении документов будет оставлено указанное количество архивных ревизий, все остальные будут удалены.'),
-      )));
-
-    return $form;
+    return new Schema(array(
+      'archive_limit' => array(
+        'type' => 'NumberControl',
+        'label' => t('Количество архивных ревизий'),
+        'default' => 10,
+        'description' => t('При сохранении документов будет оставлено указанное количество архивных ревизий, все остальные будут удалены.'),
+        ),
+      ));
   }
 
   /**

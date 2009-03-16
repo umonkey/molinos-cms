@@ -123,7 +123,7 @@ class NodeLinkControl extends Control
     return null;
   }
 
-  public function set($value, Node &$node)
+  public function set($value, &$node)
   {
     $this->validate($value);
 
@@ -135,7 +135,12 @@ class NodeLinkControl extends Control
       else {
         $parts = explode('.', $this->values);
 
-        $n = Node::find($node->getDB(), array(
+        if ($node instanceof Node)
+          $db = $node->getDB();
+        else
+          $db = Context::last()->db;
+
+        $n = Node::find($db, array(
           'class' => $parts[0],
           'deleted' => 0,
           $parts[1] => $value,

@@ -54,14 +54,12 @@ class BebopMimeMail
    */
   public static function formGetModuleConfig()
   {
-    $form = new Form(array());
-    $form->addControl(new EmailControl(array(
-      'value' => 'config_from',
-      'label' => t('Адрес отправителя'),
-      'default' => mcms::config('mail.from'),
-      )));
-
-    return $form;
+    return new Schema(array(
+      'from' => array(
+        'type' => 'EmailControl',
+        'label' => t('Адрес отправителя'),
+        ),
+      ));
   }
 
   // Превращает все относительные ссылки в абсолютные.

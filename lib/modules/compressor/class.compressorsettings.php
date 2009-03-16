@@ -8,16 +8,12 @@ class CompressorSettings
    */
   public static function formGetModuleConfig()
   {
-    $form = new Form(array(
-      'title' => t('Настройка компрессора'),
+    return new Schema(array(
+      'strip_html' => array(
+        'type' => 'BoolControl',
+        'label' => t('Очищать HTML код'),
+        ),
       ));
-
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_strip_html',
-      'label' => t('Очищать HTML код'),
-      )));
-
-    return $form;
   }
 
   private static function getGroups()

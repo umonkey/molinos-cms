@@ -7,14 +7,10 @@ class CaptchaSettings
    */
   public static function formGetModuleConfig()
   {
-    $form = new Form(array());
-
-    $form->addControl(new SetControl(array(
-      'value' => 'config_types',
+    return new Schema(array(
+      'type' => 'SetControl',
       'label' => t('Проверяемые типы документов'),
       'options' => Node::getSortedList('type', 'title', 'name'),
-      )));
-
-    return $form;
+      ));
   }
 }

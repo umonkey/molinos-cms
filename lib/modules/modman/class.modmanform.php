@@ -40,10 +40,12 @@ class ModmanForm
       throw new PageNotFoundException();
 
     $form = $ctx->registry->unicast('ru.molinos.cms.admin.config.module.' . $name, array($ctx));
-    if (!($form instanceof iFormControl))
+    if (!($form instanceof Schema))
       throw new RuntimeException(t('Модуль %name не поддерживает настройку. Скорее всего, в него совсем недавно были внесены изменения, ручная "перезагрузка" системы поможет.', array(
         '%name' => $name,
         )));
+
+    $form = $form->getForm();
 
     $data = array();
 

@@ -7,26 +7,24 @@ class UserConfig
    */
   public static function formGetModuleConfig()
   {
-    $form = new Form(array());
-
-    $form->addControl(new SetControl(array(
-      'value' => 'config_new_user_groups',
-      'label' => t('Группы для регистрирующихся пользователей'),
-      'options' => Node::getSortedList('group'),
-      'store' => true,
-      )));
-    $form->addControl(new SetControl(array(
-      'value' => 'config_special_profile_fields',
-      'label' => t('Запретить пользователям редактировать поля'),
-      'options' => self::getProfileFields(),
-      'store' => true,
-      )));
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_check_pw_on_profile_edit',
-      'label' => t('Проверять пароль при изменении профиля'),
-      )));
-
-    return $form;
+    return new Schema(array(
+      'new_user_groups' => array(
+        'type' => 'SetControl',
+        'label' => t('Группы для регистрирующихся пользователей'),
+        'options' => Node::getSortedList('group'),
+        'store' => true,
+        ),
+      'special_profile_fields' => array(
+        'type' => 'SetControl',
+        'label' => t('Запретить пользователям редактировать поля'),
+        'options' => self::getProfileFields(),
+        'store' => true,
+        ),
+      'check_pw_on_profile_edit' => array(
+        'type' => 'BoolControl',
+        'label' => t('Проверять пароль при изменении профиля'),
+        ),
+      ));
   }
 
   private static function getProfileFields()

@@ -8,15 +8,13 @@ class CronModule
    */
   public static function formGetModuleConfig()
   {
-    $form = new Form(array());
-
-    $form->addControl(new TextLineControl(array(
-      'value' => 'config_allowed',
-      'label' => t('Разрешённые IP адреса'),
-      'description' => t('Введите список IP-адресов, с которых разрешён запуск задач.  Запуск с локального сервера всегда разрешён.'),
-      )));
-
-    return $form;
+    return new Schema(array(
+      'allowed' => array(
+        'type' => 'Listcontrol',
+        'label' => t('Разрешённые IP адреса'),
+        'description' => t('Введите список IP-адресов, с которых разрешён запуск задач.  Запуск с локального сервера всегда разрешён.'),
+        ),
+      ));
   }
 
   /**

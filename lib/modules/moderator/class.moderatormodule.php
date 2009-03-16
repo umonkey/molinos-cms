@@ -8,34 +8,24 @@ class ModeratorModule
    */
   public static function formGetModuleConfig()
   {
-    $form = new Form(array(
-      'title' => t('Модерирование (настройка)'),
+    return new Schema(array(
+      'from' => array(
+        'type' => 'EmailControl',
+        'label' => t('Отправитель сообщений'),
+        'description' => t('С этого адреса будут приходить сообщения на тему модерации.'),
+        'default' => 'no-reply@' . MCMS_HOST_NAME,
+        ),
+      'super' => array(
+        'type' => 'EmailControl',
+        'label' => t('Супервизоры'),
+        'description' => t('Список почтовых адресов, на которые всегда приходят все сообщения о модерации, независимо от привязки пользователя к выпускающему редактору.'),
+        ),
+      'skip_types' => array(
+        'type' => 'SetControl',
+        'label' => t('Немодерируемые документы'),
+        'options' => Node::getSortedList('type', 'title', 'name'),
+        ),
       ));
-
-    $form->addControl(new EmailControl(array(
-      'value' => 'config_from',
-      'label' => t('Отправитель сообщений'),
-      'description' => t('С этого адреса будут приходить сообщения на тему модерации.'),
-      )));
-
-    $form->addControl(new EmailControl(array(
-      'value' => 'config_super',
-      'label' => t('Супервизоры'),
-      'description' => t('Список почтовых адресов, на которые всегда приходят все сообщения о модерации, независимо от привязки пользователя к выпускающему редактору.'),
-      )));
-
-    $types = array();
-
-    foreach (Node::find(Context::last()->db, array('class' => 'type')) as $t)
-      $types[$t->name] = $t->title;
-
-    $form->addControl(new SetControl(array(
-      'value' => 'config_skip_types',
-      'label' => t('Немодерируемые документы'),
-      'options' => $types,
-      )));
-
-    return $form;
   }
 
   /**

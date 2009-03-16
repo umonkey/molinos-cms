@@ -8,29 +8,29 @@ class Sitemap
    */
   public static function formGetModuleConfig()
   {
-    $form = new Form(array());
-
-    $form->addControl(new TextAreaControl(array(
-      'value' => 'config_ping',
-      'label' => t('Уведомлять поисковые серверы'),
-      'default' => "www.google.com",
-      'description' => t('Не все серверы поддерживают уведомления, не надо добавлять всё подряд!'),
-      )));
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_no_ping',
-      'label' => t('Не надо никого уведомлять'),
-      'description' => t('Отправка уведомлений производится при каждом '
-        .'добавлении или удалении документа, что может тормозить работу. '
-        .'Гораздо лучше явно <a href="@url">сказать поисковым серверам</a>, '
-        .'где следует брать карту сайта.', array(
-          '@url' => 'http://www.google.com/webmasters/sitemaps/',
-          )),
-      )));
-    $form->addControl(new SetControl(array(
-      'value' => 'config_skip_types',
-      'label' => t('Игнорировать документы типов'),
-      'options' => self::get_possible_types(),
-      )));
+    return new Schema(array(
+      'ping' => array(
+        'type' => 'TextAreaControl',
+        'label' => t('Уведомлять поисковые серверы'),
+        'default' => "www.google.com",
+        'description' => t('Не все серверы поддерживают уведомления, не надо добавлять всё подряд!'),
+        ),
+      'no_ping' => array(
+        'type' => 'BoolControl',
+        'label' => t('Не надо никого уведомлять'),
+        'description' => t('Отправка уведомлений производится при каждом '
+          .'добавлении или удалении документа, что может тормозить работу. '
+          .'Гораздо лучше явно <a href="@url">сказать поисковым серверам</a>, '
+          .'где следует брать карту сайта.', array(
+            '@url' => 'http://www.google.com/webmasters/sitemaps/',
+            )),
+        ),
+      'skip_types' => array(
+        'type' => 'SetControl',
+        'label' => t('Игнорировать документы типов'),
+        'options' => self::get_possible_types(),
+        ),
+      ));
 
     return $form;
   }

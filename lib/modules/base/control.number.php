@@ -54,7 +54,7 @@ class NumberControl extends Control
       ));
   }
 
-  public function set($value, Node &$node, array $data = array())
+  public function set($value, &$node, array $data = array())
   {
     $this->validate($value);
 

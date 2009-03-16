@@ -38,26 +38,23 @@ class XspfModule
    */
   public static function formGetModuleConfig()
   {
-    $form = new Form(array());
-
-    $form->addControl(new SetControl(array(
-      'value' => 'config_types',
-      'label' => t('Типы обрабатываемых медиафайлов'),
-      'options' => array(
-        'mp3' => 'MP3',
-        'flv' => 'Flash Video',
+    return new Schema(array(
+      'types' => array(
+        'type' => 'SetControl',
+        'label' => t('Типы обрабатываемых медиафайлов'),
+        'options' => array(
+          'mp3' => 'MP3',
+          'flv' => 'Flash Video',
+          ),
         ),
-      )));
-
-    $form->addControl(new SetControl(array(
-      'value' => 'config_options',
-      'label' => t('Дополнительные настройки'),
       'options' => array(
-        'published' => t('Выводить только опубликованные файлы'),
-        'info' => t('Добавлять ссылку на файл, для скачивания'),
+        'type' => 'SetControl',
+        'label' => t('Дополнительные настройки'),
+        'options' => array(
+          'published' => t('Выводить только опубликованные файлы'),
+          'info' => t('Добавлять ссылку на файл, для скачивания'),
+          ),
         ),
-      )));
-
-    return $form;
+      ));
   }
 };

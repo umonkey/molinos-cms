@@ -183,14 +183,12 @@ class PollWidget extends Widget
    */
   public static function formGetModuleConfig()
   {
-    $form = new Form(array());
-
-    $form->addControl(new BoolControl(array(
-      'value' => 'config_anonymous',
-      'label' => t('Разрешить анонимные ответы'),
-      'description' => t('Эта настройка влияет на все существующие опросы.'),
-      )));
-
-    return $form;
+    return new Schema(array(
+      'anonymous' => array(
+        'type' => 'BoolControl',
+        'label' => t('Разрешить анонимные ответы'),
+        'description' => t('Эта настройка влияет на все существующие опросы.'),
+        ),
+      ));
   }
 };

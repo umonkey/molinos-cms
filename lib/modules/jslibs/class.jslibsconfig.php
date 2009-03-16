@@ -7,18 +7,16 @@ class JSLibsConfig
    */
   public static function formGetModuleConfig()
   {
-    $form = new Form(array());
-
-    $form->addControl(new SetControl(array(
-      'value' => 'config_use',
-      'label' => t('Использовать библиотеки'),
-      'options' => self::getLibrariesHTML(),
-      'description' => t('Библиотеки загружаются со специальных <a href="@url">выделенных серверов Google</a>, что очень быстро и хорошо кэшируется.', array(
-        '@url' => 'http://code.google.com/intl/ru-RU/apis/ajaxlibs/',
-        )),
-      )));
-
-    return $form;
+    return new Schema(array(
+      'use' => array(
+        'type' => 'SetControl',
+        'label' => t('Использовать библиотеки'),
+        'options' => self::getLibrariesHTML(),
+        'description' => t('Библиотеки загружаются со специальных <a href="@url">выделенных серверов Google</a>, что очень быстро и хорошо кэшируется.', array(
+          '@url' => 'http://code.google.com/intl/ru-RU/apis/ajaxlibs/',
+          )),
+        ),
+      ));
   }
 
   private static function getLibrariesHTML()
