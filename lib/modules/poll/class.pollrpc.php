@@ -14,6 +14,7 @@ class PollRPC
 
       $votes = $ctx->post('vote');
 
+      $ctx->db->beginTransaction();
       if (is_array($votes)) {
         foreach ($votes as $i => $vote)
           $ctx->db->exec("INSERT INTO `node__poll` (`nid`, `uid`, `ip`, `option`) VALUES (:nid, :uid, :ip, :option)", array(
@@ -30,6 +31,7 @@ class PollRPC
           ':option' => $votes,
           ));
       }
+      $ctx->db->commit();
     }
 
     return $ctx->getRedirect();

@@ -56,37 +56,17 @@ class PollWidget extends Widget
     $this->options = $options;
 
     if (!$this->checkUserVoted($options)) {
-      return array(
+      $output = html::em('poll', array(
+        'title' => $poll->name,
         'mode' => 'form',
-        'node' => $poll->getRaw(),
-        'options' => self::getPollOptions($poll),
-        'schema' => $poll->getSchema(),
-        'form' => parent::formRender('vote-form', $poll),
-        );
+        ), $poll->getOptionsXML());
     }
 
     else {
-      $total = 0;
-      $options = array(
-        );
-
-      foreach (self::getPollOptions($poll) as $k => $v)
-        $options[$k] = array('text' => $v, 'count' => 0);
-
-      foreach ($this->ctx->db->getResultsKV('option', 'count', 'SELECT `option`, COUNT(*) AS `count` FROM `node__poll` WHERE `nid` = :nid GROUP BY `option`', array(':nid' => $poll->id)) as $k => $v) {
-        if (array_key_exists(intval($k), $options))
-          $options[$k]['count'] = intval($v);
-
-        // Суммируем голоса, потом можно будет подсчитать процент.
-        $total += $options[$k]['count'];
-      }
-
-      return array(
+      $output = html::em('poll', array(
         'title' => $poll->name,
         'mode' => 'results',
-        'options' => $options,
-        'total' => $total,
-        );
+        ), $poll->getOptionsXML());
     }
   }
 
@@ -140,7 +120,7 @@ class PollWidget extends Widget
       ), 1, 0);
 
     if (!empty($nodes))
-      return $nodes[key($nodes)];
+      return $nodes[key($nodes)]->getObject();
 
     return null;
   }
