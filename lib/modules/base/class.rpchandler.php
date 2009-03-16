@@ -24,7 +24,8 @@ class RPCHandler
       }
     }
 
-    mcms::debug($call);
+    if (null !== ($next = $ctx->getRedirect()))
+      return $next;
 
     return false;
   }
