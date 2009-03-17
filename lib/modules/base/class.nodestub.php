@@ -271,7 +271,7 @@ class NodeStub
 
             if (self::isBasicField($k))
               $data[$k] = $v;
-            else
+            elseif (!empty($v))
               $data['#text'] .= html::em($k, html::cdata($v));
           }
         }
