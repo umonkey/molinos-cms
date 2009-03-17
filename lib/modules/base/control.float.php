@@ -24,7 +24,6 @@ class FloatControl extends NumberControl
   {
     return array(
       'name' => t('Число (дробное)'),
-      'class' => __CLASS__,
       );
   }
 };

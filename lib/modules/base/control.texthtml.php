@@ -27,7 +27,6 @@ class TextHTMLControl extends Control
   {
     return array(
       'name' => t('Текст с форматированием'),
-      'class' => __CLASS__,
       );
   }
 

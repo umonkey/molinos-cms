@@ -24,7 +24,6 @@ class EnumControl extends Control
   {
     return array(
       'name' => t('Выбор из списка (выпадающего)'),
-      'class' => __CLASS__,
       );
   }
 

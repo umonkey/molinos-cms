@@ -24,7 +24,6 @@ class TextAreaControl extends Control
   {
     return array(
       'name' => t('Текст без форматирования'),
-      'class' => __CLASS__,
       );
   }
 

@@ -38,7 +38,6 @@ class NodeLinkControl extends Control
   {
     return array(
       'name' => t('Выбор из справочника'),
-      'class' => __CLASS__,
       );
   }
 

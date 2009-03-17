@@ -24,7 +24,6 @@ class EmailControl extends Control
   {
     return array(
       'name' => 'Адрес электронной почты',
-      'class' => __CLASS__,
       );
   }
 

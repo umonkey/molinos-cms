@@ -47,6 +47,25 @@ class Registry
     return $this;
   }
 
+  public function enum($method, array $args = array())
+  {
+    $result = array();
+
+    if (array_key_exists($method, $this->reg))
+      foreach ($this->reg[$method] as $handler) {
+        if (is_callable($handler)) {
+          $parts = explode('::', $handler);
+          $result[] = array(
+            'class' => $parts[0],
+            'method' => $parts[1],
+            'result' => call_user_func_array($handler, $args),
+            );
+        }
+      }
+
+    return $result;
+  }
+
   /**
    * Вызов первого обработчика сообщения.
    *

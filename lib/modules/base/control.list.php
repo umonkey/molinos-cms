@@ -9,7 +9,6 @@ class ListControl extends TextLineControl
   {
     return array(
       'name' => t('Список значений (через запятую)'),
-      'class' => __CLASS__,
       );
   }
 

@@ -26,7 +26,6 @@ class SetControl extends Control
   {
     return array(
       'name' => t('Флаги (несколько галочек)'),
-      'class' => __CLASS__,
       );
   }
 

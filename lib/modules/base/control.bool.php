@@ -24,7 +24,6 @@ class BoolControl extends Control
   {
     return array(
       'name' => t('Флаг'),
-      'class' => __CLASS__,
       );
   }
 

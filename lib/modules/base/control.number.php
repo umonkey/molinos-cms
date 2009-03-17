@@ -24,7 +24,6 @@ class NumberControl extends Control
   {
     return array(
       'name' => t('Число (целое)'),
-      'class' => __CLASS__,
       );
   }
 

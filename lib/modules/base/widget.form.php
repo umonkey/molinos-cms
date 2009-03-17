@@ -11,7 +11,6 @@ class FormWidget extends Widget
   public static function getWidgetInfo()
   {
     return array(
-      'class' => __CLASS__,
       'name' => 'Форма для создания документа',
       'description' => 'Выводит форму для создания документа.',
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/FormWidget',

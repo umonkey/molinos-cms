@@ -356,11 +356,10 @@ abstract class Control implements iFormControl
    */
   public static function getKnownTypes()
   {
-    $types = array();
-    Context::last()->broadcast('ru.molinos.cms.control.enum', array(&$types));
+    $types = Context::last()->registry->enum('ru.molinos.cms.control.enum');
 
     foreach ($types as $k => $v)
-      $types[$k] = $v['name'];
+      $types[$k] = $v['result']['name'];
 
     asort($types);
 

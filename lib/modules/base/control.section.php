@@ -9,7 +9,6 @@ class SectionControl extends EnumControl
   {
     return array(
       'name' => t("Привязка к разделу"),
-      'class' => __CLASS__,
       );
   }
 

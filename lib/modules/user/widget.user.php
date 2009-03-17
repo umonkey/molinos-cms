@@ -30,7 +30,6 @@ class UserWidget extends Widget implements iWidget
   public static function getWidgetInfo()
   {
     return array(
-      'class' => __CLASS__,
       'name' => 'Профиль пользователя',
       'description' => 'Выводит форму авторизации, выхода, регистрации, восстановления пароля и редактирования профиля.',
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/UserWidget',

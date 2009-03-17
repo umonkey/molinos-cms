@@ -9,7 +9,6 @@ class MarkdownControl extends TextAreaControl
   {
     return array(
       'name' => t('Текст (markdown)'),
-      'class' => __CLASS__,
       );
   }
 

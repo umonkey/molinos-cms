@@ -24,7 +24,6 @@ class DateTimeControl extends Control
   {
     return array(
       'name' => t('Дата и время'),
-      'class' => __CLASS__,
       );
   }
 

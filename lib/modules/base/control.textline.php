@@ -24,7 +24,6 @@ class TextLineControl extends Control
   {
     return array(
       'name' => t('Текстовая строка'),
-      'class' => __CLASS__,
       );
   }
 

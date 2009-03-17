@@ -9,7 +9,6 @@ class SectionsControl extends SetControl
   {
     return array(
       'name' => t("Привязка к разделам"),
-      'class' => __CLASS__,
       );
   }
 

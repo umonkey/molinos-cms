@@ -24,7 +24,6 @@ class URLControl extends EmailControl
   {
     return array(
       'name' => 'Адрес страницы или сайта',
-      'class' => __CLASS__,
       );
   }
 

@@ -132,12 +132,11 @@ class WidgetNode extends Node implements iContentType
 
   protected static function listWidgets()
   {
-    $result = $widgets = array();
-    Context::last()->registry->broadcast('ru.molinos.cms.widget.enum', array(&$widgets));
+    $widgets = Context::last()->registry->enum('ru.molinos.cms.widget.enum');
 
+    $result = array();
     foreach ($widgets as $info)
-      if (!empty($info['class']))
-        $result[$class] = $info['name'];
+      $result[$info['class']] = $info['result']['name'];
 
     asort($result);
 

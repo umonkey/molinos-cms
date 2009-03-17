@@ -24,7 +24,6 @@ class EnumRadioControl extends Control
   {
     return array(
       'name' => t('Выбор из списка (радио)'),
-      'class' => __CLASS__,
       );
   }
 

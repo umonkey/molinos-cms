@@ -26,7 +26,6 @@ class PasswordControl extends Control
   {
     return array(
       'name' => t('Пароль'),
-      'class' => __CLASS__,
       );
   }
 

@@ -30,7 +30,6 @@ class TagCloudWidget extends Widget implements iWidget
   public static function getWidgetInfo()
   {
     return array(
-      'class' => __CLASS__,
       'name' => 'Облако тэгов',
       'description' => 'Выводит список тэгов, содержащих доступные пользователю документы.',
       );

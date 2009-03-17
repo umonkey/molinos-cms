@@ -26,7 +26,6 @@ class ArchiveWidget extends Widget implements iWidget
   public static function getWidgetInfo()
   {
     return array(
-      'class' => __CLASS__,
       'name' => 'Архив документов',
       'description' => 'Позволяет фильтровать документы в разделе по дате, используя календарь. Работает только в паре со списком документов.',
       'docurl' => 'http://code.google.com/p/molinos-cms/wiki/ArchiveWidget',

@@ -24,7 +24,6 @@ class DateControl extends Control
   {
     return array(
       'name' => t("Дата"),
-      'class' => __CLASS__,
       );
   }
 
