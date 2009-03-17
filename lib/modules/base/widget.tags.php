@@ -60,10 +60,6 @@ class TagsWidget extends Widget implements iWidget
         'type' => 'BoolControl',
         'label' => t('Используется для формирования меню'),
         ),
-      'lowmemory' => array(
-        'type' => 'BoolControl',
-        'label' => t('Не подгружать файлы (экономит память)'),
-        ),
       );
   }
 
@@ -77,39 +73,14 @@ class TagsWidget extends Widget implements iWidget
    */
   public function onGet(array $options)
   {
-    $result = array();
-
     if (!empty($options['root'])) {
-      if (is_numeric($root = $options['root']))
-        $root = Node::load($root);
-
-      if ($this->lowmemory)
-        $root->loadChildren(null, true);
-
-      $result['sections'] = $root->getChildren('nested');
-
-      $result['path'] = array();
-      $result['dynamic'] = $options['dynamic'];
-
-      self::tagsFilterPublished($result['sections']);
-
-      if ($root->id)
-        foreach ($root->getParents() as $node)
-          $result['path'][] = $node->getRaw();
-    }
-
-    return $result;
-  }
-
-  public static function tagsFilterPublished(array &$tree)
-  {
-    if (!empty($tree['children'])) {
-      foreach ($tree['children'] as $k => $v) {
-        if (empty($v['published']) or !empty($v['deleted']))
-          unset($tree['children'][$k]);
-        else
-          self::tagsFilterPublished($tree['children'][$k]);
-      }
+      return Node::findXML($this->ctx->db, array(
+        'class' => 'tag',
+        'deleted' => 0,
+        'published' => 1,
+        '#sort' => 'left',
+        'parent_id' => $options['root'],
+        ));
     }
   }
 
@@ -127,9 +98,9 @@ class TagsWidget extends Widget implements iWidget
 
     if ($this->forcefixed) {
       if ('page' == ($options['root'] = $this->fixed))
-        $options['root'] = $this->ctx->root;
+        $options['root'] = $this->ctx->root->id;
     } else {
-      $options['root'] = $ctx->section;
+      $options['root'] = $ctx->section->id;
     }
 
     $options['dynamic'] = ($ctx->section->id !== null);
