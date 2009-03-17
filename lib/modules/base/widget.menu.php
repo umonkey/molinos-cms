@@ -118,13 +118,13 @@ class MenuWidget extends Widget implements iWidget
       return $options;
 
     if ('root' == $this->fixed)
-      $options['root'] = $ctx->root_id;
+      $options['root'] = $ctx->root->id;
     elseif ('parent' == $this->fixed)
-      $options['root'] = $ctx->section->parent_id;
+      $options['root'] = $ctx->section->parent->id;
     elseif (is_numeric($this->fixed))
       $options['root'] = $this->fixed;
     else
-      $options['root'] = $ctx->section_id;
+      $options['root'] = $ctx->section->id;
 
     return $this->options = $options;
   }
