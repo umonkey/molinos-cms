@@ -10,7 +10,7 @@ class CronModule
   {
     return new Schema(array(
       'allowed' => array(
-        'type' => 'Listcontrol',
+        'type' => 'ListControl',
         'label' => t('Разрешённые IP адреса'),
         'description' => t('Введите список IP-адресов, с которых разрешён запуск задач.  Запуск с локального сервера всегда разрешён.'),
         ),
