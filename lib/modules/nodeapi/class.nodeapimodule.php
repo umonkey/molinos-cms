@@ -172,10 +172,8 @@ class NodeApiModule extends RPCHandler
    */
   public static function rpc_post_clone(Context $ctx)
   {
-    foreach (self::getNodes($ctx) as $nid) {
-      $node = Node::load($nid);
-      $node->duplicate();
-    }
+    foreach (self::getNodes($ctx) as $nid)
+      $node = Node::load($nid)->duplicate();
   }
 
   /**
