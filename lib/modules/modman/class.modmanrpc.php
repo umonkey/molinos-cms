@@ -21,7 +21,7 @@ class ModManRPC extends RPCHandler
     return new Redirect($next->string());
   }
 
-  public static function rpc_upgrade(Context $ctx)
+  public static function rpc_post_upgrade(Context $ctx)
   {
     $status = array();
 
