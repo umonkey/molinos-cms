@@ -9,7 +9,7 @@ class BaseInstaller
   {
     $t = new TableInfo($ctx->db, 'node');
     $t->columnSet('id', array(
-      'type' => 'int',
+      'type' => 'integer',
       'required' => true,
       'key' => 'pri',
       ));
