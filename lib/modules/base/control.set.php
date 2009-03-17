@@ -125,7 +125,7 @@ class SetControl extends Control
     return $options;
   }
 
-  public function set($value, Node &$node)
+  public function set($value, &$node)
   {
     if (empty($value['__reset']))
       $value = null;
@@ -135,7 +135,7 @@ class SetControl extends Control
       $this->validate($value);
     }
 
-    if (empty($this->dictionary))
+    if (empty($this->dictionary) or !($node instanceof Node))
       $node->{$this->value} = $value;
     elseif ($this->parents)
       $this->setParents($node, (array)$value);

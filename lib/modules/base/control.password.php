@@ -42,7 +42,7 @@ class PasswordControl extends Control
     return parent::wrapXML(array());
   }
 
-  public function set($value, Node &$node)
+  public function set($value, &$node)
   {
     if (empty($value))
       return;

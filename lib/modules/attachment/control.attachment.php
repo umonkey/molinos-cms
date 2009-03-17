@@ -80,7 +80,7 @@ class AttachmentControl extends Control
       ));
   }
 
-  public function set($value, Node &$node)
+  public function set($value, &$node)
   {
     if (empty($value) or !is_array($value))
       return;

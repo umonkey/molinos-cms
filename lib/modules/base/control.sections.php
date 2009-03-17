@@ -45,7 +45,7 @@ class SectionsControl extends SetControl
       return null;
   }
 
-  public function set($value, Node &$node)
+  public function set($value, &$node)
   {
     if (empty($value['__reset']))
       return;
@@ -53,10 +53,14 @@ class SectionsControl extends SetControl
 
     $this->validate($value);
 
-    $node->onSave("DELETE FROM `node__rel` WHERE `nid` = %ID% AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = 'tag')");
-    if (!empty($value)) {
-      $params = array();
-      $node->onSave($sql = "INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, %ID% FROM `node` WHERE `class` = 'tag' AND `id` " . sql::in($value, $params), $params);
+    if ($this->store or !($node instanceof Node))
+      $node->{$this->value} = $value;
+    else {
+      $node->onSave("DELETE FROM `node__rel` WHERE `nid` = %ID% AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = 'tag')");
+      if (!empty($value)) {
+        $params = array();
+        $node->onSave($sql = "INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, %ID% FROM `node` WHERE `class` = 'tag' AND `id` " . sql::in($value, $params), $params);
+      }
     }
   }
 }

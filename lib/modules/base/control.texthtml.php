@@ -54,7 +54,7 @@ class TextHTMLControl extends Control
       ), html::cdata($content));
   }
 
-  public function set($value, Node &$node)
+  public function set($value, &$node)
   {
     $this->validate($value);
 

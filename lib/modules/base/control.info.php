@@ -37,7 +37,7 @@ class InfoControl extends Control
       ));
   }
 
-  public function set($value, Node &$node)
+  public function set($value, &$node)
   {
     // Ничего не делаем.
   }

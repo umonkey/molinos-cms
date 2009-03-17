@@ -46,7 +46,7 @@ class BoolControl extends Control
     return 'tinyint(1)';
   }
 
-  public function set($value, Node &$node)
+  public function set($value, &$node)
   {
     $node->{$this->value} = !empty($value);
   }

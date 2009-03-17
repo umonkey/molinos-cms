@@ -30,16 +30,16 @@ class SectionControl extends EnumControl
     return $output;
   }
 
-  public function set($value, Node &$node)
+  public function set($value, &$node)
   {
     $this->validate($value);
 
     if ('pages' == $this->value)
       mcms::debug($this, $value);
-    if ($this->store)
+    if ($this->store or !($node instanceof Node))
       $node->{$this->value} = $value;
     else {
-      $node->onsave("DELETE FROM `node__rel` WHERE `nid` = %ID% AND `key` IS NULL AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = 'tag')");
+      $node->onSave("DELETE FROM `node__rel` WHERE `nid` = %ID% AND `key` IS NULL AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = 'tag')");
       $params = array();
       $node->onSave($sql = "INSERT INTO `node__rel` (`nid`, `tid`) SELECT %ID%, `id` FROM `node` WHERE `class` = 'tag' AND `id` " . sql::in($value, $params), $params);
     }

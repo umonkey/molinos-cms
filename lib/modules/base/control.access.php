@@ -124,7 +124,7 @@ class AccessControl extends Control
     return $all;
   }
 
-  public function set($value, Node &$node)
+  public function set($value, &$node)
   {
     if (empty($value['__reset']))
       return;

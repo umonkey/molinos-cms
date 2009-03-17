@@ -22,7 +22,7 @@ class ListControl extends TextLineControl
     return $value;
   }
 
-  public function set($value, Node &$node)
+  public function set($value, &$node)
   {
     if (!empty($value))
       $value = preg_split('/,\s*/', $value, -1, PREG_SPLIT_NO_EMPTY);

@@ -55,7 +55,7 @@ class TextLineControl extends Control
     return $value;
   }
 
-  public function set($value, Node &$node)
+  public function set($value, &$node)
   {
     $this->validate($value);
 
