@@ -25,6 +25,7 @@ class AdminTreeHandler
       'name' => 'tree',
       'title' => $this->title,
       'preset' => $preset,
+      'addlink' => $this->addlink,
       ), $this->getMassCtl() . $this->getData());
 
     return $output;
@@ -81,9 +82,9 @@ class AdminTreeHandler
         $this->title = t('Непонятный домен');
       }
 
-      $this->addlink = '?q=admin/structure/create&type=domain'
+      $this->addlink = '?q=admin.rpc&cgroup=structure&action=create&type=domain'
         .'&parent='. $this->ctx->get('subid')
-        .'&destination=CURRENT';
+        .'&destination=' . urlencode($_SERVER['REQUEST_URI']);
 
       break;
     }

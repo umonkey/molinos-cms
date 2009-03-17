@@ -73,6 +73,7 @@ class AdminListHandler implements iAdminList
       'preset' => $preset ? $preset : 'default',
       'search' => $this->hidesearch ? null : 'yes',
       'type' => $this->getType(),
+      'addlink' => $this->addlink,
       ), $output);
   }
 
@@ -257,7 +258,7 @@ class AdminListHandler implements iAdminList
         $this->title = t('Домены');
         $this->hidesearch = true;
         $this->addlink = '?q=admin.rpc&action=create&type=domain&cgroup=structure'
-          .'&destination=CURRENT';
+          .'&destination=' . urlencode($_SERVER['REQUEST_URI']);
         $this->sort = 'name';
         $this->limit = null;
         break;

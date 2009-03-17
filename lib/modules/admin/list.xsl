@@ -494,6 +494,10 @@
     <div class="tb_2">
       <div class="tb_2_inside">
         <div class="ctrl_left doc_selector">
+          <xsl:if test="../@addlink">
+            <a href="{../@addlink}">Добавить</a>
+            <xsl:text> | </xsl:text>
+          </xsl:if>
           <span>Выбрать: </span>
           <xsl:apply-templates select="selector" mode="mcms_list_mass_controls" />
           <span class="and"> и </span>
