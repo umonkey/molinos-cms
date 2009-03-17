@@ -36,12 +36,11 @@ class TinyMCEConfig
       'path' => array(
         'type' => 'EnumControl',
         'label' => t('Текущий элемент'),
-        'required' => true,
         'options' => array(
-          '' => t('Не показывать'),
           'bottom' => t('Снизу'),
           ),
         'description' => t('При отключении пропадает также возможность изменять размер редактора мышью.'),
+        'default_label' => t('(не показывать)'),
         ),
       'initializer' => array(
         'type' => 'TextAreaControl',
