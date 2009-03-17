@@ -80,9 +80,15 @@ class modman
   public static function getConfigurableModules()
   {
     $ctx = Context::last();
-    foreach ($modules = self::getLocalModules() as $k => $v)
-      if (false === $ctx->registry->unicast('ru.molinos.cms.admin.config.module.' . $k))
+    foreach ($modules = self::getLocalModules() as $k => $v) {
+      try {
+        if (false === $ctx->registry->unicast('ru.molinos.cms.admin.config.module.' . $k))
+          unset($modules[$k]);
+      } catch (Exception $e) {
+        mcms::flog($k . ': module not configurable: exception in message handler.');
         unset($modules[$k]);
+      }
+    }
 
     return $modules;
   }
