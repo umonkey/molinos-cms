@@ -228,7 +228,7 @@ class TypeNode extends Node implements iContentType
         'volatile' => true,
         ));
 
-    if ($this->id and Node::create($this->name)->canEditFields())
+    if (!Node::create($this->name)->canEditFields())
       unset($schema['fields']);
 
     return $schema;
