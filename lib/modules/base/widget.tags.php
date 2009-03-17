@@ -80,7 +80,7 @@ class TagsWidget extends Widget implements iWidget
         'published' => 1,
         '#sort' => 'left',
         'parent_id' => $options['root'],
-        ));
+        ), null, null, 'section');
     }
   }
 
