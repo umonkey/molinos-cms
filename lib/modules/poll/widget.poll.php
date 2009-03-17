@@ -68,6 +68,8 @@ class PollWidget extends Widget
         'mode' => 'results',
         ), $poll->getOptionsXML());
     }
+
+    return $output;
   }
 
   public function formGet($id)
