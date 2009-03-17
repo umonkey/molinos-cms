@@ -8,6 +8,12 @@ class TinyMCEConfig
   public static function formGetModuleConfig()
   {
     return new Schema(array(
+      'pages' => array(
+        'type' => 'SetControl',
+        'options' => Node::getSortedList('domain'),
+        'group' => t('Использовать на страницах'),
+        'weight' => 10,
+        ),
       'theme' => array(
         'type' => 'EnumControl',
         'label' => t('Режим работы'),
@@ -18,39 +24,19 @@ class TinyMCEConfig
           'overkill' => t('На стероидах'),
           ),
         'required' => true,
+        'weight' => 20,
+        'group' => t('Настройки редактора'),
         ),
       'gzip' => array(
         'type' => 'BoolControl',
         'label' => t('Использовать компрессию'),
-        ),
-      'toolbar' => array(
-        'type' => 'EnumControl',
-        'label' => t('Панель инструментов'),
-        'required' => true,
-        'options' => array(
-          'topleft' => t('Сверху слева'),
-          'topcenter' => t('Сверху по центру'),
-          'bottomcenter' => t('Снизу по центру'),
-          ),
-        ),
-      'path' => array(
-        'type' => 'EnumControl',
-        'label' => t('Текущий элемент'),
-        'options' => array(
-          'bottom' => t('Снизу'),
-          ),
-        'description' => t('При отключении пропадает также возможность изменять размер редактора мышью.'),
-        'default_label' => t('(не показывать)'),
+        'group' => t('Настройки редактора'),
         ),
       'initializer' => array(
         'type' => 'TextAreaControl',
         'label' => t('Дополнительные инициализаторы'),
         'description' => t('Например: content_css: mcms_path + "/tiny.css", theme_advanced_styles: "Слева=left,Справа=right"'),
-        ),
-      'pages' => array(
-        'type' => 'SetControl',
-        'label' => t('Использовать редактор на страницах'),
-        'options' => Node::getSortedList('domain'),
+        'group' => t('Настройки редактора'),
         ),
       ));
   }
