@@ -19,10 +19,10 @@ abstract class Pride_Typograph_RuleHandler_Abstract
     /**
      * Константы
      */
-    const QUOTE_FIRS_OPEN = '&laquo;';
-    const QUOTE_FIRS_CLOSE = '&raquo;';
-    const QUOTE_CRAWSE_OPEN = '&bdquo;';
-    const QUOTE_CRAWSE_CLOSE = '&ldquo;';
+    const QUOTE_FIRS_OPEN = '«';
+    const QUOTE_FIRS_CLOSE = '»';
+    const QUOTE_CRAWSE_OPEN = '„';
+    const QUOTE_CRAWSE_CLOSE = '“';
     
     const QUOTE_PARSE_LIMIT = 15;
     
