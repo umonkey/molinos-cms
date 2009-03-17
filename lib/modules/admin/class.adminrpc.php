@@ -16,6 +16,7 @@ class AdminRPC extends RPCHandler
       'version' => defined('MCMS_VERSION')
         ? MCMS_VERSION
         : 'unknown',
+      'back' => urlencode($_SERVER['REQUEST_URI']),
       );
 
     try {
