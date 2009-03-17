@@ -734,6 +734,7 @@ class NodeStub
           '%id' => intval($this->id),
           )));
 
+      unset($this->data['id']);
       self::$cache[$this->id] = $this->data;
 
       mcms::flog('retrieved node ' . $this->id . ' (' . $this->data['class'] . ')');

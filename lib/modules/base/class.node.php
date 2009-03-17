@@ -114,8 +114,11 @@ class Node
     $sth = $db->prepare($sql);
     $sth->execute($params);
 
-    while ($row = $sth->fetch(PDO::FETCH_ASSOC))
-      $result[$row['id']] = NodeStub::create($row['id'], $db, $row);
+    while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+      $id = $row['id'];
+      unset($row['id']);
+      $result[$id] = NodeStub::create($id, $db, $row);
+    }
 
     return $result;
   }
