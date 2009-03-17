@@ -325,7 +325,10 @@ class AdminListHandler implements iAdminList
       $filter['class'] = $this->types;
     else {
       $filter['class'] = array();
-      $itypes = TypeNode::getInternal();
+
+      $itypes = ('trash' != $this->preset)
+        ? TypeNode::getInternal()
+        : array();
 
       foreach (Node::find($this->ctx->db, array('class' => 'type')) as $n) {
         if (empty($n->isdictionary) and $this->haveModule($n->adminmodule) and !in_array($n->name, $itypes))
