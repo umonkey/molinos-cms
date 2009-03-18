@@ -48,4 +48,14 @@ class SubscriptionNode extends Node
 
     return $conf['sections'];
   }
+
+  public function canEditFields()
+  {
+    return false;
+  }
+
+  public function canEditSections()
+  {
+    return false;
+  }
 }
