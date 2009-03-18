@@ -4,30 +4,12 @@
 class CronModule
 {
   /**
-   * @mcms_message ru.molinos.cms.admin.config.module.cron
-   */
-  public static function formGetModuleConfig()
-  {
-    return new Schema(array(
-      'allowed' => array(
-        'type' => 'ListControl',
-        'label' => t('Разрешённые IP адреса'),
-        'description' => t('Введите список IP-адресов, с которых разрешён запуск задач.  Запуск с локального сервера всегда разрешён.'),
-        ),
-      ));
-  }
-
-  /**
    * @mcms_message ru.molinos.cms.rpc.cron
    */
   public static function on_rpc(Context $ctx)
   {
-    if (!empty($_SERVER['HTTP_HOST']))
+    if (!empty($_SERVER['HTTP_HOST']) and !$ctx->canDebug())
       throw new BadRequestException(t('Запуск планировщика возможен только из консоли.'));
-
-    if (!self::isClientAllowed())
-      throw new ForbiddenException(t('Настройки модуля cron не позволяют вам '
-        .'запускать периодические задачи.'));
 
     @set_time_limit(0);
 
@@ -42,21 +24,6 @@ class CronModule
       $ctx->redirect($next);
 
     die("OK\n");
-  }
-
-  public static function isClientAllowed()
-  {
-    // Запуск из консоли разрешён всегда.
-    if (empty($_SERVER['REMOTE_ADDR']))
-      return true;
-
-    if ('127.0.0.1' == $_SERVER['REMOTE_ADDR'])
-      return true;
-
-    if (!($ips = $ctx->modconf('cron', 'allowed')))
-      return true;
-
-    return mcms::matchip($_SERVER['REMOTE_ADDR'], $ips);
   }
 
   private static function touch(Context $ctx)
