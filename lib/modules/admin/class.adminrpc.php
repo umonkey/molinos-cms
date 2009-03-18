@@ -108,7 +108,7 @@ class AdminRPC extends RPCHandler
   {
     $module = $ctx->get('module', 'admin');
 
-    if (false === ($result = $ctx->registry->unicast('ru.molinos.cms.admin.list', array($ctx)))) {
+    if (false === ($result = $ctx->registry->unicast('ru.molinos.cms.admin.list.' . $module, array($ctx)))) {
       $tmp = new AdminListHandler($ctx);
       $result = $tmp->getHTML($ctx->get('preset'));
     }
