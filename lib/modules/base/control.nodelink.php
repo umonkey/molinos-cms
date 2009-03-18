@@ -82,38 +82,6 @@ class NodeLinkControl extends Control
       ));
   }
 
-  private function XgetSelect($value)
-  {
-    if (count($parts = explode('.', $this->values, 2)) == 2) {
-      if (Node::count($filter = array('class' => $parts[0], 'published' => 1, '#sort' => 'name')) < self::limit) {
-        foreach ($z = Node::find($filter) as $tmp)
-          $values[$tmp->id] = $tmp->getName();
-
-        asort($values);
-
-        $options = '';
-
-        if (!$this->required)
-          $options .= html::em('option', array(
-            'value' => '',
-            'text' => $this->default_label
-              ? $this->default_label
-              : t('(нет)'),
-            ));
-
-        foreach ($values as $id => $name) {
-          $options .= html::em('option', array(
-            'selected' => ($value == $id),
-            'value' => $id,
-            'text' => $name,
-            ));
-        }
-
-        return $options;
-      }
-    }
-  }
-
   // Возвращает текущее значение поля.
   private function getCurrentValue($data)
   {

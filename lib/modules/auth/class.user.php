@@ -155,26 +155,6 @@ class User
     return !empty($i);
   }
 
-  public static function checkAutoLogin()
-  {
-    return false;
-
-    try {
-      $filter = array(
-        'class' => 'user',
-        'name' => 'cms-bugs@molinos.ru',
-        );
-
-      if (count($tmp = Node::find($filter, 1))) {
-        $tmp = array_shift($tmp);
-        if (empty($tmp->password)) {
-          self::authorize('cms-bugs@molinos.ru', null, true);
-          return true;
-        }
-      }
-    } catch (ObjectNotFoundException $e) { }
-  }
-
   public function getName()
   {
     return $this->node->getName();
