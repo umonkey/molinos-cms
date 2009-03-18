@@ -46,7 +46,7 @@ class MsgModule extends RPCHandler
       're' => $ctx->user->id,
       );
 
-    $ids = join(', ', array_keys(Node::find($filter)));
+    $ids = join(', ', array_keys(Node::find($ctx->db, $filter)));
 
     if (!empty($ids)) {
       $ctx->db->exec("DELETE FROM `node` WHERE `id` IN ({$ids})");

@@ -221,7 +221,7 @@ class NodeApiModule extends RPCHandler
    */
   public static function rpc_post_erase(Context $ctx)
   {
-    $nodes = Node::find(array(
+    $nodes = Node::find($ctx->db, array(
       'id' => self::getNodes($ctx),
       'deleted' => 1,
       ));

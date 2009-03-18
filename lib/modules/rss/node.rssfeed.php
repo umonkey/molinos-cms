@@ -152,7 +152,7 @@ class RssfeedNode extends Node
       '#sort' => $this->sort,
       );
 
-    return Node::find($filter, $this->limit);
+    return Node::find($this->getDB(), $filter, $this->limit);
   }
 
   protected function formatItem(Node $node)

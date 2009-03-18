@@ -60,7 +60,7 @@ class MessageListWidget extends Widget
       '#sort' => '-id',
       );
 
-    foreach (Node::find($filter, $options['limit']) as $n)
+    foreach (Node::find($this->ctx->db, $filter, $options['limit']) as $n)
       $result['list'][] = $n->getRaw();
 
     $result['count'] = Node::count($filter);
