@@ -29,7 +29,7 @@ class SubscriptionScheduler
 
     // Обрабатываем активных пользователей.
     foreach ($users as $user) {
-      $olast = $last = 200; // intval($user->last);
+      $olast = $last = intval($user->last);
 
       // Получаем список разделов, на которые распространяется подписка.
       $tags = Node::find($ctx->db, array(
