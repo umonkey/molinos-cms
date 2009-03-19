@@ -347,7 +347,7 @@
               <select name="search_tag">
                 <option value="">(любой)</option>
                 <xsl:for-each select="sections/section">
-                  <option value="{@name}">
+                  <option value="{@id}">
                     <xsl:value-of select="@name" disable-output-escaping="yes" />
                   </option>
                 </xsl:for-each>
