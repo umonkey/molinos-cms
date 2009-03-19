@@ -22,7 +22,7 @@ class AttachmentNodeHook
     $result = false;
 
     foreach ($modes as $mode)
-      $result |= self::transformOne($file, $mode);
+      $result |= self::transformOne($file, $mode->getObject());
 
     if ($result)
       $file->dirty = true;
