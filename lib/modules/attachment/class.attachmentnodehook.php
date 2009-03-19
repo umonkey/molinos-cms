@@ -30,6 +30,6 @@ class AttachmentNodeHook
 
   private static function transformOne(FileNode &$file, ImgTransformNode $mode)
   {
-    return $mode->apply($file);
+    return $mode->apply($file, Context::last());
   }
 }
