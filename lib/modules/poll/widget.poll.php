@@ -57,6 +57,7 @@ class PollWidget extends Widget
 
     if (!$this->checkUserVoted($options)) {
       $output = html::em('poll', array(
+        'id' => $poll->id,
         'title' => $poll->name,
         'mode' => 'form',
         ), $poll->getOptionsXML());
