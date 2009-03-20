@@ -23,6 +23,7 @@ abstract class Widget implements iWidget
    * Имя виджета (инстанса).
    */
   protected $name;
+  protected $title;
 
   /**
    * Параметры виджета.
@@ -40,6 +41,7 @@ abstract class Widget implements iWidget
   public function __construct($name, array $data)
   {
     $this->name = $name;
+    $this->title = $data['title'];
     $this->config = array_key_exists('config', $data)
       ? $data['config']
       : array();
@@ -244,6 +246,7 @@ abstract class Widget implements iWidget
         $result = html::em('widget', array(
           'name' => $this->name,
           'class' => get_class($this),
+          'title' => $this->title,
           ), $data);
       }
 
