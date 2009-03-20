@@ -381,19 +381,29 @@ class NodeStub
       $this->onsave = array();
       $this->dirty = false;
 
-      switch ($this->class) {
-        case 'type':
-        case 'group':
-        case 'domain':
-        case 'widget':
-          Structure::getInstance()->drop();
-          break;
-      }
-
+      $this->checkSchema();
       $this->flush();
     }
 
     return $this;
+  }
+
+  /**
+   * Форсирует обновление схемы при изменении некоторых типов.
+   * 
+   * @return void
+   */
+  private function checkSchema()
+  {
+    switch ($this->class) {
+      case 'type':
+      case 'group':
+      case 'domain':
+      case 'widget':
+      case 'field':
+        Structure::getInstance()->drop();
+        break;
+    }
   }
 
   /**
@@ -552,6 +562,7 @@ class NodeStub
   {
     $sth = $this->db->prepare("UPDATE `node` SET `deleted` = ? WHERE `id` = ?");
     $sth->execute(array($value, $this->id));
+    $this->checkSchema();
     $this->flush();
   }
 
