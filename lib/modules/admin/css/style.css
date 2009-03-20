@@ -653,55 +653,6 @@ table.access .gid-own .perm-r {
 }
 
 
-/**
- * Форма входа.
- **/
-#login-form {
-  display: block;
-  width: 500px;
-  height: 300px;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  margin-left: -250px;
-  margin-top: -150px;
-  /*
-  background: url(../img/mcms.logo_90ccw.jpg) no-repeat right bottom;
-  */
-}
-#login-form fieldset {
-  margin: 0;
-  padding: 10px;
-  border: solid 1px #ccc;
-}
-#login-form fieldset legend {
-  margin: 0 10px;
-  padding: 0 10px;
-  color: gray;
-}
-#login-form .control {
-  margin: 10px 0 10px 0;
-}
-#login-form .control label span {
-  display: block;
-  margin: 4px 0;
-}
-#login-form input.text {
-  display: block;
-  width: 462px;
-  font-size: 2em;
-  border: solid 2px #ccc;
-  padding: 4px 6px;
-}
-#login-form input.submit {
-  height: 2em;
-  padding: 0 40px;
-  font-size: 1.25em;
-}
-#login-form input.submit1 {
-  margin-right: 10px;
-}
-
 #exception {
   margin: 10px;
 }
@@ -825,4 +776,69 @@ form.tabbed fieldset.tabable > div {
 
 input.autocomplete {
   background: transparent url('../img/zoom.png') no-repeat center right;
+}
+
+
+/**
+ * Форма входа.
+ **/
+#login-form {
+  display: block;
+  width: 500px;
+  margin: 200px auto;
+  /*
+  background: url(../img/mcms.logo_90ccw.jpg) no-repeat right bottom;
+  */
+}
+#login-form fieldset {
+  margin: 0;
+  padding: 10px;
+  border: none;
+}
+#login-form legend {
+  display: none;
+}
+#login-form legend span {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+}
+#login-form .control {
+  margin: 10px 0 10px 0;
+}
+#login-form .control label > span {
+  display: block;
+  margin: 4px 0;
+}
+#login-form input.form-text {
+  display: block;
+  width: 462px;
+  font-size: 10pt;
+  border: solid 2px #ccc;
+  padding: 4px 6px;
+}
+#login-form .submit-wrapper {
+  background-color: #eee;
+  padding: 5px 10px;
+}
+#login-form input.submit {
+  height: 2em;
+  padding: 0 40px;
+  font-size: 1.25em;
+}
+#login-form input.submit1 {
+  margin-right: 10px;
+}
+#login-form .auth_type-field-wrapper label {
+  display: block;
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+  margin-bottom: .25em;
+}
+#login-form .auth_type-field-wrapper input {
+  display: none;
+}
+#login-form .note {
+  color: gray;
 }

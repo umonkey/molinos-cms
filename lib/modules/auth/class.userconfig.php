@@ -3,7 +3,7 @@
 class UserConfig
 {
   /**
-   * @mcms_message ru.molinos.cms.admin.config.module.user
+   * @mcms_message ru.molinos.cms.admin.config.module.auth
    */
   public static function formGetModuleConfig()
   {

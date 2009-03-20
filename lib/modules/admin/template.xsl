@@ -80,32 +80,7 @@
   <!-- авторизация -->
   <xsl:template match="page[@status = '401']" mode="body">
     <div id="login-form">
-      <form method="post" action="?q=user.rpc&amp;action=login&amp;destination={/page/@back}" enctype="multipart/form-data">
-        <fieldset>
-          <legend><span>Требуется авторизация</span></legend>
-          <div class="control">
-            <label>
-              <span>Email:</span>
-              <input class="text login" type="text" name="login" />
-            </label>
-          </div>
-          <div class="control">
-            <label>
-              <span>Пароль:</span>
-              <input class="text password" type="password" name="password" />
-            </label>
-          </div>
-          <div class="control">
-            <label>
-              <input type="checkbox" name="remember" value="1" checked="checked" />
-              <xsl:text>Помнить меня 2 недели</xsl:text>
-            </label>
-          </div>
-          <div class="submit-wrapper">
-            <input class="submit submit1" type="submit" value="Войти" />
-          </div>
-        </fieldset>
-      </form>
+      <xsl:apply-templates select="blocks/block[@name='login']/form" />
     </div>
   </xsl:template>
 
@@ -159,7 +134,7 @@
           <a title="Очистить кэш" href="?q=admin.rpc&amp;action=reload&amp;destination={/page/request/@uri}">
             <img src="lib/modules/admin/img/icons/icon-reload.png" alt="reload" width="16" height="16" />
           </a>
-          <a title="Выйти" href="?q=user.rpc&amp;action=logout&amp;from={/page/request/@uri}">
+          <a title="Выйти" href="?q=auth.rpc&amp;action=logout&amp;from={/page/request/@uri}">
             <img src="lib/modules/admin/img/icons/icon-exit.png" alt="logout" width="16" height="16" />
           </a>
         </div>

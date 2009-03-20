@@ -53,7 +53,7 @@
           </td>
           <td class="icon">
             <xsl:if test="@id != /page/request/user/@id">
-              <a class="icon-sudo" title="Переключиться в пользователя" href="?q=user.rpc&amp;action=su&amp;uid={@id}&amp;destination={/page/request/@uri}">
+              <a class="icon-sudo" title="Переключиться в пользователя" href="?q=auth.rpc&amp;action=su&amp;uid={@id}&amp;destination={/page/request/@uri}">
                 <span/>
               </a>
             </xsl:if>

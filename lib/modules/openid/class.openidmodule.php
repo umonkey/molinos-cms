@@ -3,6 +3,28 @@
 class OpenIdModule extends RPCHandler
 {
   /**
+   * Запуск авторизации с помощью OpenID.
+   * 
+   * @param Context $ctx 
+   * @param array $params 
+   * @return mixed
+   * @mcms_message ru.molinos.cms.auth.process.openid
+   */
+  public static function on_auth_start(Context $ctx, array $params)
+  {
+    if (false === strpos($params['id'], '://')) {
+      switch ($params['type']) {
+      case 'livejournal':
+        $params['id'] = 'http://' . $params['id'] . '.livejournal.com/';
+        break;
+      }
+    }
+
+    self::OpenIDVerify($params['id']);
+    exit();
+  }
+
+  /**
    * @mcms_message ru.molinos.cms.rpc.openid
    */
   public static function on_rpc(Context $ctx)
@@ -29,12 +51,6 @@ class OpenIdModule extends RPCHandler
     }
 
     $ctx->redirect("?q=admin&openid=failed");
-  }
-
-  protected static function rpc_post_login(Context $ctx)
-  {
-    self::OpenIDVerify($ctx->post('name'));
-    exit();
   }
 
   public static function openIDAuthorize($openid_mode, Context $ctx)
@@ -97,7 +113,7 @@ class OpenIdModule extends RPCHandler
     } else {
       // Login canceled
       mcms::flog('login cancelled ?!');
-      $ctx->redirect("?q=user.rpc&action=logout");
+      $ctx->redirect("?q=auth.rpc&action=logout");
     }
   }
 
@@ -113,7 +129,7 @@ class OpenIdModule extends RPCHandler
       mcms::fatal(t('Не удалось соединиться с провайдером OpenID, '
         .'попробуйте повторить попытку позже.'));
 
-      $r = new Redirect('?q=user.rpc&action=logout');
+      $r = new Redirect('?q=auth.rpc&action=logout');
       $r->send();
     }
 
@@ -230,5 +246,35 @@ class OpenIdModule extends RPCHandler
     require_once "Auth/OpenID/FileStore.php";
     require_once "Auth/OpenID/SReg.php";
     require_once "Auth/OpenID/PAPE.php";
+  }
+
+  /**
+   * Возвращает информацию о себе как о провайдере.
+   * 
+   * @param Context $ctx 
+   * @return array
+   * @mcms_message ru.molinos.cms.auth.enum
+   */
+  public static function on_enum_providers()
+  {
+    $schema = new Schema(array(
+      'type' => array(
+        'type' => 'EnumControl',
+        'label' => t('Тип провайдера'),
+        'required' => true,
+        'options' => array(
+          'livejournal' => 'LiveJournal',
+          'standard' => 'OpenID',
+          ),
+        ),
+      'id' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Ваш идентификатор'),
+        'required' => true,
+        'description' => t('Если вы вводите полный адрес, включая http://, тип значения не имеет.'),
+        ),
+      ));
+
+    return array('openid', t('Войти с помощью OpenID'), $schema);
   }
 }

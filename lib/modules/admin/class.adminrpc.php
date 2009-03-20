@@ -46,7 +46,17 @@ class AdminRPC extends RPCHandler
         $menu = new AdminMenu();
         $result .= $menu->getXML($ctx);
       }
-    } catch (Exception $e) {
+    }
+
+    catch (UnauthorizedException $e) {
+      $page['status'] = $e->getCode();
+      $page['title'] = $e->getMessage();
+      $result = html::em('block', array(
+        'name' => 'login',
+        ), $ctx->registry->unicast('ru.molinos.cms.auth.form', array($ctx, $ctx->get('authmode'))));
+    }
+
+    catch (Exception $e) {
       $result = '';
       if ($e instanceof UserErrorException)
         $page['status'] = $e->getCode();
@@ -467,7 +477,7 @@ class AdminRPC extends RPCHandler
       ));
     $toolbar .= html::em('a', array(
       'class' => 'exit',
-      'href' => '?q=user.rpc&action=logout&from='
+      'href' => '?q=auth.rpc&action=logout&from='
         . urlencode($_SERVER['REQUEST_URI']),
       ));
     if ($xslmode != 'none') {

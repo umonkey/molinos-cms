@@ -204,6 +204,7 @@ class UserNode extends Node implements iContentType
   public function setPassword($password)
   {
     $this->password = md5($password);
+    return $this;
   }
 
   /**
