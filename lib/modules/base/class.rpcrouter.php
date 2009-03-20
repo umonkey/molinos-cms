@@ -21,10 +21,12 @@ class RPCRouter implements iRequestRouter
     elseif (true === $response)
       $response = $ctx->getRedirect();
 
-    if (!($response instanceof Response))
+    if (!($response instanceof Response)) {
+      mcms::debug('Обработчик сообщения вернул что-то не то.', $msg, $response);
       throw new RuntimeException(t('Обработчик сообщения %msg вернул что-то не то.', array(
         '%msg' => $msg,
         )));
+    }
 
     return $response;
   }
