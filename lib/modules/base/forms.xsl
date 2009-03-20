@@ -16,7 +16,7 @@
   <!-- группа вложенных контролов -->
   <xsl:template match="control[@type = 'fieldset']">
     <xsl:if test="count(control)">
-      <fieldset class="{@class}">
+      <fieldset class="{@class}" id="{@id}">
         <legend>
           <span class="title">
             <xsl:value-of select="@label" />
@@ -40,7 +40,7 @@
 
 
   <!-- пароль -->
-  <xsl:template match="control[@type = 'password']">
+  <xsl:template match="control[@type = 'passwordedit']">
     <div>
       <xsl:call-template name="default_control_classes" />
       <xsl:call-template name="default_control_label" />
@@ -54,6 +54,15 @@
   </xsl:template>
 
 
+  <!-- пароль -->
+  <xsl:template match="control[@type = 'password']">
+    <div>
+      <xsl:call-template name="default_control_classes" />
+      <xsl:call-template name="default_control_label" />
+      <input type="password" class="{@class}" name="{@name}" id="{@id}" />
+      <xsl:call-template name="default_control_info" />
+    </div>
+  </xsl:template>
   <!-- скрытое поле -->
   <xsl:template match="control[@type = 'hidden']">
     <input type="hidden" name="{@name}" value="{@value}" />

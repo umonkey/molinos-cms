@@ -47,17 +47,9 @@ class PasswordControl extends Control
     if (empty($value))
       return;
 
-    if (!is_array($value) or count($value) != 2)
-      throw new InvalidArgumentException(t('Значение для PasswordControl должно быть массивом из двух элементов.'));
+    if (is_array($value))
+      $value = array_shift($value);
 
-    $value = array_values($value);
-
-    if (empty($value[0]) and empty($value[1]))
-      return;
-
-    if ($value[0] != $value[1])
-      throw new ValidationException($this->label, t('Введённые пароли не идентичны.'));
-
-    $node->{$this->value} = $value[0];
+    $node->{$this->value} = $value;
   }
 };
