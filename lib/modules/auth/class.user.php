@@ -86,7 +86,7 @@ class User
   }
 
   // Идентифицирует или разлогинивает пользователя.
-  public static function authorize($login, $password, Context $ctx)
+  public static function authorize($login, $password, Context $ctx, $skipcheck = false)
   {
     // Разлогинивание.
     if (empty($login))
@@ -101,7 +101,7 @@ class User
 
       if (empty($user->password) and empty($password))
         ;
-      elseif (md5($password) != $user->password)
+      elseif ((md5($password) != $user->password) and !$skipcheck)
         throw new ForbiddenException(t('Неверный пароль.'));
     }
 
