@@ -15,6 +15,7 @@ if ($c->value)
 <div class='local tab'>
   <?php if (!empty($d['id'])): ?>
   <div class='preview'>
+  <a href="?q=attachment.rpc&fid=<?php print $d['id']; ?>">
     <?php print html::em('img', array(
       'alt' => $d['filename'],
       'width' => 50,
@@ -22,6 +23,7 @@ if ($c->value)
       'src' => '?q=attachment.rpc&fid='. $d['id']
         .',50,50,cw',
       )); ?>
+    </a>
   </div>
   <?php endif; ?>
 
