@@ -127,6 +127,8 @@ class ModeratorModule implements iModuleConfig, iNodeHook
       if (isset($node->$k)) {
         if ($v instanceof PasswordControl)
           $value = null;
+        elseif ($v instanceof AttachmentControl)
+          $value = l('?q=attachment.rpc&fid=' . $node->$k, 'скачать файл');
         else
           $value = $node->$k;
 
