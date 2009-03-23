@@ -99,9 +99,24 @@ class EnumControl extends Control
 
   protected function getSelected($data)
   {
-    if ($value = $data->{$this->value})
-      return array($value);
+    $value = $data->{$this->value};
 
-    return array();
+    if (empty($value))
+      return array();
+
+    if (is_object($value))
+      $value = $value->id;
+
+    return array($value);
+  }
+
+  public function set($value, &$node)
+  {
+    $this->validate($value);
+
+    if (empty($value))
+      unset($node->{$this->value});
+    else
+      $node->{$this->value} = Node::load($value);
   }
 };
