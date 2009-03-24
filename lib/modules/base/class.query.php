@@ -90,6 +90,11 @@ class Query
         $this->params[] = $v;
         $this->params[] = $k;
         break;
+      case '-uid':
+        $this->conditions[] = "`node`.`id` NOT IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ? AND `key` = ?)";
+        $this->params[] = $v;
+        $this->params[] = $k;
+        break;
       default:
         list($fieldName, $neg) = $this->getFieldSpec($k);
         if ($neg)
