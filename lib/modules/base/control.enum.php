@@ -116,7 +116,9 @@ class EnumControl extends Control
 
     if (empty($value))
       unset($node->{$this->value});
-    else
+    elseif ($this->dictionary)
       $node->{$this->value} = Node::load($value);
+    else
+      $node->{$this->value} = $value;
   }
 };
