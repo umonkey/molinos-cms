@@ -630,7 +630,7 @@ class Node
     $user = $ctx->user;
 
     if (!$this->uid)
-      $this->uid = $user->id;
+      $this->uid = $user->getNode();
 
     $this->stub->save();
 

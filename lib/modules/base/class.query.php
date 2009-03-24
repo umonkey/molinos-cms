@@ -76,24 +76,37 @@ class Query
   private function findBasics(array &$filters)
   {
     foreach ($filters as $k => $v) {
-      if ('tags' == $k) {
-        $this->conditions[] = "(`node`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` " . $this->getTagsFilter($v) . ") OR `node`.`uid` = ?)";
+      switch ($k) {
+      case 'tags':
+        $this->conditions[] = "(`node`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` " . $this->getTagsFilter($v) . "))";
         $this->params[] = intval($v);
-        $this->params[] = intval($v);
-      }
-
-      elseif ('tagged' == $k) {
+        break;
+      case 'tagged':
         $this->conditions[] = "`node`.`id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` " . $this->getTagsFilter($v) . ")";
         $this->params[] = intval($v);
-      }
-
-      else {
+        break;
+      case 'id':
+      case 'parent_id':
+      case 'lang':
+      case 'class':
+      case 'left':
+      case 'right':
+      case 'created':
+      case 'updated':
+      case 'published':
+      case 'deleted':
+      case 'name':
         list($fieldName, $neg) = $this->getFieldSpec($k);
-
         if ($neg)
           $this->conditions[] = $fieldName . " " . sql::notIn($v, $this->params);
         else
           $this->conditions[] = $fieldName . " " . sql::in($v, $this->params);
+        break;
+      default:
+        $this->conditions[] = "`node`.`id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ? AND `key` = ?)";
+        $this->params[] = $v;
+        $this->params[] = $k;
+        break;
       }
     }
   }

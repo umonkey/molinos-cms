@@ -7,30 +7,24 @@ class BaseCron
    */
   public static function taskRun(Context $ctx)
   {
-    $count = 0;
-    $dumpdir = mcms::config('dumpdir', 'tmp/crashdump');
-    $message = t('Checking for crashdumps in %dir...', array('%dir' => $dumpdir)) . '<br />';
+    self::fix_linked_objects($ctx);
+  }
 
-    if (is_readable($dumpdir)) {
-      if ($handle = opendir($dumpdir)) {
-        while (false !== ($file = readdir($handle))) {
-          if ($file != '.' && $file != '..' && is_file("{$dumpdir}/{$file}")) {
-            $count++;
-            $message .= t("Found crash dump file: %file", array('%file' => $file)) . '<br />';
-          }
-        }
-        closedir($handle);
-      }
-    } else {
-      $message = t('Can not read crashdump directory') . '<br />';
-    }
+  private static function fix_linked_objects(Context $ctx)
+  {
+    // Получаем список объектов, которые обновились после того,
+    // как обновились объекты, к которым они привязаны.
+    $sql = 'SELECT DISTINCT(`r`.`tid`) AS `id` FROM `node__rel` `r` '
+      . 'INNER JOIN `node` `n1` ON `n1`.`id` = `r`.`nid` '
+      . 'INNER JOIN `node` `n2` ON `n2`.`id` = `r`.`tid` '
+      . 'WHERE `n1`.`updated` > `n2`.`updated` AND `r`.`key` IS NOT NULL';
+    $ids = $ctx->db->getResultsV('id', $sql);
 
-    if (0 != $count and class_exists('BebopMimeMail')) {
-      BebopMimeMail::send(
-        mcms::config('mail.from'),
-        mcms::config('backtracerecipients'),
-        'Crash dump report for ' . url::host(),
-        $message);
+    if (!empty($ids)) {
+      $ctx->db->beginTransaction();
+      foreach ($ids as $id)
+        $node = Node::load($id)->refresh()->save();
+      $ctx->db->commit();
     }
   }
 }

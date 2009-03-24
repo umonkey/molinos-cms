@@ -38,6 +38,9 @@ class NodeStub
         )));
     }
 
+    if (null !== $data and array_key_exists('id', $data))
+      unset($data['id']);
+
     $this->id = $id;
     $this->db = $db;
     $this->data = $data;
@@ -73,11 +76,6 @@ class NodeStub
     $value = array_key_exists($key, $this->data)
       ? $this->data[$key]
       : null;
-
-    if ('uid' == $key)
-      return $value
-        ? self::create($value, $this->db)
-        : null;
 
     if (is_array($value) and array_key_exists('id', $value))
       return self::create($value['id'], $this->db, $value);
@@ -217,6 +215,25 @@ class NodeStub
   }
 
   /**
+   * Заново подгружает связанные объекты.
+   */
+  public function refresh()
+  {
+    $rows = $this->getDB()->getResultsK("key", "SELECT `node__rel`.`key`, `node`.* FROM `node__rel` "
+      . "INNER JOIN `node` ON `node`.`id` = `node__rel`.`nid` "
+      . "WHERE `node`.`deleted` = 0 AND `node__rel`.`tid` = ? "
+      . "AND `node__rel`.`key` IS NOT NULL", array($this->id));
+
+    $old = $this;
+
+    foreach ($rows as $field => $data)
+      $this->$field = new NodeStub($data['id'], $this->getDB(), $data);
+
+    $this->dirty = true;
+    return $this;
+  }
+
+  /**
    * Возвращает объект в виде XML.
    */
   public final function getXML($em = 'node', $extraContent = null, $recurse = true)
@@ -244,12 +261,7 @@ class NodeStub
 
           $v = $this->$k;
 
-          if ('uid' == $k and !empty($v) and $recurse)
-            try {
-              // $data['#text'] .= $v->getXML('uid', null, false);
-            } catch (ObjectNotFoundException $e) { }
-
-          elseif ($v instanceof NodeStub) {
+          if ($v instanceof NodeStub) {
             try {
               $fmt = isset($schema[$k])
                 ? $schema[$k]->format($v)
@@ -314,12 +326,7 @@ class NodeStub
         : Schema::load($this->getDB(), $this->data['class']);
 
       foreach ($this->data as $k => $v) {
-        if ('uid' == $k and !empty($v))
-          $data['uid'] = is_object($v)
-            ? $v->id
-            : $v;
-
-        elseif ($v instanceof NodeStub)
+        if ($v instanceof NodeStub)
           ;
 
         else {
@@ -504,6 +511,7 @@ class NodeStub
   private function saveOld(array $data)
   {
     // Сохраняем текущую версию в архиве.
+    /*
     try {
       $fields = '`id`, `lang`, `class`, `left`, `right`, `uid`, `created`, `updated`, `name`, `data`';
       $sth = $this->db->prepare("INSERT INTO `node__archive` ({$fields}) SELECT {$fields} FROM `node` WHERE `id` = ?");
@@ -511,6 +519,7 @@ class NodeStub
     } catch (TableNotFoundException $e) {
       // TODO
     }
+    */
 
     // Обновляем текущую версию.
     list($sql, $params) = sql::getUpdate('node', $data, 'id');
@@ -720,7 +729,6 @@ class NodeStub
     case 'class':
     case 'left':
     case 'right':
-    case 'uid':
     case 'created':
     case 'updated':
     case 'published':
@@ -874,7 +882,9 @@ class NodeStub
   {
     $data = $this->serialize();
 
-    $sel = $this->db->prepare("SELECT `tid`, `key`, `data` FROM `node__rel` INNER JOIN `node` ON `node`.`id` = `node__rel`.`tid` WHERE `nid` = ? AND `key` IS NOT NULL");
+    $sel = $this->db->prepare("SELECT `tid`, `key`, `data` FROM `node__rel` "
+      . "INNER JOIN `node` ON `node`.`id` = `node__rel`.`tid` "
+      . "WHERE `nid` = ? AND `key` IS NOT NULL");
     $sel->execute(array($this->id));
 
     $upd = $this->db->prepare("UPDATE `node` SET `data` = ? WHERE `id` = ?");

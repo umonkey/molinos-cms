@@ -8,6 +8,7 @@ class BaseInstaller
   public static function onInstall(Context $ctx)
   {
     $t = new TableInfo($ctx->db, 'node');
+
     $t->columnSet('id', array(
       'type' => 'integer',
       'required' => true,
@@ -34,11 +35,6 @@ class BaseInstaller
       'key' => 'mul',
       ));
     $t->columnSet('right', array(
-      'type' => 'int',
-      'required' => false,
-      'key' => 'mul',
-      ));
-    $t->columnSet('uid', array(
       'type' => 'int',
       'required' => false,
       'key' => 'mul',
@@ -73,6 +69,19 @@ class BaseInstaller
     $t->columnSet('data', array(
       'type' => 'mediumblob',
       ));
+
+    if ($t->columnExists('uid')) {
+      $ctx->db->beginTransaction();
+      // Удаляем существующие записи из node__rel
+      $ctx->db->exec("DELETE FROM `node__rel` WHERE `key` = 'uid' AND `tid` IN "
+        . "(SELECT `id` FROM `node` WHERE `uid` IS NOT NULL)");
+      // Переносим информацию из node.uid в node__rel.
+      $ctx->db->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`) "
+        . "SELECT `id`, `uid`, 'uid' FROM `node` WHERE `uid` IS NOT NULL");
+      $ctx->db->commit();
+      $t->columnDel('uid');
+    }
+
     $t->commit();
 
     $t = new TableInfo($ctx->db, 'node__rel');
