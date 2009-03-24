@@ -213,6 +213,12 @@ class ListWidget extends Widget
     $query = $this->getQuery($options);
     $count = $query->getCount($this->ctx->db);
 
+    if (0 == $count and 'empty' == $this->fallbackmode and $this->fixed) {
+      $options['section'] = $this->fixed;
+      $query = $this->getQuery($options);
+      $count = $query->getCount($this->ctx->db);
+    }
+
     if (0 == $count)
       return '<!-- nothing to show -->';
 
