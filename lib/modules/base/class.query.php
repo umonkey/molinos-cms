@@ -85,27 +85,17 @@ class Query
         $this->conditions[] = "`node`.`id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` " . $this->getTagsFilter($v) . ")";
         $this->params[] = intval($v);
         break;
-      case 'id':
-      case 'parent_id':
-      case 'lang':
-      case 'class':
-      case 'left':
-      case 'right':
-      case 'created':
-      case 'updated':
-      case 'published':
-      case 'deleted':
-      case 'name':
+      case 'uid':
+        $this->conditions[] = "`node`.`id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ? AND `key` = ?)";
+        $this->params[] = $v;
+        $this->params[] = $k;
+        break;
+      default:
         list($fieldName, $neg) = $this->getFieldSpec($k);
         if ($neg)
           $this->conditions[] = $fieldName . " " . sql::notIn($v, $this->params);
         else
           $this->conditions[] = $fieldName . " " . sql::in($v, $this->params);
-        break;
-      default:
-        $this->conditions[] = "`node`.`id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ? AND `key` = ?)";
-        $this->params[] = $v;
-        $this->params[] = $k;
         break;
       }
     }
