@@ -76,32 +76,6 @@ class MenuWidget extends Widget implements iWidget
         'label' => t('Глубина'),
         'description' => t("Меню будет содержать столько уровней вложенности."),
         ),
-      'prefix' => array(
-        'type' => 'TextLineControl',
-        'label' => t('Префикс для ссылок'),
-        'description' => t('Обычно это поле оставляют пустым, и ссылки в меню получаются относительными (относительно значения тэга &lt;base/&gt;, например).&nbsp; Если вам нужно сделать так, чтобы ссылки всгда были относительными для корня сайта &mdash; введите здесь &laquo;/&raquo;.&nbsp; Можно использовать и что-нибудь более оригинальное.'),
-        ),
-      'hidecurrent' => array(
-        'type' => 'BoolControl',
-        'label' => t('Убирать ссылку с текущего элемента'),
-        'description' => t('Все классы проставляются для элементов li и ul, поэтому на стилизацию меню эта настройка не влияет, но повышает рейтинг сайта в глазах педантичных критиков.'),
-        ),
-      'external' => array(
-        'type' => 'EnumControl',
-        'label' => t('Предпочитать ссылку из поля'),
-        'options' => $fields,
-        'default_label' => t('(не предпочитать)'),
-        ),
-      'header' => array(
-        'type' => 'EnumControl',
-        'label' => t('Заголовок меню'),
-        'options' => array(
-          'h2' => t('Имя виджета, H2'),
-          'h3' => t('Имя виджета, H3'),
-          'h4' => t('Имя виджета, H4'),
-          ),
-        'default_label' => t('(не выводить)'),
-        ),
       );
   }
 
@@ -117,14 +91,19 @@ class MenuWidget extends Widget implements iWidget
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
 
-    if ('root' == $this->fixed)
+    $options['root'] = $ctx->section->id;
+
+    switch ($this->fixed) {
+    case 'root':
       $options['root'] = $ctx->root->id;
-    elseif ('parent' == $this->fixed)
-      $options['root'] = $ctx->section->parent->id;
-    elseif (is_numeric($this->fixed))
-      $options['root'] = $this->fixed;
-    else
-      $options['root'] = $ctx->section->id;
+      break;
+    case 'parent':
+      $options['root'] = $ctx->section->parent_id;
+      break;
+    default:
+      if (is_numeric($this->fixed))
+        $options['root'] = intval($this->fixed);
+    }
 
     return $this->options = $options;
   }
@@ -150,7 +129,10 @@ class MenuWidget extends Widget implements iWidget
       $root = Node::load($options['root']);
     }
 
-    if (!($root instanceof TagNode))
+    if ('anything' == $this->fixed and ($root->right - $root->left == 1) and $root->parent_id)
+      $root = Node::load($root->parent_id)->getObject();
+
+    if ('tag' != $root->class)
       throw new RuntimeException(t('MenuWidget получил «%class», а не раздел.', array(
         '%class' => $root->class,
         )));
