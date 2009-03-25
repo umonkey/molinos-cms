@@ -102,6 +102,8 @@ class AdminRPC extends RPCHandler
       foreach ($files as $tmp)
         unlink($tmp);
 
+    $ctx->registry->broadcast('ru.molinos.cms.reload', array($ctx));
+
     mcms::flush();
     mcms::flush(mcms::FLUSH_NOW);
 

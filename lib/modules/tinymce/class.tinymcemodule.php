@@ -41,6 +41,19 @@ class TinyMceModule
       $output = str_replace('</head>', $html .'</head>', $output);
   }
 
+  /**
+   * Возвращает список скриптов и стилей для использования на сайте.
+   *
+   * @mcms_message ru.molinos.cms.compressor.enum
+   */
+  public static function on_compressor_enum()
+  {
+    return array(
+      array('script', 'lib/modules/tinymce/editor/tiny_mce_gzip.js'),
+      array('script', 'lib/modules/tinymce/file_picker.js.php'),
+      );
+  }
+
   private static function getInit(array $config, $gzip = false)
   {
     $files = array();

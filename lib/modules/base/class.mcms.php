@@ -581,8 +581,6 @@ class mcms
     self::pop($extras, 'themes/all/jquery/jquery.min.js');
     self::pop($extras, 'themes/all/jquery/jquery.js');
 
-    $compress = (class_exists('CompressorModule') and empty($_GET['nocompress']));
-
     $js = $css = '';
 
     // Заход первый: выводим некомпрессируемые объекты
@@ -604,10 +602,6 @@ class mcms
     }
 
     $output .= $css . $js;
-
-    // Заход второй: компрессируем всё, что можно.
-    if ($compress)
-      $output .= $xyz = CompressorModule::format($extras);
 
     return $output;
   }
