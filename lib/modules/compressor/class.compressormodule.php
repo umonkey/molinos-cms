@@ -18,7 +18,7 @@ class CompressorModule
   {
     $scripts = $styles = array();
 
-    foreach ($ctx->registry->enum_simple('ru.molinos.cms.compressor.enum') as $v1) {
+    foreach ($ctx->registry->enum_simple('ru.molinos.cms.compressor.enum', array($ctx)) as $v1) {
       foreach ($v1 as $v2)
         if ('script' == $v2[0])
           $scripts[] = $v2[1];
