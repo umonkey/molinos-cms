@@ -46,7 +46,7 @@ class os
   }
 
   /**
-   * Возвращает список всех файлов в папке.
+   * Возвращает список всех файлов в папке, рекурсивно.
    */
   public static function listFiles($path, $exclude = null)
   {
@@ -65,6 +65,13 @@ class os
     asort($result);
 
     return $result;
+  }
+
+  public static function find()
+  {
+    $path = func_get_args();
+    $path = join(DIRECTORY_SEPARATOR, $path);
+    return glob($path);
   }
 
   /**
@@ -107,7 +114,7 @@ class os
       }
     }
 
-    if (!@file_put_contents($fileName, $content))
+    if (strlen($content) != @file_put_contents($fileName, $content))
       throw new RuntimeException(t('Не удалось записать файл %file, проверьте права на папку %folder.', array(
         '%file' => self::localpath($vpath),
         '%folder' => dirname(self::localpath($vpath)),
