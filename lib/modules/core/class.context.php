@@ -575,8 +575,10 @@ class Context
         $messages[] = t('Не удалось установить UTF-8 в качестве '
           .'базовой кодировки для модуля mbstr.');
 
+      /*
       if (!class_exists('XSLTProcessor'))
         $messages[] = t('Для работы этой версии Molinos CMS необходимо расширение xslt.');
+      */
 
       if (!empty($errors) or !empty($messages)) {
         $output = "<html><head><title>Ошибка конфигурации</title></head><body>";
