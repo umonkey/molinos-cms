@@ -241,7 +241,7 @@ class NodeStub
     $data = array();
 
     if (null !== $this->id) {
-      if (!is_array($data = mcms::cache($ckey = $this->getCacheKey())) or true) {
+      if (!is_array($data = mcms::cache($ckey = $this->getCacheKey()))) {
         $data = array(
           'id' => $this->id,
           '#text' => null,
@@ -261,13 +261,14 @@ class NodeStub
 
           $v = $this->$k;
 
+          if (empty($v))
+            continue;
+
           if ($v instanceof NodeStub) {
             try {
               $fmt = isset($schema[$k])
                 ? $schema[$k]->format($v)
                 : null;
-              if (empty($k))
-                mcms::debug($k, $v, $this->data);
               $data['#text'] .= $v->getXML($k, html::em('html', html::cdata($fmt)));
             } catch (ObjectNotFoundException $e) {
               // игнорируем
@@ -601,6 +602,7 @@ class NodeStub
     $sth->execute(array($value, $this->id));
     $this->makeSureFieldIsAvailable('published');
     $this->data['published'] = true;
+    $this->checkSchema();
     $this->flush();
   }
 
