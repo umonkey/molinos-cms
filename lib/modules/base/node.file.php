@@ -36,6 +36,8 @@ class FileNode extends Node implements iContentType
 
     if (empty($this->filepath))
       throw new RuntimeException(t('Ошибка загрузки файла.'));
+    if (DIRECTORY_SEPARATOR == substr($this->filepath, 0, 0))
+      throw new RuntimeException(t('Путь к файлу должен быть относительным, а не абсолютным.'));
 
     $path = os::path(Context::last()->config->getPath('files'), $this->filepath);
 
@@ -57,15 +59,6 @@ class FileNode extends Node implements iContentType
         ));
       foreach ($ts as $t)
         $t->getObject()->apply($this, Context::last(), true);
-    }
-
-    elseif ('.swf' == strtolower(substr($this->filename, -4))) {
-      if (class_exists('ID3Tools')) {
-        list($x, $y) = ID3Tools::getFlashSize($this);
-
-        $this->width = $x;
-        $this->height = $y;
-      }
     }
 
     $res = parent::save();
