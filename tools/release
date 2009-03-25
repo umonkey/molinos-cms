@@ -2,6 +2,8 @@
 
 DIR=$(dirname $0)
 
+php -f ${DIR}/rebuild-registry.php
+
 MCMS_VERSION=$(php -r 'require "'$DIR'/../lib/modules/core/class.loader.php"; echo MCMS_RELEASE; ')
 if [ -z "$MCMS_VERSION" ]; then
     echo "Unable to determine version number."
