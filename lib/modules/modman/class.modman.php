@@ -130,6 +130,9 @@ class modman
 
     // Добавление информации о локальных модулях.
     foreach (glob(os::path('lib', 'modules', '*')) as $dir) {
+      if (!is_dir($dir))
+        continue;
+
       $name = basename($dir);
 
       // Информация о модуле существует, загружаем.
