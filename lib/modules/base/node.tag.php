@@ -73,7 +73,9 @@ class TagNode extends Node implements iContentType
 
   public function getFormFields()
   {
-    $schema = new Schema(array(
+    $schema = parent::getFormFields();
+
+    $defaults = array(
       'name' => array(
         'type' => 'TextLineControl',
         'label' => t('Название раздела'),
@@ -93,7 +95,13 @@ class TagNode extends Node implements iContentType
         'columns' => array('c'),
         'description' => t('Пользователи из отмеченных групп смогут добавлять документы в этот раздел.'),
         ),
-      ));
+      );
+
+    foreach ($defaults as $k => $v)
+      if (!isset($schema[$k])) {
+        $v['value'] = $k;
+        $schema[$k] = new $v['type']($v);
+      }
 
     return $schema;
   }
