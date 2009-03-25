@@ -3,218 +3,82 @@
 
 class CompressorModule
 {
-  private static function path()
+  /**
+   * @mcms_message ru.molinos.cms.install
+   */
+  public static function on_install(Context $ctx)
   {
-    return os::mkdir(os::path(mcms::config('tmpdir'), 'compressor'));
+    return self::on_reload($ctx);
   }
 
   /**
-   * @mcms_message ru.molinos.cms.rpc.compressor
+   * @mcms_message ru.molinos.cms.reload
    */
-  public static function hookRemoteCall(Context $ctx)
+  public static function on_reload(Context $ctx)
   {
-    $type = $ctx->get('type');
-    $fn = $ctx->get('hash');
+    $scripts = $styles = array();
 
-    if (!file_exists($filepath = self::path() ."/mcms-{$fn}.{$type}"))
-      throw new PageNotFoundException();
+    foreach ($ctx->registry->enum_simple('ru.molinos.cms.compressor.enum') as $v1) {
+      foreach ($v1 as $v2)
+        if ('script' == $v2[0])
+          $scripts[] = $v2[1];
+        else
+          $styles[] = $v2[1];
+    }
 
-    self::serveFile($filepath);
+    foreach (os::find('sites', '*', 'themes', '*') as $theme) {
+      $lscripts = array_merge($scripts, os::find($theme, 'scripts', '*.js'));
+      $lstyles = array_merge($styles, os::find($theme, 'styles', '*.css'));
+
+      os::write(os::path($theme, 'compressed.js'), self::join($lscripts, ';'));
+      os::write(os::path($theme, 'compressed.css'), self::join($lstyles));
+    }
   }
 
-  private static function serveFile($filename)
+  public static function join(array $filenames)
   {
-    $data = file_get_contents($filename);
+    $output = '';
 
-    // header('HTTP/1.1 200 OK');
-
-    if ('.css' == substr($filename, -4))
-      header('Content-Type: text/css; charset=utf-8');
-    elseif ('.js' == substr($filename, -3))
-      header('Content-Type: text/javascript; charset=utf-8');
-    else
-      return;
-
-    // Немного агрессивного кэширования, источник:
-    // http://www.thinkvitamin.com/features/webapps/serving-javascript-fast
-
-    header("Expires: ".gmdate("D, d M Y H:i:s", time()+315360000)." GMT");
-    header("Cache-Control: max-age=315360000");
-    header('Content-Length: '. strlen($data));
-
-    die($data);
-  }
-
-  private static function formatJS(array $files)
-  {
-    $scripts = $names = array();
-
-    foreach ($files as $file => $ok) {
-      if (!$ok)
-        continue;
-
-      if ('.js' == substr($file, -3)) {
-        $url = new url($file);
-
-        if (empty($url->host)) {
-          if (file_exists($fullname = MCMS_ROOT .'/'. $url->path)) {
-            $names[] = "// {$file}\n";
-            $scripts[] = self::compressJS($fullname);
-          } else {
-            mcms::flog($file .': dead, skipped');
-          }
+    foreach ($filenames as $filename) {
+      if (file_exists($filename = MCMS_ROOT . DIRECTORY_SEPARATOR .  $filename)) {
+        if (is_readable($filename)) {
+          if ('.js' == substr($filename, -3))
+            $output .= self::compressJS($filename);
+          elseif ('.css' == substr($filename, '-4'))
+            $output .= self::compressCSS($filename);
         }
       }
     }
 
-    // На этот момент в массиве $script содержатся имена уже упакованных
-    // скриптов, которые нужно склеить и выдать клиенту.  Т.к. имена этих
-    // файлов формируются с учётом времени изменения, для получения имени
-    // результирующего файла можно просто склеить их и взять сумму.
-    // Это поможет избежать лишних склеиваний.
-
-    if (!empty($scripts)) {
-      $filename = self::mkname($scripts, '.js', $md5name);
-
-      // Если файл с нужным именем не существует — создаём его.
-      if (!file_exists($filename)) {
-        $bulk = join('', $names) ."\n";
-
-        foreach ($scripts as $f)
-          $bulk .= file_get_contents($f);
-
-        file_put_contents($filename, $bulk);
-      }
-
-      $newscript = html::em('script', array(
-        'type' => 'text/javascript',
-        'src' => '?q=compressor.rpc&type=js&hash='. $md5name,
-        )) ."\n";
-
-      return $newscript;
-    }
+    return $output;
   }
 
-  // Упаковывает указанный файл, возвращает его имя.
   private static function compressJS($filename)
   {
-    $result = self::path() .'/mcms-'. md5($filename) .'.js';
-
-    if (!file_exists($result) or (filemtime($filename) > filemtime($result))) {
-      $header = "\n// {$filename}\n";
-      file_put_contents($result, $header . file_get_contents($filename));
-    }
-
-    return $result;
-  }
-
-  private static function formatCSS(array $files)
-  {
-    $styles = $names = array();
-
-    foreach ($files as $file => $ok) {
-      if (!$ok)
-        continue;
-
-      $url = new url($file);
-
-      if (empty($url->host)) {
-        if ('.css' == substr($url->path, -4)) {
-          $fullname = MCMS_ROOT .'/'. $url->path;
-
-          if (is_readable($fullname)) {
-            $names[] = " * {$file}\n";
-            $styles[] = self::compressCSS($file);
-          } else {
-            mcms::flog($file .': dead, skipped');
-          }
-        }
-      }
-    }
-
-    if (!empty($styles)) {
-      $filename = self::mkname($styles, '.css', $md5name);
-
-      if (!file_exists($filename)) {
-        $bulk = "/*\n". join('', $names) ." */\n\n";
-
-        foreach ($styles as $file)
-          $bulk .= file_get_contents($file);
-
-        file_put_contents($filename, $bulk);
-      }
-
-      $newlink = html::em('link', array(
-        'rel' => 'stylesheet',
-        'type' => 'text/css',
-        'href' => '?q=compressor.rpc&type=css&hash='. $md5name,
-        )) ."\n";
-
-      return $newlink;
-    }
+    return rtrim(file_get_contents($filename), ';') . ';';
   }
 
   // Code taken from Kohana.
   private static function compressCSS($filename)
   {
-    // Добавляем путь к сайту, если он не в корне.
-    $filename = $filename;
+    $data = file_get_contents($filename);
 
-    // Реальный путь к сжимаемому файлу.
-    if (!file_exists($rpath = MCMS_ROOT .'/'. $filename)) {
-      mcms::flog(t('%file not found.', array('%file' => $filename)));
-      return null;
-    }
+    // Remove comments
+    $data = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $data);
 
-    // Путь к временному файлу.
-    $result = self::path() .'/mcms-'. md5($filename) .'.css';
+    // Remove tabs, spaces, newlines, etc.
+    $data = preg_replace('/\s+/s', ' ', $data);
+    $data = str_replace(
+      array(' {', '{ ', ' }', '} ', ' +', '+ ', ' >', '> ', ' :', ': ', ' ;', '; ', ' ,', ', ', ';}'),
+      array('{',  '{',  '}',  '}',  '+',  '+',  '>',  '>',  ':',  ':',  ';',  ';',  ',',  ',',  '}' ),
+      $data);
 
-    if (!file_exists($result) or (filemtime($rpath) > filemtime($result))) {
-      $data = file_get_contents($rpath);
+    // Remove empty CSS declarations
+    $data = preg_replace('/[^{}]++\{\}/', '', $data);
 
-      // Remove comments
-      $data = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $data);
+    // Fix relative url()
+    $data = preg_replace('@(url\(([^/][^)]+)\))@i', 'url('. dirname($filename) .'/\2)', $data);
 
-      // Remove tabs, spaces, newlines, etc.
-      $data = preg_replace('/\s+/s', ' ', $data);
-      $data = str_replace(
-        array(' {', '{ ', ' }', '} ', ' +', '+ ', ' >', '> ', ' :', ': ', ' ;', '; ', ' ,', ', ', ';}'),
-        array('{',  '{',  '}',  '}',  '+',  '+',  '>',  '>',  ':',  ':',  ';',  ';',  ',',  ',',  '}' ),
-        $data);
-
-      // Remove empty CSS declarations
-      $data = preg_replace('/[^{}]++\{\}/', '', $data);
-
-      // Fix relative url()
-      $data = preg_replace('@(url\(([^/][^)]+)\))@i', 'url('. dirname($filename) .'/\2)', $data);
-
-      if (!is_writable(dirname($result)))
-        throw new RuntimeException(t('Папка для сжатых файлов закрыта от записи.'));
-
-      file_put_contents($result, $data);
-    }
-
-    return $result;
-  }
-
-  private static function mkname(array $files, $suffix, &$md5name)
-  {
-    $items = array();
-
-    foreach (array_unique($files) as $file)
-      $items[] = $file .','. filemtime($file);
-
-    sort($items);
-
-    $md5name = md5(join(',', $items));
-
-    return self::path() .'/mcms-'. $md5name . $suffix;
-  }
-
-  public static function format(array $files)
-  {
-    $output = self::formatCSS($files);
-    $output .= self::formatJS($files);
-    return $output;
+    return $data;
   }
 }
