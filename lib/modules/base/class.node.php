@@ -632,6 +632,8 @@ class Node
     if (!$this->uid)
       $this->uid = $user->getNode();
 
+    $ctx->registry->broadcast('ru.molinos.cms.hook.node.before', array($ctx, $this, $this->isNew() ? 'create' : 'update'));
+
     $this->stub->save();
 
     if ($user->hasAccess('p', $this->class))
