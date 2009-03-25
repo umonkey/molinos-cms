@@ -393,11 +393,20 @@
             </td>
           </xsl:if>
           <td>
-            <xsl:if test="width and height">
-              <xsl:value-of select="width" />
-              <xsl:text>x</xsl:text>
-              <xsl:value-of select="height" />
-            </xsl:if>
+            <xsl:choose>
+              <xsl:when test="width and height">
+                <xsl:value-of select="width" />
+                <xsl:text>x</xsl:text>
+                <xsl:value-of select="height" />
+                <xsl:if test="duration">
+                  <xsl:text>, </xsl:text>
+                  <xsl:value-of select="duration" />
+                </xsl:if>
+              </xsl:when>
+              <xsl:when test="duration">
+                <xsl:value-of select="duration" />
+              </xsl:when>
+            </xsl:choose>
           </td>
           <td class="field-filesize">
             <xsl:value-of select="filesize" />
