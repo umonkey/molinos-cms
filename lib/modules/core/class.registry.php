@@ -66,6 +66,15 @@ class Registry
     return $result;
   }
 
+  public function enum_simple($method, array $args = array())
+  {
+    $result = array();
+    foreach ($this->enum($method, $args) as $v)
+      if (!empty($v['result']))
+        $result[] = $v['result'];
+    return $result;
+  }
+
   /**
    * Вызов первого обработчика сообщения.
    *
