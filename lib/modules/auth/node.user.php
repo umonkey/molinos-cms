@@ -195,9 +195,10 @@ class UserNode extends Node implements iContentType
 
     $oldpassword = $this->password;
     $res = parent::formProcess($data);
-    $this->password = empty($this->password)
-      ? $oldpassword
-      : md5($this->password);
+
+    if ($oldpassword != $this->password)
+      $this->password = md5($this->password);
+
     return $res;
   }
 
