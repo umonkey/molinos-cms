@@ -629,7 +629,7 @@ class Node
     $ctx = Context::last();
     $user = $ctx->user;
 
-    if (!$this->uid and $user->id)
+    if (!$this->uid and $user->id and $user->id != $this->id)
       $this->uid = $user->getNode();
 
     $ctx->registry->broadcast('ru.molinos.cms.hook.node.before', array($ctx, $this, $this->isNew() ? 'create' : 'update'));
