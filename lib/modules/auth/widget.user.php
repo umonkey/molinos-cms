@@ -48,7 +48,7 @@ class UserWidget extends Widget
     if (!is_array($options = parent::getRequestOptions($ctx)))
       return $options;
 
-    $options['uid'] = $this->get('uid');
+    $options['uid'] = $this->ctx->user->id; // $this->get('uid');
     $options['#cache'] = false;
 
     return $options;
@@ -60,6 +60,11 @@ class UserWidget extends Widget
   public function onGet(array $options)
   {
     if (empty($options['uid']))
-      return $ctx->registry->unicast('ru.molinos.cms.auth.form', array($ctx));
+      return $this->ctx->registry->unicast('ru.molinos.cms.auth.form', array($this->ctx));
+    else {
+      $node = $this->ctx->user->getNode()->getObject();
+      $form = $node->formGet(false)->getXML($node);
+      return $form;
+    }
   }
 };
