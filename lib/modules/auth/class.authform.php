@@ -57,10 +57,10 @@ class AuthForm
       list($type) = array_keys($types);
       $form->addControl(new HiddenControl(array(
         'value' => 'auth_type',
-        'deault' => $type,
+        'default' => $type,
         )));
     } else {
-      $typesctl = $form->addControl(new EnumRadioControl(array(
+      $form->addControl(new EnumRadioControl(array(
         'value' => 'auth_type',
         'label' => t('Режим входа'),
         'required' => true,
