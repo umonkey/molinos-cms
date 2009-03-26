@@ -484,6 +484,9 @@
           </xsl:attribute>
         </xsl:if>
         <xsl:value-of select="@name" />
+        <xsl:if test="not(@name)">
+          <xsl:text>(без названия)</xsl:text>
+        </xsl:if>
       </a>
     </td>
   </xsl:template>
