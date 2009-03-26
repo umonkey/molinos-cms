@@ -99,7 +99,8 @@ class EnumControl extends Control
 
   protected function getSelected($data)
   {
-    $value = $data->{$this->value};
+    if (null === ($value = $data->{$this->value}))
+      $value = $this->default;
 
     if (empty($value))
       return array();
