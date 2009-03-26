@@ -1,0 +1,11 @@
+#!/bin/sh
+cd $(dirname $0)/..
+
+MODULES=$(find lib/modules -maxdepth 1 -type d | cut -d/ -f3 | sort)
+if [ -n "$MODULES" ]; then
+  echo "Generating changelogs..."
+  for mod in $MODULES; do
+    git log -- lib/modules/${mod} > tools/svn/9.03/changelogs/${mod}.txt
+    echo " + ${mod}"
+  done
+fi
