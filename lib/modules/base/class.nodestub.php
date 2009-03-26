@@ -511,17 +511,6 @@ class NodeStub
 
   private function saveOld(array $data)
   {
-    // Сохраняем текущую версию в архиве.
-    /*
-    try {
-      $fields = '`id`, `lang`, `class`, `left`, `right`, `uid`, `created`, `updated`, `name`, `data`';
-      $sth = $this->db->prepare("INSERT INTO `node__archive` ({$fields}) SELECT {$fields} FROM `node` WHERE `id` = ?");
-      $sth->execute($this->id);
-    } catch (TableNotFoundException $e) {
-      // TODO
-    }
-    */
-
     // Обновляем текущую версию.
     list($sql, $params) = sql::getUpdate('node', $data, 'id');
     $sth = $this->db->prepare($sql);
@@ -704,13 +693,19 @@ class NodeStub
       if (($v instanceof NodeStub) or ($v instanceof Node)) {
         if (null === $v->id)
           $v->save();
+        // Запрещаем ссылки на себя.
+        if ($this->id == $v->id)
+          continue;
         $this->onSave("DELETE FROM `node__rel` WHERE `tid` = %ID% AND `key` = ?", array($k));
         $this->onSave("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) VALUES (%ID%, ?, ?)", array($v->id, $k));
         $extra[$k] = $v->serialize();
-      } elseif (self::isBasicField($k))
+      } elseif (is_array($v) and !empty($v['id']) and $v['id'] == $this->id) {
+        // Запрещаем ссылки на себя.
+      } elseif (self::isBasicField($k)) {
         $fields[$k] = $v;
-      elseif (!empty($v))
+      } elseif (!empty($v)) {
         $extra[$k] = $v;
+      }
     }
 
     $fields['data'] = serialize($extra);
@@ -868,12 +863,22 @@ class NodeStub
   public function serialize()
   {
     $this->makeSureFieldIsAvailable('no mercy');
-    $data = array('id' => $this->id) + $this->data;
-    foreach ($data as $k => $v)
-      if (empty($v))
-        unset($data[$k]);
-      elseif ($v instanceof NodeStub)
-        $data[$k] = $v->serialize();
+    $data = array('id' => $this->id);
+
+    foreach ($this->data as $k => $v) {
+      if ($v instanceof NodeStub) {
+        if ($v->id == $this->id)
+          continue;
+        else
+          $data[$k] = $v->serialize();
+      } elseif (empty($v)) {
+        continue;
+      } elseif (is_array($v) and !empty($v['id']) and $v['id'] == $this->id) {
+        continue;
+      }
+      $data[$k] = $v;
+    }
+
     return $data;
   }
 
@@ -886,8 +891,8 @@ class NodeStub
 
     $sel = $this->db->prepare("SELECT `tid`, `key`, `data` FROM `node__rel` "
       . "INNER JOIN `node` ON `node`.`id` = `node__rel`.`tid` "
-      . "WHERE `nid` = ? AND `key` IS NOT NULL");
-    $sel->execute(array($this->id));
+      . "WHERE `tid` <> ? AND `nid` = ? AND `key` IS NOT NULL");
+    $sel->execute(array($this->id, $this->id));
 
     $upd = $this->db->prepare("UPDATE `node` SET `data` = ? WHERE `id` = ?");
 
