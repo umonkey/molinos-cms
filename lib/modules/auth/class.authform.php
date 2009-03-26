@@ -53,12 +53,20 @@ class AuthForm
       'text' => t('Продолжить'),
       )));
 
-    $typesctl = $form->addControl(new EnumRadioControl(array(
-      'value' => 'auth_type',
-      'label' => t('Режим входа'),
-      'required' => true,
-      )));
-    $typesctl->options = $types;
+    if (1 == count($types)) {
+      list($type) = array_keys($types);
+      $form->addControl(new HiddenControl(array(
+        'value' => 'auth_type',
+        'deault' => $type,
+        )));
+    } else {
+      $typesctl = $form->addControl(new EnumRadioControl(array(
+        'value' => 'auth_type',
+        'label' => t('Режим входа'),
+        'required' => true,
+        'options' => $types,
+        )));
+    }
 
     $form->action = '?q=auth.rpc&action=auth&destination=CURRENT';
 
