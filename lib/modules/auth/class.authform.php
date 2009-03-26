@@ -9,7 +9,7 @@ class AuthForm
    * @return string
    * @mcms_message ru.molinos.cms.auth.form
    */
-  public static function getXML(Context $ctx, $mode)
+  public static function getXML(Context $ctx)
   {
     if (!($providers = $ctx->registry->enum('ru.molinos.cms.auth.enum')))
       return null;
