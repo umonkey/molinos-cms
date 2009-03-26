@@ -266,6 +266,7 @@ class OpenIdModule extends RPCHandler
           'livejournal' => 'LiveJournal',
           'standard' => 'OpenID',
           ),
+        'default' => 'standard',
         ),
       'id' => array(
         'type' => 'TextLineControl',
