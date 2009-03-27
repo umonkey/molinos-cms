@@ -34,7 +34,7 @@ class RSSRouter implements iRequestRouter
     foreach ($feed->getLinked('type') as $t)
       $query['class'][] = $t->name;
 
-    $content = '';
+    $content = $title = '';
 
     if ($id = $ctx->get('id')) {
       try {
@@ -46,6 +46,7 @@ class RSSRouter implements iRequestRouter
       switch ($filter->class) {
       case 'user':
         $query['uid'] = $filter->id;
+        $title = $filter->fullname;
         break;
       default:
         $query['tags'] = $filter->id;
@@ -58,7 +59,7 @@ class RSSRouter implements iRequestRouter
 
     $output = html::em('rss', array(
       'name' => $feed->name,
-      'title' => $feed->title,
+      'title' => empty($title) ? $feed->title : $title,
       'description' => $feed->description,
       'base' => $ctx->url()->getBase($ctx),
       'language' => $feed->language,
