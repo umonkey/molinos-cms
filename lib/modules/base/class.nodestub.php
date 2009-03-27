@@ -4,7 +4,6 @@ class NodeStub
 {
   private $id = null;
   private $data = null;
-  private $links = array();
   private $onsave = array();
 
   /**
@@ -187,14 +186,6 @@ class NodeStub
   private function getCacheKey()
   {
     return 'node:' . $this->id . ':xml';
-  }
-
-  /**
-   * Для внутреннего использования, см. Node::find().
-   */
-  public function __set_link($name, array $data)
-  {
-    $this->links[$name] = $data;
   }
 
   /**
