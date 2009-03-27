@@ -120,7 +120,7 @@
         </span>
       </td>
 
-      <td>
+      <td class="nr">
         <xsl:if test="@docurl">
           <a href="{@docurl}" class="icon docurl">
             <span>
@@ -130,7 +130,17 @@
         </xsl:if>
       </td>
 
-      <td>
+      <td class="nl nr">
+        <xsl:if test="@changelog">
+          <a href="{@changelog}" class="icon changelog">
+            <span>
+              <xsl:text>изменения</xsl:text>
+            </span>
+          </a>
+        </xsl:if>
+      </td>
+
+      <td class="nl">
         <xsl:if test="@url">
           <a href="{@url}" class="icon download">
             <span>

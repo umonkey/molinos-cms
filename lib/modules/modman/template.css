@@ -41,6 +41,9 @@
 .modman a.download {
   background: transparent url(images/download.png) no-repeat top left;
 }
+.modman a.changelog {
+  background: transparent url(images/changelog.png) no-repeat top left;
+}
 .modman a.icon {
   display: block;
   width: 16px;
@@ -68,4 +71,13 @@
 }
 #modmanresult ol {
   margin-left: 2em;
+}
+
+.modman .nr {
+  border-right: none;
+  padding-right: 0;
+}
+.modman .nl {
+  border-left: none;
+  padding-left: 0;
 }
