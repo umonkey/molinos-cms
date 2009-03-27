@@ -25,4 +25,18 @@ class RSSListHandler extends AdminListHandler implements iAdminList
       'created' => t('Дата добавления'),
       );
   }
+
+  /**
+   * Рендерит список RSS лент.
+   * 
+   * @param Context $ctx 
+   * @return string
+   * @mcms_message ru.molinos.cms.admin.list.rss
+   */
+  public static function on_get_list(Context $ctx)
+  {
+    $class = __CLASS__;
+    $tmp = new $class($ctx);
+    return $tmp->getHTML($ctx->get('preset'));
+  }
 };
