@@ -65,3 +65,4 @@ for ZIP in tmp/modules/*.zip; do
 done
 
 svn ci -m "Semi-automatic release." $DIR/svn
+git tag -f lastrelease-master
