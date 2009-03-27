@@ -814,7 +814,7 @@ class NodeStub
    */
   public function __sleep()
   {
-    throw new RuntimeException(t('NodeStub не может быть сериализован.'));
+    return array('id', 'data');
   }
 
   /**
