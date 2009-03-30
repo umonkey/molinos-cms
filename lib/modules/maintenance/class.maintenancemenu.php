@@ -13,7 +13,7 @@ class MaintenanceMenu
       $icons[] = array(
         'group' => 'system',
         'img' => 'img/cms-maintenance.png',
-        'href' => '?q=admin&cgroup=system&module=modman&mode=config&name=maintenance&destination=CURRENT',
+        'href' => '?action=form&module=modman&mode=config&name=maintenance&cgroup=system&destination=CURRENT',
         'title' => t('Профилактика'),
         'description' => t('Позволяет временно закрыть сайт для проведения технических работ.'),
         );
