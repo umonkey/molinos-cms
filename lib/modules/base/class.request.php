@@ -20,6 +20,8 @@ class Request
 
   public function process(Context $ctx)
   {
+    $ctx->registry->broadcast('ru.molinos.cms.hook.request.before', array($ctx));
+
     $query = $ctx->query();
 
     try {
