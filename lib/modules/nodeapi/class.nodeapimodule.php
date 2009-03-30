@@ -265,7 +265,8 @@ class NodeApiModule extends RPCHandler
 
     foreach ($ids as $id) {
       $node = Node::load($id);
-      $node->touch()->save();
+      $node->touch();
+      $node->save();
     }
   }
 
