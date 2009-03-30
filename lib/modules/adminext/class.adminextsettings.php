@@ -22,7 +22,7 @@ class AdminExtSettings
       'edit_tpl' => array(
         'type' => 'TextLineControl',
         'label' => t('Шаблон ссылки на редактирование'),
-        'default' => '?q=admin/content/edit/$id&destination=CURRENT',
+        'default' => '?q=admin&action=edit&cgroup=content&node=$id&destination=CURRENT',
         ),
       'groups' => array(
         'type' => 'SetControl',
