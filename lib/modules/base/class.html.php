@@ -154,13 +154,13 @@ class html
         $output .= html::em('link', array(
           'rel' => 'stylesheet',
           'type' => 'text/css',
-          'href' => $item[1],
+          'href' => os::webpath($item[1]),
           ));
         break;
       case 'script':
         $output .= html::em('script', array(
           'type' => 'text/javascript',
-          'src' => $item[1],
+          'src' => os::webpath($item[1]),
           ));
         break;
       }
