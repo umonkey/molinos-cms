@@ -386,7 +386,7 @@ class AdminRPC extends RPCHandler
     $output = '';
     foreach ($icons as $icon)
       $output .= html::em('message', array(
-        'link' => $icon['link'],
+        'link' => str_replace('destination=CURRENT', 'destination=' . urlencode(MCMS_REQUEST_URI), $icon['link']),
         ), html::cdata($icon['message']));
 
     if (!empty($output))
