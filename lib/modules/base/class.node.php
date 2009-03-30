@@ -636,7 +636,7 @@ class Node
 
     $this->stub->save();
 
-    if ($user->hasAccess('p', $this->class))
+    if ($this->checkPermission('p'))
       $this->stub->publish();
 
     if (count($indexes = $this->getSchema()->getIndexes())) {
