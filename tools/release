@@ -2,16 +2,6 @@
 
 DIR=$(dirname $0)
 
-UPDATED=$(git diff --name-only lastrelease-master | grep module.ini | cut -d/ -f3 | xargs echo -n | tr ' ' '|')
-STALE=$(git diff --name-only lastrelease-master | grep lib/modules/ | egrep -v "lib/modules/(${UPDATED})/" | cut -d/ -f3 | sort -u | sed -e 's#\(.*\)#lib/modules/\1/module.ini#g')
-if [ -n "$STALE" ]; then
-  if [ -z "$EDITOR" ]; then
-    echo "Edit these files: ${STALE}."
-    exit 1
-  fi
-  $EDITOR $STALE
-fi
-
 php -f ${DIR}/rebuild-registry.php
 . $DIR/changelogs
 
