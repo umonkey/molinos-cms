@@ -241,8 +241,10 @@ class NodeApiModule extends RPCHandler
   public static function rpc_get_raise(Context $ctx)
   {
     if (null === $ctx->get('section')) {
+      $ctx->db->beginTransaction();
       $tmp = new NodeMover($ctx->db);
       $tmp->moveUp($ctx->get('node'));
+      $ctx->db->commit();
     }
   }
 
@@ -252,8 +254,10 @@ class NodeApiModule extends RPCHandler
   public static function rpc_get_sink(Context $ctx)
   {
     if (null === $ctx->get('section')) {
+      $ctx->db->beginTransaction();
       $tmp = new NodeMover($ctx->db);
       $tmp->moveDown($ctx->get('node'));
+      $ctx->db->commit();
     }
   }
 
