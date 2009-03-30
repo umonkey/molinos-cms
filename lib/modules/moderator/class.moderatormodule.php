@@ -109,7 +109,7 @@ class ModeratorModule
 
     $body .= '</dl>';
 
-    $body .= '<p>' . html::link('?q=admin/content/edit/' . $node->id . '&destination=admin', t('Открыть в админке')) . '</p>';
+    $body .= '<p>' . html::link('?q=admin&cgroup=content&action=edit&node=' . $node->id . '&destination=admin', t('Открыть в админке')) . '</p>';
 
     return $body;
   }
