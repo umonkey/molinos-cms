@@ -63,6 +63,8 @@ class AdminMenu
         foreach ($icons as $icon) {
           $url = '?q=admin&cgroup=' . $group . '&' . trim($icon['href'], '?&');
 
+          $url = str_replace('destination=CURRENT', 'destination=' . urlencode(MCMS_REQUEST_URI), $url);
+
           if (null === $first)
             $first = $url;
 
