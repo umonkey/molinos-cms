@@ -521,7 +521,7 @@ class Context
     foreach ($this->getExtras() as $e)
       $output .= html::em('item', array(
         'type' => $e[0],
-        'value' => $e[1],
+        'value' => os::webpath($e[1]),
         ));
 
     return empty($output)
