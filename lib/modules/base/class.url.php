@@ -48,7 +48,7 @@ class url
       // пользователь, а добавленые правилом аргументы видны только в
       // QUERY_STRING.
 
-      $this->fromString($_SERVER['REQUEST_URI']);
+      $this->fromString(MCMS_REQUEST_URI);
       // $this->args = $_GET;
     }
 
@@ -352,7 +352,7 @@ class url
 
         elseif ($v !== '' and !in_array($k, $forbidden)) {
           if ('destination' === $k and 'CURRENT' === $v) {
-            $pairs[] = $k .'='. urlencode($_SERVER['REQUEST_URI']);
+            $pairs[] = $k .'='. urlencode(MCMS_REQUEST_URI);
           } else {
             $pairs[] = $k .'='. $this->fixEscape($v);
           }

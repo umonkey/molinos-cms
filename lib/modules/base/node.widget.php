@@ -72,7 +72,7 @@ class WidgetNode extends Node implements iContentType
     if (empty($tmp['classname']))
       $form->addControl(new HiddenControl(array(
         'value' => 'from',
-        'default' => $_SERVER['REQUEST_URI'],
+        'default' => MCMS_REQUEST_URI,
         )));
 
     return $form;

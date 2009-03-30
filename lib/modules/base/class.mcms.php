@@ -468,7 +468,7 @@ class mcms
         /*
         $message = templateX::XrenderClass(__CLASS__, array(
           'mode' => 'fatal',
-          'url' => "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}",
+          'url' => "http://{$_SERVER['HTTP_HOST']}{MCMS_REQUEST_URI}",
           'host' => $_SERVER['HTTP_HOST'],
           'code' => $e['type'],
           'line' => $e['line'],
@@ -1011,7 +1011,7 @@ class CrashReport
 
       $output .= html::em('p', 'HOST: ' . $_SERVER['HTTP_HOST']);
       $output .= html::em('p', 'METHOD: ' . $_SERVER['REQUEST_METHOD']);
-      $output .= html::em('p', 'URI: ' . $_SERVER['REQUEST_URI']);
+      $output .= html::em('p', 'URI: ' . MCMS_REQUEST_URI);
 
       if (!empty($this->stack))
         $output .= html::em('pre', mcms::backtrace($this->stack));

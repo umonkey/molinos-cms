@@ -60,8 +60,8 @@ class html
           '&destination=CURRENT',
           '?destination=CURRENT',
           ), array(
-          '&destination='. urlencode($_SERVER['REQUEST_URI']),
-          '?destination='. urlencode($_SERVER['REQUEST_URI']),
+          '&destination='. urlencode(MCMS_REQUEST_URI),
+          '?destination='. urlencode(MCMS_REQUEST_URI),
           ), strval($parts[$fixmap[$name]]));
       }
     }

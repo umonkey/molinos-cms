@@ -115,7 +115,7 @@ class RssfeedNode extends Node
 
     if (isset($this->link)) {
       $output .= '<link>'. str_replace('HOSTNAME', $_SERVER['HTTP_HOST'], $this->link) .'</link>';
-      $output .= '<atom:link href=\'http://'. html::plain($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) .'\' rel=\'self\' type=\'application/rss+xml\' />';
+      $output .= '<atom:link href=\'http://'. html::plain($_SERVER['HTTP_HOST'] . MCMS_REQUEST_URI) .'\' rel=\'self\' type=\'application/rss+xml\' />';
     }
 
     if (isset($this->language))

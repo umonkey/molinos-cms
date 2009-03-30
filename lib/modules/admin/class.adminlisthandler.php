@@ -89,7 +89,7 @@ class AdminListHandler implements iAdminList
     $output = html::em('form', array(
       'name' => 'search',
       'action' => '?q=admin.rpc&action=search',
-      'from' => $_SERVER['REQUEST_URI'],
+      'from' => MCMS_REQUEST_URI,
       'q' => $this->ctx->get('search'),
       ));
 
@@ -258,7 +258,7 @@ class AdminListHandler implements iAdminList
         $this->title = t('Домены');
         $this->hidesearch = true;
         $this->addlink = '?q=admin.rpc&action=create&type=domain&cgroup=structure'
-          .'&destination=' . urlencode($_SERVER['REQUEST_URI']);
+          .'&destination=' . urlencode(MCMS_REQUEST_URI);
         $this->sort = 'name';
         $this->limit = null;
         break;

@@ -84,7 +84,7 @@ class AdminTreeHandler
 
       $this->addlink = '?q=admin.rpc&cgroup=structure&action=create&type=domain'
         .'&parent='. $this->ctx->get('subid')
-        .'&destination=' . urlencode($_SERVER['REQUEST_URI']);
+        .'&destination=' . urlencode(MCMS_REQUEST_URI);
 
       break;
     }

@@ -49,7 +49,7 @@ class Form extends Control
 
   private function getAction()
   {
-    $action = isset($this->action) ? $this->action : $_SERVER['REQUEST_URI'];
+    $action = isset($this->action) ? $this->action : MCMS_REQUEST_URI;
 
     if ($this->edit) {
       $url = new url($action);

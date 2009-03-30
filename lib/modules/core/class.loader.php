@@ -22,6 +22,9 @@ class Loader
     define('MCMS_SITE_FOLDER', self::find_site_folder(MCMS_HOST_NAME));
 
     define('MCMS_START_TIME', microtime(true));
+
+    if (!defined('MCMS_REQUEST_URI'))
+      define('MCMS_REQUEST_URI', isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '');
   }
 
   private static function find_site_folder($hostName)

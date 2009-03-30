@@ -237,7 +237,7 @@ class Node
   public function getFormAction()
   {
     $next = empty($_GET['destination'])
-      ? $_SERVER['REQUEST_URI']
+      ? MCMS_REQUEST_URI
       : $_GET['destination'];
 
     return $this->id

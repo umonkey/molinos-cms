@@ -16,7 +16,7 @@ class AdminRPC extends RPCHandler
       'version' => defined('MCMS_VERSION')
         ? MCMS_VERSION
         : 'unknown',
-      'back' => urlencode($_SERVER['REQUEST_URI']),
+      'back' => urlencode(MCMS_REQUEST_URI),
       );
 
     try {
@@ -79,7 +79,7 @@ class AdminRPC extends RPCHandler
 
       $result = html::em('request', array(
         'remoteIP' => $_SERVER['REMOTE_ADDR'],
-        'uri' => urlencode($_SERVER['REQUEST_URI']),
+        'uri' => urlencode(MCMS_REQUEST_URI),
         ), $ctx->user->getNode()->getXML('user') . $ctx->url()->getArgsXML()) . html::em('blocks', $result) . $ctx->getExtrasXML();
 
       $output = html::em('page', $page, $result);
@@ -480,14 +480,14 @@ class AdminRPC extends RPCHandler
     $toolbar .= html::em('a', array(
       'class' => 'exit',
       'href' => '?q=auth.rpc&action=logout&from='
-        . urlencode($_SERVER['REQUEST_URI']),
+        . urlencode(MCMS_REQUEST_URI),
       ));
     if ($xslmode != 'none') {
       $url = new url();
       $url->setarg('xslt', 'none');
       $toolbar .= html::em('a', array(
         'class' => 'xml',
-        'href' => $_SERVER['REQUEST_URI'] . '&xslt=none',
+        'href' => MCMS_REQUEST_URI . '&xslt=none',
         ), 'XML');
     }
     if ($xslmode != 'client') {
@@ -495,7 +495,7 @@ class AdminRPC extends RPCHandler
       $url->setarg('xslt', 'client');
       $toolbar .= html::em('a', array(
         'class' => 'xml',
-        'href' => $_SERVER['REQUEST_URI'] . '&xslt=client',
+        'href' => MCMS_REQUEST_URI . '&xslt=client',
         ), 'Client');
     }
     if ($xslmode != '') {
@@ -516,8 +516,8 @@ class AdminRPC extends RPCHandler
   {
     $data['base'] = $ctx->url()->getBase($ctx);
     $data['prefix'] = 'lib/modules/admin';
-    $data['urlEncoded'] = urlencode($_SERVER['REQUEST_URI']);
-    $data['back'] = urlencode($ctx->get('destination', $_SERVER['REQUEST_URI']));
+    $data['urlEncoded'] = urlencode(MCMS_REQUEST_URI);
+    $data['back'] = urlencode($ctx->get('destination', MCMS_REQUEST_URI));
     $data['url'] = $ctx->url()->string();
     $data['cgroup'] = $ctx->get('cgroup');
     $data['folder'] = $ctx->folder();

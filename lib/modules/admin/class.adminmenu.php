@@ -236,7 +236,7 @@ class AdminMenu
           unset($item['message']);
 
           if (array_key_exists('link', $item))
-            $item['link'] = str_replace('&destination=CURRENT', '&destination=' . urlencode($_SERVER['REQUEST_URI']), $item['link']);
+            $item['link'] = str_replace('&destination=CURRENT', '&destination=' . urlencode(MCMS_REQUEST_URI), $item['link']);
           $items .= html::em('message', $item, html::cdata($text));
         }
       }
