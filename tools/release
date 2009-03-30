@@ -33,13 +33,16 @@ zip -q9r molinos-cms-$MCMS_VERSION.zip \
   lib/modules/attachment \
   lib/modules/auth \
   lib/modules/base \
+  lib/modules/core \
+  lib/modules/cron \
   lib/modules/install \
+  lib/modules/markdown \
   lib/modules/modman \
   lib/modules/nodeapi \
-  lib/modules/phtml \
   lib/modules/pdo \
-  lib/modules/update \
-  themes
+  lib/modules/schema \
+  lib/modules/xslt \
+  sites/default
 
 echo -n "Preparing modules: "
 php -f tools/rebuild-modules.php ${DIR}/svn/${MCMS_VERSION}/modules.ini || exit 1
@@ -56,3 +59,5 @@ done
 
 svn ci -m "Semi-automatic release." $DIR/svn
 git tag -f lastrelease-master
+
+echo "http://code.google.com/p/molinos-cms/downloads/list?can=2&q=label%3AR9.03+label%3AType-Module"

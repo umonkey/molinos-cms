@@ -1,7 +1,7 @@
 <?php
 
 define('MCMS_RELEASE', '9.03');
-define('MCMS_VERSION', '9.03A2');
+define('MCMS_VERSION', '9.03');
 
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class.os.php';
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class.ini.php';
