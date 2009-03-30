@@ -179,10 +179,11 @@ class AttachmentControl extends Control
       ), $options);
 
     $ctx = Context::last();
-    $_file = $ctx->url()->getBase($ctx) . $_url;
+    $base = $ctx->url()->getBase($ctx);
+    $_file = $base . $_url;
 
     $url = new url(array(
-      'path' => 'lib/modules/attachment/player.swf',
+      'path' => $base . 'lib/modules/attachment/player.swf',
       ));
     $url->setarg('file', os::webpath($_file));
     $url->setarg('width', $options['width']);
