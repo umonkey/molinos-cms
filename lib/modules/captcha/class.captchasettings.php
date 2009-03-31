@@ -8,9 +8,11 @@ class CaptchaSettings
   public static function formGetModuleConfig()
   {
     return new Schema(array(
-      'type' => 'SetControl',
-      'label' => t('Проверяемые типы документов'),
-      'options' => Node::getSortedList('type', 'title', 'name'),
+      'types' => array(
+        'type' => 'SetControl',
+        'label' => t('Проверяемые типы документов'),
+        'options' => Node::getSortedList('type', 'title', 'name'),
+        ),
       ));
   }
 }
