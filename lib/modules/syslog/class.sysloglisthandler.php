@@ -28,4 +28,18 @@ class SyslogListHandler extends AdminListHandler implements iAdminList
 
     return $data;
   }
+
+  /**
+   * Рендерит список подписавшихся пользователей.
+   * 
+   * @param Context $ctx 
+   * @return string
+   * @mcms_message ru.molinos.cms.admin.list.syslog
+   */
+  public static function on_get_list(Context $ctx)
+  {
+    $class = __CLASS__;
+    $tmp = new $class($ctx);
+    return $tmp->getHTML($ctx->get('preset'));
+  }
 };

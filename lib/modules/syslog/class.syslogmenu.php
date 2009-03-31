@@ -11,7 +11,7 @@ class SysLogMenu
 
     $icons[] = array(
       'group' => 'statistics',
-      'href' => '?q=admin&action=list&module=syslog&cgroup=statistics',
+      'href' => '?action=list&module=syslog',
       'title' => t('Журнал событий'),
       'description' => t('Кто, что, когда и с чем делал.'),
     );
