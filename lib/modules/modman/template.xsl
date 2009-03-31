@@ -160,8 +160,19 @@
                 <xsl:value-of select="@version.local" />
               </del>
               <br/>
-              <xsl:text>v</xsl:text>
-              <xsl:value-of select="@version" />
+              <xsl:choose>
+                <xsl:when test="@changelog">
+                  <a href="{@changelog}">
+                    <xsl:text>v</xsl:text>
+                    <xsl:value-of select="@version" />
+                  </a>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>v</xsl:text>
+                  <xsl:value-of select="@version" />
+                </xsl:otherwise>
+              </xsl:choose>
+
             </xsl:when>
             <xsl:otherwise>
               <xsl:text>v</xsl:text>
