@@ -191,7 +191,7 @@ class UserNode extends Node implements iContentType
   public function formProcess(array $data)
   {
     if (!$this->id)
-      $this->setRegistered();
+      $this->setRegistered(Context::last());
 
     $oldpassword = $this->password;
     $res = parent::formProcess($data);
