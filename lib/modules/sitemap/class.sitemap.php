@@ -4,45 +4,6 @@
 class Sitemap
 {
   /**
-   * @mcms_message ru.molinos.cms.admin.config.module.sitemap
-   */
-  public static function formGetModuleConfig()
-  {
-    return new Schema(array(
-      'ping' => array(
-        'type' => 'TextAreaControl',
-        'label' => t('Уведомлять поисковые серверы'),
-        'default' => "www.google.com",
-        'description' => t('Не все серверы поддерживают уведомления, не надо добавлять всё подряд!'),
-        'weight' => 1,
-        'group' => t('Серверы'),
-        ),
-      'no_ping' => array(
-        'type' => 'BoolControl',
-        'label' => t('Не надо никого уведомлять'),
-        'description' => t('Отправка уведомлений производится при каждом '
-          .'добавлении или удалении документа, что может тормозить работу. '
-          .'Гораздо лучше явно <a href="@url">сказать поисковым серверам</a>, '
-          .'где следует брать карту сайта.', array(
-            '@url' => 'http://www.google.com/webmasters/sitemaps/',
-            )),
-        'weight' => 2,
-        'group' => t('Серверы'),
-        ),
-      'send_types' => array(
-        'type' => 'SetControl',
-        'label' => t('Сообщать о документах типов'),
-        'options' => Node::getSortedList('type', 'title', 'name'),
-        'weight' => 3,
-        'group' => t('Типы доокументов'),
-        'store' => true,
-        ),
-      ));
-
-    return $form;
-  }
-
-  /**
    * @mcms_message ru.molinos.cms.hook.node
    */
   public static function hookNodeUpdate(Context $ctx, Node $node, $op)
@@ -167,5 +128,56 @@ class Sitemap
   private static function get_file_path(Context $ctx)
   {
     return os::path($ctx->config->getPath('tmpdir'), 'sitemap-' . MCMS_HOST_NAME . '.xml');
+  }
+
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu
+   */
+  public static function on_poll_menu()
+  {
+    return array(
+      array(
+        're' => 'admin/system/settings/sitemap',
+        'title' => t('Карта сайта'),
+        'method' => 'modman::settings',
+        ),
+      );
+  }
+
+  /**
+   * @mcms_message ru.molinos.cms.module.settings.sitemap
+   */
+  public static function on_get_settings(Context $ctx)
+  {
+    return new Schema(array(
+      'ping' => array(
+        'type' => 'TextAreaControl',
+        'label' => t('Уведомлять поисковые серверы'),
+        'default' => "www.google.com",
+        'description' => t('Не все серверы поддерживают уведомления, не надо добавлять всё подряд!'),
+        'weight' => 1,
+        'group' => t('Серверы'),
+        ),
+      'no_ping' => array(
+        'type' => 'BoolControl',
+        'label' => t('Не надо никого уведомлять'),
+        'description' => t('Отправка уведомлений производится при каждом '
+          .'добавлении или удалении документа, что может тормозить работу. '
+          .'Гораздо лучше явно <a href="@url">сказать поисковым серверам</a>, '
+          .'где следует брать карту сайта.', array(
+            '@url' => 'http://www.google.com/webmasters/sitemaps/',
+            )),
+        'weight' => 2,
+        'group' => t('Серверы'),
+        ),
+      'send_types' => array(
+        'type' => 'SetControl',
+        'label' => t('Сообщать о документах типов'),
+        'options' => Node::getSortedList('type', 'title', 'name'),
+        'weight' => 3,
+        'group' => t('Типы доокументов'),
+        'store' => true,
+        ),
+      ));
   }
 }

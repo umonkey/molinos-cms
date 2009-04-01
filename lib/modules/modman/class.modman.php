@@ -75,25 +75,6 @@ class modman
   }
 
   /**
-   * Возвращает информацию о настраиваемых модулях.
-   */
-  public static function getConfigurableModules()
-  {
-    $ctx = Context::last();
-    foreach ($modules = self::getLocalModules() as $k => $v) {
-      try {
-        if (false === $ctx->registry->unicast('ru.molinos.cms.admin.config.module.' . $k))
-          unset($modules[$k]);
-      } catch (Exception $e) {
-        mcms::flog($k . ': module not configurable: exception in message handler.');
-        unset($modules[$k]);
-      }
-    }
-
-    return $modules;
-  }
-
-  /**
    * Обновление информации о доступных модулях.
    */
   public static function updateDB()
@@ -268,5 +249,46 @@ class modman
   public static function isInstalled($moduleName)
   {
     return is_dir(os::path('lib', 'modules', $moduleName));
+  }
+
+  public static function settings_get(Context $ctx, $moduleName)
+  {
+    $schema = $ctx->registry->unicast($msg = 'ru.molinos.cms.module.settings.' . $moduleName);
+    if (!($schema instanceof Schema))
+      throw new RuntimeException(t('Не удалось получить форму настройки модуля %name (сообщение %msg не обработано).', array(
+        '%name' => $moduleName,
+        '%msg' => $msg,
+        )));
+    return $schema;
+  }
+
+  public static function settings(Context $ctx, array $args)
+  {
+    $name = substr(strrchr($args[0], '/'), 1);
+
+    $schema = self::settings_get($ctx, $name);
+    $form = $schema->getForm();
+    $data = $ctx->modconf($name);
+
+    if (null === $title)
+      $title = t('Настройка модуля «%name»', array(
+        '%name' => $name,
+        ));
+
+    if (empty($form->title))
+      $form->title = $title;
+
+    $form->action = '?q=modman.rpc&action=configure&module=' . urlencode($name)
+      . '&destination=admin/system/settings';
+
+    $form->addControl(new SubmitControl(array(
+      'text' => t('Сохранить'),
+      )));
+
+    return html::em('content', array(
+      'name' => 'form',
+      'title' => $name,
+      'mode' => 'config',
+      ), $form->getXML(Control::data($data)));
   }
 }

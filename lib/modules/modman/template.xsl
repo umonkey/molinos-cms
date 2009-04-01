@@ -2,31 +2,19 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:import href="../admin/template.xsl" />
 
-  <xsl:template match="block[@name = 'modman' and @mode = 'config']" mode="content">
-    <xsl:apply-templates select="form" />
+  <xsl:template match="content[@name='modman' and @mode='upgrade']" mode="content">
+    <h2>Обновление модулей</h2>
+    <xsl:choose>
+      <xsl:when test="not(module)">
+        <p>Похоже, что для используемых вами модулей обновлений нет.</p>
+        <form method="post" action="?q=modman.rpc&amp;action=upgrade&amp;destination={/page/request/@uri}">
+          <input type="submit" value="Проверить ещё раз" />
+        </form>
+      </xsl:when>
+    </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="block[@name = 'modman' and @mode = 'settings']" mode="content">
-    <h2>
-      <xsl:value-of select="@title" />
-    </h2>
-    <div class="modman">
-      <xsl:apply-templates select="." mode="module-extras" />
-      <p class="note">В этой таблице приведены только модули с настройками, полный список модулей доступен <a href="?q=admin.rpc&amp;action=form&amp;module=modman&amp;mode=addremove&amp;cgroup=system">отдельно</a>.</p>
-      <form method="post" action="?q=modman.rpc&amp;action=addremove&amp;destination={/page/request/@uri}">
-        <table>
-          <tbody>
-            <xsl:apply-templates select="module" />
-          </tbody>
-        </table>
-      </form>
-      <xsl:if test="not(module)">
-        <p>Удивительно, но ни один модуль не найден.</p>
-      </xsl:if>
-    </div>
-  </xsl:template>
-
-  <xsl:template match="block[@name='modman' and (@mode='addremove' or @mode='upgrade')]" mode="content">
+  <xsl:template match="content[@name='modman' and (@mode='install' or @mode='remove')]" mode="content">
     <h2>
       <xsl:value-of select="@title" />
     </h2>
@@ -86,14 +74,9 @@
         <xsl:value-of select="@section" />
       </xsl:attribute>
 
-      <xsl:if test="../@mode='addremove' or ../@mode='upgrade'">
+      <xsl:if test="../@mode='install' or ../@mode='remove' or ../@mode='upgrade'">
         <td>
           <input type="checkbox" name="modules[]" value="{@id}" id="check-{@id}">
-            <xsl:if test="@installed">
-              <xsl:attribute name="checked">
-                <xsl:text>checked</xsl:text>
-              </xsl:attribute>
-            </xsl:if>
             <xsl:if test="not(@url)">
               <xsl:attribute name="disabled">
                 <xsl:text>disabled</xsl:text>
@@ -160,19 +143,8 @@
                 <xsl:value-of select="@version.local" />
               </del>
               <br/>
-              <xsl:choose>
-                <xsl:when test="@changelog">
-                  <a href="{@changelog}">
-                    <xsl:text>v</xsl:text>
-                    <xsl:value-of select="@version" />
-                  </a>
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:text>v</xsl:text>
-                  <xsl:value-of select="@version" />
-                </xsl:otherwise>
-              </xsl:choose>
-
+              <xsl:text>v</xsl:text>
+              <xsl:value-of select="@version" />
             </xsl:when>
             <xsl:otherwise>
               <xsl:text>v</xsl:text>

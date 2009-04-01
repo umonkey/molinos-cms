@@ -1,0 +1,14 @@
+.submenu fieldset {
+  margin-bottom: 1em;
+}
+.submenu legend {
+  font-size: 1.25em;
+  padding: 0 .25em;
+}
+.submenu ul {
+  margin: .5em 2em;
+  list-style-type: square;
+}
+.submenu li {
+  margin-bottom: .25em;
+}

@@ -60,7 +60,7 @@ class ModManRPC extends RPCHandler
       throw new RuntimeException(t('Не указано имя настраиваемого модуля.'));
 
     $conf = Control::data();
-    foreach ($schema = $ctx->registry->unicast('ru.molinos.cms.admin.config.module.' . $moduleName, array($ctx)) as $k => $v)
+    foreach (modman::settings_get($ctx, $moduleName) as $k => $v)
       $v->set($ctx->post($k, $v->default), $conf);
 
     $cfg = $ctx->config;
@@ -75,24 +75,10 @@ class ModManRPC extends RPCHandler
     Structure::getInstance()->drop();
   }
 
-  /**
-   * Изменение списка активных модулей.
-   */
-  public static function rpc_addremove(Context $ctx)
+  public static function rpc_post_install(Context $ctx)
   {
     $status = array();
     $enabled = $ctx->post('modules');
-
-    // Удаляем отключенные модули.
-    foreach (modman::getLocalModules() as $name => $info) {
-      if ('required' != $info['priority'] and !in_array($name, $enabled)) {
-        // Отказываемся удалять локальные модули, которые нельзя вернуть.
-        if (!empty($info['url'])) {
-          if (modman::uninstall($name))
-            $status[$name] = 'removed';
-        }
-      }
-    }
 
     // Загружаем отсутствующие модули.
     foreach (modman::getAllModules() as $name => $info) {
@@ -101,6 +87,40 @@ class ModManRPC extends RPCHandler
           $status[$name] = 'failed';
         else
           $status[$name] = 'installed';
+      }
+    }
+
+    $ctx->config->modules = $enabled;
+    $ctx->config->write();
+
+    $next = new url($ctx->get('destination', '?q=admin'));
+    $next->setarg('status', $status);
+
+    self::rpc_rebuild($ctx);
+    Structure::getInstance()->rebuild();
+
+    mcms::flush();
+    mcms::flush(mcms::FLUSH_NOW);
+
+    // Обновляем базу модулей, чтобы выбросить удалённые локальные.
+    modman::updateDB();
+
+    return new Redirect($next->string());
+  }
+
+  public static function rpc_post_remove(Context $ctx)
+  {
+    $status = array();
+    $remove = $ctx->post('modules');
+
+    // Удаляем отключенные модули.
+    foreach (modman::getLocalModules() as $name => $info) {
+      if ('required' != $info['priority'] and in_array($name, $remove)) {
+        // Отказываемся удалять локальные модули, которые нельзя вернуть.
+        if (!empty($info['url'])) {
+          if (modman::uninstall($name))
+            $status[$name] = 'removed';
+        }
       }
     }
 

@@ -4,31 +4,6 @@
 class ModeratorModule
 {
   /**
-   * @mcms_message ru.molinos.cms.admin.config.module.moderator
-   */
-  public static function formGetModuleConfig()
-  {
-    return new Schema(array(
-      'from' => array(
-        'type' => 'EmailControl',
-        'label' => t('Отправитель сообщений'),
-        'description' => t('С этого адреса будут приходить сообщения на тему модерации.'),
-        'default' => 'no-reply@' . MCMS_HOST_NAME,
-        ),
-      'super' => array(
-        'type' => 'EmailControl',
-        'label' => t('Супервизоры'),
-        'description' => t('Список почтовых адресов, на которые всегда приходят все сообщения о модерации, независимо от привязки пользователя к выпускающему редактору.'),
-        ),
-      'skip_types' => array(
-        'type' => 'SetControl',
-        'label' => t('Немодерируемые документы'),
-        'options' => Node::getSortedList('type', 'title', 'name'),
-        ),
-      ));
-  }
-
-  /**
    * @mcms_message ru.molinos.cms.hook.node
    */
   public static function hookNodeUpdate(Context $ctx, Node $node, $op)
@@ -109,7 +84,7 @@ class ModeratorModule
 
     $body .= '</dl>';
 
-    $body .= '<p>' . html::link('?q=admin&cgroup=content&action=edit&node=' . $node->id . '&destination=admin', t('Открыть в админке')) . '</p>';
+    $body .= '<p>' . html::link('?q=admin/edit/' . $node->id . '&destination=admin', t('Открыть в админке')) . '</p>';
 
     return $body;
   }
@@ -138,5 +113,44 @@ class ModeratorModule
         $list += preg_split('/, */', $ctx->moderatoremail);
 
     return array_unique($list);
+  }
+
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu
+   */
+  public static function on_poll_menu()
+  {
+    return array(
+      array(
+        're' => 'admin/system/settings/moderator',
+        'title' => t('Модерация'),
+        'method' => 'modman::settings',
+        ),
+      );
+  }
+
+  /**
+   * @mcms_message ru.molinos.cms.module.settings.moderator
+   */
+  public static function on_get_settings(Context $ctx)
+  {
+    return new Schema(array(
+      'from' => array(
+        'type' => 'EmailControl',
+        'label' => t('Отправитель сообщений'),
+        'description' => t('С этого адреса будут приходить сообщения на тему модерации.'),
+        'default' => 'no-reply@' . MCMS_HOST_NAME,
+        ),
+      'super' => array(
+        'type' => 'EmailControl',
+        'label' => t('Супервизоры'),
+        'description' => t('Список почтовых адресов, на которые всегда приходят все сообщения о модерации, независимо от привязки пользователя к выпускающему редактору.'),
+        ),
+      'skip_types' => array(
+        'type' => 'SetControl',
+        'label' => t('Немодерируемые документы'),
+        'options' => Node::getSortedList('type', 'title', 'name'),
+        ),
+      ));
   }
 };

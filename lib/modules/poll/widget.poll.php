@@ -162,9 +162,23 @@ class PollWidget extends Widget
   }
 
   /**
-   * @mcms_message ru.molinos.cms.admin.config.module.poll
+   * @mcms_message ru.molinos.cms.admin.menu
    */
-  public static function formGetModuleConfig()
+  public static function on_poll_menu()
+  {
+    return array(
+      array(
+        're' => 'admin/system/settings/poll',
+        'title' => t('Опросы'),
+        'method' => 'modman::settings',
+        ),
+      );
+  }
+
+  /**
+   * @mcms_message ru.molinos.cms.module.settings.poll
+   */
+  public static function on_get_settings(Context $ctx)
   {
     return new Schema(array(
       'anonymous' => array(

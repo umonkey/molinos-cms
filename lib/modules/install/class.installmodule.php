@@ -42,7 +42,7 @@ class InstallModule extends RPCHandler
     $pdo = PDO_Singleton::connect($config->db);
 
     $config->write();
-    $ctx->redirect('?q=admin&cgroup=system&action=form&module=modman&mode=addremove');
+    $ctx->redirect('?q=admin/system');
 
     /*
     $s = new Structure();

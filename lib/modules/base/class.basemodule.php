@@ -3,21 +3,6 @@
 class BaseModule
 {
   /**
-   * @mcms_message ru.molinos.cms.admin.config.module.base
-   */
-  public static function formGetModuleConfig()
-  {
-    return new Schema(array(
-      'archive_limit' => array(
-        'type' => 'NumberControl',
-        'label' => t('Количество архивных ревизий'),
-        'default' => 10,
-        'description' => t('При сохранении документов будет оставлено указанное количество архивных ревизий, все остальные будут удалены.'),
-        ),
-      ));
-  }
-
-  /**
    * Сборщик мусора.
    *
    * При удалении документов удаляет информацию о ревизии, связях и доступе к

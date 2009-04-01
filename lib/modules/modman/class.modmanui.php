@@ -135,4 +135,121 @@ class ModManUI
       mcms::debug($mode);
     }
   }
+
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu
+   */
+  public static function on_poll_menu(Context $ctx)
+  {
+    return array(
+      array(
+        're' => 'admin/system/modules',
+        'title' => t('Модули'),
+        'description' => t('Управление функциональностью сайтов.'),
+        ),
+      array(
+        're' => 'admin/system/modules/install',
+        'method' => 'on_get_install',
+        'title' => t('Установка модулей'),
+        'sort' => 'modman01',
+        ),
+      array(
+        're' => 'admin/system/modules/remove',
+        'method' => 'on_get_remove',
+        'title' => t('Удаление модулей'),
+        'sort' => 'modman02',
+        ),
+      array(
+        're' => 'admin/system/modules/upgrade',
+        'method' => 'on_get_upgrade',
+        'title' => t('Обновление системы'),
+        'sort' => 'modman03',
+        ),
+      );
+  }
+
+  public static function on_get_install(Context $ctx)
+  {
+    $ctx->theme = os::path('lib', 'modules', 'modman', 'template.xsl');
+
+    if (!count($modules = modman::getAllModules())) {
+      modman::updateDB();
+      $modules = modman::getAllModules();
+    }
+
+    // Удаляем из списка обязательные модули: их нельзя отключать.
+    // Это, за одно, позволит дробить модули без захламления интерфейса
+    // и смущения пользователя.
+    foreach ($modules as $k => $v)
+      if (!empty($v['installed']))
+        unset($modules[$k]);
+
+    return self::getXML2($ctx, $modules, array(
+      'mode' => 'install',
+      'title' => t('Установка модулей'),
+      ));
+  }
+
+  public static function on_get_remove(Context $ctx)
+  {
+    $ctx->theme = os::path('lib', 'modules', 'modman', 'template.xsl');
+
+    if (!count($modules = modman::getAllModules())) {
+      modman::updateDB();
+      $modules = modman::getAllModules();
+    }
+
+    // Удаляем из списка обязательные модули: их нельзя отключать.
+    // Это, за одно, позволит дробить модули без захламления интерфейса
+    // и смущения пользователя.
+    foreach ($modules as $k => $v)
+      if (empty($v['installed']) or 'required' == $v['priority'])
+        unset($modules[$k]);
+
+    return self::getXML2($ctx, $modules, array(
+      'mode' => 'remove',
+      'title' => t('Удаление модулей'),
+      ));
+  }
+
+  public static function on_get_upgrade(Context $ctx)
+  {
+    $ctx->theme = os::path('lib', 'modules', 'modman', 'template.xsl');
+
+    if (!count($modules = modman::getUpdatedModules())) {
+      modman::updateDB();
+      $modules = modman::getUpdatedModules();
+    }
+
+    // Удаляем из списка обязательные модули: их нельзя отключать.
+    // Это, за одно, позволит дробить модули без захламления интерфейса
+    // и смущения пользователя.
+    foreach ($modules as $k => $v)
+      if (empty($v['installed']))
+        unset($modules[$k]);
+
+    return self::getXML2($ctx, $modules, array(
+      'mode' => 'upgrade',
+      'title' => t('Обновление модулей'),
+      ));
+  }
+
+  private static function getXML2(Context $ctx, array $list, array $options)
+  {
+    $output = '';
+
+    foreach ($list as $k => $v)
+      $output .= html::em('module', array('id' => $k) + $v);
+
+    if (is_array($ctx->get('status')))
+      foreach ($ctx->get('status') as $k => $v)
+        $output .= html::em('status', array(
+          'module' => $k,
+          'result' => $v,
+          ));
+
+    $options['name'] = 'modman';
+
+    return html::em('content', $options, $output);
+  }
 }

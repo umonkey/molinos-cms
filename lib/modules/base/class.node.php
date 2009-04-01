@@ -237,7 +237,7 @@ class Node
   public function getFormAction()
   {
     $next = empty($_GET['destination'])
-      ? MCMS_REQUEST_URI
+      ? $this->getListURL()
       : $_GET['destination'];
 
     return $this->id
@@ -352,7 +352,7 @@ class Node
 
     if ($this->checkPermission('u'))
       $links['edit'] = array(
-        'href' => '?q=admin.rpc&action=edit&cgroup=content&node='. $this->id
+        'href' => '?q=admin/edit/'. $this->id
           .'&destination=CURRENT',
         'title' => t('Редактировать'),
         'icon' => 'edit',
@@ -659,5 +659,13 @@ class Node
     $ctx->registry->broadcast('ru.molinos.cms.hook.node', array($ctx, $this, $this->isNew() ? 'create' : 'update'));
 
     return $this;
+  }
+
+  public function getListURL()
+  {
+    $url = empty($_SERVER['HTTP_REFERER'])
+      ? 'admin/content/list'
+      : $_SERVER['HTTP_REFERER'];
+    return $url;
   }
 };

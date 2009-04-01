@@ -47,7 +47,7 @@ class Registry
     return $this;
   }
 
-  public function enum($method, array $args = array())
+  public function poll($method, array $args = array())
   {
     $result = array();
 
@@ -69,7 +69,7 @@ class Registry
   public function enum_simple($method, array $args = array())
   {
     $result = array();
-    foreach ($this->enum($method, $args) as $v)
+    foreach ($this->poll($method, $args) as $v)
       if (!empty($v['result']))
         $result[] = $v['result'];
     return $result;

@@ -3,9 +3,23 @@
 class TinyMCEConfig
 {
   /**
-   * @mcms_message ru.molinos.cms.admin.config.module.tinymce
+   * @mcms_message ru.molinos.cms.admin.menu
    */
-  public static function formGetModuleConfig()
+  public static function on_poll_menu()
+  {
+    return array(
+      array(
+        're' => 'admin/system/settings/tinymce',
+        'title' => t('TinyMCE'),
+        'method' => 'modman::settings',
+        ),
+      );
+  }
+
+  /**
+   * @mcms_message ru.molinos.cms.module.settings.tinymce
+   */
+  public static function on_get_settings(Context $ctx)
   {
     return new Schema(array(
       'pages' => array(

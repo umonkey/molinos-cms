@@ -42,4 +42,36 @@ class MaintenanceModule
         'link' => '?q=admin&action=form&module=modman&mode=config&name=maintenance&cgroup=system&destination=CURRENT',
         );
   }
+
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu
+   */
+  public static function on_poll_menu()
+  {
+    return array(
+      array(
+        're' => 'admin/service/(maintenance)',
+        'method' => 'modman::settings',
+        'title' => t('Профилактика'),
+        'description' => t('Позволяет временно закрыть сайт для проведения технических работ.'),
+        ),
+      );
+  }
+
+  /**
+   * @mcms_message ru.molinos.cms.module.settings.maintenance
+   */
+  public static function on_get_settings(Context $ctx)
+  {
+    return new Schema(array(
+      'state' => array(
+        'type' => 'EnumRadioControl',
+        'label' => t('Текущее состояние'),
+        'options' => array(
+          '' => t('Сайт работает'),
+          'closed' => t('Ведутся технические работы'),
+          ),
+        ),
+      ));
+  }
 }

@@ -3,259 +3,170 @@
 
 class AdminMenu
 {
-  const msgEnum = 'ru.molinos.cms.admin.menu.enum';
+  private $items;
 
-  private function getCurrentGroup()
+  public function __construct($items = array())
   {
-    if (!empty($_GET['cgroup']))
-      $cgroup = $_GET['cgroup'];
-    elseif (count($parts = explode('/', $_GET['q'])) > 1)
-      $cgroup = $parts[1];
-    else
-      $cgroup = 'content';
-
-    return $cgroup;
+    $this->items = $items;
   }
 
-  private function cache($value = null)
+  public function poll(Context $ctx)
   {
-    if (null === ($key = $this->getCacheKey()))
-      return null;
+    $cachekey = 'admin/menu/raw/' . $ctx->user->id;
 
-    if (null === $value)
-      return mcms::cache($key);
-    else
-      return mcms::cache($key, $value);
-  }
+    if (!is_array($data = mcms::cache($cachekey))) {
+      $data = $ctx->registry->poll('ru.molinos.cms.admin.menu', array($ctx));
+      mcms::cache($cachekey, $data);
+    }
 
-  private static function getGroupName($name)
-  {
-    $trans = array(
-      'access' => t('Доступ'),
-      'content' => t('Наполнение'),
-      'developement' => t('Разработка'),
-      'statistics' => t('Статистика'),
-      'structure' => t('Структура'),
-      'status' => t('Состояние'),
-      'system' => t('Система'),
-      );
+    $this->items = array();
 
-    return array_key_exists($name, $trans)
-      ? $trans[$name]
-      : $name;
-  }
-
-  public function getXML(Context $ctx)
-  {
-    $cgroup = $this->getCurrentGroup();
-
-    if (is_string($tmp = $this->cache()) and false)
-      return $tmp;
-
-    $output = '';
-
-    foreach ($this->getIcons($ctx) as $group => $icons) {
-      $tmp = '';
-
-      if (array_key_exists('href', $icons[0])) {
-        $first = null;
-
-        foreach ($icons as $icon) {
-          $url = '?q=admin&cgroup=' . $group . '&' . trim($icon['href'], '?&');
-
-          $url = str_replace('destination=CURRENT', 'destination=' . urlencode(MCMS_REQUEST_URI), $url);
-
-          if (null === $first)
-            $first = $url;
-
-          $tmp .= html::em('link', array(
-            'url' => $url,
-            'description' => empty($icon['description']) ? null : $icon['description'],
-            'title' => $icon['title'],
-            ));
+    foreach ($data as $class) {
+      foreach ($class['result'] as $method) {
+        if (empty($method['method'])) {
+          $call = array($this, 'renderSubMenu');
+          $method['submenu'] = true;
+        } elseif (false === strpos($method['method'], '::')) {
+          $call = array($class['class'], $method['method']);
+        } else {
+          $call = $method['method'];
         }
 
-        $output .= html::em('tab', array(
-          'class' => ($group == $cgroup) ? 'current' : null,
-          'url' => $first,
-          'name' => $group,
-          'title' => self::getGroupName($group),
-          ), $tmp);
+        if (is_callable($call)) {
+          if (!empty($method['re'])) {
+            $key = $method['re'];
+            $method['re'] = '|^' . $key . '$|';
+            $method['method'] = $call;
+            $method['level'] = count(explode('/', $key));
+            $this->items[$key] = $method;
+          }
+        }
       }
     }
 
-    $output = html::em('block', array(
-      'name' => 'menu',
-      ), $output);
+    ksort($this->items);
 
-    $this->cache($output);
+    if ($ctx->debug('menu'))
+      die(var_dump($this->items));
 
-    return $output;
+    return !empty($this->items);
   }
 
-  private function getCacheKey()
+  public function dispatch(Context $ctx)
   {
-    if (!empty($_GET['nocache']))
-      return null;
+    $query = $ctx->query();
 
-    $key = 'adminmenu:'. $this->getCurrentGroup();
+    foreach ($this->items as $handler) {
+      if (preg_match($handler['re'], $query, $m)) {
+        $args = array($ctx, $m);
+        if (!empty($handler['submenu']))
+          $args[] = $query;
+        $output = call_user_func_array($handler['method'], $args);
+        if (empty($output))
+          throw new RuntimeException(t('Обработчик этого адреса — %method — ничего не вернул.', array(
+            '%method' => $handler['method'] . '()',
+            )));
+        return $output;
+      }
+    }
 
-    if (!empty($_GET['__cleanurls']))
-      $key .= ':cleanurls';
-
-    return $key;
+    return false;
   }
 
-  private function getIcons(Context $ctx)
+  public function getSubMenu($path)
   {
-    $icons = $result = array();
-    $ctx->registry->broadcast(self::msgEnum, array($ctx, &$icons));
+    $items = array();
+    $level = $this->items[$path]['level'] + 1;
 
-    foreach ($icons as $icon)
-      if (array_key_exists('group', $icon))
-        $result[$icon['group']][] = $icon;
+    $items[$path] = $this->items[$path];
 
-    ksort($result);
+    foreach ($this->items as $k => $v) {
+      if (0 === strpos($k, $path . '/') and $v['level'] >= $level)
+        $items[$k] = $v;
+    }
 
-    return $result;
+    return new AdminMenu($items);
+  }
+
+  public function renderSubMenu(Context $ctx, $args)
+  {
+    return $this->getSubMenu($args[0])->getXML('content', array('type' => 'submenu'));
+  }
+
+  public function getXML($em = 'menu', array $options = array())
+  {
+    $tmp = '';
+
+    list($top) = array_values($this->items);
+
+    foreach ($this->items as $k => $v) {
+      if (!empty($v['title']) and $v['level'] == $top['level'] + 1) {
+        $inside = '';
+        foreach ($this->items as $k1 => $v1) {
+          if (!empty($v1['title']) and $v1['level'] == $v['level'] + 1) {
+            if (0 === strpos($k1, $k . '/')) {
+              $v1['re'] = null;
+              $v1['level'] = null;
+              $v1['name'] = $k1;
+              $inside .= html::em('path', $v1);
+            }
+          }
+        }
+
+        $v['re'] = null;
+        $v['level'] = null;
+        $v['name'] = $k;
+        $tmp .= html::em('path', $v, $inside);
+      }
+    }
+
+    $top['re'] = null;
+    $top['level'] = null;
+    $top['path'] = null;
+    $top['method'] = null;
+    $top['submenu'] = null;
+
+    return html::em($em, array_merge($top, $options), $tmp);
   }
 
   /**
-   * Базовая навигация по CMS.
-   * @mcms_message ru.molinos.cms.admin.menu.enum
+   * Возвращает путь к указанной странице.
    */
-  public static function getMenuIcons(Context $ctx, array &$icons)
+  public function getPath($query)
   {
-    $user = $ctx->user;
+    $path = array();
 
-    if ($user->hasAccess('u', 'tag'))
-      $icons[] = array(
-        'group' => 'content',
-        'href' => '?action=tree&preset=taxonomy',
-        'title' => t('Разделы'),
-        'description' => t('Управление разделами сайта.'),
-        'weight' => -1,
-        );
+    $tabs = explode('/', $query);
+    $tab = empty($tabs[1])
+      ? null
+      : 'admin/' . $tabs[1];
 
-    if (count($user->getAccess('u') + $user->getAccess('c'))) {
-      $icons[] = array(
-        'group' => 'content',
-        'href' => '?action=list&columns=name,class,uid,created',
-        'title' => t('Документы'),
-        'description' => t('Поиск, редактирование, добавление документов.'),
-        );
-      if ($user->hasAccess('c', 'type'))
-        $icons[] = array(
-          'group' => 'content',
-          'href' => '?action=list&preset=dictlist',
-          'title' => t('Справочники'),
-          );
-      // FIXME. if (Node::count(array('published' => 0, '-class' => TypeNode::getInternal())))
-        $icons[] = array(
-          'group' => 'content',
-          'href' => '?action=list&preset=drafts',
-          'title' => t('В модерации'),
-          'description' => t('Поиск, редактирование, добавление документов.'),
-          );
-    }
-
-    if ($user->hasAccess('u', 'domain')) {
-      $icons[] = array(
-        'group' => 'structure',
-        'href' => '?action=list&preset=pages',
-        'title' => t('Домены'),
-        'description' => t('Управление доменами, страницами и виджетами.'),
-        );
-      $icons[] = array(
-        'group' => 'structure',
-        'href' => '?action=list&preset=widgets',
-        'title' => t('Виджеты'),
-        );
-    }
-
-    if ($user->hasAccess('u', 'user'))
-      $icons[] = array(
-        'group' => 'access',
-        'href' => '?action=list&preset=users',
-        'title' => t('Пользователи'),
-        'description' => t('Управление профилями пользователей.'),
-        );
-    if ($user->hasAccess('u', 'group'))
-      $icons[] = array(
-        'group' => 'access',
-        'href' => '?action=list&preset=groups',
-        'title' => t('Группы'),
-        'description' => t('Управление группами пользователей.'),
-        );
-
-    if ($user->hasAccess('u', 'file'))
-      $icons[] = array(
-        'group' => 'content',
-        'href' => '?action=list&preset=files',
-        'title' => t('Файлы'),
-        'description' => t('Просмотр, редактирование и добавление файлов.'),
-        );
-
-    if (count($user->getAccess('u')) /* and Node::count(array('deleted' => 1, '-class' => TypeNode::getInternal())) */)
-      $icons[] = array(
-        'group' => 'content',
-        'href' => '?action=list&preset=trash',
-        'title' => t('Корзина'),
-        'description' => t('Просмотр и восстановление удалённых файлов.'),
-        'weight' => 10,
-        );
-
-    if ($ctx->user->hasAccess('u', 'type') and $ctx->db->fetch("SELECT COUNT(*) FROM `node__fallback`"))
-      $icons[] = array(
-        'group' => 'statistics',
-        'title' => t('404'),
-        'href' => '?action=list&preset=404',
-        );
-  }
-
-  public function __toString()
-  {
-    return $this->getHTML();
-  }
-
-  public function getDesktop(Context $ctx)
-  {
-    $columns = array();
-    $idx = 0;
-
-    $result = '';
-
-    if (is_string($cached = mcms::cache($ckey = 'admin:desktop:status')) and false)
-      return $cached;
-
-    foreach ($this->getIcons($ctx) as $grname => $gritems) {
-      $items = '';
-
-      foreach ($gritems as $item) {
-        if (!empty($item['message'])) {
-          $text = $item['message'];
-          unset($item['group']);
-          unset($item['message']);
-
-          if (array_key_exists('link', $item))
-            $item['link'] = str_replace('&destination=CURRENT', '&destination=' . urlencode(MCMS_REQUEST_URI), $item['link']);
-          $items .= html::em('message', $item, html::cdata($text));
-        }
+    while ($query) {
+      if (!empty($this->items[$query])) {
+        $em = $this->items[$query];
+        $em['name'] = $query;
+        array_unshift($path, $em);
       }
 
-      if (!empty($items))
-        $result .= html::em('group', array(
-          'title' => self::getGroupName($grname),
-          ), $items);
+      $query = substr($query, 0, strrpos($query, '/'));
     }
 
-    if (!empty($result))
-      $result = html::em('block', array(
-        'name' => 'messages',
-        ), $result);
+    $output = '';
+    foreach ($path as $em)
+      $output .= self::path($em);
 
-    mcms::cache($ckey, $result);
+    return html::em('location', array(
+      'tab' => $tab,
+      ), $output);
+  }
 
-    return $result;
+  private static function path(array $options, $path = null, $inside = null)
+  {
+    $options['re'] = null;
+    $options['method'] = null;
+    $options['level'] = null;
+    if (null !== $path)
+      $options['name'] = $path;
+    return html::em('path', $options, $inside);
   }
 };

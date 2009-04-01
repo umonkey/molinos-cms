@@ -34,9 +34,23 @@ class XspfModule
   }
 
   /**
-   * @mcms_message ru.molinos.cms.admin.config.module.playlist
+   * @mcms_message ru.molinos.cms.admin.menu
    */
-  public static function formGetModuleConfig()
+  public static function on_poll_menu()
+  {
+    return array(
+      array(
+        're' => 'admin/system/settings/playlist',
+        'title' => t('Плейлисты для Flash-плеера'),
+        'method' => 'modman::settings',
+        ),
+      );
+  }
+
+  /**
+   * @mcms_message ru.molinos.cms.module.settings.playlist
+   */
+  public static function on_get_settings(Context $ctx)
   {
     return new Schema(array(
       'types' => array(

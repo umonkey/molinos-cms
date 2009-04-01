@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <!-- список документов -->
-  <xsl:template match="block[@name = 'list' or @name = 'tree']" mode="content">
+  <xsl:template match="content[@name = 'list' or @name = 'tree']" mode="content">
     <div class="doclist">
       <h2>
         <xsl:value-of select="@title" />
@@ -153,7 +153,7 @@
     <tr>
       <xsl:call-template name="odd_row" />
       <td class="icon">
-        <a class="icon-add" title="Добавить подраздел" href="?q=admin.rpc&amp;action=create&amp;type=tag&amp;parent={@id}&amp;cgroup={/page/@cgroup}&amp;destination={/page/request/@uri}">
+        <a class="icon-add" title="Добавить подраздел" href="?q=admin/create/tag?parent={@id}&amp;destination={/page/request/@uri}">
           <span/>
         </a>
       </td>
@@ -205,7 +205,7 @@
               <a class="icon-zoom" href="?q=admin.rpc&amp;action=list&amp;cgroup=content&amp;type={@name}" />
             </td>
             <td>
-              <a href="?q=admin.rpc&amp;cgroup=structure&amp;action=edit&amp;node={@id}&amp;destination={/page/request/@uri}">
+              <a href="?q=admin/edit/{@id}&amp;destination={/page/request/@uri}">
                 <xsl:value-of select="title" />
               </a>
             </td>
@@ -233,7 +233,7 @@
               <a class="icon-zoom" href="?q=admin.rpc&amp;action=list&amp;cgroup=content&amp;type={@name}" />
             </td>
             <td>
-              <a href="?q=admin.rpc&amp;cgroup=content&amp;action=edit&amp;node={@id}&amp;destination={/page/request/@uri}">
+              <a href="?q=admin/edit/{@id}&amp;destination={/page/request/@uri}">
                 <xsl:value-of select="title" />
               </a>
             </td>
@@ -271,7 +271,7 @@
       <xsl:choose>
         <xsl:when test="$domains">
           <td class="icon">
-            <a class="icon-edit" href="?q=admin.rpc&amp;action=edit&amp;cgroup=structure&amp;node={@id}&amp;destination={/page/request/@uri}" />
+            <a class="icon-edit" href="?q=admin/edit/{@id}&amp;destination={/page/request/@uri}" />
           </td>
           <td class="field-name">
             <a href="?q=admin.rpc&amp;action=tree&amp;preset=pages&amp;subid={@id}&amp;cgroup={/page/@cgroup}">
@@ -288,7 +288,7 @@
         </xsl:when>
         <xsl:otherwise>
           <td class="icon">
-            <a class="icon-add" href="?q=admin.rpc&amp;action=create&amp;type=domain&amp;parent={@id}&amp;destination={/page/request/@uri}" />
+            <a class="icon-add" href="?q=admin/create/type=domain?parent={@id}&amp;destination={/page/request/@uri}" />
           </td>
           <xsl:apply-templates select="." mode="mcms_list_name">
             <xsl:with-param name="depth" select="$depth" />
@@ -475,7 +475,7 @@
   <xsl:template match="node" mode="mcms_list_name">
     <xsl:param name="depth" />
     <td class="field-name">
-      <a class="picker" href="?q=admin.rpc&amp;action=edit&amp;cgroup={/page/@cgroup}&amp;node={@id}&amp;destination={/page/request/@uri}">
+      <a class="picker" href="admin/edit/{@id}">
         <xsl:if test="$depth">
           <xsl:attribute name="style">
             <xsl:text>padding-left:</xsl:text>
@@ -494,7 +494,7 @@
   <xsl:template match="node" mode="mcms_list_author">
     <td class="field-uid">
       <xsl:if test="uid">
-        <a href="?q=admin.rpc&amp;action=edit&amp;cgroup=access&amp;node={@id}&amp;destination={/page/request/@uri}">
+        <a href="?q=admin/edit/{@id}&amp;destination={/page/request/@uri}">
           <xsl:apply-templates select="uid" mode="username" />
         </a>
       </xsl:if>
@@ -555,12 +555,23 @@
       <input type="hidden" name="search_from" value="{/page/@url}" />
       <div class="tb_1">
         <div class="ctrl_left">
-          <a class="newlink" href="?q=admin.rpc&amp;action=create&amp;cgroup={/page/@cgroup}&amp;type={@type}&amp;destination={/page/request/@uri}">Добавить</a>
+          <a class="newlink">
+            <xsl:attribute name="href">
+              <xsl:text>?q=admin/create</xsl:text>
+              <xsl:if test="@type">
+                <xsl:text>/</xsl:text>
+                <xsl:value-of select="@type" />
+              </xsl:if>
+              <xsl:text>?destination=</xsl:text>
+              <xsl:value-of select="/page/request/@uri" />
+            </xsl:attribute>
+            <xsl:text>Добавить</xsl:text>
+          </a>
           <xsl:text> | </xsl:text>
           <input type="text" name="search_term" class="search_field" value="{/page/request/getArgs/arg[@name='search']}" />
           <input type="submit" value="Найти" />
           <xsl:text> | </xsl:text>
-          <a href="?q=admin.rpc&amp;action=search&amp;cgroup={/page/@cgroup}&amp;destination={/page/request/@uri}">Расширенный поиск</a>
+          <a href="admin/search?from={/page/@query}">Расширенный поиск</a>
         </div>
       </div>
     </form>
@@ -585,7 +596,7 @@
 
 
   <!-- подавление неопознанных блоков -->
-  <xsl:template match="block" mode="content">
+  <xsl:template match="content" mode="content">
   </xsl:template>
 
 

@@ -32,11 +32,11 @@
     </tbody>
   </xsl:template>
 
-  <xsl:template match="block[@name = 'modman' and @mode = 'config']" mode="content">
+  <xsl:template match="content[@name = 'modman' and @mode = 'config']" mode="content">
     <xsl:apply-templates select="form" />
   </xsl:template>
 
-  <xsl:template match="block[@name = 'modman' and @mode = 'settings']" mode="content">
+  <xsl:template match="content[@name = 'modman' and @mode = 'settings']" mode="content">
     <h2>
       <xsl:value-of select="@title" />
     </h2>
@@ -56,7 +56,7 @@
     </div>
   </xsl:template>
 
-  <xsl:template match="block[@name = 'modman' and @mode = 'addremove']" mode="content">
+  <xsl:template match="content[@name = 'modman' and @mode = 'addremove']" mode="content">
     <h2>
       <xsl:value-of select="@title" />
     </h2>

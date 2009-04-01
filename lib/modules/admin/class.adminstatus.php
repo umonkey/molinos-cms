@@ -20,7 +20,7 @@
 class AdminStatus
 {
   /**
-   * @mcms_message ru.molinos.cms.admin.menu.enum
+   * @mcms_message ru.molinos.cms.admin.status
    */
   public static function getMenuIcons(Context $ctx, array &$icons)
   {
@@ -34,7 +34,7 @@ class AdminStatus
         $icons[] = array(
           'group' => 'status',
           'message' => t('Пожалуйста, установите пароль на ваш аккаунт.'),
-          'link' => '?q=admin.rpc&action=edit&cgroup=access&node=' . $user->id
+          'link' => '?q=admin/edit/' . $user->id
             . '&destination=CURRENT',
           );
   }

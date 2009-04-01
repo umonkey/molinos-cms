@@ -11,6 +11,7 @@ class AdminTreeHandler
   protected $selectors;
   protected $zoomlink;
   protected $addlink;
+  protected $preset;
 
   public function __construct(Context $ctx)
   {
@@ -19,9 +20,9 @@ class AdminTreeHandler
 
   public function getHTML($preset = null)
   {
-    $this->setUp($preset);
+    $this->setUp($this->preset = $preset);
 
-    $output = html::em('block', array(
+    $output = html::em('content', array(
       'name' => 'tree',
       'title' => $this->title,
       'preset' => $preset,
@@ -38,22 +39,21 @@ class AdminTreeHandler
 
   protected function getData()
   {
-    switch ($this->ctx->get('preset')) {
+    switch ($this->preset) {
     case 'taxonomy':
     case 'pages':
       $data = self::getNodeTree();
 
       if (empty($data)) {
-        $r = new Redirect("?q=admin.rpc&action=create"
-          ."&parent=". $this->ctx->get('subid')
-          ."&type={$this->type}"
+        $r = new Redirect("?q=admin/create/{$this->type}"
+          ."?parent=". $this->ctx->get('subid')
           ."&destination=CURRENT");
         $r->send();
       }
 
       return $data;
     default:
-      mcms::debug($this->ctx);
+      mcms::debug($this->ctx->get('preset'), $this->ctx);
     }
   }
 
@@ -82,8 +82,8 @@ class AdminTreeHandler
         $this->title = t('Непонятный домен');
       }
 
-      $this->addlink = '?q=admin.rpc&cgroup=structure&action=create&type=domain'
-        .'&parent='. $this->ctx->get('subid')
+      $this->addlink = '?q=admin/create/domain'
+        .'?parent='. $this->ctx->get('subid')
         .'&destination=' . urlencode(MCMS_REQUEST_URI);
 
       break;

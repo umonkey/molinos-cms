@@ -223,4 +223,9 @@ class UserNode extends Node implements iContentType
       // TODO: install
     }
   }
+
+  public function getListURL()
+  {
+    return 'admin/access/groups';
+  }
 };

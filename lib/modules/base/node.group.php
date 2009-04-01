@@ -94,4 +94,9 @@ class GroupNode extends Node implements iContentType
           ),
         ));
     }
+
+  public function getListURL()
+  {
+    return 'admin/access/groups';
+  }
 }

@@ -67,7 +67,7 @@ class AdminListHandler implements iAdminList
     $output .= $data;
     $output .= $this->getPager();
 
-    return html::em('block', array(
+    return html::em('content', array(
       'name' => 'list',
       'title' => $this->title,
       'preset' => $preset ? $preset : 'default',
@@ -257,8 +257,8 @@ class AdminListHandler implements iAdminList
         $this->types = array('domain');
         $this->title = t('Домены');
         $this->hidesearch = true;
-        $this->addlink = '?q=admin.rpc&action=create&type=domain&cgroup=structure'
-          .'&destination=' . urlencode(MCMS_REQUEST_URI);
+        $this->addlink = '?q=admin/create/domain'
+          .'?destination=' . urlencode(MCMS_REQUEST_URI);
         $this->sort = 'name';
         $this->limit = null;
         break;

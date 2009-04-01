@@ -3,6 +3,7 @@
   <xsl:import href="../base/forms.xsl" />
   <xsl:import href="../base/pager.xsl" />
   <xsl:import href="list.xsl" />
+  <xsl:import href="submenu.xsl" />
 
   <xsl:output
     method="xml"
@@ -16,8 +17,8 @@
       <head>
         <base href="{@base}"></base>
         <title>
-          <xsl:if test="blocks/block[@title]">
-            <xsl:value-of select="blocks/block[position() = 1]/@title" />
+          <xsl:if test="content[@title]">
+            <xsl:value-of select="content[position() = 1]/@title" />
             <xsl:text> — </xsl:text>
           </xsl:if>
           <xsl:text>Molinos CMS v</xsl:text>
@@ -43,13 +44,13 @@
     <div id="preloaded_images"></div>
 
     <div id="all">
-      <xsl:apply-templates select="blocks/block[@name = 'menu']" />
+      <xsl:apply-templates select="menu" />
       <xsl:apply-templates select="request/user" mode="toolbar" />
 
       <div id="content_wrapper">
         <div id="center">
-          <xsl:apply-templates select="blocks/block" mode="content" />
-          <xsl:apply-templates select="blocks/block/pager" />
+          <xsl:apply-templates select="content" mode="content" />
+          <xsl:apply-templates select="content/pager" />
         </div>
       </div>
 
@@ -80,43 +81,51 @@
   <!-- авторизация -->
   <xsl:template match="page[@status = '401']" mode="body">
     <div id="login-form">
-      <xsl:apply-templates select="blocks/block[@name='login']/form" />
+      <xsl:apply-templates select="content[@name='login']/form" />
     </div>
   </xsl:template>
 
 
   <!-- произвольная форма -->
-  <xsl:template match="block[@name = 'form']" mode="content">
+  <xsl:template match="content[@name = 'form']" mode="content">
     <xsl:apply-templates select="form" />
   </xsl:template>
 
 
   <!-- навигационное меню -->
-  <xsl:template match="block[@name = 'menu']">
+  <xsl:template match="menu">
     <div id="top_menu_controls">
       <ul>
+        <xsl:for-each select="path">
+          <xsl:if test="path">
+            <li>
+              <xsl:if test="@name = /page/location/@tab">
+                <xsl:attribute name="class">
+                  <xsl:text>current</xsl:text>
+                </xsl:attribute>
+              </xsl:if>
+              <a href="{@name}">
+                <xsl:value-of select="@title" />
+              </a>
+              <xsl:if test="path">
+                <ul>
+                  <xsl:for-each select="path">
+                    <xsl:sort select="@sort" />
+                    <xsl:sort select="@title" />
+                    <li>
+                      <a href="{@name}">
+                        <xsl:value-of select="@title" />
+                      </a>
+                    </li>
+                  </xsl:for-each>
+                </ul>
+              </xsl:if>
+            </li>
+          </xsl:if>
+        </xsl:for-each>
         <xsl:apply-templates select="tab" mode="top_menu_controls" />
       </ul>
     </div>
-  </xsl:template>
-
-  <xsl:template match="tab" mode="top_menu_controls">
-    <li class="{@class}">
-      <a href="{@url}">
-        <xsl:value-of select="@title" />
-      </a>
-      <ul>
-        <xsl:apply-templates select="link" mode="top_menu_controls" />
-      </ul>
-    </li>
-  </xsl:template>
-
-  <xsl:template match="link" mode="top_menu_controls">
-    <li>
-      <a href="{@url}">
-        <xsl:value-of select="@title" />
-      </a>
-    </li>
   </xsl:template>
 
 
@@ -125,7 +134,7 @@
     <div id="navbar">
       <div id="top_toolbar">
         <div class="right">
-          <a class="editprofile" href="?q=admin&amp;cgroup=access&amp;action=edit&amp;node={@id}&amp;destination={/page/request/@uri}">
+          <a class="editprofile" href="?q=admin/edit/{@id}&amp;destination={/page/request/@uri}">
             <xsl:apply-templates select="." mode="username" />
           </a>
           <a title="Вернуться на главную" href="?q=admin">
@@ -158,16 +167,16 @@
 
 
   <!-- форма редактирования -->
-  <xsl:template match="block[@name = 'edit' or @name = 'create']" mode="content">
+  <xsl:template match="content[@name = 'edit' or @name = 'create']" mode="content">
     <xsl:apply-templates select="form|typechooser" />
   </xsl:template>
 
 
   <!-- рабочий стол -->
-  <xsl:template match="block[@name='dashboard']" mode="content">
+  <xsl:template match="content[@name='dashboard']" mode="content">
     <div id="dashboard">
       <form class="tabbed">
-        <xsl:for-each select="block" mode="dashboard">
+        <xsl:for-each select="content" mode="dashboard">
           <fieldset id="dashboard-{@name}" class="tabable">
             <legend class="toggle">
               <span class="title">
@@ -189,10 +198,10 @@
       </form>
     </div>
   </xsl:template>
-    <xsl:template match="block[@name='create']" mode="dashboard">
+    <xsl:template match="content[@name='create']" mode="dashboard">
       <xsl:for-each select="node[not(isdictionary)]">
         <xsl:sort select="title" />
-        <a class="create-{@name}" href="?q=admin&amp;action=create&amp;cgroup=content&amp;type={@name}&amp;destination={/page/request/@uri}">
+        <a class="create-{@name}" href="?q=admin/create/{@name}?destination={/page/request/@uri}">
           <xsl:if test="description">
             <xsl:attribute name="title">
               <xsl:value-of select="description" />
@@ -204,7 +213,7 @@
         </a>
       </xsl:for-each>
     </xsl:template>
-    <xsl:template match="block[@name='status']" mode="dashboard">
+    <xsl:template match="content[@name='status']" mode="dashboard">
       <xsl:if test="message">
         <ol>
           <xsl:for-each select="message">
@@ -215,11 +224,11 @@
         </ol>
       </xsl:if>
     </xsl:template>
-    <xsl:template match="block" mode="dashboard">
+    <xsl:template match="content" mode="dashboard">
       <ol class="doclist">
         <xsl:for-each select="node">
           <li>
-            <a href="?q=admin.rpc&amp;action=edit&amp;cgroup=content&amp;node={@id}&amp;destination={/page/request/@uri}">
+            <a href="?q=admin/edit/{@id}&amp;destination={/page/request/@uri}">
               <xsl:value-of select="@name" />
             </a>
           </li>
@@ -235,7 +244,7 @@
     </xsl:template>
 
   <!-- информационные сообщения -->
-  <xsl:template match="block[@name = 'messages']" mode="content">
+  <xsl:template match="content[@name = 'messages']" mode="content">
     <div id="desktop">
       <xsl:apply-templates select="group" mode="mcms_admin_messages" />
     </div>
@@ -267,7 +276,7 @@
 
 
   <!-- расширенный поиск -->
-  <xsl:template match="block[@name = 'search']" mode="content">
+  <xsl:template match="content[@name = 'search']" mode="content">
     <h2>Расширенный поиск</h2>
     <form method="post" class="advsearch" action="?q=admin.rpc&amp;action=search&amp;from={@from}">
       <table>
@@ -357,7 +366,7 @@
       <xsl:for-each select="type">
         <xsl:sort select="title" />
         <dt>
-          <a href="?q=admin.rpc&amp;action=create&amp;cgroup={/page/@cgroup}&amp;type={@name}&amp;destination={../@destination}">
+          <a href="?q=admin/create/{@name}?destination={../@destination}">
             <xsl:value-of select="title" />
           </a>
         </dt>
@@ -372,7 +381,7 @@
 
 
   <!-- Подпись в подвале. -->
-  <xsl:template match="block[@name = 'signature']">
+  <xsl:template match="content[@name = 'signature']">
     <div id="footer" class="signature">
       <hr/>
       <em>

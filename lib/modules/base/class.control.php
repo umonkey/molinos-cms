@@ -358,7 +358,7 @@ abstract class Control implements iFormControl
   {
     $types = array();
 
-    foreach (Context::last()->registry->enum('ru.molinos.cms.control.enum') as $v)
+    foreach (Context::last()->registry->poll('ru.molinos.cms.control.enum') as $v)
       $types[$v['class']] = $v['result']['name'];
 
     asort($types);

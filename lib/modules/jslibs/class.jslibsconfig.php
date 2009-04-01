@@ -2,23 +2,6 @@
 
 class JSLibsConfig
 {
-  /**
-   * @mcms_message ru.molinos.cms.admin.config.module.jslibs
-   */
-  public static function formGetModuleConfig()
-  {
-    return new Schema(array(
-      'use' => array(
-        'type' => 'SetControl',
-        'label' => t('Использовать библиотеки'),
-        'options' => self::getLibrariesHTML(),
-        'description' => t('Библиотеки загружаются со специальных <a href="@url">выделенных серверов Google</a>, что очень быстро и хорошо кэшируется.', array(
-          '@url' => 'http://code.google.com/intl/ru-RU/apis/ajaxlibs/',
-          )),
-        ),
-      ));
-  }
-
   private static function getLibrariesHTML()
   {
     $result = array();
@@ -73,5 +56,36 @@ class JSLibsConfig
         'home' => 'http://developer.yahoo.com/yui/',
         ),
       );
+  }
+
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu
+   */
+  public static function on_poll_menu()
+  {
+    return array(
+      array(
+        're' => 'admin/system/settings/jslibs',
+        'title' => t('Библиотеки JavaScript'),
+        'method' => 'modman::settings',
+        ),
+      );
+  }
+
+  /**
+   * @mcms_message ru.molinos.cms.module.settings.jslibs
+   */
+  public static function on_get_settings(Context $ctx)
+  {
+    return new Schema(array(
+      'use' => array(
+        'type' => 'SetControl',
+        'label' => t('Использовать библиотеки'),
+        'options' => self::getLibrariesHTML(),
+        'description' => t('Библиотеки загружаются со специальных <a href="@url">выделенных серверов Google</a>, что очень быстро и хорошо кэшируется.', array(
+          '@url' => 'http://code.google.com/intl/ru-RU/apis/ajaxlibs/',
+          )),
+        ),
+      ));
   }
 }

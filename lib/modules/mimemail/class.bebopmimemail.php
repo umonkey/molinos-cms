@@ -50,9 +50,24 @@ class BebopMimeMail
   }
 
   /**
-   * @mcms_message ru.molinos.cms.admin.config.module.mimemail
+   * @mcms_message ru.molinos.cms.admin.menu
    */
-  public static function formGetModuleConfig()
+  public static function on_poll_menu()
+  {
+    return array(
+      array(
+        're' => 'admin/system/settings/mimemail',
+        'title' => t('Почта'),
+        'method' => 'modman::settings',
+        'sort' => 'mail',
+        ),
+      );
+  }
+
+  /**
+   * @mcms_message ru.molinos.cms.module.settings.mimemail
+   */
+  public static function on_get_settings(Context $ctx)
   {
     return new Schema(array(
       'from' => array(

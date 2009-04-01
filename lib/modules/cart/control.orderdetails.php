@@ -77,7 +77,7 @@ class OrderDetailsControl extends Control
       return htmlspecialchars($item['name']);
 
     if (0 === strpos($ctx->query(), 'admin/'))
-      $url = '?q=admin&cgroup=content&action=edit&node='. $item['id'] .'&destination=admin';
+      $url = '?q=admin/edit/'. $item['id'] .'&destination=admin';
     else
       $url = '?q=nodeapi.rpc&action=locate&node='. $item['id'];
 

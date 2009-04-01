@@ -3,9 +3,23 @@
 class AdminExtSettings
 {
   /**
-   * @mcms_message ru.molinos.cms.admin.config.module
+   * @mcms_message ru.molinos.cms.admin.menu
    */
-  public static function formGetModuleConfig()
+  public static function on_poll_menu()
+  {
+    return array(
+      array(
+        're' => 'admin/system/settings/adminext',
+        'title' => t('Администрирование через сайт'),
+        'method' => 'modman::settings',
+        ),
+      );
+  }
+
+  /**
+   * @mcms_message ru.molinos.cms.module.settings.adminext
+   */
+  public static function on_get_settings(Context $ctx)
   {
     return new Schema(array(
       'hide' => array(
@@ -22,7 +36,7 @@ class AdminExtSettings
       'edit_tpl' => array(
         'type' => 'TextLineControl',
         'label' => t('Шаблон ссылки на редактирование'),
-        'default' => '?q=admin&action=edit&cgroup=content&node=$id&destination=CURRENT',
+        'default' => '?q=admin/edit/$id&destination=CURRENT',
         ),
       'groups' => array(
         'type' => 'SetControl',

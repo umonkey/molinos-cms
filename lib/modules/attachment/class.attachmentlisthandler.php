@@ -16,17 +16,24 @@ class AttachmentListHandler extends AdminListHandler implements iAdminList
     $this->nopermcheck = true;
   }
 
-  /**
-   * Рендерит список подписавшихся пользователей.
-   * 
-   * @param Context $ctx 
-   * @return string
-   * @mcms_message ru.molinos.cms.admin.list.attachment
-   */
   public static function on_get_list(Context $ctx)
   {
     $class = __CLASS__;
     $tmp = new $class($ctx);
     return $tmp->getHTML($ctx->get('preset'));
+  }
+
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu
+   */
+  public static function on_poll_menu()
+  {
+    return array(
+      array(
+        're' => 'admin/system/settings/imgtransform',
+        'method' => 'on_get_list',
+        'title' => t('Преобразования картинок'),
+        ),
+      );
   }
 }

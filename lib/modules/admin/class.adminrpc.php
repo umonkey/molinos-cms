@@ -8,11 +8,23 @@ class AdminRPC extends RPCHandler
    */
   public static function hookRemoteCall(Context $ctx)
   {
+    if ($ctx->get('action') and ($result = parent::hookRemoteCall($ctx, __CLASS__)) instanceof Response)
+      return $result;
+
+    $menu = new AdminMenu();
+    $menu->poll($ctx);
+
+    if (false === ($result = $menu->dispatch($ctx)))
+      throw new PageNotFoundException();
+
+    $xmlmenu = $menu->getPath($ctx->query()) . $menu->getXML();
+
     $page = array(
       'status' => 200,
       'base' => $ctx->url()->getBase($ctx),
       'host' => MCMS_HOST_NAME,
       'folder' => $ctx->folder(),
+      'query' => $ctx->query(),
       'version' => defined('MCMS_VERSION')
         ? MCMS_VERSION
         : 'unknown',
@@ -41,19 +53,15 @@ class AdminRPC extends RPCHandler
 
         throw new UnauthorizedException();
       }
-
-      if (is_string($result = parent::hookRemoteCall($ctx, __CLASS__))) {
-        $menu = new AdminMenu();
-        $result .= $menu->getXML($ctx);
-      }
     }
 
     catch (UnauthorizedException $e) {
       $page['status'] = $e->getCode();
       $page['title'] = $e->getMessage();
-      $result = html::em('block', array(
+      $result = html::em('content', array(
         'name' => 'login',
         ), $ctx->registry->unicast('ru.molinos.cms.auth.form', array($ctx, $ctx->get('authmode'))));
+      $xmlmenu = null;
     }
 
     catch (Exception $e) {
@@ -80,7 +88,7 @@ class AdminRPC extends RPCHandler
       $result = html::em('request', array(
         'remoteIP' => $_SERVER['REMOTE_ADDR'],
         'uri' => urlencode(MCMS_REQUEST_URI),
-        ), $ctx->user->getNode()->getXML('user') . $ctx->url()->getArgsXML()) . html::em('blocks', $result) . $ctx->getExtrasXML();
+        ), $ctx->user->getNode()->getXML('user') . $ctx->url()->getArgsXML()) . $xmlmenu . $result . $ctx->getExtrasXML();
 
       $output = html::em('page', $page, $result);
 
@@ -88,6 +96,122 @@ class AdminRPC extends RPCHandler
     }
 
     return $result;
+  }
+
+  /**
+   * @mcms_message ru.molinos.cms.admin.menu
+   */
+  public static function on_poll_menu()
+  {
+    return array(
+      array(
+        're' => 'admin',
+        'method' => 'on_get_desktop',
+        'title' => t('Molinos CMS'),
+        ),
+      array(
+        're' => 'admin/search',
+        'method' => 'on_get_search_form',
+        ),
+      array(
+        're' => 'admin/content',
+        'method' => 'on_get_list',
+        'title' => t('Контент'),
+        ),
+      array(
+        're' => 'admin/content/list',
+        'method' => 'on_get_list',
+        'title' => t('Документы'),
+        ),
+      array(
+        're' => 'admin/structure/sections',
+        'method' => 'on_get_sections',
+        'title' => t('Разделы'),
+        'description' => t('Иерархия разделов позволяет структурировать данные, что упрощает работу пользователя с ними.'),
+        ),
+      array(
+        're' => 'admin/content/drafts',
+        'method' => 'on_get_drafts',
+        'title' => t('Черновики'),
+        ),
+      array(
+        're' => 'admin/trash',
+        'method' => 'on_get_trash',
+        'title' => t('Корзина'),
+        ),
+      array(
+        're' => 'admin/content/files',
+        'method' => 'on_get_files',
+        'title' => t('Файлы'),
+        ),
+      array(
+        're' => 'admin/structure',
+        'title' => t('Структура'),
+        'description' => t('Здесь настраивается структура данных и разметка страниц ваших сайтов.'),
+        ),
+      array(
+        're' => 'admin/structure/domains',
+        'method' => 'on_get_domains',
+        'title' => t('Домены'),
+        'description' => t('Управление доменами, алиасами и типовыми страницами.'),
+        'sort' => 'pages1',
+        ),
+      array(
+        're' => 'admin/structure/widgets',
+        'method' => 'on_get_widgets',
+        'title' => t('Виджеты'),
+        'description' => t('Управление блоками, из которых состоят ваши сайты.'),
+        'sort' => 'pages2',
+        ),
+      array(
+        're' => 'admin/content/comments',
+        'method' => 'on_get_comments',
+        'title' => t('Комментарии'),
+        ),
+      array(
+        're' => 'admin/content/list/(\w+)',
+        'method' => 'on_get_list_by_type',
+        ),
+      array(
+        're' => 'admin/content/dict',
+        'method' => 'on_get_dict_list',
+        'title' => t('Справочники'),
+        ),
+      array(
+        're' => 'admin/content/dict/(\w+)',
+        'method' => 'on_get_dict',
+        ),
+      array(
+        're' => 'admin/edit/(\d+)',
+        'method' => 'on_get_edit_form',
+        ),
+      array(
+        're' => 'admin/create',
+        'method' => 'on_get_create_form',
+        ),
+      array(
+        're' => 'admin/create/(\w+)',
+        'method' => 'on_get_create_form',
+        ),
+      array(
+        're' => 'admin/system',
+        'title' => t('Система'),
+        ),
+      array(
+        're' => 'admin/system/settings',
+        'title' => t('Настройки'),
+        'description' => t('Здесь можно настроить отдельные модули.'),
+        ),
+      array(
+        're' => 'admin/system/settings/admin',
+        'title' => t('Администрирование'),
+        'method' => 'modman::settings',
+        ),
+      array(
+        're' => 'admin/service',
+        'title' => t('Сервисы'),
+        ),
+      );
   }
 
   /**
@@ -116,16 +240,58 @@ class AdminRPC extends RPCHandler
   /**
    * Вывод списка объектов.
    */
-  public static function rpc_get_list(Context $ctx)
+  public static function on_get_list(Context $ctx)
   {
-    $module = $ctx->get('module', 'admin');
+    $tmp = new AdminListHandler($ctx);
+    return $tmp->getHTML();
+  }
 
-    if (false === ($result = $ctx->registry->unicast('ru.molinos.cms.admin.list.' . $module, array($ctx)))) {
-      $tmp = new AdminListHandler($ctx);
-      $result = $tmp->getHTML($ctx->get('preset'));
-    }
+  public static function on_get_sections(Context $ctx)
+  {
+    $tmp = new AdminTreeHandler($ctx);
+    return $tmp->getHTML('taxonomy');
+  }
 
-    return $result;
+  public static function on_get_drafts(Context $ctx)
+  {
+    $tmp = new AdminListHandler($ctx);
+    return $tmp->getHTML('drafts');
+  }
+
+  public static function on_get_trash(Context $ctx)
+  {
+    $tmp = new AdminListHandler($ctx);
+    return $tmp->getHTML('trash');
+  }
+
+  public static function on_get_files(Context $ctx)
+  {
+    $tmp = new AdminListHandler($ctx);
+    return $tmp->getHTML('files');
+  }
+
+  public static function on_get_widgets(Context $ctx)
+  {
+    $tmp = new AdminListHandler($ctx);
+    return $tmp->getHTML('widgets');
+  }
+
+  public static function on_get_domains(Context $ctx)
+  {
+    $tmp = new AdminListHandler($ctx);
+    return $tmp->getHTML('pages');
+  }
+
+  public static function on_get_comments(Context $ctx)
+  {
+    $tmp = new AdminListHandler($ctx);
+    return $tmp->getHTML('comments');
+  }
+
+  public static function on_get_dict_list(Context $ctx)
+  {
+    $tmp = new AdminListHandler($ctx);
+    return $tmp->getHTML('dictlist');
   }
 
   /**
@@ -137,31 +303,24 @@ class AdminRPC extends RPCHandler
     return $tmp->getHTML($ctx->get('preset'));
   }
 
-  /**
-   * Редактирование объектов.
-   */
-  public static function rpc_get_edit(Context $ctx)
+  public static function on_get_edit_form(Context $ctx, array $args)
   {
-    if (null === ($nid = $ctx->get('node')))
-      throw new PageNotFoundException();
-
-    $node = Node::load($nid)->getObject();
+    $node = Node::load($args[1])->getObject();
 
     $form = $node->formGet(false);
     $form->addClass('tabbed');
 
-    return html::em('block', array(
+    return html::em('content', array(
       'name' => 'edit',
       ), $form->getXML($node));
   }
 
-  /**
-   * Добавление объекта.
-   */
-  public static function rpc_get_create(Context $ctx)
+  public static function on_get_create_form(Context $ctx, array $args)
   {
-    if (null !== $ctx->get('type')) {
-      $node = Node::create($type = $ctx->get('type'), array(
+    if (!empty($args[1])) {
+      $type = $args[1];
+
+      $node = Node::create($type, array(
         'parent_id' => $ctx->get('parent'),
         'isdictionary' => $ctx->get('dictionary'),
         ));
@@ -199,7 +358,7 @@ class AdminRPC extends RPCHandler
           )));
       }
 
-      return html::em('block', array(
+      return html::em('content', array(
         'name' => 'create',
         ), $form->getXML($node));
     }
@@ -219,27 +378,54 @@ class AdminRPC extends RPCHandler
       $names[] = $type->name;
     }
 
-    if (1 == count($names))
-      $ctx->redirect("?q=admin.rpc&cgroup=content&action=create&type={$names[0]}&destination="
+    if (1 == count($names)) {
+      $ctx->redirect("admin/create/{$names[0]}?destination="
         . urlencode($ctx->get('destination')));
+    }
 
     $output = html::em('typechooser', array(
       'destination' => urlencode($ctx->get('destination')),
       ), $output);
 
-    return html::em('block', array(
+    return html::em('content', array(
       'name' => 'create',
       ), $output);
   }
 
   /**
+   * @mcms_message ru.molinos.cms.module.settings.admin
+   */
+  public static function on_get_settings(Context $ctx)
+  {
+    return new Schema(array(
+      'admin' => array(
+        'type' => 'NodeLinkControl',
+        'label' => t('Администратор сервера'),
+        'dictionary' => 'user',
+        'required' => true,
+        'description' => t('Выберите пользователя, который занимается администрированием этого сайта. На его почтовый адрес будут приходить сообщения о состоянии системы.'),
+        'nonew' => true,
+        ),
+      'debuggers' => array(
+        'type' => 'ListControl',
+        'label' => t('IP адреса разработчиков'),
+        'description' => t('Пользователям с этими адресами будут доступны отладочные функции (?debug=). Можно использовать маски, вроде 192.168.1.*'),
+        'default' => array(
+          '127.0.0.1',
+          $_SERVER['REMOTE_ADDR'],
+          ),
+        ),
+      ));
+  }
+
+  /**
    * Поиск (форма).
    */
-  public static function rpc_get_search(Context $ctx)
+  public static function on_get_search_form(Context $ctx)
   {
     $output = '';
 
-    $url = new url($ctx->get('destination'));
+    $url = new url($ctx->get('from'));
 
     if (null === $url->arg('preset')) {
       $types = Node::find($ctx->db, array(
@@ -281,10 +467,10 @@ class AdminRPC extends RPCHandler
       $output .= html::em('sections', $tmp);
     }
 
-    return html::em('block', array(
+    return html::em('content', array(
       'name' => 'search',
       'query' => $ctx->get('query'),
-      'from' => urlencode($ctx->get('destination')),
+      'from' => urlencode($ctx->get('from')),
       ), $output);
   }
 
@@ -305,7 +491,7 @@ class AdminRPC extends RPCHandler
       $term .= ' tags:' . $tmp;
 
     $url = new url($ctx->get('from'));
-    $url->setarg('search', $term);
+    $url->setarg('search', trim($term));
 
     $ctx->redirect($url->string());
   }
@@ -313,7 +499,7 @@ class AdminRPC extends RPCHandler
   /**
    * Вывод приветствия админки.
    */
-  public static function rpc_get_default(Context $ctx)
+  public static function on_get_desktop(Context $ctx)
   {
     $output = '';
 
@@ -368,7 +554,7 @@ class AdminRPC extends RPCHandler
 
     $output .= self::getDesktopNotes($ctx);
 
-    return html::em('block', array(
+    return html::em('content', array(
       'name' => 'dashboard',
       'title' => t('Рабочий стол'),
       ), $output);
@@ -390,7 +576,7 @@ class AdminRPC extends RPCHandler
         ), html::cdata($icon['message']));
 
     if (!empty($output))
-      return html::em('block', array(
+      return html::em('content', array(
         'name' => 'status',
         'title' => t('Системные сообщения'),
         ), $output);
@@ -400,7 +586,7 @@ class AdminRPC extends RPCHandler
   {
     $content = Node::findXML($db, $query, 10);
     if (!empty($content))
-      return html::em('block', $options, $content);
+      return html::em('content', $options, $content);
   }
 
   /**
@@ -420,7 +606,7 @@ class AdminRPC extends RPCHandler
         )));
 
     if (0 === strpos($output, '<form'))
-      $output = html::em('block', array(
+      $output = html::em('content', array(
       'name' => 'form',
       ), $output);
 
@@ -439,7 +625,7 @@ class AdminRPC extends RPCHandler
     $content .= $menu->getXML($ctx);
 
     if (!empty($content))
-      $content = html::em('blocks', $content);
+      $content = html::em('content', $content);
 
     return self::render($ctx, array(), $content);
   }
@@ -507,7 +693,7 @@ class AdminRPC extends RPCHandler
         ), 'Server');
     }
 
-    return html::em('block', array(
+    return html::em('content', array(
       'name' => 'toolbar',
       ), $toolbar);
   }

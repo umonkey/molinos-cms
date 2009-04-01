@@ -166,6 +166,8 @@ class html
       }
     }
 
+    mcms::debug($output);
+
     return $output;
   }
 

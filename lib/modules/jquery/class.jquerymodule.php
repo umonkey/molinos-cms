@@ -19,9 +19,23 @@ class jQueryModule
   }
 
   /**
-   * @mcms_message ru.molinos.cms.admin.config.module.jquery
+   * @mcms_message ru.molinos.cms.admin.menu
    */
-  public static function formGetModuleConfig()
+  public static function on_poll_menu()
+  {
+    return array(
+      array(
+        're' => 'admin/system/settings/jquery',
+        'title' => t('jQuery'),
+        'method' => 'modman::settings',
+        ),
+      );
+  }
+
+  /**
+   * @mcms_message ru.molinos.cms.module.settings.jquery
+   */
+  public static function on_get_settings(Context $ctx)
   {
     return new Schema(array(
       'jsversion' => array(
