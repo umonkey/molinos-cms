@@ -238,45 +238,6 @@ class DomainNode extends Node implements iContentType
         }
     }
 
-    // Если это — новый домен, редиректим на его редактирование.
-    if ($isnew and empty($this->parent_id)) {
-      if (empty($this->redirect)) {
-        // Если это — не алиас, добавляем страницы для обработки ошибок.
-        $node = Node::create('domain', array(
-          'parent_id' => $this->id,
-          'name' => 'errors',
-          'title' => t('Обработчики ошибок'),
-          'theme' => $this->theme,
-          'lang' => $this->lang,
-          'published' => true,
-          ))->save();
-
-        Node::create('domain', array(
-          'parent_id' => $node,
-          'name' => '403',
-          'title' => 'Forbidden',
-          'theme' => $this->theme,
-          'published' => true,
-          ))->save();
-
-        Node::create('domain', array(
-          'parent_id' => $node,
-          'name' => '404',
-          'title' => 'Not Found',
-          'theme' => $this->theme,
-          'published' => true,
-          ))->save();
-
-        Node::create('domain', array(
-          'parent_id' => $node,
-          'name' => '500',
-          'title' => 'Internal Server Error',
-          'theme' => $this->theme,
-          'published' => true,
-          ))->save();
-      }
-    }
-
     return $this;
   }
 
@@ -433,6 +394,11 @@ class DomainNode extends Node implements iContentType
     foreach (array('parent_id', 'language', 'content_type', 'html_charset') as $k)
       if (isset($schema[$k]))
         unset($schema[$k]);
+
+    if (!$this->id) {
+      if ($this->parent_id)
+        $schema['name']->label = t('Имя страницы');
+    }
 
     return $schema;
   }

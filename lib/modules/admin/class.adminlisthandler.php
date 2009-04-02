@@ -257,8 +257,8 @@ class AdminListHandler implements iAdminList
         $this->types = array('domain');
         $this->title = t('Домены');
         $this->hidesearch = true;
-        $this->addlink = '?q=admin/create/domain'
-          .'?destination=' . urlencode(MCMS_REQUEST_URI);
+        $this->addlink = 'admin/create/domain'
+          .'&destination=' . urlencode(MCMS_REQUEST_URI);
         $this->sort = 'name';
         $this->limit = null;
         break;

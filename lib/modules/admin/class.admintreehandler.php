@@ -12,10 +12,12 @@ class AdminTreeHandler
   protected $zoomlink;
   protected $addlink;
   protected $preset;
+  protected $subid;
 
-  public function __construct(Context $ctx)
+  public function __construct(Context $ctx, $subid)
   {
     $this->ctx = $ctx;
+    $this->subid = $subid;
   }
 
   public function getHTML($preset = null)
@@ -45,9 +47,11 @@ class AdminTreeHandler
       $data = self::getNodeTree();
 
       if (empty($data)) {
-        $r = new Redirect("?q=admin/create/{$this->type}"
-          ."?parent=". $this->ctx->get('subid')
-          ."&destination=CURRENT");
+        $url = 'admin/create/' . $this->type;
+        if ($parent_id = $this->getParentId())
+          $url .= '/' . $parent_id;
+        $url .= '?destination=CURRENT';
+        $r = new Redirect($url);
         $r->send();
       }
 
@@ -75,16 +79,20 @@ class AdminTreeHandler
       $this->actions = array('publish', 'unpublish', 'delete', 'clone');
 
       try {
-        $node = Node::load($this->ctx->get('subid'));
+        $node = Node::load(array(
+          'class' => 'domain',
+          'deleted' => 0,
+          'name' => $this->subid,
+          ));
         $this->title = t('Страницы в домене «%name»',
           array('%name' => $node->name));
       } catch (ObjectNotFoundException $e) {
         $this->title = t('Непонятный домен');
       }
 
-      $this->addlink = '?q=admin/create/domain'
-        .'?parent='. $this->ctx->get('subid')
-        .'&destination=' . urlencode(MCMS_REQUEST_URI);
+      $this->addlink = 'admin/create/domain'
+        . '/'. $this->getParentId()
+        . '?destination=' . urlencode(MCMS_REQUEST_URI);
 
       break;
     }
@@ -119,7 +127,7 @@ class AdminTreeHandler
   {
     $output = '';
 
-    if (null === ($parent_id = $this->ctx->get('subid')))
+    if (null === ($parent_id = $this->getParentId()))
       $ids = $this->ctx->db->getResultsV("id", "SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0 AND `parent_id` IS NULL ORDER BY `left`", array($this->type));
     else
       $ids = $this->ctx->db->getResultsV("id", "SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0 AND `parent_id` = ? ORDER BY `left`", array($this->type, $parent_id));
@@ -130,5 +138,19 @@ class AdminTreeHandler
     return empty($output)
       ? null
       : html::em('data', $output);
+  }
+
+  private function getParentId()
+  {
+    switch ($this->preset) {
+    case 'taxonomy':
+      return $this->subid;
+    case 'pages':
+      return Node::load(array(
+        'class' => 'domain',
+        'deleted' => 0,
+        'name' => $this->subid,
+        ))->id;
+    }
   }
 };

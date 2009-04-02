@@ -157,6 +157,10 @@ class AdminRPC extends RPCHandler
         'sort' => 'pages1',
         ),
       array(
+        're' => 'admin/structure/domains/(.+)',
+        'method' => 'on_get_pages',
+        ),
+      array(
         're' => 'admin/structure/widgets',
         'method' => 'on_get_widgets',
         'title' => t('Виджеты'),
@@ -191,6 +195,10 @@ class AdminRPC extends RPCHandler
         ),
       array(
         're' => 'admin/create/(\w+)',
+        'method' => 'on_get_create_form',
+        ),
+      array(
+        're' => 'admin/create/(\w+)/(.+)',
         'method' => 'on_get_create_form',
         ),
       array(
@@ -282,6 +290,12 @@ class AdminRPC extends RPCHandler
     return $tmp->getHTML('pages');
   }
 
+  public static function on_get_pages(Context $ctx, array $args)
+  {
+    $tmp = new AdminTreeHandler($ctx, $args[1]);
+    return $tmp->getHTML('pages');
+  }
+
   public static function on_get_comments(Context $ctx)
   {
     $tmp = new AdminListHandler($ctx);
@@ -319,9 +333,10 @@ class AdminRPC extends RPCHandler
   {
     if (!empty($args[1])) {
       $type = $args[1];
+      $parent_id = empty($args[2]) ? null : $args[2];
 
       $node = Node::create($type, array(
-        'parent_id' => $ctx->get('parent'),
+        'parent_id' => $parent_id,
         'isdictionary' => $ctx->get('dictionary'),
         ));
 

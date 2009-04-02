@@ -153,7 +153,7 @@
     <tr>
       <xsl:call-template name="odd_row" />
       <td class="icon">
-        <a class="icon-add" title="Добавить подраздел" href="?q=admin/create/tag?parent={@id}&amp;destination={/page/request/@uri}">
+        <a class="icon-add" title="Добавить подраздел" href="admin/create/tag/{@id}?destination={/page/request/@uri}">
           <span/>
         </a>
       </td>
@@ -274,7 +274,7 @@
             <a class="icon-edit" href="?q=admin/edit/{@id}&amp;destination={/page/request/@uri}" />
           </td>
           <td class="field-name">
-            <a href="?q=admin.rpc&amp;action=tree&amp;preset=pages&amp;subid={@id}&amp;cgroup={/page/@cgroup}">
+            <a href="?q=admin/structure/domains/{@name}">
               <xsl:if test="$depth">
                 <xsl:attribute name="style">
                   <xsl:text>padding-left:</xsl:text>
@@ -288,7 +288,7 @@
         </xsl:when>
         <xsl:otherwise>
           <td class="icon">
-            <a class="icon-add" href="?q=admin/create/type=domain?parent={@id}&amp;destination={/page/request/@uri}" />
+            <a class="icon-add" href="admin/create/domain/{@id}?destination={/page/request/@uri}" />
           </td>
           <xsl:apply-templates select="." mode="mcms_list_name">
             <xsl:with-param name="depth" select="$depth" />
