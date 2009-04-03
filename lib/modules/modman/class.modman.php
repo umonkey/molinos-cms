@@ -253,7 +253,7 @@ class modman
 
   public static function settings_get(Context $ctx, $moduleName)
   {
-    $schema = $ctx->registry->unicast($msg = 'ru.molinos.cms.module.settings.' . $moduleName);
+    $schema = $ctx->registry->unicast($msg = 'ru.molinos.cms.module.settings.' . $moduleName, array($ctx));
     if (!($schema instanceof Schema))
       throw new RuntimeException(t('Не удалось получить форму настройки модуля %name (сообщение %msg не обработано).', array(
         '%name' => $moduleName,

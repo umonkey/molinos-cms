@@ -47,7 +47,7 @@
         <tr>
           <xsl:call-template name="odd_row" />
           <td class="icon">
-            <a class="icon-zoom" title="Найти все документы пользователя" href="?q=admin.rpc&amp;action=list&amp;cgroup=content&amp;search=uid%3A{@id}">
+            <a class="icon-zoom" title="Найти все документы пользователя" href="admin/content/list?search=uid%3A{@id}">
               <span/>
             </a>
           </td>
@@ -89,7 +89,7 @@
         <tr>
           <xsl:call-template name="odd_row" />
           <td class="icon">
-            <a class="icon-zoom" title="Найти всех пользователей группы" href="?q=admin.rpc&amp;action=list&amp;cgroup=access&amp;preset=users&amp;search=tags%3A{@id}">
+            <a class="icon-zoom" title="Найти всех пользователей группы" href="admin/access/users?search=tags%3A{@id}">
               <span/>
             </a>
           </td>
@@ -172,7 +172,7 @@
         </xsl:if>
       </td>
       <td class="icon">
-        <a class="icon-zoom" title="Найти все документы из этого раздела" href="?q=admin.rpc&amp;action=list&amp;cgroup=content&amp;columns=name,class,uid,created&amp;search=tags%3A{@id}">
+        <a class="icon-zoom" title="Найти все документы из этого раздела" href="admin/content/list?search=tags%3A{@id}">
           <span/>
         </a>
       </td>
@@ -202,7 +202,7 @@
           <tr>
             <xsl:call-template name="odd_row" />
             <td class="icon">
-              <a class="icon-zoom" href="?q=admin.rpc&amp;action=list&amp;cgroup=content&amp;type={@name}" />
+              <a class="icon-zoom" href="admin/content/list?search=class%3A{@name}" />
             </td>
             <td>
               <a href="?q=admin/edit/{@id}&amp;destination={/page/request/@uri}">
@@ -230,7 +230,7 @@
           <tr>
             <xsl:call-template name="odd_row" />
             <td class="icon">
-              <a class="icon-zoom" href="?q=admin.rpc&amp;action=list&amp;cgroup=content&amp;type={@name}" />
+              <a class="icon-zoom" href="admin/content/list?search=class%3A{@name}" />
             </td>
             <td>
               <a href="?q=admin/edit/{@id}&amp;destination={/page/request/@uri}">

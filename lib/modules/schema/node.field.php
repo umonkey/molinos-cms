@@ -232,4 +232,9 @@ class FieldNode extends Node implements iContentType
     $tmp = new $this->type(array('#nocheck' => true));
     return $tmp->getSQL();
   }
+
+  public function getListURL()
+  {
+    return 'admin/structure/fields';
+  }
 }

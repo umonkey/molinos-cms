@@ -246,6 +246,9 @@ class AdminListHandler implements iAdminList
           );
         $this->title = t('Страницы, которые не были найдены');
         break;
+      case 'fields':
+        $this->types = array('field');
+        break;
       case 'pages':
         $this->columns = array('name', 'title', 'redirect', 'theme');
         $this->columntitles = array(
