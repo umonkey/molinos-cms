@@ -170,11 +170,6 @@ class AdminRPC extends RPCHandler
         'sort' => 'pages2',
         ),
       array(
-        're' => 'admin/content/comments',
-        'method' => 'on_get_comments',
-        'title' => t('Комментарии'),
-        ),
-      array(
         're' => 'admin/content/list/(\w+)',
         'method' => 'on_get_list_by_type',
         ),
