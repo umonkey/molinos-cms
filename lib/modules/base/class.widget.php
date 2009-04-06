@@ -218,6 +218,7 @@ abstract class Widget implements iWidget
   {
     try {
       $this->ctx = $ctx;
+      $time = microtime(true);
 
       if (!is_array($options = $this->getRequestOptions($this->ctx))) {
         return "<!-- widget {$this->name} halted. -->";
@@ -247,6 +248,7 @@ abstract class Widget implements iWidget
           'name' => $this->name,
           'class' => get_class($this),
           'title' => $this->title,
+          'time' => microtime(true) - $time,
           ), $data);
       }
 
