@@ -160,6 +160,33 @@ class os
     return strtolower(substr($fileName, $pos + 1));
   }
 
+  public static function getFileNameParts($fileName)
+  {
+    if (false === ($pos = strrpos($fileName, '.')))
+      return array($fileName, null);
+    return array(substr($fileName, 0, $pos), '.' . strtolower(substr($fileName, $pos + 1)));
+  }
+
+  /**
+   * Возвращает имя файла, при необходимости добавляя к нему уникальный префикс.
+   */
+  public static function mkunique($fileName, $folderName = null)
+  {
+    if (null !== $folderName)
+      $folderName .= DIRECTORY_SEPARATOR;
+
+    if (file_exists($folderName . $fileName)) {
+      $dir = dirname($fileName);
+      list($name, $ext) = self::getFileNameParts(basename($fileName));
+
+      $loop = 2;
+      while (file_exists($folderName . $fileName))
+        $fileName = $dir . DIRECTORY_SEPARATOR . $name . '-' . $loop++ . $ext;
+    }
+
+    return $fileName;
+  }
+
   /**
    * Определяет тип файла по содержимому, разными способами.
    */
