@@ -13,6 +13,18 @@
   </xsl:template>
 
 
+  <!-- капча -->
+  <xsl:template match="control[@type='captcha']">
+    <div>
+      <xsl:call-template name="default_control_classes" />
+      <xsl:call-template name="default_control_label" />
+      <input type="text" class="{@class}" name="{@name}[]" value="" />
+      <input type="hidden" name="{@name}[]" value="{@key}" />
+      <img src="?q=captcha.rpc&amp;seed={@key}" />
+    </div>
+  </xsl:template>
+
+
   <!-- группа вложенных контролов -->
   <xsl:template match="control[@type = 'fieldset']">
     <xsl:if test="count(control)">

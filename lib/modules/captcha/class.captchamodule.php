@@ -23,11 +23,11 @@ class CaptchaModule
   /**
    * @mcms_message ru.molinos.cms.rpc.captcha
    */
-  public static function hookRemoteCall(Context $ctx, $className)
+  public static function hookRemoteCall(Context $ctx)
   {
     $cp = new CaptchaModule($ctx->get('seed'));
     $cp->drawImage();
-    exit;
+    exit();
   }
 
   public function __construct($keyStr)
@@ -44,7 +44,7 @@ class CaptchaModule
     $this->background_color = array(mt_rand(200,255), mt_rand(200,255), mt_rand(200,255));
 
     // Что надо нарисовать
-    $this->keyString = mcms_decrypt($keyStr);
+    $this->keyString = crypt::decrypt($keyStr);
   }
 
   // generates image
