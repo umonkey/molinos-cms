@@ -44,9 +44,9 @@ class Query
           // Если что-то осталось — используем обычный поиск.
           if (!empty($keywords)) {
             $like = '%' . join('%', $keywords) . '%';
-            $this->conditions[] = '(`node`.`data` LIKE ? OR `node`.`name` LIKE ?)';
+            $this->conditions[] = '(`node`.`data` LIKE ? OR `node`.`name_lc` LIKE ?)';
             $this->params[] = $like;
-            $this->params[] = $like;
+            $this->params[] = mb_strtolower($like);
           }
 
           break;

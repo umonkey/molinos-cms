@@ -694,8 +694,19 @@ class NodeStub
     }
 
     $fields['data'] = serialize($extra);
+    $fields['name_lc'] = self::getSortName($this->name);
 
     return $fields;
+  }
+
+  public static function getSortName($name)
+  {
+    $sortName = mb_strtolower($name);
+    if (substr($sortName, 0, 4) == 'the ')
+      $sortName = ltrim(substr($sortName, 4)) . ', the';
+    elseif (substr($sortName, 0, 2) == 'a ')
+      $sortName = ltrim(substr($sortName, 2)) . ', a';
+    return $sortName;
   }
 
   /**
@@ -736,6 +747,7 @@ class NodeStub
           )));
 
       unset($this->data['id']);
+      unset($this->data['name_lc']);
       self::$cache[$this->id] = $this->data;
 
       mcms::flog('retrieved node ' . $this->id . ' (' . $this->data['class'] . ')');

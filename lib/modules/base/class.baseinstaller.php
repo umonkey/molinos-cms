@@ -66,6 +66,11 @@ class BaseInstaller
       'required' => false,
       'key' => 'mul',
       ));
+    $t->columnSet('name_lc', array(
+      'type' => 'varchar(255)',
+      'required' => false,
+      'key' => 'mul',
+      ));
     $t->columnSet('data', array(
       'type' => 'mediumblob',
       ));
@@ -178,5 +183,20 @@ class BaseInstaller
       'type' => 'varchar(255)',
       ));
     $t->commit();
+
+    self::updateSortNames($ctx);
+  }
+
+  private static function updateSortNames(Context $ctx)
+  {
+    $ctx->db->beginTransaction();
+
+    $sel = $ctx->db->prepare("SELECT id, name FROM `node`");
+    $upd = $ctx->db->prepare("UPDATE `node` SET `name_lc` = ? WHERE `id` = ?");
+
+    for ($sel->execute(); $row = $sel->fetch(PDO::FETCH_ASSOC); )
+      $upd->execute(array(NodeStub::getSortName($row['name']), $row['id']));
+
+    $ctx->db->commit();
   }
 }
