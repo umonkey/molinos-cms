@@ -78,7 +78,7 @@ class ModManRPC extends RPCHandler
   public static function rpc_post_install(Context $ctx)
   {
     $status = array();
-    $enabled = $ctx->post('modules');
+    $enabled = (array)$ctx->post('modules');
 
     // Загружаем отсутствующие модули.
     foreach (modman::getAllModules() as $name => $info) {
