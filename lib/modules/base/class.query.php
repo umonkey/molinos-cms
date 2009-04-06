@@ -8,6 +8,7 @@ class Query
   private $order = array();
   private $limit = null;
   private $offset = null;
+  private $debug = false;
 
   public function __construct(array $filters)
   {
@@ -26,9 +27,15 @@ class Query
         switch ($k) {
         case '#sort':
           foreach (preg_split('/[, ]+/', $v, -1, PREG_SPLIT_NO_EMPTY) as $key) {
+            if ('name' === $key)
+              $key = 'name_lc';
             list($fieldName, $neg) = $this->getFieldSpec($key);
             $this->order[] = $fieldName . ($neg ? ' DESC' : ' ASC');
           }
+          break;
+
+        case '#debug':
+          $this->debug = true;
           break;
 
         case '#search':

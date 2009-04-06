@@ -191,7 +191,7 @@ class BaseInstaller
   {
     $ctx->db->beginTransaction();
 
-    $sel = $ctx->db->prepare("SELECT id, name FROM `node`");
+    $sel = $ctx->db->prepare("SELECT id, name FROM `node` WHERE `name_lc` IS NULL");
     $upd = $ctx->db->prepare("UPDATE `node` SET `name_lc` = ? WHERE `id` = ?");
 
     for ($sel->execute(); $row = $sel->fetch(PDO::FETCH_ASSOC); )

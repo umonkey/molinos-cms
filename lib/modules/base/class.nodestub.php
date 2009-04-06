@@ -708,6 +708,7 @@ class NodeStub
       $sortName = ltrim(substr($sortName, 4)) . ', the';
     elseif (substr($sortName, 0, 2) == 'a ')
       $sortName = ltrim(substr($sortName, 2)) . ', a';
+    $sortName = preg_replace('/[\[\]]/', '', $sortName);
     return $sortName;
   }
 
@@ -720,6 +721,7 @@ class NodeStub
     case 'id':
     case 'parent_id':
     case 'name':
+    case 'name_lc':
     case 'lang':
     case 'class':
     case 'left':
