@@ -62,6 +62,12 @@ class sql
 
   public static function getInsert($tableName, array $values)
   {
+    foreach ($values as $k => $v)
+      if (false === $v)
+        $values[$k] = 0;
+      elseif (true === $v)
+        $values[$k] = 1;
+
     $sql = 'INSERT INTO `' . $tableName . '` (`' . join('`, `', array_keys($values)) . '`) VALUES (' . substr(str_repeat('?, ', count($values)), 0, -2) . ')';
     return array($sql, array_values($values));
   }

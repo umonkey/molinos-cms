@@ -488,12 +488,6 @@ class NodeStub
       }
     }
 
-    foreach ($data as $k => $v)
-      if (false === $v)
-        $data[$k] = 0;
-      elseif (true === $v)
-        $data[$k] = 1;
-
     list($sql, $params) = sql::getInsert('node', $data);
     $sth = $this->db->prepare($sql);
     $sth->execute($params);
