@@ -9,9 +9,10 @@ class SyslogInstaller
   {
     $t = new TableInfo($ctx->db, 'node__log');
     $t->columnSet('lid', array(
-      'type' => 'int',
+      'type' => 'integer',
       'required' => true,
       'key' => 'pri',
+      'autoincrement' => true,
       ));
     $t->columnSet('nid', array(
       'type' => 'int',
@@ -36,7 +37,7 @@ class SyslogInstaller
       'type' => 'datetime',
       'key' => 'mul',
       ));
-    $t->columnSet('message', array(
+    $t->columnSet('name', array(
       'type' => 'varchar(255)',
       ));
     $t->commit();

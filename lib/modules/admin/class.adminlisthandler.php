@@ -63,7 +63,7 @@ class AdminListHandler implements iAdminList
         $this->ctx->redirect("?q=admin&mode=create&cgroup={$_GET['cgroup']}&dictionary=1&welcome=1&type={$this->types[0]}&destination=CURRENT");
     }
 
-    $output = self::getNodeActions((array)$this->selectors, $this->actions);
+    $output = $this->getNodeActions((array)$this->selectors, $this->actions);
     $output .= $data;
     $output .= $this->getPager();
 
@@ -96,7 +96,7 @@ class AdminListHandler implements iAdminList
     return $output;
   }
 
-  public static function getNodeActions(array $sel, array $act)
+  public function getNodeActions(array $sel, array $act)
   {
     if (empty($sel))
       $sel = array(
