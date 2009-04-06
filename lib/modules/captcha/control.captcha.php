@@ -36,7 +36,7 @@ class CaptchaControl extends Control
   protected function validate($value)
   {
     if (is_array($value) and 2 == count($value)) {
-      if ($value[0] == mcms_decrypt($value[1]))
+      if ($value[0] == crypt::decrypt($value[1]))
         return true;
     }
 
@@ -75,6 +75,6 @@ class CaptchaControl extends Control
   {
     $result = strtolower(substr(base64_encode(rand()), 0, 6));
 
-    return mcms_encrypt($result);
+    return crypt::encrypt($result);
   }
 }
