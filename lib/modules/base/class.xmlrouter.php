@@ -116,8 +116,12 @@ class XMLRouter implements iRequestRouter
     if (defined('MCMS_BENCHMARK'))
       mcms::flog(sprintf('%f = before xslt::transform() in xmlrouter', microtime(true) - MCMS_START_TIME));
 
+    $contentType = empty($data['page']['content_type'])
+      ? 'text/html'
+      : $data['page']['content_type'];
+
     return xslt::transform($result,
-      self::findStyleSheet($theme, $data['name']));
+      self::findStyleSheet($theme, $data['name']), $contentType);
   }
 
   private function getRequestOptions(Context $ctx)

@@ -288,51 +288,39 @@ class DomainNode extends Node implements iContentType
     return $links;
   }
 
-  public static function getDefaultSchema()
+  public static function getDefaultRobots()
   {
-    return array(
+    return "User-agent: *\n"
+      . "Disallow: /sites";
+  }
+
+  public function getFormFields()
+  {
+    $schema = new Schema(array(
       'name' => array(
         'type' => 'TextLineControl',
         'label' => t('Имя домена'),
         'required' => true,
+        'weight' => 10,
         ),
       'title' => array(
         'type' => 'TextLineControl',
         'label' => t('Заголовок'),
         'required' => false,
+        'weight' => 20,
         ),
-      'parent_id' => array(
-        'type' => 'EnumControl',
-        'label' => t('Родительский объект'),
-        'volatile' => true,
-        ),
-      'language' => array(
-        'type' => 'EnumControl',
-        'label' => t('Язык'),
-        'description' => t('Язык для этой страницы, используется только шаблонами.'),
+      'content_type' => array(
+        'type' => 'TextLineControl',
+        'label' => 'Тип контента',
         'required' => true,
-        'volatile' => true,
-        'options' => array(
-          'ru' => t('русский'),
-          'en' => t('английский'),
-          'de' => t('немецкий'),
-          ),
+        'default' => 'text/html',
+        'weight' => 30,
         ),
       'theme' => array(
         'type' => 'TextLineControl',
         'label' => t('Шкура'),
         'description' => t('Имя папки с шаблонами для этой страницы.'),
-        'volatile' => true,
-        ),
-      'content_type' => array(
-        'type' => 'EnumControl',
-        'label' => 'Тип контента',
-        'required' => true,
-        'volatile' => true,
-        'options' => array(
-          'text/html' => 'HTML',
-          'text/xml' => 'XML',
-          ),
+        'weight' => 40,
         ),
       'params' => array(
         'type' => 'EnumControl',
@@ -348,7 +336,6 @@ class DomainNode extends Node implements iContentType
         ),
       'widgets' => array(
         'type' => 'SetControl',
-        'label' => t('Виджеты'),
         'dictionary' => 'widget',
         'field' => 'title',
         'group' => t('Виджеты'),
@@ -377,23 +364,7 @@ class DomainNode extends Node implements iContentType
         'label' => t('Инструкции для роботов'),
         'default' => self::getDefaultRobots(),
         ),
-      );
-  }
-
-  public static function getDefaultRobots()
-  {
-    return "User-agent: *\n"
-      . "Disallow: /sites";
-  }
-
-  public function getFormFields()
-  {
-    $schema = parent::getFormFields();
-
-    // Удаляем устаревшие поля.
-    foreach (array('parent_id', 'language', 'content_type', 'html_charset') as $k)
-      if (isset($schema[$k]))
-        unset($schema[$k]);
+      ));
 
     if (!$this->id) {
       if ($this->parent_id)
