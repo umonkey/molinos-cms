@@ -771,7 +771,6 @@ form.tabbed fieldset.tabable > div {
   clear: both;
   margin: 1em 10px;
   padding: 10px 0;
-  font-style: italic;
 }
 
 input.autocomplete {

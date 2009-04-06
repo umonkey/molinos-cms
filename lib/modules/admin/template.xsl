@@ -59,7 +59,11 @@
         <a href="http://molinos-cms.googlecode.com/">Molinos CMS</a>
         <xsl:text> v</xsl:text>
         <xsl:value-of select="/page/@version" />
-        <xsl:text> at </xsl:text>
+        <xsl:text> [</xsl:text>
+        <xsl:value-of select="/page/@memory" />
+        <xsl:text>+</xsl:text>
+        <xsl:value-of select="/page/@cache" />
+        <xsl:text>] at </xsl:text>
         <a href="{@base}">
           <xsl:value-of select="@host" />
         </a>

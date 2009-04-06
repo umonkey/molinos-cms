@@ -28,6 +28,8 @@ class AdminRPC extends RPCHandler
       'version' => defined('MCMS_VERSION')
         ? MCMS_VERSION
         : 'unknown',
+      'cache' => BebopCache::getInstance()->getName(),
+      'memory' => ini_get('memory_limit'),
       'back' => urlencode(MCMS_REQUEST_URI),
       );
 
