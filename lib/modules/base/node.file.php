@@ -157,7 +157,7 @@ class FileNode extends Node implements iContentType
       return $this;
     }
 
-    $this->filepath = $this->getCleanFileName($file);
+    $this->filepath = os::mkunique($this->getCleanFileName($file), $storage);
     $this->filename = $this->name = $file['name'];
     $this->filetype = $file['type'];
     $this->filesize = $file['size'];
@@ -165,12 +165,8 @@ class FileNode extends Node implements iContentType
     // Сюда будем копировать файл.
     $dest = os::path($storage, $this->filepath);
 
-    if (file_exists($dest)) {
-      if ($dest == $this->getRealURL())
-        unlink($dest);
-      else
-        throw new RuntimeException(t('Такой файл уже есть.'));
-    }
+    if (file_exists($dest))
+      throw new RuntimeException(t('Такой файл уже есть.'));
 
     // Создаём каталог для него.
     os::mkdir(dirname($dest), 'Файл не удалось сохранить, т.к. отсутствуют права на запись в каталог, где этот файл должен был бы храниться (%path).  Сообщите об этой проблеме администратору сайта.', array(
