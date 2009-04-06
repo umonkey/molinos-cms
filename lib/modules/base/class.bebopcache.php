@@ -53,6 +53,11 @@ class BebopCache
     return self::$instance;
   }
 
+  public function getName()
+  {
+    return get_class($this);
+  }
+
   public function __get($key)
   {
     throw new RuntimeException(get_class($this) . '::__get() not implemented.');
@@ -130,6 +135,11 @@ class XCache_provider extends BebopCache
   {
     return xcache_unset($this->prefix . $key);
   }
+
+  public function getName()
+  {
+    return 'XCache';
+  }
 }
 
 class APC_provider extends BebopCache
@@ -157,6 +167,11 @@ class APC_provider extends BebopCache
   public function __unset($key)
   {
     return apc_delete($this->prefix . $key);
+  }
+
+  public function getName()
+  {
+    return 'APC';
   }
 }
 
@@ -197,6 +212,11 @@ class MemCache_provider extends BebopCache
   public function __unset($key)
   {
     return $this->host->delete($this->prefix . $key);
+  }
+
+  public function getName()
+  {
+    return 'MemCache';
   }
 }
 
@@ -247,5 +267,10 @@ class FileCache_provider extends BebopCache
   private function getKeyPath($key)
   {
     return self::$path . DIRECTORY_SEPARATOR . md5($this->prefix . $key);
+  }
+
+  public function getName()
+  {
+    return 'FileCache';
   }
 }
