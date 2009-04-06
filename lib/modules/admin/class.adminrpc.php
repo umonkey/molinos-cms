@@ -522,6 +522,7 @@ class AdminRPC extends RPCHandler
       'deleted' => 0,
       '#sort' => '-id',
       '#public' => true,
+      '#limit' => 10,
       ), array(
       'name' => 'drafts',
       'title' => t('Ваши черновики'),
@@ -534,6 +535,7 @@ class AdminRPC extends RPCHandler
         'published' => 0,
         '#sort' => '-id',
         '#public' => true,
+        '#limit' => 10,
         'class' => $ctx->user->getAccess('p'),
       ), array(
       'name' => 'queue',
@@ -547,6 +549,7 @@ class AdminRPC extends RPCHandler
       'published' => 1,
       '#sort' => '-id',
       '#public' => true,
+      '#limit' => 10,
       ), array(
       'name' => 'recent',
       'title' => t('Ваши последние документы'),
@@ -559,6 +562,7 @@ class AdminRPC extends RPCHandler
       'class' => 'type',
       'name' => $ctx->user->getAccess('c'),
       '-name' => $anon->getAccess('c'),
+      '#limit' => 10,
       ), array(
       'name' => 'create',
       'title' => t('Добавить документ'),
@@ -597,9 +601,7 @@ class AdminRPC extends RPCHandler
 
   private static function getDashboardXML(PDO_Singleton $db, array $query, array $options)
   {
-    $content = Node::findXML($db, $query, 10);
-    if (!empty($content))
-      return html::em('content', $options, $content);
+    return html::wrap('content', Node::findXML($db, $query), $options);
   }
 
   /**

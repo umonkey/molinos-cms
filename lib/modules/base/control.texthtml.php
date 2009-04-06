@@ -65,6 +65,6 @@ class TextHTMLControl extends Control
   {
     $ctx = Context::last();
     $ctx->registry->broadcast('ru.molinos.cms.format.text', array($ctx, $this->value, &$value));
-    return $value;
+    return html::cdata($value);
   }
 };

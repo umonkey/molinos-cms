@@ -348,7 +348,7 @@ abstract class Control implements iFormControl
    */
   public function format($value)
   {
-    return $value;
+    return html::cdata($value);
   }
 
   /**

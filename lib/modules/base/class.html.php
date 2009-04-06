@@ -189,4 +189,11 @@ class html
     $options['href'] = $href;
     return html::em('a', $options, $text);
   }
+
+  public static function wrap($em, $content, $options = null)
+  {
+    return empty($content)
+      ? null
+      : html::em($em, $options, $content);
+  }
 }

@@ -210,19 +210,22 @@ class ListWidget extends Widget
    */
   public function onGet(array $options)
   {
-    $query = $this->getQuery($options);
-    $count = $query->getCount($this->ctx->db);
+    $count = null;
+    $result = html::wrap('nodes', Node::findXML($this->ctx->db, $query = $this->getQuery($options)));
 
-    if (0 == $count and 'empty' == $this->fallbackmode and $this->fixed) {
-      $options['section'] = $this->fixed;
-      $query = $this->getQuery($options);
+    // Пусто: откатываемся на другой раздел, но только если в текущем разделе
+    // вообще ничего нет, на несуществующей странице выводим пустой список.
+    if (empty($result)) {
       $count = $query->getCount($this->ctx->db);
+      if (!$count and 'empty' == $this->fallbackmode and $this->fixed) {
+        $options['section'] = $this->fixed;
+        $result = html::wrap('nodes', Node::findXML($this->ctx->db, $query = $this->getQuery($options)));
+        $count = null;
+      }
     }
 
-    if (0 == $count)
+    if (empty($result))
       return '<!-- nothing to show -->';
-
-    $result = '';
 
     // Добавляем информацию о разделе.
     if ($this->showpath and !empty($options['section'])) {
@@ -234,11 +237,11 @@ class ListWidget extends Widget
         $result .= html::em('path', $tmp);
     }
 
-    // Формируем список документов.
-    $result .= Node::findXML($this->ctx->db, $query, null, null, 'document', 'documents');
-
-    if ($this->pager)
+    if ($this->pager) {
+      if (null === $count)
+        $count = $query->getCount($this->ctx->db);
       $result .= $this->getPager($count, $options['page'], $options['limit']);
+    }
 
     return $result;
   }

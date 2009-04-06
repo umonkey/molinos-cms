@@ -68,6 +68,10 @@ class DocWidget extends Widget implements iWidget
           ."если из адреса запрошенной страницы достать код документа "
           ."не удалось (он не указан или так настроена страница)."),
         ),
+      'show_sections' => array(
+        'type' => 'BoolControl',
+        'label' => t('Возвращать информацию о разделах'),
+        ),
       'showneighbors' => array(
         'type' => 'BoolControl',
         'label' => t('Возвращать информацию о соседях'),
@@ -135,27 +139,36 @@ class DocWidget extends Widget implements iWidget
    */
   protected function onGetView(array $options)
   {
-    $output = '';
-
-    $node = Node::load(array(
+    $output = Node::findXML($this->ctx->db, array(
       'id' => $options['docid'],
       '-class' => array(
         'tag',
-        'config',
         ),
-      ), $this->ctx->db);
+      'class' => $this->ctx->user->getAccess('r'),
+      'deleted' => 0,
+      'published' => 1,
+      ));
+
+    if (empty($output))
+      throw new PageNotFoundException();
+
+    if (!empty($output)) {
+      if ($this->show_sections) {
+        $sections = Node::findXML($this->ctx->db, $q = array(
+          'class' => 'tag',
+          'tagged' => $options['docid'],
+          'published' => 1,
+          'deleted' => 0,
+          ));
+        if (empty($sections))
+          $output .= '<!-- no sections -->';
+        else
+          $output .= html::wrap('sections', $sections);
+      }
+    }
 
     if ($node) {
-      if ($node->deleted)
-        throw new PageNotFoundException();
-
-      if (!$node->published)
-        throw new ForbiddenException(t('Документ не опубликован.'));
-
-      if (!$node->getObject()->checkPermission('r'))
-        throw new ForbiddenException(t('У вас нет доступа к этому документу.'));
-
-      $output .= $node->getXML('document');
+      $output .= $node->getXML();
       $output .= Node::getNodesXML('section', $node->getLinkedTo('tag'));
 
       if ($this->showneighbors and $this->ctx->section->id and in_array($this->ctx->section->id, $sections)) {

@@ -55,7 +55,7 @@ class RSSRouter implements iRequestRouter
       $content .= $filter->getXML('filter');
     }
 
-    $content .= html::em('nodes', Node::findXML($ctx->db, $query));
+    $content .= html::wrap('nodes', Node::findXML($ctx->db, $query));
 
     $output = html::em('rss', array(
       'name' => $feed->name,

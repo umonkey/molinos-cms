@@ -126,15 +126,27 @@ class Node
   /**
    * Поиск нод, результат — в XML.
    */
-  public static function findXML(PDO_Singleton $db, $query, $limit = null, $offset = null, $em = 'node', $wrapper = null)
+  public static function findXML(PDO_Singleton $db, $query, $em = null)
   {
     $output = '';
 
-    foreach (self::find($db, $query, $limit, $offset) as $node)
-      $output .= $node->getXML($em);
+    if ('node' == $em)
+      $em = null;
 
-    if (null !== $wrapper and !empty($output))
-      return html::em($wrapper, $output);
+    if (is_array($query))
+      $query = new Query($query);
+
+    list($sql, $params) = $query->getSelectXML();
+
+    try {
+      for ($sth = $db->exec($sql, $params); $xml = $sth->fetchColumn(0); ) {
+        if (null !== $em)
+          $xml = '<' . $em . substr($xml, 5, -5) . $em . '>';
+        $output .= $xml;
+      }
+    } catch (PDOException $e) {
+      mcms::flog('database needs an upgrade');
+    }
 
     return $output;
   }

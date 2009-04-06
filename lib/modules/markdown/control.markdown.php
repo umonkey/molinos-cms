@@ -34,6 +34,6 @@ class MarkdownControl extends TextAreaControl
     $ctx = Context::last();
     $ctx->registry->broadcast('ru.molinos.cms.format.text', array($ctx, $this->value, &$output));
 
-    return $output;
+    return html::cdata($output);
   }
 }

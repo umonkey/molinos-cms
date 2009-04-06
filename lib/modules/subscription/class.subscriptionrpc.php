@@ -41,7 +41,7 @@ class SubscriptionRPC extends RPCHandler
       'published' => 1,
       'id' => $data['sections'],
       '#sort' => 'name',
-      ), null, null, 'section');
+      ), 'section');
     if (empty($sections))
       throw new InvalidArgumentException("Выбраны несуществующие разделы для подписки.");
 

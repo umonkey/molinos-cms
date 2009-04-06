@@ -37,8 +37,14 @@ class NodeStub
         )));
     }
 
-    if (null !== $data and array_key_exists('id', $data))
-      unset($data['id']);
+    if (null !== $data) {
+      if (array_key_exists('id', $data))
+        unset($data['id']);
+      if (array_key_exists('name_lc', $data))
+        unset($data['name_lc']);
+      if (array_key_exists('xml', $data))
+        unset($data['xml']);
+    }
 
     $this->id = $id;
     $this->db = $db;
@@ -96,6 +102,9 @@ class NodeStub
     }
 
     $this->makeSureFieldIsAvailable($key);
+
+    if ('xml' == $key)
+      throw new InvalidArgumentException(t('Свойство xml недоступно.'));
 
     switch ($key) {
     case 'published':
@@ -247,7 +256,7 @@ class NodeStub
         $schema = Schema::load($this->getDB(), $this->data['class']);
 
         foreach ($this->getProperties() as $k) {
-          if (empty($k))
+          if (empty($k) or 'xml' == $k)
             continue;
 
           $v = $this->$k;
@@ -255,28 +264,40 @@ class NodeStub
           if (empty($v))
             continue;
 
-          if ($v instanceof NodeStub) {
+          $wrap_cdata = true;
+          $wrap_element = true;
+
+          if ($v instanceof NodeStub or $v instanceof Node) {
             try {
               $fmt = isset($schema[$k])
                 ? $schema[$k]->format($v)
                 : null;
-              $data['#text'] .= $v->getXML($k, html::em('html', html::cdata($fmt)));
+              $v = $v->getXML($k, html::em('html', html::cdata($fmt)));
+              $wrap_cdata = false;
+              $wrap_element = false;
             } catch (ObjectNotFoundException $e) {
-              // игнорируем
+              $v = null;
             }
           }
 
+          elseif (isset($schema[$k])) {
+            $v = $schema[$k]->format($v);
+            $wrap_cdata = false;
+          }
+
           elseif (is_array($v))
-            ;
+            $v = null;
 
-          else {
-            if (isset($schema[$k]))
-              $v = $schema[$k]->format($v);
-
+          if (!empty($v)) {
             if (self::isBasicField($k))
               $data[$k] = $v;
-            elseif (!empty($v))
-              $data['#text'] .= html::em($k, html::cdata($v));
+            elseif (!empty($v)) {
+              if ($wrap_cdata)
+                $v = html::cdata($v);
+              if ($wrap_element)
+                $v = html::em($k, $v);
+              $data['#text'] .= $v;
+            }
           }
         }
 
@@ -355,11 +376,12 @@ class NodeStub
       throw new RuntimeException(t('Сохранение невозможно: не получен указатель на БД.'));
 
     if ($this->dirty) {
+      $this->lang = 'ru';
+      $this->updated = gmdate('Y-m-d H:i:s');
+      if (empty($this->created))
+        $this->created = $this->updated;
+
       $data = $this->pack();
-      $data['lang'] = 'ru';
-      $data['updated'] = gmdate('Y-m-d H:i:s');
-      if (empty($data['created']))
-        $data['created'] = $data['updated'];
 
       if (null === $this->id)
         $this->saveNew($data);
@@ -382,11 +404,23 @@ class NodeStub
       $this->onsave = array();
       $this->dirty = false;
 
-      $this->checkSchema();
       $this->flush();
+
+      $this->updateXML();
+      $this->checkSchema();
     }
 
     return $this;
+  }
+
+  /**
+   * Сохраняет XML представление ноды в БД.
+   */
+  private function updateXML()
+  {
+    if ($this->id)
+      $this->getDB()->exec("UPDATE `node` SET `xml` = ? WHERE `id` = ?",
+        array($this->getXML(), $this->id));
   }
 
   /**
@@ -700,6 +734,7 @@ class NodeStub
         // Запрещаем ссылки на себя.
       } elseif (self::isBasicField($k)) {
         $fields[$k] = $v;
+      } elseif ('xml' == $k) {
       } elseif (!empty($v)) {
         $extra[$k] = $v;
       }
@@ -762,6 +797,7 @@ class NodeStub
 
       unset($this->data['id']);
       unset($this->data['name_lc']);
+      unset($this->data['xml']);
       self::$cache[$this->id] = $this->data;
 
       mcms::flog('retrieved node ' . $this->id . ' (' . $this->data['class'] . ')');

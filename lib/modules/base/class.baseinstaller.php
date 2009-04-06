@@ -74,6 +74,9 @@ class BaseInstaller
     $t->columnSet('data', array(
       'type' => 'mediumblob',
       ));
+    $t->columnSet('xml', array(
+      'type' => 'longblob',
+      ));
 
     if ($t->columnExists('uid')) {
       $ctx->db->beginTransaction();
@@ -185,6 +188,7 @@ class BaseInstaller
     $t->commit();
 
     self::updateSortNames($ctx);
+    self::updateXML($ctx->db);
   }
 
   private static function updateSortNames(Context $ctx)
@@ -198,5 +202,24 @@ class BaseInstaller
       $upd->execute(array(NodeStub::getSortName($row['name']), $row['id']));
 
     $ctx->db->commit();
+  }
+
+  private static function updateXML($db)
+  {
+    $db->beginTransaction();
+
+    $upd = $db->prepare("UPDATE `node` SET `xml` = ? WHERE `id` = ?");
+    $sel = $db->exec("SELECT * FROM `node` WHERE `xml` IS NULL");
+
+    while ($row = $sel->fetch(PDO::FETCH_ASSOC)) {
+      $id = $row['id'];
+      unset($row['id']);
+      unset($row['xml']);
+
+      $node = NodeStub::create($id, $db, $row);
+      $upd->execute(array($node->refresh()->getXML(), $id));
+    }
+
+    $db->commit();
   }
 }

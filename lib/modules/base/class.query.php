@@ -35,7 +35,7 @@ class Query
           break;
 
         case '#debug':
-          $this->debug = true;
+          $this->debug = !empty($v);
           break;
 
         case '#search':
@@ -145,6 +145,38 @@ class Query
       $lim[] = intval($limit);
       $sql .= ' LIMIT ' . join(', ', $lim);
     }
+
+    if ($this->debug)
+      mcms::debug($sql, $this->params);
+
+    return array($sql, $this->params);
+  }
+
+  /**
+   * Возвращает инструкцию для выборки XML версий объектов.
+   */
+  public function getSelectXML($limit = null, $offset = null)
+  {
+    if (null === $limit)
+      $limit = $this->limit;
+    if (null === $offset)
+      $offset = $this->offset;
+
+    $sql = sql::getSelect(array('`node`.`xml`'), $this->tables, $this->conditions);
+
+    if (!empty($this->order))
+      $sql .= ' ORDER BY ' . join(', ', $this->order);
+
+    if (null !== $limit) {
+      $lim = array();
+      if (null !== $offset)
+        $lim[] = intval($offset);
+      $lim[] = intval($limit);
+      $sql .= ' LIMIT ' . join(', ', $lim);
+    }
+
+    if ($this->debug)
+      mcms::debug($sql, $this->params);
 
     return array($sql, $this->params);
   }

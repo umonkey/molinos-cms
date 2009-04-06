@@ -90,12 +90,17 @@ class NodeApiModule extends RPCHandler
     if (!$ctx->canDebug())
       $filter['deleted'] = 0;
 
-    $node = Node::load($filter, $ctx->db);
-    $temp = $node->{'never should this field exist'};
-    if ($ctx->get('raw'))
+    if ($ctx->get('raw')) {
+      $node = Node::load($filter, $ctx->db);
+      $temp = $node->{'never should this field exist'};
       mcms::debug($node);
-    else {
-      $res = new Response($node->getXML(), 'text/xml');
+    } else {
+      $xml = Node::findXML($ctx->db, $filter);
+      if (empty($xml))
+        mcms::fatal(t('Для этого документа нет XML представления (такого быть не должно), см. <a href="@url">сырой вариант</a>.', array(
+          '@url' => '?q=nodeapi.rpc&action=dump&node=' . $filter['id'] . '&raw=1',
+          )));
+      $res = new Response($xml, 'text/xml');
       $res->send();
     }
 
