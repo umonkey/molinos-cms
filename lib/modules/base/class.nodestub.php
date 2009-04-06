@@ -327,14 +327,16 @@ class NodeStub
 
           if (self::isBasicField($k))
             $data[$k] = $v;
-          else
-            $data['#text'] .= html::em($k, html::cdata($v));
+          else {
+            if (null !== ($cdata = html::cdata($v)))
+              $data['#text'] .= html::em($k, html::cdata($v));
+          }
         }
       }
 
       if ($this->left and $this->right) {
         $tmp = '';
-        foreach ($ids = (array)$this->db->getResultsV("id", "SELECT `id` FROM `node` WHERE `deleted` = 0 AND `class` = ? AND `parent_id` = ? ORDER BY `left`", array($this->class, $this->id)) as $child_id)
+        foreach ($ids = (array)$this->db->getResultsV("id", "SELECT `id` FROM `node` WHERE `published` = 1 AND `deleted` = 0 AND `class` = ? AND `parent_id` = ? ORDER BY `left`", array($this->class, $this->id)) as $child_id)
           $tmp .= NodeStub::create($child_id, $this->db)->getTreeXML($em, $children);
         if (!empty($tmp))
           $data['#text'] .= html::em($children, $tmp);
