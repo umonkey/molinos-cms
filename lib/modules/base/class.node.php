@@ -166,7 +166,14 @@ class Node
     if ('user' == $this->class and $user->id == $this->id and 'u' == $perm)
       return true;
 
-    if ($this->uid and $this->uid->id == $user->id)
+    if (is_object($this->uid))
+      $uid = $this->uid->id;
+    elseif (is_numeric($this->uid))
+      $uid = $this->uid;
+    else
+      $uid = null;
+
+    if (null !== $uid and $uid == $user->id)
       if (in_array($perm, Structure::getInstance()->getOwnDocAccess($this->class)))
         return true;
 
