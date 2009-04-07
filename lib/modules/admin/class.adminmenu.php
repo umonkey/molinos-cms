@@ -14,7 +14,7 @@ class AdminMenu
   {
     $cachekey = 'admin/menu/raw/' . $ctx->user->id;
 
-    if (!is_array($data = mcms::cache($cachekey))) {
+    if (!is_array($data = mcms::cache($cachekey)) or empty($data)) {
       $data = $ctx->registry->poll('ru.molinos.cms.admin.menu', array($ctx));
       mcms::cache($cachekey, $data);
     }
