@@ -8,6 +8,8 @@ class xslt
       ? 'server'
       : $_GET['xslt'];
 
+    $xml = self::fixEntities($xml);
+
     if ('none' == $mode or empty($xsltName))
       return new Response($xml, 'text/xml');
 
@@ -60,5 +62,18 @@ class xslt
         throw new RuntimeException($e['message']);
       }
     }
+  }
+
+  public static function fixEntities($xml)
+  {
+    $map = array(
+      '&hellip;' => '…',
+      '&plusmn;' => '±',
+      '&ge;' => '≥',
+      '&le;' => '≤',
+      '&ne;' => '≠',
+      '&equiv;' => '≡',
+      );
+    return str_replace(array_keys($map), array_values($map), $xml);
   }
 }
