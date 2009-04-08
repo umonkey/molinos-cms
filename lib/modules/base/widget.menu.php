@@ -122,15 +122,14 @@ class MenuWidget extends Widget implements iWidget
 
     // Загружаем текущий (или корневой) раздел.
     if (empty($options['root'])) {
-      $root = $toplevel = Node::load(array('class' => 'tag', 'parent_id' => null));
+      $root = $toplevel = Node::load(array('class' => 'tag', 'parent_id' => null, 'deleted' => 0));
     } elseif ($options['root'] instanceof Node) {
       $root = $options['root'];
     } else {
       $root = Node::load($options['root']);
     }
 
-    if ('anything' == $this->fixed and ($root->right - $root->left == 1) and $root->parent_id)
-      $root = Node::load($root->parent_id)->getObject();
+    $root = $this->checkNeedParent($root);
 
     if ('tag' != $root->class)
       throw new RuntimeException(t('MenuWidget получил «%class», а не раздел.', array(
@@ -138,5 +137,13 @@ class MenuWidget extends Widget implements iWidget
         )));
 
     return $root->getTreeXML('section');
+  }
+
+  private function checkNeedParent($root)
+  {
+    if ('anything' == $this->fixed and $root->parent_id and !$root->hasChildren())
+      $root = Node::load($root->parent_id)->getObject();
+
+    return $root;
   }
 };
