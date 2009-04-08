@@ -677,4 +677,14 @@ class Node
       : $_SERVER['HTTP_REFERER'];
     return $url;
   }
+
+  public function hasChildren()
+  {
+    if (empty($this->left) or empty($this->right))
+      return false;
+    if ($this->right - $this->left == 1)
+      return false;
+    $count = $this->getDB()->fetch("SELECT COUNT(*) FROM `node` WHERE `parent_id` = ? AND `deleted` = 0 AND `published` = 1", array($this->id));
+    return $count != 0;
+  }
 };
