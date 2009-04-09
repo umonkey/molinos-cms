@@ -520,7 +520,17 @@ class NodeStub
   {
     if (null === $this->id)
       throw new RuntimeException(t('Попытка удалить новый объект'));
-    $this->setDeleted(1);
+    if ($this->left and $this->right) {
+      $this->getDB()->exec("UPDATE `node` SET `deleted` = 1 WHERE `id` = ? OR (`left` >= ? AND `right` <= ?)", array(
+        $this->id,
+        $this->left,
+        $this->right,
+        ));
+      $this->checkSchema();
+      $this->flush();
+    } else {
+      $this->setDeleted(1);
+    }
   }
 
   /**
