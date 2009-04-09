@@ -64,8 +64,6 @@ class OrderDetailsControl extends Control
 
     $rows .= '</tbody></table>';
 
-    mcms::extras('lib/modules/cart/control.orderdetails.css');
-
     return $rows;
   }
 

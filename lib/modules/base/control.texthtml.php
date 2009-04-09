@@ -42,9 +42,6 @@ class TextHTMLControl extends Control
     if (null !== ($content = $data->{$this->value}))
       $content = htmlspecialchars($content);
 
-    if (class_exists('TinyMceModule'))
-      TinyMceModule::add_extras(Context::last());
-
     $this->addClass('form-text');
     $this->addClass('visualEditor');
 

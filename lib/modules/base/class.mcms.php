@@ -30,8 +30,6 @@ class mcms
   const VERSION_RELEASE = 2;
   const VERSION_STABLE = 2;
 
-  private static $extras = array();
-
   public static function mediaGetPlayer(array $files, $types = null, array $custom_options = array())
   {
     $nodes = array();
@@ -506,41 +504,6 @@ class mcms
     return date('Y-m-d H:i:s', time() - date('Z', time()));
   }
 
-  // Изспользуется в шаблонах для добавления стилей и скриптов.
-  public static function extras($filename = null, $compress = true)
-  {
-    if (null !== $filename)
-      if (!array_key_exists($filename, self::$extras))
-        self::$extras[$filename] = $compress;
-
-    $result = self::$extras;
-
-    if (null === $filename) {
-      self::$extras = array();
-      return self::format_extras($result);
-    }
-
-    return $result;
-  }
-
-  public static function get_extras()
-  {
-    $t = self::$extras;
-    self::$extras = array();
-    return $t;
-  }
-
-  public static function set_extras(array $extras)
-  {
-    return self::$extras = $extras;
-  }
-
-  public static function add_extras(array $extras)
-  {
-    foreach ($extras as $k => $v)
-      self::$extras[$k] = $v;
-  }
-
   // FIXME: оптимизировать!
   private static function pop(array &$a, $e)
   {
@@ -555,55 +518,6 @@ class mcms
         $repack[$k] = $v;
 
     $a = $repack;
-  }
-
-  private static function format_extras(array $extras)
-  {
-    $root = mcms::path();
-
-    $output = html::em('script', array(
-      'type' => 'text/javascript',
-      ), 'var mcms_path = \''. $root .'\';') ."\n";
-
-    foreach ($extras as $k => $v) {
-      if (0 === strpos($k, 'script:')) {
-        $output .= html::em('script', array(
-          'type' => 'text/javascript',
-          ), substr($k, 7));
-      }
-    }
-
-    // Проталкиваем jQuery на первое место.
-    // FIXME: нужно более вменяемое решение.
-    self::pop($extras, 'lib/modules/tinymce/editor/tiny_mce_gzip.js');
-    self::pop($extras, 'lib/modules/tinymce/editor/tiny_mce_src.js');
-    self::pop($extras, 'lib/modules/tinymce/editor/tiny_mce.js');
-    self::pop($extras, 'themes/all/jquery/jquery.min.js');
-    self::pop($extras, 'themes/all/jquery/jquery.js');
-
-    $js = $css = '';
-
-    // Заход первый: выводим некомпрессируемые объекты
-    // или все объекты, если нет компрессора.
-    foreach ($extras as $file => $ok) {
-      if (!$ok or !$compress) {
-        if ('.js' == substr($file, -3))
-          $js .= html::em('script', array(
-            'type' => 'text/javascript',
-            'src' => $file,
-            )) ."\n";
-        elseif ('.css' == substr($file, -4))
-          $css .= html::em('link', array(
-            'rel' => 'stylesheet',
-            'type' => 'text/css',
-            'href' => $file,
-            )) ."\n";
-      }
-    }
-
-    $output .= $css . $js;
-
-    return $output;
   }
 
   public static function deprecated($break = false)
