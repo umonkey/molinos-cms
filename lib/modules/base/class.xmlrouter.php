@@ -36,8 +36,6 @@ class XMLRouter implements iRequestRouter
       if (false === ($data = Structure::getInstance()->findPage($ctx->host(), $this->query)))
         throw new PageNotFoundException();
 
-      $ctx->registry->broadcast('ru.molinos.cms.hook.request.after', array($ctx));
-
       // Устанавливаем распарсенные коды раздела и документа.
       if (!empty($data['args']['sec']))
         if (!isset($ctx->section))
@@ -51,6 +49,10 @@ class XMLRouter implements iRequestRouter
 
       if (!isset($ctx->section) and isset($ctx->root))
         $ctx->section = $ctx->root;
+
+      $this->checkParameters($ctx);
+
+      $ctx->registry->broadcast('ru.molinos.cms.hook.request.before', array($ctx));
 
       // Устанавливаем шкуру.
       if (!empty($data['page']['theme']) and !isset($theme))
@@ -142,6 +144,22 @@ class XMLRouter implements iRequestRouter
       $output .= $tmp->push('root');
 
     return html::em('request', $attrs, $output);
+  }
+
+  private function checkParameters(Context $ctx)
+  {
+    $ids = array();
+
+    foreach (array('section', 'document', 'root') as $k)
+      if ($id = $ctx->$k->id and !in_array($id, $ids))
+        $ids[] = $ctx->$k->id;
+
+    if (!empty($ids)) {
+      $params = array();
+      $count = $ctx->db->fetch($sql = "SELECT COUNT(*) FROM `node` WHERE `deleted` = 0 AND `published` = 1 AND `id` " . sql::in($ids, $params), $params);
+      if (!$count)
+        throw new PageNotFoundException();
+    }
   }
 
   private static function renderWidgets(Context $ctx, array $names)
