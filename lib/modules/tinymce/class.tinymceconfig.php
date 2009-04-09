@@ -41,11 +41,13 @@ class TinyMCEConfig
         'weight' => 20,
         'group' => t('Настройки редактора'),
         ),
+      /*
       'gzip' => array(
         'type' => 'BoolControl',
         'label' => t('Использовать компрессию'),
         'group' => t('Настройки редактора'),
         ),
+      */
       'initializer' => array(
         'type' => 'TextAreaControl',
         'label' => t('Дополнительные инициализаторы'),

@@ -1,0 +1,83 @@
+.hint {
+  padding-right: 20px;
+  background: transparent url(../../img/help.gif) no-repeat center right;
+}
+
+a {
+  outline: none;
+}
+
+td.r, th.r {
+  text-align: right !important;
+  font-style: normal;
+}
+
+#control-save-draft-wrapper,
+#control-save-publish-wrapper,
+#control-preview-wrapper {
+  float: left;
+  margin-right: 10px;
+}
+
+u.fakelink {
+  cursor: pointer;
+}
+
+form.inline {
+  display: inline;
+}
+
+.nodelist {
+  width: 100%;
+}
+.nodelist .field-filesize {
+  text-align: right !important;
+}
+.nodelist .field-thumbnail {
+  width: 50px;
+  text-align: center !important;
+}
+.nodelist .selector,
+.nodelist .field-updated,
+.nodelist .field-created .field-filetype,
+.nodelist .field-feedicon,
+.nodelist .field-feedcheck
+{
+  width: 10px;
+}
+.nodelist .field-created,
+.nodelist .field-updated {
+  white-space: nowrap;
+}
+.nodelist .actions a {
+  margin-right: 4px;
+  font-style: normal;
+}
+
+form.tabbed fieldset.tabable {
+  border: 0;
+  padding: 0;
+}
+form.tabbed fieldset.tabable legend.tabable {
+  display: none;
+}
+
+form.advsearch table {
+  border-collapse: collapse;
+}
+form.advsearch th,
+form.advsearch td {
+  padding: 4px 8px;
+}
+form.advsearch th {
+  text-align: left;
+}
+form.advsearch .form-text {
+  width: 100%;
+}
+form.advsearch tr.submit {
+  background-color: #eee;
+}
+form.advsearch option {
+  white-space: pre;
+}

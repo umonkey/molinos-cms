@@ -1,0 +1,132 @@
+body {
+  color: #333333;
+  background-color: white;
+}
+
+a, .fakelink {
+  color: #0033ff;
+  cursor: hand;
+  text-decoration: underline;
+}
+
+.modlist th {
+  background-color: #c0e6c0;
+}
+
+#center .tb_1 {
+  background-color: #80cc80;
+}
+#center .tb_1 input.search_field {
+  color: #848484;
+}
+
+#center .tb_2 .tb_2_inside {
+  background-color: #c0e6c0;
+}
+
+/* навигация по вкладкам */
+form.tabbed ul.tabber-navigation li a { color:black; }
+form.tabbed ul.tabber-navigation li.active a { background-color: #e4ecee; }
+/* вкладка */
+form.tabbed .tabber-tab {
+  border-top: 2px solid #e4ecee;
+}
+
+#center .intro {
+  background-color: #fffff5;
+  border: 1px solid #e4ecee;
+}
+
+table.mcms {
+  border-left: 1px solid #FFFFFF;
+}
+
+table.mcms.highlight tr.current {
+  background-color: #f4f4f2;
+}
+
+table.mcms.highlight tr:hover td {
+  background-color: #ecf1f2;
+}
+table.mcms.nodelist td {
+  border-left: 1px dashed #e3e2e1;
+}
+
+#center .control label span.required-label {
+  color: #ff3000;
+}
+
+#center .control .form-title:hover {
+  background-color: #ffffbf;
+}
+
+#center .control .note {color: #a7a6aa;}
+
+#center .pager a:hover,
+#center .pager a.current {
+  color: #000000;
+  background-color: #ecece9;
+}
+
+#footer {
+  color: #414141;
+}
+
+/* выбранная группа элементов в основной навигации */
+.choosen { background:#E4ECEE; }
+
+
+/* Главное меню. */
+#top_menu_controls a {
+  color: black;
+}
+#top_menu_controls li ul a {
+  color: white;
+}
+#top_menu_controls ul li:hover ul,
+#top_menu_controls ul li.current ul {
+	background-color: #009900;
+}
+
+#top_menu_controls ul li:hover ul,
+#top_menu_controls ul li.current ul {
+  color: white;
+  background-color: #009900;
+}
+
+#top_menu_controls a:hover,
+#top_menu_controls ul li.current a {
+	color: white;
+	background-color: #009900;
+}
+
+#top_menu_controls ul li.current ul a,
+#top_menu_controls ul li.current ul li:hover a,
+#top_menu_controls ul li.current ul li.current a {
+  color: white;
+}
+
+#top_menu_controls_bottom {
+	background-color: #009900;
+}
+
+ul#top_menu li:hover a,
+ul#top_menu li.current a {
+  color: #000000;
+  background-color: #e4ecee;
+}
+
+#top_menu_trigger {
+  background-color: #e4ecef;
+}
+
+.nodelist tr.unpublished a,
+.nodelist tr.disabled a
+{
+  color: #7f99ff;
+}
+
+.helpmsg {
+  background-color: #ff0000;
+  color: white;
+}

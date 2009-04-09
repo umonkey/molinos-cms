@@ -27,12 +27,43 @@ class CompressorModule
     }
 
     foreach (os::find('sites', '*', 'themes', '*') as $theme) {
-      $lscripts = array_merge($scripts, os::find($theme, 'scripts', '*.js'));
-      $lstyles = array_merge($styles, os::find($theme, 'styles', '*.css'));
+      if (is_dir($theme)) {
+        $lscripts = array_merge($scripts, os::find($theme, 'scripts', '*.js'));
+        $lstyles = array_merge($styles, os::find($theme, 'styles', '*.css'));
 
-      os::write(os::path($theme, 'compressed.js'), self::join($lscripts, ';'));
-      os::write(os::path($theme, 'compressed.css'), self::join($lstyles));
+        os::write(os::path($theme, 'compressed.js'), self::get_js_prefix($ctx) . self::join($lscripts, ';'));
+        os::write(os::path($theme, 'compressed.css'), self::join($lstyles));
+      }
     }
+
+    self::on_reload_admin($ctx);
+  }
+
+  private static function on_reload_admin(Context $ctx)
+  {
+    $scripts = $styles = array();
+
+    foreach ($ctx->registry->enum_simple('ru.molinos.cms.compressor.enum.admin', array($ctx)) as $v1) {
+      foreach ($v1 as $v2)
+        if ('script' == $v2[0])
+          $scripts[] = $v2[1];
+        else
+          $styles[] = $v2[1];
+    }
+
+    $lscripts = array_merge($scripts, os::find('lib', 'modules', '*', 'scripts', 'admin', '*.js'));
+    $lstyles = array_merge($styles, os::find('lib', 'modules', '*', 'styles', 'admin', '*.css'));
+
+    $path = os::path(MCMS_SITE_FOLDER, 'themes', 'admin');
+
+    os::write($path . '.js', self::get_js_prefix($ctx) . self::join($lscripts, ';'));
+    os::write($path . '.css', self::join($lstyles));
+  }
+
+  private static function get_js_prefix(Context $ctx)
+  {
+    return "var mcms_path = '" . $ctx->folder() . "';\n"
+      . "var mcms_url = 'http://" . MCMS_HOST_NAME . $ctx->folder() . "/';\n";
   }
 
   public static function join(array $filenames)

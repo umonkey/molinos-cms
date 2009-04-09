@@ -1,0 +1,843 @@
+* {font-family: Arial, Helvetica, sans-serif;}
+
+html, body {height: 100%;}
+
+body {
+  min-width: 770px;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  font-size: 83%;
+  behavior: url(../../csshover2.htc);
+}
+
+form, p, img, ul, ol, h1, h2, h3, h4, h5, h6, table, td, th {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+table {font-size: 100%;}
+
+a {
+  text-decoration: underline;
+}
+
+a:hover {text-decoration: none;}
+
+.tip {
+  position: relative;
+  text-decoration: none;
+  border-bottom: 1px dashed;
+}
+
+a.tip:hover,
+a:hover .tip {border-bottom: none;}
+
+i {width: 99%;}
+
+img.png {
+  behavior: url(../../png.htc);
+  position: relative;
+}
+
+#preloaded_images {
+  width: 0;
+  height: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+}
+
+#all {
+  height: auto;
+  _height: 100%;
+  min-height: 100%;
+  margin: 0 30px -90px 30px;
+}
+
+.spacer {
+  clear: both;
+  height: 0;
+  _margin-top: -2px;
+  font-size: 0;
+}
+
+html>body .spacer_not_ie {
+  clear: both;
+  height: 0;
+  font-size: 0;
+}
+
+.hidden {display: none;}
+
+/*top - begin*/
+#top_toolbar {
+  height: 20px;
+  padding: 7px 15px 0;
+  font-size: 93%;
+}
+
+#top_toolbar .greeting {float: left;}
+
+#top_toolbar .right {
+  float: right;
+  margin-top: -2px;
+}
+
+#top_toolbar .right a {
+  margin-left: 15px;
+  float: left;
+}
+
+#top_toolbar .right a.tip {
+  cursor: help;
+}
+
+/*top - end*/
+
+#center {
+  width: 100%;
+  min-height: 1px;
+  float: right;
+  position: relative;
+}
+
+#center p {margin-bottom: 5px;}
+
+#center .tb_1,
+#center .tb_2 {clear: both;}
+
+#center .tb_1 {
+  height: auto;
+  _height: 22px;
+  min-height: 22px;
+  margin-bottom: 4px;
+  padding: 3px;
+  font-size: 93%;
+}
+
+#center .tb_1 form {float: left;}
+
+#center .tb_1 input,
+#center .tb_1 select {
+  margin-left: 3px;
+  font-size: 14px;
+}
+#center .tb_1 select {
+  width: 200px;
+}
+
+#center .tb_1 input.search_field {
+  width: 150px;
+  height: 16px;
+  margin: 0;
+  _margin-top: 1px;
+  padding: 2px 0 0 8px;
+  font-size: 12px;
+}
+
+#center .tb_1 .ctrl_left {
+  float: left;
+}
+
+#center .tb_1 .ctrl_right {
+  float: right;
+  padding-right: 16px;
+  text-align: right;
+}
+
+#center .tb_1 .ctrl_right a {
+  height: 22px;
+  line-height: 22px;
+  display: block;
+  margin-left: 33px;
+  float: left;
+  padding-left: 20px;
+  text-decoration: none;
+  background: left center no-repeat;
+}
+
+#center .tb_2 .tb_2_inside {
+  height: auto;
+  _height: 25px;
+  min-height: 25px;
+  padding: 1px;
+}
+
+#center .tb_2 .ctrl_left {
+  float: left;
+  line-height: 22px;
+  padding-left: 12px;
+  font-size: 85%;
+}
+
+#center .tb_2 .action_select {
+  height: 100%;
+  margin-right: 6px;
+  _margin-right: 3px;
+  float: right;
+}
+
+#center .tb_2 .action_select a.as_link {
+  padding: 0 11px;
+  _padding-right: 15px;
+  line-height: 23px;
+  display: block;
+  text-decoration: none;
+  outline: none;
+}
+
+#center .tb_2 ul.as_actions {
+  width: 117px;
+  position: absolute;
+  margin-top: -1px;
+  padding: 0 11px;
+  _padding-right: 15px;
+}
+
+#center .tb_2 ul.as_actions li {
+  list-style: none;
+  margin-bottom: 5px;
+  font-size: 93%;
+}
+
+/* навигация по вкладкам */
+form.tabbed ul.tabber-navigation { list-style:none outside; }
+	form.tabbed ul.tabber-navigation li { float: left; }
+		form.tabbed ul.tabber-navigation li a { display:block; padding:5px 16px 6px 15px; }
+		form.tabbed ul.tabber-navigation li.active a { text-decoration:none; }
+
+/* вкладка */
+form.tabbed .tabber-tab {
+  padding: 4px 0 0 0;
+  clear: both;
+  border: none;
+  margin-bottom: 4px;
+}
+
+#center .intro {
+  margin-bottom: 4px;
+  padding: 4px 14px 14px 32px;
+  font-style: italic;
+  background: transparent url(../../img/idea.png) no-repeat top left;
+}
+#center .intro p {
+  margin-top: 1em;
+}
+
+table.mcms,
+table.padded {
+  border-collapse: collapse;
+}
+
+table.mcms.nodelist th,
+table.mcms.nodelist td {
+  text-align: left;
+  white-space: nowrap;
+}
+
+table.mcms th,
+table.padded {
+  padding: 3px 10px 4px 10px;
+}
+table.mcms.nodelist th {
+  font-weight: bold;
+  border-bottom: 1px solid #aaa;
+}
+
+table.mcms td,
+table.padded td {
+  padding: 4px 10px 7px 10px;
+}
+table.mcms.nodelist td {
+  border-bottom: 3px solid #FFFFFF;
+}
+
+table.mcms.nodelist tr:hover td {background-color: #ecece9;}
+
+#center .control {
+  margin-bottom: 15px;
+  width: 390px;
+}
+#center .control.control-DocListControl-wrapper {
+  width: 100%;
+}
+
+#center .control label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+#center .control label.normal {
+  font-weight: normal;
+}
+#center .control select {
+  display: block;
+}
+
+#center .control .form-text {
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 4px 6px;
+  border: 1px solid #a7a6aa;
+}
+#center .control .form-title {
+  font-size: 2em;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+#center .control textarea {
+  font-size: 100%;
+}
+form textarea.resizable {
+  line-height: 1.25em;
+  min-height: 5em;
+}
+
+#center .control-TypeBool-wrapper {margin-bottom: 11px;}
+
+#center .control-TypeBool-wrapper label {display: inline;}
+
+#center .control-TypeSubmit-wrapper {margin-top: 29px;}
+
+#center #tab_properties {margin-top: 25px;}
+
+#center .pager {
+  margin-top: 12px;
+  clear: both;
+  font-size: 85%;
+}
+
+#center .pager .pager_left {float: left;}
+
+#center .pager a {
+  display: block;
+  float: left;
+  padding: 3px 9px;
+}
+
+#center .pager a:hover,
+#center .pager a.current {
+  font-weight: bold;
+  text-decoration: none;
+}
+
+#center .pager .pager_right {
+  float: right;
+  margin-right: -12px;
+}
+
+#center .pager .pager_right p {
+  padding: 3px 12px 0 12px;
+  float: left;
+}
+
+#left_sidebar {
+  width: 195px;
+  padding-right: 27px;
+  float: right;
+  margin-left: -222px;
+  position: relative;
+  font-size: 93%;
+}
+
+#left_sidebar h4 {
+  margin-bottom: 11px;
+  font-size: 117%;
+  font-weight: bold;
+}
+
+#left_sidebar .menu_block ul {margin-left: 12px;}
+
+#left_sidebar .menu_block ul.add_remove {margin-top: 22px;}
+
+#left_sidebar .menu_block ul li {
+  list-style: none;
+  margin-bottom: 11px;
+}
+/*center - end*/
+
+/*footer - begin*/
+#footer_spacer {
+  height: 90px;
+  clear: both;
+}
+
+#footer {
+  margin: 0 30px;
+  padding-top: 20px;
+  font-size: 93%;
+}
+
+#footer img {margin-right: 6px;}
+
+#footer span {margin-left: 12px;}
+/*footer - end*/
+
+#contentTable img.filepreview {
+  margin-right: 4px;
+  float: left;
+}
+
+.control-AttachmentControl-wrapper .separator {
+  border-bottom: dashed gray 2px;
+}
+.control-AttachmentControl-wrapper table td {
+  vertical-align: top;
+}
+
+.control-AttachmentControl-wrapper table div {
+  font-weight: bold;
+  width: 100px;
+  height: 50px;
+}
+
+a.bold {
+  font-weight: bold;
+}
+
+.control-AttachmentControl-wrapper .attctl {
+  margin: 4px 0;
+}
+
+.newlink {
+  margin-left: .5em;
+}
+
+td.nowrap {
+  white-space: nowrap;
+}
+
+.jsonly {
+  display: none;
+}
+
+#content_wrapper {
+  padding-top: 10px;
+}
+
+#center h2 {
+  font-weight: normal;
+  font-size: 20pt;
+  margin: 0 0 .3em;
+}
+
+.modlist th {
+  font-weight: normal;
+  font-size: 1.5em;
+}
+
+.nodelist .editlink {
+  background: transparent url(../../img/icons/icon-edit.png) no-repeat top left;
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.nodelist .editlink span {
+  display: none;
+}
+
+.nodelist .icon {
+}
+.nodelist .actions {
+}
+.nodelist .actions a {
+  margin: 0 0 0 2px;
+}
+
+/**
+ * Пробелы для версий файлов.
+ **/
+.nodelist td.versions {
+  white-space: nowrap;
+}
+.nodelist td.versions a {
+  margin-left: 2px;
+  margin-right: 2px;
+}
+.nodelist th {
+  white-space: nowrap;
+}
+.nodelist td.field-name {
+  width: 100%;
+}
+.nodelist td.field-name a {
+  white-space: normal;
+  display: inline-block;
+  height: 1.3em;
+  overflow: hidden;
+}
+
+.helpmsg {
+  margin: .5em 0 1em;
+  font-style: italic;
+  padding: 4px 10px;
+}
+
+label.radio input {
+  float: left;
+  clear: left;
+}
+label.radio span {
+  font-weight: normal;
+  margin: .5em 0 .5em 2em;
+  display: block;
+}
+legend.radio {
+  font-size: 1.5em;
+}
+
+/* Подсветка идентификаторов пользователей */
+table.nodelist a.openid {
+  padding-left: 20px;
+  background: transparent url(../../img/openid.png) no-repeat center left;
+}
+table.nodelist a.email {
+  padding-left: 20px;
+  background: transparent url(../../img/email.png) no-repeat center left;
+}
+
+table.form-revision-history {
+  border-collapse: collapse;
+}
+table.form-revision-history td {
+  border: solid gray 1px;
+  padding: 2px 4px;
+}
+table.form-revision-history tr.rev-active {
+  font-weight: bold;
+}
+
+a.editprofile {
+  padding-left: 18px;
+  background: transparent url(../../img/user-16x16.png) no-repeat center left;
+}
+
+
+#desktop .column {
+  float: left;
+  width: 49%;
+}
+#desktop-column-1 fieldset {
+  margin-right: .5em;
+}
+#desktop-column-2 fieldset {
+  margin-left: .5em;
+}
+#desktop fieldset {
+  margin-bottom: .5em;
+}
+#desktop fieldset legend {
+  font-weight: normal;
+  font-size: 1.5em;
+}
+#desktop fieldset li {
+  list-style-type: none;
+  margin-bottom: .5em;
+}
+
+table.mcms.nodelist td.selector {
+  border-right: 1px dashed #E3E2E1;
+}
+table.mcms.nodelist td.icon {
+  padding-left: 2px;
+  padding-right: 0;
+  width: 16px;
+  border-left: none;
+}
+table.nodelist td.icon a {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-repeat: no-repeat;
+  background-position: top left;
+  background-image: url(../../img/icons/icon-default.gif);
+}
+table.nodelist td.icon span {
+  display: none;
+}
+
+table.nodelist td.icon .icon-dump {
+  background-image: url(../../img/icons/icon-dump.gif);
+}
+
+table.nodelist td.icon .icon-edit {
+  background-image: url(../../img/icons/icon-edit.png);
+}
+
+table.nodelist td.icon .icon-locate {
+  background-image: url(../../img/icons/icon-www.png);
+}
+
+table.nodelist td.icon .icon-download {
+  background-image: url(../../img/icons/icon-download.png);
+}
+
+table.nodelist td.icon .icon-sudo {
+  background-image: url(../../img/icons/icon-sudo.gif);
+}
+
+table.nodelist td.icon .icon-delete {
+  background-image: url(../../img/icons/icon-delete.png);
+}
+
+table.nodelist td.icon .icon-unpublish {
+  background-image: url(../../img/icons/icon-unpublish.png);
+}
+
+table.nodelist td.icon .icon-publish {
+  background-image: url(../../img/icons/icon-publish.png);
+}
+
+table.nodelist td.icon .icon-add {
+  background-image: url(../../img/icons/icon-add.png);
+}
+
+table.nodelist td.icon .icon-feed {
+  background-image: url(../../img/icons/icon-feed.png);
+}
+
+table.nodelist td.icon .icon-validate {
+  background-image: url(../../img/icons/icon-validate.gif);
+}
+
+table.nodelist td.icon .icon-search {
+  background-image: url(../../img/icons/icon-search.png);
+}
+
+table.nodelist td.icon .icon-clone {
+  background-image: url(../../img/icons/icon-clone.png);
+}
+
+table.nodelist td.icon .icon-link {
+  background-image: url(../../img/icons/icon-link.png);
+}
+
+table.nodelist td.icon .icon-zoom {
+  background-image: url(../../img/icons/find.png);
+}
+
+table.nodelist td.icon .icon-raise {
+  background-image: url(../../img/icons/raise.png);
+}
+
+table.nodelist td.icon .icon-sink {
+  background-image: url(../../img/icons/sink.png);
+}
+
+#center .control .disabled {
+  color: gray;
+}
+
+#desktop fieldset p.important {
+  background: transparent url(../../img/icons/warning.png) no-repeat top left;
+  padding-left: 20px;
+}
+
+#center .access-wrapper td {
+  white-space: nowrap;
+}
+
+table.access th {
+  text-align: center;
+}
+table.access .gid-own {
+  border-top: solid 1px gray;
+}
+table.access .gid-own .perm-c,
+table.access .gid-own .perm-r {
+  display: none;
+}
+
+
+#exception {
+  margin: 10px;
+}
+#exception h2 {
+  font-size: 2em;
+  margin: 0 0 10px 0;
+}
+#exception p {
+  font-size: 1.5em;
+}
+
+
+/**
+ * Меню админки.
+ **/
+#top_menu_controls a.active {
+  color: #ccc !important;
+  text-decoration: none;
+}
+
+
+/**
+ * Поле для подбора файлов.
+ **/
+.attachment-wrapper th span {
+  display: block;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  vertical-align: middle;
+  padding: 2px;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+.attachment-wrapper td {
+  width: 300px;
+  vertical-align: middle;
+  padding: 2px;
+}
+.attachment-wrapper td * {
+  display: none;
+}
+.attachment-wrapper td input {
+  width: 300px !important;
+}
+.attachment-wrapper td .active {
+  display: block;
+}
+.attachment-wrapper th span.preview {
+  background-image: url(../../img/icons/icon-download.png);
+}
+.attachment-wrapper th span.delete {
+  background-image: url(../../img/bin.gif);
+}
+.attachment-wrapper th span.switch-file {
+  background-image: url(../../img/icons/raise.png);
+}
+.attachment-wrapper th span.switch-find {
+  background-image: url(../../img/zoom.png);
+}
+.attachment-wrapper th span.switch-url {
+  background-image: url(../../img/icons/icon-www.png);
+}
+.attachment-wrapper th span.switch-info {
+  background-image: url(../../img/information.png);
+}
+
+/**
+ * Вкладки в формах.
+ */
+
+form.tabbed fieldset.tabable {
+  border: none;
+  border-top: solid 4px #090;
+  margin: 0 0 1em 0;
+  padding: 10px 0 0 20px;
+}
+form.tabbed fieldset.tabable > legend {
+  padding-right: 10px;
+  padding-left: 4px;
+}
+form.tabbed fieldset.tabable > legend .title {
+  cursor: pointer;
+  color: #008;
+  padding: 0 4px;
+  font-size: 1.25em;
+  text-decoration: underline;
+}
+/* для вывода дополнительных ссылок в заголовке */
+form.tabbed fieldset.tabable legend .more {
+  margin-left: 1em;
+  opacity: 0.25;
+}
+form.tabbed fieldset.tabable > div {
+  margin-bottom: 2em;
+  margin-left: 10px;
+}
+
+
+#dashboard fieldset ol {
+  list-style-type: circle;
+  list-style-image: url(../../img/bullet.gif);
+  margin: 0;
+}
+#dashboard ol li {
+  margin-bottom: .25em;
+  vertical-align: middle;
+}
+
+#dashboard-create div a {
+  margin-right: 1em;
+}
+
+#signature {
+  clear: both;
+  margin: 1em 10px;
+  padding: 10px 0;
+}
+
+input.autocomplete {
+  background: transparent url(../../img/zoom.png) no-repeat center right;
+}
+
+
+/**
+ * Форма входа.
+ **/
+#login-form {
+  display: block;
+  width: 500px;
+  margin: 200px auto;
+  /*
+  background: url(../../img/mcms.logo_90ccw.jpg) no-repeat right bottom;
+  */
+}
+#login-form fieldset {
+  margin: 0;
+  padding: 10px;
+  border: none;
+}
+#login-form legend {
+  display: none;
+}
+#login-form legend span {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+}
+#login-form .control {
+  margin: 10px 0 10px 0;
+}
+#login-form .control label > span {
+  display: block;
+  margin: 4px 0;
+}
+#login-form input.form-text {
+  display: block;
+  width: 462px;
+  font-size: 10pt;
+  border: solid 2px #ccc;
+  padding: 4px 6px;
+}
+#login-form .submit-wrapper {
+  background-color: #eee;
+  padding: 5px 10px;
+}
+#login-form input.submit {
+  height: 2em;
+  padding: 0 40px;
+  font-size: 1.25em;
+}
+#login-form input.submit1 {
+  margin-right: 10px;
+}
+#login-form .auth_type-field-wrapper label {
+  display: block;
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+  margin-bottom: .25em;
+}
+#login-form .auth_type-field-wrapper input {
+  display: none;
+}
+#login-form .note {
+  color: gray;
+}

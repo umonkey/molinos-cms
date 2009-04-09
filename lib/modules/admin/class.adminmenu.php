@@ -46,9 +46,6 @@ class AdminMenu
 
     ksort($this->items);
 
-    if ($ctx->debug('menu'))
-      die(var_dump($this->items));
-
     return !empty($this->items);
   }
 
