@@ -25,24 +25,8 @@
           <xsl:value-of select="@version" />
         </title>
 
-        <!-- компрессор -->
-        <xsl:choose>
-          <xsl:when test="1">
-            <link rel="stylesheet" type="text/css" href="{@sitefolder}/themes/admin.css" />
-            <script type="text/javascript" src="{@sitefolder}/themes/admin.js" />
-          </xsl:when>
-          <xsl:otherwise>
-            <link rel="stylesheet" type="text/css" href="lib/modules/admin/template.css" />
-            <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
-            <script type='text/javascript' src='lib/modules/admin/js/bebop.js'></script>
-            <script type='text/javascript'>
-              <xsl:text>var mcms_path = '</xsl:text>
-              <xsl:value-of select="/page/@folder" />
-              <xsl:text>';</xsl:text>
-            </script>
-            <xsl:apply-templates select="extras/item" mode="extras" />
-          </xsl:otherwise>
-        </xsl:choose>
+        <link rel="stylesheet" type="text/css" href="{@sitefolder}/themes/admin.css" />
+        <script type="text/javascript" src="{@sitefolder}/themes/admin.js" />
       </head>
       <body>
         <xsl:apply-templates select="." mode="body" />
