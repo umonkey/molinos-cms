@@ -5,7 +5,7 @@ class http
   const CONTENT = 1;
   const NO_CACHE = 2;
 
-  public static function head($url)
+  public static function head($url, $loop = 10)
   {
     if (false === ($result = get_headers($url, 1)))
       throw new RuntimeException('Bad URL: ' . $url);
@@ -13,6 +13,9 @@ class http
     $parts = explode(' ', $result[0], 3);
 
     list($result['_protocol'], $result['_status'], $result['_message']) = $parts;
+
+    if ($loop and $result['_status'] >= 300 and $result['_status'] < 400)
+      return self::head($result['Location'], $loop - 1);
 
     return $result;
   }
