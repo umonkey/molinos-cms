@@ -38,25 +38,25 @@ class PasswordControl extends Control
 
   public function getHTML($data)
   {
-    $output = $this->getLabel();
-
-    $output .= html::em('input', array(
+    $output = $this->wrapHTML(html::em('input', array(
       'type' => 'password',
       'id' => $this->id,
       'class' => 'form-text form-password1',
       'name' => $this->value .'[]',
       'value' => null,
-      ));
+      )));
 
-    $output .= html::em('input', array(
+    $this->label = t('Подтверждение пароля');
+    $this->description = t('Чтобы исключить возможность опечатки.');
+    $output .= $this->wrapHTML(html::em('input', array(
       'type' => 'password',
       'id' => $this->id,
       'class' => 'form-text form-password2',
       'name' => $this->value .'[]',
       'value' => null,
-      ));
+      )));
 
-    return $this->wrapHTML($output, false);
+    return $output;
   }
 
   public function set($value, Node &$node)
