@@ -36,6 +36,9 @@ class XMLRouter implements iRequestRouter
       if (false === ($data = Structure::getInstance()->findPage($ctx->host(), $this->query)))
         throw new PageNotFoundException();
 
+      if (!empty($data['page']['theme']))
+        $theme = $data['page']['theme'];
+
       // Устанавливаем распарсенные коды раздела и документа.
       if (!empty($data['args']['sec']))
         if (!isset($ctx->section))
