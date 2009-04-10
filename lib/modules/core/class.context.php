@@ -176,7 +176,7 @@ class Context
 
       // Запуск через веб, всё просто.
       elseif (!empty($_SERVER['HTTP_HOST']))
-        $this->_folder = trim(dirname($_SERVER['SCRIPT_NAME']), '/');
+        $this->_folder = trim(dirname($_SERVER['SCRIPT_NAME']), DIRECTORY_SEPARATOR);
 
       // Запуск из командной строки.
       else
