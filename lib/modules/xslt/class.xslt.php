@@ -59,7 +59,9 @@ class xslt
       if (__FILE__ == $e['file']) {
         if (null !== $fileName)
           $e['message'] .= ', file: ' . $fileName;
-        throw new RuntimeException($e['message']);
+        throw new RuntimeException(t('XSLT шаблон содержит ошибки: %message.', array(
+          '%message' => $e['message'],
+          )));
       }
     }
   }
