@@ -153,15 +153,28 @@ class XMLRouter implements iRequestRouter
   {
     $ids = array();
 
+    // Собираем полученные идентификаторы.
     foreach (array('section', 'document', 'root') as $k)
       if ($id = $ctx->$k->id and !in_array($id, $ids))
         $ids[] = $ctx->$k->id;
 
+    // Проверяем, все ли из них валидны.
     if (!empty($ids)) {
       $params = array();
       $count = $ctx->db->fetch($sql = "SELECT COUNT(*) FROM `node` WHERE `deleted` = 0 AND `published` = 1 AND `id` " . sql::in($ids, $params), $params);
       if (!$count)
         throw new PageNotFoundException();
+    }
+
+    // Если не указан раздел, но указан документ — имитируем указание раздела.
+    if (!isset($ctx->section) and isset($ctx->document)) {
+      if (count($tags = $ctx->db->getResultsV('id', "SELECT `n`.`id` AS `id` FROM `node` `n` INNER JOIN `node__rel` `l` ON `l`.`tid` = `n`.`id` WHERE `l`.`nid` = ? AND `n`.`deleted` = 0 AND `n`.`published` = 1 AND `n`.`class` = 'tag'", array($ctx->document->id)))) {
+        if (is_numeric($want_section = $ctx->get('section')) and in_array($want_section, $tags))
+          $id = $want_section;
+        else
+          list($id) = $tags;
+        $ctx->section = intval($id);
+      }
     }
   }
 
