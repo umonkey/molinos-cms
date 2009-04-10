@@ -262,7 +262,8 @@ class BaseRPC implements iRemoteCall
       . 'процесс регистраци.&nbsp; Чтобы отменить регистрацию, удалите '
       . 'или проигнорируйте это сообщение.</p>', array(
         '%site' => url::host(),
-        '@url' => '?q=base.rpc&action=register_confirm&hash='. urlencode($hash),
+        '@url' => '?q=base.rpc&action=register_confirm&hash='. urlencode($hash)
+          . '&destination=' . $ctx->get('from'),
         ));
 
     $subject = t('Регистрация на %site', array(
@@ -294,7 +295,8 @@ class BaseRPC implements iRemoteCall
 
     User::authorize($node->name, null, true);
 
-    $ctx->redirect('', Redirect::OTHER, $node);
+    $next = $ctx->get('destination', '');
+    $ctx->redirect($next, Redirect::OTHER, $node);
   }
 
   private static function login($uid)

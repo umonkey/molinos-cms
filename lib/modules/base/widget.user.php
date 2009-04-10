@@ -146,7 +146,8 @@ class UserWidget extends Widget implements iWidget
     else {
       $result['mode'] = 'login';
       $result['register_link'] = '?q=' . $this->ctx->query()
-        . "&{$this->name}.action=register";
+        . "&{$this->name}.action=register"
+        . "&from=" . urlencode($_SERVER['REQUEST_URI']);
     }
 
     return $result;
@@ -191,6 +192,7 @@ class UserWidget extends Widget implements iWidget
 
         $action = new url($form->action);
         $action->setarg('destination', $next->string());
+        $action->setarg('from', $this->ctx->query());
 
         $form->action = $action->string();
       }
