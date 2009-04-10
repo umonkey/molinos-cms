@@ -142,7 +142,7 @@ class StatusChecker
   {
     if (null !== ($file = $ctx->db->getDbFile())) {
       if (0 === strpos(realpath($file), MCMS_ROOT . DIRECTORY_SEPARATOR)) {
-        $url = 'http://' . url::host() . mcms::path() . '/' . str_replace(DIRECTORY_SEPARATOR, '/', $file);
+        $url = 'http://' . url::host() . mcms::path() . '/' . os::webpath($file);
 
         if (false !== ($headers = get_headers($url, 1))) {
           if (3 == count($parts = explode(' ', $headers[0]))) {
