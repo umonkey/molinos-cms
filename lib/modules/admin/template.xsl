@@ -198,10 +198,11 @@
       <form class="tabbed">
         <xsl:for-each select="content" mode="dashboard">
           <fieldset id="dashboard-{@name}" class="tabable">
-            <legend class="toggle">
+            <legend>
               <span class="title">
                 <xsl:value-of select="@title" />
               </span>
+              <!--
               <span class="more">
                 <xsl:if test="@more">
                   <xsl:text>(</xsl:text>
@@ -209,6 +210,7 @@
                   <xsl:text>)</xsl:text>
                 </xsl:if>
               </span>
+              -->
             </legend>
             <div>
               <xsl:apply-templates select="." mode="dashboard" />
