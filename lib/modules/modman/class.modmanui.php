@@ -180,9 +180,12 @@ class ModManUI
     // Удаляем из списка обязательные модули: их нельзя отключать.
     // Это, за одно, позволит дробить модули без захламления интерфейса
     // и смущения пользователя.
-    foreach ($modules as $k => $v)
+    foreach ($modules as $k => $v) {
       if (!empty($v['installed']))
         unset($modules[$k]);
+      elseif ('deprecated' == $v['priority'])
+        unset($modules[$k]);
+    }
 
     return self::getXML2($ctx, $modules, array(
       'mode' => 'install',
