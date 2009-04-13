@@ -29,14 +29,15 @@ class TinyMceModule
     os::write($path = os::path($ctx->config->getPath('tmpdir'), 'tinymce_initializer.js'), $text);
     $result[] = array('script', os::localpath($path));
 
-    if (!empty($conf['theme'])) {
-      $theme = $conf['theme'];
-      if (!empty($conf['gzip']))
-        if (file_exists($path = os::path('lib', 'modules', 'tinymce', 'editor', 'template_' . $theme . '_gzip.js')))
-          $result[] = array('script', os::webpath($path));
-      if (file_exists($path = os::path('lib', 'modules', 'tinymce', 'editor', 'template_' . $theme . '.js')))
+    $theme = empty($conf['theme'])
+      ? 'simple'
+      : $conf['theme'];
+
+    if (!empty($conf['gzip']))
+      if (file_exists($path = os::path('lib', 'modules', 'tinymce', 'editor', 'template_' . $theme . '_gzip.js')))
         $result[] = array('script', os::webpath($path));
-    }
+    if (file_exists($path = os::path('lib', 'modules', 'tinymce', 'editor', 'template_' . $theme . '.js')))
+      $result[] = array('script', os::webpath($path));
 
     return $result;
   }
