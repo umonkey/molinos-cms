@@ -24,7 +24,7 @@ class AdminRPC extends RPCHandler
       'base' => $ctx->url()->getBase($ctx),
       'host' => MCMS_HOST_NAME,
       'folder' => $ctx->folder(),
-      'sitefolder' => MCMS_SITE_FOLDER,
+      'sitefolder' => os::webpath(MCMS_SITE_FOLDER),
       'query' => $ctx->query(),
       'version' => defined('MCMS_VERSION')
         ? MCMS_VERSION
