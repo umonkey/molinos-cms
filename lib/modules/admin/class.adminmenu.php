@@ -93,6 +93,7 @@ class AdminMenu
   public function getXML($em = 'menu', array $options = array())
   {
     $tmp = '';
+    $prefix = empty($_GET['__cleanurls']) ? '?q=' : '';
 
     list($top) = array_values($this->items);
 
@@ -104,7 +105,7 @@ class AdminMenu
             if (0 === strpos($k1, $k . '/')) {
               $v1['re'] = null;
               $v1['level'] = null;
-              $v1['name'] = $k1;
+              $v1['name'] = $prefix . $k1;
               $inside .= html::em('path', $v1);
             }
           }
@@ -112,7 +113,7 @@ class AdminMenu
 
         $v['re'] = null;
         $v['level'] = null;
-        $v['name'] = $k;
+        $v['name'] = $prefix . $k;
         $tmp .= html::em('path', $v, $inside);
       }
     }
