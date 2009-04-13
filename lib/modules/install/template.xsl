@@ -15,7 +15,7 @@
         <base href="{@base}" />
         <title>Установка Molinos CMS</title>
         <link rel="stylesheet" type="text/css" href="lib/modules/install/template.css" />
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js" />
+        <script type="text/javascript" src="lib/modules/admin/scripts/admin/00jquery.js" />
         <script type="text/javascript" src="lib/modules/install/template.js" />
       </head>
       <body>
