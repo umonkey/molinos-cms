@@ -4,6 +4,8 @@
 }
 #content .submenu ul {
   margin-left: 1em;
+  list-style-position: outside;
+  margin: .5em 2em;
 }
 #content .submenu ul li {
   list-style-type: square;
