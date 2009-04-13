@@ -21,8 +21,10 @@
         <xsl:apply-templates select="massctl" mode="mcms_list" />
 
         <form id="nodeList" method="post" action="?q=nodeapi.rpc&amp;destination={/page/request/@uri}">
-          <input id="nodeListCommand" type="hidden" name="action" value="" />
-          <table class="mcms nodelist">
+          <fieldset>
+            <input id="nodeListCommand" type="hidden" name="action" value="" />
+          </fieldset>
+          <table class="nodes">
             <xsl:apply-templates select="data" mode="mcms_list" />
           </table>
         </form>
@@ -501,23 +503,19 @@
     </td>
   </xsl:template>
 
+  
   <!-- Выбор нескольких строк таблицы. -->
   <xsl:template match="massctl" mode="mcms_list">
-    <div class="tb_2">
-      <div class="tb_2_inside">
-        <div class="ctrl_left doc_selector">
-          <xsl:if test="../@addlink">
-            <a href="{../@addlink}">Добавить</a>
-            <xsl:text> | </xsl:text>
-          </xsl:if>
-          <span>Выбрать: </span>
-          <xsl:apply-templates select="selector" mode="mcms_list_mass_controls" />
-          <span class="and"> и </span>
-          <xsl:apply-templates select="action" mode="mcms_list_mass_controls" />
-          <xsl:text>.</xsl:text>
-        </div>
-        <div class="spacer_not_ie"></div>
-      </div>
+    <div class="nodes-controls-advanced">
+      <xsl:if test="../@addlink">
+        <a href="{../@addlink}">Добавить</a>
+        <xsl:text> | </xsl:text>
+      </xsl:if>
+      <span>Выбрать: </span>
+      <xsl:apply-templates select="selector" mode="mcms_list_mass_controls" />
+      <span class="and"> и </span>
+      <xsl:apply-templates select="action" mode="mcms_list_mass_controls" />
+      <xsl:text>.</xsl:text>
     </div>
   </xsl:template>
 
@@ -530,9 +528,9 @@
           <xsl:text>, </xsl:text>
         </xsl:when>
       </xsl:choose>
-      <u class="fakelink selink select-{@name}">
+      <span class="fakelink selink select-{@name}">
         <xsl:value-of select="@title" />
-      </u>
+      </span>
     </xsl:template>
 
     <xsl:template match="action" mode="mcms_list_mass_controls">
@@ -544,37 +542,26 @@
           <xsl:text>, </xsl:text>
         </xsl:when>
       </xsl:choose>
-      <u class="fakelink actionlink action-{@name}">
+      <span class="fakelink actionlink action-{@name}">
         <xsl:value-of select="@title" />
-      </u>
+      </span>
     </xsl:template>
 
   <!-- Форма поиска. -->
   <xsl:template name="mcms_list_search" mode="mcms_list">
+    <div class="nodes-controls-basic">
     <form method="post" action="?q=admin.rpc&amp;action=search&amp;from={/page/request/@uri}">
-      <input type="hidden" name="search_from" value="{/page/@url}" />
-      <div class="tb_1">
-        <div class="ctrl_left">
-          <a class="newlink">
-            <xsl:attribute name="href">
-              <xsl:text>?q=admin/create</xsl:text>
-              <xsl:if test="@type">
-                <xsl:text>/</xsl:text>
-                <xsl:value-of select="@type" />
-              </xsl:if>
-              <xsl:text>?destination=</xsl:text>
-              <xsl:value-of select="/page/request/@uri" />
-            </xsl:attribute>
-            <xsl:text>Добавить</xsl:text>
-          </a>
+    	<fieldset>
+       <input type="hidden" name="search_from" value="{/page/@url}" />
+          <a class="newlink" href="?q=admin.rpc&amp;action=create&amp;cgroup={/page/@cgroup}&amp;type={@type}&amp;destination={/page/request/@uri}">Добавить</a>
           <xsl:text> | </xsl:text>
           <input type="text" name="search_term" class="search_field" value="{/page/request/getArgs/arg[@name='search']}" />
           <input type="submit" value="Найти" />
           <xsl:text> | </xsl:text>
-          <a href="admin/search?from={/page/@query}">Расширенный поиск</a>
-        </div>
-      </div>
-    </form>
+          <a href="?q=admin.rpc&amp;action=search&amp;cgroup={/page/@cgroup}&amp;destination={/page/request/@uri}">Расширенный поиск</a>
+        </fieldset>
+	</form>
+    </div>
   </xsl:template>
 
   <xsl:template name="odd_row">

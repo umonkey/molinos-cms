@@ -30,7 +30,7 @@
     <xsl:if test="count(control)">
       <fieldset class="{@class}" id="{@id}">
         <legend>
-          <span class="title">
+          <span class="title fakelink">
             <xsl:value-of select="@label" />
           </span>
         </legend>

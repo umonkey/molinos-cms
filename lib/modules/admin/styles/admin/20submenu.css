@@ -1,0 +1,12 @@
+#content .submenu fieldset {
+  border: solid 1px gray;
+  padding: 4px 10px;
+}
+#content .submenu ul {
+  margin-left: 1em;
+}
+#content .submenu ul li {
+  list-style-type: square;
+  list-style-image: url(images/bullet.gif);
+  margin-left: 0;
+}

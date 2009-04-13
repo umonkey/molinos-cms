@@ -1,0 +1,56 @@
+/*
+ * Basis - quick & neatly page make-up
+ * Portion: CSS > Typography
+ *
+ * Copyright (c) 2008 Dmitriy Chekanov (d.chekanov@gmail.com)
+ * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
+ *
+ * $Date: 2008-11-12 15:51:54 +0300 (Ср, 12 ноя 2008) $
+ * $Revision: 7 $
+ */
+	
+	body { font:75%/1.335 Arial, Helvetica, sans-serif; color:#333; }
+	
+	input, textarea, select { font:1em/1.335 Arial, Helvetica, sans-serif; }
+	
+	/*  Headers (24-22-20-18-16-14)
+	------------------------------------------------------------------------------------------------------------------- */
+	h1, h2, h3, h4, h5, h6 { font-family:Arial, Helvetica, sans-serif; font-weight:bold; }
+	h1 { font-size:2.000em; 	line-height:.667; 	margin-bottom:.667em;}
+	h2 { font-size:2.000em; 	line-height:.667; 	margin-bottom:.667em; 	font-weight:normal; }
+	h3 { font-size:1.667em; 	line-height:.8; 		margin-bottom:.8em; }
+	h4 { font-size:1.500em; 	line-height:.888;	margin-bottom:.888em; }
+	h5 { font-size:1.335em; 	line-height:1; 		margin-bottom:1em; }
+	h6 { font-size:1.167em; 	line-height:1.146; 	margin-bottom:1.146em; }
+	/* ---------------------------------------------------------------------------------------------------------------- */
+	
+	/*  Other elements
+	------------------------------------------------------------------------------------------------------------------- */
+	p, ul, ol, dl { margin:0 0 1.335em 0; }
+	
+	ul { list-style:disc inside; }
+	ol { list-style:decimal inside; }
+		
+		ul li,
+		ol li { margin:0 0 .667em 0; }
+		
+		dl dt { margin:0 0 .335em 1.335em; font-weight:bold; }
+		dl dd { margin:0 0 1.335em 1.335em; }
+		
+	a { color:#0033FF; text-decoration:underline; }
+	
+	a:focus, 
+	a:hover { color:#0033FF; text-decoration:none; }
+	
+	abbr, acronym { border-bottom:1px dashed #666; }
+	address { font-style:italic; }
+	del { color:#666; }
+	
+	blockquote { margin:1.335em; color:#666; font-style:italic; }
+	strong { font-weight:bold; }
+	em, dfn { font-style:italic; }
+	dfn { font-weight:bold; }
+	pre, code, tt { margin:1.335em 0; white-space:pre; font:1em 'andale mono', 'monotype.com', 'lucida console', monospace; line-height:1.335; }
+	
+	table { margin:0 0 1.335em 0; border-collapse:collapse; border-spacing:0; }
+	/* ---------------------------------------------------------------------------------------------------------------- */

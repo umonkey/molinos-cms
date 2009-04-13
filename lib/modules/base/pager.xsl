@@ -3,29 +3,31 @@
   <!-- листалка -->
   <xsl:template match="pager">
     <xsl:if test="@pages &gt; 1">
-      <div class="pager">
+      <ul class="pages">
         <xsl:if test="@prev">
-          <a class="prev arrow" href="{@prev}">←</a>
+          <li class="prev arrow"><a href="{@prev}">←</a></li>
         </xsl:if>
         <xsl:for-each select="page">
-          <a>
-            <xsl:if test="@link">
-              <xsl:attribute name="href">
-                <xsl:value-of select="@link" />
-              </xsl:attribute>
-            </xsl:if>
-            <xsl:if test="not(@link)">
+          <li>
+          	<xsl:if test="not(@link)">
               <xsl:attribute name="class">
                 <xsl:text>current</xsl:text>
               </xsl:attribute>
             </xsl:if>
-            <xsl:value-of select="@number" />
-          </a>
+          	<a>
+              <xsl:if test="@link">
+                <xsl:attribute name="href">
+                  <xsl:value-of select="@link" />
+                </xsl:attribute>
+              </xsl:if>
+              <xsl:value-of select="@number" />
+		</a>
+          </li>
         </xsl:for-each>
         <xsl:if test="@next">
-          <a class="next arrow" href="{@next}">→</a>
+          <li><a class="next arrow" href="{@next}">→</a></li>
         </xsl:if>
-      </div>
+      </ul>
     </xsl:if>
   </xsl:template>
 </xsl:stylesheet>

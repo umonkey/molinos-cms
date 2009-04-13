@@ -1,0 +1,19 @@
+/*
+ * Basis - quick & neatly page make-up
+ * Portion: CSS > Reset
+ *
+ * Copyright (c) 2008 Dmitriy Chekanov (d.chekanov@gmail.com)
+ * Licensed under the MIT (http://www.opensource.org/licenses/mit-license.php) license.
+ *
+ * $Date: 2008-11-02 17:57:23 +0300 (Вс, 02 ноя 2008) $
+ * $Revision: 6 $
+ */
+	html, body, div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, code, 
+	del, dfn, em, img, q, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {
+		margin:0; padding:0; border:0; font-weight:inherit; font-style:inherit; font-size:100%; font-family:inherit; }
+	
+  a { outline: none; }
+	a img { border:none; }
+	
+	button { overflow:visible; }
+	button::-moz-focus-inner { padding:0; }

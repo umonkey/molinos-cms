@@ -1,0 +1,304 @@
+/*
+ * General rules
+ */
+	/*
+	 * Core
+	*/
+		html,
+		body,
+		#wrapper { height:100%; }
+		
+		body { background:#fff; }
+		
+		#non-footer { position:relative; min-height:100%; }
+		* html #non-footer { height:100%; }
+		
+		#wrapper { max-width:1280px; margin:0 auto; }
+		
+	/*
+	 * Toolbar
+	 */
+		#toolbar { height:4.5em; overflow:hidden; background:url(images/bg/toolbar.png) repeat-x left bottom; }
+			
+			/* логотип */
+			#toolbar h1 { float:left; display:inline; margin:2px 18px 0 16px; position:relative; color:#fff; font-size:1.167em; line-height:1.146; }
+			
+			/* навигация */
+			#toolbar ul.navigation { list-style:none outside; margin:0; }
+	
+				#toolbar ul.navigation li { float:left; margin:0 10px 0 0; font-size:1.083em; line-height:1.231; }
+					#toolbar ul.navigation li a { display:block; text-decoration:none; }
+						#toolbar ul.navigation li a span { display:block; padding:5px 15px 8px 15px; margin:3px 0 0 0; }
+						#toolbar ul.navigation li.group a span { margin:3px 10px 0 0; background:url(images/icons/down-tp.png) no-repeat right .9em; }
+ 					#toolbar ul.navigation li ul { display:none; list-style:none outside; position:absolute; z-index:1000; background:#1CA60A; padding:12px 15px 0 15px; min-width:100px;   }
+						#toolbar ul.navigation li ul li { float:none; margin:0; padding:0 0 12px 0; font-size:1em; line-height:1.335; }
+							#toolbar ul.navigation li ul li a { text-decoration:underline; }
+							#toolbar ul.navigation li ul li a:hover { text-decoration:none; }
+						
+					#toolbar ul.navigation li:hover ul,
+					#toolbar ul.navigation li.hovered ul { display:block; }
+					
+					#toolbar ul.navigation li:hover a,
+					#toolbar ul.navigation li.hovered a { background:#1CA60A; }
+				
+				#toolbar ul.navigation li ul li a:hover { background:none; }
+			
+			/* вспомогательные ссылки */
+			#toolbar ul.utilitary { float:right; list-style:none outside; margin:8px 20px 0 0; }
+				#toolbar ul.utilitary li { float:left; margin:0 0 0 15px; }
+					#toolbar ul.utilitary li a.editprofile { padding:0 0 0 18px;  background:transparent url(images/user-16x16.png) no-repeat center left; }
+			
+			/* прочее */	
+			#toolbar a { color:#fff; }
+		
+	/*
+	 * Content
+	*/
+		#content { padding:0 20px 4.5em 20px; }
+		
+		#content h2 { position:relative; }
+		
+		/* Список нод и управление ими
+		------------------------------------------------------------------------------------------------------------------- */
+		.nodes-wrapper {  }
+			/* добавление и поиск */
+			.nodes-controls-basic { background:#80CC80; padding:3px 10px; }
+			/* выборка и операции */
+			.nodes-controls-advanced { background:#C0E6C0; padding:5px 10px; font-size:.917em; line-height:1.455; }
+			/* таблица */
+			table.nodes { margin:0; width:100%; }
+			
+				table.nodes th,
+				table.nodes td { text-align:left; white-space:nowrap; }
+				
+				table.nodes th { padding:3px 10px 4px 10px; font-weight:bold; border-bottom:1px solid #aaa; }
+				table.nodes td { padding:.584em 1em .584em 1em; }
+				
+				table.nodes tr:hover td { background:#ecece9; }
+				
+				table.nodes td.selector { border:none; border-right:1px dashed #E3E2E1; }
+				
+				table.nodes td.icon { padding-left:2px; padding-right:0; width:16px; border-left:none; }
+				table.nodes td.icon a { display:block; width:16px; height:16px; background:url(images/icons/icon-default.gif) no-repeat; }
+				table.nodes td.icon span { display:none; }
+		
+				table.nodes td.icon a.icon-dump { 		background-image:url(images/icons/icon-dump.gif); }
+				table.nodes td.icon a.icon-edit { 		background-image:url(images/icons/icon-edit.png); }
+				table.nodes td.icon a.icon-locate { 		background-image:url(images/icons/icon-www.png); }
+				table.nodes td.icon a.icon-download { 	background-image:url(images/icons/icon-download.png); }
+				table.nodes td.icon a.icon-sudo { 		background-image:url(images/icons/icon-sudo.gif); }
+				table.nodes td.icon a.icon-delete { 		background-image:url(images/icons/icon-delete.png); }
+				table.nodes td.icon a.icon-unpublish { 	background-image:url(images/icons/icon-unpublish.png); }
+				table.nodes td.icon a.icon-publish { 		background-image:url(images/icons/icon-publish.png); }
+				table.nodes td.icon a.icon-add { 		background-image:url(images/icons/icon-add.png); }
+				table.nodes td.icon a.icon-feed { 		background-image:url(images/icons/icon-feed.png); }
+				table.nodes td.icon a.icon-validate { 	background-image:url(images/icons/icon-validate.gif); }
+				table.nodes td.icon a.icon-search { 		background-image:url(images/icons/icon-search.png); }
+				table.nodes td.icon a.icon-clone { 		background-image:url(images/icons/icon-clone.png); }
+				table.nodes td.icon a.icon-link { 		background-image:url(images/icons/icon-link.png); }
+				table.nodes td.icon a.icon-zoom { 		background-image:url(images/icons/find.png); }
+				table.nodes td.icon a.icon-raise { 		background-image:url(images/icons/raise.png); }
+				table.nodes td.icon a.icon-sink { 		background-image:url(images/icons/sink.png); }
+				
+				table.nodes .field-filesize { text-align:right !important; }
+				table.nodes .field-thumbnail { width:50px; text-align: center !important; }
+
+				table.nodes .selector,
+				table.nodes .field-updated,
+				table.nodes .field-created .field-filetype,
+				table.nodes .field-feedicon,
+				table.nodes .field-feedcheck { width:10px; }
+
+				table.nodes .field-created,
+				table.nodes .field-updated { white-space:nowrap; }
+				
+				table.nodes .actions a { margin-right:4px; font-style:normal; }
+				
+				table.nodes .editlink { background:transparent url(images/icons/icon-edit.png) no-repeat top left; display:block; width:16px; height:16px; }
+				table.nodes .editlink span { display:none; }
+				table.nodes .actions a { margin:0 0 0 2px; }
+				
+				table.nodes td.versions { white-space:nowrap; }
+				table.nodes td.versions a { margin-left:2px; margin-right:2px; }
+				table.nodes th { white-space:nowrap; }
+				table.nodes td.field-name { width:100%; }
+				table.nodes td.field-name a { white-space:normal; }
+				
+				table.nodes a.openid { padding-left:20px; background:transparent url(images/openid.png) no-repeat center left; }
+				table.nodes a.email { padding-left:20px; background:transparent url(images/email.png) no-repeat center left; }
+				
+				table.nodes td { border-left:1px dashed #e3e2e1; }
+				
+				table.nodes tr.unpublished a,
+				table.nodes tr.disabled a { color:#7f99ff; }
+		/* ---------------------------------------------------------------------------------------------------------------- */
+		
+		/* Формы
+		------------------------------------------------------------------------------------------------------------------- */
+		#content .control { margin:0 0 1.335em 0; width:390px; }
+		
+			#content .control label { display:block; margin:0 0 .308em 0; font-size:1.084em; line-height:1.231; font-weight:bold; }
+				#content .control label span.required {  color: #ff3000;}
+				
+			#content .control label.normal { font-size:1em; line-height:1.335; font-weight:normal; }
+			
+			#content .control .form-text { width:100%; margin:0 0 .334em 0; padding:.334em .5em; border:1px solid #a7a6aa; }
+			#content .control .note { font-size:.917em; line-height:1.455; color:#a7a6aa; }
+		
+		/* CRUDP */
+		#content .access-wrapper td { white-space:nowrap; }
+		
+		#content table.access { width:100%; margin:0; }
+			#content table.access th { text-align:center; font-weight:bold; }
+			#content table.access td { padding:3px 10px 4px; }
+			#content table.access .gid-own { border-top:solid 1px gray; }
+		
+		#content table.access .gid-own .perm-c,
+		#content table.access .gid-own .perm-r { display:none; }
+
+		/* поле для подбора файлов */
+		.attachment-wrapper th span { display:block; width:24px; height:24px; cursor:pointer; vertical-align:middle; padding:2px; background:no-repeat center center; }
+		.attachment-wrapper td { width:300px; vertical-align:middle; padding:2px; }
+		.attachment-wrapper td * { display:none; }
+		.attachment-wrapper td input { width:300px !important; }
+		.attachment-wrapper td .active { display:block; }
+		.attachment-wrapper th span.preview { background-image:url(images/icons/icon-download.png); }
+		.attachment-wrapper th span.delete { background-image:url(images/bin.gif); }
+		.attachment-wrapper th span.switch-file { background-image:url(images/icons/raise.png); }
+		.attachment-wrapper th span.switch-find { background-image:url(images/zoom.png); }
+		.attachment-wrapper th span.switch-url { background-image:url(images/icons/icon-www.png); }
+		.attachment-wrapper th span.switch-info { background-image:url(images/information.png); }
+		
+		/* вкладки */
+		#content form.tabbed fieldset.tabable { border-top:solid 4px #0F9808; padding:.667em 0 0 25px; margin:0 0 .667em 0; }
+			#content form.tabbed fieldset.tabable legend { padding:0; margin:0 0 0 -8px; *margin:0 0 0 -14px; }
+				#content form.tabbed fieldset.tabable legend .title { padding:0 14px 0 8px; font-size:1.334em; line-height:1; }
+
+		/* расширенный поиск */
+		form.advsearch table { border-collapse: collapse; }
+		
+			form.advsearch th,
+			form.advsearch td { padding:4px 8px; }
+			
+			form.advsearch th { text-align:left; }
+			form.advsearch .form-text { width:100%; }
+			form.advsearch tr.submit { background-color:#eee; }
+			form.advsearch option { white-space:pre; }
+			
+		/* прочее */
+		input.autocomplete { background:transparent url('images/zoom.png') no-repeat center right; }
+		/* ---------------------------------------------------------------------------------------------------------------- */
+
+		/* листалка */
+		#content ul.pages { width:100%; overflow:hidden; margin:.667em 0 0 0; list-style:none outside; }
+			#content ul.pages li { float:left; font-size:.917em; line-height:1.455; }
+				#content ul.pages li a { display:block; padding:3px 9px; }
+				
+				#content ul.pages li a:hover,
+				#content ul.pages li.current a { font-weight:bold; text-decoration:none; color:#333; background:#ECECE9; }
+				
+		/* admin/system */
+		.submenu fieldset { margin-bottom:1em; }
+		.submenu legend { font-size:1.25em; padding:0 .25em; }
+		.submenu ul { margin:.5em 2em; list-style-type:square;	}
+		.submenu li { margin-bottom:.25em;}
+		
+		/* информационные сообщения (?) */
+		#desktop .column { float:left; width:49%; }
+		#desktop-column-1 fieldset { margin-right:.5em; }
+		#desktop-column-2 fieldset { margin-left:.5em; }
+		#desktop fieldset { margin-bottom:.5em; }
+		#desktop fieldset legend { font-weight:normal; font-size:1.5em; }
+		#desktop fieldset li { list-style-type:none; margin-bottom:.5em; }
+		#desktop fieldset p.important { background:transparent url(images/icons/warning.png) no-repeat top left; padding-left:20px; }
+		
+		/* дэшборд */
+		#dashboard fieldset ol { list-style-type:circle; list-style-image:url(images/bullet.gif); margin:0; }
+			#dashboard fieldset ol li { margin-bottom:.334em; vertical-align:middle; }
+			#dashboard-create div a { margin-right:1em; }
+		
+	/*
+	 * Footer
+	*/
+		#footer { height:3em; overflow:hidden; position:relative; margin:-3em 0 0 0; padding:0 20px 0; }
+	
+	/*
+	 * Supplementary rules
+	*/
+		.fakelink { color:#0033FF; text-decoration:underline; cursor:pointer; }
+		.fakelink:hover { text-decoration:none; }
+	
+		.r { text-align:right !important; }
+	
+	
+	/*
+	 * Всякие ошибки
+	 */
+		#exception { margin:10px; }
+			#exception h2 { font-size:2em; margin:0 0 10px 0; }
+			#exception p { font-size:1.5em; }
+	
+
+/**
+ * Форма входа.
+ **/
+#login-form {
+  display: block;
+  width: 500px;
+  margin: 200px auto;
+  /*
+  background: url(images/mcms.logo_90ccw.jpg) no-repeat right bottom;
+  */
+}
+#login-form fieldset {
+  margin: 0;
+  padding: 10px;
+  border: none;
+}
+#login-form legend {
+  display: none;
+}
+#login-form legend span {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+}
+#login-form .control {
+  margin: 10px 0 10px 0;
+}
+#login-form .control label > span {
+  display: block;
+  margin: 4px 0;
+}
+#login-form input.form-text {
+  display: block;
+  width: 462px;
+  font-size: 10pt;
+  border: solid 2px #ccc;
+  padding: 4px 6px;
+}
+#login-form .submit-wrapper {
+  background-color: #eee;
+  padding: 5px 10px;
+}
+#login-form input.submit {
+  height: 2em;
+  padding: 0 40px;
+  font-size: 1.25em;
+}
+#login-form input.submit1 {
+  margin-right: 10px;
+}
+#login-form .auth_type-field-wrapper label {
+  display: block;
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+  margin-bottom: .25em;
+}
+#login-form .auth_type-field-wrapper input {
+  display: none;
+}
+#login-form .note {
+  color: gray;
+}
