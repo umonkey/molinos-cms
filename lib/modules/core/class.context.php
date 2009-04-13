@@ -233,6 +233,12 @@ class Context
   public function redirect($url, $status = 301, Node $node = null)
   {
     $url1 = new url($url);
+
+    if (!isset($url1->path) and !empty($_GET['__cleanurls'])) {
+      $url1->path = $url1->arg('q');
+      $url1->setarg('q', null);
+    }
+
     $next = $url1->getAbsolute($this);
 
     if (null !== $node and $node->id) {
