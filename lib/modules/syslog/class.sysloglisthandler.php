@@ -67,16 +67,18 @@ class SyslogListHandler extends AdminListHandler implements iAdminList
    */
   public static function on_node_change(Context $ctx, $node, $op)
   {
-    list($sql, $params) = sql::getInsert('node__log', array(
-      'nid' => $node->id,
-      'uid' => $ctx->user->id,
-      'username' => $ctx->user->name,
-      'operation' => $op,
-      'ip' => $_SERVER['REMOTE_ADDR'],
-      'timestamp' => mcms::now(),
-      'name' => $node->name,
-      ));
+    try {
+      list($sql, $params) = sql::getInsert('node__log', array(
+        'nid' => $node->id,
+        'uid' => $ctx->user->id,
+        'username' => $ctx->user->name,
+        'operation' => $op,
+        'ip' => $_SERVER['REMOTE_ADDR'],
+        'timestamp' => mcms::now(),
+        'name' => $node->name,
+        ));
 
-    $ctx->db->exec($sql, $params);
+      $ctx->db->exec($sql, $params);
+    } catch (TableNotFoundException $e) { }
   }
 };
