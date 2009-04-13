@@ -18,7 +18,7 @@
 	/*
 	 * Toolbar
 	 */
-		#toolbar { height:4.5em; overflow:hidden; background:url(images/bg/toolbar.png) repeat-x left bottom; }
+		#toolbar { height:3em; margin:0 0 1.5em 0; overflow:hidden; background:#109808 url(images/bg/toolbar.png) repeat-x left bottom; }
 			
 			/* логотип */
 			#toolbar h1 { float:left; display:inline; margin:2px 18px 0 16px; position:relative; color:#fff; font-size:1.167em; line-height:1.146; }
