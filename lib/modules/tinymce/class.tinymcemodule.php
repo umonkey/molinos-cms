@@ -20,7 +20,7 @@ class TinyMceModule
     else
       $result[] = array('script', 'lib/modules/tinymce/editor/tiny_mce_gzip.js');
 
-    $result[] = array('script', 'lib/modules/tinymce/file_picker.js.php');
+    $result[] = array('script', 'lib/modules/tinymce/file_picker.js');
 
     $initializer = empty($conf['initializer']) ? '' : $conf['initializer'] . ', ';
     $initializer .= 'document_base_url: "http://' . MCMS_HOST_NAME . $ctx->folder() . '/", ';
