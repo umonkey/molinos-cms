@@ -418,9 +418,12 @@ class NodeStub
    */
   private function updateXML()
   {
-    if ($this->id)
-      $this->getDB()->exec("UPDATE `node` SET `xml` = ? WHERE `id` = ?",
-        array($this->getXML(), $this->id));
+    if ($this->id) {
+      try {
+        $this->getDB()->exec("UPDATE `node` SET `xml` = ? WHERE `id` = ?",
+          array($this->getXML(), $this->id));
+      } catch (PDOException $e) { }
+    }
   }
 
   /**
