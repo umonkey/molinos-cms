@@ -61,4 +61,4 @@ done
 svn ci -m "Semi-automatic release." $DIR/svn
 git tag -f lastrelease-master
 
-echo "http://code.google.com/p/molinos-cms/downloads/list?can=2&q=label%3AR9.03+label%3AType-Module"
+echo "http://code.google.com/p/molinos-cms/downloads/list?can=4&q=label%3AR9.03+label%3AType-Module"
