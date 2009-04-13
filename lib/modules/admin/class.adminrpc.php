@@ -161,7 +161,7 @@ class AdminRPC extends RPCHandler
         'sort' => 'pages1',
         ),
       array(
-        're' => 'admin/structure/domains/(.+)',
+        're' => 'admin/structure/domains/*',
         'method' => 'on_get_pages',
         ),
       array(
@@ -172,7 +172,7 @@ class AdminRPC extends RPCHandler
         'sort' => 'pages2',
         ),
       array(
-        're' => 'admin/content/list/(\w+)',
+        're' => 'admin/content/list/*',
         'method' => 'on_get_list_by_type',
         ),
       array(
@@ -181,23 +181,23 @@ class AdminRPC extends RPCHandler
         'title' => t('Справочники'),
         ),
       array(
-        're' => 'admin/content/dict/(\w+)',
+        're' => 'admin/content/dict/*',
         'method' => 'on_get_dict',
         ),
       array(
-        're' => 'admin/edit/(\d+)',
+        're' => 'admin/edit/*',
         'method' => 'on_get_edit_form',
         ),
       array(
         're' => 'admin/create',
+        'method' => 'on_get_create_list',
+        ),
+      array(
+        're' => 'admin/create/*',
         'method' => 'on_get_create_form',
         ),
       array(
-        're' => 'admin/create/(\w+)',
-        'method' => 'on_get_create_form',
-        ),
-      array(
-        're' => 'admin/create/(\w+)/(.+)',
+        're' => 'admin/create/*/*',
         'method' => 'on_get_create_form',
         ),
       array(
@@ -289,9 +289,9 @@ class AdminRPC extends RPCHandler
     return $tmp->getHTML('pages');
   }
 
-  public static function on_get_pages(Context $ctx, array $args)
+  public static function on_get_pages(Context $ctx, $domain)
   {
-    $tmp = new AdminTreeHandler($ctx, $args[1]);
+    $tmp = new AdminTreeHandler($ctx, $domain);
     return $tmp->getHTML('pages');
   }
 
@@ -316,9 +316,9 @@ class AdminRPC extends RPCHandler
     return $tmp->getHTML($ctx->get('preset'));
   }
 
-  public static function on_get_edit_form(Context $ctx, array $args)
+  public static function on_get_edit_form(Context $ctx, $nid)
   {
-    $node = Node::load($args[1])->getObject();
+    $node = Node::load($nid)->getObject();
 
     $form = $node->formGet(false);
     $form->addClass('tabbed');
@@ -328,55 +328,8 @@ class AdminRPC extends RPCHandler
       ), $form->getXML($node));
   }
 
-  public static function on_get_create_form(Context $ctx, array $args)
+  public static function on_get_create_list(Context $ctx)
   {
-    if (!empty($args[1])) {
-      $type = $args[1];
-      $parent_id = empty($args[2]) ? null : $args[2];
-
-      $node = Node::create($type, array(
-        'parent_id' => $parent_id,
-        'isdictionary' => $ctx->get('dictionary'),
-        ));
-
-      if ($nodeargs = $ctx->get('node'))
-        foreach ($nodeargs as $k => $v)
-          $node->$k = $v;
-
-      $form = $node->formGet(false);
-      $form->addClass('tabbed');
-      $form->addClass("node-{$type}-create-form");
-      $form->action = "?q=nodeapi.rpc&action=create&type={$type}&destination=". urlencode($_GET['destination']);
-
-      if ($node->parent_id)
-        $form->addControl(new HiddenControl(array(
-          'value' => 'parent_id',
-          'default' => $node->parent_id,
-          )));
-
-      if ($ctx->get('dictionary')) {
-        if (null !== ($tmp = $form->findControl('tab_general')))
-          $tmp->intro = t('Вы создаёте первый справочник.  Вы сможете использовать его значения в качестве выпадающих списков (для этого надо будет добавить соответствующее поле в нужный <a href=\'@types\'>тип документа</a>).', array('@types' => '?q=admin&cgroup=structure&mode=list&preset=schema'));
-
-        $form->hideControl('tab_sections');
-        $form->hideControl('tab_widgets');
-
-        if (null !== ($ctl = $form->findControl('title')))
-          $ctl->label = t('Название справочника');
-        if (null !== ($ctl = $form->findControl('name')))
-          $ctl->label = t('Внутреннее имя справочника');
-
-        $form->addControl(new HiddenControl(array(
-          'value' => 'isdictionary',
-          'default' => 1,
-          )));
-      }
-
-      return html::em('content', array(
-        'name' => 'create',
-        ), $form->getXML($node));
-    }
-
     $types = Node::find($ctx->db, array(
       'class' => 'type',
       'name' => $ctx->user->getAccess('c'),
@@ -404,6 +357,51 @@ class AdminRPC extends RPCHandler
     return html::em('content', array(
       'name' => 'create',
       ), $output);
+  }
+
+  public static function on_get_create_form(Context $ctx, $type, $parent_id = null)
+  {
+    $node = Node::create($type, array(
+      'parent_id' => $parent_id,
+      'isdictionary' => $ctx->get('dictionary'),
+      ));
+
+    if ($nodeargs = $ctx->get('node'))
+      foreach ($nodeargs as $k => $v)
+        $node->$k = $v;
+
+    $form = $node->formGet(false);
+    $form->addClass('tabbed');
+    $form->addClass("node-{$type}-create-form");
+    $form->action = "?q=nodeapi.rpc&action=create&type={$type}&destination=". urlencode($_GET['destination']);
+
+    if ($node->parent_id)
+      $form->addControl(new HiddenControl(array(
+        'value' => 'parent_id',
+        'default' => $node->parent_id,
+        )));
+
+    if ($ctx->get('dictionary')) {
+      if (null !== ($tmp = $form->findControl('tab_general')))
+        $tmp->intro = t('Вы создаёте первый справочник.  Вы сможете использовать его значения в качестве выпадающих списков (для этого надо будет добавить соответствующее поле в нужный <a href=\'@types\'>тип документа</a>).', array('@types' => '?q=admin&cgroup=structure&mode=list&preset=schema'));
+
+      $form->hideControl('tab_sections');
+      $form->hideControl('tab_widgets');
+
+      if (null !== ($ctl = $form->findControl('title')))
+        $ctl->label = t('Название справочника');
+      if (null !== ($ctl = $form->findControl('name')))
+        $ctl->label = t('Внутреннее имя справочника');
+
+      $form->addControl(new HiddenControl(array(
+        'value' => 'isdictionary',
+        'default' => 1,
+        )));
+    }
+
+    return html::em('content', array(
+      'name' => 'create',
+      ), $form->getXML($node));
   }
 
   /**

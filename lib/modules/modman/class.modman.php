@@ -262,9 +262,9 @@ class modman
     return $schema;
   }
 
-  public static function settings(Context $ctx, array $args)
+  public static function settings(Context $ctx, $query)
   {
-    $name = substr(strrchr($args[0], '/'), 1);
+    $name = substr(strrchr($query, '/'), 1);
 
     $schema = self::settings_get($ctx, $name);
     $form = $schema->getForm();
