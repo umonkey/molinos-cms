@@ -108,7 +108,7 @@ class CompressorModule
     $data = preg_replace('/[^{}]++\{\}/', '', $data);
 
     // Fix relative url()
-    $data = preg_replace('@(url\(([^/][^)]+)\))@i', 'url(/'. os::localpath(dirname($filename)) .'/\2)', $data);
+    $data = preg_replace('@(url\(([^/][^)]+)\))@i', 'url(/'. os::webpath(os::localpath(dirname($filename))) .'/\2)', $data);
 
     return $data;
   }
