@@ -50,7 +50,7 @@ class MaintenanceModule
   {
     return array(
       array(
-        're' => 'admin/service/(maintenance)',
+        're' => 'admin/service/maintenance',
         'method' => 'modman::settings',
         'title' => t('Профилактика'),
         'description' => t('Позволяет временно закрыть сайт для проведения технических работ.'),
