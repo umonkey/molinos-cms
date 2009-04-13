@@ -14,7 +14,7 @@ class ModeratorModule
       return;
 
     // Некоторые известные типы не модерируем.
-    if (in_array($node->class, array('domain', 'widget', 'user', 'group')))
+    if (in_array($node->class, array('domain', 'widget', 'user', 'group', 'field', 'cronstats')))
       return;
 
     // Пользователь сам себе публикатор.
