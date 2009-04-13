@@ -553,7 +553,18 @@
     <form method="post" action="?q=admin.rpc&amp;action=search&amp;from={/page/request/@uri}">
     	<fieldset>
        <input type="hidden" name="search_from" value="{/page/@url}" />
-          <a class="newlink" href="?q=admin.rpc&amp;action=create&amp;cgroup={/page/@cgroup}&amp;type={@type}&amp;destination={/page/request/@uri}">Добавить</a>
+          <a class="newlink">
+            <xsl:attribute name="href">
+              <xsl:text>?q=admin/create</xsl:text>
+              <xsl:if test="@type">
+                <xsl:text>/</xsl:text>
+                <xsl:value-of select="@type" />
+              </xsl:if>
+              <xsl:text>&amp;destination=</xsl:text>
+              <xsl:value-of select="/page/request/@uri" />
+            </xsl:attribute>
+            <xsl:text>Добавить</xsl:text>
+          </a>
           <xsl:text> | </xsl:text>
           <input type="text" name="search_term" class="search_field" value="{/page/request/getArgs/arg[@name='search']}" />
           <input type="submit" value="Найти" />
