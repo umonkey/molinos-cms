@@ -103,6 +103,12 @@ class os
   {
     $vpath = dirname($fileName) . DIRECTORY_SEPARATOR . basename($fileName);
 
+    if (!is_dir($dirName = dirname($fileName)))
+      if (!mkdir($dirName, 0775, true))
+        throw new RuntimeException(t('Не удалось создать папку %path.', array(
+          '%path' => os::localpath($dirName),
+          )));
+
     if (file_exists($fileName)) {
       if (!is_writable($fileName)) {
         if (is_writable(dirname($fileName)))
