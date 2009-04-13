@@ -42,7 +42,7 @@ class InstallModule extends RPCHandler
     $pdo = PDO_Singleton::connect($config->db);
 
     $config->write();
-    $ctx->redirect('?q=admin/system');
+    $ctx->redirect('?q=admin.rpc&action=reload&destination=admin/system');
 
     /*
     $s = new Structure();
