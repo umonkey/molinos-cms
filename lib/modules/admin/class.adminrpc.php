@@ -31,6 +31,7 @@ class AdminRPC extends RPCHandler
         : 'unknown',
       'cache' => BebopCache::getInstance()->getName(),
       'memory' => ini_get('memory_limit'),
+      'time' => microtime(true) - MCMS_START_TIME,
       'back' => urlencode(MCMS_REQUEST_URI),
       );
 
