@@ -42,7 +42,7 @@ class jQueryModule
         'type' => 'EnumControl',
         'label' => t('Версия jQuery'),
         'options' => array(
-          '1.2.6',
+          '1.2.6' => '1.2.6',
           ),
         'required' => true,
         ),
