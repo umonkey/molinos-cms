@@ -98,7 +98,7 @@ class Registry
   {
     if (file_exists($path = $this->getSavePath())) {
       $data = include($path);
-      $this->modules = $data['modules'];
+      // $this->modules = $data['modules'];
       $this->reg = $data['messages'];
       $this->paths = $data['paths'];
       return true;
