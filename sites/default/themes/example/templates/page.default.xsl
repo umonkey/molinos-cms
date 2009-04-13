@@ -33,7 +33,7 @@
 
   <!-- Список документов -->
   <xsl:template match="widget[@name='doclist']">
-    <xsl:for-each select="documents/document">
+    <xsl:for-each select="nodes/node">
       <xsl:apply-templates select="." />
     </xsl:for-each>
   </xsl:template>
@@ -73,7 +73,7 @@
     </li>
   </xsl:template>
 
-  <xsl:template match="document">
+  <xsl:template match="node">
     <h2>
       <xsl:value-of select="@name" />
     </h2>
@@ -86,11 +86,11 @@
   <xsl:template match="widget[@class='DocWidget']">
     <div class="DocWidget">
       <h2>
-        <a href="?q=node/{document/@id}">
-          <xsl:value-of select="document/@displayName" />
+        <a href="?q=node/{node/@id}">
+          <xsl:value-of select="node/@name" />
         </a>
       </h2>
-      <xsl:value-of select="document/@text" disable-output-escaping="yes" />
+      <xsl:value-of select="node/@text" disable-output-escaping="yes" />
     </div>
   </xsl:template>
 </xsl:stylesheet>
