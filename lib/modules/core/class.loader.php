@@ -20,6 +20,7 @@ class Loader
       define('MCMS_HOST_NAME', isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost');
 
     define('MCMS_SITE_FOLDER', self::find_site_folder(MCMS_HOST_NAME));
+    define('MCMS_WEB_FOLDER', isset($_SERVER['SCRIPT_NAME']) ? rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') : '');
 
     define('MCMS_START_TIME', microtime(true));
 
