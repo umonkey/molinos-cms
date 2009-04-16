@@ -11,6 +11,9 @@ class Redirect extends Response
 
   public function __construct($url = '', $code = 302)
   {
+    if ('POST' == $_SERVER['REQUEST_METHOD'])
+      $code = self::OTHER;
+
     $u = new url($url);
     $url = $u->getAbsolute(Context::last());
 
