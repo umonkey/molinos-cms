@@ -45,7 +45,13 @@
     <div>
       <xsl:call-template name="default_control_classes" />
       <xsl:call-template name="default_control_label" />
-      <input type="text" class="{@class}" name="{@name}" value="{@value}" maxlength="{@maxlength}" id="{@id}" />
+      <input type="text" class="{@class}" name="{@name}" value="{@value}" maxlength="{@maxlength}" id="{@id}">
+        <xsl:if test="@readonly">
+          <xsl:attribute name="readonly">
+            <xsl:text>readonly</xsl:text>
+          </xsl:attribute>
+        </xsl:if>
+      </input>
       <xsl:call-template name="default_control_info" />
     </div>
   </xsl:template>
