@@ -202,7 +202,7 @@ class NodeApiModule extends RPCHandler
   public static function rpc_post_edit(Context $ctx)
   {
     $node = Node::load($ctx->get('node'))->getObject();
-    if (null === $node->uid)
+    if (null === $node->uid and $node->isNew())
       $node->uid = $ctx->user->id;
     $node->formProcess($ctx->post)->save($ctx->db);
   }
