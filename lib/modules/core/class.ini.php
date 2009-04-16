@@ -42,6 +42,9 @@ class ini
         $output .= self::write_keys($v, true);
       }
 
+    if (file_exists($filename))
+      rename($filename, $filename . '~');
+
     os::write($filename, $output);
   }
 
