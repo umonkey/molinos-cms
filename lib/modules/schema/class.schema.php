@@ -31,6 +31,9 @@ class Schema extends ArrayObject
     }
 
     elseif (is_array($value)) {
+      if (!array_key_exists('type', $value))
+        throw new InvalidArgumentException(t('Не указан тип контрола.'));
+
       if (!class_exists($class = $value['type']))
         return null;
 
