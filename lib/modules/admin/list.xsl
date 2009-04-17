@@ -621,8 +621,10 @@
       <xsl:value-of select="substring($timestamp,6,2)" />
       <xsl:text>.</xsl:text>
       <xsl:value-of select="substring($timestamp,3,2)" />
-      <xsl:text>, </xsl:text>
-      <xsl:value-of select="substring($timestamp,12,5)" />
+      <xsl:if test="string-length($timestamp) &gt;= 17">
+        <xsl:text>, </xsl:text>
+        <xsl:value-of select="substring($timestamp,12,5)" />
+      </xsl:if>
     </xsl:if>
   </xsl:template>
 </xsl:stylesheet>
