@@ -122,4 +122,19 @@ class EnumControl extends Control
     else
       $node->{$this->value} = $value;
   }
+
+  public function getExtraSettings()
+  {
+    $fields = array(
+      'dictionary' => array(
+        'type' => 'EnumControl',
+        'label' => t('Справочник'),
+        'options' => TypeNode::getDictionaries(),
+        'weight' => 4,
+        'default_label' => t('(не использовать)'),
+        ),
+      );
+
+    return $fields;
+  }
 };
