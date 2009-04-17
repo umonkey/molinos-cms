@@ -111,7 +111,7 @@ class ModManRPC extends RPCHandler
   public static function rpc_post_remove(Context $ctx)
   {
     $status = array();
-    $remove = $ctx->post('modules');
+    $remove = (array)$ctx->post('modules');
 
     // Удаляем отключенные модули.
     foreach (modman::getLocalModules() as $name => $info) {
@@ -124,8 +124,10 @@ class ModManRPC extends RPCHandler
       }
     }
 
+    /*
     $ctx->config->modules = $enabled;
     $ctx->config->write();
+    */
 
     $next = new url($ctx->get('destination', '?q=admin'));
     $next->setarg('status', $status);
