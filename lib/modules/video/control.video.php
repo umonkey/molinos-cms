@@ -56,6 +56,12 @@ class VideoControl extends TextLineControl
       $link['is_video'] = true;
       $link['host'] = 'Google Video';
       $link['vid'] = $m1[1];
+    } elseif (preg_match('%^http://www\.vesti\.ru/videos\?vid=(\d+)%', $url, $m1)) {
+      $link['type'] = 'video/x-flv';
+      $link['is_video'] = true;
+      $link['host'] = 'vesti.ru';
+      $link['vid'] = $m1[1];
+      $link['embed'] = str_replace('$ID$', $m1[1], '<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,29,0" width="408" height="356" id="flvplayer" align="middle"><param name="allowScriptAccess" value="always" /><param name="allowFullScreen" value="true" /><param name="movie" value="http://www.vesti.ru/i/flvplayer.swf?vid=$ID$&autostart=false" /><param name="quality" value="high" /><param name="wmode" value="transparent" /><param name="devicefont" value="true" /><param name="bgcolor" value="#000000" /><param name="vid" value="$ID$" /><embed src="http://www.vesti.ru/i/flvplayer.swf?vid=$ID$&autostart=false" quality="high" devicefont="true" bgcolor="#000000" width="408" height="356" name="flvplayer" align="middle" allowScriptAccess="always" allowFullScreen="true" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" /></object>');
     } elseif (preg_match('%^http://([a-z0-9]+\.){0,1}youtube\.com/(?:watch\?v=|v/)([^&]+)%i', $url, $m1)) {
       $o = html::em('param', array(
         'name' => 'movie',
