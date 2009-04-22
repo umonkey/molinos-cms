@@ -47,7 +47,8 @@ class SubscriptionScheduler
       foreach ($nodes as $node) {
         $xml = html::em('message', array(
           'mode' => 'regular',
-          'unsubscribe' => '?q=subscription.rpc&action=remove&name=' . urlencode($user->name),
+          'unsubscribe' => '?q=subscription.rpc&action=remove&name=' . urlencode($user->name)
+            . '&id=' . $user->id,
           'base' => $ctx->url()->getBase($ctx),
           'host' => url::host(),
           ), $node->getXML('document'));

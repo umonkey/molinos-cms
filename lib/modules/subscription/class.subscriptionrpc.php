@@ -123,8 +123,8 @@ class SubscriptionRPC extends RPCHandler
         'deleted' => 0,
         'published' => 1,
         ));
-      if (empty($node))
-        throw new PageNotFoundException(t('Этот адрес не подписан.'));
+      if (empty($node) or $node->id != $ctx->get('id'))
+        throw new PageNotFoundException();
       $ctx->db->beginTransaction();
       $node->delete();
       $ctx->db->commit();
