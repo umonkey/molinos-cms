@@ -39,7 +39,13 @@ class SubscriptionScheduler implements iScheduler
 
       // Отправляем документы.
       foreach ($nodes as $node) {
-        BebopMimeMail::send(null, $user->name, $node->name, $node->text);
+        $text = $node->text . t('<p><a href="@url">Отписаться от этих новостей</a></p>', array(
+          '@url' => '?q=subscription.rpc&action=unsubscribe&email=' . urlencode($user->name)
+            . '&id=' . $user->id,
+          ));
+        $mail = $user->name;
+
+        BebopMimeMail::send(null, $mail, $node->name, $text);
         mcms::flog(sprintf("sent mail to %s: %s", $user->name, $node->name));
         $last = max($last, $node->id);
       }

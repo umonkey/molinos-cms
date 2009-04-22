@@ -111,4 +111,19 @@ class SubscriptionRPC implements iRemoteCall
 
     return $status;
   }
+
+  public static function rpc_unsubscribe(Context $ctx)
+  {
+    $email = $ctx->get('email');
+    $id = $ctx->get('id');
+
+    if (empty($id) or empty($email))
+      throw new PageNotFoundException();
+
+    $node = Node::load($id);
+    if ($node->name != $email)
+      throw new PageNotFoundException();
+
+    $ctx->db->exec("DELETE FROM `node` WHERE `class` = 'subscription' AND `id` = ?", array($id));
+  }
 }
