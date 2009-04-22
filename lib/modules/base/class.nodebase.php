@@ -2075,9 +2075,9 @@ class NodeBase
     $schema = $this->getSchema();
 
     foreach ($schema->getIndexes() as $k) {
-      if ($schema[$k]->indexed) {
+      if ($schema[$k]->indexed and false !== ($tmp = $schema[$k]->getIndexValue($this->$k))) {
         $fields[] = $k;
-        $params[':' . $k] = $schema[$k]->getIndexValue($this->$k);
+        $params[':' . $k] = $tmp;
       }
     }
 

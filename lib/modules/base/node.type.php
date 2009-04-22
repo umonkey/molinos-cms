@@ -388,7 +388,8 @@ class TypeNode extends Node implements iContentType
             'key' => 'mul',
             'default' => (isset($v['default']) and '' !== $v['default']) ? $v['default'] : null,
             );
-          $t->columnSet($k, $spec);
+          if (!empty($spec['type']))
+            $t->columnSet($k, $spec);
         }
       }
     }

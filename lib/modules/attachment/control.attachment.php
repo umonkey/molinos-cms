@@ -133,4 +133,9 @@ class AttachmentControl extends Control
 
     return $value;
   }
+
+  public function getIndexValue($value)
+  {
+    return false;
+  }
 };
