@@ -3,9 +3,6 @@
 
 class XspfModule
 {
-  /**
-   * @mcms_message ru.molinos.cms.rpc.playlist
-   */
   public static function hookRemoteCall(Context $ctx)
   {
     if (!count($nids = explode(',', $ctx->get('nodes'))))
@@ -31,20 +28,6 @@ class XspfModule
     $output .= '</playlist>';
 
     return new Response($output, 'application/xspf+xml');
-  }
-
-  /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/system/settings/playlist',
-        'title' => t('Плейлисты для Flash-плеера'),
-        'method' => 'modman::settings',
-        ),
-      );
   }
 
   /**

@@ -421,8 +421,7 @@ class Node
 
     if (($ctx = Context::last()) and $ctx->canDebug())
       $links['dump'] = array(
-        'href' => '?q=nodeapi.rpc&action=dump&node='. $this->id
-          . '&rev='. $this->rid,
+        'href' => '?q=node/' . $this->id . '/dump',
         'title' => 'Содержимое объекта',
         'icon' => 'dump',
         );

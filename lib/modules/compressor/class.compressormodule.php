@@ -54,7 +54,7 @@ class CompressorModule
     $lscripts = array_merge($scripts, os::find('lib', 'modules', '*', 'scripts', 'admin', '*.js'));
     $lstyles = array_merge($styles, os::find('lib', 'modules', '*', 'styles', 'admin', '*.css'));
 
-    $path = os::path(MCMS_SITE_FOLDER, 'themes', 'admin');
+    $path = os::path(MCMS_SITE_FOLDER, 'themes', '.admin');
 
     os::write($path . '.js', self::get_js_prefix($ctx) . self::join($lscripts, ';'));
     os::write($path . '.css', self::join($lstyles));

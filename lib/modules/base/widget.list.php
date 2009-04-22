@@ -43,7 +43,7 @@ class ListWidget extends Widget
    *
    * @return Form вкладка с настройками виджета.
    */
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     $schema = array(
       'fixed' => array(
@@ -112,11 +112,8 @@ class ListWidget extends Widget
         ),
       'types' => array(
         'type' => 'SetControl',
-        'label' => t('Возвращать документы следующих типов'),
-        'dictionary' => 'type',
-        'field' => 'title',
-        'parents' => true,
-        'group' => t('Доступ'),
+        'group' => t('Типы выводимых документов'),
+        'options' => Node::getSortedList('type', 'title', 'name'),
         ),
       );
 
@@ -132,32 +129,28 @@ class ListWidget extends Widget
    *
    * @return array массив с параметрами.
    */
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    if (!is_array($options = parent::getRequestOptions($ctx)))
-      return $options;
+    $options = parent::getRequestOptions($ctx, $params);
 
-    if ($this->onlyiflast and $ctx->document->id)
-      return false;
+    if ($this->onlyiflast and isset($params['document']))
+      return $this->halt();
 
-    // Выбор текущего раздела.
-    if ($this->allowoverride and ($tmp = $this->get('section')))
-      $options['section'] = $tmp;
-    elseif ('root' == $this->fixed)
-      $options['section'] = $ctx->root->id;
+    if ('root' == $this->fixed)
+      $options['section'] = $params['root'];
     elseif ('always' == $this->fallbackmode and $this->fixed)
-      $options['section'] = $this->fixed;
-    elseif (null !== ($tmp = $ctx->section->id))
-      $options['section'] = $tmp;
+      $options['section'] = array('id' => $this->fixed);
+    elseif ($params['section'])
+      $options['section'] = $params['section'];
 
     if (!empty($this->types))
-      $options['classes'] = array_intersect($this->types, Context::last()->user->getAccess('r'));
+      $options['classes'] = array_intersect(explode(',', $this->types), $ctx->user->getAccess('r'));
 
-    if ($this->onlyathome and $options['section'] != $ctx->root->id)
-      return false;
+    if ($this->onlyathome and $options['section'] != $params['root'])
+      return $this->halt();
 
-    if ($this->skipcurrent)
-      $options['document'] = $ctx->document->id;
+    if ($this->skipcurrent and isset($options['document']))
+      $options['document'] = $options['document']['id'];
 
     if (is_array($tmp = $this->get('classes')))
       $options['filter']['class'] = array_unique($tmp);
@@ -217,30 +210,30 @@ class ListWidget extends Widget
     // вообще ничего нет, на несуществующей странице выводим пустой список.
     if (empty($result)) {
       $count = $query->getCount($this->ctx->db);
+
       if (!$count and 'empty' == $this->fallbackmode and $this->fixed) {
-        $options['section'] = $this->fixed;
+        $options['section']['id'] = $this->fixed;
         $result = html::wrap('nodes', Node::findXML($this->ctx->db, $query = $this->getQuery($options)));
         $count = null;
       }
     }
 
-    if (empty($result))
-      return '<!-- nothing to show -->';
+    if (!empty($result)) {
+      // Добавляем информацию о разделе.
+      if ($this->showpath and !empty($options['section'])) {
+        $tmp = '';
+        $section = NodeStub::create($options['section'], $this->ctx->db);
+        foreach ($section->getParents() as $node)
+          $tmp .= $node->push('section');
+        if (!empty($tmp))
+          $result .= html::em('path', $tmp);
+      }
 
-    // Добавляем информацию о разделе.
-    if ($this->showpath and !empty($options['section'])) {
-      $tmp = '';
-      $section = NodeStub::create($options['section'], $this->ctx->db);
-      foreach ($section->getParents() as $node)
-        $tmp .= $node->push('section');
-      if (!empty($tmp))
-        $result .= html::em('path', $tmp);
-    }
-
-    if ($this->pager) {
-      if (null === $count)
-        $count = $query->getCount($this->ctx->db);
-      $result .= $this->getPager($count, $options['page'], $options['limit']);
+      if ($this->pager and !empty($options['limit'])) {
+        if (null === $count)
+          $count = $query->getCount($this->ctx->db);
+        $result .= $this->getPager($count, $options['page'], $options['limit']);
+      }
     }
 
     return $result;
@@ -256,11 +249,15 @@ class ListWidget extends Widget
 
     if (!empty($options['classes']))
       $filter['class'] = $options['classes'];
+    elseif (isset($this->classes))
+      $filter['class'] = explode(',', $this->classes);
     else
-      $filter['class'] = null; // блокируем вывод
+      throw new WidgetHaltedException(t('%name: не указаны типы документов.', array(
+        '%name' => $this->name,
+        )));
 
-    if (!empty($options['section'])) {
-      $filter['tags'] = $options['section'];
+    if (isset($options['section']['id'])) {
+      $filter['tags'] = $options['section']['id'];
       if ($this->recurse)
         $filter['tags'] .= '+';
     }

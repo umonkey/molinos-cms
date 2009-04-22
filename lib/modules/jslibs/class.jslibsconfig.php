@@ -59,20 +59,6 @@ class JSLibsConfig
   }
 
   /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/system/settings/jslibs',
-        'title' => t('Библиотеки JavaScript'),
-        'method' => 'modman::settings',
-        ),
-      );
-  }
-
-  /**
    * @mcms_message ru.molinos.cms.module.settings.jslibs
    */
   public static function on_get_settings(Context $ctx)

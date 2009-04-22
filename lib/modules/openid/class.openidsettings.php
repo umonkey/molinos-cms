@@ -3,21 +3,6 @@
 class OpenIdSettings
 {
   /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/system/settings/openid',
-        'title' => t('Аутентификация через OpenID'),
-        'method' => 'modman::settings',
-        'sort' => 'authopenid',
-        ),
-      );
-  }
-
-  /**
    * @mcms_message ru.molinos.cms.module.settings.openid
    */
   public static function on_get_settings(Context $ctx)

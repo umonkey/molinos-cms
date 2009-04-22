@@ -28,12 +28,14 @@
 	
 				#toolbar ul.navigation li { float:left; margin:0 10px 0 0; font-size:1.083em; line-height:1.231; }
 					#toolbar ul.navigation li a { display:block; text-decoration:none; }
+					#toolbar ul.navigation li a:hover { text-decoration:underline; }
 						#toolbar ul.navigation li a span { display:block; padding:5px 15px 8px 15px; margin:3px 0 0 0; }
 						#toolbar ul.navigation li.group a span { margin:3px 10px 0 0; background:url(images/icons/down-tp.png) no-repeat right .9em; }
- 					#toolbar ul.navigation li ul { display:none; list-style:none outside; position:absolute; z-index:1000; background:#1CA60A; padding:12px 15px 0 15px; min-width:100px;   }
-						#toolbar ul.navigation li ul li { float:none; margin:0; padding:0 0 12px 0; font-size:1em; line-height:1.335; }
-							#toolbar ul.navigation li ul li a { text-decoration:underline; }
-							#toolbar ul.navigation li ul li a:hover { text-decoration:none; }
+ 					#toolbar ul.navigation li ul { display:none; list-style:none outside; position:absolute; z-index:1000; background:#1CA60A; padding:.616em 0 .616em 0; }
+						#toolbar ul.navigation li ul li { float:none; margin:0; padding:0 0 0 0; font-size:1em; line-height:1.335; }
+							#toolbar ul.navigation li ul li a { display:block; padding:.5em 20px .5em 15px; min-width:100px; }
+							
+							* html #toolbar ul.navigation li ul li a { float:left; clear:both; }
 						
 					#toolbar ul.navigation li:hover ul,
 					#toolbar ul.navigation li.hovered ul { display:block; }
@@ -237,68 +239,3 @@
 		#exception { margin:10px; }
 			#exception h2 { font-size:2em; margin:0 0 10px 0; }
 			#exception p { font-size:1.5em; }
-	
-
-/**
- * Форма входа.
- **/
-#login-form {
-  display: block;
-  width: 500px;
-  margin: 200px auto;
-  /*
-  background: url(images/mcms.logo_90ccw.jpg) no-repeat right bottom;
-  */
-}
-#login-form fieldset {
-  margin: 0;
-  padding: 10px;
-  border: none;
-}
-#login-form legend {
-  display: none;
-}
-#login-form legend span {
-  color: blue;
-  text-decoration: underline;
-  cursor: pointer;
-}
-#login-form .control {
-  margin: 10px 0 10px 0;
-}
-#login-form .control label > span {
-  display: block;
-  margin: 4px 0;
-}
-#login-form input.form-text {
-  display: block;
-  width: 462px;
-  font-size: 10pt;
-  border: solid 2px #ccc;
-  padding: 4px 6px;
-}
-#login-form .submit-wrapper {
-  background-color: #eee;
-  padding: 5px 10px;
-}
-#login-form input.submit {
-  height: 2em;
-  padding: 0 40px;
-  font-size: 1.25em;
-}
-#login-form input.submit1 {
-  margin-right: 10px;
-}
-#login-form .auth_type-field-wrapper label {
-  display: block;
-  cursor: pointer;
-  color: blue;
-  text-decoration: underline;
-  margin-bottom: .25em;
-}
-#login-form .auth_type-field-wrapper input {
-  display: none;
-}
-#login-form .note {
-  color: gray;
-}

@@ -1,133 +1,39 @@
 <?php
-// vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
 class AdminMenu
 {
   private $items;
+  private static $permcache = array();
 
-  public function __construct($items = array())
+  public function __construct(array $items)
   {
     $this->items = $items;
   }
 
-  public function poll(Context $ctx)
+  public function getSubMenu(Context $ctx)
   {
-    $cachekey = 'admin/menu/raw/' . $ctx->user->id;
+    $path = 'GET//' . $ctx->query();
 
-    if (!is_array($this->items = mcms::cache($cachekey)) or empty($this->items)) {
-      $data = $ctx->registry->poll('ru.molinos.cms.admin.menu', array($ctx));
-
-      $this->items = $dynamic = array();
-
-      foreach ($data as $class) {
-        foreach ($class['result'] as $method) {
-          if (empty($method['method'])) {
-            $call = null;
-            $method['submenu'] = true;
-          } elseif (false === strpos($method['method'], '::')) {
-            $call = array($class['class'], $method['method']);
-          } else {
-            $call = $method['method'];
-          }
-
-          if (is_callable($call) or !empty($method['submenu'])) {
-            if (!empty($method['re'])) {
-              $verb = isset($method['verb']) ? $method['verb'] : 'get';
-              $key = strtoupper($verb) . '/' . $method['re'];
-
-              if ($re = (false !== strpos($key, '*')))
-                $key = str_replace('\*', '([^/]+)', preg_quote($key, '|'));
-              unset($method['re']);
-
-              $method['method'] = $call;
-              $method['level'] = count(explode('/', $key));
-
-              if ($re)
-                $dynamic[$key] = $method;
-              else
-                $this->items[$key] = $method;
-            }
-          }
-        }
-      }
-
-      ksort($this->items);
-      if (!empty($dynamic)) {
-        ksort($dynamic);
-        $this->items['#re'] = $dynamic;
-      }
-
-      mcms::cache($cachekey, $this->items);
-    }
-
-    return !empty($this->items);
-  }
-
-  public function dispatch(Context $ctx)
-  {
-    $args = array();
-    $query = strtoupper($ctx->method()) . '/' . $ctx->query();
-
-    if (array_key_exists($query, $this->items)) {
-      $match = $this->items[$query];
-    } elseif (!empty($this->items['#re'])) {
-      foreach ($this->items['#re'] as $k => $v) {
-        if (preg_match('|^' . $k . '$|', $query, $m)) {
-          array_shift($m);
-          $args = $m;
-          $match = $v;
-          break;
-        }
-      }
-    }
-
-    if (isset($match)) {
-      // Подменю всегда рендерим самостоятельно.
-      if (!empty($match['submenu'])) {
-        $args[] = $query;
-        $match['method'] = array($this, 'renderSubmenu');
-      }
-
-      // Если параметров нет — передаём запрос.
-      if (empty($args))
-        $args[] = $query;
-
-      array_unshift($args, $ctx);
-
-      $output = call_user_func_array($match['method'], $args);
-      if (empty($output))
-        throw new RuntimeException(t('Обработчик этого адреса — %method — ничего не вернул.', array(
-          '%method' => $handler['method'] . '()',
-          )));
-      return $output;
-    }
-
-    return false;
-  }
-
-  public function getSubMenu($path)
-  {
     $items = array();
     $level = $this->items[$path]['level'] + 1;
 
     $items[$path] = $this->items[$path];
 
     foreach ($this->items as $k => $v) {
-      if (0 === strpos($k, $path . '/') and $v['level'] >= $level)
-        $items[$k] = $v;
+      if (0 === strpos($k, $path . '/') and $v['level'] >= $level) {
+        if ($this->checkPerm($ctx, $v)) {
+          $items[$k] = $v;
+        }
+      }
     }
+
+    if (1 == count($items))
+      return false;
 
     return new AdminMenu($items);
   }
 
-  public function renderSubMenu(Context $ctx, $path)
-  {
-    $sub = $this->getSubMenu($path)->getXML('content', array('type' => 'submenu'));
-    // mcms::debug($path, $sub);
-    return $sub;
-  }
-
-  public function getXML($em = 'menu', array $options = array())
+  public function getXML(Context $ctx, $em = 'menu', array $options = array())
   {
     $tmp = '';
     $prefix = empty($_GET['__cleanurls']) ? '?q=' : '';
@@ -139,27 +45,45 @@ class AdminMenu
         continue;
       if ($v['level'] != $top['level'] + 1)
         continue;
-      if (0 !== strpos($k, 'GET/'))
+      if (0 !== strpos($k, 'GET//'))
+        continue;
+      if (!$this->checkPerm($ctx, $v))
         continue;
 
       $inside = '';
       foreach ($this->items as $k1 => $v1) {
         if (!empty($v1['title']) and $v1['level'] == $v['level'] + 1) {
-          if (0 === strpos($k1, $k . '/')) {
+          if (0 === strpos($k1, $k . '/') and $this->checkPerm($ctx, $v1)) {
             $v1['re'] = null;
             $v1['level'] = null;
             $v1['name'] = $prefix . substr($k1, 4);
+            $v1['call'] = null;
+            $v1['next'] = null;
             $inside .= html::em('path', $v1);
           }
         }
       }
 
+      if (empty($inside)) {
+        if (isset($v['call']) and 'AdminUI::submenu' == $v['call'])
+          continue;
+        if (isset($v['next']) and 'AdminUI::submenu' == $v['next'])
+          continue;
+      }
+
+      $v['call'] = null;
+      $v['next'] = null;
       $v['re'] = null;
       $v['level'] = null;
       $v['name'] = $prefix . substr($k, 4);
       $tmp .= html::em('path', $v, $inside);
     }
 
+    if (empty($tmp))
+      return false;
+
+    $top['call'] = null;
+    $top['next'] = null;
     $top['re'] = null;
     $top['level'] = null;
     $top['path'] = null;
@@ -172,9 +96,10 @@ class AdminMenu
   /**
    * Возвращает путь к указанной странице.
    */
-  public function getPath($query)
+  public function getPath(Context $ctx)
   {
     $path = array();
+    $query = $ctx->query();
 
     $tabs = explode('/', $query);
     $tab = empty($tabs[1])
@@ -182,8 +107,8 @@ class AdminMenu
       : 'admin/' . $tabs[1];
 
     while ($query) {
-      if (!empty($this->items[$query])) {
-        $em = $this->items[$query];
+      if (!empty($this->static [$query])) {
+        $em = $this->static[$query];
         $em['name'] = $query;
         array_unshift($path, $em);
       }
@@ -209,4 +134,22 @@ class AdminMenu
       $options['name'] = $path;
     return html::em('path', $options, $inside);
   }
-};
+
+  private function checkPerm(Context $ctx, array $item)
+  {
+    if (!array_key_exists('perms', $item))
+      return true;
+
+    if (!array_key_exists($item['perms'], self::$permcache)) {
+      if ('debug' == $item['perms'])
+        $result = $ctx->canDebug();
+      else {
+        list($mode, $type) = explode(',', $item['perms']);
+        $result = $ctx->user->hasAccess($mode, $type);
+      }
+      self::$permcache[$item['perms']] = $result;
+    }
+
+    return self::$permcache[$item['perms']];
+  }
+}

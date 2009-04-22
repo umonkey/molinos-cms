@@ -3,9 +3,6 @@
 
 class ModManRPC extends RPCHandler
 {
-  /**
-   * @mcms_message ru.molinos.cms.rpc.modman
-   */
   public static function on_rpc(Context $ctx)
   {
     return parent::hookRemoteCall($ctx, __CLASS__);
@@ -129,7 +126,7 @@ class ModManRPC extends RPCHandler
     $ctx->config->write();
     */
 
-    $next = new url($ctx->get('destination', '?q=admin'));
+    $next = new url($ctx->get('destination', 'admin'));
     $next->setarg('status', $status);
 
     self::rpc_rebuild($ctx);

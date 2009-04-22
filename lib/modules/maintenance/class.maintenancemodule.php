@@ -44,21 +44,6 @@ class MaintenanceModule
   }
 
   /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/service/maintenance',
-        'method' => 'modman::settings',
-        'title' => t('Профилактика'),
-        'description' => t('Позволяет временно закрыть сайт для проведения технических работ.'),
-        ),
-      );
-  }
-
-  /**
    * @mcms_message ru.molinos.cms.module.settings.maintenance
    */
   public static function on_get_settings(Context $ctx)

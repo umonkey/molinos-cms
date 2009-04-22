@@ -22,18 +22,4 @@ class AttachmentListHandler extends AdminListHandler implements iAdminList
     $tmp = new $class($ctx);
     return $tmp->getHTML($ctx->get('preset'));
   }
-
-  /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/system/settings/imgtransform',
-        'method' => 'on_get_list',
-        'title' => t('Преобразования картинок'),
-        ),
-      );
-  }
 }

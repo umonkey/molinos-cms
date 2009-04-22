@@ -3,9 +3,6 @@
 
 class DrawTextRPC
 {
-  /**
-   * @mcms_message ru.molinos.cms.rpc.drawtext
-   */
   public static function hookRemoteCall(Context $ctx)
   {
     $options = array();

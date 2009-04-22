@@ -1,13 +1,15 @@
 <?php
 
 define('MCMS_RELEASE', '9.03');
-define('MCMS_VERSION', '9.03');
+define('MCMS_VERSION', '9.03.1');
 
-require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class.os.php';
-require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class.ini.php';
-require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class.registry.php';
-require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class.config.php';
-require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'class.context.php';
+$dirName = dirname(__FILE__);
+foreach (array('os', 'ini', 'registry', 'config', 'router', 'context') as $className)
+  if (!class_exists($className))
+    require $dirName . DIRECTORY_SEPARATOR . 'class.' . $className . '.php';
+unset($dirName);
+unset($className);
+
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'functions.php';
 
 class Loader
@@ -43,14 +45,44 @@ class Loader
     die('Домен ' . $hostName . ' не обслуживается.');
   }
 
-  public static function run($message = 'ru.molinos.cms.start')
+  public static function run()
   {
     self::setup();
 
     $ctx = new Context();
-    $ctx->registry->unicast($message, array($ctx));
 
-    header('Content-Type: text/plain; charset=utf-8');
-    die(printf('Nobody handled "%s" and it took %f seconds.', $message, microtime(true) - MCMS_START_TIME));
+    $router = new Router();
+    $result = $router->poll($ctx)->dispatch($ctx);
+
+    if ($result instanceof Response)
+      $result->send();
+
+    elseif (false === $result) {
+      header('HTTP/1.1 404 Not Found');
+      header('Content-Type: text/plain; charset=utf-8');
+      die('Route Not Found.');
+    } else {
+      list($handler, $args) = $router->find($ctx);
+
+      if (false === $handler)
+        $method = '?unknown?';
+      elseif (is_array($handler['call']))
+        $method = implode('::', $handler['call']);
+      else
+        $method = $handler['call'];
+
+      $message = t('<h1>Внутренняя ошибка</h1><p>Обработчик пути <tt>%path</tt> (<tt>%func</tt>) должен был вернуть объект класса <a href="@class">Response</a>, а вернул %type.</p><hr/><a href="@home">Molinos CMS v%version</a>', array(
+        '%path' => $ctx->query(),
+        '%type' => gettype($result),
+        '%func' => $method,
+        '@class' => 'http://code.google.com/p/molinos-cms/wiki/Response_Class',
+        '%version' => MCMS_VERSION,
+        '@home' => 'http://molinos-cms.googlecode.com/',
+        ));
+
+      header('HTTP/1.1 500 Internal Server Error');
+      header('Content-Type: text/html; charset=utf-8');
+      die($message);
+    }
   }
 }

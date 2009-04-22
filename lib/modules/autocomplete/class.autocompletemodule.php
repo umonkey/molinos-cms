@@ -3,9 +3,6 @@
 
 class AutocompleteModule
 {
-  /**
-   * @mcms_message ru.molinos.cms.rpc.autocomplete
-   */
   public static function hookRemoteCall(Context $ctx)
   {
     if (null !== $ctx->get('source') and null !== $ctx->get('search')) {

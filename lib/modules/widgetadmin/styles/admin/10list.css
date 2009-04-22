@@ -1,0 +1,3 @@
+#routelist .disabled td * {
+  text-decoration: line-through;
+}

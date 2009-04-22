@@ -116,20 +116,6 @@ class ModeratorModule
   }
 
   /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/system/settings/moderator',
-        'title' => t('Модерация'),
-        'method' => 'modman::settings',
-        ),
-      );
-  }
-
-  /**
    * @mcms_message ru.molinos.cms.module.settings.moderator
    */
   public static function on_get_settings(Context $ctx)

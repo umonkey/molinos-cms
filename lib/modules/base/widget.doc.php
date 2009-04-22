@@ -49,7 +49,7 @@ class DocWidget extends Widget implements iWidget
    *
    * @return Form описание формы.
    */
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     return array(
       'mode' => array(
@@ -61,13 +61,6 @@ class DocWidget extends Widget implements iWidget
           'edit' => t('Редактирование'),
           ),
         ),
-      'fixed' => array(
-        'type' => 'NumberControl',
-        'label' => t('Фиксированный документ'),
-        'description' => t("Документ с указанным здесь кодом будет возвращён "
-          ."если из адреса запрошенной страницы достать код документа "
-          ."не удалось (он не указан или так настроена страница)."),
-        ),
       'show_sections' => array(
         'type' => 'BoolControl',
         'label' => t('Возвращать информацию о разделах'),
@@ -75,6 +68,10 @@ class DocWidget extends Widget implements iWidget
       'showneighbors' => array(
         'type' => 'BoolControl',
         'label' => t('Возвращать информацию о соседях'),
+        ),
+      'fixed' => array(
+        'type' => 'NumberControl',
+        'label' => t('Выводить фиксированный документ'),
         ),
       );
   }
@@ -88,18 +85,19 @@ class DocWidget extends Widget implements iWidget
    * action, код раздела (если используется возврат информации о соседях), код
    * документа (если не используется возврат фиксированного документа).
    */
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    if (is_array($options = parent::getRequestOptions($ctx))) {
-      if (!($options['docid'] = $this->fixed))
-        if (!($options['docid'] = $ctx->document->id))
-          return '<!-- no document id found -->';
+    $options = parent::getRequestOptions($ctx, $params);
+    $options['action'] = 'view';
+
+    if ($this->fixed) {
+      $options['document'] = array('id' => $this->fixed);
+    } elseif (!($options['document'] = $params['document'])) {
+      return $this->halt();
+      $options['section'] = $params['section'];
 
       if (null === ($options['action'] = $this->get('action', $this->mode)))
         $options['action'] = 'view';
-
-      if ($this->showneighbors and null !== ($tmp = $ctx->section))
-        $options['section'] = $tmp->id;
     }
 
     return $options;
@@ -139,52 +137,30 @@ class DocWidget extends Widget implements iWidget
    */
   protected function onGetView(array $options)
   {
-    $output = Node::findXML($this->ctx->db, array(
-      'id' => $options['docid'],
-      '-class' => array(
-        'tag',
-        ),
-      'class' => $this->ctx->user->getAccess('r'),
-      'deleted' => 0,
-      'published' => 1,
-      ));
-
-    if (empty($output))
+    if (isset($options['document']['class']) and !$this->ctx->user->hasAccess('r', $options['document']['class']))
       throw new PageNotFoundException();
 
-    if (!empty($output)) {
-      if ($this->show_sections) {
-        $sections = Node::findXML($this->ctx->db, $q = array(
-          'class' => 'tag',
-          'tagged' => $options['docid'],
-          'published' => 1,
-          'deleted' => 0,
-          ));
-        if (empty($sections))
-          $output .= '<!-- no sections -->';
-        else
-          $output .= html::wrap('sections', $sections);
-      }
-    }
+    if (isset($options['document']['xml']))
+      $output = $options['document']['xml'];
+    else
+      $output = Node::findXML($this->ctx->db, array(
+        'id' => $options['document']['id'],
+        'deleted' => 0,
+        'published' => 1,
+        ));
 
-    if ($node) {
-      $output .= $node->getXML();
-      $output .= Node::getNodesXML('section', $node->getLinkedTo('tag'));
+    if ($this->show_sections)
+      $sections = Node::findXML($this->ctx->db, $q = array(
+        'class' => 'tag',
+        'tagged' => $options['document']['id'],
+        'published' => 1,
+        'deleted' => 0,
+        ));
+    elseif (isset($options['section']['xml']))
+      $sections = $options['section']['xml'];
 
-      if ($this->showneighbors and $this->ctx->section->id and in_array($this->ctx->section->id, $sections)) {
-        if (null !== ($n = $node->getNeighbors($this->ctx->section->id))) {
-          $tmp = '';
-
-          if (!empty($n['right']))
-            $tmp .= $n['right']->getXML('right');
-          if (!empty($n['left']))
-            $tmp .= $n['left']->getXML('left');
-
-          if (!empty($tmp))
-            $output .= html::em('neighbors', $tmp);
-        }
-      }
-    }
+    if (isset($sections))
+        $output .= html::wrap('sections', $sections);
 
     return $output;
   }

@@ -16,7 +16,7 @@ class RatingWidget extends Widget
       );
   }
 
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     return array(
       'anonymous' => array(
@@ -38,25 +38,19 @@ class RatingWidget extends Widget
   }
 
   // Препроцессор параметров.
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    if (!is_array($options = parent::getRequestOptions($ctx)))
-      return $options;
-
-    $halt = false;
+    $options = parent::getRequestOptions($ctx, $params);
 
     $options['#cache'] = false;
     $options['action'] = $this->get('action', 'status');
     $options['vote'] = $this->get('vote');
 
-    if (null === ($options['node'] = $ctx->document->id))
-      $halt = true;
+    if (!($options['node'] = $params['document']))
+      return $this->halt();
 
     if (null !== ($options['rate'] = $this->get('rate')))
       $options['action'] = 'rate';
-
-    if ($halt)
-      throw new WidgetHaltedException();
 
     return $options;
   }

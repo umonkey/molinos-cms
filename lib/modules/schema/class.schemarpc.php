@@ -2,9 +2,6 @@
 
 class SchemaRPC extends RPCHandler
 {
-  /**
-   * @mcms_message ru.molinos.cms.rpc.schema
-   */
   public static function on_rpc(Context $ctx)
   {
     return parent::hookRemoteCall($ctx, __CLASS__);

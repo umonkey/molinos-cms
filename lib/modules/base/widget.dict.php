@@ -16,7 +16,7 @@ class DictWidget extends Widget
       );
   }
 
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     $list = TypeNode::getDictionaries();
 

@@ -9,9 +9,6 @@ class ImageEdit
   private $nw;
   private $nh;
 
-  /**
-   * @mcms_message ru.molinos.cms.rpc.imgtooklit
-   */
   public static function hookRemoteCall(Context $ctx)
   {
     $img = new ImageEdit($ctx);

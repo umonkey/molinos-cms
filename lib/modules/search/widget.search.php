@@ -15,10 +15,9 @@ class SearchWidget extends Widget implements iWidget
       );
   }
 
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    if (!is_array($options = parent::getRequestOptions($ctx)))
-      return $options;
+    $options = parent::getRequestOptions($ctx, $params);
 
     $options['q'] = $this->get('query');
     $options['page'] = $this->get('page', 1);

@@ -15,7 +15,7 @@ class MessageListWidget extends Widget
       );
   }
 
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     return array(
       'mode' => array(
@@ -38,7 +38,7 @@ class MessageListWidget extends Widget
       );
   }
 
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
     $options = array(
       'uid' => Context::last()->user->id,

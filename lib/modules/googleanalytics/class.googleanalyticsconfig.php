@@ -3,20 +3,6 @@
 class GoogleAnalyticsConfig
 {
   /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/system/settings/googleanalytics',
-        'title' => t('Google Analytics'),
-        'method' => 'modman::settings',
-        ),
-      );
-  }
-
-  /**
    * @mcms_message ru.molinos.cms.module.settings.googleanalytics
    */
   public static function on_get_settings(Context $ctx)

@@ -262,7 +262,7 @@ class modman
     return $schema;
   }
 
-  public static function settings(Context $ctx, $query)
+  public static function settings(Context $ctx, $query, array $pathinfo)
   {
     $name = substr(strrchr($query, '/'), 1);
 
@@ -270,10 +270,7 @@ class modman
     $form = $schema->getForm();
     $data = $ctx->modconf($name);
 
-    if (null === $title)
-      $title = t('Настройка модуля «%name»', array(
-        '%name' => $name,
-        ));
+    $title = $pathinfo['title'];
 
     if (empty($form->title))
       $form->title = $title;

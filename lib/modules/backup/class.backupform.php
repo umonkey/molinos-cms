@@ -28,21 +28,6 @@ class BackupForm
     return $form->getXML(Control::data(array()));
   }
 
-  /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/service/backup',
-        'method' => 'on_get',
-        'title' => t('Архив сайта'),
-        'description' => t('Здесь можно скачать текущее состояние сайта для резервного копирования.'),
-        ),
-      );
-  }
-
   public static function on_get(Context $ctx)
   {
     return html::em('content', array(

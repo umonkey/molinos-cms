@@ -2,15 +2,12 @@
 
 class CommentRPC extends RPCHandler
 {
-  /**
-   * @mcms_message ru.molinos.cms.rpc.comment
-   */
   public static function on_rpc(Context $ctx)
   {
     parent::hookRemoteCall($ctx, __CLASS__);
   }
 
-  public static function rpc_add(Context $ctx)
+  public static function rpc_post_add(Context $ctx)
   {
     $ctx->user->checkAccess('c', 'comment');
 

@@ -1,76 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-	<xsl:import href="../base/forms.xsl" />
-	<xsl:import href="../base/pager.xsl" />
-	<xsl:import href="list.xsl" />
-	<xsl:import href="submenu.xsl" />
-	
-	<xsl:output omit-xml-declaration="yes" method="xml" version="1.0" encoding="UTF-8" indent="yes" doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"/>
-	
-	<xsl:template match="/page">
-		
-		<html lang="ru">
-			<head>
-				<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-				<title>
-					<xsl:if test="content[@title]">
-						<xsl:value-of select="content[position() = 1]/@title" />
-						<xsl:text> — </xsl:text>
-					</xsl:if>
-					<xsl:text>Molinos CMS v</xsl:text>
-					<xsl:value-of select="@version" />
-				</title>
-				
-				<xsl:comment><![CDATA[[if IE]><![if !IE]><![endif]]]></xsl:comment><base href="{/page/@base}" /><xsl:comment><![CDATA[[if IE]><![endif]><![endif]]]></xsl:comment>
-				<xsl:comment><![CDATA[[if IE]>]]>&lt;base href="<xsl:value-of select="/page/@base"/>">&lt;/base><![CDATA[<![endif]]]></xsl:comment>
-				<link rel="shortcut icon" href="lib/modules/admin/styles/admin/images/icons/favicon.ico" type="image/x-icon" />
-				<link rel="stylesheet" href="{@sitefolder}/themes/admin.css" type="text/css" />
-				<script type="text/javascript" src="{@sitefolder}/themes/admin.js" />
-			</head>
-			<body>
-				
-				<xsl:apply-templates select="." mode="body" />
-				
-			</body>
-		</html>
-		
-	</xsl:template>
-	
-	<xsl:template match="page" mode="body">
+  <xsl:import href="../base/forms.xsl" />
+  <xsl:import href="../base/pager.xsl" />
+  <xsl:import href="xsl/list.xsl" />
+  <xsl:import href="xsl/submenu.xsl" />
+  <xsl:import href="xsl/login.xsl" />
+  <xsl:import href="xsl/dashboard.xsl" />
 
-		<div id="wrapper">
-			
-			<div id="non-footer">
-      		
-				<div id="toolbar">
-	      			<xsl:apply-templates select="menu" />
-					<xsl:apply-templates select="request/user" mode="toolbar" />
-				</div>
-				
-				<div id="content">
-					<xsl:apply-templates select="content" mode="content" />
-          				<xsl:apply-templates select="content/pager" />
-				</div>
-				
-			</div>
-				
-			<div id="footer">
-				<a href="http://molinos-cms.googlecode.com/">Molinos CMS</a>
-			        <xsl:text> v</xsl:text>
-			        <xsl:value-of select="/page/@version" />
-			        <xsl:text> [</xsl:text>
-			        <xsl:value-of select="/page/@memory" />
-			        <xsl:text>+</xsl:text>
-			        <xsl:value-of select="/page/@cache" />
-			        <xsl:text>] at </xsl:text>
-			        <a href="{@base}">
-			          <xsl:value-of select="@host" />
-			        </a>
-			</div>
-			
-		</div>
-			
-	</xsl:template>
+  <xsl:output omit-xml-declaration="yes" method="xml" version="1.0" encoding="UTF-8" indent="yes" doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"/>
+
+  <!-- стандартный заголовок для всех страниц админки -->
+  <xsl:template match="page" mode="head">
+    <xsl:param name="title" select="'Molinos CMS'" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>
+      <xsl:value-of select="$title" />
+    </title>
+    <xsl:comment><![CDATA[[if IE]><![if !IE]><![endif]]]></xsl:comment><base href="{@base}" /><xsl:comment><![CDATA[[if IE]><![endif]><![endif]]]></xsl:comment>
+    <xsl:comment><![CDATA[[if IE]>]]>&lt;base href="<xsl:value-of select="@base"/>">&lt;/base><![CDATA[<![endif]]]></xsl:comment>
+    <link rel="shortcut icon" href="lib/modules/admin/styles/admin/images/icons/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="{@prefix}/.admin.css" type="text/css" />
+    <script type="text/javascript" src="{@prefix}/.admin.js" />
+  </xsl:template>
+
+  <xsl:template match="/page[@status=200]">
+
+    <html lang="ru">
+      <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>
+          <xsl:if test="content[@title]">
+            <xsl:value-of select="content[position() = 1]/@title" />
+            <xsl:text> — </xsl:text>
+          </xsl:if>
+          <xsl:text>Molinos CMS v</xsl:text>
+          <xsl:value-of select="@version" />
+        </title>
+
+        <xsl:comment><![CDATA[[if IE]><![if !IE]><![endif]]]></xsl:comment><base href="{/page/@base}" /><xsl:comment><![CDATA[[if IE]><![endif]><![endif]]]></xsl:comment>
+        <xsl:comment><![CDATA[[if IE]>]]>&lt;base href="<xsl:value-of select="/page/@base"/>">&lt;/base><![CDATA[<![endif]]]></xsl:comment>
+        <link rel="shortcut icon" href="lib/modules/admin/styles/admin/images/icons/favicon.ico" type="image/x-icon" />
+        <link rel="stylesheet" href="{@prefix}/.admin.css" type="text/css" />
+        <script type="text/javascript" src="{@prefix}/.admin.js" />
+      </head>
+      <body>
+
+        <xsl:apply-templates select="." mode="body" />
+
+      </body>
+    </html>
+
+  </xsl:template>
+
+  <xsl:template match="page" mode="body">
+
+    <div id="wrapper">
+
+      <div id="non-footer">
+
+        <div id="toolbar">
+          <xsl:apply-templates select="menu" />
+          <xsl:apply-templates select="request/user/node" mode="toolbar" />
+        </div>
+
+        <div id="content">
+          <xsl:apply-templates select="content" mode="content" />
+          <xsl:apply-templates select="content/pager" />
+        </div>
+
+      </div>
+
+      <div id="footer">
+        <a href="http://molinos-cms.googlecode.com/">Molinos CMS</a>
+              <xsl:text> v</xsl:text>
+              <xsl:value-of select="/page/@version" />
+              <xsl:text> [</xsl:text>
+              <xsl:value-of select="/page/@memory" />
+              <xsl:text>+</xsl:text>
+              <xsl:value-of select="/page/@cache" />
+              <xsl:text>] at </xsl:text>
+              <a href="{@base}">
+                <xsl:value-of select="@host" />
+              </a>
+      </div>
+
+    </div>
+
+  </xsl:template>
 
   <!-- всякие ошибки -->
   <xsl:template match="page[@status != 200]" mode="body">
@@ -95,10 +111,10 @@
   <xsl:template match="content[@name = 'form']" mode="content">
     <xsl:apply-templates select="form" />
   </xsl:template>
-  
+
   <!-- навигационное меню -->
   <xsl:template match="menu">
-  	<h1><a href="?q=admin"><img src="lib/modules/admin/styles/admin/images/logos/cms-tp.png" alt="Molinos CMS" /></a></h1>
+    <h1><a href="?q=admin"><img src="lib/modules/admin/styles/admin/images/logos/cms-tp.png" alt="Molinos CMS" /></a></h1>
       <ul class="navigation">
         <xsl:for-each select="path">
             <li>
@@ -107,11 +123,11 @@
                   <xsl:text>current</xsl:text>
                 </xsl:attribute>
               </xsl:if>
-		  <xsl:if test="path">
-		  	<xsl:attribute name="class">
-	              <xsl:text> group</xsl:text>
-	            </xsl:attribute>
-		  </xsl:if>
+      <xsl:if test="path">
+        <xsl:attribute name="class">
+                <xsl:text> group</xsl:text>
+              </xsl:attribute>
+      </xsl:if>
               <a href="{@name}">
                 <span><xsl:value-of select="@title" /></span>
               </a>
@@ -133,7 +149,6 @@
         <xsl:apply-templates select="tab" mode="top_menu_controls" />
       </ul>
   </xsl:template>
-  
 
   <xsl:template match="link" mode="top_menu_controls">
     <li>
@@ -144,33 +159,28 @@
   </xsl:template>
 
 
-	<!-- панель с иконками -->
-	<xsl:template match="user" mode="toolbar">
-		<ul class="utilitary">
-			<li>
-				<a class="editprofile" href="?q=admin/edit/{@id}&amp;destination={/page/request/@uri}">
-		             <xsl:apply-templates select="." mode="username" />
-		           </a>
-			</li>
+  <!-- панель с иконками -->
+  <xsl:template match="node" mode="toolbar">
+    <ul class="utilitary">
+      <li>
+        <a class="editprofile" href="?q=admin/edit/{@id}&amp;destination={/page/@back}">
+          <xsl:apply-templates select="." mode="username" />
+        </a>
+      </li>
       <!--
-			<li>
-				<a title="Вернуться на главную" href="?q=admin">
-					<img src="lib/modules/admin/styles/admin/images/icons/icon-home.png" alt="home" width="16" height="16" />
-				</a>
-			</li>
+      <li>
+        <a title="Вернуться на главную" href="?q=admin">
+          <img src="lib/modules/admin/styles/admin/images/icons/icon-home.png" alt="home" width="16" height="16" />
+        </a>
+      </li>
       -->
-			<li>
-				<a title="Очистить кэш" href="?q=admin.rpc&amp;action=reload&amp;destination={/page/request/@uri}">
-					<img src="lib/modules/admin/styles/admin/images/icons/icon-reload.png" alt="reload" width="16" height="16" />
-				</a>
-			</li>
-			<li>
-				<a title="Выйти" href="?q=auth.rpc&amp;action=logout&amp;from={/page/request/@uri}">
-					<img src="lib/modules/admin/styles/admin/images/icons/icon-exit.png" alt="logout" width="16" height="16" />
-				</a>
-			</li>
-		</ul>
-	</xsl:template>
+      <li>
+        <a title="Выйти" href="?q=auth/logout.rpc&amp;from={/page/@back}">
+          <img src="lib/modules/admin/styles/admin/images/icons/icon-exit.png" alt="logout" width="16" height="16" />
+        </a>
+      </li>
+    </ul>
+  </xsl:template>
 
   <xsl:template match="a" mode="mcms_toolbar">
     <xsl:if test="text()">
@@ -185,85 +195,10 @@
     </xsl:if>
   </xsl:template>
 
-
   <!-- форма редактирования -->
   <xsl:template match="content[@name = 'edit' or @name = 'create']" mode="content">
     <xsl:apply-templates select="form|typechooser" />
   </xsl:template>
-
-
-  <!-- рабочий стол -->
-  <xsl:template match="content[@name='dashboard']" mode="content">
-    <div id="dashboard">
-      <form class="tabbed">
-        <xsl:for-each select="content" mode="dashboard">
-          <fieldset id="dashboard-{@name}" class="tabable">
-            <legend>
-              <span class="title">
-                <xsl:value-of select="@title" />
-              </span>
-              <!--
-              <span class="more">
-                <xsl:if test="@more">
-                  <xsl:text>(</xsl:text>
-                  <a href="{@more}">ещё</a>
-                  <xsl:text>)</xsl:text>
-                </xsl:if>
-              </span>
-              -->
-            </legend>
-            <div>
-              <xsl:apply-templates select="." mode="dashboard" />
-            </div>
-          </fieldset>
-        </xsl:for-each>
-      </form>
-    </div>
-  </xsl:template>
-    <xsl:template match="content[@name='create']" mode="dashboard">
-      <xsl:for-each select="node[not(isdictionary)]">
-        <xsl:sort select="title" />
-        <a class="create-{@name}" href="?q=admin/create/{@name}?destination={/page/request/@uri}">
-          <xsl:if test="description">
-            <xsl:attribute name="title">
-              <xsl:value-of select="description" />
-            </xsl:attribute>
-          </xsl:if>
-          <span>
-            <xsl:value-of select="title" />
-          </span>
-        </a>
-      </xsl:for-each>
-    </xsl:template>
-    <xsl:template match="content[@name='status']" mode="dashboard">
-      <xsl:if test="message">
-        <ol>
-          <xsl:for-each select="message">
-            <a href="{@link}">
-              <xsl:value-of select="text()" />
-            </a>
-          </xsl:for-each>
-        </ol>
-      </xsl:if>
-    </xsl:template>
-    <xsl:template match="content" mode="dashboard">
-      <ol class="doclist">
-        <xsl:for-each select="node">
-          <li>
-            <a href="?q=admin/edit/{@id}&amp;destination={/page/request/@uri}">
-              <xsl:value-of select="@name" />
-            </a>
-          </li>
-        </xsl:for-each>
-      </ol>
-      <!--
-      <p>
-        <a href="{@more}">
-          <xsl:text>Полный список</xsl:text>
-        </a>
-      </p>
-      -->
-    </xsl:template>
 
   <!-- информационные сообщения -->
   <xsl:template match="content[@name = 'messages']" mode="content">

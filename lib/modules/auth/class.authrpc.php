@@ -2,9 +2,6 @@
 
 class AuthRPC extends RPCHandler
 {
-  /**
-   * @mcms_message ru.molinos.cms.rpc.auth
-   */
   public static function on_rpc(Context $ctx)
   {
     return parent::hookRemoteCall($ctx, __CLASS__);
@@ -96,7 +93,7 @@ class AuthRPC extends RPCHandler
    * @param Context $ctx 
    * @return Response
    */
-  protected static function rpc_logout(Context $ctx)
+  public static function rpc_logout(Context $ctx)
   {
     $uid = null;
 

@@ -40,7 +40,7 @@ class TodoListWidget extends Widget
       );
   }
 
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     return array(
       'linktpl' => array(
@@ -52,15 +52,14 @@ class TodoListWidget extends Widget
       );
   }
 
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    if (!is_array($options = parent::getRequestOptions($ctx)))
-      return $options;
+    $options = parent::getRequestOptions($ctx, $params);
 
     $options['uid'] = $ctx->user->id;
     $options['mode'] = $this->get('mode');
 
-    if (null === ($options['rel'] = $ctx->document->id))
+    if (null === ($options['rel'] = $params['document']))
       $options['relname'] = null;
     elseif ('user' == $ctx->document->class)
       $options['relname'] = empty($ctx->document->fullname) ? $ctx->document->name : $ctx->document->fullname;

@@ -25,12 +25,14 @@ class xslt
       return new Response($xml, 'text/xml');
     }
 
-    if (false === ($output = mcms::cache($ckey = 'xml:xsl:' . md5($xml) . ',' . filemtime($xsltName)))) {
+    $nocache = !empty($_GET['nocache']);
+
+    if (false === ($output = mcms::cache($ckey = 'xml:xsl:' . md5($xml) . ',' . filemtime($xsltName))) or $nocache) {
       $doc = new DOMDocument;
       $doc->loadXML($xml);
       self::checkErrors();
 
-      if (class_exists('xsltCache') and false) {
+      if (class_exists('xsltCache') and !$nocache) {
         $proc = new xsltCache;
         $proc->importStyleSheet($xsltName);
       } else {

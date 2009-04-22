@@ -3,9 +3,6 @@
 
 class NodeApiModule extends RPCHandler
 {
-  /**
-   * @mcms_message ru.molinos.cms.rpc.nodeapi
-   */
   public static function hookRemoteCall(Context $ctx)
   {
     try {
@@ -81,10 +78,10 @@ class NodeApiModule extends RPCHandler
   /**
    * Вывод содержимого объекта.
    */
-  public static function rpc_get_dump(Context $ctx)
+  public static function on_get_dump(Context $ctx, $path, $pathinfo, $nid)
   {
     $filter = array(
-      'id' => $ctx->get('node'),
+      'id' => $nid,
       );
 
     if (!$ctx->canDebug())
@@ -98,9 +95,9 @@ class NodeApiModule extends RPCHandler
       $xml = Node::findXML($ctx->db, $filter);
       if (empty($xml))
         mcms::fatal(t('Для этого документа нет XML представления (такого быть не должно), см. <a href="@url">сырой вариант</a>.', array(
-          '@url' => '?q=nodeapi.rpc&action=dump&node=' . $filter['id'] . '&raw=1',
+          '@url' => '?q=node/' . $filter['id'] . '/dump&raw=1',
           )));
-      $res = new Response($xml, 'text/xml');
+      $res = new Response('<?xml version="1.0"?>' . $xml, 'text/xml');
       $res->send();
     }
 

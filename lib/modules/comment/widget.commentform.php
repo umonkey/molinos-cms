@@ -28,10 +28,10 @@ class CommentFormWidget extends Widget
       );
   }
 
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     $fields = array();
-    $schema = Schema::load($this->ctx->db, 'comment');
+    $schema = Schema::load($ctx->db, 'comment');
     foreach ($schema as $k => $v)
       $fields[$k] = $v->label . ' (' . $k . ')';
 
@@ -71,25 +71,16 @@ class CommentFormWidget extends Widget
     return $list;
   }
 
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    if (!is_array($options = parent::getRequestOptions($ctx)))
-      return $options;
+    $options = parent::getRequestOptions($ctx, $params);
 
+    $options['#cache'] = false;
     $options['status'] = $this->get('status', 'form');
     $options['user'] = $ctx->user->id;
 
-    if (null === ($options['doc'] = $ctx->document->id))
-      throw new WidgetHaltedException();
-
-    if (empty($this->allowed_types) or !in_array($ctx->document->class, $this->allowed_types)) {
-      if ($ctx->canDebug())
-        mcms::flog($this->getInstanceName() .': widget halted: '
-          .'type not allowed: '. $ctx->document->class);
-      throw new WidgetHaltedException();
-    }
-
-    $options['#cache'] = false;
+    if (null === ($options['doc'] = $params['document']))
+      return $this->halt();
 
     return $this->options = $options;
   }

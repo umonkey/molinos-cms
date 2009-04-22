@@ -18,7 +18,7 @@ class PollWidget extends Widget
       );
   }
 
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     return array(
       'fixed' => array(
@@ -32,16 +32,15 @@ class PollWidget extends Widget
   }
 
   // Препроцессор параметров.
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    if (!is_array($options = parent::getRequestOptions($ctx)))
-      return $options;
+    $options = parent::getRequestOptions($ctx, $params);
 
     $options['#cache'] = false;
     $options['action'] = $this->get('action', 'default');
 
     if (!($options['section'] = $this->fixed))
-      $options['section'] = $ctx->section->id;
+      $options['section'] = $params['section'];
 
     return $options;
   }
@@ -159,20 +158,6 @@ class PollWidget extends Widget
   {
     if ($op == 'erase')
       $node->getDB()->exec("DELETE FROM `node__poll` WHERE `nid` = :nid OR `uid` = :uid", array(':nid' => $node->id, ':uid' => $node->id));
-  }
-
-  /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/system/settings/poll',
-        'title' => t('Опросы'),
-        'method' => 'modman::settings',
-        ),
-      );
   }
 
   /**

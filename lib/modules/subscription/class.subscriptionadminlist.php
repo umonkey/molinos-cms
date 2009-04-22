@@ -16,20 +16,6 @@ class SubscriptionAdminList extends AdminListHandler implements iAdminList
     $this->actions = array('publish', 'unpublish', 'delete');
   }
 
-  /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/system/settings/subscription',
-        'method' => 'on_get_list',
-        'title' => t('Список подписчиков'),
-        ),
-      );
-  }
-
   public static function on_get_list(Context $ctx)
   {
     $tmp = new SubscriptionAdminList($ctx);

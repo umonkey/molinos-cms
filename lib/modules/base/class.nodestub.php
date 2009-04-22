@@ -420,8 +420,8 @@ class NodeStub
   {
     if ($this->id) {
       try {
-        $this->getDB()->exec("UPDATE `node` SET `xml` = ? WHERE `id` = ?",
-          array($this->getXML(), $this->id));
+        $xml = $this->getXML();
+        $this->getDB()->exec("UPDATE `node` SET `xml` = ? WHERE `id` = ?", array($xml, $this->id));
       } catch (PDOException $e) { }
     }
   }

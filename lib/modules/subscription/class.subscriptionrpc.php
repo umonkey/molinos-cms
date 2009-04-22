@@ -2,9 +2,6 @@
 
 class SubscriptionRPC extends RPCHandler
 {
-  /**
-   * @mcms_message ru.molinos.cms.rpc.subscription
-   */
   public static function on_rpc(Context $ctx)
   {
     return parent::hookRemoteCall($ctx, __CLASS__);

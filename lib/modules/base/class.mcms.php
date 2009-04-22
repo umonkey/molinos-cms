@@ -140,9 +140,13 @@ class mcms
   public static function cache()
   {
     $result = null;
+    static $nocache = null;
 
     if (null === ($cache = BebopCache::getInstance()))
       return $result;
+
+    if (null === $nocache)
+      $nocache = !empty($_GET['nocache']);
 
     $args = func_get_args();
 
@@ -151,10 +155,13 @@ class mcms
 
     switch (count($args)) {
     case 1:
-      $result = $cache->$key;
+      $result = $nocache ? false : $cache->$key;
       break;
     case 2:
-      $cache->$key = $args[1];
+      if (null === $args[1])
+        unset($cache->$key);
+      else
+        $cache->$key = $args[1];
       break;
     }
 

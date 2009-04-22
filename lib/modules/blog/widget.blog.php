@@ -16,7 +16,7 @@ class BlogWidget extends Widget
       );
   }
 
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     return array(
       'limit' => array(
@@ -27,12 +27,11 @@ class BlogWidget extends Widget
   }
 
   // Препроцессор параметров.
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    if (!is_array($options = parent::getRequestOptions($ctx)))
-      return $options;
+    $options = parent::getRequestOptions($ctx, $params);
 
-    if ($ctx->section->id or $ctx->document->id) {
+    if ($params['section'] or $params['document']) {
       mcms::debug("Виджет {$this->getInstanceName()} не может работать на страницах, параметризуемых кодом раздела или документа.");
       throw new WidgetHaltedException();
     }

@@ -143,6 +143,16 @@ class User
   }
 
   /**
+   * Возвращает список групп в виде строки, для использования в ключах кэша.
+   */
+  public function getGroupKeys()
+  {
+    $list = array_keys($this->getGroups());
+    asort($list);
+    return implode(',', $list);
+  }
+
+  /**
    * Проверка наличия пользователя в группах.
    *
    * @param array $ids идентификаторы групп.

@@ -41,11 +41,11 @@ class ArchiveWidget extends Widget implements iWidget
    *
    * @return Form вкладка формы, используется для настройки виджета.
    */
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     $widgets = array();
 
-    foreach (Node::find(Context::last()->db, array('class' => 'widget')) as $w)
+    foreach (Node::find($ctx->db, array('class' => 'widget')) as $w)
       if (!strcasecmp('ListWidget', $w->classname))
         $widgets[$w->name] = $w->title;
 
@@ -77,9 +77,9 @@ class ArchiveWidget extends Widget implements iWidget
    *
    * @param Context $ctx контекст вызова.
    */
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    if (is_array($options = parent::getRequestOptions($ctx))) {
+    if (is_array($options = parent::getRequestOptions($ctx, $params))) {
       // Нужно для подавления кэширования.
       $options['apath'] = $ctx->query();
 

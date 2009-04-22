@@ -76,7 +76,7 @@ abstract class Widget implements iWidget
    *
    * @return Control описание формы.
    */
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     return array();
   }
@@ -98,15 +98,9 @@ abstract class Widget implements iWidget
    *
    * @return array параметры виджета.
    */
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
     if (null != $this->groups and !$this->checkGroups())
-      throw new WidgetHaltedException();
-
-    if ($this->onlyathome and $ctx->section->id)
-      throw new WidgetHaltedException();
-
-    if ($this->onlyiflast and null !== $ctx->document->id)
       throw new WidgetHaltedException();
 
     $options = array();
@@ -214,15 +208,14 @@ abstract class Widget implements iWidget
    *
    * @return string результат работы шаблона или NULL.
    */
-  public final function render(Context $ctx)
+  public final function render(Context $ctx, array $params)
   {
     try {
       $this->ctx = $ctx;
       $time = microtime(true);
 
-      if (!is_array($options = $this->getRequestOptions($this->ctx))) {
+      if (!is_array($options = $this->getRequestOptions($this->ctx, $params)))
         return "<!-- widget {$this->name} halted. -->";
-      }
 
       if (array_key_exists('#cache', $options) and empty($options['#cache']))
         $ckey = null;
@@ -235,21 +228,27 @@ abstract class Widget implements iWidget
         return $cached['content'];
       }
 
-      if (null === ($data = $this->onGet($options)))
-        $result = "<!-- widget {$this->name} had nothing to say. -->";
-      elseif (!is_string($data)) {
-        throw new RuntimeException(t('Виджет %name (%class) вернул мусор вместо XML.', array(
-          '%name' => $this->name,
-          '%class' => get_class($this),
-          )));
-      } else {
-        // TODO: добавить заголовок виджета
-        $result = html::em('widget', array(
-          'name' => $this->name,
-          'class' => get_class($this),
-          'title' => $this->title,
-          'time' => microtime(true) - $time,
-          ), $data);
+      try {
+        $data = $this->onGet($options);
+
+        if (null === $data)
+          $result = "<!-- widget {$this->name} had nothing to say. -->";
+        elseif (!is_string($data)) {
+          throw new RuntimeException(t('Виджет %name (%class) вернул мусор вместо XML.', array(
+            '%name' => $this->name,
+            '%class' => get_class($this),
+            )));
+        } else {
+          // TODO: добавить заголовок виджета
+          $result = html::em('widget', array(
+            'name' => $this->name,
+            'class' => get_class($this),
+            'title' => $this->title,
+            'time' => microtime(true) - $time,
+            ), $data);
+        }
+      } catch (WidgetHaltedException $e) {
+        $result = '<!-- ' . $e->getMessage() . ' -->';
       }
 
       if (null !== $ckey) {
@@ -259,6 +258,8 @@ abstract class Widget implements iWidget
       }
     } catch (WidgetHaltedException $e) {
       return false;
+    } catch (Exception $e) {
+      mcms::fatal($e);
     }
 
     return $result;
@@ -413,5 +414,100 @@ abstract class Widget implements iWidget
         )));
 
     return new $info['class']($name, $info);
+  }
+
+  /**
+   * Возвращает информацию обо всех виджетах.
+   */
+  public static function loadWidgets(Context $ctx)
+  {
+    $fileName = os::path(MCMS_ROOT, MCMS_SITE_FOLDER, 'widgets.ini');
+
+    if (!is_readable($fileName)) {
+      $data = array();
+
+      $nodes = Node::find($ctx->db, array(
+        'class' => 'widget',
+        'deleted' => 0,
+        'published' => 1,
+        ));
+
+      foreach ($nodes as $node) {
+        $w = array();
+
+        foreach (array('classname', 'title') as $k)
+          if (isset($node->$k))
+            $w[$k] = $node->$k;
+
+        if (is_array($node->config))
+          foreach ($node->config as $k => $v)
+            if (!empty($v))
+              $w[$k] = $v;
+
+        // Определяем испольуемые виджетом типы.
+        $types = $ctx->db->getResultsV("name", "SELECT name FROM node n INNER JOIN node__rel r ON r.tid = n.id WHERE n.class = 'type' AND n.deleted = 0 AND r.nid = ?", array($node->id));
+        if (!empty($types))
+          $w['types'] = $types;
+
+        $data[$node->name] = $w;
+      }
+
+      self::save($data);
+    }
+
+    return ini::read($fileName);
+  }
+
+  public static function save(array $widgets)
+  {
+    $fileName = os::path(MCMS_ROOT, MCMS_SITE_FOLDER, 'widgets.ini');
+
+    $comment = "; Описание виджетов Molinos CMS.\n"
+      . "; Обновлено " . mcms::now() . ".\n"
+      . "; http://code.google.com/p/molinos-cms/wiki/DevGuide";
+
+    ini::write($fileName, $widgets, $comment);
+  }
+
+  /**
+   * Возвращает инстанс виджета.
+   */
+  public static function getInstance($name, array $settings)
+  {
+    if (!empty($settings['disabled']))
+      return null;
+
+    $info['config'] = array();
+
+    foreach ($settings as $k => $v) {
+      if ('title' != $k and 'classname' != $k)
+        $info['config'][$k] = $v;
+      else
+        $info[$k] = $v;
+    }
+
+    if (class_exists($info['classname']))
+      return new $info['classname']($name, $info);
+
+    return null;
+  }
+
+  protected final function halt()
+  {
+    throw new WidgetHaltedException();
+  }
+
+  public static function list_types(Context $ctx)
+  {
+    $widgets = Context::last()->registry->poll('ru.molinos.cms.widget.enum');
+
+    $result = array();
+
+    foreach ($widgets as $info)
+      $result[$info['class']] = $info['result'];
+
+    asort($result);
+
+    return $result;
   }
 };

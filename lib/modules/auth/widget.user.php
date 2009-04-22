@@ -43,14 +43,11 @@ class UserWidget extends Widget
    *
    * @return array параметры виджета.
    */
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    if (!is_array($options = parent::getRequestOptions($ctx)))
-      return $options;
-
+    $options = parent::getRequestOptions($ctx, $params);
     $options['uid'] = $this->ctx->user->id; // $this->get('uid');
     $options['#cache'] = false;
-
     return $options;
   }
 

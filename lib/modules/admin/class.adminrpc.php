@@ -3,9 +3,6 @@
 
 class AdminRPC extends RPCHandler
 {
-  /**
-   * @mcms_message ru.molinos.cms.rpc.admin
-   */
   public static function hookRemoteCall(Context $ctx)
   {
     if ($ctx->get('action') and ($result = parent::hookRemoteCall($ctx, __CLASS__)) instanceof Response)
@@ -103,125 +100,6 @@ class AdminRPC extends RPCHandler
   }
 
   /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin',
-        'method' => 'on_get_desktop',
-        'title' => t('Molinos CMS'),
-        ),
-      array(
-        're' => 'admin/search',
-        'method' => 'on_get_search_form',
-        ),
-      array(
-        're' => 'admin/content',
-        'method' => 'on_get_list',
-        'title' => t('Контент'),
-        ),
-      array(
-        're' => 'admin/content/list',
-        'method' => 'on_get_list',
-        'title' => t('Документы'),
-        ),
-      array(
-        're' => 'admin/structure/sections',
-        'method' => 'on_get_sections',
-        'title' => t('Разделы'),
-        'description' => t('Иерархия разделов позволяет структурировать данные, что упрощает работу пользователя с ними.'),
-        ),
-      array(
-        're' => 'admin/content/drafts',
-        'method' => 'on_get_drafts',
-        'title' => t('Черновики'),
-        ),
-      array(
-        're' => 'admin/trash',
-        'method' => 'on_get_trash',
-        'title' => t('Корзина'),
-        ),
-      array(
-        're' => 'admin/content/files',
-        'method' => 'on_get_files',
-        'title' => t('Файлы'),
-        ),
-      array(
-        're' => 'admin/structure',
-        'title' => t('Структура'),
-        'description' => t('Здесь настраивается структура данных и разметка страниц ваших сайтов.'),
-        ),
-      array(
-        're' => 'admin/structure/domains',
-        'method' => 'on_get_domains',
-        'title' => t('Домены'),
-        'description' => t('Управление доменами, алиасами и типовыми страницами.'),
-        'sort' => 'pages1',
-        ),
-      array(
-        're' => 'admin/structure/domains/*',
-        'method' => 'on_get_pages',
-        ),
-      array(
-        're' => 'admin/structure/widgets',
-        'method' => 'on_get_widgets',
-        'title' => t('Виджеты'),
-        'description' => t('Управление блоками, из которых состоят ваши сайты.'),
-        'sort' => 'pages2',
-        ),
-      array(
-        're' => 'admin/content/list/*',
-        'method' => 'on_get_list_by_type',
-        ),
-      array(
-        're' => 'admin/content/dict',
-        'method' => 'on_get_dict_list',
-        'title' => t('Справочники'),
-        ),
-      array(
-        're' => 'admin/content/dict/*',
-        'method' => 'on_get_dict',
-        ),
-      array(
-        're' => 'admin/edit/*',
-        'method' => 'on_get_edit_form',
-        ),
-      array(
-        're' => 'admin/create',
-        'method' => 'on_get_create_list',
-        ),
-      array(
-        're' => 'admin/create/*',
-        'method' => 'on_get_create_form',
-        ),
-      array(
-        're' => 'admin/create/*/*',
-        'method' => 'on_get_create_form',
-        ),
-      array(
-        're' => 'admin/system',
-        'title' => t('Система'),
-        ),
-      array(
-        're' => 'admin/system/settings',
-        'title' => t('Настройки'),
-        'description' => t('Здесь можно настроить отдельные модули.'),
-        ),
-      array(
-        're' => 'admin/system/settings/admin',
-        'title' => t('Администрирование'),
-        'method' => 'modman::settings',
-        ),
-      array(
-        're' => 'admin/service',
-        'title' => t('Сервисы'),
-        ),
-      );
-  }
-
-  /**
    * Сброс кэша.
    */
   public static function rpc_get_reload(Context $ctx)
@@ -241,7 +119,20 @@ class AdminRPC extends RPCHandler
     Structure::getInstance()->rebuild();
     $ctx->registry->rebuild();
 
+    mcms::cache('route', null);
+
     return $ctx->getRedirect();
+  }
+
+  public static function on_reload(Context $ctx)
+  {
+    $next = isset($_SERVER['HTTP_REFERER'])
+      ? $_SERVER['HTTP_REFERER']
+      : 'admin';
+
+    self::rpc_get_reload($ctx);
+
+    return new Redirect($next);
   }
 
   /**
@@ -256,7 +147,8 @@ class AdminRPC extends RPCHandler
   public static function on_get_sections(Context $ctx)
   {
     $tmp = new AdminTreeHandler($ctx);
-    return $tmp->getHTML('taxonomy');
+    $page = new AdminPage($tmp->getHTML('taxonomy'));
+    return $page->getResponse($ctx);
   }
 
   public static function on_get_drafts(Context $ctx)
@@ -277,30 +169,6 @@ class AdminRPC extends RPCHandler
     return $tmp->getHTML('files');
   }
 
-  public static function on_get_widgets(Context $ctx)
-  {
-    $tmp = new AdminListHandler($ctx);
-    return $tmp->getHTML('widgets');
-  }
-
-  public static function on_get_domains(Context $ctx)
-  {
-    $tmp = new AdminListHandler($ctx);
-    return $tmp->getHTML('pages');
-  }
-
-  public static function on_get_pages(Context $ctx, $domain)
-  {
-    $tmp = new AdminTreeHandler($ctx, $domain);
-    return $tmp->getHTML('pages');
-  }
-
-  public static function on_get_comments(Context $ctx)
-  {
-    $tmp = new AdminListHandler($ctx);
-    return $tmp->getHTML('comments');
-  }
-
   public static function on_get_dict_list(Context $ctx)
   {
     $tmp = new AdminListHandler($ctx);
@@ -313,19 +181,21 @@ class AdminRPC extends RPCHandler
   public static function rpc_get_tree(Context $ctx)
   {
     $tmp = new AdminTreeHandler($ctx);
-    return $tmp->getHTML($ctx->get('preset'));
+    $page = new AdminPage($tmp->getHTML($ctx->get('preset')));
+    return $page->getResponse($ctx);
   }
 
-  public static function on_get_edit_form(Context $ctx, $nid)
+  public static function on_get_edit_form(Context $ctx, $path, array $pathinfo, $nid)
   {
     $node = Node::load($nid)->getObject();
 
     $form = $node->formGet(false);
     $form->addClass('tabbed');
 
-    return html::em('content', array(
+    $page = new AdminPage(html::em('content', array(
       'name' => 'edit',
-      ), $form->getXML($node));
+      ), $form->getXML($node)));
+    return $page->getResponse($ctx);
   }
 
   public static function on_get_create_list(Context $ctx)
@@ -359,7 +229,7 @@ class AdminRPC extends RPCHandler
       ), $output);
   }
 
-  public static function on_get_create_form(Context $ctx, $type, $parent_id = null)
+  public static function on_get_create_form(Context $ctx, $path, array $pathinfo, $type, $parent_id = null)
   {
     $node = Node::create($type, array(
       'parent_id' => $parent_id,
@@ -373,7 +243,7 @@ class AdminRPC extends RPCHandler
     $form = $node->formGet(false);
     $form->addClass('tabbed');
     $form->addClass("node-{$type}-create-form");
-    $form->action = "?q=nodeapi.rpc&action=create&type={$type}&destination=". urlencode($_GET['destination']);
+    $form->action = "?q=nodeapi.rpc&action=create&type={$type}&destination=". urlencode($ctx->get('destination'));
 
     if ($node->parent_id)
       $form->addControl(new HiddenControl(array(
@@ -386,7 +256,6 @@ class AdminRPC extends RPCHandler
         $tmp->intro = t('Вы создаёте первый справочник.  Вы сможете использовать его значения в качестве выпадающих списков (для этого надо будет добавить соответствующее поле в нужный <a href=\'@types\'>тип документа</a>).', array('@types' => '?q=admin&cgroup=structure&mode=list&preset=schema'));
 
       $form->hideControl('tab_sections');
-      $form->hideControl('tab_widgets');
 
       if (null !== ($ctl = $form->findControl('title')))
         $ctl->label = t('Название справочника');
@@ -399,9 +268,10 @@ class AdminRPC extends RPCHandler
         )));
     }
 
-    return html::em('content', array(
+    $page = new AdminPage(html::em('content', array(
       'name' => 'create',
-      ), $form->getXML($node));
+      ), $form->getXML($node)));
+    return $page->getResponse($ctx);
   }
 
   /**
@@ -570,10 +440,12 @@ class AdminRPC extends RPCHandler
 
     $output .= self::getDesktopNotes($ctx);
 
-    return html::em('content', array(
+    $output = html::em('content', array(
       'name' => 'dashboard',
       'title' => t('Рабочий стол'),
       ), $output);
+
+    return $output;
   }
 
   private static function getDesktopNotes(Context $ctx)

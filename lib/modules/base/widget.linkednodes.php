@@ -43,7 +43,7 @@ class LinkedNodesWidget extends Widget
    *
    * @return Form вкладка с настройками виджета.
    */
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     $types = Node::getSortedList('type', 'title', 'name');
 
@@ -82,17 +82,14 @@ class LinkedNodesWidget extends Widget
    *
    * @return array массив с параметрами виджета.
    */
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    $options = parent::getRequestOptions($ctx);
+    $options = parent::getRequestOptions($ctx, $params);
 
-    if (empty($ctx->document->id))
+    if (!$params['document'])
       return false;
 
-    if (!in_array($ctx->document->class, $this->hosts))
-      return false;
-
-    $options['doc'] = $ctx->document->id;
+    $options['doc'] = $params['document']['id'];
     $options['classes'] = $this->classes;
     $options['field'] = $this->field;
     $options['sort'] = $this->sort;

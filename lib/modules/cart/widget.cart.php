@@ -17,11 +17,9 @@ class CartWidget extends Widget
   }
 
   // Препроцессор параметров.
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    if (!is_array($options = parent::getRequestOptions($ctx)))
-      return $options;
-
+    $options = parent::getRequestOptions($ctx, $params);
     $options['#cache'] = false;
 
     // Режим работы задаётся администратором, но переопределяется извне.

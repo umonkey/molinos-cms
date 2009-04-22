@@ -20,7 +20,7 @@
         </xsl:if>
         <xsl:apply-templates select="massctl" mode="mcms_list" />
 
-        <form id="nodeList" method="post" action="?q=nodeapi.rpc&amp;destination={/page/request/@uri}">
+        <form id="nodeList" method="post" action="?q=nodeapi.rpc&amp;destination={/page/@back}">
           <fieldset>
             <input id="nodeListCommand" type="hidden" name="action" value="" />
           </fieldset>
@@ -33,49 +33,6 @@
     </div>
   </xsl:template>
 
-  <!-- вывод пользователей -->
-  <xsl:template match="data[../@preset = 'users']" mode="mcms_list">
-    <thead>
-      <tr>
-        <th colspan="3"/>
-        <th>Идентификатор</th>
-        <th>Полное имя</th>
-        <th>Email</th>
-        <th>Дата регистрации</th>
-      </tr>
-    </thead>
-    <tbody>
-      <xsl:for-each select="node">
-        <tr>
-          <xsl:call-template name="odd_row" />
-          <td class="icon">
-            <a class="icon-zoom" title="Найти все документы пользователя" href="admin/content/list?search=uid%3A{@id}">
-              <span/>
-            </a>
-          </td>
-          <td class="icon">
-            <xsl:if test="@id != /page/request/user/@id">
-              <a class="icon-sudo" title="Переключиться в пользователя" href="?q=auth.rpc&amp;action=su&amp;uid={@id}&amp;destination={/page/request/@uri}">
-                <span/>
-              </a>
-            </xsl:if>
-          </td>
-          <xsl:apply-templates select="." mode="mcms_list_name" />
-          <td class="field-fullname">
-            <xsl:value-of select="fullname" />
-          </td>
-          <td class="field-email">
-            <xsl:value-of select="email" />
-          </td>
-          <td class="field-created">
-            <xsl:call-template name="FormatDate">
-              <xsl:with-param name="timestamp" select="@created" />
-            </xsl:call-template>
-          </td>
-        </tr>
-      </xsl:for-each>
-    </tbody>
-  </xsl:template>
 
 
   <!-- вывод групп -->
@@ -101,40 +58,6 @@
     </tbody>
   </xsl:template>
 
-  <!-- список полей -->
-  <xsl:template match="data[../@type='field']" mode="mcms_list">
-    <thead>
-      <tr>
-        <th colspan="1" />
-        <th>№</th>
-        <th>Имя</th>
-        <th>Название</th>
-        <th>Индекс</th>
-      </tr>
-    </thead>
-    <tbody>
-      <xsl:for-each select="node">
-        <xsl:sort select="weight" data-type="number" />
-        <xsl:sort select="@name" data-type="text" />
-        <tr>
-          <xsl:call-template name="odd_row" />
-          <td class="r">
-            <xsl:value-of select="weight" />
-          </td>
-          <xsl:apply-templates select="." mode="mcms_list_name" />
-          <td>
-            <xsl:value-of select="label" />
-          </td>
-          <td>
-            <xsl:if test="indexed">
-              <xsl:text>X</xsl:text>
-            </xsl:if>
-          </td>
-        </tr>
-      </xsl:for-each>
-    </tbody>
-  </xsl:template>
-
   <!-- вывод разделов -->
   <xsl:template match="data[../@preset = 'taxonomy']" mode="mcms_list">
     <thead>
@@ -155,20 +78,20 @@
     <tr>
       <xsl:call-template name="odd_row" />
       <td class="icon">
-        <a class="icon-add" title="Добавить подраздел" href="admin/create/tag/{@id}?destination={/page/request/@uri}">
+        <a class="icon-add" title="Добавить подраздел" href="admin/create/tag/{@id}?destination={/page/@back}">
           <span/>
         </a>
       </td>
       <td class="icon">
         <xsl:if test="position() != 1">
-          <a class="icon-raise" title="Поднять раздел" href="?q=nodeapi.rpc&amp;action=raise&amp;node={@id}&amp;destination={/page/request/@uri}">
+          <a class="icon-raise" title="Поднять раздел" href="?q=nodeapi.rpc&amp;action=raise&amp;node={@id}&amp;destination={/page/@back}">
             <span/>
           </a>
         </xsl:if>
       </td>
       <td class="icon">
         <xsl:if test="position() != last()">
-          <a class="icon-sink" title="Опустить раздел" href="?q=nodeapi.rpc&amp;action=sink&amp;node={@id}&amp;destination={/page/request/@uri}">
+          <a class="icon-sink" title="Опустить раздел" href="?q=nodeapi.rpc&amp;action=sink&amp;node={@id}&amp;destination={/page/@back}">
             <span/>
           </a>
         </xsl:if>
@@ -207,7 +130,7 @@
               <a class="icon-zoom" href="admin/content/list?search=class%3A{@name}" />
             </td>
             <td>
-              <a href="?q=admin/edit/{@id}&amp;destination={/page/request/@uri}">
+              <a href="?q=admin/edit/{@id}&amp;destination={/page/@back}">
                 <xsl:value-of select="title" />
               </a>
             </td>
@@ -235,7 +158,7 @@
               <a class="icon-zoom" href="admin/content/list?search=class%3A{@name}" />
             </td>
             <td>
-              <a href="?q=admin/edit/{@id}&amp;destination={/page/request/@uri}">
+              <a href="?q=admin/edit/{@id}&amp;destination={/page/@back}">
                 <xsl:value-of select="title" />
               </a>
             </td>
@@ -273,7 +196,7 @@
       <xsl:choose>
         <xsl:when test="$domains">
           <td class="icon">
-            <a class="icon-edit" href="?q=admin/edit/{@id}&amp;destination={/page/request/@uri}" />
+            <a class="icon-edit" href="?q=admin/edit/{@id}&amp;destination={/page/@back}" />
           </td>
           <td class="field-name">
             <a href="?q=admin/structure/domains/{@name}">
@@ -290,7 +213,7 @@
         </xsl:when>
         <xsl:otherwise>
           <td class="icon">
-            <a class="icon-add" href="admin/create/domain/{@id}?destination={/page/request/@uri}" />
+            <a class="icon-add" href="admin/create/domain/{@id}?destination={/page/@back}" />
           </td>
           <xsl:apply-templates select="." mode="mcms_list_name">
             <xsl:with-param name="depth" select="$depth" />
@@ -308,45 +231,6 @@
       <xsl:with-param name="domains" select="$domains" />
       <xsl:with-param name="depth" select="$depth + 1" />
     </xsl:apply-templates>
-  </xsl:template>
-
-  <!-- вывод виджетов -->
-  <xsl:template match="data[../@preset = 'widgets']" mode="mcms_list">
-    <thead>
-      <tr>
-        <th/>
-        <th>Имя</th>
-        <th>Название</th>
-        <th>Тип</th>
-      </tr>
-    </thead>
-    <tbody>
-      <xsl:for-each select="node">
-        <tr>
-          <xsl:call-template name="odd_row" />
-          <xsl:apply-templates select="." mode="mcms_list_name" />
-          <td class="field-title">
-            <xsl:value-of select="title" />
-          </td>
-          <td class="field-classname">
-            <a>
-              <xsl:attribute name="href">
-                <xsl:choose>
-                  <xsl:when test="_widget_docurl">
-                    <xsl:value-of select="_widget_docurl" />
-                  </xsl:when>
-                  <xsl:otherwise>
-                    <xsl:text>http://code.google.com/p/molinos-cms/w/list?q=</xsl:text>
-                    <xsl:value-of select="classname" />
-                  </xsl:otherwise>
-                </xsl:choose>
-              </xsl:attribute>
-              <xsl:value-of select="classname" />
-            </a>
-          </td>
-        </tr>
-      </xsl:for-each>
-    </tbody>
   </xsl:template>
 
 
@@ -477,7 +361,7 @@
   <xsl:template match="node" mode="mcms_list_name">
     <xsl:param name="depth" />
     <td class="field-name">
-      <a class="picker" href="admin/edit/{@id}">
+      <a class="picker" href="admin/edit/{@id}?destination={/page/@back}">
         <xsl:if test="$depth">
           <xsl:attribute name="style">
             <xsl:text>padding-left:</xsl:text>
@@ -496,7 +380,7 @@
   <xsl:template match="node" mode="mcms_list_author">
     <td class="field-uid">
       <xsl:if test="uid">
-        <a href="?q=admin/edit/{@id}&amp;destination={/page/request/@uri}">
+        <a href="?q=admin/edit/{@id}&amp;destination={/page/@back}">
           <xsl:apply-templates select="uid" mode="username" />
         </a>
       </xsl:if>
@@ -550,7 +434,7 @@
   <!-- Форма поиска. -->
   <xsl:template name="mcms_list_search" mode="mcms_list">
     <div class="nodes-controls-basic">
-    <form method="post" action="?q=admin.rpc&amp;action=search&amp;from={/page/request/@uri}">
+    <form method="post" action="?q=admin.rpc&amp;action=search&amp;from={/page/@back}">
     	<fieldset>
        <input type="hidden" name="search_from" value="{/page/@url}" />
           <a class="newlink">
@@ -561,7 +445,7 @@
                 <xsl:value-of select="@type" />
               </xsl:if>
               <xsl:text>&amp;destination=</xsl:text>
-              <xsl:value-of select="/page/request/@uri" />
+              <xsl:value-of select="/page/@back" />
             </xsl:attribute>
             <xsl:text>Добавить</xsl:text>
           </a>
@@ -569,7 +453,7 @@
           <input type="text" name="search_term" class="search_field" value="{/page/request/getArgs/arg[@name='search']}" />
           <input type="submit" value="Найти" />
           <xsl:text> | </xsl:text>
-          <a href="?q=admin.rpc&amp;action=search&amp;cgroup={/page/@cgroup}&amp;destination={/page/request/@uri}">Расширенный поиск</a>
+          <a href="?q=admin.rpc&amp;action=search&amp;cgroup={/page/@cgroup}&amp;destination={/page/@back}">Расширенный поиск</a>
         </fieldset>
 	</form>
     </div>
@@ -604,7 +488,7 @@
         <xsl:attribute name="class">
           <xsl:text>icon</xsl:text>
         </xsl:attribute>
-        <a class="icon-dump" href="?q=nodeapi.rpc&amp;action=dump&amp;node={@id}">
+        <a class="icon-dump" href="node/{@id}/dump">
           <span/>
         </a>
       </xsl:if>

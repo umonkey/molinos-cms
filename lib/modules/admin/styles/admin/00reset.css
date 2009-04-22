@@ -16,4 +16,6 @@
 	a img { border:none; }
 	
 	button { overflow:visible; }
+  /* невалидно
 	button::-moz-focus-inner { padding:0; }
+  */

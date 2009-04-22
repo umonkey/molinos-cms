@@ -3,21 +3,6 @@
 class SubscriptionConfig
 {
   /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/system/settings/subscription',
-        'title' => t('Почтовая рассылка'),
-        'method' => 'modman::settings',
-        'sort' => 'mailsubscription',
-        ),
-      );
-  }
-
-  /**
    * @mcms_message ru.molinos.cms.module.settings.subscription
    */
   public static function on_get_settings(Context $ctx)

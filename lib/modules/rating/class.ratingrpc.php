@@ -2,9 +2,6 @@
 
 class RatingRPC
 {
-  /**
-   * @mcms_message ru.molinos.cms.rpc.rating
-   */
   public static function on_rpc(Context $ctx)
   {
     return parent::hookRemoteCall($ctx, __CLASS__);

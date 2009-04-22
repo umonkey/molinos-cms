@@ -31,7 +31,7 @@ interface iWidget
    *
    * @return array Массив с описанием полей.
    */
-  public static function getConfigOptions();
+  public static function getConfigOptions(Context $ctx);
 
   /**
    * Получение кода формы.

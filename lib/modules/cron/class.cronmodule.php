@@ -3,9 +3,6 @@
 
 class CronModule
 {
-  /**
-   * @mcms_message ru.molinos.cms.rpc.cron
-   */
   public static function on_rpc(Context $ctx)
   {
     if (!empty($_SERVER['HTTP_HOST']) and !$ctx->canDebug())

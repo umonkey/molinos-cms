@@ -5,20 +5,6 @@ class PrideTypograph
   private static $typo = null;
 
   /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/system/settings/pridetypograph',
-        'title' => t('Типограф студии Pride Design'),
-        'method' => 'modman::settings',
-        ),
-      );
-  }
-
-  /**
    * @mcms_message ru.molinos.cms.module.settings.pridetypograph
    */
   public static function on_get_settings(Context $ctx)

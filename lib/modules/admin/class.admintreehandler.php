@@ -14,7 +14,7 @@ class AdminTreeHandler
   protected $preset;
   protected $subid;
 
-  public function __construct(Context $ctx, $subid)
+  public function __construct(Context $ctx, $subid = null)
   {
     $this->ctx = $ctx;
     $this->subid = $subid;

@@ -73,42 +73,9 @@ class AuthForm
     return $form;
   }
 
-  /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/access',
-        'title' => t('Доступ'),
-        ),
-      array(
-        're' => 'admin/access/users',
-        'method' => 'on_get_users',
-        'title' => t('Пользователи'),
-        'description' => t('Управление профилями, принадлежностю к группам, добавление и удаление пользователей.'),
-        'sort' => 'auth01',
-        ),
-      array(
-        're' => 'admin/access/groups',
-        'method' => 'on_get_groups',
-        'title' => t('Группы'),
-        'description' => t('Управление правами для отдельных групп.'),
-        'sort' => 'auth02',
-        ),
-      );
-  }
-
   public static function on_get_groups(Context $ctx)
   {
     $tmp = new AdminListHandler($ctx);
     return $tmp->getHTML('groups');
-  }
-
-  public static function on_get_users(Context $ctx)
-  {
-    $tmp = new AdminListHandler($ctx);
-    return $tmp->getHTML('users');
   }
 }

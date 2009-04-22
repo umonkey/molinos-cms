@@ -4,20 +4,6 @@
 class DrawTextModule
 {
   /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/system/settings/drawtext',
-        'title' => t('Рисование текста на картинках'),
-        'method' => 'modman::settings',
-        ),
-      );
-  }
-
-  /**
    * @mcms_message ru.molinos.cms.module.settings.drawtext
    */
   public static function on_get_settings(Context $ctx)

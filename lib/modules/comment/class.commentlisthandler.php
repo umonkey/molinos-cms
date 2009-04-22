@@ -12,20 +12,6 @@ class CommentListHandler extends AdminListHandler implements iAdminList
     $this->deleted = 0;
   }
 
-  /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/content/comments',
-        'method' => 'on_list',
-        'title' => t('Комментарии'),
-        ),
-      );
-  }
-
   public static function on_list(Context $ctx)
   {
     $list = new CommentListHandler($ctx);

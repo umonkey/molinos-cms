@@ -80,6 +80,11 @@ class Context
 
     if (null === self::$_last)
       self::$_last = $this;
+
+    // Инициализируем реестр.
+    $this->registry = new Registry();
+    if (!$this->registry->load())
+      $this->registry->rebuild((array)$this->config->modules);
   }
 
   public static function last()
@@ -330,19 +335,6 @@ class Context
         return array();
       else
         return $this->_post;
-    case 'section':
-    case 'document':
-    case 'root':
-      if (!array_key_exists($key, $this->_args))
-        return NodeStub::create(null);
-      return $this->_args[$key];
-
-    case 'section_id':
-    case 'document_id':
-    case 'root_id':
-      throw new InvalidArgumentException(t('Используйте обращение к %property->id.', array(
-        '%property' => substr($key, 0, -3),
-        )));
 
     case 'theme':
     case 'moderatoremail':
@@ -375,21 +367,17 @@ class Context
           $this->registry->rebuild((array)$this->config->modules);
       }
       return $this->registry;
+
+    default:
+      throw new InvalidArgumentException(t('Неизвестное свойство контекста: %prop.', array(
+        '%prop' => $key,
+        )));
     }
   }
 
   private function __set($key, $value)
   {
     switch ($key) {
-    case 'section':
-    case 'document':
-    case 'root': // основной раздел
-      if (array_key_exists($key, $this->_args))
-        throw new InvalidArgumentException(t('Свойство %name уже определено'
-          .' в этом контексте.', array('%name' => $key)));
-      $this->_args[$key] = NodeStub::create($value, $this->db);
-      break;
-
     case 'moderatoremail':
     case 'method':
     case 'theme':

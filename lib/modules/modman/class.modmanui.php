@@ -136,38 +136,6 @@ class ModManUI
     }
   }
 
-  /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu(Context $ctx)
-  {
-    return array(
-      array(
-        're' => 'admin/system/modules',
-        'title' => t('Модули'),
-        'description' => t('Управление функциональностью сайтов.'),
-        ),
-      array(
-        're' => 'admin/system/modules/install',
-        'method' => 'on_get_install',
-        'title' => t('Установка модулей'),
-        'sort' => 'modman01',
-        ),
-      array(
-        're' => 'admin/system/modules/remove',
-        'method' => 'on_get_remove',
-        'title' => t('Удаление модулей'),
-        'sort' => 'modman02',
-        ),
-      array(
-        're' => 'admin/system/modules/upgrade',
-        'method' => 'on_get_upgrade',
-        'title' => t('Обновление системы'),
-        'sort' => 'modman03',
-        ),
-      );
-  }
-
   public static function on_get_install(Context $ctx)
   {
     $ctx->theme = os::path('lib', 'modules', 'modman', 'template.xsl');

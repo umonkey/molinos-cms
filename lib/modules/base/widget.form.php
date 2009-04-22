@@ -17,7 +17,7 @@ class FormWidget extends Widget
       );
   }
 
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     $types = array('*' => 'Предлагать выбор')
       + Node::getSortedList('type', 'title', 'name');
@@ -64,16 +64,14 @@ class FormWidget extends Widget
   }
 
   // Препроцессор параметров.
-  public function getRequestOptions(Context $ctx)
+  public function getRequestOptions(Context $ctx, array $params)
   {
-    if (!is_array($options = parent::getRequestOptions($ctx)))
-      return $options;
-    
+    $options = parent::getRequestOptions($ctx, $params);
     $options['type'] = $this->get('type', $this->type);
     $options['default'] = $this->get('default', array());
     $options['#cache'] = false;
 
-    if (null === ($options['root'] = $ctx->section->id))
+    if (null === ($options['root'] = $params['section']['id']))
       $options['root'] = $this->section_default;
 
     if ('default' != ($options['status'] = $this->get('status', 'default')))

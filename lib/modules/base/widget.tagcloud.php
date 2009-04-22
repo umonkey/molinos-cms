@@ -43,11 +43,11 @@ class TagCloudWidget extends Widget implements iWidget
    *
    * @return Form вкладка с настройками виджета.
    */
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     $types = array();
 
-    foreach (Node::find(Context::last()->db, array('class' => 'type')) as $type)
+    foreach (Node::find($ctx->db, array('class' => 'type')) as $type)
       if (!in_array($type->name, TypeNode::getInternal()))
         $types[$type->name] = $type->title;
 
@@ -72,9 +72,9 @@ class TagCloudWidget extends Widget implements iWidget
    *
    * @return array массив с параметрами виджета.
    */
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    $options = parent::getRequestOptions($ctx);
+    $options = parent::getRequestOptions($ctx, $params);
     $options['types'] = $this->classes;
 
     return $options;

@@ -3,20 +3,6 @@
 class SearchConfig
 {
   /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/system/settings/search',
-        'title' => t('Поиск по сайту'),
-        'method' => 'modman::settings',
-        ),
-      );
-  }
-
-  /**
    * @mcms_message ru.molinos.cms.module.settings.search
    */
   public static function on_get_settings(Context $ctx)

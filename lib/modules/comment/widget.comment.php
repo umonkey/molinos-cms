@@ -64,7 +64,7 @@ class CommentWidget extends Widget
       );
   }
 
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     return array(
       'mode' => array(
@@ -102,10 +102,9 @@ class CommentWidget extends Widget
   }
 
   // Препроцессор параметров.
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    if (!is_array($options = parent::getRequestOptions($ctx)))
-      return $options;
+    $options = parent::getRequestOptions($ctx, $params);
 
     $options['status'] = $this->get('status');
 
@@ -121,23 +120,23 @@ class CommentWidget extends Widget
       switch ($this->startwith) {
       case 'last':
         $options['default'] = 'last';
-        if (null === ($options['doc'] = $ctx->document->id))
-          throw new WidgetHaltedException();
+        if (!($options['doc'] = $params['document']))
+          return $this->halt();
         break;
 
       case 'first':
         $options['default'] = 1;
-        if (null === ($options['doc'] = $ctx->document->id))
-          throw new WidgetHaltedException();
+        if (!($options['doc'] = $params['document']))
+          return $this->halt();
         break;
 
       case 'tracker':
         $options['default'] = 1;
         $options['action'] = 'tracker';
-        $options['doc'] = $ctx->document->id;
+        $options['doc'] = $params['document'];
 
         if (null === $this->perpage)
-          throw new WidgetHaltedException(t('Свежие комментарии не выведены, т.к. не указано количество комментариев на странице.'));
+          return $this->halt();
 
         break;
       }

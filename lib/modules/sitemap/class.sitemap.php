@@ -44,9 +44,6 @@ class Sitemap
     }
   }
 
-  /**
-   * @mcms_message ru.molinos.cms.rpc.sitemap
-   */
   public static function hookRemoteCall(Context $ctx)
   {
     $path = self::get_file_path($ctx);
@@ -128,20 +125,6 @@ class Sitemap
   private static function get_file_path(Context $ctx)
   {
     return os::path($ctx->config->getPath('tmpdir'), 'sitemap-' . MCMS_HOST_NAME . '.xml');
-  }
-
-  /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/system/settings/sitemap',
-        'title' => t('Карта сайта'),
-        'method' => 'modman::settings',
-        ),
-      );
   }
 
   /**

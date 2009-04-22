@@ -8,8 +8,6 @@ class AdminListHandler implements iAdminList
   public $types;
   public $deleted;
   public $published;
-  public $columns;
-  public $columntitles;
   public $title;
   public $actions;
   public $linkfield;
@@ -41,8 +39,6 @@ class AdminListHandler implements iAdminList
     if (null !== ($tmp = $ctx->get('type')))
       $this->types = explode(',', $tmp);
 
-    $this->columns = explode(',', $ctx->get('columns', 'name,class,uid,created'));
-
     $this->title = t('Список документов');
 
     $this->limit = $ctx->get('limit', 10);
@@ -51,7 +47,7 @@ class AdminListHandler implements iAdminList
     $this->pgcount = null;
   }
 
-  public function getHTML($preset = null)
+  public function getHTML($preset = null, array $options = array())
   {
     $this->setUp($preset);
 
@@ -67,14 +63,25 @@ class AdminListHandler implements iAdminList
     $output .= $data;
     $output .= $this->getPager();
 
-    return html::em('content', array(
+    if ($raw = !empty($options['#raw']))
+      unset($options['#raw']);
+
+    $options = array_merge(array(
       'name' => 'list',
       'title' => $this->title,
       'preset' => $preset ? $preset : 'default',
       'search' => $this->hidesearch ? null : 'yes',
       'type' => $this->getType(),
       'addlink' => $this->addlink,
-      ), $output);
+      ), $options);
+
+    $output = html::em('content', $options, $output);
+
+    if ($raw)
+      return $output;
+
+    $page = new AdminPage($output);
+    return $page->getResponse($this->ctx);
   }
 
   private function getType()
@@ -152,13 +159,11 @@ class AdminListHandler implements iAdminList
       case 'drafts':
         $this->published = 0;
         $this->title = t('Документы в модерации');
-        $this->columns = array('name', 'class', 'uid', 'updated', 'created');
         $this->actions = array('publish', 'delete');
         break;
       case 'trash':
         $this->deleted = 1;
         $this->title = t('Удалённые документы');
-        $this->columns = array('created', 'name', 'class', 'uid', 'updated');
         $this->actions = array('undelete', 'erase');
         break;
       case 'groups':
@@ -185,23 +190,12 @@ class AdminListHandler implements iAdminList
       case 'files':
         $this->types = array('file');
         $this->title = t('Файловый архив');
-        $this->columns = array('thumbnail', 'name', 'filename', 'filetype', 'filesize', 'uid', 'created');
         $this->actions = array('publish', 'unpublish', 'delete');
         break;
       case 'schema':
         $this->types = array('type');
         $this->actions = array('delete', 'publish', 'unpublish', 'clone', 'reindex', 'touch');
         $this->title = t('Типы документов');
-        $this->columns = array('name', 'title', 'description', 'created');
-        $this->limit = null;
-        $this->page = 1;
-        $this->sort = 'name';
-        $this->zoomlink = "?q=admin&cgroup=content&columns=name,class,uid,created&mode=list&search=class%3ANODENAME";
-        break;
-      case 'widgets':
-        $this->types = array('widget');
-        $this->title = t('Список виджетов');
-        $this->columns = array('name', 'title', 'classname', 'description', 'created');
         $this->limit = null;
         $this->page = 1;
         $this->sort = 'name';
@@ -209,19 +203,11 @@ class AdminListHandler implements iAdminList
       case 'comments':
         $this->types = array('comment');
         $this->title = t('Список комментариев');
-        $this->columns = array('uid', 'text', 'created');
         $this->sort = '-id';
         break;
       case 'dictlist':
         $this->title = t('Справочники');
         $this->types = array('type');
-        $this->columns = array('title', 'name', 'uid', 'created');
-        $this->columntitles = array(
-          'title' => 'Название',
-          'name' => 'Код',
-          'uid' => 'Автор',
-          'created' => 'Дата создания',
-          );
         $this->linkfield = 'title';
         $this->sort = 'name';
         $this->limit = null;
@@ -229,41 +215,13 @@ class AdminListHandler implements iAdminList
         $this->actions = array('delete', 'publish', 'unpublish', 'clone', 'touch');
         break;
       case 'dict':
-        $this->columns = array('name', 'description', 'created');
-        $this->columntitles = array(
-          'name' => 'Заголовок',
-          'description' => 'Описание',
-          'created' => 'Добавлено',
-          );
         $this->sort = 'name';
         break;
       case '404':
-        $this->columns = array('old', 'new', 'ref');
-        $this->columntitles = array(
-          'old' => 'Запрошенная страница',
-          'new' => 'Адрес перенаправления',
-          'ref' => 'Источник',
-          );
         $this->title = t('Страницы, которые не были найдены');
         break;
       case 'fields':
         $this->types = array('field');
-        break;
-      case 'pages':
-        $this->columns = array('name', 'title', 'redirect', 'theme');
-        $this->columntitles = array(
-          'name' => 'Домен',
-          'title' => 'Заголовок',
-          'redirect' => 'Редирект',
-          'theme' => 'Шкура',
-          );
-        $this->types = array('domain');
-        $this->title = t('Домены');
-        $this->hidesearch = true;
-        $this->addlink = 'admin/create/domain'
-          .'&destination=' . urlencode(MCMS_REQUEST_URI);
-        $this->sort = 'name';
-        $this->limit = null;
         break;
       }
     }
@@ -271,9 +229,6 @@ class AdminListHandler implements iAdminList
     // Подбираем заголовок.
     if (!isset($this->title) and count($this->types) == 1) {
       switch ($type = $this->types[0]) {
-        case 'widget':
-          $this->title = t('Список виджетов');
-          break;
         case 'type':
           $this->title = t('Список типов документов');
           break;
@@ -334,7 +289,7 @@ class AdminListHandler implements iAdminList
         ? TypeNode::getInternal()
         : array();
 
-      foreach (Node::find($this->ctx->db, array('class' => 'type')) as $n) {
+      foreach (Node::find($this->ctx->db, array('class' => 'type', 'deleted' => 0, 'published' => 1)) as $n) {
         if (empty($n->isdictionary) and $this->haveModule($n->adminmodule) and !in_array($n->name, $itypes))
           $filter['class'][] = $n->name;
       }

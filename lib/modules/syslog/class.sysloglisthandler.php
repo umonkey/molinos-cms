@@ -36,21 +36,6 @@ class SyslogListHandler extends AdminListHandler implements iAdminList
       ), $output);
   }
 
-  /**
-   * @mcms_message ru.molinos.cms.admin.menu
-   */
-  public static function on_poll_menu()
-  {
-    return array(
-      array(
-        're' => 'admin/service/log',
-        'method' => 'on_get_list',
-        'title' => t('Журнал событий'),
-        'description' => t('Узнайте кто, что, когда и с чем делал.'),
-        ),
-      );
-  }
-
   public static function on_get_list(Context $ctx)
   {
     $tmp = new SyslogListHandler($ctx);

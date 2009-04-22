@@ -43,10 +43,10 @@ class MenuWidget extends Widget implements iWidget
    *
    * @return Form вкладка для настройки виджета.
    */
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     $fields = array();
-    $schema = Schema::load(Context::last()->db, 'tag');
+    $schema = Schema::load($ctx->db, 'tag');
 
     foreach ($schema as $k => $v)
       if ($v instanceof URLControl)
@@ -86,23 +86,21 @@ class MenuWidget extends Widget implements iWidget
    *
    * @return array выбранные из контекста параметры, относящиеся к виджету.
    */
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    if (!is_array($options = parent::getRequestOptions($ctx)))
-      return $options;
-
-    $options['root'] = $ctx->section->id;
+    $options = parent::getRequestOptions($ctx, $params);
+    $options['root'] = $params['section']['id'];
 
     switch ($this->fixed) {
     case 'root':
-      $options['root'] = $ctx->root->id;
+      $options['root'] = $params['root']['id'];
       break;
     case 'parent':
-      $options['root'] = $ctx->section->parent_id;
+      $options['parent'] = true;
       break;
     default:
       if (is_numeric($this->fixed))
-        $options['root'] = intval($this->fixed);
+        $options['root'] = $this->fixed;
     }
 
     return $this->options = $options;

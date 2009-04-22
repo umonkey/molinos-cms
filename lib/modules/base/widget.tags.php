@@ -40,7 +40,7 @@ class TagsWidget extends Widget implements iWidget
    *
    * @return Form вкладка для настройки виджета.
    */
-  public static function getConfigOptions()
+  public static function getConfigOptions(Context $ctx)
   {
     return array(
       'fixed' => array(
@@ -91,22 +91,21 @@ class TagsWidget extends Widget implements iWidget
    *
    * @return array массив с параметрами виджета.
    */
-  protected function getRequestOptions(Context $ctx)
+  protected function getRequestOptions(Context $ctx, array $params)
   {
-    if (!is_array($options = parent::getRequestOptions($ctx)))
-      return $options;
+    $options = parent::getRequestOptions($ctx, $params);
 
     if ($this->forcefixed) {
       if ('page' == ($options['root'] = $this->fixed))
-        $options['root'] = $this->ctx->root->id;
+        $options['root'] = $params['root'];
     } else {
-      $options['root'] = $ctx->section->id;
+      $options['root'] = $params['section'];
     }
 
-    $options['dynamic'] = ($ctx->section->id !== null);
+    $options['dynamic'] = ($params['section'] !== null);
 
     if ($this->illcache)
-      $options['anchor'] = $ctx->section->id;
+      $options['anchor'] = $params['section'];
 
     if (!empty($options['root']) and !is_numeric($options['root']) and !is_object($options['root']))
       throw new InvalidArgumentException(t('Вместо кода раздела в виджет %name пришёл какой-то мусор: %trash.', array(

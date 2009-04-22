@@ -8,10 +8,13 @@ class TinyMceModule
    *
    * @mcms_message ru.molinos.cms.compressor.enum
    */
-  public static function on_compressor_enum(Context $ctx)
+  public static function on_compressor_enum(Context $ctx, $mode = 'website')
   {
     $result = array();
     $conf = $ctx->modconf('tinymce');
+
+    if (empty($conf['pages']) or !in_array($mode, (array)$conf['pages']))
+      return $result;
 
     $conf['gzip'] = false;
 
@@ -47,6 +50,6 @@ class TinyMceModule
    */
   public static function on_compressor_admin(Context $ctx)
   {
-    return self::on_compressor_enum($ctx);
+    return self::on_compressor_enum($ctx, 'admin');
   }
 }

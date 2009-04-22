@@ -17,7 +17,7 @@
 	------------------------------------------------------------------------------------------------------------------- */
 	h1, h2, h3, h4, h5, h6 { font-family:Arial, Helvetica, sans-serif; font-weight:bold; }
 	h1 { font-size:2.000em; 	line-height:.667; 	margin-bottom:.667em;}
-	h2 { font-size:2.000em; 	line-height:.667; 	margin-bottom:.667em; 	font-weight:normal; }
+	h2 { font-size:2.000em; 	line-height:.667; 	margin-bottom:1em; 	font-weight:normal; }
 	h3 { font-size:1.667em; 	line-height:.8; 		margin-bottom:.8em; }
 	h4 { font-size:1.500em; 	line-height:.888;	margin-bottom:.888em; }
 	h5 { font-size:1.335em; 	line-height:1; 		margin-bottom:1em; }
