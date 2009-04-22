@@ -56,12 +56,16 @@ class UserWidget extends Widget
    */
   public function onGet(array $options)
   {
+    $result = '';
+    if ($this->ctx->user->id)
+      $result .= $this->ctx->user->getNode()->getXML();
+
     if (empty($options['uid']))
-      return $this->ctx->registry->unicast('ru.molinos.cms.auth.form', array($this->ctx));
+      return $result . $this->ctx->registry->unicast('ru.molinos.cms.auth.form', array($this->ctx));
     else {
       $node = $this->ctx->user->getNode()->getObject();
       $form = $node->formGet(false)->getXML($node);
-      return $form;
+      return $result . $form;
     }
   }
 };
