@@ -194,7 +194,7 @@ class BaseRoute
     $result = '';
 
     foreach ($ctx->url()->args as $k => $v)
-      if (!is_array($v))
+      if (!is_array($v) and strlen($k) == strspn(strtolower($k), "abcdefghijklmnopqrstuvwxyz0123456789"))
         $result .= html::em('arg', array(
           'name' => $k,
           ), $v);
