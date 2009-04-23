@@ -11,7 +11,7 @@ class xslt
     $xml = self::fixEntities($xml);
 
     if ('none' == $mode or empty($xsltName))
-      return new Response($xml, 'text/xml');
+      return new Response('<?xml version="1.0"?>' . $xml, 'text/xml');
 
     if (!file_exists($xsltName))
       throw new RuntimeException(t('Шаблон %name не найден.', array(
