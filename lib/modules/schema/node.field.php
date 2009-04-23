@@ -128,7 +128,7 @@ class FieldNode extends Node implements iContentType
         'required' => true,
         're' => '@^[a-z0-9]+$@',
         'description' => t('Используется внутри системы и в шаблонах. Только латинские буквы и арабские цифры.'),
-        'readonly' => !empty($this->id),
+        // 'readonly' => !empty($this->id), // TODO: переименовать поле во всех документах?
         'weight' => 1,
         ),
       'label' => array(
