@@ -76,10 +76,14 @@ class SubscriptionControl extends SectionsControl implements iFormControl
         if ($v instanceof EmailControl and false !== strpos($email = $data->$k, '@'))
           return $email;
       }
+      if (false !== strpos($email = $data->name, '@'))
+        return $email;
     }
 
     elseif (is_array($data) and array_key_exists('email', $data)) {
       if (false !== strpos($email = $data['email'], '@'))
+        return $email;
+      if (false !== strpos($email = $data['name'], '@'))
         return $email;
     }
 
