@@ -104,17 +104,26 @@ class StatusChecker implements iScheduler
 
   private static function getBrokenTrees()
   {
-    if (!($count = mcms::db()->fetch("SELECT COUNT(*) FROM `node` `n` INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` WHERE `n`.`deleted` = 0 AND `n`.`left` >= `n`.`right`")))
+    if (!self::haveBrokenTrees($db = mcms::db()))
       return null;
 
     $fixxxer = new TreeBuilder();
     $fixxxer->run();
 
-    $result = t('Были найдены повреждённые ветки дерева (%count шт). Всё дерево данных было перестроено.', array(
-      '%count' => $count,
-      ));
+    $result = t('Были найдены повреждённые ветки дерева разделов. Всё дерево данных было перестроено.');
 
     return $result;
+  }
+
+  private static function haveBrokenTrees($db)
+  {
+    if ($count = $db->fetch("SELECT COUNT(*) FROM `node` `n` INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid` WHERE `n`.`deleted` = 0 AND `n`.`left` >= `n`.`right`"))
+      return true;
+
+    if ($db->fetch("SELECT COUNT(*) FROM `node` `n1` INNER JOIN `node` `n2` ON `n2`.`parent_id` = `n1`.`id` WHERE `n2`.`right` > `n1`.`right` OR `n2`.`left` < `n1`.`left`"))
+      return true;
+
+    return false;
   }
 
   private static function count(array &$parts, $query, $text, $link = null)
