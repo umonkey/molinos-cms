@@ -31,7 +31,7 @@ class NumberControl extends Control
 
   public static function getSQL()
   {
-    return 'DECIMAL(10,2)';
+    return 'INTEGER UNSIGNED';
   }
 
   public function getHTML($data)

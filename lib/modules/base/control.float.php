@@ -23,4 +23,9 @@ class FloatControl extends NumberControl implements iFormControl
       'name' => t('Число (дробное)'),
       );
   }
+
+  public static function getSQL()
+  {
+    return 'DECIMAL(10,2)';
+  }
 };
