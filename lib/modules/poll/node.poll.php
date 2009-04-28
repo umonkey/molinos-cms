@@ -28,8 +28,9 @@ class PollNode extends Node implements iContentType
     }
 
     // Считаем проценты.
-    foreach ($result as $k => $v)
-      $result[$k]['percent'] = $v['count'] / ($total / 100);
+    if ($total)
+      foreach ($result as $k => $v)
+        $result[$k]['percent'] = $v['count'] / ($total / 100);
 
     $result['#total'] = $total;
 
