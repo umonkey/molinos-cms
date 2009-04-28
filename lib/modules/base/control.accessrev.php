@@ -93,7 +93,7 @@ class AccessRevControl extends Control
     $names = Node::getSortedList($this->dictionary, 'title');
 
     if (!empty($names)) {
-      $rows = mcms::db()->getResultsK("nid", "SELECT nid, c, r, u, d, p FROM node__access WHERE uid = ?", array($data->id));
+      $rows = mcms::db()->getResultsK("nid", "SELECT nid, c, r, u, d, p FROM node__access WHERE uid = ? AND nid IN (SELECT id FROM node WHERE deleted = 0 AND class = ?)", array($data->id, $this->dictionary));
 
       foreach ($names as $id => $name) {
         $row = array_key_exists($id, $rows)
