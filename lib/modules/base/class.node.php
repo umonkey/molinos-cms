@@ -146,16 +146,16 @@ class Node extends NodeBase implements iContentType
 
       foreach ($roots as $root) {
         foreach ($root->getChildren('flat') as $em)
-          $result[$em['id']] = str_repeat('&nbsp;', 2 * $em['depth']) . $em['name'];
+          $result[$em['id']] = str_repeat('&nbsp;', 2 * $em['depth']) . trim($em['name']);
       }
     }
 
     // Вывод обычных списков
     else {
       foreach (Node::find(array('class' => $class, 'deleted' => 0)) as $n) {
-        $result[$n->$key] = ('name' == $field)
+        $result[$n->$key] = trim(('name' == $field)
           ? $n->getName()
-          : $n->$field;
+          : $n->$field);
 
         if ('name' != $field)
           $result[$n->$key] .= ' (' . $n->name . ')';
