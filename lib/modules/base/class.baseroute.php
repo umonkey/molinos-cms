@@ -53,8 +53,7 @@ class BaseRoute
       ? 'text/html'
       : $handler['content_type'];
 
-    $response = xslt::transform($xml, $xsl, $type);
-    $response->send();
+    return xslt::transform($xml, $xsl, $type);
   }
 
   /**
@@ -266,6 +265,8 @@ class BaseRoute
         $handler['widgets'] = implode(',', $widgets);
 
       $handler['call'] = 'BaseRoute::serve';
+      if (!isset($handler['cache']))
+        $handler['cache'] = 60;
 
       switch ($node->params) {
       case 'doc':

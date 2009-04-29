@@ -215,6 +215,14 @@ class RouteAdmin
         'group' => t('Виджеты'),
         'weight' => 9,
         ),
+      'cache' => array(
+        'type' => 'NumberControl',
+        'group' => t('Производительность'),
+        'weight' => 10,
+        'label' => t('Время жизни страницы в кэше'),
+        'default' => 60,
+        'description' => t('Указывается в секундах, по умолчанию рано 60.'),
+        ),
       ));
   }
 

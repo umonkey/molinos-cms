@@ -111,6 +111,19 @@ class Router
 
   public function dispatch(Context $ctx)
   {
+    $cache = cache::getInstance();
+    $ckey = $this->getCacheKey();
+
+    // Если страница есть в кэше — выводим сразу, даже не ищем маршрут.
+    if (is_array($cached = $cache->$ckey)) {
+      if (time() < $cached['expires']) {
+        header('HTTP/1.1 ' . $cached['code'] . ' ' . $cached['text']);
+        header('Content-Type: ' . $cached['type']);
+        header('Content-Length: ' . $cached['length']);
+        die($cached['content']);
+      }
+    }
+
     if (false === ($tmp = $this->find($ctx)))
       return false;
 
@@ -135,10 +148,19 @@ class Router
         throw new RuntimeException(t('Обработчик этого адреса — %call — ничего не вернул.', array(
           '%call' => $handler['call'] . '()',
           )));
+
+      if ($output instanceof Response and !empty($match['cache']))
+        $output->setCache($cache, $ckey, $match['cache']);
+
       return $output;
     }
 
     return false;
+  }
+
+  private function getCacheKey()
+  {
+    return 'page:' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
   }
 
   public function find(Context $ctx)

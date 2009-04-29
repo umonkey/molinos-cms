@@ -6,11 +6,22 @@ class Response
   protected $type;
   protected $content;
 
+  private $cache = null;
+  private $ckey = null;
+  private $ttl;
+
   public function __construct($content, $type = 'text/html', $code = 200)
   {
     $this->code = $code;
     $this->type = $type;
     $this->content = $content;
+  }
+
+  public function setCache(cache $cache, $ckey, $ttl = 60)
+  {
+    $this->cache = $cache;
+    $this->ckey = $ckey;
+    $this->ttl = $ttl;
   }
 
   public function send()
@@ -44,8 +55,21 @@ class Response
     $this->addHeaders();
 
     $content = $this->getContent();
+    $length = strlen($content);
 
-    header(sprintf('Content-Length: %u', (null === $content) ? 0 : strlen($content)));
+    if ($this->cache and $this->ckey and $this->ttl) {
+      $store = array(
+        'code' => $this->code,
+        'text' => $this->getResponseTitle(),
+        'type' => $this->type . '; charset=utf-8',
+        'length' => $length,
+        'content' => $content,
+        'expires' => time() + $this->ttl,
+        );
+      $this->cache->{$this->ckey} = $store;
+    }
+
+    header(sprintf('Content-Length: %u', $length));
 
     die($content);
   }
