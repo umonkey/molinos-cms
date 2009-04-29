@@ -133,7 +133,7 @@ class Node extends NodeBase implements iContentType
     return $links;
   }
 
-  public static function getSortedList($class, $field = 'name', $key = 'id')
+  public static function getSortedList($class, $field = 'name', $key = 'id', $showname = true)
   {
     $result = array();
 
@@ -157,7 +157,7 @@ class Node extends NodeBase implements iContentType
           ? $n->getName()
           : $n->$field);
 
-        if ('name' != $field)
+        if ($showname and 'name' != $field)
           $result[$n->$key] .= ' (' . $n->name . ')';
       }
 

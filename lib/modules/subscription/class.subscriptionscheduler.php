@@ -16,6 +16,8 @@ class SubscriptionScheduler implements iScheduler
     if (empty($types))
       return;
 
+    $typeNames = Node::getSortedList('type', 'title', 'name', false);
+
     // Обрабатываем активных пользователей.
     foreach (Node::find(array('class' => 'subscription')) as $user) {
       $olast = $last = intval($user->last);
@@ -39,13 +41,17 @@ class SubscriptionScheduler implements iScheduler
 
       // Отправляем документы.
       foreach ($nodes as $node) {
-        $text = $node->text . t('<p><a href="@url">Отписаться от этих новостей</a></p>', array(
+        $text = $node->text . t('<p><a href="@url">Отписаться от рассылок с нашего сайта</a></p>', array(
           '@url' => '?q=subscription.rpc&action=unsubscribe&email=' . urlencode($user->name)
             . '&id=' . $user->id,
           ));
         $mail = $user->name;
 
-        BebopMimeMail::send(null, $mail, $node->name, $text);
+        $subject = $node->name;
+        if (array_key_exists($node->class, $typeNames))
+          $subject = $typeNames[$node->class] . ': ' . $subject;
+
+        BebopMimeMail::send(null, $mail, $subject, $text);
         mcms::flog(sprintf("sent mail to %s: %s", $user->name, $node->name));
         $last = max($last, $node->id);
       }
