@@ -1,6 +1,16 @@
 <?php
 
-class BebopCache
+interface iCacheProvider
+{
+  public function getName();
+
+  public function __get($key);
+  public function __set($key, $value);
+  public function __isset($key);
+  public function __unset($key);
+}
+
+abstract class cache implements iCacheProvider
 {
   private static $instance = null;
 
@@ -18,64 +28,17 @@ class BebopCache
   public static function getInstance()
   {
     if (self::$instance === null) {
-      $map = array(
-        'xcache' => array(
-          'class' => 'XCache_provider',
-          ),
-        'memcache' => array(
-          'class' => 'MemCache_provider',
-          ),
-        'apc' => array(
-          'class' => 'APC_provider',
-          ),
-        'local' => array(
-          'class' => 'FileCache_provider',
-          ),
-        );
+      $list = array('XCache_provider', 'MemCache_provider', 'APC_provider', 'FileCache_provider');
 
-      $disabled = mcms::config('cache.disable', array());
+      if (defined('MCMS_CACHE_PROVIDER') and class_exists(MCMS_CACHE_PROVIDER))
+        array_unshift($list, MCMS_CACHE_PROVIDER);
 
-      foreach ($map as $k => $v) {
-        if (in_array($k, $disabled))
-          continue;
-
-        if (call_user_func(array($v['class'], 'isAvailable'))) {
-          // mcms::flog('using ' . str_replace('_provider', '', $v['class']));
-          self::$instance = new $v['class']();
+      foreach ($list as $class)
+        if (null !== (self::$instance = call_user_func(array($class, 'initialize'))))
           break;
-        }
-      }
-
-      if (null === self::$instance)
-        throw new RuntimeException(t('Недоступен ни один провайдер кэша. Проверьте права на файловую систему (tmp/cache).'));
     }
 
     return self::$instance;
-  }
-
-  public function getName()
-  {
-    return get_class($this);
-  }
-
-  public function __get($key)
-  {
-    throw new RuntimeException(get_class($this) . '::__get() not implemented.');
-  }
-
-  public function __set($key, $value)
-  {
-    throw new RuntimeException(get_class($this) . '::__set() not implemented.');
-  }
-
-  public function __isset($key)
-  {
-    throw new RuntimeException(get_class($this) . '::__isset() not implemented.');
-  }
-
-  public function __unset($key)
-  {
-    throw new RuntimeException(get_class($this) . '::__unset() not implemented.');
   }
 
   public function flush($now = false)
@@ -103,17 +66,34 @@ class BebopCache
 
     // mcms::flog('prefix: ' . $this->prefix);
   }
+
+  public static function set($key, $value)
+  {
+    self::getInstance()->$key = $value;
+  }
+
+  public static function get($key, $default = false)
+  {
+    if (!($value = self::getInstance()->$key))
+      $value = $default;
+    return $value;
+  }
 }
 
-class XCache_provider extends BebopCache
+class XCache_provider extends cache
 {
-  public static function isAvailable()
+  public static function initialize()
   {
     if (!function_exists('xcache_set'))
-      return false;
+      return null;
     if (!intval(ini_get('xcache.var_size')))
-      return false;
-    return true;
+      return null;
+    return new XCache_provider();
+  }
+
+  public function getName()
+  {
+    return 'XCache';
   }
 
   public function __get($key)
@@ -135,18 +115,20 @@ class XCache_provider extends BebopCache
   {
     return xcache_unset($this->prefix . $key);
   }
+}
+
+class APC_provider extends cache
+{
+  public static function initialize()
+  {
+    return function_exists('apc_store')
+      ? new APC_provider()
+      : null;
+  }
 
   public function getName()
   {
-    return 'XCache';
-  }
-}
-
-class APC_provider extends BebopCache
-{
-  public static function isAvailable()
-  {
-    return function_exists('apc_store');
+    return 'APC';
   }
 
   public function __get($key)
@@ -168,21 +150,23 @@ class APC_provider extends BebopCache
   {
     return apc_delete($this->prefix . $key);
   }
-
-  public function getName()
-  {
-    return 'APC';
-  }
 }
 
-class MemCache_provider extends BebopCache
+class MemCache_provider extends cache
 {
   private $host;
   private $flags = MEMCACHE_COMPRESSED;
 
-  public static function isAvailable()
+  public static function initialize()
   {
-    return class_exists('Memcache', false);
+    return class_exists('Memcache', false)
+      ? new MemCache_provider()
+      : null;
+  }
+
+  public function getName()
+  {
+    return 'MemCache';
   }
 
   public function __construct()
@@ -213,22 +197,21 @@ class MemCache_provider extends BebopCache
   {
     return $this->host->delete($this->prefix . $key);
   }
-
-  public function getName()
-  {
-    return 'MemCache';
-  }
 }
 
-class FileCache_provider extends BebopCache
+class FileCache_provider extends cache
 {
   private static $path = null;
 
-  public static function isAvailable()
+  public static function initialize()
   {
-    if (!(self::$path = os::mkdir(Context::last()->config->getPath('tmpdir') . DIRECTORY_SEPARATOR . 'cache')))
-      return false;
-    return true;
+    self::$path = MCMS_ROOT . DIRECTORY_SEPARATOR . MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'tmp';
+    return new FileCache_provider();
+  }
+
+  public function getName()
+  {
+    return 'FileCache';
   }
 
   public function __get($key)
@@ -259,7 +242,8 @@ class FileCache_provider extends BebopCache
     if ($now) {
       if (is_array($files = glob(self::$path . DIRECTORY_SEPARATOR . '*')))
         foreach ($files as $file)
-          unlink($file);
+          if (is_file($file))
+            unlink($file);
     }
     return parent::flush($now);
   }
@@ -267,10 +251,5 @@ class FileCache_provider extends BebopCache
   private function getKeyPath($key)
   {
     return self::$path . DIRECTORY_SEPARATOR . md5($this->prefix . $key);
-  }
-
-  public function getName()
-  {
-    return 'FileCache';
   }
 }

@@ -101,7 +101,7 @@ class Schema extends ArrayObject
    */
   public static function flush($className)
   {
-    mcms::cache('schema:' . $className, null);
+    unset(cache::getInstance()->{'schema:' . $className});
   }
 
   public function hasIndex($name)

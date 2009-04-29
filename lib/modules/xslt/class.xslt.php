@@ -27,7 +27,10 @@ class xslt
 
     $nocache = !empty($_GET['nocache']);
 
-    if (false === ($output = mcms::cache($ckey = 'xml:xsl:' . md5($xml) . ',' . filemtime($xsltName))) or $nocache) {
+    $cache = cache::getInstance();
+    $ckey = 'xml:xsl:' . md5($xml) . ',' . filemtime($xsltName);
+
+    if (false === ($output = $cache->$ckey) or $nocache) {
       $doc = new DOMDocument;
       $doc->loadXML($xml);
       self::checkErrors();
@@ -46,7 +49,8 @@ class xslt
 
       self::checkErrors();
 
-      mcms::cache($ckey, $output = $proc->transformToXML($doc));
+      $output = $proc->transformToXML($doc);
+      $cache->$ckey = $output;
     }
 
     if (null === $mimeType)

@@ -26,7 +26,7 @@ class AdminRPC extends RPCHandler
       'version' => defined('MCMS_VERSION')
         ? MCMS_VERSION
         : 'unknown',
-      'cache' => BebopCache::getInstance()->getName(),
+      'cache' => cache::getInstance()->getName(),
       'memory' => ini_get('memory_limit'),
       'time' => microtime(true) - MCMS_START_TIME,
       'back' => urlencode(MCMS_REQUEST_URI),
@@ -119,7 +119,7 @@ class AdminRPC extends RPCHandler
     Structure::getInstance()->rebuild();
     $ctx->registry->rebuild();
 
-    mcms::cache('route', null);
+    unset(cache::getInstance()->route);
 
     return $ctx->getRedirect();
   }

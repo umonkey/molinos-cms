@@ -56,7 +56,9 @@ class User
   {
     $key = 'access:'. md5($sql);
 
-    if (is_array($result = mcms::cache($key)))
+    $cache = cache::getInstance();
+
+    if (is_array($result = $cache->$key))
       return $result;
 
     $result = array();
@@ -69,7 +71,7 @@ class User
           $result[$mode][] = $row['name'];
     }
 
-    mcms::cache($key, $result);
+    $cache->$key = $result;
 
     return $result;
   }

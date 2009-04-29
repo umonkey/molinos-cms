@@ -26,7 +26,7 @@ class AdminPage
       'version' => defined('MCMS_VERSION')
         ? MCMS_VERSION
         : 'unknown',
-      'cache' => BebopCache::getInstance()->getName(),
+      'cache' => cache::getInstance()->getName(),
       'memory' => ini_get('memory_limit'),
       'time' => microtime(true) - MCMS_START_TIME,
       'back' => urlencode(MCMS_REQUEST_URI),

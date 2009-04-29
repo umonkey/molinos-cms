@@ -202,7 +202,8 @@ class NodeStub
    */
   private function flush()
   {
-    mcms::cache($this->getCacheKey(), false);
+    $ckey = $this->getCacheKey();
+    unset(cache::getInstance()->$ckey);
   }
 
   /**
@@ -241,7 +242,10 @@ class NodeStub
     $data = array();
 
     if (null !== $this->id) {
-      if (!is_array($data = mcms::cache($ckey = $this->getCacheKey()))) {
+      $ckey = $this->getCacheKey();
+      $cache = cache::getInstance();
+
+      if (!is_array($data = $cache->$ckey)) {
         $data = array(
           'id' => $this->id,
           '#text' => null,
@@ -303,7 +307,7 @@ class NodeStub
 
         $data['#text'] .= $this->getObject()->getExtraXMLContent();
 
-        mcms::cache($ckey, $data);
+        $cache->$ckey = $data;
       }
     }
 

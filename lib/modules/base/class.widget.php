@@ -224,7 +224,7 @@ abstract class Widget implements iWidget
       else
         $ckey = 'widget:' . $this->name . ':' . md5(serialize($options));
 
-      if (null !== $ckey and is_array($cached = mcms::cache($ckey))) {
+      if (null !== $ckey and is_array($cached = cache::get($ckey))) {
         return $cached['content'];
       }
 
@@ -252,7 +252,7 @@ abstract class Widget implements iWidget
       }
 
       if (null !== $ckey) {
-        mcms::cache($ckey, array(
+        cache::set($ckey, array(
           'content' => $result,
           ));
       }

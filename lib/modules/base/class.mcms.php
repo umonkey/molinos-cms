@@ -137,37 +137,6 @@ class mcms
       ), $params);
   }
 
-  public static function cache()
-  {
-    $result = null;
-    static $nocache = null;
-
-    if (null === ($cache = BebopCache::getInstance()))
-      return $result;
-
-    if (null === $nocache)
-      $nocache = !empty($_GET['nocache']);
-
-    $args = func_get_args();
-
-    if (count($args))
-      $key = mcms::config('filename') .':'. $args[0];
-
-    switch (count($args)) {
-    case 1:
-      $result = $nocache ? false : $cache->$key;
-      break;
-    case 2:
-      if (null === $args[1])
-        unset($cache->$key);
-      else
-        $cache->$key = $args[1];
-      break;
-    }
-
-    return $result;
-  }
-
   public static function config($key, $default = null)
   {
     if (!class_exists('Config'))
@@ -182,7 +151,7 @@ class mcms
 
   public static function flush($flags = null)
   {
-    if (null !== ($cache = BebopCache::getInstance()))
+    if (null !== ($cache = cache::getInstance()))
       $cache->flush($flags & self::FLUSH_NOW ? true : false);
   }
 
@@ -613,7 +582,7 @@ class mcms
           if (in_array($parts[0], PDO_Singleton::listDrivers()))
             $options[] = $parts[0];
 
-        $options[] = str_replace('_provider', '', get_class(BebopCache::getInstance()));
+        $options[] = str_replace('_provider', '', get_class(cache::getInstance()));
         $options[] = ini_get('memory_limit');
 
         $result['options'] = join('+', $options);

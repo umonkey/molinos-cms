@@ -25,9 +25,12 @@ class Router
   private function load(Context $ctx, $reload = false)
   {
     $ckey = 'route';
+    $cache = cache::getInstance();
 
-    if (!is_array($result = mcms::cache($ckey)) or $reload)
-      mcms::cache($ckey, $result = $this->load_php($ctx));
+    if (!is_array($result = $cache->$ckey) or $reload) {
+      $result = $this->load_php($ctx);
+      $cache->$ckey = $result;
+    }
 
     return $result;
   }
@@ -189,7 +192,7 @@ class Router
   {
     if (is_readable($fileName = self::getCacheFileName()))
       unlink($fileName);
-    mcms::cache('route', false);
+    unset(cache::getInstance()->route);
   }
 
   /**

@@ -53,7 +53,10 @@ class Session
     $this->data = array();
 
     if ($this->id = $this->getSessionId()) {
-      if (false === ($tmp = mcms::cache($cid = 'session:'. $this->id)) or true) {
+      $cid = 'session:' . $this->id;
+      $cache = cache::getInstance();
+
+      if (false === ($tmp = $cache->$cid)) {
         switch ($this->getStorageType()) {
         case 'file':
           $path = $this->getStoragePath($this->id);
@@ -65,7 +68,7 @@ class Session
           try {
             $tmp = Context::last()->db->getResult("SELECT `data` FROM node__session "
               ."WHERE `sid` = ?", array($this->id));
-            mcms::cache($cid, $tmp);
+            $cache->$cid = $tmp;
           } catch (NotConnectedException $e) {
             $tmp = null;
           } catch (NotInstalledException $e) {
@@ -139,13 +142,16 @@ class Session
         $db->exec("DELETE FROM node__session WHERE `sid` = ?",
           array($this->id));
 
+        $ckey = 'session:' . $this->id;
+        $cache = cache::getInstance();
+
         if (!empty($this->data)) {
           $db->exec("INSERT INTO node__session (`created`, `sid`, `data`) "
             ."VALUES (UTC_TIMESTAMP(), ?, ?)",
             array($this->id, serialize($this->data)));
-          mcms::cache('session:'. $this->id, serialize($this->data));
+          $cache->$ckey = serialize($this->data);
         } else {
-          mcms::cache('session:'. $this->id, false);
+          unset($cache->$ckey);
         }
       }
 

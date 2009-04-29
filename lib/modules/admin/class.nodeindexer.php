@@ -8,7 +8,9 @@ class NodeIndexer
     static $stat = null;
 
     if (null === $stat) {
-      if (!$cache or (false === ($stat = mcms::cache('nodeindexer:stats')))) {
+      $pcache = cache::getInstance();
+
+      if (!$cache or (false === ($stat = $pcache->{'nodeindexer:stats'}))) {
         $stat = array(
           '_total' => 0,
           );
@@ -22,7 +24,7 @@ class NodeIndexer
             self::countTable($ctx, $type, $stat, $schema);
         }
 
-        mcms::cache('nodeindexer:stats', $stat);
+        $pcache->{'nodeindexer:stats'} = $stat;
       }
     }
 
