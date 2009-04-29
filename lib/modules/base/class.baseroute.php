@@ -2,14 +2,6 @@
 
 class BaseRoute
 {
-  /**
-   * @mcms_message ru.molinos.cms.route
-   */
-  public static function on_get_route(Context $ctx, array &$map)
-  {
-    self::get_children($ctx, $map, null, 'GET');
-  }
-
   public static function serve(Context $ctx, $query, array $handler, $param = null)
   {
     $content = '';
