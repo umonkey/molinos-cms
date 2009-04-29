@@ -656,7 +656,7 @@ class Node
 
     $this->stub->save();
 
-    if ($this->checkPermission('p'))
+    if ($this->isNew() and $this->checkPermission('p'))
       $this->stub->publish();
 
     if (count($indexes = $this->getSchema()->getIndexes())) {
