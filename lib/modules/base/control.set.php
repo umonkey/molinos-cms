@@ -106,13 +106,21 @@ class SetControl extends Control
 
   protected function getSelected($data)
   {
-    $f = $this->parents
-      ? 'getLinkedTo'
-      : 'getLinked';
-
-    if (!empty($this->dictionary) and $data instanceof Node)
+    if (!empty($this->dictionary) and $data instanceof Node) {
+      $f = $this->parents
+        ? 'getLinkedTo'
+        : 'getLinked';
       return (array)$data->$f($this->dictionary, true);
-    return (array)$data->{$this->value};
+    }
+
+    $result = $data->{$this->value};
+
+    if (is_string($result))
+      $result = preg_split('/,\s*/', $result, -1, PREG_SPLIT_NO_EMPTY);
+    elseif (!is_array($result))
+      $result = array();
+
+    return $result;
   }
 
   protected function getEnabled($data)
