@@ -45,6 +45,9 @@ class NumberControl extends Control
     if (null === ($value = $data->{$this->value}))
       $value = $this->default;
 
+    if ($value == $this->default)
+      $value = null;
+
     $this->addClass('form-text');
     $this->addClass('form-number');
 
@@ -55,6 +58,9 @@ class NumberControl extends Control
 
   public function set($value, &$node, array $data = array())
   {
+    if (empty($value))
+      $value = $this->default;
+
     $this->validate($value);
 
     $value = str_replace(',', '.', $value);
