@@ -1,4 +1,7 @@
 <?php
+// Работа с оперативным кэшем для Molinos CMS.
+// Для выбора конкретного кэша в начало index.php нужно добавить:
+// define('MCMS_CACHE_PROVIDER', 'имя_класса');
 
 interface iCacheProvider
 {
@@ -28,7 +31,7 @@ abstract class cache implements iCacheProvider
   public static function getInstance()
   {
     if (self::$instance === null) {
-      $list = array('XCache_provider', 'MemCache_provider', 'APC_provider', 'FileCache_provider');
+      $list = array('XCache_provider', 'MemCache_provider', 'APC_provider', 'DBA_DB4_provider', 'DBA_FlatFile_provider', 'FileCache_provider');
 
       if (defined('MCMS_CACHE_PROVIDER') and class_exists(MCMS_CACHE_PROVIDER))
         array_unshift($list, MCMS_CACHE_PROVIDER);
@@ -196,6 +199,85 @@ class MemCache_provider extends cache
   public function __unset($key)
   {
     return $this->host->delete($this->prefix . $key);
+  }
+}
+
+class DBA_DB4_provider extends cache
+{
+  protected $db;
+  protected $write = false;
+  private $handler;
+
+  public function __construct($handler)
+  {
+    $this->handler = $handler;
+    if (file_exists($filename = $this->getFileName()))
+      $this->db = dba_open($filename, 'rd', $this->handler);
+  }
+
+  protected function getFileName()
+  {
+    return MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'cache.' . $this->handler;
+  }
+
+  public static function initialize()
+  {
+    if (in_array('db4', dba_handlers()))
+      return new DBA_DB4_provider('db4');
+  }
+
+  public function getName()
+  {
+    return 'DBA/' . $this->handler;
+  }
+
+  public function __get($key)
+  {
+    if (!$this->db)
+      return false;
+    if (false !== ($value = dba_fetch($key, $this->db)))
+      $value = unserialize($value);
+    return $value;
+  }
+
+  /**
+   * Открывает БД для записи, если она открыта для чтения.
+   */
+  protected function reopen()
+  {
+    if ($this->write)
+      return;
+    if ($this->db)
+      dba_close($this->db);
+    $this->db = dba_open($this->getFilename(), 'cd', $this->handler);
+  }
+
+  public function __set($key, $value)
+  {
+    $this->reopen();
+    dba_replace($key, serialize($value), $this->db);
+  }
+
+  public function __isset($key)
+  {
+    if (false === $this->db)
+      return false;
+    return dba_exists($key, $this->db);
+  }
+
+  public function __unset($key)
+  {
+    $this->reopen();
+    dba_delete($key, $this->db);
+  }
+}
+
+class DBA_FlatFile_provider extends DBA_DB4_provider
+{
+  public static function initialize()
+  {
+    if (in_array('flatfile', dba_handlers()))
+      return new DBA_FlatFile_provider('flatfile');
   }
 }
 
