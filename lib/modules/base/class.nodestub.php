@@ -646,7 +646,7 @@ class NodeStub
         ."WHERE `self`.`left` BETWEEN `parent`.`left` "
         ."AND `parent`.`right` AND `self`.`id` = ? "
         ."ORDER BY `parent`.`left`";
-      foreach ($this->db->getResultsV("id", $sql, array($this->id)) as $id)
+      foreach ((array)$this->db->getResultsV("id", $sql, array($this->id)) as $id)
         $result[] = self::create($id, $this->db);
     }
 
