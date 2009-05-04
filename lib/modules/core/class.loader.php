@@ -14,7 +14,7 @@ require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'functions.php';
 
 class Loader
 {
-  private static function setup()
+  public static function setup()
   {
     define('MCMS_ROOT', dirname(dirname(dirname(dirname(realpath(__FILE__))))));
 
