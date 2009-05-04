@@ -769,6 +769,9 @@ class NodeStub
    */
   public static function isBasicField($fieldName)
   {
+    if (!is_string($fieldName))
+      return false;
+
     switch ($fieldName) {
     case 'id':
     case 'parent_id':
