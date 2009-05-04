@@ -18,11 +18,6 @@ class NodeStub
    */
   private static $stack = array();
 
-  /**
-   * Кэш, помогает при повторной загрузке одного объекта.
-   */
-  private static $cache = array();
-
   private function __construct($id, PDO_Singleton $db = null, array $data = null)
   {
     if ($id instanceof NodeStub)
@@ -202,8 +197,6 @@ class NodeStub
    */
   private function flush()
   {
-    $ckey = $this->getCacheKey();
-    unset(cache::getInstance()->$ckey);
   }
 
   /**
@@ -242,73 +235,66 @@ class NodeStub
     $data = array();
 
     if (null !== $this->id) {
-      $ckey = $this->getCacheKey();
-      $cache = cache::getInstance();
+      $data = array(
+        'id' => $this->id,
+        '#text' => null,
+        );
 
-      if (!is_array($data = $cache->$ckey)) {
-        $data = array(
-          'id' => $this->id,
-          '#text' => null,
-          );
+      // Форсируем загрузку всех параметров.
+      $this->makeSureFieldIsAvailable('this_field_never_exists');
 
-        // Форсируем загрузку всех параметров.
-        $this->makeSureFieldIsAvailable('this_field_never_exists');
+      if (empty($this->data['class']))
+        throw new RuntimeException(t('Не удалось определить тип ноды.'));
 
-        if (empty($this->data['class']))
-          throw new RuntimeException(t('Не удалось определить тип ноды.'));
+      $schema = Schema::load($this->getDB(), $this->data['class']);
 
-        $schema = Schema::load($this->getDB(), $this->data['class']);
+      foreach ($this->getProperties() as $k) {
+        if (empty($k) or 'xml' == $k)
+          continue;
 
-        foreach ($this->getProperties() as $k) {
-          if (empty($k) or 'xml' == $k)
-            continue;
+        $v = $this->$k;
 
-          $v = $this->$k;
+        if (empty($v))
+          continue;
 
-          if (empty($v))
-            continue;
+        $wrap_cdata = true;
+        $wrap_element = true;
 
-          $wrap_cdata = true;
-          $wrap_element = true;
-
-          if ($v instanceof NodeStub or $v instanceof Node) {
-            try {
-              $fmt = isset($schema[$k])
-                ? $schema[$k]->format($v)
-                : null;
-              $v = $v->getXML($k, html::em('html', html::cdata($fmt)));
-              $wrap_cdata = false;
-              $wrap_element = false;
-            } catch (ObjectNotFoundException $e) {
-              $v = null;
-            }
-          }
-
-          elseif (isset($schema[$k])) {
-            $v = $schema[$k]->format($v);
+        if ($v instanceof NodeStub or $v instanceof Node) {
+          try {
+            $fmt = isset($schema[$k])
+              ? $schema[$k]->format($v)
+              : null;
+            $v = $v->getXML($k, html::em('html', html::cdata($fmt)));
             $wrap_cdata = false;
-          }
-
-          elseif (is_array($v))
+            $wrap_element = false;
+          } catch (ObjectNotFoundException $e) {
             $v = null;
-
-          if (!empty($v)) {
-            if (self::isBasicField($k))
-              $data[$k] = $v;
-            elseif (!empty($v)) {
-              if ($wrap_cdata)
-                $v = html::cdata($v);
-              if ($wrap_element)
-                $v = html::em($k, $v);
-              $data['#text'] .= $v;
-            }
           }
         }
 
-        $data['#text'] .= $this->getObject()->getExtraXMLContent();
+        elseif (isset($schema[$k])) {
+          $v = $schema[$k]->format($v);
+          $wrap_cdata = false;
+        }
 
-        $cache->$ckey = $data;
+        elseif (is_array($v))
+          $v = null;
+
+        if (!empty($v)) {
+          if (self::isBasicField($k))
+            $data[$k] = $v;
+          elseif (!empty($v)) {
+            if ($wrap_cdata)
+              $v = html::cdata($v);
+            if ($wrap_element)
+              $v = html::em($k, $v);
+            $data['#text'] .= $v;
+          }
+        }
       }
+
+      $data['#text'] .= $this->getObject()->getExtraXMLContent();
     }
 
     if (null !== $extraContent) {
@@ -541,8 +527,12 @@ class NodeStub
   {
     // Обновляем текущую версию.
     list($sql, $params) = sql::getUpdate('node', $data, 'id');
+    try {
     $sth = $this->db->prepare($sql);
     $sth->execute($params);
+    } catch (Exception $e) {
+      mcms::debug($sql, $params, $data);
+    }
   }
 
   /**
@@ -796,22 +786,14 @@ class NodeStub
     if (null === $this->db or null === $this->id)
       return $this->data = array();
 
-    if (array_key_exists($this->id, self::$cache))
-      $this->data = self::$cache[$this->id];
+    if (null === ($this->data = $this->db->fetch("SELECT * FROM `node` WHERE `id` = ?", array($this->id))))
+      throw new ObjectNotFoundException(t('Объект с номером %id не существует.', array(
+        '%id' => intval($this->id),
+        )));
 
-    else {
-      if (null === ($this->data = $this->db->fetch("SELECT * FROM `node` WHERE `id` = ?", array($this->id))))
-        throw new ObjectNotFoundException(t('Объект с номером %id не существует.', array(
-          '%id' => intval($this->id),
-          )));
-
-      unset($this->data['id']);
-      unset($this->data['name_lc']);
-      unset($this->data['xml']);
-      self::$cache[$this->id] = $this->data;
-
-      mcms::flog('retrieved node ' . $this->id . ' (' . $this->data['class'] . ')');
-    }
+    unset($this->data['id']);
+    unset($this->data['name_lc']);
+    unset($this->data['xml']);
   }
 
   /**
