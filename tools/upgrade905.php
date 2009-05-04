@@ -2,10 +2,12 @@
 
 class MigrationAssistant
 {
+  private $ctx;
+  private $db;
+
   private $path;
   private $site;
   private $conf;
-  private $db;
   private $scheme;
 
   private $reg;
@@ -24,6 +26,8 @@ class MigrationAssistant
       . 'core' . DIRECTORY_SEPARATOR . 'class.loader.php';
 
     Loader::setup();
+
+    $this->ctx = new Context();
 
     $this->reg = new Registry();
     if (!$this->reg->load())
@@ -44,6 +48,7 @@ class MigrationAssistant
       $this->process();
       $this->cleanup();
     } catch (Exception $e) {
+      mcms::fatal($e);
       $this->log("Error: " . rtrim($e->getMessage(), '.'));
       exit(1);
     }
@@ -99,11 +104,12 @@ class MigrationAssistant
       copy($parts['path'], $target);
       $dsn = 'sqlite:' . $target;
       $this->log('new dsn: '. $dsn);
+
+      $this->conf['db.default'] = 'sqlite:database.sqlite';
       break;
     }
 
-    $db = new PDO($dsn);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $db = PDO_Singleton::connect($dsn);
 
     $this->log("PDO connected.");
 
@@ -117,6 +123,7 @@ class MigrationAssistant
     $this->upgradeFields();
     $this->upgradeIndexes();
     $this->upgradeFiles();
+    $this->updateXML();
     $this->upgradeWidgets();
     $this->upgradeDomains();
     $this->writeConfig();
@@ -124,17 +131,24 @@ class MigrationAssistant
 
   private function upgradeTables()
   {
-    $this->db->exec("DROP TABLE IF EXISTS `node2`");
+    $this->db->beginTransaction();
+
+    $this->log('saving ownership information.');
+    $this->db->exec("DELETE FROM `node__rel` WHERE `key` = 'uid'");
+    $this->db->exec("INSERT INTO `node__rel` (tid, nid, `key`) SELECT id, uid, 'uid' FROM node WHERE uid IS NOT NULL");
+
     $this->log('backing up old node table.');
+    $this->db->exec("DROP TABLE IF EXISTS `node2`");
     $this->db->exec("ALTER TABLE `node` RENAME TO `node2`");
+
     $this->log('creating the new node table.');
-    $this->db->exec("CREATE TABLE `node` (`id` integer NOT NULL PRIMARY KEY, `lang` char(4) NOT NULL, `parent_id` integer NULL, `class` varchar(16) NOT NULL, `left` integer NULL, `right` integer NULL, `uid` integer NULL, `created` datetime NULL, `updated` datetime NULL, `published` tinyint(1) NOT NULL DEFAULT '0', `deleted` tinyint(1) NOT NULL DEFAULT '0', `name` VARCHAR(255) NULL, `name_lc` VARCHAR(255) NULL, `data` MEDIUMBLOB NULL, `xml` MEDIUMBLOB NULL)");
+    $this->db->exec("CREATE TABLE `node` (`id` integer NOT NULL PRIMARY KEY, `lang` char(4) NOT NULL, `parent_id` integer NULL, `class` varchar(16) NOT NULL, `left` integer NULL, `right` integer NULL, `created` datetime NULL, `updated` datetime NULL, `published` tinyint(1) NOT NULL DEFAULT '0', `deleted` tinyint(1) NOT NULL DEFAULT '0', `name` VARCHAR(255) NULL, `name_lc` VARCHAR(255) NULL, `data` MEDIUMBLOB NULL, `xml` MEDIUMBLOB NULL)");
+
     $this->log('copying nodes.');
-    $this->db->exec("INSERT INTO `node` (`id`, `lang`, `parent_id`, `class`, `left`, `right`, `uid`, `created`, `updated`, `published`, `deleted`, `name`, `name_lc`, `data`) SELECT `n`.`id`, `n`.`lang`, `n`.`parent_id`, `n`.`class`, `n`.`left`, `n`.`right`, `n`.`uid`, `n`.`created`, `n`.`updated`, `n`.`published`, `n`.`deleted`, `v`.`name`, `v`.`name_lc`, `v`.`data` FROM `node2` `n` INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid`");
-    $this->log('removing the backed up copy.');
+    $this->db->exec("INSERT INTO `node` (`id`, `lang`, `parent_id`, `class`, `left`, `right`, `created`, `updated`, `published`, `deleted`, `name`, `name_lc`, `data`) SELECT `n`.`id`, `n`.`lang`, `n`.`parent_id`, `n`.`class`, `n`.`left`, `n`.`right`, `n`.`created`, `n`.`updated`, `n`.`published`, `n`.`deleted`, `v`.`name`, `v`.`name_lc`, `v`.`data` FROM `node2` `n` INNER JOIN `node__rev` `v` ON `v`.`rid` = `n`.`rid`");
     $this->db->exec("DROP TABLE `node2`");
 
-    foreach (array('lang', 'parent_id', 'class', 'left', 'right', 'uid', 'created', 'updated', 'published', 'deleted', 'name', 'name_lc') as $idx) {
+    foreach (array('lang', 'parent_id', 'class', 'left', 'right', 'created', 'updated', 'published', 'deleted', 'name', 'name_lc') as $idx) {
       $this->log('  indexing node.' . $idx);
       $this->db->exec("CREATE INDEX `IDX_node_{$idx}` ON `node` (`{$idx}`)");
     }
@@ -144,6 +158,7 @@ class MigrationAssistant
       $this->db->exec("DROP TABLE IF EXISTS `{$table}`");
     }
 
+    $this->db->commit();
     $this->log('tables upgraded.');
   }
 
@@ -272,6 +287,8 @@ class MigrationAssistant
   {
     list($fields, $links) = $this->findAllFields();
 
+    $this->db->beginTransaction();
+
     $sth = $this->db->prepare("INSERT INTO `node` (`class`, `lang`, `name`, `data`, `published`) VALUES ('field', 'ru', ?, ?, 1)");
 
     foreach ($fields as $k => $v) {
@@ -285,6 +302,7 @@ class MigrationAssistant
     }
 
     $this->fixFieldNames();
+    $this->db->commit();
 
     $this->log(count($fields) . ' doctype fields created.');
   }
@@ -316,6 +334,7 @@ class MigrationAssistant
   private function createNewIndexes()
   {
     $this->log("creating new indexes.");
+    $this->db->beginTransaction();
 
     $sth = $this->db->prepare("SELECT name, data FROM node WHERE class = 'field'");
     $sth->execute();
@@ -359,6 +378,8 @@ class MigrationAssistant
         }
       }
     }
+
+    $this->db->commit();
   }
 
   private function findAllFields()
@@ -421,6 +442,8 @@ class MigrationAssistant
   // Обновляем файловый архив.
   private function upgradeFiles()
   {
+    $this->db->beginTransaction();
+
     $sel = $this->db->prepare("SELECT id, name, data FROM node WHERE class = 'file'");
     $sel->execute();
 
@@ -461,13 +484,16 @@ class MigrationAssistant
       $upd->execute(array($fileName, serialize($data), $row['id']));
     }
 
-    $this->log(sprintf('%u files renamed, %u left as is.', $count1, $count2));
+    $this->db->commit();
+
+    $this->log(sprintf('%u files renamed, %u not changed.', $count1, $count2));
   }
 
   // Удаление мусора из БД.
   private function cleanup()
   {
     $this->log('cleaning up.');
+    $this->db->beginTransaction();
 
     // 1. Удаляем ссылки на внутренние поля.
     $this->db->exec("DELETE FROM `node__rel` "
@@ -481,6 +507,8 @@ class MigrationAssistant
     $this->db->exec("DELETE FROM node__rel WHERE nid NOT IN (SELECT id FROM node)");
     $this->db->exec("DELETE FROM node__rel WHERE tid NOT IN (SELECT id FROM node)");
     $this->db->exec("DELETE FROM node__access WHERE nid NOT IN (SELECT id FROM node)");
+
+    $this->db->commit();
 
     switch ($this->scheme) {
     case 'sqlite':
@@ -498,7 +526,7 @@ class MigrationAssistant
   private function writeConfig()
   {
     $ini = array();
-    $ini['pdo']['dsn'] = $this->conf['db.default'];
+    $ini['db']['dsn'] = $this->conf['db.default'];
 
     $ini['mail']['from'] = $this->conf['mail.from'];
     $ini['mail']['server'] = $this->conf['mail.server'];
@@ -513,6 +541,31 @@ class MigrationAssistant
 
     ini::write($fileName = os::path($this->site, 'config.ini'), $ini);
     $this->log('wrote ' . $fileName);
+  }
+
+  private function updateXML()
+  {
+    $this->log('updating node.xml');
+
+    $this->db->beginTransaction();
+
+    $sel = $this->db->prepare("SELECT id, lang, parent_id, class, created, updated, published, deleted, name, data FROM node WHERE xml IS NULL");
+    $sel->execute();
+
+    $ctx = new Context();
+
+    for ($count = 0; $row = $sel->fetch(PDO::FETCH_ASSOC); $count++) {
+      $src = $row;
+      if (!empty($row['data']))
+        if (is_array($data = unserialize($row['data'])))
+          $row = array_merge($row, $data);
+      unset($row['data']);
+
+      NodeStub::create($row['id'], $this->db, $row)->refresh()->save();
+    }
+
+    $this->db->commit();
+    $this->log(sprintf('  %u nodes updated.', $count));
   }
 }
 
