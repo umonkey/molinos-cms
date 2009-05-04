@@ -9,7 +9,7 @@ class Config
 
   public function __construct()
   {
-    $this->path = $this->findFile();
+    $this->path = MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'config.ini';
   }
 
   private function readData()
@@ -17,12 +17,7 @@ class Config
     if (!is_readable($this->path))
       $this->data = array();
     else
-      $this->data = include $this->path;
-  }
-
-  private function findFile()
-  {
-    return MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'config.php';
+      $this->data = ini::read($this->path);
   }
 
   private function __isset($varname)
@@ -35,12 +30,17 @@ class Config
     if (null === $this->data)
       $this->readData();
 
-    $res = array_key_exists($varname, $this->data)
-      ? $this->data[$varname]
-      : null;
+    if (2 == count($parts = explode('_', $varname, 2)))
+      $res = isset($this->data[$parts[0]][$parts[1]])
+        ? $this->data[$parts[0]][$parts[1]]
+        : null;
+    else
+      $res = array_key_exists($parts[0], $this->data)
+        ? $this->data[$parts[0]]
+        : array();
 
     switch ($varname) {
-    case 'db':
+    case 'db_dsn':
       if (0 === strpos($res, 'sqlite:'))
         $res = 'sqlite:' . $this->getDirName() . DIRECTORY_SEPARATOR . substr($res, 7);
       break;
@@ -83,17 +83,7 @@ class Config
   public function write()
   {
     ksort($this->data);
-    os::writeArray($this->path, $this->data, true);
-  }
-
-  public function isWritable()
-  {
-    return is_writable($this->path);
-  }
-
-  public function getBaseName()
-  {
-    return preg_replace('/\.(ini|config\.php)$/', '', $this->path);
+    ini::write($this->path, $this->data);
   }
 
   public function getDirName()

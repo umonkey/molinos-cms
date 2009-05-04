@@ -61,10 +61,7 @@ class ModManRPC extends RPCHandler
       $v->set($ctx->post($k, $v->default), $conf);
 
     $cfg = $ctx->config;
-    $tmp = $cfg->modconf;
-    $tmp[$moduleName] = $conf->dump();
-    $cfg->modconf = $tmp;
-
+    $cfg->$moduleName = $conf->dump();
     $cfg->write();
 
     mcms::flog($moduleName . ': configuration updated.');

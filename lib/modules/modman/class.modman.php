@@ -268,7 +268,7 @@ class modman
 
     $schema = self::settings_get($ctx, $name);
     $form = $schema->getForm();
-    $data = $ctx->modconf($name);
+    $data = $ctx->modconf($name, null, array());
 
     $title = $pathinfo['title'];
 
@@ -282,10 +282,13 @@ class modman
       'text' => t('Сохранить'),
       )));
 
-    return html::em('content', array(
+    $result = html::em('content', array(
       'name' => 'form',
       'title' => $name,
       'mode' => 'config',
       ), $form->getXML(Control::data($data)));
+
+    $page = new AdminPage($result);
+    return $page->getResponse($ctx);
   }
 }

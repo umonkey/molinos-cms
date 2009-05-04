@@ -265,8 +265,11 @@ class Session
 
   private function getStoragePath($id)
   {
-    $ctx = Context::last();
-    $default = os::path($ctx->config->getPath('tmpdir'), 'sessions');
-    return os::path(mcms::config('session.path', $default), $id);
+    $config = Context::last()->config;
+
+    if (!($path = $config->session_path))
+      $path = $config->getPath('core_tmpdir', 'sessions');
+
+    return os::path($path, $id);
   }
 }

@@ -50,7 +50,7 @@ class BebopMimeMail
   }
 
   /**
-   * @mcms_message ru.molinos.cms.module.settings.mimemail
+   * @mcms_message ru.molinos.cms.module.settings.mail
    */
   public static function on_get_settings(Context $ctx)
   {
