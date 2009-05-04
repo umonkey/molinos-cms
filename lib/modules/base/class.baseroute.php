@@ -13,6 +13,7 @@ class BaseRoute
       'peer' => $_SERVER['REMOTE_ADDR'],
       'back' => urlencode($_SERVER['REQUEST_URI']),
       'prefix' => null,
+      'files' => MCMS_SITE_FOLDER . '/files/',
       'base' => $ctx->url()->getBase($ctx),
       'version' => MCMS_VERSION,
       );
