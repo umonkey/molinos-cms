@@ -258,7 +258,9 @@ class Session
 
   private function getStorageType()
   {
-    return mcms::config('session.type', 'file');
+    if ('db' != ($type = mcms::config('session_type', 'file')))
+      $type = 'file';
+    return $type;
   }
 
   private function getStoragePath($id)
