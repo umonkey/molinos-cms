@@ -40,35 +40,28 @@ class Router
    */
   private function load_php(Context $ctx)
   {
-    $fileName = self::getCacheFileName();
+    $static = $dynamic = array();
+    $raw = $this->load_ini($ctx);
 
-    if (!is_readable($fileName)) {
-      $static = $dynamic = array();
-      $raw = $this->load_ini($ctx);
+    // Проставляем уровни вложенности.
+    foreach ($raw as $k => $v)
+      $raw[$k]['level'] = count(explode('/', $k));
 
-      // Проставляем уровни вложенности.
-      foreach ($raw as $k => $v)
-        $raw[$k]['level'] = count(explode('/', $k));
-
-      foreach ($raw as $key => $handler) {
-        if ($re = (false !== strpos($key, '*'))) {
-          $key = str_replace('\*', '([^/]+)', preg_quote($key, '|'));
-          if (')' == substr($key, -1) and !empty($handler['optional']))
-            $key .= '?';
-          $dynamic[$key] = $handler;
-        } else {
-          $static[$key] = $handler;
-        }
+    foreach ($raw as $key => $handler) {
+      if ($re = (false !== strpos($key, '*'))) {
+        $key = str_replace('\*', '([^/]+)', preg_quote($key, '|'));
+        if (')' == substr($key, -1) and !empty($handler['optional']))
+          $key .= '?';
+        $dynamic[$key] = $handler;
+      } else {
+        $static[$key] = $handler;
       }
-
-      ksort($static);
-      ksort($dynamic);
-
-      $result = array($static, $dynamic);
-      os::writeArray($fileName, $result, true);
-    } else {
-      $result = include $fileName;
     }
+
+    ksort($static);
+    ksort($dynamic);
+
+    $result = array($static, $dynamic);
 
     return $result;
   }
