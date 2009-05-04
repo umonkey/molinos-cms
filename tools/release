@@ -40,8 +40,10 @@ zip -q9r molinos-cms-$MCMS_VERSION.zip \
   lib/modules/modman \
   lib/modules/nodeapi \
   lib/modules/pdo \
+  lib/modules/routeadmin \
   lib/modules/schema \
   lib/modules/xslt \
+  lib/modules/widgetadmin \
   sites/default
 
 echo -n "Preparing modules: "
