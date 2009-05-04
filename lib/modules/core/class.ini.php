@@ -56,10 +56,12 @@ class ini
       if (!empty($v)) {
         if (is_array($v) and $with_arrays)
           $v = join(',', $v);
-        if (!is_array($v))
-          $output .= (false === strpos($v, " "))
-            ? sprintf("%s = %s\n", $k, $v)
-            : sprintf("%s = \"%s\"\n", $k, $v);
+        if (!is_array($v)) {
+          if (strlen($v) == strcspn($v, ' $?'))
+            $output .= sprintf("%s = %s\n", $k, $v);
+          else
+            $output .= sprintf("%s = \"%s\"\n", $k, $v);
+        }
       }
     }
 
