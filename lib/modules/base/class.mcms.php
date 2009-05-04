@@ -883,9 +883,12 @@ class CrashReport
     if (ob_get_length())
       ob_end_clean();
 
-    header('HTTP/1.1 500 FUBAR');
-    header('Content-Type: text/html; charset=utf-8');
-    header('Content-Length: ' . strlen($html));
+    if (!headers_sent()) {
+      header('HTTP/1.1 500 FUBAR');
+      header('Content-Type: text/html; charset=utf-8');
+      header('Content-Length: ' . strlen($html));
+    }
+
     print $html;
   }
 
