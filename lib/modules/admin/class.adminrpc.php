@@ -144,6 +144,12 @@ class AdminRPC extends RPCHandler
     return $tmp->getHTML();
   }
 
+  public static function on_get_list_by_type(Context $ctx, $path, array $pathinfo, $type)
+  {
+    $tmp = new AdminListHandler($ctx, $type);
+    return $tmp->getHTML();
+  }
+
   public static function on_get_sections(Context $ctx)
   {
     $tmp = new AdminTreeHandler($ctx);
