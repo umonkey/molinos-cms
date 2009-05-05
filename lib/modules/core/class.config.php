@@ -30,6 +30,17 @@ class Config
     if (null === $this->data)
       $this->readData();
 
+    // Обратная совместимость.
+    // TODO: переписать исходные вызовы.
+    switch ($varname) {
+    case 'files':
+      $varname = 'attachment_storage';
+      break;
+    case 'files_ftp':
+      $varname = 'attachment_ftp';
+      break;
+    }
+
     if (2 == count($parts = explode('_', $varname, 2)))
       $res = isset($this->data[$parts[0]][$parts[1]])
         ? $this->data[$parts[0]][$parts[1]]
