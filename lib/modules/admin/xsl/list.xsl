@@ -140,34 +140,6 @@
     </tbody>
   </xsl:template>
 
-  <!-- вывод справочников -->
-  <xsl:template match="data[../@preset='dictlist']" mode="mcms_list">
-    <thead>
-      <tr>
-        <th colspan="2" />
-        <th>Имя</th>
-      </tr>
-    </thead>
-    <tbody>
-      <xsl:for-each select="node">
-        <xsl:sort select="title" />
-        <xsl:if test="isdictionary and @name != 'field'">
-          <tr>
-            <xsl:call-template name="odd_row" />
-            <td class="icon">
-              <a class="icon-zoom" href="admin/content/list?search=class%3A{@name}" />
-            </td>
-            <td>
-              <a href="?q=admin/edit/{@id}&amp;destination={/page/@back}">
-                <xsl:value-of select="title" />
-              </a>
-            </td>
-          </tr>
-        </xsl:if>
-      </xsl:for-each>
-    </tbody>
-  </xsl:template>
-
 
   <!-- вывод доменов -->
   <xsl:template match="data[../@preset = 'pages']" mode="mcms_list">
