@@ -158,7 +158,7 @@ class APC_provider extends cache
 class MemCache_provider extends cache
 {
   private $host;
-  private $flags = MEMCACHE_COMPRESSED;
+  private $flags = 0; // MEMCACHE_COMPRESSED; // В ветке 3.* от этого всё перестаёт работать
 
   public static function initialize()
   {
