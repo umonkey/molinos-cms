@@ -396,6 +396,7 @@ class MigrationAssistant
 
       if (!empty($data['fields'])) {
         foreach ($data['fields'] as $k => $v) {
+          $v['weight'] = 50;
           if (!isset($result[$k]))
             $result[trim(str_replace('_', '', $k), '_')] = $v;
           $links[$k][] = $type;
