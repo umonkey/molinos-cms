@@ -14,6 +14,7 @@
               <th>Имя</th>
               <th>Заголовок</th>
               <th>Тип</th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -50,6 +51,11 @@
                       <xsl:value-of select="@classname" />
                     </xsl:otherwise>
                   </xsl:choose>
+                </td>
+                <td>
+                  <xsl:if test="@orphan">
+                    <em>виджет не используется</em>
+                  </xsl:if>
                 </td>
               </tr>
             </xsl:for-each>
