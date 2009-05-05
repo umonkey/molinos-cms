@@ -8,6 +8,7 @@ class WidgetAdmin
   {
     $list = '';
     $types = Widget::list_types($ctx);
+    $orphan = self::getOrphanWidgets($ctx);
 
     foreach (Widget::loadWidgets($ctx) as $k => $v) {
       $v['name'] = $k;
@@ -16,6 +17,9 @@ class WidgetAdmin
         $inside = html::em('info', $types[strtolower($v['classname'])]);
       else
         $inside = null;
+
+      if (in_array($k, $orphan))
+        $v['orphan'] = true;
 
       $list .= html::em('widget', $v, $inside);
     }
@@ -325,5 +329,21 @@ class WidgetAdmin
         $route[$k]['widgets'] = implode(',', array_intersect(explode(',', $v['widgets']), $widget_names));
 
     return $route;
+  }
+
+  private static function getOrphanWidgets(Context $ctx)
+  {
+    $used = array();
+    $route = BaseRoute::load();
+
+    foreach (BaseRoute::load() as $route) {
+      if (!empty($route['widgets'])) {
+        foreach (explode(',', $route['widgets']) as $w)
+          if (!in_array($w, $used))
+            $used[] = $w;
+      }
+    }
+
+    return array_diff(array_keys(Widget::loadWidgets($ctx)), $used);
   }
 }
