@@ -26,7 +26,7 @@ class AdminListHandler implements iAdminList
   // Кэшируем для исключения повторных вызовов.
   private $count = null;
 
-  public function __construct(Context $ctx)
+  public function __construct(Context $ctx, $type = null)
   {
     $this->ctx = $ctx;
 
@@ -36,7 +36,9 @@ class AdminListHandler implements iAdminList
     if (null !== ($tmp = $ctx->get('published')))
       $this->published = $tmp;
 
-    if (null !== ($tmp = $ctx->get('type')))
+    if (null !== $type)
+      $this->types = explode(',', $type);
+    elseif (null !== ($tmp = $ctx->get('type')))
       $this->types = explode(',', $tmp);
 
     $this->title = t('Список документов');
