@@ -12,8 +12,8 @@
     </thead>
     <tbody>
       <xsl:for-each select="node">
-        <xsl:sort select="title" />
-        <xsl:if test="isdictionary and @name != 'field'">
+        <xsl:sort select="@title" />
+        <xsl:if test="@name != 'field'">
           <tr>
             <xsl:call-template name="odd_row" />
             <td class="icon">
@@ -21,7 +21,7 @@
             </td>
             <td>
               <a href="?q=admin/content/list/{@name}">
-                <xsl:value-of select="title" />
+                <xsl:value-of select="@title" />
               </a>
             </td>
           </tr>

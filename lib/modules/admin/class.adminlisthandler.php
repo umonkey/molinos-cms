@@ -54,12 +54,6 @@ class AdminListHandler implements iAdminList
 
     $data = $this->getData();
 
-    if (empty($data) and count($this->types) == 1 and null === $this->ctx->get('search')) {
-      // Добавление справочника.
-      if ('dictlist' == $this->ctx->get('preset'))
-        $this->ctx->redirect("?q=admin&mode=create&cgroup={$_GET['cgroup']}&dictionary=1&welcome=1&type={$this->types[0]}&destination=CURRENT");
-    }
-
     $output = $this->getNodeActions((array)$this->selectors, $this->actions);
     $output .= $data;
     $output .= $this->getPager();
@@ -193,36 +187,25 @@ class AdminListHandler implements iAdminList
         $this->title = t('Файловый архив');
         $this->actions = array('publish', 'unpublish', 'delete');
         break;
-      case 'schema':
-        $this->types = array('type');
-        $this->actions = array('delete', 'publish', 'unpublish', 'clone', 'reindex', 'touch');
-        $this->title = t('Типы документов');
-        $this->limit = null;
-        $this->page = 1;
-        $this->sort = 'name';
-        break;
       case 'comments':
         $this->types = array('comment');
         $this->title = t('Список комментариев');
         $this->sort = '-id';
-        break;
-      case 'dictlist':
-        $this->title = t('Справочники');
-        $this->types = array('type');
-        $this->linkfield = 'title';
-        $this->sort = 'name';
-        $this->limit = null;
-        $this->page = 1;
-        $this->actions = array('delete', 'publish', 'unpublish', 'clone', 'touch');
-        break;
-      case 'dict':
-        $this->sort = 'name';
         break;
       case '404':
         $this->title = t('Страницы, которые не были найдены');
         break;
       case 'fields':
         $this->types = array('field');
+        break;
+      case 'pages':
+        $this->types = array('domain');
+        $this->title = t('Домены');
+        $this->hidesearch = true;
+        $this->addlink = 'admin/create/domain'
+          .'&destination=' . urlencode(MCMS_REQUEST_URI);
+        $this->sort = 'name';
+        $this->limit = null;
         break;
       }
     }
@@ -290,8 +273,8 @@ class AdminListHandler implements iAdminList
         ? TypeNode::getInternal()
         : array();
 
-      foreach (Node::find($this->ctx->db, array('class' => 'type', 'deleted' => 0, 'published' => 1)) as $n) {
-        if (empty($n->isdictionary) and $this->haveModule($n->adminmodule) and !in_array($n->name, $itypes))
+      foreach (Node::find($this->ctx->db, array('class' => 'type')) as $n) {
+        if ($this->haveModule($n->adminmodule) and !in_array($n->name, $itypes))
           $filter['class'][] = $n->name;
       }
 
