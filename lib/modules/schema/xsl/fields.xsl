@@ -51,20 +51,30 @@
     <tbody>
       <xsl:for-each select="node">
         <xsl:sort select="@published" order="descending" />
-        <xsl:sort select="title" />
-        <xsl:if test="not(isdictionary)">
-          <tr>
-            <xsl:call-template name="odd_row" />
-            <td class="icon">
-              <a class="icon-edit" href="?q=admin/edit/{@id}&amp;destination={/page/@back}" />
-            </td>
-            <td>
-              <a href="?q=admin/content/list/{@name}">
-                <xsl:value-of select="title" />
-              </a>
-            </td>
-          </tr>
-        </xsl:if>
+        <xsl:sort select="@title" />
+        <tr>
+          <xsl:call-template name="odd_row" />
+          <td class="icon">
+            <a class="icon-edit" href="?q=admin/edit/{@id}&amp;destination={/page/@back}" />
+          </td>
+          <td>
+            <xsl:choose>
+              <xsl:when test="@name = 'type'">
+                <xsl:value-of select="@title" />
+              </xsl:when>
+              <xsl:otherwise>
+                <a href="?q={@list}">
+                  <xsl:value-of select="@title" />
+                </a>
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:if test="@count">
+              <xsl:text> (</xsl:text>
+              <xsl:value-of select="@count" />
+              <xsl:text>)</xsl:text>
+            </xsl:if>
+          </td>
+        </tr>
       </xsl:for-each>
     </tbody>
   </xsl:template>

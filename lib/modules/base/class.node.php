@@ -683,10 +683,14 @@ class Node
 
   public function getListURL()
   {
-    $url = empty($_SERVER['HTTP_REFERER'])
-      ? 'admin/content/list'
-      : $_SERVER['HTTP_REFERER'];
-    return $url;
+    switch ($this->class) {
+    case 'domain':
+      return 'admin/structure/routes';
+    case 'widget':
+      return 'admin/structure/widgets';
+    default:
+      return 'admin/content/list/' . $this->class;
+    }
   }
 
   public function hasChildren()

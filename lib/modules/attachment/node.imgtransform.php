@@ -178,4 +178,9 @@ class ImgTransformNode extends Node implements iContentType
   {
     return false;
   }
+
+  public function getListURL()
+  {
+    return 'admin/system/settings/imgtransform';
+  }
 }

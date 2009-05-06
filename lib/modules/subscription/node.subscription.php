@@ -58,4 +58,9 @@ class SubscriptionNode extends Node
   {
     return false;
   }
+
+  public function getListURL()
+  {
+    return 'admin/service/subscription';
+  }
 }

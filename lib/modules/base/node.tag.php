@@ -105,4 +105,9 @@ class TagNode extends Node implements iContentType
 
     return $schema;
   }
+
+  public function getListURL()
+  {
+    return 'admin/structure/sections';
+  }
 };
