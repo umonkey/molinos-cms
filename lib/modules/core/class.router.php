@@ -109,7 +109,7 @@ class Router
 
     // Если страница есть в кэше — выводим сразу, даже не ищем маршрут.
     if (is_array($cached = $cache->$ckey)) {
-      if (time() < $cached['expires']) {
+      if (isset($cached['expires']) and time() < $cached['expires']) {
         header('HTTP/1.1 ' . $cached['code'] . ' ' . $cached['text']);
         header('Content-Type: ' . $cached['type']);
         header('Content-Length: ' . $cached['length']);
