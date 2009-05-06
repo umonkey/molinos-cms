@@ -2,11 +2,6 @@
 
 class CartRPC
 {
-  public static function hookRemoteCall(Context $ctx)
-  {
-    return parent::hookRemoteCall($ctx, __CLASS__);
-  }
-
   public static function getCartContent($items = array())
   {
     $result = array();
@@ -126,6 +121,8 @@ class CartRPC
       $cart[$id] += $ctx->get('qty', 1);
 
     self::saveCart($cart);
+
+    return $ctx->getRedirect();
   }
 
   public static function rpc_change(Context $ctx)
@@ -138,6 +135,8 @@ class CartRPC
     $cart[$id] = $ctx->get('qty', 1);
 
     self::saveCart($cart);
+
+    return $ctx->getRedirect();
   }
 
   public static function rpc_reset(Context $ctx)
