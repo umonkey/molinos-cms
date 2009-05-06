@@ -1,15 +1,18 @@
 <?php
 
-class SchemaList extends AdminListhandler
+class DictList extends AdminListHandler
 {
   protected function setUp()
   {
-    $this->actions = array('delete', 'publish', 'unpublish', 'clone', 'reindex', 'touch');
-    $this->title = t('Типы документов');
+    $this->title = t('Справочники');
+    $this->types = array('type');
+    $this->linkfield = 'title';
+    $this->sort = 'name';
     $this->limit = null;
+    $this->page = 1;
+    $this->actions = array('delete', 'publish', 'unpublish', 'clone', 'touch');
+    $this->addlink = 'admin/content/dict/add';
     $this->hidesearch = true;
-    $this->addlink = '?q=admin/create/type&destination='
-      . urlencode($_SERVER['REQUEST_URI']);
   }
 
   protected function getData()
@@ -24,7 +27,7 @@ class SchemaList extends AdminListhandler
 
     $nodes = '';
     foreach ($data as $node) {
-      if (!$node->isdictionary) {
+      if ($node->isdictionary) {
         $attrs = array(
           'id' => $node->id,
           'name' => $node->name,
