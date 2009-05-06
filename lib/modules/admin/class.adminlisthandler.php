@@ -11,7 +11,6 @@ class AdminListHandler implements iAdminList
   public $title;
   public $actions;
   public $linkfield;
-  public $zoomlink;
   protected $addlink;
 
   protected $selectors;
@@ -391,10 +390,8 @@ class AdminListHandler implements iAdminList
     $result = '';
     $filter = $this->getNodeFilter();
 
-    foreach ($nodes = Node::find($this->ctx->db, $filter, $this->limit, ($this->page - 1) * $this->limit) as $node) {
-      if ('dictlist' != $this->preset or !empty($node->isdictionary))
-        $result .= $node->getXML('node');
-    }
+    foreach ($nodes = Node::find($this->ctx->db, $filter, $this->limit, ($this->page - 1) * $this->limit) as $node)
+      $result .= $node->getXML('node');
 
     return html::em('data', $result);
   }

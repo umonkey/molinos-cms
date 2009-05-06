@@ -71,8 +71,6 @@ class AdminPage
       xslt::transform($xml, $xsl)->send();
     }
 
-    /// mcms::debug($path, $pathinfo);
-
     if (empty($pathinfo['next']))
       mcms::fatal(t('Не указан обработчик для страницы %path (параметр <tt>next</tt>).', array(
         '%path' => $path,
