@@ -4,7 +4,7 @@ class SchemaMenu
 {
   public static function on_get_types(Context $ctx)
   {
-    $tmp = new AdminListHandler($ctx);
+    $tmp = new SchemaList($ctx);
     return $tmp->getHTML('schema', array(
       '#raw' => true,
       ));

@@ -226,6 +226,6 @@ class UserNode extends Node implements iContentType
 
   public function getListURL()
   {
-    return 'admin/access/groups';
+    return 'admin/access/users';
   }
 };

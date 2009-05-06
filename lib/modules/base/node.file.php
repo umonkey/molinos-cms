@@ -630,4 +630,9 @@ class FileNode extends Node implements iContentType
   {
     return os::path(Context::last()->config->getPath('files'), $this->filepath);
   }
+
+  public function getListURL()
+  {
+    return 'admin/content/files';
+  }
 };
