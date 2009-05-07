@@ -30,18 +30,22 @@ class BaseRoute
 
     $page['prefix'] = MCMS_SITE_FOLDER . '/themes/' . $theme;
 
-    try {
-      $content .= self::renderWidgets($ctx, $handler, $param);
-    } catch (UserErrorException $e) {
-      $content = '';
-      $page['status'] = 500;
-      $page['error'] = get_class($e);
-      $page['title'] = $e->getMessage();
-    } catch (Exception $e) {
-      $content = '';
-      $page['status'] = 500;
-      $page['error'] = get_class($e);
-      $page['title'] = $e->getMessage();
+    if (!empty($param) and !is_numeric($param))
+      $page['status'] = 404;
+    else {
+      try {
+        $content .= self::renderWidgets($ctx, $handler, $param);
+      } catch (UserErrorException $e) {
+        $content = '';
+        $page['status'] = 500;
+        $page['error'] = get_class($e);
+        $page['title'] = $e->getMessage();
+      } catch (Exception $e) {
+        $content = '';
+        $page['status'] = 500;
+        $page['error'] = get_class($e);
+        $page['title'] = $e->getMessage();
+      }
     }
 
     if (defined('MCMS_START_TIME'))
