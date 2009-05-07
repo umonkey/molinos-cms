@@ -74,6 +74,25 @@ class Response
     die($content);
   }
 
+  public function dump()
+  {
+    $length = strlen($content = $this->getContent());
+
+    if ($this->cache and $this->ckey and $this->ttl) {
+      $store = array(
+        'code' => $this->code,
+        'text' => $this->getResponseTitle(),
+        'type' => $this->type . '; charset=utf-8',
+        'length' => $length,
+        'content' => $content,
+        'expires' => time() + $this->ttl,
+        );
+      $this->cache->{$this->ckey} = $store;
+    }
+
+    return $content;
+  }
+
   private function getResponseTitle()
   {
     switch ($this->code) {
