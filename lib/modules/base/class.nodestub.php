@@ -653,6 +653,26 @@ class NodeStub
     return $result;
   }
 
+  public function getParentsXML()
+  {
+    $result = '';
+
+    if (null !== $this->id) {
+      $sql = "SELECT `parent`.`id` as `id`, `parent`.`xml` AS `xml` "
+        ."FROM `node` AS `self`, `node` AS `parent` "
+        ."WHERE `self`.`left` BETWEEN `parent`.`left` "
+        ."AND `parent`.`right` AND `self`.`id` = ? "
+        ."ORDER BY `parent`.`left`";
+      $sth = $this->db->prepare($sql);
+      $sth->execute(array($this->id));
+
+      while ($xml = $sth->fetchColumn(1))
+        $result .= $xml;
+    }
+
+    return $result;
+  }
+
   /**
    * Получение списка связанных объектов.
    */
