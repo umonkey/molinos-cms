@@ -4,6 +4,8 @@ class BaseRoute
 {
   public static function serve(Context $ctx, $query, array $handler, $param = null)
   {
+    APIStream::init($ctx);
+
     $content = '';
     $page = array(
       'status' => 200,
@@ -12,10 +14,11 @@ class BaseRoute
       'host' => MCMS_HOST_NAME,
       'peer' => $_SERVER['REMOTE_ADDR'],
       'back' => urlencode($_SERVER['REQUEST_URI']),
+      'back_raw' => $_SERVER['REQUEST_URI'],
       'prefix' => null,
-      'files' => MCMS_SITE_FOLDER . '/files/',
       'base' => $ctx->url()->getBase($ctx),
       'version' => MCMS_VERSION,
+      'api' => 'cms://localhost/',
       );
 
     if (isset($handler['title']))
