@@ -33,7 +33,7 @@ class BaseRoute
 
     $page['prefix'] = MCMS_SITE_FOLDER . '/themes/' . $theme;
 
-    if (!empty($param) and !is_numeric($param))
+    if (!self::check_param($ctx, $param))
       $page['status'] = 404;
     else {
       try {
@@ -87,7 +87,16 @@ class BaseRoute
           continue;
         if (array_key_exists($wname, $widgets) and empty($widgets[$wname]['disabled'])) {
           if (null !== ($widget = Widget::getInstance($wname, $widgets[$wname]))) {
-            $wxml = $widget->render($ctx, $params);
+            try {
+              $wxml = $widget->render($ctx, $params);
+            } catch (Exception $e) {
+              $wxml = html::em('widget', array(
+                'name' => $wname,
+                'error' => get_class($e),
+                'message' => $e->getMessage(),
+                ));
+            }
+
             if ($wname == $ctx->get('widget')) {
               $r = new Response('<?xml version="1.0"?>' . $wxml, 'text/xml');
               $r->send();
@@ -273,8 +282,9 @@ class BaseRoute
         $handler['widgets'] = implode(',', $widgets);
 
       $handler['call'] = 'BaseRoute::serve';
-      if (!isset($handler['cache']))
-        $handler['cache'] = 60;
+      $handler['cache'] = true;
+
+      mcms::debug($handler);
 
       switch ($node->params) {
       case 'doc':
@@ -316,5 +326,23 @@ class BaseRoute
   private static function getRouteFileName()
   {
     return MCMS_ROOT . DIRECTORY_SEPARATOR . MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'route.ini';
+  }
+
+  private static function check_param(Context $ctx, $param)
+  {
+    if (empty($param))
+      return true;
+
+    $xml = Node::findXML($ctx->db, array(
+      'id' => $param,
+      'published' => 1,
+      'deleted' => 0,
+      'class' => $ctx->user->getAccess('r'),
+      ));
+
+    if (!empty($xml))
+      return true;
+
+    return false;
   }
 }
