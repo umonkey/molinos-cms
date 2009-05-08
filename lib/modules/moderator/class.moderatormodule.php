@@ -69,7 +69,7 @@ class ModeratorModule implements iModuleConfig, iNodeHook
       return;
 
     // Некоторые известные типы не модерируем.
-    if (in_array($node->class, array('domain', 'widget', 'user', 'group')))
+    if (in_array($node->class, array('domain', 'widget', 'user', 'group', 'subscription', 'cronstats')))
       return;
 
     // Пользователь сам себе публикатор.
