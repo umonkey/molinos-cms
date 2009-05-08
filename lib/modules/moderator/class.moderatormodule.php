@@ -129,12 +129,14 @@ class ModeratorModule implements iModuleConfig, iNodeHook
           $value = null;
         elseif ($v instanceof AttachmentControl)
           $value = l('?q=attachment.rpc&fid=' . $node->$k, 'скачать файл');
+        elseif ($v instanceof EmailControl)
+          $value = l('mailto:' . $node->$k, $node->$k);
         else
-          $value = $node->$k;
+          $value = mcms_plain($node->$k);
 
         if (null !== $value) {
           $body .= '<dt>'. mcms_plain($v->label) .':</dt>';
-          $body .= '<dd>'. mcms_plain($value) .'</dd>';
+          $body .= '<dd>'. $value .'</dd>';
         }
       }
     }
