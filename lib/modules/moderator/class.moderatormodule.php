@@ -72,12 +72,16 @@ class ModeratorModule
       if (isset($node->$k)) {
         if ($v instanceof PasswordControl)
           $value = null;
+        elseif ($v instanceof EmailControl)
+          $value = html::em('a', array(
+            'href' => 'mailto:' . $node->$k,
+            ), $node->$k);
         else
-          $value = $node->$k;
+          $value = mcms_plain($node->$k);
 
         if (null !== $value) {
-          $body .= '<dt>'. html::plain($v->label) .':</dt>';
-          $body .= '<dd>'. html::plain($value) .'</dd>';
+          $body .= '<dt>'. mcms_plain($v->label) .':</dt>';
+          $body .= '<dd>'. $value .'</dd>';
         }
       }
     }
