@@ -258,8 +258,6 @@ abstract class Widget implements iWidget
       }
     } catch (WidgetHaltedException $e) {
       return false;
-    } catch (Exception $e) {
-      mcms::fatal($e);
     }
 
     return $result;
