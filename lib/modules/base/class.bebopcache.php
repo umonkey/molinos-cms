@@ -163,7 +163,7 @@ class APC_provider extends BebopCache
 class MemCache_provider extends BebopCache
 {
   private $host;
-  private $flags = MEMCACHE_COMPRESSED;
+  private $flags = 0;
 
   public static function isAvailable()
   {
