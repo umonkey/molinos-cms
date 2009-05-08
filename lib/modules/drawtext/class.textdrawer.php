@@ -167,10 +167,12 @@ class TextDrawer
       return $node->getImage();
     }
 
-    $img = imagecreatetruecolor($w * 2, $h * 2);
+    $mul = 1; // было 2 -- зачем?
+
+    $img = imagecreatetruecolor($w * $mul, $h * $mul);
     $white = imagecolorallocate($img, 0xff, 0, 0xff);
     $bkg = imagecolorallocate($img, $this->bgColorR, $this->bgColorG, $this->bgColorB);
-    imagefilledrectangle($img, 0, 0, $w * 2, $h * 2, $bkg);
+    imagefilledrectangle($img, 0, 0, $w * $mul, $h * $mul, $bkg);
 
     return $img;
   }
