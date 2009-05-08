@@ -98,10 +98,12 @@ class StructureMA
       'published' => $page->published,
       );
 
-    foreach (array('title', 'http_code', 'theme', 'lang', 'html_charset', 'params', 'defaultsection', 'robots') as $k) {
+    foreach (array('title', 'http_code', 'theme', 'html_charset', 'params', 'defaultsection', 'robots') as $k) {
       if (isset($page->$k))
         $data[$k] = $page->$k;
     }
+
+    $data['lang'] = $page->language;
 
     $widgets = Node::find(array(
       'class' => 'widget',
