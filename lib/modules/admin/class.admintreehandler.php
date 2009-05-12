@@ -20,16 +20,18 @@ class AdminTreeHandler
     $this->subid = $subid;
   }
 
-  public function getHTML($preset = null)
+  public function getHTML($preset = null, array $options = array())
   {
     $this->setUp($this->preset = $preset);
 
-    $output = html::em('content', array(
+    $options = array_merge($options, array(
       'name' => 'tree',
       'title' => $this->title,
       'preset' => $preset,
       'addlink' => $this->addlink,
-      ), $this->getMassCtl() . $this->getData());
+      ));
+
+    $output = html::em('content', $options, $this->getMassCtl() . $this->getData());
 
     return $output;
   }

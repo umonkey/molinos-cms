@@ -111,8 +111,10 @@ class AdminRPC extends RPCHandler
   public static function on_get_sections(Context $ctx)
   {
     $tmp = new AdminTreeHandler($ctx);
-    $page = new AdminPage($tmp->getHTML('taxonomy'));
-    return $page->getResponse($ctx);
+    return $tmp->getHTML('taxonomy', array(
+      'edit' => $ctx->user->hasAccess('u', 'tag'),
+      'search' => false,
+      ));
   }
 
   public static function on_get_drafts(Context $ctx)
