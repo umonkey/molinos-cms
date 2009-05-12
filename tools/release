@@ -28,6 +28,7 @@ zip -q9r molinos-cms-$MCMS_VERSION.zip \
   .htaccess.dist \
   *.php \
   conf/*.dist \
+  conf/.htaccess \
   doc \
   lib/*.php \
   lib/modules/admin \
