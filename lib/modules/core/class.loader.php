@@ -51,8 +51,12 @@ class Loader
 
     $ctx = new Context();
 
-    $router = new Router();
-    $result = $router->poll($ctx)->dispatch($ctx);
+    try {
+      $router = new Router();
+      $result = $router->poll($ctx)->dispatch($ctx);
+    } catch (Exception $e) {
+      mcms::fatal($e);
+    }
 
     if ($result instanceof Response)
       $result->send();
