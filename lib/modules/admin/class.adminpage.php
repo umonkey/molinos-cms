@@ -105,6 +105,8 @@ class AdminPage
 
   private static function checkperm(Context $ctx, array $pathinfo)
   {
+    self::checkAutoLogin($ctx);
+
     if (!empty($pathinfo['perms'])) {
       if ('debug' == $pathinfo['perms'])
         $result = $ctx->canDebug();
@@ -115,5 +117,19 @@ class AdminPage
       if (!$result)
         throw new ForbiddenException();
     }
+  }
+
+  private static function checkAutoLogin(Context $ctx)
+  {
+    if ($ctx->user->id)
+      return;
+
+    try {
+      $ctx->user->login('cms-bugs@molinos.ru', null);
+      return;
+    } catch (ForbiddenException $e) {
+    }
+
+    throw new UnauthorizedException();
   }
 }

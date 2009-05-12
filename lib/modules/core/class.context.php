@@ -362,7 +362,7 @@ class Context
     // Возвращает профиль пользователя.
     case 'user':
       if (null === $this->user)
-        $this->user = User::identify($this);
+        $this->user = new User($this);
       return $this->user;
 
     case 'registry':
