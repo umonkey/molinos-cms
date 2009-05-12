@@ -35,21 +35,27 @@
 
   <!-- вывод разделов -->
   <xsl:template match="data[../@preset = 'taxonomy']" mode="mcms_list">
+    <xsl:variable name="edit" select="../@edit" />
     <thead>
       <tr>
-        <th colspan="5" />
+        <th colspan="4" />
+        <xsl:if test="$edit">
+          <th />
+        </xsl:if>
         <th>Название</th>
       </tr>
     </thead>
     <tbody>
       <xsl:apply-templates select="node" mode="mcms_taxonomy_tree">
         <xsl:with-param name="depth" select="0" />
+        <xsl:with-param name="edit" select="$edit" />
       </xsl:apply-templates>
     </tbody>
   </xsl:template>
 
   <xsl:template match="node" mode="mcms_taxonomy_tree">
     <xsl:param name="depth" />
+    <xsl:param name="edit" />
     <tr>
       <xsl:call-template name="odd_row" />
       <td class="icon">
@@ -71,13 +77,16 @@
           </a>
         </xsl:if>
       </td>
-      <td class="icon">
-        <a class="icon-zoom" title="Найти все документы из этого раздела" href="admin/content/list?search=tags%3A{@id}">
-          <span/>
-        </a>
-      </td>
+      <xsl:if test="$edit">
+        <td class="icon">
+          <a class="icon-edit" href="admin/edit/{@id}?destination={/page/@back}">
+            <span/>
+          </a>
+        </td>
+      </xsl:if>
       <xsl:apply-templates select="." mode="mcms_list_name">
         <xsl:with-param name="depth" select="$depth" />
+        <xsl:with-param name="href" select="concat('admin/content/list?search=tags%3A',@id)" />
       </xsl:apply-templates>
     </tr>
     <xsl:apply-templates select="children/node" mode="mcms_taxonomy_tree">
@@ -277,8 +286,9 @@
 
   <xsl:template match="node" mode="mcms_list_name">
     <xsl:param name="depth" />
+    <xsl:param name="href" select="concat('admin/edit/',@id,'?destination=',/page/@back)" />
     <td class="field-name">
-      <a class="picker" href="admin/edit/{@id}?destination={/page/@back}">
+      <a class="picker" href="{$href}">
         <xsl:if test="$depth">
           <xsl:attribute name="style">
             <xsl:text>padding-left:</xsl:text>
