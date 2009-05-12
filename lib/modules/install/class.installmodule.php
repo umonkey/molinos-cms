@@ -21,20 +21,30 @@ class InstallModule
       throw new RuntimeException(t('Вы не выбрали тип БД.'));
 
     $config = $ctx->config;
-    $config->db = self::getDSN($data['dbtype'], $data['db'][$data['dbtype']]);
+    if ($config->isok())
+      throw new ForbiddenException(t('Инсталляция невозможна: конфигурационный файл уже есть.'));
 
-    foreach (array('mail_server', 'mail_from', 'mail_errors', 'tmpdir', 'files', 'files_ftp', 'themes') as $key) {
+    $config->db_dsn = self::getDSN($data['dbtype'], $data['db'][$data['dbtype']]);
+
+    foreach (array('mail_server', 'mail_from', 'debug_errors') as $key) {
       if (!empty($data[$key])) {
-        $kname = str_replace('_', '.', $key);
-        $config->$kname = $data[$key];
+        $config->$key = $data[$key];
       }
     }
 
+    $config->base_files = 'files';
+    $config->base_ftp = 'ftp';
+    $config->base_tmpdir = 'tmp';
+
+    // Формируем список отладчиков.
+    $debuggers = '127.0.0.1,' . $_SERVER['REMOTE_ADDR'];
+    $config->debug_allow = substr($debuggers, 0, strrpos($debuggers, '.')) . '.*';
+
     // Проверим соединение с БД.
-    $pdo = PDO_Singleton::connect($config->db);
+    $pdo = PDO_Singleton::connect($config->db_dsn);
 
     $config->write();
-    $ctx->redirect('?q=admin.rpc&action=reload&destination=%3Fq%3Dadmin%2Fsystem');
+    $ctx->redirect('admin/system/reload?destination=%3Fq%3Dadmin%2Fsystem');
 
     /*
     $s = new Structure();
