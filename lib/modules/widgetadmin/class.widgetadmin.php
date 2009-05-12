@@ -24,11 +24,11 @@ class WidgetAdmin
       $list .= html::em('widget', $v, $inside);
     }
 
-    return html::wrap('content', $list, array(
+    return html::em('content', array(
       'name' => 'widgets',
       'base' => self::listurl,
       'title' => t('Виджеты'),
-      ));
+      ), $list);
   }
 
   public static function on_get_add(Context $ctx)

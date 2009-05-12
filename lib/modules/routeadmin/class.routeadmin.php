@@ -26,10 +26,10 @@ class RouteAdmin
       }
     }
 
-    return html::wrap('content', $routes, array(
+    return html::em('content', array(
       'name' => 'routes',
       'title' => t('Маршруты'),
-      ));
+      ), $routes);
   }
 
   public static function on_get_add(Context $ctx)
