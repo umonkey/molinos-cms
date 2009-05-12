@@ -76,6 +76,10 @@ class AuthForm
   public static function on_get_groups(Context $ctx)
   {
     $tmp = new AdminListHandler($ctx);
-    return $tmp->getHTML('groups');
+    return $tmp->getHTML('groups', array(
+      'edit' => $ctx->user->hasAccess('u', 'group'),
+      '#raw' => true,
+      'search' => false,
+      ));
   }
 }

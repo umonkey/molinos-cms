@@ -33,31 +33,6 @@
     </div>
   </xsl:template>
 
-
-
-  <!-- вывод групп -->
-  <xsl:template match="data[../@preset = 'groups']" mode="mcms_list">
-    <thead>
-      <tr>
-        <th colspan="2"/>
-        <th>Имя</th>
-      </tr>
-    </thead>
-    <tbody>
-      <xsl:for-each select="node">
-        <tr>
-          <xsl:call-template name="odd_row" />
-          <td class="icon">
-            <a class="icon-zoom" title="Найти всех пользователей группы" href="admin/access/users?search=tags%3A{@id}">
-              <span/>
-            </a>
-          </td>
-          <xsl:apply-templates select="." mode="mcms_list_name" />
-        </tr>
-      </xsl:for-each>
-    </tbody>
-  </xsl:template>
-
   <!-- вывод разделов -->
   <xsl:template match="data[../@preset = 'taxonomy']" mode="mcms_list">
     <thead>

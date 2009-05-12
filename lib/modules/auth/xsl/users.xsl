@@ -46,4 +46,37 @@
       </xsl:for-each>
     </tbody>
   </xsl:template>
+
+  <!-- вывод групп -->
+  <xsl:template match="data[../@preset = 'groups']" mode="mcms_list">
+    <xsl:variable name="edit" select="../@edit" />
+    <thead>
+      <tr>
+        <th />
+        <xsl:if test="$edit">
+          <th />
+        </xsl:if>
+        <th>Имя</th>
+      </tr>
+    </thead>
+    <tbody>
+      <xsl:for-each select="node">
+        <tr>
+          <xsl:call-template name="odd_row" />
+          <xsl:if test="$edit">
+            <td class="icon">
+              <a class="icon-edit" title="Редактировать" href="admin/edit/{@id}?destination={/page/@back}">
+                <span/>
+              </a>
+            </td>
+          </xsl:if>
+          <td class="field-name">
+            <a href="admin/access/users?search=tags%3A{@id}">
+              <xsl:value-of select="@name" />
+            </a>
+          </td>
+        </tr>
+      </xsl:for-each>
+    </tbody>
+  </xsl:template>
 </xsl:stylesheet>
