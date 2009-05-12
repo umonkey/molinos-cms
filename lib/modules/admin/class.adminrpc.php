@@ -108,8 +108,6 @@ class AdminRPC extends RPCHandler
     if (0 !== strpos($list, 'admin/content/list/'))
       $ctx->redirect($list);
 
-    mcms::debug($type, Node::create($type)->getListURL());
-
     $tmp = new AdminListHandler($ctx, $type);
     return $tmp->getHTML();
   }
@@ -270,84 +268,6 @@ class AdminRPC extends RPCHandler
           ),
         ),
       ));
-  }
-
-  /**
-   * Поиск (форма).
-   */
-  public static function on_get_search_form(Context $ctx)
-  {
-    $output = '';
-
-    $url = new url($ctx->get('from'));
-
-    if (null === $url->arg('preset')) {
-      $types = Node::find($ctx->db, array(
-        'class' => 'type',
-        'published' => 1,
-        'deleted' => 0,
-        'name' => $ctx->user->getAccess('r'),
-        ));
-
-      $list = array();
-      foreach ($types as $type)
-        if (!$type->isdictionary)
-          $list[$type->name] = $type->title;
-
-      $tmp = '';
-      foreach ($list as $k => $v)
-        $tmp .= html::em('type', array(
-          'name' => $k,
-          'title' => $v,
-          ));
-      $output .= html::em('types', $tmp);
-    }
-
-    $tmp = '';
-    foreach (Node::getSortedList('user', 'fullname', 'id') as $k => $v)
-      $tmp .= html::em('user', array(
-        'id' => $k,
-        'name' => $v,
-        ));
-    $output .= html::em('users', $tmp);
-
-    if (null === $url->arg('preset')) {
-      $tmp = '';
-      foreach (Node::getSortedList('tag', 'id', 'name') as $k => $v)
-        $tmp .= html::em('section', array(
-          'id' => $k,
-          'name' => $v,
-          ));
-      $output .= html::em('sections', $tmp);
-    }
-
-    return html::em('content', array(
-      'name' => 'search',
-      'query' => $ctx->get('query'),
-      'from' => urlencode($ctx->get('from')),
-      ), $output);
-  }
-
-  /**
-   * Поиск (обработка).
-   */
-  public static function rpc_post_search(Context $ctx)
-  {
-    $term = $ctx->post('search_term');
-
-    if (null !== ($tmp = $ctx->post('search_class')))
-      $term .= ' class:' . $tmp;
-
-    if (null !== ($tmp = $ctx->post('search_uid')))
-      $term .= ' uid:' . $tmp;
-
-    if (null !== ($tmp = $ctx->post('search_tag')))
-      $term .= ' tags:' . $tmp;
-
-    $url = new url($ctx->get('from'));
-    $url->setarg('search', trim($term));
-
-    $ctx->redirect($url->string());
   }
 
   /**
