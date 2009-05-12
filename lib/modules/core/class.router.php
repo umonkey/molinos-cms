@@ -117,11 +117,13 @@ class Router
       }
     }
 
-    if (false === ($tmp = $this->find($ctx)))
-      return false;
+    $tmp = $this->find($ctx);
 
     if ($ctx->debug('route'))
       mcms::debug($tmp, $this);
+
+    if (false === $tmp)
+      return false;
 
     list($match, $args) = $tmp;
 
