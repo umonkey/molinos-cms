@@ -57,7 +57,18 @@ class Config
     if (null === $this->data)
       $this->readData();
 
-    $this->data[$varname] = $value;
+    if (false === strpos($varname, '_'))
+      $this->data[$varname] = $value;
+    else {
+      list($a, $b) = explode('_', $varname, 2);
+      if (!array_key_exists($a, $this->data))
+        $this->data[$a] = array();
+      elseif (!is_array($this->data[$a]))
+        throw new RuntimeException(t('Ключ %name уже занят строчным параметром.', array(
+          '%name' => $a,
+          )));
+      $this->data[$a][$b] = $value;
+    }
   }
 
   private function __unset($varname)
