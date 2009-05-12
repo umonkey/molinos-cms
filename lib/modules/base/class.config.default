@@ -1,8 +1,0 @@
-<?php return array (
-  'mail_from' => 'no-reply@molinos.ru',
-  'mail_server' => 'localhost',
-  'mail_errors' => 'cms-bugs@molinos.ru',
-  'files' => 'files',
-  'files_ftp' => 'ftp',
-  'tmpdir' => 'tmp',
-);
