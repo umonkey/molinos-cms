@@ -268,8 +268,8 @@ class Session
     $config = Context::last()->config;
 
     if (!($path = $config->session_path))
-      $path = $config->getPath('core_tmpdir', 'sessions');
+      $path = $config->getPath('base_tmpdir', 'sessions');
 
-    return os::path($path, $id);
+    return os::path($path, $id . '.session');
   }
 }
