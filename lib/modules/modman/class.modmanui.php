@@ -158,6 +158,7 @@ class ModManUI
     return self::getXML2($ctx, $modules, array(
       'mode' => 'install',
       'title' => t('Установка модулей'),
+      'release' => MCMS_RELEASE,
       ));
   }
 
@@ -203,6 +204,12 @@ class ModManUI
       'mode' => 'upgrade',
       'title' => t('Обновление модулей'),
       ));
+  }
+
+  public static function on_get_reload(Context $ctx)
+  {
+    modman::updateDB();
+    return $ctx->getRedirect();
   }
 
   private static function getXML2(Context $ctx, array $list, array $options)
