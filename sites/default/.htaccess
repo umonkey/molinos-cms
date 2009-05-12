@@ -1,0 +1,4 @@
+<FilesMatch "\.(sqlite|php|ini|db4|flatfile)$"> 
+  Order allow,deny 
+  Deny from all 
+</FilesMatch>
