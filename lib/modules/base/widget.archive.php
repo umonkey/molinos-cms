@@ -172,7 +172,8 @@ class ArchiveWidget extends Widget implements iWidget
           $result['days'] = $this->getDayList($options, $query);
       }
 
-      $result['current'] = $options['current'];
+      if (isset($options['current']))
+        $result['current'] = $options['current'];
     }
 
     return $result;
