@@ -171,7 +171,7 @@ class mcms
           elseif (is_string($arg) and !empty($arg))
             $output[] = $arg;
           else
-            $output[] = preg_replace('/ =>\s+/', ' => ', var_export($arg, true))
+            $output[] = preg_replace('/ =>\s+/', ' => ', self::dump($arg))
               .';';
         }
       } else {
@@ -199,6 +199,13 @@ class mcms
 
       die();
     }
+  }
+
+  private static function dump($value)
+  {
+    ob_start();
+    var_dump($value);
+    return trim(ob_get_clean());
   }
 
   public static function log($op, $message, $nid = null)
