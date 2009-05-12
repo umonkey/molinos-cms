@@ -24,7 +24,7 @@ class AuthBasicRPC extends RPCHandler
     $node->save();
     $ctx->db->commit();
 
-    User::authorize($node->name, null, $ctx, true);
+    $ctx->user->login($node->name, null, true);
     mcms::flog($node->name . ' logged in using OTP.');
   }
 }

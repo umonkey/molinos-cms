@@ -17,9 +17,6 @@ class AuthModuleTests extends PHPUnit_Framework_TestCase
     $node->save();
     $node->publish();
 
-    $this->assertTrue(!empty($node->id));
-    User::authorize('tt@mail.ru','123', $ctx);
-
     $node->delete();
 
     $db->rollback();

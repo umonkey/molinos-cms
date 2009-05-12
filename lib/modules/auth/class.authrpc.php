@@ -105,7 +105,7 @@ class AuthRPC extends RPCHandler
     }
 
     if (empty($uid))
-      User::authorize(null, null, $ctx);
+      $ctx->user->logout();
     else
       self::login($uid);
 

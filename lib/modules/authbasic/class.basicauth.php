@@ -46,6 +46,6 @@ class BasicAuth
     if (false === strpos($login = $params['login'], '@'))
         throw new BadRequestException(t('Введённый идентификатор не похож на email.'));
 
-    User::authorize($login, $params['password'], $ctx);
+    $ctx->user->login($login, $params['password']);
   }
 }

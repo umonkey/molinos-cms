@@ -32,48 +32,6 @@ class AdminRPC extends RPCHandler
       'back' => urlencode(MCMS_REQUEST_URI),
       );
 
-    try {
-      if (!$ctx->user->id) {
-        if (!$ctx->get('autologin')) {
-          $user = Node::find($ctx->db, array(
-            'class' => 'user',
-            'name' => 'cms-bugs@molinos.ru',
-            'deleted' => 0,
-            'published' => 1,
-            ));
-          if ($user) {
-            $user = array_shift($user);
-            if ($user->getObject()->checkpw('')) {
-              User::authorize($user->name, '', $ctx);
-              $next = new url($ctx->url());
-              $next->setarg('autologin', 1);
-              $ctx->redirect($next->string());
-            }
-          }
-        }
-
-        throw new UnauthorizedException();
-      }
-    }
-
-    catch (UnauthorizedException $e) {
-      $page['status'] = $e->getCode();
-      $page['title'] = $e->getMessage();
-      $result = html::em('content', array(
-        'name' => 'login',
-        ), $ctx->registry->unicast('ru.molinos.cms.auth.form', array($ctx, $ctx->get('authmode'))));
-      $xmlmenu = null;
-    }
-
-    catch (Exception $e) {
-      $result = '';
-      if ($e instanceof UserErrorException)
-        $page['status'] = $e->getCode();
-      else
-        $page['status'] = 500;
-      $page['title'] = $e->getMessage();
-    }
-
     $page['debug'] = $ctx->canDebug();
 
     if (is_string($result)) {
@@ -209,7 +167,7 @@ class AdminRPC extends RPCHandler
     $types = Node::find($ctx->db, array(
       'class' => 'type',
       'name' => $ctx->user->getAccess('c'),
-      '-name' => User::getAnonymous()->getAccess('c'),
+      '-name' => $ctx->user->getAnonymous()->getAccess('c'),
       'published' => 1,
       ));
 
@@ -431,7 +389,7 @@ class AdminRPC extends RPCHandler
       'more' => '?q=admin&cgroup=content&action=list&search=uid%3A' . $ctx->user->id,
       ));
 
-    $anon = User::getAnonymous();
+    $anon = $ctx->user->getAnonymous();
     $output .= self::getDashboardXML($ctx->db, array(
       'published' => 1,
       'class' => 'type',

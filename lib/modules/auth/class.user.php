@@ -4,17 +4,32 @@
 class User
 {
   private $node;
-  private $groups = null;
-  private $access = null;
-  private $session = null;
+  private $groups;
+  private $access;
+  private $ctx;
+  private $load;
 
-  private static $instance = null;
-
-  public function __construct(NodeStub $user)
+  // Базовая инициализация объекта. Ничего не делает.
+  public function __construct(Context $ctx)
   {
-    $this->node = $user;
+    $this->ctx = $ctx;
+    $this->reset();
   }
 
+  /**
+   * Сбрасывает всю информацию.
+   */
+  protected function reset()
+  {
+    $this->node = null;
+    $this->groups = null;
+    $this->access = null;
+    $this->load = true;
+  }
+
+  /**
+   * Проверка наличия у пользователя нужных прав.
+   */
   public function hasAccess($mode, $type)
   {
     $map = $this->loadAccess();
@@ -25,13 +40,20 @@ class User
     return false;
   }
 
+  /**
+   * Проверка наличия у пользователя нужных прав.
+   * При их отсутствии кидает исключение.
+   */
   public function checkAccess($mode, $type)
   {
     if (!$this->hasAccess($mode, $type))
       throw new ForbiddenException();
   }
 
-  public function getAccess($mode)
+  /**
+   * Возвращает список типов, к которым у пользователя есть доступ.
+   */
+  public function getAccess($mode = 'r')
   {
     $map = $this->loadAccess();
 
@@ -41,7 +63,9 @@ class User
     return array();
   }
 
-  // Загружаем информацию о правах.
+  /**
+   * Загрузка информации о правах.
+   */
   private function loadAccess()
   {
     if (null === $this->access)
@@ -62,7 +86,7 @@ class User
       return $result;
 
     $result = array();
-    $data = Context::last()->db->getResults($sql);
+    $data = $this->ctx->db->getResults($sql);
     $mask = array('c', 'r', 'u', 'd', 'p');
 
     foreach ($data as $row) {
@@ -76,68 +100,82 @@ class User
     return $result;
   }
 
-  // ОСНОВНОЙ ИНТЕРФЕЙС
-
-  // Восстановление пользователя из сессии.  Если пользователь не
-  // идентифицирован, будет загружен обычный анонимный профиль, без
-  // поддержки сессий.
-  public static function identify(Context $ctx)
+  /**
+   * Вход с проверкой пароля.
+   * При возникновении ошибки кидает исключение.
+   */
+  public function login($name, $password, $skipPasswordCheck = false)
   {
-    $uid = mcms::session('uid');
-    return new User(NodeStub::create($uid, $ctx->db));
-  }
+    $node = Node::load(array(
+      'class' => 'user',
+      'deleted' => 0,
+      'name' => $name,
+      ));
 
-  // Идентифицирует или разлогинивает пользователя.
-  public static function authorize($login, $password, Context $ctx, $skipcheck = false)
-  {
-    // Разлогинивание.
-    if (empty($login))
-      $user = NodeStub::create(null, $ctx->db);
-
-    // Обычная авторизация.
-    else {
-      $uid = $ctx->db->getResult("SELECT `id` FROM `node` WHERE `published` = 1 AND `deleted` = 0 AND `class` = 'user' AND `name` = ?", array($login));
-      if (empty($uid))
-        throw new ForbiddenException(t('Нет такого пользователя.'));
-      $user = NodeStub::create($uid, $ctx->db);
-
-      if (empty($user->password) and empty($password))
-        ;
-      elseif ((md5($password) != $user->password) and !$skipcheck)
+    if (!$skipPasswordCheck) {
+      if (!empty($node->password) and md5($password) != $node->password)
         throw new ForbiddenException(t('Неверный пароль.'));
     }
 
-    mcms::session('uid', $user->id);
+    $this->node = $node;
 
-    return new User($user);
+    mcms::session('uid', $node->id);
   }
 
+  /**
+   * Выход.
+   */
+  public function logout()
+  {
+    mcms::session('uid', null);
+    $this->reset();
+  }
+
+  /**
+   * Обращение к свойствам профиля.
+   * Прозрачно загружает пользователя.
+   */
   public function __get($key)
   {
-    return $this->node->$key;
+    switch ($key) {
+    case 'id':
+      if (null === ($node = $this->getNode()))
+        return null;
+      return $node->id;
+    default:
+      throw new InvalidArgumentException(t('У класса %class нет свойства %property.', array(
+        '%class' => __CLASS__,
+        '%property' => $key,
+        )));
+    }
   }
 
-  public function __isset($key)
-  {
-    return isset($this->node->$key);
-  }
-
+  /**
+   * Возвращает профиль пользователя.
+   */
   public function getNode()
   {
+    if ($this->load) {
+      if (is_numeric($uid = mcms::session('uid')))
+        $this->node = Node::load(array(
+          'class' => 'user',
+          'deleted' => 0,
+          'published' => 1,
+          'id' => $uid,
+          ));
+      $this->load = false;
+    }
+
     return $this->node;
   }
 
-  public function getRaw()
-  {
-    return (null === $this->node)
-      ? array()
-      : $this->node->getRaw();
-  }
-
+  /**
+   * Возвращает группы, в которых состоит пользователь.
+   */
   public function getGroups()
   {
     if (null === $this->groups) {
-      $this->groups = (array)Context::last()->db->getResultsKV("id", "name", "SELECT `id`, `name` FROM `node` WHERE `deleted` = 0 AND `published` = 1 AND `class` = 'group' AND `id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ?)", array($this->node->id));
+      $this->groups = (array)$this->ctx->db->getResultsKV("id", "name", "SELECT `id`, `name` FROM `node` WHERE `deleted` = 0 AND `published` = 1 AND `class` = 'group' AND `id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ?)", array($this->id));
       $this->groups[0] = t('Посетители');
     }
 
@@ -167,23 +205,23 @@ class User
     return !empty($i);
   }
 
-  public function getName()
-  {
-    return $this->node->getName();
-  }
-
   /**
    * Получение списка разделов, доступных пользователю.
    */
   public function getPermittedSections()
   {
     $uids = join(", ", array_keys($this->getGroups()));
-    $list = Context::last()->db->getResultsV("nid", "SELECT nid FROM node__access WHERE uid IN ({$uids}) AND c = 1 AND nid IN (SELECT id FROM node WHERE class = 'tag' AND deleted = 0)");
+    $list = $this->ctx->db->getResultsV("nid", "SELECT nid FROM node__access WHERE uid IN ({$uids}) AND c = 1 AND nid IN (SELECT id FROM node WHERE class = 'tag' AND deleted = 0)");
     return $list;
   }
 
-  public static function getAnonymous()
+  /**
+   * Возвращает профиль анонимного пользователя.
+   */
+  public function getAnonymous()
   {
-    return new User(NodeStub::create(null));
+    $user = new User($this->ctx);
+    $user->load = false;
+    return $user;
   }
 }

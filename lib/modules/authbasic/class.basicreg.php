@@ -56,6 +56,6 @@ class BasicReg
     $node->save();
     $ctx->db->commit();
 
-    User::authorize($node->name, $password, $ctx);
+    $ctx->user->login($node->name, $password);
   }
 }

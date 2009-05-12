@@ -218,10 +218,10 @@ class FormWidget extends Widget
 
   private function getAllowedTypes()
   {
+    $u = context::last()->user;
+
     if ($this->anonymous)
-      $u = User::getAnonymous();
-    else
-      $u = Context::last()->user;
+      $u = $u->getAnonymous();
 
     return $u->getAccess('c');
   }
