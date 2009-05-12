@@ -104,6 +104,12 @@ class AdminRPC extends RPCHandler
 
   public static function on_get_list_by_type(Context $ctx, $path, array $pathinfo, $type)
   {
+    $list = Node::create($type)->getListURL();
+    if (0 !== strpos($list, 'admin/content/list/'))
+      $ctx->redirect($list);
+
+    mcms::debug($type, Node::create($type)->getListURL());
+
     $tmp = new AdminListHandler($ctx, $type);
     return $tmp->getHTML();
   }
