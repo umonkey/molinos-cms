@@ -111,42 +111,8 @@
       </label>
       <label>
         <span>Отправлять сообщения об ошибках на:</span>
-        <input type="text" class="form-text" name="mail_errors" value="cms-bugs@molinos.ru" />
+        <input type="text" class="form-text" name="debug_errors" value="cms-bugs@molinos.ru" />
       </label>
-    </fieldset>
-
-    <fieldset id="fs-settings">
-      <legend>Общие настройки <span>(лучше оставить как есть)</span></legend>
-      <div>
-        <label>
-          <span>Папка для временных файлов:</span>
-          <xsl:call-template name="pathfield">
-            <xsl:with-param name="name" select="'tmpdir'" />
-            <xsl:with-param name="default" select="'tmp'" />
-          </xsl:call-template>
-        </label>
-        <label>
-          <span>Папка для загружаемых файлов:</span>
-          <xsl:call-template name="pathfield">
-            <xsl:with-param name="name" select="'files'" />
-            <xsl:with-param name="default" select="'files'" />
-          </xsl:call-template>
-        </label>
-        <label>
-          <span>Папка, доступная через FTP:</span>
-          <xsl:call-template name="pathfield">
-            <xsl:with-param name="name" select="'files_ftp'" />
-            <xsl:with-param name="default" select="'ftp'" />
-          </xsl:call-template>
-        </label>
-        <label>
-          <span>Папка с темами оформления:</span>
-          <xsl:call-template name="pathfield">
-            <xsl:with-param name="name" select="'themes'" />
-            <xsl:with-param name="default" select="'themes'" />
-          </xsl:call-template>
-        </label>
-      </div>
     </fieldset>
   </xsl:template>
 
