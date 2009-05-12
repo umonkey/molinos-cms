@@ -239,7 +239,12 @@ class Context
   {
     $url1 = new url($url);
 
-    if (!isset($url1->path) and !empty($_GET['__cleanurls'])) {
+    if (empty($_GET['__cleanurls'])) {
+      if (isset($url1->path)) {
+        $url1->setarg('q', $url1->path);
+        $url1->path = null;
+      }
+    } elseif (!isset($url1->path)) {
       $url1->path = $url1->arg('q');
       $url1->setarg('q', null);
     }
