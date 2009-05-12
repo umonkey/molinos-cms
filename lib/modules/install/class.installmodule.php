@@ -1,13 +1,8 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class InstallModule extends RPCHandler
+class InstallModule
 {
-  public static function on_rpc(Context $ctx)
-  {
-    return parent::hookRemoteCall($ctx, __CLASS__);
-  }
-
   public static function rpc_get_default(Context $ctx)
   {
     $xml = self::listDriversXML();
