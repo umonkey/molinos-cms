@@ -197,7 +197,7 @@ class BaseRoute
     return $result;
   }
 
-  private static function getGetParams(Context $ctx)
+  public static function getGetParams(Context $ctx)
   {
     $result = '';
 

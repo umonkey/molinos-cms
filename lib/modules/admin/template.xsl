@@ -235,7 +235,7 @@
   <!-- расширенный поиск -->
   <xsl:template match="content[@name = 'search']" mode="content">
     <h2>Расширенный поиск</h2>
-    <form method="post" class="advsearch" action="?q=admin.rpc&amp;action=search&amp;from={@from}">
+    <form method="post" class="advsearch" action="?q=admin/search&amp;from={@from}">
       <table>
         <tr>
           <th>

@@ -37,8 +37,10 @@ class AdminPage
     $menu = new AdminMenu($router->getStatic());
 
     $this->content .= /* $router->getPath($ctx) . */ $menu->getXML($ctx);
-    $this->content .= html::wrap('request', html::wrap('user', $ctx->user->getNode()->getXML()));
 
+    $request = html::wrap('user', $ctx->user->getNode()->getXML());
+    $request .= BaseRoute::getGetParams($ctx);
+    $this->content .= html::wrap('request', $request);
 
     return xslt::transform(html::em('page', $page, $this->content), $this->xsl);
   }
