@@ -18,47 +18,35 @@
     <h2>
       <xsl:value-of select="@title" />
     </h2>
-    <xsl:if test="status">
-      <div id="modmanresult">
-        <p>Результат выполнения операции:</p>
+    <xsl:choose>
+      <xsl:when test="module">
+        <xsl:apply-templates select="." mode="status" />
+        <div class="modman">
+          <xsl:apply-templates select="." mode="module-extras" />
+          <form method="post" action="?q=modman.rpc&amp;action={@mode}&amp;destination={/page/request/@uri}">
+            <table>
+              <tbody>
+                <xsl:apply-templates select="module">
+                  <xsl:sort select="@id" />
+                </xsl:apply-templates>
+              </tbody>
+            </table>
+            <p class="note">Если при установке модулей возникают проблемы, вы можете скачать и установить их вручную, воспользовавшись специальной ссылкой.</p>
+            <input class="form-submit" type="submit" value="Применить" />
+          </form>
+          <xsl:if test="not(module)">
+            <p>Удивительно, но ни один модуль не найден.</p>
+          </xsl:if>
+        </div>
+      </xsl:when>
+      <xsl:otherwise>
+        <p>Информация о модулях отсутствует. Обычно она обновляется автоматически, <a href="http://code.google.com/p/molinos-cms/wiki/mod_cron">планировщиком задач</a>. Если этого не происходит, значит настройки сервера не позволяют устанавливать соединения с другими веб-серверами. В любом случае, у вас есть два варианта действий:</p>
         <ol>
-          <xsl:for-each select="status">
-            <li>
-              <xsl:value-of select="@module" />
-              <xsl:text>: </xsl:text>
-              <xsl:choose>
-                <xsl:when test="@result = 'removed'">
-                  <xsl:text>удалён</xsl:text>
-                </xsl:when>
-                <xsl:when test="@result = 'installed'">
-                  <xsl:text>установлен</xsl:text>
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:text>возникла ошибка</xsl:text>
-                </xsl:otherwise>
-              </xsl:choose>
-            </li>
-          </xsl:for-each>
+          <li><a href="admin/system/modules/reload?destination={/page/@back}">Попытаться обновить список сейчас</a></li>
+          <li><a href="http://code.google.com/p/molinos-cms/downloads/list?can=1&amp;q=label%3AR{@release}+type%3Amodule">Скачать и установить модули вручную</a></li>
         </ol>
-      </div>
-    </xsl:if>
-    <div class="modman">
-      <xsl:apply-templates select="." mode="module-extras" />
-      <form method="post" action="?q=modman.rpc&amp;action={@mode}&amp;destination={/page/request/@uri}">
-        <table>
-          <tbody>
-            <xsl:apply-templates select="module">
-              <xsl:sort select="@id" />
-            </xsl:apply-templates>
-          </tbody>
-        </table>
-        <p class="note">Если при установке модулей возникают проблемы, вы можете скачать и установить их вручную, воспользовавшись специальной ссылкой.</p>
-        <input class="form-submit" type="submit" value="Применить" />
-      </form>
-      <xsl:if test="not(module)">
-        <p>Удивительно, но ни один модуль не найден.</p>
-      </xsl:if>
-    </div>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="module">
@@ -188,5 +176,32 @@
         </xsl:if>
       </select>
     </label>
+  </xsl:template>
+
+  <xsl:template match="content" mode="status">
+    <xsl:if test="status">
+      <div id="modmanresult">
+        <p>Результат выполнения операции:</p>
+        <ol>
+          <xsl:for-each select="status">
+            <li>
+              <xsl:value-of select="@module" />
+              <xsl:text>: </xsl:text>
+              <xsl:choose>
+                <xsl:when test="@result = 'removed'">
+                  <xsl:text>удалён</xsl:text>
+                </xsl:when>
+                <xsl:when test="@result = 'installed'">
+                  <xsl:text>установлен</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>возникла ошибка</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
+            </li>
+          </xsl:for-each>
+        </ol>
+      </div>
+    </xsl:if>
   </xsl:template>
 </xsl:stylesheet>
