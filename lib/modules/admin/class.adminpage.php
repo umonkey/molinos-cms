@@ -97,7 +97,7 @@ class AdminPage
       return $output;
     } catch (NotConnectedException $e) {
       if (is_dir(os::path('lib', 'modules', 'install')))
-        $ctx->redirect('install');
+        $ctx->redirect('install?destination=' . urlencode($_SERVER['REQUEST_URI']));
       else
         mcms::fatal('Система не проинсталлирована и модуля install нет.');
     }
