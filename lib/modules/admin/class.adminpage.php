@@ -55,45 +55,52 @@ class AdminPage
 
     self::checkperm($ctx, $pathinfo);
 
-    if (!$ctx->user->id) {
-      $page = array(
-        'status' => 401,
-        'error' => 'UnauthorizedException',
-        'version' => MCMS_VERSION,
-        'base' => $ctx->url()->getBase($ctx),
-        'prefix' => MCMS_SITE_FOLDER . '/themes',
-        );
-      $html = $ctx->registry->unicast('ru.molinos.cms.auth.form', array($ctx, $ctx->get('authmode')));
+    try {
+      if (!$ctx->user->id) {
+        $page = array(
+          'status' => 401,
+          'error' => 'UnauthorizedException',
+          'version' => MCMS_VERSION,
+          'base' => $ctx->url()->getBase($ctx),
+          'prefix' => MCMS_SITE_FOLDER . '/themes',
+          );
+        $html = $ctx->registry->unicast('ru.molinos.cms.auth.form', array($ctx, $ctx->get('authmode')));
 
-      $xml = html::em('page', $page, $html);
-      $xsl = os::path('lib', 'modules', 'admin', 'template.xsl');
+        $xml = html::em('page', $page, $html);
+        $xsl = os::path('lib', 'modules', 'admin', 'template.xsl');
 
-      xslt::transform($xml, $xsl)->send();
+        xslt::transform($xml, $xsl)->send();
+      }
+
+      if (empty($pathinfo['next']))
+        mcms::fatal(t('Не указан обработчик для страницы %path (параметр <tt>next</tt>).', array(
+          '%path' => $path,
+          )));
+
+      if (!is_callable($pathinfo['next']))
+        mcms::fatal(t('Неверный обработчик для страницы %path (<tt>%next()</tt>).', array(
+          '%path' => $path,
+          '%next' => $pathinfo['next'],
+          )));
+
+      $args = func_get_args();
+      $output = call_user_func_array($pathinfo['next'], $args);
+
+      if (!($output instanceof Response)) {
+        $xsl = empty($pathinfo['xsl'])
+          ? null
+          : implode(DIRECTORY_SEPARATOR, explode('/', $pathinfo['xsl']));
+        $tmp = new AdminPage($output, $xsl);
+        $output = $tmp->getResponse($ctx);
+      }
+
+      return $output;
+    } catch (NotConnectedException $e) {
+      if (is_dir(os::path('lib', 'modules', 'install')))
+        $ctx->redirect('install');
+      else
+        mcms::fatal('Система не проинсталлирована и модуля install нет.');
     }
-
-    if (empty($pathinfo['next']))
-      mcms::fatal(t('Не указан обработчик для страницы %path (параметр <tt>next</tt>).', array(
-        '%path' => $path,
-        )));
-
-    if (!is_callable($pathinfo['next']))
-      mcms::fatal(t('Неверный обработчик для страницы %path (<tt>%next()</tt>).', array(
-        '%path' => $path,
-        '%next' => $pathinfo['next'],
-        )));
-
-    $args = func_get_args();
-    $output = call_user_func_array($pathinfo['next'], $args);
-
-    if (!($output instanceof Response)) {
-      $xsl = empty($pathinfo['xsl'])
-        ? null
-        : implode(DIRECTORY_SEPARATOR, explode('/', $pathinfo['xsl']));
-      $tmp = new AdminPage($output, $xsl);
-      $output = $tmp->getResponse($ctx);
-    }
-
-    return $output;
   }
 
   private static function checkperm(Context $ctx, array $pathinfo)
