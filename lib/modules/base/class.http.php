@@ -23,6 +23,9 @@ class http
   {
     $outfile = os::path(mcms::mkdir(mcms::config('tmpdir')), 'mcms-fetch.'. md5($url));
 
+    if (!is_writable(dirname($outfile)))
+      throw new RuntimeException(t('Папка для временных файлов закрыта для записи.'));
+
     $ttl = mcms::config('file.cache.ttl', 3600);
 
     if (file_exists($outfile) and (($options & self::NO_CACHE) or ((time() - $ttl) > @filectime($outfile)))) {
