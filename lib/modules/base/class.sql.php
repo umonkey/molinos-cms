@@ -2,7 +2,9 @@
 
 class sql
 {
-  public static function in($value, array &$params)
+  const range = 1;
+
+  public static function in($value, array &$params, $flags = 0)
   {
     if (null === $value or array() === $value)
       return 'IS NULL';
@@ -14,6 +16,9 @@ class sql
 
     $value = array_unique((array)$value);
 
+    if ($flags == self::range and $tmp = self::inSearch($value, $params))
+      return $tmp;
+
     if (1 == count($value)) {
       $params[] = array_shift($value);
       return '= ?';
@@ -23,6 +28,35 @@ class sql
       $params[] = $v;
 
     return 'IN (' . rtrim(str_repeat('?, ', count($value)), ', ') . ')';
+  }
+
+  private static function inSearch($value, array &$params)
+  {
+    if (count($value) > 2)
+      return false;
+
+    $min = $max = null;
+
+    foreach ($value as $v) {
+      if (substr($v, 0, 1) == '>')
+        $min = substr($v, 1);
+      elseif (substr($v, 0, 1) == '<')
+        $max = substr($v, 1);
+      else
+        return false;
+    }
+
+    if ($min !== null and $max !== null) {
+      $params[] = $min;
+      $params[] = $max;
+      return 'BETWEEN ? AND ?';
+    } elseif ($min !== null) {
+      $params[] = $min;
+      return '>= ?';
+    } elseif ($max !== null) {
+      $params[] = $max;
+      return '<= ?';
+    }
   }
 
   public static function notIn($value, array &$params)
