@@ -18,7 +18,7 @@ class BaseRoute
       'prefix' => null,
       'base' => $ctx->url()->getBase($ctx),
       'version' => MCMS_VERSION,
-      'api' => 'cms://localhost/',
+      'api' => 'cms://localhost/api',
       );
 
     if (isset($handler['title']))
