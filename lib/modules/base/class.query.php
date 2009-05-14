@@ -107,7 +107,7 @@ class Query
         if ($neg)
           $this->conditions[] = $fieldName . " " . sql::notIn($v, $this->params);
         else
-          $this->conditions[] = $fieldName . " " . sql::in($v, $this->params);
+          $this->conditions[] = $fieldName . " " . sql::in($v, $this->params, sql::range);
         break;
       }
     }
