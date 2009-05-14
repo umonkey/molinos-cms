@@ -32,6 +32,11 @@ class sql
 
   private static function inSearch($value, array &$params)
   {
+    if (1 == count($value) and false !== strpos($value[0], '%')) {
+      $params[] = $value[0];
+      return 'LIKE ?';
+    }
+
     if (count($value) > 2)
       return false;
 
