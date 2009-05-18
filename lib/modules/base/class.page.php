@@ -27,8 +27,6 @@ class Page
     if (false === ($data = Structure::getInstance()->findPage($domain, $query)))
       return false;
 
-    mcms::invoke('iRequestHook', 'hookRequest', array($ctx));
-
     // Устанавливаем распарсенные коды раздела и документа.
     if (!empty($data['args']['sec']))
       $ctx->section = $data['args']['sec'];
@@ -44,6 +42,8 @@ class Page
     // Устанавливаем шкуру.
     if (!empty($data['page']['theme']) and !isset($ctx->theme))
       $ctx->theme = $data['page']['theme'];
+
+    mcms::invoke('iRequestHook', 'hookRequest', array($ctx));
 
     // Находим виджеты для этой страницы.
     $widgets = array_key_exists('widgets', $data['page'])
