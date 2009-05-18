@@ -80,6 +80,9 @@ class AdminListHandler
           'addlink' => $this->addlink,
           )));
 
+      if (array_key_exists('showcount', $data[0]))
+        array_unshift($this->columns, 'count');
+
       $form->addControl(new AdminUIListControl(array(
         'columns' => $this->columns,
         'picker' => $this->ctx->get('picker'),
@@ -441,9 +444,24 @@ class AdminListHandler
     $result = array();
     $itypes = TypeNode::getInternal();
 
-    foreach (Node::find($this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit) as $node) {
+    $nodes = Node::find($this->getNodeFilter(), $this->limit, ($this->page - 1) * $this->limit);
+    $counts = array();
+
+    if (!empty($nodes) and $this->haveLogs()) {
+      try {
+        $ids = implode(',', array_keys($nodes));
+        $counts = mcms::db()->getResultsKV("nid", "count", "SELECT `nid`, COUNT(*) AS `count` FROM `node__astat` WHERE `nid` IN ({$ids}) GROUP BY `nid`");
+      } catch (Exception $e) {
+      }
+    }
+
+    foreach ($nodes as $node) {
       $tmp = $node->getRaw();
       $tmp['_links'] = $node->getActionLinks();
+      if (!empty($counts))
+        $tmp['showcount'] = isset($counts[$node->id])
+          ? $counts[$node->id]
+          : 0;
       $result[] = $tmp;
     }
 
@@ -532,5 +550,10 @@ class AdminListHandler
       );
 
     return $result;
+  }
+
+  protected function haveLogs()
+  {
+    return class_exists('AccessLogModule');
   }
 };

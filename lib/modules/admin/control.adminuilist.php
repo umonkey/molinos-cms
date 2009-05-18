@@ -149,6 +149,9 @@ class AdminUIListControl extends Control
   private function resolveField($field, $value, array $node = null)
   {
     switch ($field) {
+    case 'count':
+      return $node['showcount'];
+
     case 'class':
       $type = Node::load(array(
         'class' => 'type',
@@ -305,6 +308,7 @@ class AdminUIListControl extends Control
       'operation' => t('Действие'),
       'message' => t('Сообщение'),
       'ip' => t('IP адрес'),
+      'count' => '#',
       );
   }
 

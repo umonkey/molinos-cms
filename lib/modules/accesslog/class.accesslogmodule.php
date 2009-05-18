@@ -184,12 +184,19 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
   {
     $form = new Form(array());
 
-    $form->addControl(new SetControl(array(
-      'value' => 'config_options',
-      'label' => t('Отслеживаемые запросы'),
+    $form->addControl(new Setcontrol(array(
+      'value' => 'config_types',
+      'label' => t('Отслеживаемые типы'),
+      'options' => Node::getSortedList('type', 'title', 'name'),
+      )));
+
+    $form->addControl(new Setcontrol(array(
+      'value' => 'config_fields',
+      'label' => t('Сохраняемые данные'),
       'options' => array(
-        'section' => t('К разделам'),
-        'document' => t('К документам'),
+        'ip' => t('IP адрес'),
+        'referer' => t('Откуда пришёл'),
+        'timestamp' => t('Время'),
         ),
       )));
 
@@ -202,27 +209,39 @@ class AccessLogModule extends Widget implements iAdminMenu, iModuleConfig, iRequ
     if (null !== $ctx) {
       $conf = mcms::modconf('accesslog');
 
-      try {
-        if (!empty($conf['options']) and is_array($conf['options'])) {
-          if (in_array('section', $conf['options']) and isset($ctx->section->id))
+      if (!empty($conf['types'])) {
+        try {
+          if (in_array('tag', $conf['types']) and isset($ctx->section->id))
             self::logNode($ctx->section->id);
 
-          if (in_array('document', $conf['options']) and isset($ctx->document->id))
+          if (isset($ctx->document->id) and in_array($ctx->document->class, $conf['types']))
             self::logNode($ctx->document->id);
+        } catch (PDOException $e) {
+          // Обычно здесь обламываемя при обращении к несуществующему урлу.
         }
-      } catch (PDOException $e) {
-        // Обычно здесь обламываемя при обращении к несуществующему урлу.
       }
     }
   }
 
-  public static function logNode($nid)
+  public static function logNode($nid, array $conf = null)
   {
     $args = array(
       ':ip' => empty($_SERVER['REMOTE_ADDR']) ? null : $_SERVER['REMOTE_ADDR'],
       ':referer' => empty($_SERVER['HTTP_REFERER']) ? null : $_SERVER['HTTP_REFERER'],
       ':nid' => $nid,
       );
+
+    if (null === $conf)
+      $conf = mcms::modconf('accesslog');
+
+    $fields = isset($conf['fields'])
+      ? $conf['fields']
+      : array();
+
+    if (!in_array('ip', $fields))
+      $args[':ip'] = null;
+    if (!in_array('referer', $fields))
+      $args[':referer'] = null;
 
     mcms::db()->exec("INSERT INTO `node__astat` (`nid`, `timestamp`, `ip`, `referer`) VALUES (:nid, UTC_TIMESTAMP(), :ip, :referer)", $args);
   }
