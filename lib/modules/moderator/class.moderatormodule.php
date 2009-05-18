@@ -21,6 +21,12 @@ class ModeratorModule implements iModuleConfig, iNodeHook
       'description' => t('Список почтовых адресов, на которые всегда приходят все сообщения о модерации, независимо от привязки пользователя к выпускающему редактору.'),
       )));
 
+    $form->addControl(new TextAreaControl(array(
+      'value' => 'config_map',
+      'label' => t('Получатели'),
+      'description' => t('Каждая строка содержит тип документа иполучателя в форате: type = email.'),
+      )));
+
     $types = array();
 
     foreach (Node::find(array('class' => 'type')) as $t)
@@ -106,7 +112,7 @@ class ModeratorModule implements iModuleConfig, iNodeHook
       '%type' => isset($schema['title']) ? $schema['title'] : $node->class,
       )) .'</p>'. self::getNodeBody($node);
 
-    if (count($to = self::getRecipients())) {
+    if (count($to = self::getRecipients($node))) {
       $rc = BebopMimeMail::send(
         null,
         $to,
@@ -148,10 +154,16 @@ class ModeratorModule implements iModuleConfig, iNodeHook
     return $body;
   }
 
-  private static function getRecipients()
+  private static function getRecipients(Node $node)
   {
     $config = mcms::modconf('moderator');
     $list = isset($config['super']) ? preg_split('/, */', $config['super']) : array();
+
+    if (!empty($config['map'])) {
+      $map = self::parseEmailMap($config['map']);
+      if (isset($map[$node->class]))
+        $list[] = $map[$node->class];
+    }
 
     if (mcms::user()->id) {
       try {
@@ -172,5 +184,16 @@ class ModeratorModule implements iModuleConfig, iNodeHook
         $list += preg_split('/, */', $ctx->moderatoremail);
 
     return array_unique($list);
+  }
+
+  private static function parseEmailMap($map)
+  {
+    $result = array();
+
+    foreach (explode("\n", $map) as $line)
+      if (2 == count($parts = explode('=', $line)))
+        $result[trim($parts[0])] = trim($parts[1]);
+
+    return $result;
   }
 };
