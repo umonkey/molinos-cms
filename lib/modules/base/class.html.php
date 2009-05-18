@@ -82,6 +82,9 @@ class html
     $result = '';
 
     foreach ($attrs as $k => $v) {
+      if ('#' == substr($k, 0, 1))
+        continue;
+
       if ('class' == $k) {
         if (!is_array($v))
           $v = preg_split('/\s+/', $v, -1, PREG_SPLIT_NO_EMPTY);

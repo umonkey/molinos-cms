@@ -86,11 +86,9 @@ class Query
       switch ($k) {
       case 'tags':
         $this->conditions[] = "(`node`.`id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` " . $this->getTagsFilter($v) . "))";
-        $this->params[] = intval($v);
         break;
       case 'tagged':
         $this->conditions[] = "`node`.`id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` " . $this->getTagsFilter($v) . ")";
-        $this->params[] = intval($v);
         break;
       case 'uid':
         $this->conditions[] = "`node`.`id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ? AND `key` = ?)";
@@ -115,10 +113,12 @@ class Query
 
   private function getTagsFilter($id)
   {
-    if ('+' == substr($id, -1))
+    if ('+' == substr($id, -1)) {
       $sql = "IN (SELECT `n`.`id` FROM `node` `n`, `node` `t` WHERE `n`.`class` = 'tag' AND `n`.`left` >= `t`.`left` AND `n`.`right` <= `t`.`right` AND `t`.`id` = ? AND `n`.`deleted` = 0 AND `n`.`published` = 1)";
-    else
-      $sql = "= ?";
+      $this->params[] = intval($id);
+    } else {
+      $sql = sql::in($id, $this->params);
+    }
 
     return $sql;
   }
