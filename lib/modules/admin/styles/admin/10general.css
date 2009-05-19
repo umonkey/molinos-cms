@@ -13,12 +13,12 @@
 		#non-footer { position:relative; min-height:100%; }
 		* html #non-footer { height:100%; }
 		
-		#wrapper { max-width:1280px; margin:0 auto; }
+		#wrapper { margin:0 auto; }
 		
 	/*
 	 * Toolbar
 	 */
-		#toolbar { height:3em; margin:0 0 1.5em 0; overflow:hidden; background:#109808 url(images/bg/toolbar.png) repeat-x left bottom; }
+		#toolbar { height:3em; min-height:36px; margin:0 0 1.5em 0; overflow:hidden; background:#109808 url(images/bg/toolbar.png) repeat-x left bottom; }
 			
 			/* логотип */
 			#toolbar h1 { float:left; display:inline; margin:2px 18px 0 16px; position:relative; color:#fff; font-size:1.167em; line-height:1.146; }
@@ -26,7 +26,7 @@
 			/* навигация */
 			#toolbar ul.navigation { list-style:none outside; margin:0; }
 	
-				#toolbar ul.navigation li { float:left; margin:0 10px 0 0; font-size:1.083em; line-height:1.231; }
+				#toolbar ul.navigation li { float:left; margin:0 7px 0 0; font-size:1.083em; line-height:1.231; }
 					#toolbar ul.navigation li a { display:block; text-decoration:none; }
 					#toolbar ul.navigation li a:hover { text-decoration:underline; }
 						#toolbar ul.navigation li a span { display:block; padding:5px 15px 8px 15px; margin:3px 0 0 0; }
@@ -52,7 +52,7 @@
 			
 			/* прочее */	
 			#toolbar a { color:#fff; }
-		
+			
 	/*
 	 * Content
 	*/
@@ -67,6 +67,9 @@
 			.nodes-controls-basic { background:#80CC80; padding:3px 10px; }
 			/* выборка и операции */
 			.nodes-controls-advanced { background:#C0E6C0; padding:5px 10px; font-size:.917em; line-height:1.455; }
+			
+				.nodes-controls-advanced span.expand-collapse { margin:0 .5em 0 0; }
+			
 			/* таблица */
 			table.nodes { margin:0; width:100%; }
 			
@@ -217,28 +220,3 @@
 		#exception { margin:10px; }
 			#exception h2 { font-size:2em; margin:0 0 10px 0; }
 			#exception p { font-size:1.5em; }
-    span.and { margin-left: 1em; margin-right: 1em; }
-
-table.classic {
-  border-collapse: collapse;
-}
-table.classic td, table.classic th {
-  margin: 0; padding: 2px 4px;
-}
-table.classic th {
-  font-weight: bold;
-  text-align: left;
-}
-table.classic td {
-  border-top: solid 1px #eee;
-  border-right: solid 1px #f0f0f0;
-}
-table.classic img {
-  margin-left: 4px;
-}
-table.classic .optional .label {
-  color: gray;
-}
-table.classic .mono {
-  font-family: monospace;
-}

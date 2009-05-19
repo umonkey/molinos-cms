@@ -1,21 +1,21 @@
-table.nodes td.icon { padding-left:2px; padding-right:0; width:16px; border-left:none; }
-table.nodes td.icon a { display:block; width:16px; height:16px; background:url(images/icons/icon-default.gif) no-repeat; }
-table.nodes td.icon span { display:none; }
+.nodes td.icon { padding-left:2px; padding-right:0; width:16px; border-left:none; }
+.nodes td.icon a { display:block; width:16px; height:16px; }
+.nodes td.icon span { display:none; }
 
-table.nodes td.icon a.icon-dump { 		background-image:url(images/icons/icon-dump.gif); }
-table.nodes td.icon a.icon-edit { 		background-image:url(images/icons/icon-edit.png); }
-table.nodes td.icon a.icon-locate { 		background-image:url(images/icons/icon-www.png); }
-table.nodes td.icon a.icon-download { 	background-image:url(images/icons/icon-download.png); }
-table.nodes td.icon a.icon-sudo { 		background-image:url(images/icons/icon-sudo.gif); }
-table.nodes td.icon a.icon-delete { 		background-image:url(images/icons/icon-delete.png); }
-table.nodes td.icon a.icon-unpublish { 	background-image:url(images/icons/icon-unpublish.png); }
-table.nodes td.icon a.icon-publish { 		background-image:url(images/icons/icon-publish.png); }
-table.nodes td.icon a.icon-add { 		background-image:url(images/icons/icon-add.png); }
-table.nodes td.icon a.icon-feed { 		background-image:url(images/icons/icon-feed.png); }
-table.nodes td.icon a.icon-validate { 	background-image:url(images/icons/icon-validate.gif); }
-table.nodes td.icon a.icon-search { 		background-image:url(images/icons/icon-search.png); }
-table.nodes td.icon a.icon-clone { 		background-image:url(images/icons/icon-clone.png); }
-table.nodes td.icon a.icon-link { 		background-image:url(images/icons/icon-link.png); }
-table.nodes td.icon a.icon-zoom { 		background-image:url(images/icons/find.png); }
-table.nodes td.icon a.icon-raise { 		background-image:url(images/icons/raise.png); }
-table.nodes td.icon a.icon-sink { 		background-image:url(images/icons/sink.png); }
+.nodes a.icon-dump { 		background-image:url(images/icons/icon-dump.gif); }
+.nodes a.icon-edit { 		background-image:url(images/icons/icon-edit.png); }
+.nodes a.icon-locate { 		background-image:url(images/icons/icon-www.png); }
+.nodes a.icon-download { 	background-image:url(images/icons/icon-download.png); }
+.nodes a.icon-sudo { 		background-image:url(images/icons/icon-sudo.gif); }
+.nodes a.icon-delete { 		background-image:url(images/icons/icon-delete.png); }
+.nodes a.icon-unpublish { 	background-image:url(images/icons/icon-unpublish.png); }
+.nodes a.icon-publish { 		background-image:url(images/icons/icon-publish.png); }
+.nodes a.icon-add { 		background-image:url(images/icons/icon-add.png); }
+.nodes a.icon-feed { 		background-image:url(images/icons/icon-feed.png); }
+.nodes a.icon-validate { 	background-image:url(images/icons/icon-validate.gif); }
+.nodes a.icon-search { 		background-image:url(images/icons/icon-search.png); }
+.nodes a.icon-clone { 		background-image:url(images/icons/icon-clone.png); }
+.nodes a.icon-link { 		background-image:url(images/icons/icon-link.png); }
+.nodes a.icon-zoom { 		background-image:url(images/icons/find.png); }
+.nodes a.icon-raise { 		background-image:url(images/icons/raise.png); }
+.nodes a.icon-sink { 		background-image:url(images/icons/sink.png); }

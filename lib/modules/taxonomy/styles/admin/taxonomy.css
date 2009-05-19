@@ -1,0 +1,26 @@
+/* разделы */
+ul.nodes { list-style:none outside; margin:1.335em 0 1.335em 10px; position:relative; }
+ul.nodes li { margin:0 0 1.335em 0; width:100%; overflow:hidden; }
+ul.nodes li.last { margin:0; }
+ul.nodes li span.actions { position:relative; top:3px; opacity:.5; }
+ul.nodes li span.actions:hover { opacity:1; }
+ul.nodes li span.actions a { display:inline-block; width:16px; height:16px; }
+ul.nodes li span.actions a.tag-add { background:url(images/plus-small.png) no-repeat 0 1px; }
+ul.nodes li span.actions a.tag-up { background:url(images/arrow-090-medium.png) no-repeat 0 0; }
+ul.nodes li span.actions a.tag-down { background:url(images/arrow-270-medium.png) no-repeat 0 0; }
+ul.nodes li span.actions a.tag-edit { background:url(images/icon-edit.png) no-repeat 0 0; }
+
+ul.nodes li input { display:inline-block; vertical-align:baseline; }
+
+ul.nodes li ul { list-style:none outside; margin:1.335em 0 0 20px; }
+ul.nodes li span.expand-collapse { position:absolute; margin:3px 0 0 0; width:16px; height:16px; cursor:pointer; background:url(images/toggle-collapse.png); }
+ul.nodes li span.expand-collapse.collapsed { background:url(images/toggle.png);  }
+
+ul.nodes.expand-collapse li a.picker { position:relative; left:22px; }
+ul.nodes.expand-collapse li span.actions { margin:0 0 0 27px; }
+ul.nodes.expand-collapse li ul li ul { display:none; }
+
+ul.nodes li a.unpublished { color:#7f99ff; }
+
+ul.nodes span.expand-collapse { display:none; }
+ul.nodes.expand-collapse span.expand-collapse { display:block; }
