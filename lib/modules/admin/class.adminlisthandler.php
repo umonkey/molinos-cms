@@ -165,7 +165,6 @@ class AdminListHandler implements iAdminList
         $this->types = array('group');
         $this->title = t('Список групп');
         $this->limit = null;
-        $this->page = 1;
         $this->actions = array('delete', 'clone');
         $this->selectors = array(
           'all' => 'все',
@@ -373,8 +372,11 @@ class AdminListHandler implements iAdminList
     $result = '';
 
     $filter = $this->getNodeFilter();
-    $filter['#limit'] = $this->limit;
-    $filter['#offset'] = ($this->page - 1) * $this->limit;
+
+    if (null !== $this->limit) {
+      $filter['#limit'] = $this->limit;
+      $filter['#offset'] = ($this->page - 1) * $this->limit;
+    }
 
     $result = Node::findXML($this->ctx->db, $filter);
 
