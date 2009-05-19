@@ -99,4 +99,9 @@ class GroupNode extends Node implements iContentType
   {
     return 'admin/access/groups';
   }
+
+  public function canEditFields()
+  {
+    return false;
+  }
 }
