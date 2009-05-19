@@ -20,7 +20,7 @@
       </head>
       <body>
         <h1>Установка Molinos CMS</h1>
-        <form method="post" action="?q=install.rpc&amp;action=install">
+        <form method="post" action="?q=admin/install">
           <xsl:apply-templates select="drivers" />
           <xsl:call-template name="settings" />
           <!--
@@ -111,7 +111,7 @@
       </label>
       <label>
         <span>Отправлять сообщения об ошибках на:</span>
-        <input type="text" class="form-text" name="debug_errors" value="cms-bugs@molinos.ru" />
+        <input type="text" class="form-text" name="base_backtrace_recipients" value="cms-bugs@molinos.ru" />
       </label>
     </fieldset>
   </xsl:template>

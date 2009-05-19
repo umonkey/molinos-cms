@@ -51,6 +51,10 @@ class Loader
 
     $ctx = new Context();
 
+    // Если конфигурационного файла нет, нужна инсталляция.
+    if ($ctx->query() != 'admin/install' and !$ctx->config->isOk())
+      $ctx->redirect('admin/install?destination=admin/system');
+
     try {
       $router = new Router();
       $result = $router->poll($ctx)->dispatch($ctx);

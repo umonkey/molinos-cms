@@ -5,11 +5,15 @@ class InstallModule
 {
   public static function rpc_get_default(Context $ctx)
   {
+    if ($ctx->config->isOk())
+      $ctx->redirect('admin/system');
+
     $xml = self::listDriversXML();
     $xsl = os::path('lib', 'modules', 'install', 'template.xsl');
     return xslt::transform(html::em('installer', array(
       'base' => $ctx->url()->getBase($ctx),
       'dirname' => $ctx->config->getDirName(),
+      'next' => $ctx->get('destination'),
       ), $xml), $xsl);
   }
 
@@ -24,32 +28,27 @@ class InstallModule
     if ($config->isok())
       throw new ForbiddenException(t('Инсталляция невозможна: конфигурационный файл уже есть.'));
 
-    $config->db_dsn = self::getDSN($data['dbtype'], $data['db'][$data['dbtype']]);
+    $config->db = self::getDSN($data['dbtype'], $data['db'][$data['dbtype']]);
 
-    foreach (array('mail_server', 'mail_from', 'debug_errors') as $key) {
+    foreach (array('mail_server', 'mail_from', 'base_backtrace_recipients') as $key) {
       if (!empty($data[$key])) {
         $config->$key = $data[$key];
       }
     }
 
-    $config->base_files = 'files';
-    $config->base_ftp = 'ftp';
-    $config->base_tmpdir = 'tmp';
+    $config->files_storage = 'files';
+    $config->files_ftp = 'ftp';
+    $config->tmpdir = 'tmp';
 
     // Формируем список отладчиков.
-    $debuggers = '127.0.0.1,' . $_SERVER['REMOTE_ADDR'];
-    $config->debug_allow = substr($debuggers, 0, strrpos($debuggers, '.')) . '.*';
+    $config->base_debuggers = array('127.0.0.1', $_SERVER['REMOTE_ADDR']);
 
     // Проверим соединение с БД.
-    $pdo = PDO_Singleton::connect($config->db_dsn);
+    $pdo = PDO_Singleton::connect($config->db);
 
     $config->write();
-    $ctx->redirect('admin/system/reload?destination=%3Fq%3Dadmin%2Fsystem');
 
-    /*
-    $s = new Structure();
-    $s->rebuild();
-    */
+    $ctx->redirect('admin/system/reload?destination=admin/system');
   }
 
   private static function getDSN($type, array $settings)
