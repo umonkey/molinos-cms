@@ -350,6 +350,19 @@ class NodeStub
         : Schema::load($this->getDB(), $this->data['class']);
 
       foreach ($this->data as $k => $v) {
+        if (empty($k) or 'xml' == $k)
+          continue;
+
+        if (self::isBasicField($k)) {
+          $data[$k] = $v;
+          continue;
+        }
+
+        if (isset($schema[$k])) {
+          $data['#text'] .= $schema[$k]->format($v, $k);
+          continue;
+        }
+
         if ($v instanceof NodeStub)
           ;
 
