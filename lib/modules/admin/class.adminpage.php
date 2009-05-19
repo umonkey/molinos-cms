@@ -51,7 +51,7 @@ class AdminPage
    */
   public static function serve(Context $ctx, $path, array $pathinfo)
   {
-    if (!file_exists($path = os::path(MCMS_ROOT, MCMS_SITE_FOLDER, 'themes', '.admin.css')))
+    if (!file_exists(os::path(MCMS_ROOT, MCMS_SITE_FOLDER, 'themes', '.admin.css')))
       if (class_exists('CompressorModule'))
         CompressorModule::on_install($ctx);
 
