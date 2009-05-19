@@ -72,4 +72,10 @@ class NumberControl extends Control
   {
     return floatval($value);
   }
+
+  protected function validate($value)
+  {
+    if (!empty($value) and !is_numeric($value))
+      throw new ValidationException($this->label ? $this->label : $this->value);
+  }
 };
