@@ -41,7 +41,7 @@
 
 
   <!-- обычные текстовые строки -->
-  <xsl:template match="control[@type='email' or @type='textline' or @type='url' or @type='date' or @type='datetime' or @type='number' or @type='list' or @type='gmap']">
+  <xsl:template match="control[@type='email' or @type='textline' or @type='url' or @type='date' or @type='datetime' or @type='number' or @type='list' or @type='gmap' or @type='video']">
     <div>
       <xsl:call-template name="default_control_classes" />
       <xsl:call-template name="default_control_label" />
