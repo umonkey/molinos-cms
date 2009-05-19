@@ -174,6 +174,10 @@ class ListWidget extends Widget
       $options['offset'] = null;
     }
 
+    // Добавляем пользовательскую фильтрацию.
+    if ($tmp = $this->get('filter'))
+      $options['filter'] = $tmp;
+
     $options['sort'] = $this->get('sort', $this->sort);
 
     return $options;
@@ -269,6 +273,16 @@ class ListWidget extends Widget
       $filter['#limit'] = $options['limit'];
       if (!empty($options['offset']))
         $filter['#offset'] = $options['offset'];
+    }
+
+    if (isset($options['filter']) and is_array($options['filter'])) {
+      foreach ($options['filter'] as $k => $v) {
+        if (!array_key_exists($k, $filter)) {
+          if (!is_array($v))
+            $v = explode(',', $v);
+          $filter[$k] = $v;
+        }
+      }
     }
 
     return new Query($filter);
