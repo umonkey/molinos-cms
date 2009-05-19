@@ -44,7 +44,6 @@ class AdminTreeHandler
   protected function getData()
   {
     switch ($this->preset) {
-    case 'taxonomy':
     case 'pages':
       $data = self::getNodeTree();
 
@@ -66,14 +65,6 @@ class AdminTreeHandler
   protected function setUp($preset = null)
   {
     switch ($preset) {
-    case 'taxonomy':
-      $this->type = 'tag';
-      $this->parent = null;
-      $this->columns = array('name', 'description', 'link', 'created');
-      $this->actions = array('publish', 'unpublish', 'delete', 'clone');
-      $this->title = t('Карта разделов сайта');
-      $this->zoomlink = "?q=admin/content/list&columns=name,class,uid,created&search=tags%3ANODEID";
-      break;
     case 'pages':
       $this->type = 'domain';
       $this->parent = null;
@@ -125,7 +116,7 @@ class AdminTreeHandler
     return 'content';
   }
 
-  private function getNodeTree()
+  protected function getNodeTree()
   {
     $output = '';
 
