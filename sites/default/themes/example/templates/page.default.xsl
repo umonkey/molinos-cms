@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:variable name="api" select="/page/@api" />
+
   <xsl:template match="/page">
     <html>
       <head>
@@ -24,18 +26,10 @@
             </a>
           </h1>
 
-          <xsl:apply-templates select="widgets/widget[@name='doclist']" />
+          <xsl:apply-templates select="document(concat($api,'node/list.xml?class=article'))/nodes/node" mode="list" />
         </div>
       </body>
     </html>
-  </xsl:template>
-
-
-  <!-- Список документов -->
-  <xsl:template match="widget[@name='doclist']">
-    <xsl:for-each select="nodes/node">
-      <xsl:apply-templates select="." />
-    </xsl:for-each>
   </xsl:template>
 
   <!-- Меню -->
@@ -73,7 +67,7 @@
     </li>
   </xsl:template>
 
-  <xsl:template match="node">
+  <xsl:template match="node" mode="list">
     <h2>
       <xsl:value-of select="@name" />
     </h2>
