@@ -361,7 +361,7 @@
   <!-- Форма поиска. -->
   <xsl:template name="mcms_list_search" mode="mcms_list">
     <div class="nodes-controls-basic">
-    <form method="post" action="?q=admin.rpc&amp;action=search&amp;from={/page/@back}">
+    <form method="post" action="?q=admin/search&amp;from={/page/@back}">
     	<fieldset>
        <input type="hidden" name="search_from" value="{/page/@url}" />
           <a class="newlink">
