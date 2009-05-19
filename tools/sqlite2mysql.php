@@ -82,6 +82,9 @@ function convert($dbFileName, $sqlFileName)
   fclose($f);
 }
 
+if (!function_exists('mysql_escape_string'))
+  die("You need the mysql extension (to escape strings correctly).\n");
+
 if (empty($argv[2]))
   die("Usage: sqlite2mysql.php input.db output.sql\n");
 elseif (!file_exists($argv[1]))
