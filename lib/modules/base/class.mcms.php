@@ -139,14 +139,7 @@ class mcms
 
   public static function config($key, $default = null)
   {
-    if (!class_exists('Config'))
-      self::fatal('Отсутствует поддержка конфигурационных файлов.');
-
-    $config = Context::last()->config;
-
-    return isset($config->$key)
-      ? $config->$key
-      : $default;
+    return Context::last()->config->get($key, $default);
   }
 
   public static function flush($flags = null)
@@ -296,7 +289,12 @@ class mcms
 
   public static function fatal()
   {
-    $report = new CrashReport(func_get_args());
+    $args = func_get_args();
+
+    if (!empty($_GET['debug']) and 'fatal' == $_GET['debug'])
+      mcms::debug($args);
+
+    $report = new CrashReport($args);
     $report->send();
     $report->show();
     die();
@@ -435,29 +433,11 @@ class mcms
 
   public static function shutdown_handler()
   {
-    try {
-      if (($ctx = Context::last()) and isset($ctx->db))
-        $ctx->db->rollback();
-    } catch (Exception $e) { }
-
     if (null !== ($e = error_get_last()) and ($e['type'] & (E_ERROR|E_RECOVERABLE_ERROR))) {
-      if (null !== ($re = mcms::config('backtracerecipient'))) {
+      if (null !== ($re = mcms::config('main/errors/mail', 'cms-bugs@molinos.ru'))) {
         $release = substr(mcms::version(), 0, -(strrpos(mcms::version(), '.') + 1));
 
         $message = 'oops.';
-
-        /*
-        $message = templateX::XrenderClass(__CLASS__, array(
-          'mode' => 'fatal',
-          'url' => "http://{$_SERVER['HTTP_HOST']}{MCMS_REQUEST_URI}",
-          'host' => $_SERVER['HTTP_HOST'],
-          'code' => $e['type'],
-          'line' => $e['line'],
-          'file' => ltrim(str_replace(MCMS_ROOT, '', $e['file']), '/'),
-          'text' => $e['message'],
-          'version' => mcms::version(),
-          ));
-        */
 
         $subject = t('Фатальная ошибка на %host', array('%host' => $_SERVER['HTTP_HOST']));
 
@@ -904,7 +884,7 @@ class CrashReport
     if (!$this->_send)
       return;
 
-    $to = mcms::config('backtracerecipients', 'cms-bugs@molinos.ru');
+    $to = mcms::config('main/errors/email', 'cms-bugs@molinos.ru');
 
     if (class_exists('BebopMimeMail') and !empty($to)) {
       $output = html::em('p', $this->message);

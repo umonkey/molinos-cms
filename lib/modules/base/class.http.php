@@ -22,7 +22,7 @@ class http
 
   public static function fetch($url, $options = null)
   {
-    if (!($tmpdir = Context::last()->config->getPath('tmpdir')))
+    if (!($tmpdir = Context::last()->config->getPath('main/tmpdir')))
       $tmpdir = 'tmp';
 
     $outfile = os::path(os::mkdir($tmpdir), 'mcms-fetch.'. md5($url));

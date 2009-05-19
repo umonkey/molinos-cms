@@ -56,7 +56,7 @@ class CaptchaControl extends Control
     if ($ctx->user->id)
       return false;
 
-    if (!is_array($types = $ctx->modconf('captcha', 'types')))
+    if (!is_array($types = $ctx->config->get('modules/captcha/types')))
       return false;
 
     if (isset($types['__reset']))

@@ -245,7 +245,7 @@ class FileNode extends Node implements iContentType
   public static function unzip($zipfile, $folder = null, $parent_id = null)
   {
     $node = null;
-    $tmpdir = os::mkdir(os::path(Context::last()->config->getPath('tmpdir'), 'upload'));
+    $tmpdir = os::mkdir(os::path(Context::last()->config->getPath('main/tmpdir'), 'upload'));
 
     if (function_exists('zip_open')) {
       if (file_exists($zipfile)) {
@@ -600,7 +600,7 @@ class FileNode extends Node implements iContentType
   {
     $config = Context::last()->config;
 
-    if (!file_exists(os::path($config->getPath('files'), $this->filepath)))
+    if (!file_exists(os::path($config->getPath('modules/files/storage', 'files'), $this->filepath)))
       return null;
 
     $content = html::em('version', array(

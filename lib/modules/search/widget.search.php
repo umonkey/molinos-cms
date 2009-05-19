@@ -29,12 +29,8 @@ class SearchWidget extends Widget implements iWidget
 
   public function onGet(array $options)
   {
-    $config = $this->ctx->modconf('search');
-
-    if (empty($config['engine']))
-      return null;
-
-    return $this->dispatch(array($config['engine']), $options);
+    if ($engine = $this->ctx->config->get('modules/search/engine'))
+      return $this->dispatch(array($engine), $options);
   }
 
   protected function onGetMg(array $options)
@@ -56,7 +52,7 @@ class SearchWidget extends Widget implements iWidget
 
   protected function onGetGas(array $options)
   {
-    $config = $this->ctx->modconf('search');
+    $config = $this->ctx->config->get('modules/search');
 
     if (empty($config['gas_key']))
       return "<!-- GAS disabled: site key not defined -->";
@@ -148,7 +144,7 @@ class SearchWidget extends Widget implements iWidget
     if (!function_exists('udm_alloc_agent'))
       throw new UserErrorException("Поиск не работает", 500, "Поиск временно недоступен", "Функции поиска недоступны серверу, требуется вмешательство администратора сайта.");
 
-    $config = $this->ctx->modconf('search');
+    $config = $this->ctx->config->get('modules/search');
 
     $udm = udm_alloc_agent($config['mg_dsn']);
     if ($udm === false or $udm === null)
@@ -240,7 +236,7 @@ class SearchWidget extends Widget implements iWidget
   public static function getConfigOptions(Context $ctx)
   {
     $schema = array();
-    $config = $ctx->modconf('search');
+    $config = $ctx->config->get('modules/search');
 
     switch ($config['engine']) {
     case 'mg':

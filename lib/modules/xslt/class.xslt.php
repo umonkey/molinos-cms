@@ -32,7 +32,7 @@ class xslt
 
     if (false === ($output = $cache->$ckey) or $nocache) {
       $doc = new DOMDocument;
-      $doc->loadXML($xml);
+      @$doc->loadXML($xml);
       self::checkErrors();
 
       if (class_exists('xsltCache') and !$nocache) {
@@ -40,7 +40,7 @@ class xslt
         $proc->importStyleSheet($xsltName);
       } else {
         $xsl = new DOMDocument;
-        $xsl->load($xsltName);
+        @$xsl->load($xsltName);
         self::checkErrors($xsltName);
 
         $proc = new XSLTProcessor;
@@ -49,9 +49,14 @@ class xslt
 
       self::checkErrors();
 
-      $output = $proc->transformToXML($doc);
-      $cache->$ckey = $output;
+      if ($output = $proc->transformToXML($doc))
+        $cache->$ckey = $output;
     }
+
+    if (empty($output))
+      mcms::fatal(t('Шаблон %xslt ничего не вернул.', array(
+        '%xslt' => $xsltName
+        )));
 
     if (null === $mimeType)
       return trim(str_replace('<?xml version="1.0"?>', '', $output));

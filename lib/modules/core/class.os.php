@@ -278,7 +278,7 @@ class os
    */
   public static function mkdir($path, $errormsg = null)
   {
-    if (!is_dir($path) and !mkdir($path, 0775, true)) {
+    if (!is_dir($path) and !@mkdir($path, 0775, true)) {
       if (null === $errormsg)
         return false;
       throw new RuntimeException($errormsg);

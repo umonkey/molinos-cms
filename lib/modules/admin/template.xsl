@@ -2,6 +2,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:import href="../base/forms.xsl" />
   <xsl:import href="../base/pager.xsl" />
+  <xsl:import href="../base/redirect.xsl" />
   <xsl:import href="xsl/list.xsl" />
   <xsl:import href="xsl/submenu.xsl" />
   <xsl:import href="xsl/login.xsl" />
@@ -23,8 +24,17 @@
     <script type="text/javascript" src="{@prefix}/.admin.js" />
   </xsl:template>
 
-  <xsl:template match="/page[@status=200]">
+  <xsl:template match="/page[@status=401]">
+    <xsl:call-template name="redirect">
+      <xsl:with-param name="href">
+        <xsl:value-of select="@base" />
+        <xsl:text>?q=admin/login&amp;destination=</xsl:text>
+        <xsl:value-of select="@back" />
+      </xsl:with-param>
+    </xsl:call-template>
+  </xsl:template>
 
+  <xsl:template match="/page[@status=200]">
     <html lang="ru">
       <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -36,7 +46,6 @@
           <xsl:text>Molinos CMS v</xsl:text>
           <xsl:value-of select="@version" />
         </title>
-
         <xsl:comment><![CDATA[[if IE]><![if !IE]><![endif]]]></xsl:comment><base href="{/page/@base}" /><xsl:comment><![CDATA[[if IE]><![endif]><![endif]]]></xsl:comment>
         <xsl:comment><![CDATA[[if IE]>]]>&lt;base href="<xsl:value-of select="/page/@base"/>">&lt;/base><![CDATA[<![endif]]]></xsl:comment>
         <link rel="shortcut icon" href="lib/modules/admin/styles/admin/images/icons/favicon.ico" type="image/x-icon" />
@@ -44,12 +53,18 @@
         <script type="text/javascript" src="{@prefix}/.admin.js" />
       </head>
       <body>
-
         <xsl:apply-templates select="." mode="body" />
-
       </body>
     </html>
+  </xsl:template>
 
+  <xsl:template match="/page[@status!=200 and @status!=401]">
+    <html>
+      <body>
+        <h1>Ошибка <xsl:value-of select="@status" /></h1>
+        <p><xsl:value-of select="@message" /></p>
+      </body>
+    </html>
   </xsl:template>
 
   <xsl:template match="page" mode="body">
@@ -95,14 +110,6 @@
       <p>
         <xsl:value-of select="@title" />
       </p>
-    </div>
-  </xsl:template>
-
-
-  <!-- авторизация -->
-  <xsl:template match="page[@status = '401']" mode="body">
-    <div id="login-form">
-      <xsl:apply-templates select="content[@name='login']/form" />
     </div>
   </xsl:template>
 
@@ -175,7 +182,7 @@
       </li>
       -->
       <li>
-        <a title="Выйти" href="?q=auth/logout.rpc&amp;from={/page/@back}">
+        <a title="Выйти" href="?q=auth/logout&amp;from={/page/@back}">
           <img src="lib/modules/admin/styles/admin/images/icons/icon-exit.png" alt="logout" width="16" height="16" />
         </a>
       </li>

@@ -5,7 +5,7 @@ class MaintenanceModule
 {
   private static function isLocked(Context $ctx, $enable_admin = true)
   {
-    $conf = $ctx->modconf('maintenance');
+    $conf = $ctx->config->get('modules/maintenance');
 
     if (!empty($conf['state']) and 'closed' === $conf['state']) {
       if (!$enable_admin)

@@ -179,9 +179,9 @@ class UserNode extends Node implements iContentType
    */
   public function setRegistered(Context $ctx)
   {
-    if (is_array($list = $ctx->modconf('auth', 'groups', array()))) {
+    if ($groups = $ctx->config->get('modules/auth/groups')) {
       $params = array();
-      $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, %ID% FROM `node` WHERE `class` = 'group' AND `id` " . sql::in($list, $params));
+      $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, %ID% FROM `node` WHERE `class` = 'group' AND `id` " . sql::in($groups, $params));
     }
   }
 

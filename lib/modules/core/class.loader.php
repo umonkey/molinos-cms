@@ -4,7 +4,7 @@ define('MCMS_RELEASE', '9.05');
 define('MCMS_VERSION', '9.05B1');
 
 $dirName = dirname(__FILE__);
-foreach (array('os', 'ini', 'registry', 'config', 'router', 'context') as $className)
+foreach (array('os', 'ini', 'registry', 'cache', 'config', 'router', 'context') as $className)
   if (!class_exists($className))
     require $dirName . DIRECTORY_SEPARATOR . 'class.' . $className . '.php';
 unset($dirName);
@@ -49,44 +49,47 @@ class Loader
   {
     self::setup();
 
-    $ctx = new Context();
-
     try {
+      $ctx = new Context();
+
+      if ('admin/install' != $ctx->query() and !$ctx->config->isOk())
+        $ctx->redirect('admin/install');
+
       $router = new Router();
       $result = $router->poll($ctx)->dispatch($ctx);
+
+      if ($result instanceof Response)
+        $result->send();
+
+      elseif (false === $result) {
+        header('HTTP/1.1 404 Not Found');
+        header('Content-Type: text/plain; charset=utf-8');
+        die('Route Not Found.');
+      } else {
+        list($handler, $args) = $router->find($ctx);
+
+        if (false === $handler)
+          $method = '?unknown?';
+        elseif (is_array($handler['call']))
+          $method = implode('::', $handler['call']);
+        else
+          $method = $handler['call'];
+
+        $message = t('<h1>Внутренняя ошибка</h1><p>Обработчик пути <tt>%path</tt> (<tt>%func</tt>) должен был вернуть объект класса <a href="@class">Response</a>, а вернул %type.</p><hr/><a href="@home">Molinos CMS v%version</a>', array(
+          '%path' => $ctx->query(),
+          '%type' => gettype($result),
+          '%func' => $method,
+          '@class' => 'http://code.google.com/p/molinos-cms/wiki/Response_Class',
+          '%version' => MCMS_VERSION,
+          '@home' => 'http://molinos-cms.googlecode.com/',
+          ));
+
+        header('HTTP/1.1 500 Internal Server Error');
+        header('Content-Type: text/html; charset=utf-8');
+        die($message);
+      }
     } catch (Exception $e) {
       mcms::fatal($e);
-    }
-
-    if ($result instanceof Response)
-      $result->send();
-
-    elseif (false === $result) {
-      header('HTTP/1.1 404 Not Found');
-      header('Content-Type: text/plain; charset=utf-8');
-      die('Route Not Found.');
-    } else {
-      list($handler, $args) = $router->find($ctx);
-
-      if (false === $handler)
-        $method = '?unknown?';
-      elseif (is_array($handler['call']))
-        $method = implode('::', $handler['call']);
-      else
-        $method = $handler['call'];
-
-      $message = t('<h1>Внутренняя ошибка</h1><p>Обработчик пути <tt>%path</tt> (<tt>%func</tt>) должен был вернуть объект класса <a href="@class">Response</a>, а вернул %type.</p><hr/><a href="@home">Molinos CMS v%version</a>', array(
-        '%path' => $ctx->query(),
-        '%type' => gettype($result),
-        '%func' => $method,
-        '@class' => 'http://code.google.com/p/molinos-cms/wiki/Response_Class',
-        '%version' => MCMS_VERSION,
-        '@home' => 'http://molinos-cms.googlecode.com/',
-        ));
-
-      header('HTTP/1.1 500 Internal Server Error');
-      header('Content-Type: text/html; charset=utf-8');
-      die($message);
     }
   }
 }

@@ -6,7 +6,7 @@ class DrawTextRPC
   public static function hookRemoteCall(Context $ctx)
   {
     $options = array();
-    $conf = $ctx->modconf('drawtext');
+    $conf = $ctx->config->get('modules/drawtext');
 
     // Перегружаем id шрифта, если пришел параметр извне.
     if (null !== $ctx->get('font'))

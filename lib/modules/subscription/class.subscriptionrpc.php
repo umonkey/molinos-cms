@@ -50,7 +50,7 @@ class SubscriptionRPC extends RPCHandler
       'confirmLink' => $link->string(),
       ), html::em('sections', $sections));
 
-    $xsl = $ctx->modconf('subscription', 'stylesheet', os::path('lib', 'modules', 'subscription', 'message.xsl'));
+    $xsl = $ctx->config->get('modules/subscription/stylesheet', os::path('lib', 'modules', 'subscription', 'message.xsl'));
 
     if (false === ($body = xslt::transform($xml, $xsl, null)))
       throw new RuntimeException(t('Возникла ошибка при форматировании почтового сообщения.'));

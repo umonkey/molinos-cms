@@ -67,4 +67,9 @@ class SectionControl extends EnumControl
   {
     return null;
   }
+
+  public function getExtraSettings()
+  {
+    return array();
+  }
 }

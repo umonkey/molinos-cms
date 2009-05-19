@@ -4,6 +4,7 @@ class BaseRoute
 {
   public static function serve(Context $ctx, $query, array $handler, $param = null)
   {
+    // TODO: делать это в xslt::transform(), если необходимо.
     APIStream::init($ctx);
 
     $content = '';
@@ -18,7 +19,10 @@ class BaseRoute
       'prefix' => null,
       'base' => $ctx->url()->getBase($ctx),
       'version' => MCMS_VERSION,
-      'api' => 'cms://localhost/api',
+      // TODO: добавить поддержку ?xslt=client
+      'api' => 'cms://localhost/api/',
+      'uid' => $ctx->user->id,
+      'query' => $ctx->query(),
       );
 
     if (isset($handler['title']))
@@ -82,7 +86,7 @@ class BaseRoute
       $tmp = '';
       $want = $ctx->get('widget');
       $widgets = Widget::loadWidgets($ctx);
-      foreach (explode(',', $pathinfo['widgets']) as $wname) {
+      foreach ($pathinfo['widgets'] as $wname) {
         if (null !== $want and $want != $wname)
           continue;
         if (array_key_exists($wname, $widgets) and empty($widgets[$wname]['disabled'])) {
@@ -205,7 +209,7 @@ class BaseRoute
       if (!is_array($v) and strlen($k) == strspn(strtolower($k), "abcdefghijklmnopqrstuvwxyz0123456789"))
         $result .= html::em('arg', array(
           'name' => $k,
-          ), $v);
+          ), html::cdata($v));
 
     return html::wrap('getArgs', $result);
   }
@@ -251,7 +255,7 @@ class BaseRoute
     if (file_exists($fileName))
       unlink($fileName);
 
-    if (false === self::load()) {
+    if (false === self::load($ctx)) {
       $map = array();
       self::rebuild($ctx, $map, null, 'GET');
       self::save($map);
@@ -305,11 +309,9 @@ class BaseRoute
     }
   }
 
-  public static function load()
+  public static function load(Context $ctx)
   {
-    if (!is_readable($fileName = self::getRouteFileName()))
-      return false;
-    return ini::read($fileName);
+    return $ctx->config->get('routes', false);
   }
 
   public static function save(array $map)
@@ -318,14 +320,11 @@ class BaseRoute
       . "; Обновлена " . mcms::now() . ".\n"
       . "; http://code.google.com/p/molinos-cms/wiki/DevGuideRouters\n";
 
-    ini::write(self::getRouteFileName(), $map, $comment);
+    $config = Context::last()->config;
+    $config['routes'] = $map;
+    $config->save();
 
     Router::flush();
-  }
-
-  private static function getRouteFileName()
-  {
-    return MCMS_ROOT . DIRECTORY_SEPARATOR . MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'route.ini';
   }
 
   private static function check_param(Context $ctx, $param)

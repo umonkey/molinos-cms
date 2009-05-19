@@ -53,7 +53,7 @@ class CartWidget extends Widget
     $result = array(
       'mode' => 'simple',
       'content' => CartRPC::getCartContent(),
-      'config' => $this->ctx->modconf('cart'),
+      'config' => $this->ctx->config->get('modules/cart'),
       );
 
     return $result;

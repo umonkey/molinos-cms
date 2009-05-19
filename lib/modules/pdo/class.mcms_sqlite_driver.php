@@ -7,7 +7,7 @@ class mcms_sqlite_driver extends PDO_Singleton
 
   public function __construct(array $conf)
   {
-    $this->dbfile = $this->dbname = trim($conf['path'], '/');
+    $this->dbfile = $this->dbname = MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . $conf['name'];
 
     if (':memory:' != $this->dbfile and !file_exists($this->dbfile))
       os::copy(os::path('lib', 'modules', 'pdo', 'default.sqlite'), $this->dbfile);
@@ -24,7 +24,7 @@ class mcms_sqlite_driver extends PDO_Singleton
     } catch (PDOException $e) {
       if (!in_array('sqlite', PDO::getAvailableDrivers()))
         throw new NotInstalledException('driver');
-      elseif (file_exists($conf['path']))
+      elseif (file_exists($conf['name']))
         throw new RuntimeException(t('Не удалось открыть базу данных.'));
       else
         throw new NotInstalledException('connection');

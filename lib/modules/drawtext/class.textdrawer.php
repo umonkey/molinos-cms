@@ -24,7 +24,7 @@ class TextDrawer
 
   public function __construct()
   {
-    $conf = Context::last()->modconf('drawtext');
+    $conf = Context::last()->config->get('modules/drawtext');
 
     if (isset($conf['font']))
       $this->setFont($conf['font']);

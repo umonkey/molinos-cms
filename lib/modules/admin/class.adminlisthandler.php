@@ -371,10 +371,12 @@ class AdminListHandler implements iAdminList
     }
 
     $result = '';
-    $filter = $this->getNodeFilter();
 
-    foreach ($nodes = Node::find($this->ctx->db, $filter, $this->limit, ($this->page - 1) * $this->limit) as $node)
-      $result .= $node->getXML('node');
+    $filter = $this->getNodeFilter();
+    $filter['#limit'] = $this->limit;
+    $filter['#offset'] = ($this->page - 1) * $this->limit;
+
+    $result = Node::findXML($this->ctx->db, $filter);
 
     return html::em('data', $result);
   }

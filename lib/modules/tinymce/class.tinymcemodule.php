@@ -11,7 +11,7 @@ class TinyMceModule
   public static function on_compressor_enum(Context $ctx, $mode = 'website')
   {
     $result = array();
-    $conf = $ctx->modconf('tinymce');
+    $conf = $ctx->config->get('modules/tinymce');
 
     if (empty($conf['pages']) or !in_array($mode, (array)$conf['pages']))
       return $result;
@@ -29,7 +29,7 @@ class TinyMceModule
     $initializer .= 'document_base_url: "http://' . MCMS_HOST_NAME . $ctx->folder() . '/", ';
     $initializer .= 'tiny_mce_path: "lib/modules/tinymce/editor"';
     $text = 'tinyMCE_initializer = {' . $initializer . '};';
-    os::write($path = os::path($ctx->config->getPath('tmpdir'), 'tinymce_initializer.js'), $text);
+    os::write($path = os::path($ctx->config->getPath('main/tmpdir'), 'tinymce_initializer.js'), $text);
     $result[] = array('script', os::localpath($path));
 
     $theme = empty($conf['theme'])

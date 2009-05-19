@@ -39,10 +39,10 @@ class StatusChecker
 
   private static function getEmail(Context $ctx)
   {
-    if ($conf = $ctx->modconf('admin', 'admin')) {
+    if ($id = $ctx->config->get('modules/admin/admin')) {
       try {
         $node = Node::load(array(
-          'id' => $conf,
+          'id' => $id,
           'class' => 'user',
           ));
 

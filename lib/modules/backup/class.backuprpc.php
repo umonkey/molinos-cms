@@ -14,8 +14,8 @@ class BackupRPC extends RPCHandler
 
   public static function rpc_get_download(Context $ctx)
   {
-    zip::fromFolder($zipFile = os::path($ctx->config->getPath('tmpdir'), 'backup.zip'), MCMS_ROOT,
-      realpath($ctx->config->getPath('tmpdir')));
+    zip::fromFolder($zipFile = os::path($ctx->config->getPath('main/tmpdir'), 'backup.zip'), MCMS_ROOT,
+      realpath($ctx->config->getPath('main/tmpdir')));
 
     $filename = $ctx->host() . '-' . date('YmdHi', time() - date('Z', time())) . '.zip';
 

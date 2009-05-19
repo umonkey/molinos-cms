@@ -106,11 +106,15 @@ class User
    */
   public function login($name, $password, $skipPasswordCheck = false)
   {
-    $node = Node::load(array(
-      'class' => 'user',
-      'deleted' => 0,
-      'name' => $name,
-      ));
+    try {
+      $node = Node::load(array(
+        'class' => 'user',
+        'deleted' => 0,
+        'name' => $name,
+        ));
+    } catch (ObjectNotFoundException $e) {
+      throw new ForbiddenException(t('Нет такого пользователя.'));
+    }
 
     if (!$skipPasswordCheck) {
       if (!empty($node->password) and md5($password) != $node->password)
@@ -156,13 +160,15 @@ class User
   public function getNode()
   {
     if ($this->load) {
-      if (is_numeric($uid = mcms::session('uid')))
+      try {
         $this->node = Node::load(array(
           'class' => 'user',
           'deleted' => 0,
           'published' => 1,
-          'id' => $uid,
+          'id' => mcms::session('uid'),
           ));
+      } catch (ObjectNotFoundException $e) {
+      }
       $this->load = false;
     }
 

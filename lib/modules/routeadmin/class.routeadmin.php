@@ -8,11 +8,11 @@ class RouteAdmin
   {
     $routes = '';
 
-    if (is_array($ini = BaseRoute::load())) {
+    if (is_array($ini = BaseRoute::load($ctx))) {
       ksort($ini);
 
       foreach ($ini as $k => $v) {
-        $v['name'] = substr($k, 4);
+        $v['name'] = $k;
         $v['id'] = urlencode($v['name']);
 
         if (false === strpos($v['name'], '*')) {
@@ -50,7 +50,7 @@ class RouteAdmin
 
   public static function on_get_edit(Context $ctx)
   {
-    if (!array_key_exists($key = 'GET/' . $ctx->get('id'), $map = BaseRoute::load()))
+    if (!array_key_exists($key = $ctx->get('id'), $map = BaseRoute::load($ctx)))
       throw new PageNotFoundException();
 
     $form = self::getSchema($ctx)->getForm(array(
@@ -86,7 +86,7 @@ class RouteAdmin
   {
     $data = self::getSchema($ctx)->getFormData($ctx)->dump();
 
-    $key = rtrim('GET/' . $data['host'] . '/' . $data['path'], '/');
+    $key = rtrim($data['host'] . '/' . $data['path'], '/');
     if (null === $data['path'])
       $key .= '/';
     unset($data['host']);
@@ -99,9 +99,9 @@ class RouteAdmin
 
     $data['call'] = 'BaseRoute::serve';
 
-    $map = BaseRoute::load();
+    $map = BaseRoute::load($ctx);
 
-    if (null !== ($old = 'GET/' . $ctx->get('id'))) {
+    if (null !== ($old = $ctx->get('id'))) {
       if (array_key_exists($old, $map))
         unset($map[$old]);
       else
@@ -116,10 +116,10 @@ class RouteAdmin
 
   public static function on_post_delete(Context $ctx)
   {
-    $map = BaseRoute::load();
+    $map = BaseRoute::load($ctx);
 
     foreach ((array)$ctx->post('delete') as $path) {
-      if (array_key_exists($key = 'GET/' . $path, $map))
+      if (array_key_exists($key = $path, $map))
         unset($map[$key]);
       else
         throw new PageNotFoundException(t('Путь <tt>%path</tt> не найден.', array(

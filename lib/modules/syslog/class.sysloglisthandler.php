@@ -56,7 +56,7 @@ class SyslogListHandler extends AdminListHandler implements iAdminList
       list($sql, $params) = sql::getInsert('node__log', array(
         'nid' => $node->id,
         'uid' => $ctx->user->id,
-        'username' => $ctx->user->name,
+        'username' => $ctx->user->getNode()->getName(),
         'operation' => $op,
         'ip' => $_SERVER['REMOTE_ADDR'],
         'timestamp' => mcms::now(),

@@ -108,7 +108,7 @@ class WidgetAdmin
 
     $info = $list[$name];
     $info['name'] = $name;
-    $info['pages'] = self::get_pages_for($name);
+    $info['pages'] = self::get_pages_for($ctx, $name);
 
     $form = self::get_form($ctx, $info['classname'], $name);
     $html = $form->getXML(Control::data($info));
@@ -162,17 +162,17 @@ class WidgetAdmin
       }
 
       Widget::save($widgets);
-      BaseRoute::save(self::remove_dead_widgets(BaseRoute::load(), array_keys($widgets)));
+      BaseRoute::save(self::remove_dead_widgets(BaseRoute::load($ctx), array_keys($widgets)));
     }
 
     return $ctx->getRedirect(self::listurl);
   }
 
-  private static function get_pages()
+  private static function get_pages(Context $ctx)
   {
     $result = array();
-    foreach (BaseRoute::load() as $k => $v) {
-      $name = $key = substr($k, 4);
+    foreach (BaseRoute::load($ctx) as $k => $v) {
+      $name = $key = $k;
       if (!empty($v['title']))
         $name .= ' (' . $v['title'] . ')';
       $result[$key] = $name;
@@ -216,7 +216,7 @@ class WidgetAdmin
     $schema['pages'] = array(
       'type' => 'SetControl',
       'group' => t('Страницы'),
-      'options' => self::get_pages(),
+      'options' => self::get_pages($ctx),
       );
 
     return new Schema($schema);
@@ -284,23 +284,23 @@ class WidgetAdmin
     $reduced = array_diff(array_keys($widgets), array($name));
 
     // Удаляем лишнее из списка маршрутов.
-    $routes = self::remove_dead_widgets(BaseRoute::load(), $reduced);
+    $routes = self::remove_dead_widgets(BaseRoute::load($ctx), $reduced);
 
     // Цепляем текущий виджет к выбранным страницам.
     if (null !== $pages) {
       foreach ($pages as $page) {
-        if (!array_key_exists($route = 'GET/' . $page, $routes))
+        if (!array_key_exists($route = $page, $routes))
           throw new PageNotFoundException(t('Страница %page перестала существовать.', array(
             '%page' => $page,
             )));
 
         $pwlist = isset($routes[$route]['widgets'])
-          ? explode(',', $routes[$route]['widgets'])
+          ? (array)$routes[$route]['widgets']
           : array();
         $pwlist[] = $name;
 
         sort($pwlist);
-        $routes[$route]['widgets'] = implode(',', array_unique($pwlist));
+        $routes[$route]['widgets'] = array_unique($pwlist);
       }
     }
 
@@ -310,13 +310,13 @@ class WidgetAdmin
     BaseRoute::save($routes);
   }
 
-  private static function get_pages_for($name)
+  private static function get_pages_for(Context $ctx, $name)
   {
     $pages = array();
 
-    foreach (BaseRoute::load() as $k => $v) {
-      if (isset($v['widgets']) and in_array($name, explode(',', $v['widgets'])))
-        $pages[] = substr($k, 4);
+    foreach (BaseRoute::load($ctx) as $k => $v) {
+      if (isset($v['widgets']) and in_array($name, (array)$v['widgets']))
+        $pages[] = $k;
     }
 
     return $pages;
@@ -326,7 +326,7 @@ class WidgetAdmin
   {
     foreach ($route as $k => $v)
       if (isset($v['widgets']))
-        $route[$k]['widgets'] = implode(',', array_intersect(explode(',', $v['widgets']), $widget_names));
+        $route[$k]['widgets'] = array_intersect((array)$v['widgets'], $widget_names);
 
     return $route;
   }
@@ -334,11 +334,10 @@ class WidgetAdmin
   private static function getOrphanWidgets(Context $ctx)
   {
     $used = array();
-    $route = BaseRoute::load();
 
-    foreach (BaseRoute::load() as $route) {
+    foreach ($ctx->config->get('routes', array()) as $route) {
       if (!empty($route['widgets'])) {
-        foreach (explode(',', $route['widgets']) as $w)
+        foreach ((array)$route['widgets'] as $w)
           if (!in_array($w, $used))
             $used[] = $w;
       }

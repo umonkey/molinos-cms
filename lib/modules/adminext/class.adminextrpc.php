@@ -9,8 +9,13 @@ class AdminExtRPC extends RPCHandler
 
   public static function rpc_getlinks(Context $ctx)
   {
-    $hide = $ctx->modconf('adminext', 'hide', array());
-    $etpl = $ctx->modconf('adminext', 'edit_tpl');
+    $hide = isset($ctx->config['module']['adminext']['hide'])
+      ? $ctx->config['module']['adminext']['hide']
+      : array();
+
+    $etpl = isset($ctx->config['module']['adminext']['edit_tpl'])
+      ? $ctx->config['module']['adminext']['edit_tpl']
+      : null;
 
     switch ($pos = strpos($url = $ctx->get('url'), '?')) {
     case 0:

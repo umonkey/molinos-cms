@@ -20,11 +20,7 @@ class Structure
   private static $instance = null;
 
   private $loaded = false;
-  protected $widgets = array();
-  protected $aliases = array();
-  protected $domains = array();
   protected $access = array();
-  protected $types = array();
 
   public static function getInstance()
   {
@@ -88,98 +84,6 @@ class Structure
   }
 
   /**
-   * Возвращает информацию о подходящей странице.
-   */
-  public function findPage($domain, $path)
-  {
-    if (!$this->loaded)
-      $this->load();
-
-    $overrides = array();
-
-    if (null === ($domain = $this->findDomain($domain, $overrides)))
-      return false;
-
-    foreach ($this->domains[$domain] as $re => $meta) {
-      if (preg_match('#^' . $re . '$#', $path, $args)) {
-        // Удаляем первый параметр (всё выражение).
-        array_shift($args);
-
-        $params = empty($meta['params'])
-          ? array()
-          : explode('+', $meta['params']);
-
-        if (count($args) <= count($params) and !empty($meta['published'])) {
-          $result = array(
-            'name' => $meta['name'],
-            'page' => $meta,
-            'args' => array(),
-            );
-
-          foreach ($args as $k => $v)
-            $result['args'][$params[$k]] = intval($v);
-
-          $result['page'] = array_merge($result['page'], $overrides);
-
-          return $result;
-        }
-      }
-    }
-
-    return false;
-  }
-
-  /**
-   * Возвращает домен с учётом алиасов.
-   */
-  private function findDomain($host, array &$overrides)
-  {
-    if (array_key_exists($host, $this->aliases)) {
-      $overrides = $this->aliases[$host];
-      unset($overrides['target']);
-      return $this->aliases[$host]['target'];
-    }
-
-    if (array_key_exists($host, $this->domains))
-      return $host;
-
-    if (!empty($this->domains))
-      return array_shift(array_keys($this->domains));
-
-    return null;
-  }
-
-  /**
-   * Возвращает информацию об указанных виджетах.
-   */
-  public function findWidgets(array $names)
-  {
-    if (!$this->loaded)
-      $this->load();
-
-    $result = array();
-
-    foreach ($names as $name)
-      if (array_key_exists($name, $this->widgets))
-        $result[$name] = $this->widgets[$name];
-
-    return $result;
-  }
-
-  /**
-   * Возвращает структуру типа документа.
-   */
-  public function findSchema($className)
-  {
-    if (!$this->loaded)
-      $this->load();
-
-    return array_key_exists($className, $this->types)
-      ? $this->types[$className]
-      : array();
-  }
-
-  /**
    * Возвращает суммарные права для набора прав.
    */
   public function getGroupAccess(array $groups)
@@ -229,11 +133,7 @@ class Structure
     if ($this->loaded)
       os::writeArray($this->getFileName(), array(
         'version' => self::version,
-        'widgets' => $this->widgets,
-        'aliases' => $this->aliases,
-        'domains' => $this->domains,
         'access' => $this->access,
-        'types' => $this->types,
         ));
   }
 

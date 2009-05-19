@@ -62,7 +62,7 @@ class AdminRPC extends RPCHandler
    */
   public static function rpc_get_reload(Context $ctx)
   {
-    $tmpdir = $ctx->config->getPath('tmpdir');
+    $tmpdir = $ctx->config->getPath('main/tmpdir');
 
     $files = glob(os::path($tmpdir, 'mcms-fetch.*'));
     if (!empty($files))

@@ -123,6 +123,7 @@ class NodeLinkControl extends Control
 
         $node->{$this->value} = $n;
       }
+    } catch (TableNotFoundException $e) {
     } catch (ObjectNotFoundException $e) {
       throw new PageNotFoundException(t('Объект «%name» не найден.', array(
         '%name' => $value,

@@ -21,9 +21,9 @@ class Sitemap
       return;
 
     if (!empty($node->class)) {
-      $conf = (array)$ctx->modconf('sitemap');
+      $conf = (array)$ctx->config->get('modules/sitemap');
 
-      if (in_array($node->class, (array)$ctx->modconf('sitemap', 'send_types'))) {
+      if (in_array($node->class, (array)$ctx->config->get('modules/sitemap/send_types'))) {
         if (file_exists($path = self::get_file_path($ctx)))
           unlink($path);
 
@@ -98,7 +98,7 @@ class Sitemap
   private static function write_nodes(Context $ctx, $f)
   {
     $filter = array(
-      'class' => (array)$ctx->modconf('sitemap', 'send_types'),
+      'class' => (array)$ctx->config->get('modules/sitemap/send_types'),
       'published' => 1,
       'deleted' => 0,
       );
@@ -124,7 +124,7 @@ class Sitemap
 
   private static function get_file_path(Context $ctx)
   {
-    return os::path($ctx->config->getPath('tmpdir'), 'sitemap-' . MCMS_HOST_NAME . '.xml');
+    return os::path($ctx->config->getPath('main/tmpdir'), 'sitemap-' . MCMS_HOST_NAME . '.xml');
   }
 
   /**

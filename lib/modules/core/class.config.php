@@ -1,111 +1,37 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class Config
+class Config extends ArrayObject
 {
-  private static $instance = null;
-  private $data = null;
-  private $path = null;
+  private $path;
 
-  public function __construct()
+  public function __construct($fileName = 'config.yml')
   {
-    $this->path = MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'config.ini';
-  }
+    $this->path = MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . $fileName;
 
-  private function readData()
-  {
-    if (!is_readable($this->path))
-      $this->data = array();
-    else
-      $this->data = ini::read($this->path);
-  }
-
-  private function __isset($varname)
-  {
-    return null !== $this->__get($varname);
-  }
-
-  private function __get($varname)
-  {
-    if (null === $this->data)
-      $this->readData();
-
-    // Обратная совместимость.
-    // TODO: переписать исходные вызовы.
-    switch ($varname) {
-    case 'files':
-      $varname = 'attachment_storage';
-      break;
-    case 'files_ftp':
-      $varname = 'attachment_ftp';
-      break;
-    }
-
-    if (2 == count($parts = explode('_', $varname, 2)))
-      $res = isset($this->data[$parts[0]][$parts[1]])
-        ? $this->data[$parts[0]][$parts[1]]
-        : null;
-    else
-      $res = array_key_exists($parts[0], $this->data)
-        ? $this->data[$parts[0]]
-        : array();
-
-    switch ($varname) {
-    case 'db_dsn':
-      if (0 === strpos($res, 'sqlite:'))
-        $res = 'sqlite:' . $this->getDirName() . DIRECTORY_SEPARATOR . substr($res, 7);
-      break;
-    }
-
-    return $res;
-  }
-
-  private function __set($varname, $value)
-  {
-    if (empty($varname))
-      throw new InvalidArgumentException(t('Не указано имя параметра.'));
-
-    if (null === $this->data)
-      $this->readData();
-
-    if (false === strpos($varname, '_'))
-      $this->data[$varname] = $value;
+    if (!file_exists($this->path))
+      $data = array();
+    elseif (!is_readable($this->path))
+      throw new RuntimeException($fileName . ' is not readable.');
     else {
-      list($a, $b) = explode('_', $varname, 2);
-      if (!array_key_exists($a, $this->data))
-        $this->data[$a] = array();
-      elseif (!is_array($this->data[$a]))
-        throw new RuntimeException(t('Ключ %name уже занят строчным параметром.', array(
-          '%name' => $a,
-          )));
-      $this->data[$a][$b] = $value;
+      $cache = cache::getInstance();
+
+      if (!is_array($data = $cache->config)) {
+        $data = Spyc::YAMLLoad($this->path);
+        $cache->config = $data;
+      }
     }
+
+    return parent::__construct($data);
   }
 
-  private function __unset($varname)
+  public function save()
   {
-    if (null === $this->data)
-      $this->readData();
+    self::purge($this);
 
-    if (array_key_exists($varname, $this->data))
-      unset($this->data[$varname]);
-  }
-
-  public function isok()
-  {
-    return file_exists($this->path);
-  }
-
-  public function reload()
-  {
-    if (empty($this->data))
-      $this->readData();
-  }
-
-  public function write()
-  {
-    ksort($this->data);
-    ini::write($this->path, $this->data);
+    if (file_put_contents($this->path, Spyc::YAMLDump($this)))
+      cache::getInstance()->config = $this;
+    return $this;
   }
 
   public function getDirName()
@@ -113,19 +39,83 @@ class Config
     return dirname($this->path);
   }
 
-  /**
-   * Возвращает полный путь, описанный определённым ключом.
-   */
-  public function getPath($key)
+  public function get($keyName, $default = null)
   {
-    if (null === ($value = $this->$key))
-      return null;
-    else
-      return $this->getRealPath($value);
+    $path = explode('/', $keyName);
+    $root = $this;
+
+    while (!empty($path)) {
+      $em = array_shift($path);
+
+      if (!isset($root[$em]))
+        return $default;
+
+      $root = $root[$em];
+
+      if (!empty($path) and !is_array($root))
+        return $default;
+    }
+
+    return $root;
   }
 
-  private function getRealPath($shortPath)
+  public function getInt($keyName, $default = 0)
   {
-    return MCMS_ROOT . DIRECTORY_SEPARATOR . $this->getDirName() . DIRECTORY_SEPARATOR . $shortPath;
+  }
+
+  public function getPath($keyName, $default = null)
+  {
+    if (!($value = $this->get($keyName, $default)))
+      mcms::fatal('Неизвестный путь: ' . $keyName . '.');
+
+    $result = MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . $value;
+
+    return $result;
+  }
+
+  public function getString($keyName, $default = null)
+  {
+  }
+
+  public function getArray($keyName, $default = array())
+  {
+  }
+
+  /**
+   * Удаляет пустые массивы.
+   */
+  public static function purge(&$branch)
+  {
+    foreach ($branch as $k => $v) {
+      if (is_array($v)) {
+        if (empty($v))
+          unset($branch[$k]);
+        else
+          self::purge($branch[$k]);
+      }
+    }
+  }
+
+  public function set($keyName, $value)
+  {
+    $root = &$this;
+    $path = explode('/', $keyName);
+
+    while (count($path) > 1) {
+      $em = array_shift($path);
+      if (!isset($root[$em]))
+        $root[$em] = array();
+      $root = &$root[$em];
+    }
+
+    $root[array_shift($path)] = $value;
+  }
+
+  /**
+   * Проверяет существование конфига.
+   */
+  public function isOk()
+  {
+    return file_exists($this->path);
   }
 }

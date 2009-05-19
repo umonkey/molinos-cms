@@ -38,7 +38,7 @@ class SubscriptionNode extends Node
 
   public function getEnabledSections()
   {
-    $conf = Context::last()->modconf('subscription');
+    $conf = Context::last()->config->get('modules/subscription');
 
     if (!array_key_exists('sections', $conf))
       return array();

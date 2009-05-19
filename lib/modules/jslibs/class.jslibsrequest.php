@@ -9,7 +9,7 @@ class JSLibsRequest
   {
     $libs = JSLibsConfig::getLibraries();
 
-    foreach ($ctx->modconf('jslibs', 'use', array()) as $key)
+    foreach ($ctx->config->get('modules/jslibs/use', array()) as $key)
       if (array_key_exists($key, $libs))
         mcms::extras($libs[$key]['url'], false);
   }

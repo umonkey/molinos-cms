@@ -27,7 +27,10 @@ class APIStream
           $ctx = new Context(array(
             'url' => $realpath,
             ));
-          $this->data = self::$router->dispatch($ctx)->dump();
+          if ($tmp = self::$router->dispatch($ctx))
+            $this->data = $tmp->dump();
+          else
+            $this->data = html::em('error');
           mcms::flog(sprintf('API OK %f %s', microtime(true) - $time, substr($path, 16)));
         } catch (Exception $e) {
           mcms::flog('Stream error: ' . $e->getMessage());

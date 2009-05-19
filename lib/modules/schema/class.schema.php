@@ -46,51 +46,30 @@ class Schema extends ArrayObject
   /**
    * Возвращает схему указанного типа документа.
    */
-  public static function load($db, $className)
+  public static function load(PDO_Singleton $db, $className)
   {
-    return new Schema(Structure::getInstance()->findSchema($className));
+    $cache = cache::getInstance();
+    $ckey = 'schema:' . $className;
+
+    if (!is_array($fields = $cache->$ckey))
+      $cache->$ckey = $fields = self::rebuild($db, $className);
+    return new Schema($fields);
   }
 
   /**
-   * Воссоздаёт контрол из БД. Используется в StructureMA.
+   * Воссоздаёт контролы из БД.
    */
   public static function rebuild(PDO_Singleton $db, $className)
   {
-    $schema = array();
-
-    // Загружаем из БД.
     try {
-      $data = $db->getResultsKV("name", "data", "SELECT DISTINCT `f`.`name` AS `name`, `f`.`data` AS `data` "
-        . "FROM `node` `f` INNER JOIN `node__rel` `r` ON `r`.`nid` = `f`.`id` "
-        . "INNER JOIN `node` `t` ON `t`.`id` = `r`.`tid` "
-        . "WHERE `t`.`class` = 'type' AND `f`.`class` = 'field' "
-        . "AND `t`.`name` = ? AND `f`.`deleted` = 0", array($className));
-      if (!empty($data))
-        foreach ($data as $k => $v)
-          $schema[$k] = unserialize($v);
+      $node = Node::load(array(
+        'class' => 'type',
+        'name' => $className,
+        'deleted' => 0,
+        ), $db);
+      $schema = (array)$node->fields;
     } catch (ObjectNotFoundException $e) {
-    }
-
-    // Применяем дефолтные поля.
-    if (null !== ($host = NodeStub::getClassName($className))) {
-      if (method_exists($host, 'getDefaultSchema')) {
-        if (is_array($default = call_user_func(array($host, 'getDefaultSchema')))) {
-          $hasfields = count($schema);
-
-          foreach ($default as $k => $v) {
-            if (!empty($v['recommended']) and $hasfields)
-              ;
-
-            elseif (!empty($v['deprecated'])) {
-              if (isset($schema[$k]))
-                unset($schema[$k]);
-            }
-
-            elseif (!isset($schema[$k]) or !empty($v['volatile']))
-              $schema[$k] = $v;
-          }
-        }
-      }
+      $schema = array();
     }
 
     return $schema;

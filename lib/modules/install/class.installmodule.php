@@ -5,6 +5,9 @@ class InstallModule
 {
   public static function rpc_get_default(Context $ctx)
   {
+    if ($ctx->config->isOk())
+      $ctx->redirect('admin');
+
     $xml = self::listDriversXML();
     $xsl = os::path('lib', 'modules', 'install', 'template.xsl');
     return xslt::transform(html::em('installer', array(
@@ -21,49 +24,63 @@ class InstallModule
       throw new RuntimeException(t('Вы не выбрали тип БД.'));
 
     $config = $ctx->config;
+
+    // Выносим секцию main в самое начало.
+    $config['main'] = array();
+
     if ($config->isok())
       throw new ForbiddenException(t('Инсталляция невозможна: конфигурационный файл уже есть.'));
 
-    $config->db_dsn = self::getDSN($data['dbtype'], $data['db'][$data['dbtype']]);
+    $config->set('modules/db', self::getDSN($data['dbtype'], $data['db'][$data['dbtype']]));
 
-    foreach (array('mail_server', 'mail_from', 'debug_errors') as $key) {
-      if (!empty($data[$key])) {
-        $config->$key = $data[$key];
-      }
-    }
+    foreach (array('modules/mail/server', 'modules/mail/from', 'main/debug/errors') as $key)
+      if (!empty($data[$key]))
+        $config->set($key, $data[$key]);
 
-    $config->base_files = 'files';
-    $config->base_ftp = 'ftp';
-    $config->base_tmpdir = 'tmp';
+    $config->set('modules/files/storage', 'files');
+    $config->set('modules/files/ftp', 'ftp');
+    $config->set('main/tmpdir', 'tmp');
+    $config->set('main/debug/allow', array('127.0.0.1', $_SERVER['REMOTE_ADDR']));
 
-    // Формируем список отладчиков.
-    $debuggers = '127.0.0.1,' . $_SERVER['REMOTE_ADDR'];
-    $config->debug_allow = substr($debuggers, 0, strrpos($debuggers, '.')) . '.*';
+    // Создаём маршрут для главной страницы.
+    $config['routes']['localhost/'] = array(
+      'title' => 'Molinos CMS',
+      'theme' => 'example',
+      'call' => 'BaseRoute::serve',
+      );
 
     // Проверим соединение с БД.
-    $pdo = PDO_Singleton::connect($config->db_dsn);
+    $pdo = PDO_Singleton::connect($config->get('modules/db'));
 
-    $config->write();
-    $ctx->redirect('admin/system/reload?destination=%3Fq%3Dadmin%2Fsystem');
+    // Подключились, можно сохранять конфиг.
+    $config->save();
 
-    /*
-    $s = new Structure();
-    $s->rebuild();
-    */
+    $ctx->redirect('admin/system/reload?destination=admin/system/settings');
   }
 
   private static function getDSN($type, array $settings)
   {
+    $result = array(
+      'type' => $type,
+      );
+
     switch ($type) {
     case 'sqlite':
-      return 'sqlite:' . $settings['name'];
+      $keys = array('name');
+      break;
     case 'mysql':
-      return 'mysql://' . $settings['user'] . ':' . $settings['pass'] . '@' . $settings['host'] . '/' . $settings['name'];
+      $keys = array('user', 'password', 'host', 'name');
+      break;
     default:
       throw new RuntimeException(t('БД типа "%type" не поддерживается.', array(
         '%type' => $type,
         )));
     }
+
+    foreach ($keys as $key)
+      $result[$key] = $settings[$key];
+
+    return $result;
   }
 
   private static function checkInstalled()

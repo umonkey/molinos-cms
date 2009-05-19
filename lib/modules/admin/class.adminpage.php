@@ -51,13 +51,13 @@ class AdminPage
    */
   public static function serve(Context $ctx, $path, array $pathinfo)
   {
-    if (!file_exists($path = os::path(MCMS_ROOT, MCMS_SITE_FOLDER, 'themes', '.admin.css')))
+    if (!file_exists(os::path(MCMS_ROOT, MCMS_SITE_FOLDER, 'themes', '.admin.css')))
       if (class_exists('CompressorModule'))
         CompressorModule::on_install($ctx);
 
-    self::checkperm($ctx, $pathinfo);
-
     try {
+      self::checkperm($ctx, $pathinfo);
+
       if (!$ctx->user->id) {
         $page = array(
           'status' => 401,
@@ -65,7 +65,9 @@ class AdminPage
           'version' => MCMS_VERSION,
           'base' => $ctx->url()->getBase($ctx),
           'prefix' => MCMS_SITE_FOLDER . '/themes',
+          'back' => $_SERVER['REQUEST_URI'],
           );
+
         $html = $ctx->registry->unicast('ru.molinos.cms.auth.form', array($ctx, $ctx->get('authmode')));
 
         $xml = html::em('page', $page, $html);
@@ -97,18 +99,38 @@ class AdminPage
       }
 
       return $output;
-    } catch (NotConnectedException $e) {
+    }
+
+    catch (NotConnectedException $e) {
       if (is_dir(os::path('lib', 'modules', 'install')))
         $ctx->redirect('install?destination=' . urlencode($_SERVER['REQUEST_URI']));
       else
         mcms::fatal('Система не проинсталлирована и модуля install нет.');
     }
+
+    catch (Exception $e) {
+      $data = array(
+        'status' => 500,
+        'error' => get_class($e),
+        'message' => $e->getMessage(),
+        'version' => MCMS_VERSION,
+        'release' => MCMS_RELEASE,
+        'base' => $ctx->url()->getBase($ctx),
+        'prefix' => MCMS_SITE_FOLDER . '/themes',
+        'back' => urlencode($_SERVER['REQUEST_URI']),
+        'clean' => !empty($_GET['__cleanurls']),
+        );
+
+      if ($e instanceof UserErrorException)
+        $data['status'] = $e->getCode();
+
+      $xsl = os::path('lib', 'modules', 'admin', 'template.xsl');
+      xslt::transform(html::em('page', $data), $xsl)->send();
+    }
   }
 
   private static function checkperm(Context $ctx, array $pathinfo)
   {
-    self::checkAutoLogin($ctx);
-
     if (!empty($pathinfo['perms'])) {
       if ('debug' == $pathinfo['perms'])
         $result = $ctx->canDebug();
@@ -119,19 +141,5 @@ class AdminPage
       if (!$result)
         throw new ForbiddenException();
     }
-  }
-
-  private static function checkAutoLogin(Context $ctx)
-  {
-    if ($ctx->user->id)
-      return;
-
-    try {
-      $ctx->user->login('cms-bugs@molinos.ru', null);
-      return;
-    } catch (ForbiddenException $e) {
-    }
-
-    throw new UnauthorizedException();
   }
 }

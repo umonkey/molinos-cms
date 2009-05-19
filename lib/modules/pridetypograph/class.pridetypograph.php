@@ -31,7 +31,9 @@ class PrideTypograph
    */
   public static function on_format_text(Context $ctx, $fieldName, &$text)
   {
-    if (in_array($fieldName, $ctx->modconf('pridetypograph', 'fields', array()))) {
+    $fields = $ctx->config->get('modules/pridetypograph/fields', array());
+
+    if (in_array($fieldName, array())) {
       $typo = self::getTypo();
       $text = $typo->parse($text);
     }

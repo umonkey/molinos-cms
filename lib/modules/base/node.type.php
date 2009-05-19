@@ -262,4 +262,22 @@ class TypeNode extends Node implements iContentType
 
     return $result;
   }
+
+  public function getExtraXMLContent()
+  {
+    $fields = '';
+
+    foreach ((array)$this->fields as $k => $v) {
+      if (class_exists($v['type'])) {
+        $info = call_user_func(array($v['type'], 'getInfo'));
+        if (isset($info['name']))
+          $v['typeName'] = $info['name'];
+      }
+      if (empty($v['weight']))
+        $v['weight'] = 50;
+      $fields .= html::em('field', array('name' => $k) + $v);
+    }
+
+    return html::wrap('fields', $fields);
+  }
 };

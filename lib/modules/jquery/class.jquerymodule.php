@@ -9,10 +9,10 @@ class jQueryModule
   {
     $libs = array();
 
-    if ($version = $ctx->modconf('jquery', 'jsversion', '1.2.6'))
+    if ($version = $ctx->config->get('modules/jquery/jsversion', '1.2.6'))
       $libs[] = array('script', os::path('lib', 'modules', 'jquery', 'jquery-' . $version . '.min.js'));
 
-    if ($ctx->modconf('jquery', 'ui'))
+    if ($ctx->config->get('modules/jquery/ui'))
       $libs[] = array('script', os::path('lib', 'modules', 'jquery', 'jquery-ui-1.5.3.min.js'));
 
     return $libs;

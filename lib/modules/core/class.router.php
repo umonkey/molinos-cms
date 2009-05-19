@@ -77,10 +77,9 @@ class Router
   private function load_ini(Context $ctx)
   {
     $raw = array();
-    $fileName = MCMS_ROOT . DIRECTORY_SEPARATOR . MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'route.ini';
 
-    if (is_readable($fileName))
-      $raw = ini::read($fileName);
+    foreach ($ctx->config->get('routes', array()) as $k => $v)
+      $raw['GET/' . $k] = $v;
 
     foreach (os::find('lib', 'modules', '*', 'route.ini') as $iniFile) {
       foreach (ini::read($iniFile) as $k => $v) {
@@ -141,7 +140,7 @@ class Router
       $output = call_user_func_array($match['call'], $args);
       if (empty($output))
         throw new RuntimeException(t('Обработчик этого адреса — %call — ничего не вернул.', array(
-          '%call' => $handler['call'] . '()',
+          '%call' => $match['call'] . '()',
           )));
 
       if ($output instanceof Response and !empty($match['cache']))

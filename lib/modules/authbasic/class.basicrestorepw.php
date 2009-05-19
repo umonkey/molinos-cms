@@ -60,7 +60,7 @@ class BasicRestorePW
         . '&otp=' . urlencode($salt),
       ));
 
-    $xsl = $ctx->modconf('authbasic', 'restoretpl',
+    $xsl = $ctx->config->get('modules/authbasic/restoretpl',
       os::path('lib', 'modules', 'authbasic', 'restore.xsl'));
 
     $html = xslt::transform($xml, $xsl, null);

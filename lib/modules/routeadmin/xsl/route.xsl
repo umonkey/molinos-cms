@@ -56,7 +56,6 @@
             </table>
             <p><input type="submit" value="Удалить отмеченные" /> или <a  href="admin/structure/routes/add">добавить новый путь</a>.</p>
           </form>
-          <p>Вся изменяемая здесь информация хранится в файле <tt><xsl:value-of select="/page/@sitefolder" />/route.ini</tt>, который можно редактировать вручную, <a href="http://code.google.com/p/molinos-cms/wiki/DevGuideRouters">ознакомившись с форматом</a>.</p>
         </xsl:otherwise>
       </xsl:choose>
     </div>

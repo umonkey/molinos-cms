@@ -36,7 +36,7 @@ class AttachmentControl extends Control
     if (!array_key_exists('fetch', $form))
       $form['fetch'] = true;
 
-    if (null === Context::last()->config->getPath('files_ftp'))
+    if (null === Context::last()->config->getPath('modules/files/ftp', 'ftp'))
       $form['ftp'] = false;
 
     parent::__construct($form, array('value'));
@@ -137,34 +137,34 @@ class AttachmentControl extends Control
     return $value;
   }
 
-  public function format($value)
+  public function format($value, $em)
   {
     if (is_object($value) and 'file' == $value->class) {
       $ctx = Context::last();
-      $url = os::path($ctx->config->getDirName(), $ctx->config->files, $value->filepath);
+      $url = os::path($ctx->config->getPath('modules/files/storage', 'files'), $value->filepath);
 
       if (!file_exists($url))
-        return html::em('p', array(
+        return html::em($em, html::cdata(html::em('p', array(
           'class' => 'error',
-          ), t('Ошибка: файл не найден.'));
+          ), t('Ошибка: файл не найден.'))));
 
       switch ($value->filetype) {
       case 'video/flv':
       case 'video/x-flv':
       case 'video/mp4':
-        return $this->getPlayer($url, array(
+        return html::em($em, html::cdata($this->getPlayer($url, array(
           'width' => $value->width,
           'height' => $value->height,
-          ));
+          ))));
       case 'audio/mpeg':
-        return $this->getPlayer($url, array(
+        return html::em($em, html::cdata($this->getPlayer($url, array(
           'width' => 300,
           'height' => 20,
-          ));
+          ))));
       }
     }
 
-    return $value;
+    return html::wrap($em, html::cdata($value));
   }
 
   private function getPlayer($_url, array $options = array())

@@ -258,7 +258,8 @@ class Session
 
   private function getStorageType()
   {
-    if ('db' != ($type = mcms::config('session_type', 'file')))
+    $type = Context::last()->config->get('modules/session/type', 'file');
+    if ('db' != $type)
       $type = 'file';
     return $type;
   }
@@ -267,8 +268,8 @@ class Session
   {
     $config = Context::last()->config;
 
-    if (!($path = $config->session_path))
-      $path = $config->getPath('base_tmpdir', 'sessions');
+    $default = os::path($config->get('main/tmpdir'), 'sessions');
+    $path = $config->getPath('modules/session/path', $default);
 
     return os::path($path, $id . '.session');
   }

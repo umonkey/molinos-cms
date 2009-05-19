@@ -7,7 +7,7 @@ class modman
    */
   public static function getInfoPath()
   {
-    return os::path(Context::last()->config->getPath('tmpdir'), 'modules.ini');
+    return os::path(Context::last()->config->getPath('main/tmpdir'), 'modules.ini');
   }
 
   /**
@@ -268,7 +268,7 @@ class modman
 
     $schema = self::settings_get($ctx, $name);
     $form = $schema->getForm();
-    $data = $ctx->modconf($name, null, array());
+    $data = $ctx->config->get('modules/' . $name, array());
 
     $title = $pathinfo['title'];
 

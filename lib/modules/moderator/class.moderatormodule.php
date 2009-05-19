@@ -8,7 +8,7 @@ class ModeratorModule
    */
   public static function hookNodeUpdate(Context $ctx, Node $node, $op)
   {
-    $config = $ctx->modconf('moderator');
+    $config = $ctx->config->get('modules/moderator');
 
     if (!empty($config['skip_types']) and in_array($node->class, $config['skip_types']))
       return;
@@ -95,7 +95,7 @@ class ModeratorModule
 
   private static function getRecipients(Context $ctx)
   {
-    $config = $ctx->modconf('moderator');
+    $config = $ctx->config->get('modules/moderator');
     $list = isset($config['super']) ? preg_split('/, */', $config['super']) : array();
 
     if (Context::last()->user->id) {

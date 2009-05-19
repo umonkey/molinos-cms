@@ -84,7 +84,7 @@ class Context
     // Инициализируем реестр.
     $this->registry = new Registry();
     if (!$this->registry->load())
-      $this->registry->rebuild((array)$this->config->modules);
+      $this->registry->rebuild();
   }
 
   public static function last()
@@ -349,8 +349,11 @@ class Context
       return $this->_args[$key];
 
     case 'db':
-      if (null === $this->_db)
-        $this->_db = PDO_Singleton::connect($this->config->db_dsn);
+      if (null === $this->_db) {
+        if (!is_array($dsn = $this->config->get('modules/db')))
+          throw new InvalidArgumentException(t('Соединение с БД не настроено.'));
+        $this->_db = PDO_Singleton::connect($dsn);
+      }
       return $this->_db;
 
     // Доступ к конфигурационному файлу.
@@ -477,7 +480,7 @@ class Context
   public function canDebug()
   {
     if (null === $this->_debug) {
-      if (null === ($debuggers = $this->config->debuggers_allow))
+      if (null === ($debuggers = $this->config->get('modules/debug/allow')))
         $this->_debug = true;
       else
         $this->_debug = mcms::matchip($_SERVER['REMOTE_ADDR'], $debuggers);
@@ -607,21 +610,5 @@ class Context
     } catch (Exception $e) {
       mcms::fatal($e);
     }
-  }
-
-  /**
-   * Возвращает настройки конкретного модуля.
-   */
-  public function modconf($moduleName, $keyName = null, $default = null)
-  {
-    $key = $moduleName;
-    if (null !== $keyName)
-      $key .= '_' . $keyName;
-
-    $result = $this->config->$key;
-
-    return empty($result)
-      ? $default
-      : $result;
   }
 }

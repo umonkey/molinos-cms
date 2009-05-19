@@ -68,7 +68,6 @@
             </table>
             <p><input type="submit" value="Удалить отмеченные" /> или <a  href="{@base}/add">добавить новый виджет</a>.</p>
           </form>
-          <p>Вся изменяемая здесь информация хранится в файле <tt><xsl:value-of select="/page/@sitefolder" />/widgets.ini</tt>, который можно редактировать вручную.</p>
         </xsl:otherwise>
       </xsl:choose>
     </div>

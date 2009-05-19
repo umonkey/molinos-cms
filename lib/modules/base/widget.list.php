@@ -144,7 +144,7 @@ class ListWidget extends Widget
       $options['section'] = $params['section'];
 
     if (!empty($this->types))
-      $options['classes'] = array_intersect(explode(',', $this->types), $ctx->user->getAccess('r'));
+      $options['classes'] = array_intersect($this->types, $ctx->user->getAccess('r'));
 
     if ($this->onlyathome and $options['section'] != $params['root'])
       return $this->halt();
@@ -173,10 +173,6 @@ class ListWidget extends Widget
     } else {
       $options['offset'] = null;
     }
-
-    // Добавляем пользовательскую фильтрацию.
-    if ($tmp = $this->get('filter'))
-      $options['filter'] = $tmp;
 
     $options['sort'] = $this->get('sort', $this->sort);
 
@@ -273,16 +269,6 @@ class ListWidget extends Widget
       $filter['#limit'] = $options['limit'];
       if (!empty($options['offset']))
         $filter['#offset'] = $options['offset'];
-    }
-
-    if (isset($options['filter']) and is_array($options['filter'])) {
-      foreach ($options['filter'] as $k => $v) {
-        if (!array_key_exists($k, $filter)) {
-          if (!is_array($v))
-            $v = explode(',', $v);
-          $filter[$k] = $v;
-        }
-      }
     }
 
     return new Query($filter);

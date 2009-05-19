@@ -29,23 +29,6 @@ class Response
     if (headers_sent())
       die(t('<br/>Вывод страницы невозможен: заголовки уже ушли.'));
 
-    // Закрываем транзакцию, если есть.
-    if ($ctx = Context::last()) {
-      if (isset($ctx->db)) {
-        try {
-          $ctx->db->commit();
-        }
-        catch (NotConnectedException $e) { }
-
-        // Если мы дошли до отправки данных пользователю,
-        // вряд ли мы не проинсталлированы. Хотя хорошо бы
-        // разобраться, как мы сюда вообще попадаем.
-        catch (NotInstalledException $e) { }
-
-        mcms::flush(mcms::FLUSH_NOW);
-      }
-    }
-
     // Сбрасываем кэш, если просили.
     mcms::flush(mcms::FLUSH_NOW);
 
@@ -55,7 +38,8 @@ class Response
     $this->addHeaders();
 
     $content = $this->getContent();
-    $length = strlen($content);
+    if (!($length = strlen($content)))
+      mcms::debug('zero length response');
 
     if ($this->cache and $this->ckey and $this->ttl) {
       $store = array(

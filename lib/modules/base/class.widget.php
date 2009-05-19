@@ -419,52 +419,14 @@ abstract class Widget implements iWidget
    */
   public static function loadWidgets(Context $ctx)
   {
-    $fileName = os::path(MCMS_ROOT, MCMS_SITE_FOLDER, 'widgets.ini');
-
-    if (!is_readable($fileName)) {
-      $data = array();
-
-      $nodes = Node::find($ctx->db, array(
-        'class' => 'widget',
-        'deleted' => 0,
-        'published' => 1,
-        ));
-
-      foreach ($nodes as $node) {
-        $w = array();
-
-        foreach (array('classname', 'title') as $k)
-          if (isset($node->$k))
-            $w[$k] = $node->$k;
-
-        if (is_array($node->config))
-          foreach ($node->config as $k => $v)
-            if (!empty($v))
-              $w[$k] = $v;
-
-        // Определяем испольуемые виджетом типы.
-        $types = $ctx->db->getResultsV("name", "SELECT name FROM node n INNER JOIN node__rel r ON r.tid = n.id WHERE n.class = 'type' AND n.deleted = 0 AND r.nid = ?", array($node->id));
-        if (!empty($types))
-          $w['types'] = $types;
-
-        $data[$node->name] = $w;
-      }
-
-      self::save($data);
-    }
-
-    return ini::read($fileName);
+    return $ctx->config->get('widgets', array());
   }
 
   public static function save(array $widgets)
   {
-    $fileName = os::path(MCMS_ROOT, MCMS_SITE_FOLDER, 'widgets.ini');
-
-    $comment = "; Описание виджетов Molinos CMS.\n"
-      . "; Обновлено " . mcms::now() . ".\n"
-      . "; http://code.google.com/p/molinos-cms/wiki/DevGuide";
-
-    ini::write($fileName, $widgets, $comment);
+    $config = Context::last()->config;
+    $config['widgets'] = $widgets;
+    $config->save();
   }
 
   /**

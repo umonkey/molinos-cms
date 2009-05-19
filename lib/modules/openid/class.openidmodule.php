@@ -54,7 +54,9 @@ class OpenIdModule extends RPCHandler
   {
     self::includeOpenID();
 
-    if ('none' == ($mode = $ctx->modconf('openid', 'mode', 'open')))
+    $mode = $ctx->config->get('modules/openid/mode', 'open');
+
+    if ('none' == $mode)
       throw new RuntimeException(t('Поддержка OpenID отключена администратором.'));
 
     if ('id_res' == $openid_mode) {
@@ -192,7 +194,7 @@ class OpenIdModule extends RPCHandler
      * created elsewhere.  After you're done playing with the example
      * script, you'll have to remove this directory manually.
      */
-    $store_path = os::mkdir($path = os::path(Context::last()->config->getPath('tmpdir'), 'openid'), 'Could not create the FileStore directory (%path), please check the effective permissions.', array(
+    $store_path = os::mkdir($path = os::path(Context::last()->config->getPath('main/tmpdir'), 'openid'), 'Could not create the FileStore directory (%path), please check the effective permissions.', array(
       '%path' => $path,
       ));
     return new Auth_OpenID_FileStore($store_path);

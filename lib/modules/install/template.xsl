@@ -20,7 +20,7 @@
       </head>
       <body>
         <h1>Установка Molinos CMS</h1>
-        <form method="post" action="?q=install.rpc&amp;action=install">
+        <form method="post" action="?q=admin/install">
           <xsl:apply-templates select="drivers" />
           <xsl:call-template name="settings" />
           <!--
@@ -103,15 +103,15 @@
       <legend>Настройки почты <span>(лучше поменять)</span></legend>
       <label>
         <span>Адрес почтового сервера:</span>
-        <input type="text" class="form-text" name="mail_server" value="localhost" />
+        <input type="text" class="form-text" name="modules/mail/server" value="localhost" />
       </label>
       <label>
         <span>Отправитель по умолчанию:</span>
-        <input type="text" class="form-text" name="mail_from" value="no-reply@example.com" />
+        <input type="text" class="form-text" name="modules/mail/from" value="no-reply@example.com" />
       </label>
       <label>
         <span>Отправлять сообщения об ошибках на:</span>
-        <input type="text" class="form-text" name="debug_errors" value="cms-bugs@molinos.ru" />
+        <input type="text" class="form-text" name="main/debug/errors" value="cms-bugs@molinos.ru" />
       </label>
     </fieldset>
   </xsl:template>

@@ -40,7 +40,7 @@ class CartRPC
 
       $total = $sum;
 
-      $conf = $ctx->modconf('cart');
+      $conf = $ctx->config->get('modules/cart');
 
       if (!empty($conf['discount_threshold'])) {
         if ($sum >= $conf['discount_threshold']) {
@@ -80,7 +80,7 @@ class CartRPC
       }
     }
 
-    if ($discounter = $ctx->modconf('cart', 'discounter')) {
+    if ($discounter = $ctx->config->get('modules/cart/discounter')) {
       if (class_exists($discounter)) {
         $d = new $discounter();
         $d->process($result);

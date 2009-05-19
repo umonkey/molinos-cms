@@ -41,22 +41,22 @@ class PDO_Singleton extends PDO
   /**
    * Подключение к БД.
    */
-  public static function connect($dsn)
+  public static function connect(array $dsn)
   {
-    if (false === ($conf = parse_url($dsn)) or empty($conf['scheme']))
-      throw new NotConnectedException(t('Неверные параметры подключения к БД.'));
+    if (!isset($dsn['type']))
+      throw new NotConnectedException(t('Не указан тип БД.'));
 
-    if (!in_array($conf['scheme'], self::listDrivers()))
+    if (!in_array($dsn['type'], self::listDrivers()))
       throw new NotConnectedException(t('Драйвер для подключения к %scheme отсутствует.', array(
-        '%scheme' => $conf['scheme'],
+        '%scheme' => $dsn['type'],
         )));
 
-    if (!class_exists($driver = 'mcms_'. $conf['scheme'] .'_driver'))
+    if (!class_exists($driver = 'mcms_'. $dsn['type'] .'_driver'))
       throw new NotConnectedException(t('Molinos CMS не поддерживает работу с БД типа %name.', array(
-        '%name' => $conf['scheme'],
+        '%name' => $dsn['type'],
         )));
 
-    return new $driver($conf);
+    return new $driver($dsn);
   }
 
   public function prepare($sql)

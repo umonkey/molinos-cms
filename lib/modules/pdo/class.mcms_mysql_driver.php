@@ -7,7 +7,7 @@ class mcms_mysql_driver extends PDO_Singleton
 
   public function __construct(array $conf)
   {
-    $this->dbname = trim($conf['path'], '/');
+    $this->dbname = $conf['name'];
     $dsn = sprintf('mysql:dbname=%s;host=%s', $this->dbname, $conf['host']);
 
     parent::__construct($dsn, $conf['user'], $conf['pass']);

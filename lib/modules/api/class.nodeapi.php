@@ -23,6 +23,7 @@ class NodeAPI
       'published' => 1,
       '#sort' => $ctx->get('sort', '-id'),
       '#limit' => $ctx->get('limit', 10),
+      '#offset' => $ctx->get('skip', 0),
       );
 
     if ($tmp = $ctx->get('class'))
@@ -30,9 +31,39 @@ class NodeAPI
     if ($tmp = $ctx->get('tags'))
       $filter['tags'] = self::split($tmp);
 
+    $attrs = array(
+      'limit' => $filter['#limit'],
+      'skip' => $filter['#offset'],
+      );
+
     $output = Node::findXML($ctx->db, $filter);
 
-    return self::xml(html::wrap('nodes', $output));
+    if ($ctx->get('pager')) {
+      $attrs['total'] = Node::count($ctx->db, $filter);
+      $attrs['prev'] = max($filter['#offset'] - $filter['#limit'], 0);
+
+      if ($filter['#offset'] + $filter['#limit'] < $attrs['total'])
+        $attrs['next'] = $filter['#offset'] + $filter['#limit'];
+
+      // Вычисляем диапазон.
+      $r1 = $filter['#offset'] + 1;
+      $r2 = min($attrs['total'], $filter['#offset'] + $filter['#limit']);
+      $attrs['range'] = $r1 . '-' . $r2;
+    }
+
+    return self::xml(html::em('nodes', $attrs, $output));
+  }
+
+  public static function get_sections_xml(Context $ctx)
+  {
+    $result = Node::findXML($ctx->db, array(
+      'class' => 'tag',
+      'published' => 1,
+      'deleted' => 0,
+      'tagged' => $ctx->get('id'),
+      ));
+
+    return self::xml(html::em('nodes', $result));
   }
 
   private static function xml($xml)
