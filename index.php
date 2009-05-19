@@ -1,6 +1,6 @@
 <?php
 
-@include dirname(__FILE__) . DIRECTORY_SEPARATOR . 'codecache.php';
+@include dirname(__FILE__) . DIRECTORY_SEPARATOR . 'localsettings.php';
 
 // Для включения локального лога расскомментировать:
 // ini_set('error_log', dirname($_SERVER['SCRIPT_FILENAME']) . DIRECTORY_SEPARATOR . 'php.log');
