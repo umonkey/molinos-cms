@@ -44,6 +44,9 @@ class TypeNode extends Node implements iContentType
 
     parent::checkUnique('name', t('Тип документа со внутренним именем %name уже есть.', array('%name' => $this->name)));
 
+    // Подгружаем поля, ранее описанные отдельными объектами (9.03 => 9.05).
+    $this->backportLinkedFields();
+
     // Всегда сохраняем без очистки.
     parent::save();
 
@@ -282,22 +285,26 @@ class TypeNode extends Node implements iContentType
     return html::wrap('fields', $fields);
   }
 
-  protected function backportLinkedFields(Context $ctx = null)
+  public function backportLinkedFields()
   {
     if (!empty($this->fields))
       return;
 
-    if (null === $ctx)
-      $ctx = Context::last();
-
-    $fields = Node::find($ctx->db, array(
+    $fields = Node::find($this->getDB(), array(
       'class' => 'field',
       'deleted' => 0,
       'tags' => $this->id,
       ));
-
-    if (!empty($fields))
-      mcms::debug($this->id, $fields);
+    if (!empty($fields)) {
+      $result = array();
+      foreach ($fields as $field) {
+        foreach (array('label', 'type', 'weight', 'indexed', 'required', 'description', 'group') as $key)
+          if (!empty($field->$key))
+            $result[$field->name][$key] = $field->$key;
+      }
+      $this->fields = $result;
+      return true;
+    }
   }
 
   /**

@@ -28,6 +28,14 @@ class SchemaMenu
       'deleted' => 0,
       ), $ctx->db);
 
+    if (empty($node->fields)) {
+      if ($node->getObject()->backportLinkedFields()) {
+        $ctx->db->beginTransaction();
+        $node->save();
+        $ctx->db->commit();
+      }
+    }
+
     $types = '';
     foreach (Control::getKnownTypes() as $k => $v)
       if (!empty($v))
@@ -55,6 +63,7 @@ class SchemaMenu
       'name' => $ctx->get('type'),
       'deleted' => 0,
       ), $ctx->db);
+    $type->getObject()->backportLinkedFields();
 
     if (!isset($type->fields[$fieldName = $ctx->get('field')]))
       throw new PageNotFoundException();
@@ -93,6 +102,8 @@ class SchemaMenu
       'name' => $ctx->get('type'),
       'deleted' => 0,
       ), $ctx->db);
+
+    $type->getObject()->backportLinkedFields();
 
     if (!array_key_exists($fieldName = $ctx->get('field'), $type->fields))
       throw new PageNotFoundException();
