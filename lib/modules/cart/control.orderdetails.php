@@ -33,6 +33,15 @@ class OrderDetailsControl extends Control
     return $this->wrapHTML($html, false, true);
   }
 
+  public function getXML($data)
+  {
+    if (empty($data->{$this->value}))
+      return;
+    return parent::wrapXML(array(
+      'value' => $this->renderContent($data->{$this->value}),
+      ));
+  }
+
   private function renderContent(array $content)
   {
     $sum = 0;

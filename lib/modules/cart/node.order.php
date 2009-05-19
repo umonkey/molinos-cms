@@ -5,7 +5,8 @@ class OrderNode extends Node implements iContentType
   public function save()
   {
     if ($isnew = (!$this->id)) {
-      $this->orderdetails = CartRPC::getCartContent();
+      $cart = new Cart($ctx = Context::last());
+      $this->orderdetails = $cart->getItems();
     } elseif (array_key_exists('orderdetails', $this->olddata)) {
       $this->orderdetails = $this->olddata['orderdetails'];
     }
@@ -17,12 +18,10 @@ class OrderNode extends Node implements iContentType
     $res = parent::save();
 
     if ($isnew) {
-      $ctx = Context::last();
       $this->sendEmail($this->email, 'invoice');
-      $this->sendEmail($ctx->config->get('modules/cart/email'), 'notification');
+      $this->sendEmail($ctx->config->get('modules/cart/email', 'notification'));
+      $cart->setItems(array());
     }
-
-    CartRPC::resetCart();
 
     return $res;
   }

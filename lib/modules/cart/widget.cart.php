@@ -48,15 +48,14 @@ class CartWidget extends Widget
 
   protected function onGetSimple(array $options)
   {
-    $url = new url();
+    $cart = new Cart($this->ctx);
 
-    $result = array(
+    $result = $cart->getXML();
+    $result .= $cart->getConfigXML();
+
+    return html::wrap('cart', $result, array(
       'mode' => 'simple',
-      'content' => CartRPC::getCartContent(),
-      'config' => $this->ctx->config->get('modules/cart'),
-      );
-
-    return $result;
+      ));
   }
 
   protected function onGetDetails(array $options)
