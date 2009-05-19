@@ -26,7 +26,7 @@ class MarkdownControl extends TextAreaControl
     parent::__construct($form, array('value'));
   }
 
-  public function format($value)
+  public function format($value, $em)
   {
     include_once os::path(dirname(__FILE__), 'markdown.php');
     $output = Markdown($value);
@@ -34,6 +34,6 @@ class MarkdownControl extends TextAreaControl
     $ctx = Context::last();
     $ctx->registry->broadcast('ru.molinos.cms.format.text', array($ctx, $this->value, &$output));
 
-    return html::cdata($output);
+    return html::wrap($em, html::cdata($output));
   }
 }

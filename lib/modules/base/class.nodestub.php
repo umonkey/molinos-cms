@@ -234,7 +234,7 @@ class NodeStub
   {
     $data = array();
 
-    if (null !== $this->id) {
+    if (null !== $this->id and $this->getDB()) {
       $data = array(
         'id' => $this->id,
         '#text' => null,
@@ -245,6 +245,9 @@ class NodeStub
 
       if (empty($this->data['class']))
         throw new RuntimeException(t('Не удалось определить тип ноды.'));
+
+      if (!$this->getDB())
+        throw new RuntimeException(t('Для формирования XML представления ноды нужна БД.'));
 
       $schema = Schema::load($this->getDB(), $this->data['class']);
 
@@ -257,6 +260,16 @@ class NodeStub
         if (empty($v))
           continue;
 
+        if (self::isBasicField($k)) {
+          $data[$k] = $v;
+          continue;
+        }
+
+        if (isset($schema[$k])) {
+          $data['#text'] .= $schema[$k]->format($v, $k);
+          continue;
+        }
+
         $wrap_cdata = true;
         $wrap_element = true;
 
@@ -265,7 +278,11 @@ class NodeStub
             $fmt = isset($schema[$k])
               ? $schema[$k]->format($v)
               : null;
-            $v = $v->getXML($k, html::em('html', html::cdata($fmt)));
+            $_html = html::cdata($fmt);
+            $_html = empty($_html)
+              ? null
+              : html::em('html', $_html);
+            $v = $v->getXML($k, $_html);
             $wrap_cdata = false;
             $wrap_element = false;
           } catch (ObjectNotFoundException $e) {
@@ -274,7 +291,11 @@ class NodeStub
         }
 
         elseif (isset($schema[$k])) {
-          $v = $schema[$k]->format($v);
+          $v = $schema[$k]->format($v, $k);
+          if (0 === strpos($v, '<')) {
+            $data['#text'] .= $v;
+            continue;
+          }
           $wrap_cdata = false;
         }
 
@@ -334,7 +355,7 @@ class NodeStub
 
         else {
           if (isset($schema[$k]))
-            $v = $schema[$k]->format($v);
+            $v = $schema[$k]->format($v, $k);
 
           if (self::isBasicField($k))
             $data[$k] = $v;
@@ -531,7 +552,7 @@ class NodeStub
     $sth = $this->db->prepare($sql);
     $sth->execute($params);
     } catch (Exception $e) {
-      mcms::debug($sql, $params, $data);
+      mcms::debug($e->getMessage(), $sql, $params, $data);
     }
   }
 

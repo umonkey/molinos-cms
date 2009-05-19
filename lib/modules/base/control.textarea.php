@@ -64,10 +64,10 @@ class TextAreaControl extends Control
   /**
    * Форматирование значения. Вызывает обработчики вроде типографа.
    */
-  public function format($value)
+  public function format($value, $em)
   {
     $ctx = Context::last();
     $ctx->registry->broadcast('ru.molinos.cms.format.text', array($ctx, $this->value, &$value));
-    return html::cdata($value);
+    return html::wrap($em, html::cdata($value));
   }
 };

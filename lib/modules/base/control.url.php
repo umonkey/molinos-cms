@@ -31,4 +31,14 @@ class URLControl extends EmailControl
   {
     return null;
   }
+
+  public function format($value, $em)
+  {
+    if (!empty($value)) {
+      $result = html::em($em, array(
+        'host' => url::host($value),
+        ), html::cdata($value));
+      return $result;
+    }
+  }
 };

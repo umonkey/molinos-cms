@@ -26,13 +26,13 @@ class GMapControl extends TextLineControl
     return null;
   }
 
-  public function format($value)
+  public function format($value, $em)
   {
     if (!empty($value)) {
-      $conf = Context::last()->config->googlemaps;
+      $key = Context::last()->config->get('modules/googlemaps/key');
 
       $img = html::em('img', array(
-        'src' => sprintf('http://maps.google.com/staticmap?center=%s&zoom=%u&size=%ux%u&key=%s', $value, $this->zoom_embed, $this->width, $this->height, $conf['key']),
+        'src' => sprintf('http://maps.google.com/staticmap?center=%s&zoom=%u&size=%ux%u&key=%s', $value, $this->zoom_embed, $this->width, $this->height, $key),
         'width' => $this->width,
         'height' => $this->height,
         'alt' => $value,
@@ -46,7 +46,7 @@ class GMapControl extends TextLineControl
         'title' => $value,
         ), $img);
 
-      return html::cdata($result);
+      return html::wrap($em, html::cdata($result));
     }
   }
 
