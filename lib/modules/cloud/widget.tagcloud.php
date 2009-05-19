@@ -30,8 +30,8 @@ class TagCloudWidget extends Widget implements iWidget
   public static function getWidgetInfo()
   {
     return array(
-      'name' => 'Облако тэгов',
-      'description' => 'Выводит список тэгов, содержащих доступные пользователю документы.',
+      'name' => 'Облако объектов',
+      'description' => 'Выводит список объектов с их весом.',
       );
   }
 
@@ -45,17 +45,20 @@ class TagCloudWidget extends Widget implements iWidget
    */
   public static function getConfigOptions(Context $ctx)
   {
-    $types = array();
-
-    foreach (Node::find($ctx->db, array('class' => 'type')) as $type)
-      if (!in_array($type->name, TypeNode::getInternal()))
-        $types[$type->name] = $type->title;
+    $types = Node::getSortedList('type', 'title', 'name');
 
     return array(
       'linktpl' => array(
         'type' => 'TextLineControl',
         'label' => t('Шаблон ссылки'),
         'default' => 'section/$id',
+        ),
+      'type' => array(
+        'type' => 'EnumControl',
+        'label' => t('Тип выводимых объектов'),
+        'options' => $types,
+        'default' => 'tag',
+        'required' => true,
         ),
       'classes' => array(
         'type' => 'SetControl',
@@ -103,12 +106,12 @@ class TagCloudWidget extends Widget implements iWidget
       .'COUNT(*) AS `cnt` '
       .'FROM node n '
       .'INNER JOIN node__rel r ON r.tid = n.id '
-      .'WHERE n.class = \'tag\' '
+      .'WHERE n.class = ? '
       .'AND n.published = 1 '
       .'AND n.deleted = 0 '
       .'AND r.nid IN (SELECT id FROM node WHERE published = 1 AND deleted = 0 AND class IN ('. $types .')) '
       .'GROUP BY n.id, n.name '
-      .'ORDER BY n.name');
+      .'ORDER BY n.name', array($this->type));
 
     // Calculate the total number of docs.
     $total = 0;
