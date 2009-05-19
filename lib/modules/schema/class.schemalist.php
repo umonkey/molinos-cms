@@ -25,12 +25,14 @@ class SchemaList extends AdminListhandler
     $nodes = '';
     foreach ($data as $node) {
       if (!$node->isdictionary) {
+        $tmp = Node::create($node->name);
         $attrs = array(
           'id' => $node->id,
           'name' => $node->name,
           'title' => $node->title,
-          'list' => Node::create($node->name)->getListURL(),
+          'list' => $tmp->getListURL(),
           'published' => (bool)$node->published,
+          'dynamic' => $tmp->canEditFields(),
           );
         $attrs['count'] = array_key_exists($node->name, $counts)
           ? $counts[$node->name]

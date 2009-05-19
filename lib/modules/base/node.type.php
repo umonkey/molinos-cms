@@ -211,14 +211,6 @@ class TypeNode extends Node implements iContentType
         'group' => t('Разрешённые разделы'),
         'dictionary' => 'tag',
         ),
-      'fields' => array(
-        'type' => 'SetControl',
-        'value' => 'fields',
-        'dictionary' => 'field',
-        'field' => 'label',
-        'required' => false,
-        'group' => t('Используемые поля'),
-        ),
       ));
 
     if (empty($this->id) or $this->name != 'type')
@@ -265,6 +257,13 @@ class TypeNode extends Node implements iContentType
 
   public function getExtraXMLContent()
   {
+    if (!Node::create($this->name)->canEditFields())
+      return html::em('fields', array(
+        'static' => true,
+        ));
+
+    $this->backportLinkedFields();
+
     $fields = '';
 
     foreach ((array)$this->fields as $k => $v) {
@@ -275,9 +274,38 @@ class TypeNode extends Node implements iContentType
       }
       if (empty($v['weight']))
         $v['weight'] = 50;
+      if (NodeStub::isBasicField($k))
+        $v['indexed'] = true;
       $fields .= html::em('field', array('name' => $k) + $v);
     }
 
     return html::wrap('fields', $fields);
+  }
+
+  protected function backportLinkedFields(Context $ctx = null)
+  {
+    if (!empty($this->fields))
+      return;
+
+    if (null === $ctx)
+      $ctx = Context::last();
+
+    $fields = Node::find($ctx->db, array(
+      'class' => 'field',
+      'deleted' => 0,
+      'tags' => $this->id,
+      ));
+
+    if (!empty($fields))
+      mcms::debug($this->id, $fields);
+  }
+
+  /**
+   * Запрещаем редактировать поля этого метатипа. Часто пользователи
+   * добавляют сюда всякий хлам, не очень понимая, что делают.
+   */
+  public function canEditFields()
+  {
+    return false;
   }
 };

@@ -124,7 +124,9 @@
             <a class="icon-edit" href="admin/edit/{@id}?destination={/page/@back}" />
           </td>
           <td class="icon">
-            <a class="icon-validate" href="admin/structure/fields?type={@name}" />
+            <xsl:if test="@dynamic">
+              <a class="icon-validate" href="admin/structure/fields?type={@name}" />
+            </xsl:if>
           </td>
           <td>
             <xsl:choose>
