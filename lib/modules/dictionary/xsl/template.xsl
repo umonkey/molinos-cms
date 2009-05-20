@@ -23,10 +23,17 @@
               <a href="?q=admin/content/list/{@name}">
                 <xsl:value-of select="@title" />
               </a>
+              <xsl:apply-templates select="@count" />
             </td>
           </tr>
         </xsl:if>
       </xsl:for-each>
     </tbody>
+  </xsl:template>
+
+  <xsl:template match="@count">
+    <xsl:text> (</xsl:text>
+    <xsl:value-of select="." />
+    <xsl:text>)</xsl:text>
   </xsl:template>
 </xsl:stylesheet>
