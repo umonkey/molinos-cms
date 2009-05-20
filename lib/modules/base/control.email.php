@@ -48,4 +48,17 @@ class EmailControl extends Control
   {
     return 'VARCHAR(255)';
   }
+
+  public function format($value, $em)
+  {
+    if (!empty($value)) {
+      $parts = explode('@', $value);
+      $result = html::em($em, array(
+        'href' => 'mailto:' . $value,
+        'user' => $parts[0],
+        'host' => $parts[1],
+        ), html::cdata($value));
+      return $result;
+    }
+  }
 };
