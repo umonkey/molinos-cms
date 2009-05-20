@@ -60,9 +60,7 @@ class ModManRPC extends RPCHandler
     foreach (modman::settings_get($ctx, $moduleName) as $k => $v)
       $v->set($ctx->post($k, $v->default), $conf);
 
-    $cfg = $ctx->config;
-    $cfg->$moduleName = $conf->dump();
-    $cfg->write();
+    $ctx->config->set('modules/' . $moduleName, $conf->dump())->save();
 
     mcms::flog($moduleName . ': configuration updated.');
 
