@@ -57,7 +57,8 @@ foreach (glob($search) as $iniFileName) {
 
   $ini['changelog'] = 'http://molinos-cms.googlecode.com/svn/dist/9.03/changelogs/' . $moduleName . '.txt';
 
-  ksort($ini['classes']);
+  if (!empty($ini['classes']))
+    ksort($ini['classes']);
 
   ini::write($iniFileName, $ini);
 }
