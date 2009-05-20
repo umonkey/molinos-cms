@@ -1,0 +1,23 @@
+table.classic {
+  border-collapse: collapse;
+}
+table.classic td, table.classic th {
+  margin: 0; padding: 2px 4px;
+}
+table.classic th {
+  font-weight: bold;
+  text-align: left;
+}
+table.classic td {
+  border-top: solid 1px #eee;
+  border-right: solid 1px #f0f0f0;
+}
+table.classic img {
+  margin-left: 4px;
+}
+table.classic .optional .label {
+  color: gray;
+}
+table.classic .mono {
+  font-family: monospace;
+}
