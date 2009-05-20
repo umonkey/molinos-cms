@@ -174,10 +174,8 @@ class MemCache_provider extends cache
 
   public function __construct()
   {
-    $host = mcms::config('cache.memcache.host', 'localhost');
     $this->host = new Memcache();
-    $this->host->pconnect($host);
-
+    $this->host->pconnect(defined('MEMCACHE_HOST') ? MEMCACHE_HOST : 'localhost');
     parent::__construct();
   }
 
