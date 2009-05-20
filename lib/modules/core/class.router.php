@@ -89,9 +89,13 @@ class Router
         } elseif ('dynamic' == $k and false !== strpos($v, '::')) {
           list($class, $method) = explode('::', $v);
           if (method_exists($class, $method)) {
-            if (is_array($tmp = call_user_func(array($class, $method), $ctx))) {
-              foreach ($tmp as $k => $v)
-                $raw[$k] = $v;
+            try {
+              if (is_array($tmp = call_user_func(array($class, $method), $ctx))) {
+                foreach ($tmp as $k => $v)
+                  $raw[$k] = $v;
+              }
+            } catch (Exception $e) {
+              mcms::flog(get_class($e) . ' in ' . $v . '()');
             }
           }
         }
