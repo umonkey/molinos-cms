@@ -332,7 +332,7 @@
   <!-- Форма поиска. -->
   <xsl:template name="mcms_list_search" mode="mcms_list">
     <div class="nodes-controls-basic">
-    <form method="post" action="?q=admin.rpc&amp;action=search&amp;from={/page/@back}">
+    <form method="post" action="?q=admin/search&amp;from={/page/@back}">
           <fieldset>
        <input type="hidden" name="search_from" value="{/page/@url}" />
           <a class="newlink">
@@ -351,7 +351,7 @@
           <input type="text" name="search_term" class="search_field" value="{/page/request/getArgs/arg[@name='search']}" />
           <input type="submit" value="Найти" />
           <xsl:text> | </xsl:text>
-          <a href="?q=admin.rpc&amp;action=search&amp;cgroup={/page/@cgroup}&amp;destination={/page/@back}">Расширенный поиск</a>
+          <a href="?q=admin/search&amp;destination={/page/@back}">Расширенный поиск</a>
         </fieldset>
       </form>
     </div>

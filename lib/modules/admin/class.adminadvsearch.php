@@ -24,6 +24,8 @@ class AdminAdvSearch
         if (!$type->isdictionary)
           $list[$type->name] = $type->title;
 
+      asort($list);
+
       $tmp = '';
       foreach ($list as $k => $v)
         $tmp .= html::em('type', array(
