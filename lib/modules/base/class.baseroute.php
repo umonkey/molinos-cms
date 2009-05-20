@@ -286,7 +286,6 @@ class BaseRoute
         $handler['widgets'] = implode(',', $widgets);
 
       $handler['call'] = 'BaseRoute::serve';
-      $handler['cache'] = true;
 
       mcms::debug($handler);
 
