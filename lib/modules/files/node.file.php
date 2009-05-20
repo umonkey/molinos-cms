@@ -596,36 +596,6 @@ class FileNode extends Node implements iContentType
     return $node;
   }
 
-  public function getExtraXMLContent()
-  {
-    $config = Context::last()->config;
-
-    if (!file_exists(os::path($config->getPath('modules/files/storage', 'files'), $this->filepath)))
-      return null;
-
-    $content = html::em('version', array(
-      'name' => 'original',
-      'url' => os::webpath($config->getDirName(), $config->files, $this->filepath),
-      'width' => $this->width,
-      'height' => $this->height,
-      ));
-
-    if (is_array($this->versions)) {
-      foreach ($this->versions as $k => $v) {
-        if (file_exists($path = os::path($config->getDirName(), $config->files, $v['path']))) {
-          $content .= html::em('version', array(
-            'name' => $k,
-            'url' => os::webpath($path),
-            'width' => $v['width'],
-            'height' => $v['height'],
-            ));
-          }
-        }
-    }
-
-    return html::em('versions', $content);
-  }
-
   public function getRealURL()
   {
     return os::path(Context::last()->config->getPath('files'), $this->filepath);
