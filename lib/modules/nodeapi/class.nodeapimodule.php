@@ -92,7 +92,10 @@ class NodeApiModule extends RPCHandler
       $temp = $node->{'never should this field exist'};
       mcms::debug($node);
     } else {
-      $xml = Node::findXML($ctx->db, $filter);
+      if ($ctx->get('fresh'))
+        $xml = Node::load($filter)->refresh()->getXML();
+      else
+        $xml = Node::findXML($ctx->db, $filter);
       if (empty($xml))
         mcms::fatal(t('Для этого документа нет XML представления (такого быть не должно), см. <a href="@url">сырой вариант</a>.', array(
           '@url' => '?q=node/' . $filter['id'] . '/dump&raw=1',
