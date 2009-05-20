@@ -1,0 +1,14 @@
+/*
+ * Шорткаты
+ */
+
+ #shortcuts { position:fixed; top:2.667em; color:#fff; padding:0 0 0 20px; z-index:900; }
+	#shortcuts.one { background:#0F9808; }
+	#shortcuts.multiple { background:orange; }
+	#shortcuts.none { background:red; }
+		
+		#shortcuts .container { padding:10px 20px 10px 10px; background:#222; }
+		
+		#shortcuts span.pressed { font-weight:bold; } 
+		#shortcuts ol { margin:.667em 0 0 0; }
+			#shortcuts ol li { margin:0 0 .334em 0; }
