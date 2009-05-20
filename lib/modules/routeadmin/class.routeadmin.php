@@ -229,8 +229,6 @@ class RouteAdmin
   private static function getFormData($key, array $data)
   {
     list($dummy, $data['host'], $data['path']) = explode('/', $key, 3);
-    if (!empty($data['widgets']))
-      $data['widgets'] = explode(',', $data['widgets']);
     return Control::data($data);
   }
 }
