@@ -218,6 +218,9 @@ class mcms
         ? $trace[1]['function']
         : $trace[1]['class'] . $trace[1]['type'] . $trace[1]['function'] . '()';
 
+      if (defined('FLOG_FILE_NAMES'))
+        $prefix = os::localpath($trace[0]['file']) . ':' . $trace[0]['line'];
+
       $prefix = '[' . $prefix . '] ';
     }
 
