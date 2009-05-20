@@ -31,9 +31,10 @@ class xslt
     $ckey = 'xml:xsl:' . md5($xml) . ',' . filemtime($xsltName);
 
     if (false === ($output = $cache->$ckey) or $nocache) {
+      set_error_handler(array(__CLASS__, 'eh'));
+
       $doc = new DOMDocument;
       @$doc->loadXML($xml);
-      self::checkErrors();
 
       if (class_exists('xsltCache') and !$nocache) {
         $proc = new xsltCache;
@@ -41,13 +42,12 @@ class xslt
       } else {
         $xsl = new DOMDocument;
         @$xsl->load($xsltName);
-        self::checkErrors($xsltName);
 
         $proc = new XSLTProcessor;
         $proc->importStyleSheet($xsl);
       }
 
-      self::checkErrors();
+      restore_error_handler();
 
       if ($output = $proc->transformToXML($doc))
         $cache->$ckey = $output;
@@ -64,19 +64,6 @@ class xslt
     return new Response($output, $mimeType);
   }
 
-  private static function checkErrors($fileName = null)
-  {
-    if (null !== ($e = error_get_last())) {
-      if (__FILE__ == $e['file']) {
-        if (null !== $fileName)
-          $e['message'] .= ', file: ' . $fileName;
-        throw new RuntimeException(t('XSLT шаблон содержит ошибки: %message.', array(
-          '%message' => $e['message'],
-          )));
-      }
-    }
-  }
-
   public static function fixEntities($xml)
   {
     $map = array(
@@ -88,5 +75,10 @@ class xslt
       '&equiv;' => '≡',
       );
     return str_replace(array_keys($map), array_values($map), $xml);
+  }
+
+  public static function eh($errno, $errstr, $errfile, $errline, $errcontext)
+  {
+    mcms::fatal(str_replace("\n", '<br/>', $errstr));
   }
 }
