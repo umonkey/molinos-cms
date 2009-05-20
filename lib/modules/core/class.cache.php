@@ -207,6 +207,7 @@ class DBA_DB4_provider extends cache
   protected $db;
   protected $write = false;
   private $handler;
+  private $flush = false;
 
   public function __construct($handler)
   {
@@ -269,6 +270,17 @@ class DBA_DB4_provider extends cache
   {
     $this->reopen();
     dba_delete($key, $this->db);
+  }
+
+  /**
+   * Очистка кэша.
+   */
+  public function flush($now)
+  {
+    if (!$now)
+      $this->flush = true;
+    elseif ($this->flush and file_exists($fileName = $this->getFileName()))
+      unlink($fileName);
   }
 }
 
