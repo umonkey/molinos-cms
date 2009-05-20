@@ -109,6 +109,8 @@ class Config extends ArrayObject
     }
 
     $root[array_shift($path)] = $value;
+
+    return $this;
   }
 
   /**
