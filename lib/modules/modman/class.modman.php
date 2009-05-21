@@ -264,6 +264,13 @@ class modman
 
   public static function settings(Context $ctx, $query, array $pathinfo)
   {
+    // Проверяем права, если неверно указан обработчик.
+    if ('AdminPage::serve' != $pathinfo['call']) {
+      if (empty($pathinfo['perms']))
+        $pathinfo['perms'] = 'debug';
+      AdminPage::checkperm($ctx, $pathinfo);
+    }
+
     $name = substr(strrchr($query, '/'), 1);
 
     $schema = self::settings_get($ctx, $name);
