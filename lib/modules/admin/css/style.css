@@ -725,17 +725,17 @@ table.access .gid-own .perm-r {
  * Вкладки в формах.
  */
 
-form.tabbed fieldset.tabable {
+form.tabbed fieldset.tab {
   border: none;
   border-top: solid 4px #090;
   margin: 0 0 1em 0;
   padding: 10px 0 0 20px;
 }
-form.tabbed fieldset.tabable > legend {
+form.tabbed fieldset.tab > legend {
   padding-right: 10px;
   padding-left: 4px;
 }
-form.tabbed fieldset.tabable > legend .title {
+form.tabbed fieldset.tab > legend .title {
   cursor: pointer;
   color: #008;
   padding: 0 4px;
@@ -743,11 +743,11 @@ form.tabbed fieldset.tabable > legend .title {
   text-decoration: underline;
 }
 /* для вывода дополнительных ссылок в заголовке */
-form.tabbed fieldset.tabable legend .more {
+form.tabbed fieldset.tab legend .more {
   margin-left: 1em;
   opacity: 0.25;
 }
-form.tabbed fieldset.tabable > div {
+form.tabbed fieldset.tab > div {
   margin-bottom: 2em;
   margin-left: 10px;
 }

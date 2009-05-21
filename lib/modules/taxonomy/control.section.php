@@ -26,7 +26,7 @@ class SectionControl extends EnumControl
   {
     $output = array();
     foreach (Node::listChildren('tag') as $item)
-      $output[$item[0]] = str_repeat('&nbsp;', 2 * $item[2]) . $item[1];
+      $output[$item[0]] = str_repeat(' ', 2 * $item[2]) . $item[1];
     return $output;
   }
 

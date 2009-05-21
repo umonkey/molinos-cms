@@ -34,10 +34,9 @@ class DateTimeControl extends Control
 
   public function getXML($data)
   {
-    $this->addClass('form-text');
-    $this->addClass('form-datetime');
-
     return parent::wrapXML(array(
+      'type' => 'text',
+      'mode' => 'datetime',
       'value' => $data->{$this->value},
       ));
   }

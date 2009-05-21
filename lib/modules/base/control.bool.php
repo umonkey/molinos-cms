@@ -35,9 +35,8 @@ class BoolControl extends Control
   public function getXML($data)
   {
     return parent::wrapXML(array(
-      'value' => $this->value ? 1 : $this->value,
-      'checked' => empty($data->{$this->value}) ? null : 'yes',
-      'disabled' => $this->disabled ? 'yes' : null,
+      'type' => 'checkbox',
+      'checked' => !empty($data->{$this->value}),
       ));
   }
 

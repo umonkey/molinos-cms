@@ -1,0 +1,57 @@
+/**
+ * Все контролы завёрнуты в label.
+ */
+form label.control {
+  width: 390px;
+}
+
+form .control {
+  display: block;
+  margin: 1.335em 0 0;
+}
+
+/**
+ * Подпись для обычных контролов, не распространяется
+ * на чекбоксы и радио.
+ */
+form label > span {
+  font-weight: bold;
+}
+form label > span.t {
+  display: block;
+}
+
+form .text {
+  width: 100%;
+  margin: 0 0 .334em;
+  padding: .334em .5em;
+  border: 1px solid #a7a6aa;
+}
+
+form .required {
+  color: #ff3000;
+}
+
+form .help {
+  display: block;
+  color: gray;
+  margin: .5em 0;
+}
+
+fieldset.select {
+  border: solid 1px gray;
+  margin-bottom: .5em;
+  padding: 0 0 .25em .25em;
+}
+fieldset.select legend {
+  font-weight: bold;
+  margin: 0 .25em;
+  padding: 0 4px;
+}
+
+/**
+ * Чекбоксы и радио внутри списков выводим по одному на строку.
+ */
+fieldset.select > label {
+  display: block;
+}

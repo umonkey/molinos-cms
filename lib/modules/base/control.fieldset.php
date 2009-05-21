@@ -35,10 +35,11 @@ class FieldSetControl extends Control
   {
     $content = self::getChildrenXML($data);
 
-    if ($this->tabable)
-      $this->addClass('tabable');
-
     if (!empty($content))
-      return parent::wrapXML(array(), $content);
+      return parent::wrapXML(array(
+        'type' => 'group',
+        'tab' => (bool)$this->tab,
+        'mode' => $this->mode,
+        ), $content);
   }
 };

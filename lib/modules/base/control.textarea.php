@@ -45,10 +45,8 @@ class TextAreaControl extends Control
     if (empty($content) and isset($this->default))
       $content = $this->default;
 
-    $this->addClass('form-text');
-    $this->addClass('resizable');
-
     return parent::wrapXML(array(
+      'type' => 'textarea',
       'rows' => $this->rows,
       'cols' => $this->cols,
       ), html::cdata($content));

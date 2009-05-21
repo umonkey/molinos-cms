@@ -5,7 +5,7 @@
     <div id="dashboard">
       <form class="tabbed">
         <xsl:for-each select="content" mode="dashboard">
-          <fieldset id="dashboard-{@name}" class="tabable">
+          <fieldset id="dashboard-{@name}" class="tab">
             <legend>
               <span class="title">
                 <xsl:value-of select="@title" />

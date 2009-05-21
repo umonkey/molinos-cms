@@ -51,8 +51,7 @@ class EnumControl extends Control
     if (!$this->required)
       $options .= html::em('option', array(
         'value' => '',
-        'text' => $this->default_label,
-        ));
+        ), html::cdata($this->default_label));
 
     $enabled = $this->getEnabled($data);
 
@@ -72,13 +71,13 @@ class EnumControl extends Control
         'value' => $k,
         'selected' => in_array($k, $selected),
         'disabled' => !(null === $enabled or in_array($k, $enabled)),
-        'text' => $v,
-        ));
+        ), html::cdata($v));
     }
 
-    return empty($options)
-      ? null
-      : parent::wrapXML(array(), $options);
+    return parent::wrapXML(array(
+      'type' => 'select',
+      'mode' => 'drop',
+      ), $options);
   }
 
   protected function getData($data)

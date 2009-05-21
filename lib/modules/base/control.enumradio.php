@@ -56,16 +56,17 @@ class EnumRadioControl extends Control
 
       foreach ($options as $k => $v) {
         $output .= html::em('option', array(
-          'checked' => ($selected == $k),
+          'selected' => ($selected == $k),
           'value' => $k,
-          'text' => $v,
-          ));
+          ), html::cdata($v));
       }
     }
 
-    return empty($output)
-      ? null
-      : parent::wrapXML(array(), $output);
+    if (!empty($output))
+      return parent::wrapXML(array(
+        'type' => 'select',
+        'mode' => 'radio',
+        ), $output);
   }
 
   private function getData()

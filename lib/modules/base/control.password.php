@@ -36,10 +36,12 @@ class PasswordControl extends Control
 
   public function getXML($data)
   {
-    $this->addClass('form-text');
-    $this->addClass('form-password');
-
-    return parent::wrapXML(array());
+    return html::em('input', array(
+      'type' => 'password',
+      'name' => $this->value,
+      'required' => $this->required,
+      'title' => $this->label,
+      ));
   }
 
   public function set($value, &$node)

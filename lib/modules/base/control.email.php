@@ -37,9 +37,9 @@ class EmailControl extends Control
     if (null === ($value = $data->{$this->value}))
       $value = $this->default;
 
-    $this->addClass('form-text');
-
     return parent::wrapXML(array(
+      'type' => 'text',
+      'mode' => 'email',
       'value' => $value,
       ));
   }
@@ -47,18 +47,5 @@ class EmailControl extends Control
   public function getSQL()
   {
     return 'VARCHAR(255)';
-  }
-
-  public function format($value, $em)
-  {
-    if (!empty($value)) {
-      $parts = explode('@', $value);
-      $result = html::em($em, array(
-        'href' => 'mailto:' . $value,
-        'user' => $parts[0],
-        'host' => $parts[1],
-        ), html::cdata($value));
-      return $result;
-    }
   }
 };

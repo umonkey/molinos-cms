@@ -54,11 +54,11 @@ form.inline {
   font-style: normal;
 }
 
-form.tabbed fieldset.tabable {
+form.tabbed fieldset.tab {
   border: 0;
   padding: 0;
 }
-form.tabbed fieldset.tabable legend.tabable {
+form.tabbed fieldset.tab legend.tab {
   display: none;
 }
 

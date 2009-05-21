@@ -16,6 +16,7 @@ class SearchConfig
           ),
         'group' => t('Технология поиска'),
         'weight' => 10,
+        'required' => true,
         ),
       'gas_key' => array(
         'type' => 'TextLineControl',

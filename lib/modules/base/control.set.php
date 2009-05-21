@@ -63,12 +63,14 @@ class SetControl extends Control
       $output .= html::em('option', array(
         'value' => $k,
         'checked' => in_array($k, $selected),
-        'disabled' => $disabled ? 'disabled' : null,
-        'text' => $v,
-        ));
+        'disabled' => !empty($disabled),
+        ), html::cdata($v));
     }
 
-    return parent::wrapXML(array(), $output);
+    return parent::wrapXML(array(
+      'type' => 'select',
+      'mode' => 'set',
+      ), $output);
   }
 
   protected function makeOptionsFromValues(array &$form)

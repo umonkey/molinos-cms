@@ -39,12 +39,19 @@ class TextLineControl extends Control
 
   public function getXML($data)
   {
-    $this->addClass('form-text');
-
-    return parent::wrapXML(array(
+    return html::em('input', array(
+      'type' => 'text',
+      'name' => $this->value,
+      'title' => $this->label,
+      'readonly' => (bool)$this->readonly,
       'value' => $this->getValue($data),
-      'maxlength' => 255,
+      'maxlength' => $this->getMaxLength(),
       ));
+  }
+
+  protected function getMaxLength()
+  {
+    return 255;
   }
 
   protected function getValue($data)

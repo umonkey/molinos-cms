@@ -34,6 +34,7 @@ class HiddenControl extends Control
       $value = $this->default;
 
     return parent::wrapXML(array(
+      'type' => 'hidden',
       'value' => $value,
       ));
   }

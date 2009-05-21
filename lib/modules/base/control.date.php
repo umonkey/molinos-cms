@@ -34,10 +34,9 @@ class DateControl extends Control
 
   public function getXML($data)
   {
-    $this->addClass('form-text');
-    $this->addClass('form-date');
-
     return parent::wrapXML(array(
+      'type' => 'text',
+      'mode' => 'date',
       'value' => $data->{$this->value},
       ));
   }

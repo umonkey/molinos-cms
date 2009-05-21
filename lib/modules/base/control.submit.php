@@ -25,10 +25,14 @@ class SubmitControl extends Control
 
   public function getXML($data)
   {
-    $this->addClass('form-submit');
+    $text = $this->text
+      ? $this->text
+      : t('Сохранить');
 
-    return parent::wrapXML(array(
-      'value' => null !== $this->text ? $this->text : t('Сохранить'),
+    return html::em('input', array(
+      'type' => 'submit',
+      'name' => $this->value,
+      'text' => $text,
       ));
   }
 };

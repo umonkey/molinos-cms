@@ -145,7 +145,7 @@ class Schema extends ArrayObject
         $tab = $form->addControl(new FieldSetControl(array(
           'name' => $name,
           'label' => $name,
-          'tabable' => true,
+          'tab' => true,
           )));
 
         foreach ($controls as $control)

@@ -48,10 +48,9 @@ class NumberControl extends Control
     if ($value == $this->default)
       $value = null;
 
-    $this->addClass('form-text');
-    $this->addClass('form-number');
-
     return parent::wrapXML(array(
+      'type' => 'text',
+      'mode' => 'number',
       'value' => $value,
       ));
   }

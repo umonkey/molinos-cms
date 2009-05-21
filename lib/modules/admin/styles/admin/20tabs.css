@@ -1,0 +1,20 @@
+fieldset.tab {
+  border-top: solid 4px #0F9808;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  padding: .667em 0 0 25px;
+  margin: 0 0 .667em 0;
+}
+
+fieldset.tab > legend {
+  padding: 0;
+  margin: 0 0 0 -8px;
+  margin: 0 0 0 -14px;
+}
+
+fieldset.tab > legend > span {
+  padding: 0 14px 0 8px;
+  font-size: 1.334em;
+  line-height: 1;
+}

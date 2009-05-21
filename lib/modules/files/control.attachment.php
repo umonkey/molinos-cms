@@ -144,44 +144,24 @@ class AttachmentControl extends Control
       $url = os::path($ctx->config->getPath('modules/files/storage', 'files'), $value->filepath);
 
       if (!file_exists($url))
-        return;
+        return html::em($em, html::cdata(html::em('p', array(
+          'class' => 'error',
+          ), t('Ошибка: файл не найден.'))));
 
       switch ($value->filetype) {
       case 'video/flv':
       case 'video/x-flv':
       case 'video/mp4':
-        $result = html::em($em, html::cdata($this->getPlayer($url, array(
+        return html::em($em, html::cdata($this->getPlayer($url, array(
           'width' => $value->width,
           'height' => $value->height,
           ))));
-        break;
       case 'audio/mpeg':
-        $result = html::em($em, html::cdata($this->getPlayer($url, array(
+        return html::em($em, html::cdata($this->getPlayer($url, array(
           'width' => 300,
           'height' => 20,
           ))));
-        break;
-      default:
-        $inside = '';
-        foreach ((array)$value->versions as $k => $v)
-          $inside .= html::em('version', array(
-            'id' => $k,
-            'width' => $v['width'],
-            'height' => $v['height'],
-            'url' => MCMS_SITE_FOLDER . '/' . $v['path'],
-            ));
-
-        $result = html::em($em, array(
-          'url' => $url,
-          'filename' => $value->filename,
-          'type' => $value->filetype,
-          'size' => $value->filesize,
-          'width' => $value->width,
-          'height' => $value->height,
-          ), $inside);
       }
-
-      return $result;
     }
 
     return html::wrap($em, html::cdata($value));

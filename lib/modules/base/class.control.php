@@ -228,18 +228,16 @@ abstract class Control implements iFormControl
       throw new RuntimeException(t('У классов, реализующих контролы, должен быть суффикс Control.'));
 
     $defaults = array(
-      'id' => $this->id,
       'type' => substr($class, 0, -7),
-      'label' => $this->label,
-      'title' => $this->title,
-      'required' => $this->required ? 'yes' : null,
+      'title' => $this->label,
+      'required' => (bool)$this->required,
+      'disabled' => (bool)$this->disabled,
       'description' => $this->description,
-      'class' => $this->class,
       'name' => $this->value,
-      'readonly' => $this->readonly ? true : false,
+      'readonly' => (bool)$this->readonly,
       );
 
-    return html::em('control', array_merge($defaults, $options), $content);
+    return html::em('input', array_merge($defaults, $options), $content);
   }
 
   protected function getLabel($output = null)
