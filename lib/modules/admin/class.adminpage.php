@@ -38,8 +38,9 @@ class AdminPage
 
     $this->content .= /* $router->getPath($ctx) . */ $menu->getXML($ctx);
 
+    $request = '';
     if ($user = $ctx->user->getNode())
-      $request = html::wrap('user', $user->getXML());
+      $request .= html::wrap('user', $user->getXML());
     $request .= BaseRoute::getGetParams($ctx);
     $this->content .= html::wrap('request', $request);
 
