@@ -9,7 +9,7 @@ class AdminAuth
   {
     self::checkAutoLogin($ctx);
 
-    if ($ctx->user->id)
+    if ($ctx->user->id and !$ctx->get('noredirect'))
       return $ctx->getRedirect();
 
     $form = $ctx->registry->unicast('ru.molinos.cms.auth.form', array($ctx, $ctx->get('authmode')));
