@@ -130,9 +130,11 @@ class AdminPage
     }
   }
 
-  private static function checkperm(Context $ctx, array $pathinfo)
+  public static function checkperm(Context $ctx, array $pathinfo)
   {
     if (!empty($pathinfo['perms'])) {
+      if (!$ctx->user->id)
+        throw new UnauthorizedException();
       if ('debug' == $pathinfo['perms'])
         $result = $ctx->canDebug();
       else {
