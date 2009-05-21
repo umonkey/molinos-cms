@@ -38,6 +38,7 @@ class AuthForm
         'id' => $name,
         'label' => $title,
         'class' => 'authmode' . $class,
+        'mode' => $name,
         )));
 
       foreach ($schema as $k => $v) {
