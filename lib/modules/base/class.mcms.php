@@ -465,9 +465,11 @@ class mcms
     }
   }
 
-  public static function now()
+  public static function now($time = null)
   {
-    return date('Y-m-d H:i:s', time() - date('Z', time()));
+    if (null === $time)
+      $time = time();
+    return date('Y-m-d H:i:s', $time - date('Z', $time));
   }
 
   // FIXME: оптимизировать!
