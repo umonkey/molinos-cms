@@ -76,11 +76,36 @@ class AuthForm
 
   public static function on_get_groups(Context $ctx)
   {
-    $tmp = new AdminListHandler($ctx);
-    return $tmp->getHTML('groups', array(
-      'edit' => $ctx->user->hasAccess('u', 'group'),
-      '#raw' => true,
-      'search' => false,
+    $nodes = Node::find($ctx->db, array(
+      'class' => 'group',
+      'deleted' => 0,
       ));
+
+    $counts = $ctx->db->getResultsKV('id', 'count', "SELECT tid AS id, COUNT(*) AS count FROM node__rel r INNER JOIN node g ON g.id = r.tid INNER JOIN node u ON u.id = r.nid WHERE g.deleted = 0 AND u.deleted = 0 AND g.class = 'group' AND u.class = 'user' GROUP BY tid");
+
+    $html = '';
+    foreach ($nodes as $node) {
+      $count = isset($counts[$node->id])
+        ? $counts[$node->id]
+        : 0;
+      $html .= html::em('node', array(
+        'id' => $node->id,
+        'name' => $node->getName(),
+        'created' => $node->created,
+        'users' => $count,
+        'editable' => $node->getObject()->checkPermission('u'),
+        'published' => true,
+        ));
+    }
+
+    $html = html::wrap('data', $html);
+
+    return html::em('content', array(
+      'name' => 'list',
+      'preset' => 'groups',
+      'title' => t('Группы пользователей'),
+      'nosearch' => true,
+      'create' => 'admin/create/group',
+      ), $html);
   }
 }

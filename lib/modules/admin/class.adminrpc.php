@@ -99,23 +99,32 @@ class AdminRPC extends RPCHandler
   public static function on_get_list(Context $ctx)
   {
     $tmp = new AdminListHandler($ctx);
-    return $tmp->getHTML();
+    return $tmp->getHTML('default', array(
+      '#raw' => true,
+      ));
   }
 
   public static function on_get_list_by_type(Context $ctx, $path, array $pathinfo, $type)
   {
     $list = Node::create($type)->getListURL();
-    if (0 !== strpos($list, 'admin/content/list/'))
+    if (0 !== strpos($list, 'admin/content/list/')) {
+      if ($tmp = $ctx->get('search'))
+        $list .= '?search=' . urlencode($tmp);
       $ctx->redirect($list);
+    }
 
     $tmp = new AdminListHandler($ctx, $type);
-    return $tmp->getHTML();
+    return $tmp->getHTML('default', array(
+      '#raw' => true,
+      ));
   }
 
   public static function on_get_drafts(Context $ctx)
   {
     $tmp = new AdminListHandler($ctx);
-    return $tmp->getHTML('drafts');
+    return $tmp->getHTML('drafts', array(
+      '#raw' => true,
+      ));
   }
 
   public static function on_get_trash(Context $ctx)
@@ -157,6 +166,36 @@ class AdminRPC extends RPCHandler
       'name' => 'edit',
       ), $form->getXML($node)));
     return $page->getResponse($ctx);
+  }
+
+  /**
+   * Редактирование поля (форма).
+   */
+  public static function on_get_edit_field_form(Context $ctx, $path, array $pathinfo, $nid, $fieldName)
+  {
+    $node = Node::load($nid)->getObject();
+
+    $form = $node->formGet($fieldName);
+    $form->addClass('tabbed');
+
+    $page = new AdminPage(html::em('content', array(
+      'name' => 'edit',
+      ), $form->getXML($node)));
+    return $page->getResponse($ctx);
+  }
+
+  /**
+   * Предварительный просмотр объекта.
+   */
+  public static function on_get_preview(Context $ctx, $path, array $pathinfo, $nid)
+  {
+    $xml = html::em('content', array(
+      'name' => 'preview',
+      'title' => t('Предварительный просмотр'),
+      'id' => $nid,
+      ));
+
+    return $xml;
   }
 
   public static function on_get_create_list(Context $ctx)

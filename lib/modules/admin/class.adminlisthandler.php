@@ -54,8 +54,7 @@ class AdminListHandler implements iAdminList
 
     $data = $this->getData();
 
-    $output = $this->getNodeActions((array)$this->selectors, $this->actions);
-    $output .= $data;
+    $output = $data;
     $output .= $this->getPager();
 
     if ($raw = !empty($options['#raw']))
@@ -96,46 +95,6 @@ class AdminListHandler implements iAdminList
       ));
 
     return $output;
-  }
-
-  public function getNodeActions(array $sel, array $act)
-  {
-    if (empty($sel))
-      $sel = array(
-        'all' => 'все',
-        'none' => 'ни одного',
-        'published' => 'опубликованные',
-        'unpublished' => 'скрытые',
-        );
-
-    $actions = array(
-      'publish' => t('опубликовать'),
-      'unpublish' => t('скрыть'),
-      'delete' => t('удалить'),
-      'clone' => t('клонировать'),
-      'undelete' => t('восстановить'),
-      'erase' => t('удалить окончательно'),
-      'reindex' => t('индексировать'),
-      'touch' => t('потрогать'),
-      );
-
-    $output = '';
-
-    foreach ($sel as $k => $v)
-      $output .= html::em('selector', array(
-        'name' => $k,
-        'title' => $v,
-        ));
-
-    foreach ($act as $action)
-      $output .= html::em('action', array(
-        'name' => $action,
-        'title' => array_key_exists($action, $actions)
-          ? $actions[$action]
-          : $action,
-        ));
-
-    return html::em('massctl', $output);
   }
 
   private function getPager()

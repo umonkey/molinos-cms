@@ -195,7 +195,7 @@ class Node
   /**
    * Получение формы.
    */
-  public function formGet()
+  public function formGet($fieldName = null)
   {
     if (!$this->checkPermission($this->id ? 'u' : 'c'))
       throw new ForbiddenException(t('У вас недостаточно прав для работы с этим документом.'));
@@ -203,7 +203,10 @@ class Node
     $form = $this->getFormFields()->getForm(array(
       'action' => $this->getFormAction(),
       'title' => $this->getFormTitle(),
-      ));
+      ), $fieldName);
+
+    if ($fieldName)
+      $form->action .= '&field=' . urlencode($fieldName);
 
     $form->addControl(new SubmitControl(array(
       'text' => $this->getFormSubmitText(),
@@ -289,7 +292,7 @@ class Node
   /**
    * Обрабатывает полученные от пользователя данные.
    */
-  public function formProcess(array $data)
+  public function formProcess(array $data, $fieldName = null)
   {
     if (!$this->checkPermission($this->id ? 'u' : 'c'))
       throw new ForbiddenException(t('Ваших полномочий недостаточно '
@@ -298,11 +301,13 @@ class Node
     $schema = $this->getFormFields();
 
     foreach ($schema as $name => $field) {
-      $value = array_key_exists($name, $data)
-        ? $data[$name]
-        : null;
+      if (null === $fieldName or $fieldName == $name) {
+        $value = array_key_exists($name, $data)
+          ? $data[$name]
+          : null;
 
-      $field->set($value, $this, $data);
+        $field->set($value, $this, $data);
+      }
     }
 
     return $this;
@@ -414,15 +419,15 @@ class Node
 
     if ($this->published and !$this->deleted and !in_array($this->class, array('domain', 'widget', 'type')))
       $links['locate'] = array(
-        'href' => '?q=nodeapi.rpc&action=locate&node='. $this->id,
+        'href' => 'node/'. $this->id,
         'title' => t('Найти на сайте'),
         'icon' => 'locate',
         );
 
     if (($ctx = Context::last()) and $ctx->canDebug())
       $links['dump'] = array(
-        'href' => '?q=node/' . $this->id . '/dump',
-        'title' => 'Содержимое объекта',
+        'href' => 'node/' . $this->id . '/dump',
+        'title' => 'XML дамп',
         'icon' => 'dump',
         );
 
@@ -639,6 +644,30 @@ class Node
    */
   public function getExtraXMLContent()
   {
+  }
+
+  public function getExtraPreviewXML(Context $ctx)
+  {
+  }
+
+  /**
+   * Возвращает данные для предварительного просмотра.
+   */
+  public function getPreviewXML(Context $ctx)
+  {
+    $result = '';
+    $editable = $this->checkPermission('u');
+
+    foreach ($this->getFormFields() as $name => $ctl) {
+      if ($ctl->label)
+        $result .= html::em('field', array(
+          'name' => $name,
+          'title' => $ctl->label,
+          'editable' => $editable,
+          ), $ctl->preview($this));
+    }
+
+    return $result;
   }
 
   /**

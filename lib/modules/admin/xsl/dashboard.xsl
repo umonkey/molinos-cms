@@ -61,7 +61,7 @@
     <ol class="doclist">
       <xsl:for-each select="node">
         <li>
-          <a href="?q=admin/edit/{@id}&amp;destination={/page/@back}">
+          <a href="admin/node/{@id}">
             <xsl:value-of select="@name" />
             <xsl:if test="not(@name)">
               <xsl:text>(без названия)</xsl:text>

@@ -204,7 +204,7 @@ class NodeApiModule extends RPCHandler
     $node = Node::load($ctx->get('node'))->getObject();
     if (null === $node->uid and $node->isNew())
       $node->uid = $ctx->user->id;
-    $node->formProcess($ctx->post)->save($ctx->db);
+    $node->formProcess($ctx->post, $ctx->get('field'))->save($ctx->db);
   }
 
   /**
@@ -314,5 +314,47 @@ class NodeApiModule extends RPCHandler
     }
 
     return $url->string();
+  }
+
+  /**
+   * Снятие публикации с объектов.
+   */
+  public static function on_unpublish(Context $ctx)
+  {
+    if ($nodes = $ctx->post('selected', array())) {
+      $ctx->db->beginTransaction();
+      foreach ($nodes as $node)
+        Node::load($node)->unpublish()->save();
+      $ctx->db->commit();
+    }
+    return $ctx->getRedirect();
+  }
+
+  /**
+   * Публикация объектов.
+   */
+  public static function on_publish(Context $ctx)
+  {
+    if ($nodes = $ctx->post('selected', array())) {
+      $ctx->db->beginTransaction();
+      foreach ($nodes as $node)
+        Node::load($node)->publish()->save();
+      $ctx->db->commit();
+    }
+    return $ctx->getRedirect();
+  }
+
+  /**
+   * Удаление объектов.
+   */
+  public static function on_delete(Context $ctx)
+  {
+    if ($nodes = $ctx->post('selected', array())) {
+      $ctx->db->beginTransaction();
+      foreach ($nodes as $node)
+        Node::load($node)->delete();
+      $ctx->db->commit();
+    }
+    return $ctx->getRedirect();
   }
 };

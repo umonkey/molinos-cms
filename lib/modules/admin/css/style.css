@@ -411,10 +411,6 @@ td.nowrap {
   white-space: nowrap;
 }
 
-.jsonly {
-  display: none;
-}
-
 #content_wrapper {
   padding-top: 10px;
 }

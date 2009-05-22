@@ -350,6 +350,14 @@ abstract class Control implements iFormControl
   }
 
   /**
+   * Форматирование текста для предварительного просмотра.
+   */
+  public function preview($data)
+  {
+    return $this->format($data->{$this->value}, 'value');
+  }
+
+  /**
    * Возвращает список известных типов полей.
    */
   public static function getKnownTypes()

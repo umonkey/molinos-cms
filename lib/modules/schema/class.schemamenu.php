@@ -7,6 +7,8 @@ class SchemaMenu
     $tmp = new SchemaList($ctx);
     return $tmp->getHTML('schema', array(
       '#raw' => true,
+      'nosearch' => true,
+      'create' => 'admin/create/type',
       ));
   }
 

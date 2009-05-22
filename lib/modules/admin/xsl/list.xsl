@@ -1,217 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:import href="../template.xsl" />
+
   <!-- список документов -->
-  <xsl:template match="content[@name = 'list']" mode="content">
+  <xsl:template match="content[@name='list']" mode="content">
     <div class="doclist">
       <h2>
         <xsl:value-of select="@title" />
       </h2>
-      <xsl:if test="not(count(data/node))">
-        <xsl:if test="@search = 'yes'">
-          <xsl:call-template name="mcms_list_search" />
-        </xsl:if>
-        <p>
-          <xsl:text>Нет данных для отображения. Пересмотрите поисковый запрос или добавьте новый объект.</xsl:text>
-        </p>
-      </xsl:if>
-      <xsl:if test="count(data/node)">
-        <xsl:if test="@search = 'yes'">
-          <xsl:call-template name="mcms_list_search" />
-        </xsl:if>
-        <xsl:apply-templates select="massctl" mode="mcms_list" />
 
-        <form id="nodeList" method="post" action="?q=nodeapi.rpc&amp;destination={/page/@back}">
-          <fieldset>
-            <input id="nodeListCommand" type="hidden" name="action" value="" />
-          </fieldset>
-            <xsl:choose>
-                  <xsl:when test="data[../@preset = 'taxonomy']">
-                        <ul class="nodes">
-                              <xsl:apply-templates select="data[../@preset = 'taxonomy']/node" mode="mcms_list" />
-                        </ul>
-                  </xsl:when>
-                  <xsl:otherwise>
-                        <table class="nodes">
-                              <xsl:apply-templates select="data" mode="mcms_list" />
-                        </table>
-                  </xsl:otherwise>
-            </xsl:choose>
-        </form>
-        <xsl:apply-templates select="massctl" mode="mcms_list" />
-      </xsl:if>
+      <xsl:choose>
+        <xsl:when test="not(data/node) and not(not($search))">
+          <p>Нет таких документов, <a href="{$query}">показать все</a>?</p>
+        </xsl:when>
+        <xsl:when test="not(data/node)">
+          <p>Здесь ничего нет, вообще.</p>
+          <xsl:if test="@type">
+            <p>
+              <a href="admin/create/{@type}">Создать</a>
+            </p>
+          </xsl:if>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:if test="not(@nosearch)">
+            <xsl:call-template name="mcms_list_search">
+              <xsl:with-param name="advanced" select="@advsearch" />
+            </xsl:call-template>
+          </xsl:if>
+
+          <!-- action проставляется скриптом lib/modules/admin/scripts/admin/10massctl.js -->
+          <form method="post" id="nodeList">
+            <xsl:apply-templates select="data" mode="massctl">
+              <xsl:with-param name="edit" select="@canedit" />
+              <xsl:with-param name="create" select="@create" />
+            </xsl:apply-templates>
+            <table class="nodes">
+              <xsl:apply-templates select="data" mode="nodelist" />
+            </table>
+            <xsl:apply-templates select="data" mode="massctl">
+              <xsl:with-param name="edit" select="@canedit" />
+              <xsl:with-param name="create" select="@create" />
+            </xsl:apply-templates>
+          </form>
+        </xsl:otherwise>
+      </xsl:choose>
     </div>
   </xsl:template>
 
-
-
-  <!-- вывод групп -->
-  <xsl:template match="data[../@preset = 'groups']" mode="mcms_list">
-    <thead>
-      <tr>
-        <th colspan="2"/>
-        <th>Имя</th>
-      </tr>
-    </thead>
-    <tbody>
-      <xsl:for-each select="node">
-        <tr>
-          <xsl:call-template name="odd_row" />
-          <td class="icon">
-            <a class="icon icon-zoom" title="Найти всех пользователей группы" href="admin/access/users?search=tags%3A{@id}">
-              <span/>
-            </a>
-          </td>
-          <xsl:apply-templates select="." mode="mcms_list_name" />
-        </tr>
-      </xsl:for-each>
-    </tbody>
-  </xsl:template>
-
-  <!-- вывод доменов -->
-  <xsl:template match="data[../@preset = 'pages']" mode="mcms_list">
-    <xsl:variable name="domains" select="not(node/@parent_id)" />
-    <thead>
-      <tr>
-        <th colspan="2" />
-        <th>Имя</th>
-        <th>Название</th>
-        <th>Шкура</th>
-      </tr>
-    </thead>
-    <tbody>
-      <xsl:apply-templates select="node" mode="node_pages_tree">
-        <xsl:with-param name="domains" select="$domains" />
-        <xsl:with-param name="depth" select="0" />
-      </xsl:apply-templates>
-    </tbody>
-  </xsl:template>
-
-  <xsl:template match="node" mode="node_pages_tree">
-    <xsl:param name="domains" />
-    <xsl:param name="depth" />
-    <tr>
-      <xsl:call-template name="odd_row" />
-      <xsl:choose>
-        <xsl:when test="$domains">
-          <td class="icon">
-            <a class="icon icon-edit" href="?q=admin/edit/{@id}&amp;destination={/page/@back}" />
-          </td>
-          <td class="field-name">
-            <a href="?q=admin/structure/domains/{@name}">
-              <xsl:if test="$depth">
-                <xsl:attribute name="style">
-                  <xsl:text>position:relative; left:</xsl:text>
-                  <xsl:value-of select="$depth * 16" />
-                  <xsl:text>px</xsl:text>
-                </xsl:attribute>
-              </xsl:if>
-              <xsl:value-of select="@name" />
-            </a>
-          </td>
-        </xsl:when>
-        <xsl:otherwise>
-          <td class="icon">
-            <a class="icon icon-add" href="admin/create/domain/{@id}?destination={/page/@back}" />
-          </td>
-          <xsl:apply-templates select="." mode="mcms_list_name">
-            <xsl:with-param name="depth" select="$depth" />
-          </xsl:apply-templates>
-        </xsl:otherwise>
-      </xsl:choose>
-      <td class="field-title">
-        <xsl:value-of select="title" />
-      </td>
-      <td class="field-theme">
-        <xsl:value-of select="theme" />
-      </td>
-    </tr>
-    <xsl:apply-templates select="children/node" mode="node_pages_tree">
-      <xsl:with-param name="domains" select="$domains" />
-      <xsl:with-param name="depth" select="$depth + 1" />
-    </xsl:apply-templates>
-  </xsl:template>
-
-
-  <!-- вывод файлов -->
-  <xsl:template match="data[../@preset = 'files']" mode="mcms_list">
-    <xsl:variable name="versions" select="not(not(node/versions/version[@name!='original']))" />
-
-    <thead>
-      <tr>
-        <th colspan="3"/>
-        <th>Имя файла</th>
-        <xsl:if test="$versions">
-          <th>Версии</th>
-        </xsl:if>
-        <th/>
-        <th class="field-filesize">Размер</th>
-        <th>Дата добавления</th>
-      </tr>
-    </thead>
-    <tbody>
-      <xsl:if test="/page/@picker">
-        <xsl:attribute name="class">
-          <xsl:text>picker</xsl:text>
-        </xsl:attribute>
-        <xsl:attribute name="id">
-          <xsl:value-of select="/page/@picker" />
-        </xsl:attribute>
-      </xsl:if>
-      <xsl:for-each select="node">
-        <tr id="file-{@id}">
-          <xsl:call-template name="odd_row" />
-          <td class="icon">
-            <xsl:if test="versions/version[@name='original']">
-              <a class="picker icon icon-download" href="{versions/version[@name='original']/@url}"></a>
-            </xsl:if>
-          </td>
-          <xsl:call-template name="dump_icon" />
-          <xsl:apply-templates select="." mode="mcms_list_name" />
-          <xsl:if test="$versions">
-            <td class="versions">
-              <xsl:for-each select="versions/version[@name!='original']">
-                <a href="{@url}">
-                  <xsl:value-of select="@name" />
-                </a>
-              </xsl:for-each>
-            </td>
-          </xsl:if>
-          <td>
-            <xsl:choose>
-              <xsl:when test="width and height">
-                <xsl:value-of select="width" />
-                <xsl:text>x</xsl:text>
-                <xsl:value-of select="height" />
-                <xsl:if test="duration">
-                  <xsl:text>, </xsl:text>
-                  <xsl:value-of select="duration" />
-                </xsl:if>
-              </xsl:when>
-              <xsl:when test="duration">
-                <xsl:value-of select="duration" />
-              </xsl:when>
-            </xsl:choose>
-          </td>
-          <td class="field-filesize">
-            <xsl:value-of select="filesize" />
-          </td>
-          <td class="field-created">
-            <xsl:call-template name="FormatDate">
-              <xsl:with-param name="timestamp" select="@created" />
-            </xsl:call-template>
-          </td>
-        </tr>
-      </xsl:for-each>
-    </tbody>
-  </xsl:template>
-
-
   <!-- базовый вывод документов -->
-  <xsl:template match="data" mode="mcms_list">
+  <xsl:template match="data" mode="nodelist">
     <xsl:variable name="showtype" select="not(../@type)" />
     <thead>
       <tr>
-        <th colspan="3"/>
+        <th colspan="2"/>
         <th>Заголовок</th>
         <xsl:if test="$showtype">
           <th>Тип</th>
@@ -223,118 +64,104 @@
     <tbody>
       <xsl:for-each select="node">
         <tr>
-          <xsl:call-template name="odd_row" />
+          <xsl:apply-templates select="." mode="trclass" />
           <td class="icon">
-            <!--
-            <a class="icon-locate" title="Найти документ на сайте" href="?q=nodeapi.rpc&amp;action=locate&amp;node={@id}">
-            -->
-            <a class="icon icon-locate" title="Найти документ на сайте" href="?q=node/{@id}">
-              <span/>
+            <a class="icon-edit" href="admin/edit/{@id}?destination={$back}">
+              <span>Изменить</span>
             </a>
           </td>
-          <xsl:call-template name="dump_icon" />
-          <xsl:apply-templates select="." mode="mcms_list_name" />
+          <td class="field-name">
+            <a href="admin/node/{@id}">
+              <xsl:value-of select="@name" />
+            </a>
+          </td>
           <xsl:if test="$showtype">
             <td class="field-class">
               <xsl:value-of select="@class" />
             </td>
           </xsl:if>
-          <xsl:apply-templates select="." mode="mcms_list_author" />
+          <td>
+            <xsl:if test="uid/@id">
+              <a href="admin/node/{uid/@id}">
+                <xsl:value-of select="uid/fullname" />
+                <xsl:if test="not(uid/fullname)">
+                  <xsl:value-of select="uid/@name" />
+                </xsl:if>
+              </a>
+            </xsl:if>
+          </td>
           <td class="field-created">
-            <xsl:call-template name="FormatDate">
-              <xsl:with-param name="timestamp" select="@created" />
-            </xsl:call-template>
+            <xsl:apply-templates select="@created" />
           </td>
         </tr>
       </xsl:for-each>
     </tbody>
   </xsl:template>
 
-  <xsl:template match="node" mode="mcms_list_check">
-    <td>
-      <input type="checkbox" name="nodes[]" value="{@id}" />
-    </td>
-  </xsl:template>
+  <!-- Массовые операции: селекторы, действия. -->
+  <xsl:template match="data" mode="massctl">
+    <xsl:param name="publish" select="not(not(node[not(@published)]))" />
+    <xsl:param name="hide" select="not(not(node[@published]))" />
+    <xsl:param name="edit" select="0" />
+    <xsl:param name="create" select="0" />
 
-  <xsl:template match="node" mode="mcms_list_name">
-    <xsl:param name="depth" />
-    <td class="field-name">
-      <a class="picker" href="admin/edit/{@id}?destination={/page/@back}">
-        <xsl:if test="$depth or $depth = 0">
-          <xsl:attribute name="style">
-            <xsl:text>position:relative; left:</xsl:text>
-            <xsl:value-of select="20 + $depth * 16" />
-            <xsl:text>px</xsl:text>
-          </xsl:attribute>
+    <div class="massctl">
+      <div class="selectors">
+        <xsl:if test="$create">
+          <a href="{$create}?destination={$back}">Добавить</a>
+          <xsl:text> | </xsl:text>
         </xsl:if>
-        <xsl:value-of select="@name" />
-        <xsl:if test="not(@name)">
-          <xsl:text>(без названия)</xsl:text>
+        <span>Выбрать: </span>
+        <span class="fakelink selink select-all">все</span>
+        <xsl:text>, </xsl:text>
+        <span class="fakelink selink select-none">ни одного</span>
+        <xsl:if test="$hide">
+          <xsl:text>, </xsl:text>
+          <span class="fakelink selink select-published">опубликованные</span>
         </xsl:if>
-      </a>
-    </td>
-  </xsl:template>
-
-  <xsl:template match="node" mode="mcms_list_author">
-    <td class="field-uid">
-      <xsl:if test="uid">
-        <a href="?q=admin/edit/{@id}&amp;destination={/page/@back}">
-          <xsl:apply-templates select="uid" mode="username" />
-        </a>
-      </xsl:if>
-    </td>
-  </xsl:template>
-
-  
-  <!-- Выбор нескольких строк таблицы. -->
-  <xsl:template match="massctl" mode="mcms_list">
-    <div class="nodes-controls-advanced">
-      <xsl:if test="../@addlink">
-        <a href="{../@addlink}">Добавить</a>
-        <xsl:text> | </xsl:text>
-      </xsl:if>
-      <span>Выбрать: </span>
-      <xsl:apply-templates select="selector" mode="mcms_list_mass_controls" />
-      <span class="and"> и </span>
-      <xsl:apply-templates select="action" mode="mcms_list_mass_controls" />
-      <xsl:text>.</xsl:text>
+        <xsl:if test="$publish">
+          <xsl:text>, </xsl:text>
+          <span class="fakelink selink select-unpublished">скрытые</span>
+        </xsl:if>
+      </div>
+      <div class="actions">
+        <span>Действия: </span>
+        <span class="fakelink actionlink action-delete">удалить</span>
+        <xsl:if test="$publish">
+          <xsl:text>, </xsl:text>
+          <span class="fakelink actionlink action-publish">опубликовать</span>
+        </xsl:if>
+        <xsl:if test="$hide">
+          <xsl:text>, </xsl:text>
+          <span class="fakelink actionlink action-unpublish">скрыть</span>
+        </xsl:if>
+        <xsl:if test="$edit">
+          <xsl:text>, </xsl:text>
+          <span class="fakelink actionlink action-edit">редактировать</span>
+        </xsl:if>
+      </div>
     </div>
   </xsl:template>
 
-    <xsl:template match="selector" mode="mcms_list_mass_controls">
-      <xsl:choose>
-        <xsl:when test="position() = last()">
-          <xsl:text> или </xsl:text>
-        </xsl:when>
-        <xsl:when test="position() != 1">
-          <xsl:text>, </xsl:text>
-        </xsl:when>
-      </xsl:choose>
-      <span class="fakelink selink select-{@name}">
-        <xsl:value-of select="@title" />
-      </span>
-    </xsl:template>
-
-    <xsl:template match="action" mode="mcms_list_mass_controls">
-      <xsl:choose>
-        <xsl:when test="position() = last() and position() != 1">
-          <xsl:text> или </xsl:text>
-        </xsl:when>
-        <xsl:when test="position() != 1">
-          <xsl:text>, </xsl:text>
-        </xsl:when>
-      </xsl:choose>
-      <span class="fakelink actionlink action-{@name}">
-        <xsl:value-of select="@title" />
-      </span>
-    </xsl:template>
+  <!-- Добавляет строке таблицы классы, вроде published. -->
+  <xsl:template match="node" mode="trclass">
+    <xsl:attribute name="class">
+      <xsl:if test="not(@published)">un</xsl:if>
+      <xsl:text>published</xsl:text>
+    </xsl:attribute>
+    <td class="selector">
+      <input type="checkbox" name="selected[]" value="{@id}" />
+    </td>
+  </xsl:template>
 
   <!-- Форма поиска. -->
   <xsl:template name="mcms_list_search" mode="mcms_list">
+    <xsl:param name="advanced" select="1" />
+
     <div class="nodes-controls-basic">
     <form method="post" action="?q=admin/search&amp;from={/page/@back}">
-          <fieldset>
-       <input type="hidden" name="search_from" value="{/page/@url}" />
+      <fieldset>
+        <input type="hidden" name="search_from" value="{/page/@url}" />
           <a class="newlink">
             <xsl:attribute name="href">
               <xsl:text>?q=admin/create</xsl:text>
@@ -350,65 +177,15 @@
           <xsl:text> | </xsl:text>
           <input type="text" name="search_term" class="search_field" value="{/page/request/getArgs/arg[@name='search']}" />
           <input type="submit" value="Найти" />
-          <xsl:text> | </xsl:text>
-          <a href="?q=admin/search&amp;destination={/page/@back}">Расширенный поиск</a>
+          <xsl:if test="$advanced">
+            <xsl:text> | </xsl:text>
+            <a href="?q=admin/search&amp;destination={/page/@back}">Расширенный поиск</a>
+          </xsl:if>
         </fieldset>
       </form>
     </div>
   </xsl:template>
 
-  <xsl:template name="odd_row">
-    <xsl:param name="depth" />
-    <xsl:attribute name="class">
-          <xsl:if test="$depth or $depth = 0">
-        <xsl:text> depth-</xsl:text><xsl:value-of select="$depth" />
-      </xsl:if>
-      <xsl:if test="position() mod 2">
-        <xsl:text> odd</xsl:text>
-      </xsl:if>
-      <xsl:if test="@published">
-        <xsl:text> published</xsl:text>
-      </xsl:if>
-      <xsl:if test="not(@published)">
-        <xsl:text> unpublished</xsl:text>
-      </xsl:if>
-    </xsl:attribute>
-    <td class="selector">
-      <input type="checkbox" name="nodes[]" value="{@id}" />
-    </td>
-  </xsl:template>
-
-
   <!-- подавление неопознанных блоков -->
-  <xsl:template match="content" mode="content">
-  </xsl:template>
-
-
-  <xsl:template name="dump_icon">
-    <td>
-      <xsl:if test="/page/@debug">
-        <xsl:attribute name="class">
-          <xsl:text>icon</xsl:text>
-        </xsl:attribute>
-        <a class="icon icon-dump" href="node/{@id}/dump">
-          <span/>
-        </a>
-      </xsl:if>
-    </td>
-  </xsl:template>
-
-
-  <!-- форматирование даты -->
-  <xsl:template name="FormatDate">
-    <xsl:param name="timestamp" />
-    <xsl:if test="$timestamp">
-      <xsl:value-of select="substring($timestamp,9,2)" />
-      <xsl:text>.</xsl:text>
-      <xsl:value-of select="substring($timestamp,6,2)" />
-      <xsl:text>.</xsl:text>
-      <xsl:value-of select="substring($timestamp,3,2)" />
-      <xsl:text>, </xsl:text>
-      <xsl:value-of select="substring($timestamp,12,5)" />
-    </xsl:if>
-  </xsl:template>
+  <xsl:template match="content" mode="content" />
 </xsl:stylesheet>

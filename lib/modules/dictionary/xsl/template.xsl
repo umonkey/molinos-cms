@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-  <xsl:import href="../../admin/template.xsl" />
+  <xsl:import href="../../admin/xsl/list.xsl" />
 
   <!-- вывод справочников -->
   <xsl:template match="data[../@preset='dictlist']" mode="mcms_list">

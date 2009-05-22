@@ -25,20 +25,15 @@ class AdminTreeHandler
     $this->setUp($this->preset = $preset);
 
     $options = array_merge($options, array(
-      'name' => 'tree',
+      'name' => 'list',
       'title' => $this->title,
       'preset' => $preset,
       'addlink' => $this->addlink,
       ));
 
-    $output = html::em('content', $options, $this->getMassCtl() . $this->getData());
+    $output = html::em('content', $options, $this->getData());
 
     return $output;
-  }
-
-  private function getMassCtl()
-  {
-    return AdminListHandler::getNodeActions(array(), $this->actions);
   }
 
   protected function getData()

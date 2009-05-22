@@ -3,9 +3,13 @@
   <xsl:import href="../base/forms2.xsl" />
   <xsl:import href="../base/pager.xsl" />
   <xsl:import href="../base/redirect.xsl" />
-  <xsl:import href="xsl/list.xsl" />
   <xsl:import href="xsl/submenu.xsl" />
   <xsl:import href="xsl/dashboard.xsl" />
+
+  <xsl:variable name="api" select="'cms://localhost/api/'" />
+  <xsl:variable name="search" select="/page/request/getArgs/arg[@name='search']/text()" />
+  <xsl:variable name="query" select="/page/@query" />
+  <xsl:variable name="back" select="/page/@back" />
 
   <xsl:output omit-xml-declaration="yes" method="xml" version="1.0" encoding="UTF-8" indent="yes" doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"/>
 
@@ -169,7 +173,7 @@
   <xsl:template match="node" mode="toolbar">
     <ul class="utilitary">
       <li>
-        <a class="editprofile" href="?q=admin/edit/{@id}&amp;destination={/page/@back}">
+        <a class="editprofile" href="admin/node/{@id}">
           <xsl:apply-templates select="." mode="username" />
         </a>
       </li>
@@ -391,15 +395,15 @@
     </div>
   </xsl:template>
 
-  <xsl:template match="@created">
-    <xsl:if test="text()">
-      <xsl:value-of select="substring(text(),9,2)" />
+  <xsl:template match="@created|@updated">
+    <xsl:if test=".">
+      <xsl:value-of select="substring(.,9,2)" />
       <xsl:text>.</xsl:text>
-      <xsl:value-of select="substring(text(),6,2)" />
+      <xsl:value-of select="substring(.,6,2)" />
       <xsl:text>.</xsl:text>
-      <xsl:value-of select="substring(text(),3,2)" />
+      <xsl:value-of select="substring(.,3,2)" />
       <xsl:text>, </xsl:text>
-      <xsl:value-of select="substring(text(),12,5)" />
+      <xsl:value-of select="substring(.,12,5)" />
     </xsl:if>
   </xsl:template>
 
@@ -410,6 +414,28 @@
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="@name" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="filesize">
+    <xsl:param name="size" select="0" />
+    <xsl:choose>
+      <xsl:when test="$size &gt; 1073741824">
+        <xsl:value-of select="round($size div 1073741824)" />
+        <xsl:text>Г</xsl:text>
+      </xsl:when>
+      <xsl:when test="$size &gt;= 1048576">
+        <xsl:value-of select="round($size div 1048576)" />
+        <xsl:text>М</xsl:text>
+      </xsl:when>
+      <xsl:when test="$size &gt; 1024">
+        <xsl:value-of select="round($size div 1024)" />
+        <xsl:text>К</xsl:text>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$size" />
+        <xsl:text>Б</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>

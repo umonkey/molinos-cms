@@ -1,0 +1,36 @@
+/**
+ * 00reset.css всё это коверкает, так что восстанавливаем принудительно.
+ */
+#addfiles li {
+  list-style-position: outside;
+  margin-left: 2em;
+}
+
+#addfiles {
+  float: left;
+  margin-right: 2em;
+}
+
+#addfiles .remote input {
+  width: 300px;
+  margin: 0 0 .334em;
+  padding: .334em .5em;
+  border: 1px solid #a7a6aa;
+}
+
+#editfiles td {
+  padding: 4px;
+  vertical-align: middle;
+}
+#editfiles .r {
+  white-space: nowrap;
+  font-weight: bold;
+  padding-right: 4px;
+}
+#editfiles img {
+  border: solid 1px #eee;
+  margin-right: 10px;
+}
+#editfiles .text {
+  width: 300px;
+}

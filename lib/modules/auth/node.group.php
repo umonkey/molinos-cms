@@ -104,4 +104,16 @@ class GroupNode extends Node implements iContentType
   {
     return false;
   }
+
+  public function getActionLinks()
+  {
+    $links = parent::getActionLinks();
+
+    $links['find'] = array(
+      'href' => 'admin/access/users?search=tags%3A' . $this->id,
+      'title' => t('Показать пользователей'),
+      );
+
+    return $links;
+  }
 }

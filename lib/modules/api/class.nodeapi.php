@@ -80,4 +80,45 @@ class NodeAPI
       return array_shift($args);
     return $args;
   }
+
+  /**
+   * Возвращает возможные действия для объекта.
+   */
+  public static function get_actions_xml(Context $ctx)
+  {
+    $result = '';
+    $from = $ctx->get('from');
+
+    foreach (Node::load($ctx->get('id'))->getActionLinks() as $k => $v) {
+      if ($from)
+        $v['href'] = str_replace('destination=CURRENT', 'destination=' . urlencode($from), $v['href']);
+      $result .= html::em('action', array('name' => $k) + $v);
+    }
+
+    return self::xml(html::wrap('actions', $result));
+  }
+
+  /**
+   * Возвращает описание объекта для предварительного просмотра.
+   */
+  public static function on_get_preview_xml(Context $ctx)
+  {
+    $node = Node::load($ctx->get('id'));
+    $result = $node->getPreviewXML($ctx);
+
+    $options = array(
+      'class' => $node->class,
+      'editable' => $node->checkPermission('u'),
+      'list' => $node->getListURL(),
+      'nodename' => $node->getName(),
+      );
+
+    $options['typename'] = Node::load(array(
+      'class' => 'type',
+      'deleted' => 0,
+      'name' => $node->class,
+      ))->title;
+
+    return self::xml(html::em('fields', $options, $result));
+  }
 }

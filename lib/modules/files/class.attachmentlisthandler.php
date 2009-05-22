@@ -8,18 +8,8 @@ class AttachmentListHandler extends AdminListHandler implements iAdminList
     parent::__construct($ctx);
   }
 
-  protected function setUp($preset = null)
+  protected function setUp($preset)
   {
-    $this->types = array('imgtransform');
-    $this->title = t('Правила трансформации картинок');
-    $this->actions = array('delete');
-    $this->nopermcheck = true;
-  }
-
-  public static function on_get_list(Context $ctx)
-  {
-    $class = __CLASS__;
-    $tmp = new $class($ctx);
-    return $tmp->getHTML($ctx->get('preset'));
+    $this->types = array('file');
   }
 }

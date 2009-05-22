@@ -1,0 +1,39 @@
+#preview th {
+  white-space: nowrap;
+  font-weight: bold;
+  padding-right: 10px;
+  text-align: right;
+}
+#preview td, #preview th {
+  padding-bottom: 10px;
+  vertical-align: top;
+}
+#preview img.preview {
+  border: solid 1px gray;
+  padding: 2px;
+}
+
+#preview .embed img {
+  max-width: 400px;
+}
+
+#preview .edit {
+  margin-right: 10px;
+}
+
+#rcol {
+  float: right;
+  min-width: 200px;
+  margin-left: 20px;
+}
+.nodecmd {
+  border: solid 1px #eee;
+  padding: 10px;
+  margin: 0 0 2em 0;
+}
+.nodecmd h3 {
+  font-size: 1em;
+}
+.nodecmd a.user {
+  font-weight: bold;
+}

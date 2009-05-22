@@ -1,0 +1,11 @@
+.massctl {
+  background: #C0E6C0;
+  padding: 5px 10px;
+  font-size: .917em;
+  line-height: 1.455;
+}
+
+.massctl > div {
+  display: inline;
+  margin-right: 3em;
+}

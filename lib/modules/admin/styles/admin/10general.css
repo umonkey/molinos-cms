@@ -65,10 +65,6 @@
 		.nodes-wrapper {  }
 			/* добавление и поиск */
 			.nodes-controls-basic { background:#80CC80; padding:3px 10px; }
-			/* выборка и операции */
-			.nodes-controls-advanced { background:#C0E6C0; padding:5px 10px; font-size:.917em; line-height:1.455; }
-
-				.nodes-controls-advanced span.expand-collapse { margin:0 .5em 0 0; }
 
 			/* таблица */
 			table.nodes { margin:0; width:100%; }
@@ -186,7 +182,7 @@
 	/*
 	 * Footer
 	*/
-		#footer { height:3em; overflow:hidden; position:relative; margin:-3em 0 0 0; padding:0 20px 0; }
+		#footer { height:3em; overflow:hidden; position:relative; margin:-3em 0 0 0; padding:0 20px 0; clear: both; }
 
 	/*
 	 * Supplementary rules
@@ -202,3 +198,11 @@
 		#exception { margin:10px; }
 			#exception h2 { font-size:2em; margin:0 0 10px 0; }
 			#exception p { font-size:1.5em; }
+
+div.code {
+  padding: 4px;
+  border: solid 1px #ccc;
+  background-color: #eee;
+  font-family: monospace;
+  max-width: 300px;
+}

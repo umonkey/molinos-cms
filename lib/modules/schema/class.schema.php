@@ -114,14 +114,18 @@ class Schema extends ArrayObject
   /**
    * Формирует элементы формы с разбивкой на вкладки.
    */
-  public function getForm(array $defaults = array())
+  public function getForm(array $defaults = array(), $fieldName = null)
   {
     $tabs = array();
 
     // Сортировка
-    uasort($this, array($this, 'sortByWeight'));
+    if (null !== $fieldName)
+      uasort($this, array($this, 'sortByWeight'));
 
     foreach ($this as $name => $ctl) {
+      if (null !== $fieldName and $name != $fieldName)
+        continue;
+
       if (!($group = trim($ctl->group)))
         $group = count($tabs)
           ? array_shift(array_keys($tabs))
@@ -189,5 +193,15 @@ class Schema extends ArrayObject
     }
 
     return $data;
+  }
+
+  public function getXML()
+  {
+    $result = '';
+
+    foreach ($this as $k => $v)
+      $result .= html::em('field', array('name' => $k) + $v->dump());
+
+    return html::wrap('schema', $result);
   }
 }

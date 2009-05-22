@@ -632,9 +632,8 @@ class NodeStub
    */
   public function publish()
   {
-    if (null === $this->id)
-      throw new RuntimeException(t('Попытка публикации несуществующей ноды.'));
-    $this->setPublished(1);
+    $this->data['published'] = true;
+    return $this->touch();
   }
 
   /**
@@ -642,9 +641,8 @@ class NodeStub
    */
   public function unpublish()
   {
-    if (null === $this->id)
-      throw new RuntimeException(t('Попытка сокрытия несуществующей ноды.'));
-    $this->setPublished(0);
+    $this->data['published'] = false;
+    return $this->touch();
   }
 
   private function setPublished($value)

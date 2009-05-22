@@ -170,6 +170,19 @@ class TypeNode extends Node implements iContentType
     if (in_array($this->name, self::getInternal()))
       $links['delete'] = null;
 
+    if ($this->canEditFields())
+      $links['fields'] = array(
+        'title' => t('Настроить поля'),
+        'href' => 'admin/structure/fields?type=' . $this->name
+          . '&destination=CURRENT',
+        );
+    else {
+      if (isset($links['clone']))
+        unset($links['clone']);
+      if (isset($links['delete']))
+        unset($links['delete']);
+    }
+
     return $links;
   }
 
@@ -224,7 +237,7 @@ class TypeNode extends Node implements iContentType
         ));
 
     $tmp = Node::create($this->name);
-    if (!$tmp->canEditFields())
+    if (!$tmp->canEditFields() and isset($schema['fields']))
       unset($schema['fields']);
     if (!$tmp->canEditSections())
       unset($schema['tags']);
@@ -314,5 +327,34 @@ class TypeNode extends Node implements iContentType
   public function canEditFields()
   {
     return false;
+  }
+
+  public function getName()
+  {
+    return $this->title
+      ? $this->title
+      : $this->name;
+  }
+
+  public function getListURL()
+  {
+    return 'admin/structure/types';
+  }
+
+  public function getPreviewXML(Context $ctx)
+  {
+    $result = parent::getPreviewXML($ctx);
+
+    if (!$this->published) {
+      $message = t('Документы этого (скрытого) типа не отображаются в обычном <a href="@url1">списке документов</a>, их не предлагают в стандартной <a href="@url2">форме создания документа</a>.', array(
+        '@url1' => 'admin/content/list',
+        '@url2' => 'admin/create',
+        ));
+      $result .= html::em('field', array(
+        'title' => t('Комментарий'),
+        ), html::em('value', html::cdata($message)));
+    }
+
+    return $result;
   }
 };

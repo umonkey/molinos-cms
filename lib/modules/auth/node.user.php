@@ -76,17 +76,18 @@ class UserNode extends Node implements iContentType
 
     if ($user->id != $this->id and $this->published and $user->hasAccess('u', 'user'))
       $links['sudo'] = array(
-        'href' => '?q=user.rpc&action=su&uid='. $this->id
+        'href' => 'auth.rpc?action=su&uid='. $this->id
           .'&destination=CURRENT',
         'title' => 'Переключиться в пользователя',
         'icon' => 'sudo',
         );
 
-    $links['search'] = array(
-      'href' => '?q=admin.rpc&action=list&cgroup=content&search=uid%3A'. $this->id,
-      'title' => t('Найти документы пользователя'),
-      'icon' => 'search',
-      );
+    if ($count = $this->getDB()->fetch("SELECT COUNT(*) FROM node WHERE deleted = 0 AND class IN (SELECT name FROM node WHERE class = 'type' AND deleted = 0 AND published = 1) AND id IN (SELECT tid FROM node__rel WHERE nid = ? AND `key` = 'uid')", array($this->id)))
+      $links['search'] = array(
+        'href' => 'admin/content/list?search=uid%3A'. $this->id,
+        'title' => t('Найти документы пользователя'),
+        'icon' => 'search',
+        );
 
     return $links;
   }

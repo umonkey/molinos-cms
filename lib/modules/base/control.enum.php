@@ -76,7 +76,7 @@ class EnumControl extends Control
 
     return parent::wrapXML(array(
       'type' => 'select',
-      'mode' => 'drop',
+      'mode' => $this->getMode(),
       ), $options);
   }
 
@@ -135,5 +135,10 @@ class EnumControl extends Control
       );
 
     return $fields;
+  }
+
+  protected function getMode()
+  {
+    return 'drop';
   }
 };

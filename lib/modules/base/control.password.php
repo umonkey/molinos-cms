@@ -54,4 +54,13 @@ class PasswordControl extends Control
 
     $node->{$this->value} = $value;
   }
+
+  public function preview($data)
+  {
+    $value = $data->{$this->value}
+      ? t('есть')
+      : t('нет');
+
+    return html::em('value', html::cdata($value));
+  }
 };

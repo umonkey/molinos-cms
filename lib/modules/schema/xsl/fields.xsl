@@ -105,48 +105,4 @@
       </tbody>
     </table>
   </xsl:template>
-
-  <!-- типы документов -->
-  <xsl:template match="data[../@preset='schema']" mode="mcms_list">
-    <thead>
-      <tr>
-        <th colspan="3" />
-        <th>Имя</th>
-      </tr>
-    </thead>
-    <tbody>
-      <xsl:for-each select="node">
-        <xsl:sort select="@published" order="descending" />
-        <xsl:sort select="@title" />
-        <tr>
-          <xsl:call-template name="odd_row" />
-          <td class="icon">
-            <a class="icon-edit" href="admin/edit/{@id}?destination={/page/@back}" />
-          </td>
-          <td class="icon">
-            <xsl:if test="@dynamic">
-              <a class="icon-validate" href="admin/structure/fields?type={@name}" />
-            </xsl:if>
-          </td>
-          <td>
-            <xsl:choose>
-              <xsl:when test="@name = 'type'">
-                <xsl:value-of select="@title" />
-              </xsl:when>
-              <xsl:otherwise>
-                <a href="?q={@list}">
-                  <xsl:value-of select="@title" />
-                </a>
-              </xsl:otherwise>
-            </xsl:choose>
-            <xsl:if test="@count">
-              <xsl:text> (</xsl:text>
-              <xsl:value-of select="@count" />
-              <xsl:text>)</xsl:text>
-            </xsl:if>
-          </td>
-        </tr>
-      </xsl:for-each>
-    </tbody>
-  </xsl:template>
 </xsl:stylesheet>

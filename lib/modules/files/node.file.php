@@ -39,7 +39,7 @@ class FileNode extends Node implements iContentType
     if (DIRECTORY_SEPARATOR == substr($this->filepath, 0, 0))
       throw new RuntimeException(t('Путь к файлу должен быть относительным, а не абсолютным.'));
 
-    $path = os::path(Context::last()->config->getPath('files'), $this->filepath);
+    $path = os::path(MCMS_SITE_FOLDER, Context::last()->config->get('modules/files/storage'), $this->filepath);
 
     if ('image/' == substr($this->filetype, 0, 6)) {
       if (is_readable($path) and ($info = @getimagesize($path))) {
@@ -95,7 +95,7 @@ class FileNode extends Node implements iContentType
   {
     parent::erase();
 
-    if (file_exists($filename = os::path(Context::last()->config->getPath('files'), $this->filepath)))
+    if (file_exists($filename = os::path(self::getStoragePath(), $this->filepath)))
       unlink($filename);
   }
 
@@ -138,17 +138,19 @@ class FileNode extends Node implements iContentType
    */
   public function import(array $file, $uploaded = true)
   {
-    $storage = Context::last()->config->getPath('files');
+    $storage = os::path(MCMS_SITE_FOLDER, Context::last()->config->get('modules/files/storage'));
 
     // Немного валидации.
     if (empty($file['tmp_name']) or !file_exists($file['tmp_name']))
       throw new Exception(t("Не удалось импортировать исходный файл."));
 
     // Угадваем значения некоторых полей, для упрощения скриптинга.
-    if (!array_key_exists('size', $file))
+    if (!isset($file['size']))
       $file['size'] = filesize($file['tmp_name']);
-    if (!array_key_exists('name', $file))
+    if (!isset($file['name']))
       $file['name'] = basename($file['tmp_name']);
+    if (!isset($file['type']))
+      $file['type'] = os::getFileType($file['tmp_name']);
 
     if ($this->id === null and FileNode::isUnzipable($file)) {
       if (null === ($node = $this->unzip($file['tmp_name'])))
@@ -356,7 +358,7 @@ class FileNode extends Node implements iContentType
   {
     $config = Context::last()->config;
     if (null === ($path = $config->getPath('files_ftp')))
-      $path = os::path($config->getPath('files'), 'ftp');
+      $path = os::path(self::getStoragePath(), 'ftp');
     return $path;
   }
 
@@ -505,12 +507,14 @@ class FileNode extends Node implements iContentType
     if ($this->id) {
       $fields = parent::getFormFields();
 
+      /*
       $fields['replace'] = new AttachmentControl(array(
         'value' => 'replace',
         'label' => t('Заменить другим файлом'),
         'archive' => false,
         'unzip' => false,
         ));
+      */
 
       return $fields;
     }
@@ -552,7 +556,7 @@ class FileNode extends Node implements iContentType
   public function getRaw()
   {
     $result = parent::getRaw();
-    if (file_exists($tmp = os::path(Context::last()->config->getPath('files'), $this->filepath)))
+    if (file_exists($tmp = os::path(self::getStoragePath(), $this->filepath)))
       $result['url'] = $tmp;
     return $result;
   }
@@ -569,6 +573,13 @@ class FileNode extends Node implements iContentType
 
     if (array_key_exists('clone', $list))
       unset($list['clone']);
+
+    if ($this->checkPermission('u'))
+      $list['replace'] = array(
+        'icon' => 'upload',
+        'title' => t('Заменить файл'),
+        'href' => "admin/node/{$this->id}/upload?destination=CURRENT",
+        );
 
     return $list;
   }
@@ -598,11 +609,105 @@ class FileNode extends Node implements iContentType
 
   public function getRealURL()
   {
-    return os::path(Context::last()->config->getPath('files'), $this->filepath);
+    return os::path(self::getStoragePath(), $this->filepath);
   }
 
   public function getListURL()
   {
     return 'admin/content/files';
+  }
+
+  public static function getStoragePath(Context $ctx = null)
+  {
+    if (null === $ctx)
+      $ctx = Context::last();
+    return os::path(MCMS_SITE_FOLDER, $ctx->config->get('modules/files/storage'));
+  }
+
+  /**
+   * Возвращает имя шаблона для предварительного просмотра.
+   */
+  public function getPreviewXSLT()
+  {
+    return os::path('lib', 'modules', 'files', 'xsl', 'preview.xsl');
+  }
+
+  /**
+   * Возвращает дополнительные поля для предварительного просмотра.
+   */
+  public function getPreviewXML(Context $ctx)
+  {
+    $result = parent::getPreviewXML($ctx);
+
+    if ($this->width and $this->height) {
+      $tmp = $this->width . '×' . $this->height;
+      if ($this->filesize)
+        $tmp .= ', ' . mcms::filesize($this->filesize);
+      $result .= html::em('field', array(
+        'title' => t('Исходные размеры'),
+        ), html::em('value', html::cdata($tmp)));
+    }
+
+    if ($this->duration)
+      $result .= html::em('field', array(
+        'title' => t('Продолжительность'),
+        ), html::em('value', html::cdata($this->duration)));
+
+    if ($this->bitrate)
+      $result .= html::em('field', array(
+        'title' => t('Битрейт'),
+        ), html::em('value', html::cdata(ceil($this->bitrate))));
+
+    if ($this->channels) {
+      switch ($this->channels) {
+      case 1:
+        $tmp = t('моно');
+        break;
+      case 2:
+        $tmp = t('стерео');
+        break;
+      case 4:
+        $tmp = t('квадро');
+        break;
+      default:
+        $tmp = t('%count каналов', array(
+          '%count' => $this->channels,
+          ));
+      }
+      $result .= html::em('field', array(
+        'title' => t('Звук'),
+        ), html::em('value', array(
+          'channels' => $this->channels,
+          ), html::cdata($tmp)));
+    }
+
+    if ($tmp = $this->getEmbedHTML($ctx)) {
+      $result .= html::em('field', array(
+        'title' => t('Образец'),
+        ), html::em('value', array('class' => 'embed'), html::cdata($tmp)));
+    }
+
+    return $result;
+  }
+
+  public function getEmbedHTML(Context $ctx)
+  {
+    $url = $ctx->url()->getBase($ctx) . os::webpath(MCMS_SITE_FOLDER, $ctx->config->get('modules/files/storage'), $this->filepath);
+
+    if (0 === strpos($this->filetype, 'image/'))
+      return t('<img src="@url" alt="%name" />', array(
+        '@url' => $url,
+        '%name' => $this->name,
+        '%width' => $this->width,
+        '%height' => $this->height,
+        ));
+
+    if (0 === strpos($this->filetype, 'video/'))
+      return t('<object width="%width" height="%height" type="%type" data="@url" />', array(
+        '@url' => $url,
+        '%type' => $this->filetype,
+        '%width' => $this->width,
+        '%height' => $this->height,
+        ));
   }
 };
