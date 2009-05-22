@@ -65,7 +65,12 @@ foreach (glob($search) as $iniFileName) {
 
 echo "\n";
 
-foreach (glob(os::path('sites', '*', '.registry.php')) as $reg) {
+foreach (glob(os::path('sites', '*', '.*.php')) as $reg) {
+  printf("- %s\n", $reg);
+  unlink($reg);
+}
+
+foreach (glob(os::path('sites', '*', 'cache.*')) as $reg) {
   printf("- %s\n", $reg);
   unlink($reg);
 }
