@@ -34,7 +34,7 @@ class xslt
       set_error_handler(array(__CLASS__, 'eh'));
 
       $doc = new DOMDocument;
-      @$doc->loadXML($xml);
+      $doc->loadXML($xml);
 
       if (class_exists('xsltCache') and !$nocache) {
         $proc = new xsltCache;
@@ -79,6 +79,8 @@ class xslt
 
   public static function eh($errno, $errstr, $errfile, $errline, $errcontext)
   {
-    mcms::fatal(str_replace("\n", '<br/>', $errstr));
+    $message = str_replace("\n", '<br/>', $errstr);
+    mcms::flog($message);
+    mcms::fatal($message);
   }
 }
