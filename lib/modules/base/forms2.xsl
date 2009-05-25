@@ -134,6 +134,14 @@
     </label>
   </xsl:template>
 
+  <xsl:template match="input[@type='file']">
+    <label class="control">
+      <xsl:apply-templates select="." mode="label" />
+      <input type="file" name="{@name}" />
+    </label>
+    <xsl:apply-templates select="." mode="help" />
+  </xsl:template>
+
   <xsl:template match="input[@type='submit']">
     <input type="submit" value="{@text}" class="control button" />
   </xsl:template>
