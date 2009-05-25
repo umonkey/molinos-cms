@@ -145,11 +145,11 @@ class os
   /**
    * Запуск программы.
    */
-  public static function exec($command, array $args, &$output = null)
+  public static function exec($command, $args = null, &$output = null)
   {
     $rc = null;
 
-    foreach ($args as $arg)
+    foreach ((array)$args as $arg)
       $command .= ' ' . escapeshellarg($arg);
 
     exec($command, $output, $rc);
