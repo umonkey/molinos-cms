@@ -6,7 +6,18 @@
   <xsl:template match="content[@name='list']" mode="content">
     <div class="doclist">
       <h2>
-        <xsl:value-of select="@title" />
+        <xsl:choose>
+          <xsl:when test="@typename">
+            <xsl:text>Список документов типа «</xsl:text>
+            <a href="admin/node/{@typeid}">
+              <xsl:value-of select="@typename" />
+            </a>
+            <xsl:text>»</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="@title" />
+          </xsl:otherwise>
+        </xsl:choose>
       </h2>
 
       <xsl:choose>

@@ -114,10 +114,18 @@ class AdminRPC extends RPCHandler
       $ctx->redirect($list);
     }
 
+    $node = Node::load(array(
+      'class' => 'type',
+      'name' => $type,
+      'deleted' => 0,
+      ), $ctx->db)->getObject();
+
     $tmp = new AdminListHandler($ctx, $type);
     return $tmp->getHTML('default', array(
       '#raw' => true,
       'advsearch' => true,
+      'typename' => $node->getName(),
+      'typeid' => $node->id,
       ));
   }
 
