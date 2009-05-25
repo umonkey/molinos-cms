@@ -102,7 +102,7 @@ class Builder
   private function getExistingModules()
   {
     try {
-      $html = http::fetch('http://code.google.com/p/molinos-cms/downloads/list?can=1&q=label:Type-Module+label:R9.03', http::CONTENT | http::NO_CACHE);
+      $html = http::fetch('http://code.google.com/p/molinos-cms/downloads/list?can=1&q=label:Type-Module+label:R' . MCMS_RELEASE, http::CONTENT | http::NO_CACHE);
     } catch (Exception $e) {
       return array();
     }
