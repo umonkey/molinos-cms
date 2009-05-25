@@ -64,7 +64,7 @@ class UserWidget extends Widget
       return $result . $this->ctx->registry->unicast('ru.molinos.cms.auth.form', array($this->ctx));
     else {
       $node = $this->ctx->user->getNode()->getObject();
-      $form = $node->formGet(false)->getXML($node);
+      $form = $node->formGet()->getXML($node);
       return $result . $form;
     }
   }

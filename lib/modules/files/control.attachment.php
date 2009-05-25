@@ -52,31 +52,8 @@ class AttachmentControl extends Control
 
   public function getXML($data)
   {
-    $dt = array(
-      'name' => null,
-      'filetype' => null,
-      'updated' => null,
-      'created' => null,
-      'filepath' => null,
-      );
-
-    if (($tmp = $data->{$this->value}) instanceof Node) {
-      $dt = $tmp->getRaw();
-    } elseif (is_numeric($dt)) {
-      try {
-        $dt = Node::load($dt)->getRaw();
-      } catch (ObjectNotFoundException $e) {
-      }
-    }
-
-    $dt['filename'] = $dt['name'];
-    $dt['name'] = $this->value;
-
-    return parent::wrapXML($dt + array(
-      'newfile' => $this->newfile,
-      'unzip' => $this->unzip,
-      'fetch' => $this->fetch,
-      'archive' => $this->archive,
+    return parent::wrapXML(array(
+      'type' => 'file',
       ));
   }
 
@@ -140,31 +117,49 @@ class AttachmentControl extends Control
   public function format($value, $em)
   {
     if (is_object($value) and 'file' == $value->class) {
-      $ctx = Context::last();
-      $url = os::path($ctx->config->getPath('modules/files/storage', 'files'), $value->filepath);
+      $embed = $this->getEmbedCode($value);
 
-      if (!file_exists($url))
-        return html::em($em, html::cdata(html::em('p', array(
-          'class' => 'error',
-          ), t('Ошибка: файл не найден.'))));
-
-      switch ($value->filetype) {
-      case 'video/flv':
-      case 'video/x-flv':
-      case 'video/mp4':
-        return html::em($em, html::cdata($this->getPlayer($url, array(
-          'width' => $value->width,
-          'height' => $value->height,
-          ))));
-      case 'audio/mpeg':
-        return html::em($em, html::cdata($this->getPlayer($url, array(
-          'width' => 300,
-          'height' => 20,
-          ))));
-      }
+      return html::em($em, array(
+        'name' => $value->name,
+        'width' => $value->width,
+        'height' => $value->height,
+        ), html::cdata($embed));
     }
 
     return html::wrap($em, html::cdata($value));
+  }
+
+  /**
+   * Возвращает код для встраивания файла, без обёртки.
+   */
+  protected function getEmbedCode($data)
+  {
+    $ctx = Context::last();
+    $url = os::path($ctx->config->getPath('modules/files/storage', 'files'), $data->filepath);
+
+    switch ($data->filetype) {
+    case 'video/flv':
+    case 'video/x-flv':
+    case 'video/mp4':
+      return $this->getPlayer($url, array(
+        'width' => $data->width,
+        'height' => $data->height,
+        ));
+    case 'audio/mpeg':
+      return $this->getPlayer($url, array(
+        'width' => 300,
+        'height' => 20,
+        ));
+    default:
+      if (0 === strpos($data->filetype, 'image/')) {
+        return html::em('img', array(
+          'src' => $url,
+          'width' => $data->width,
+          'height' => $data->height,
+          'alt' => $data->name,
+          ));
+      }
+    }
   }
 
   private function getPlayer($_url, array $options = array())
@@ -206,5 +201,12 @@ class AttachmentControl extends Control
       );
 
     return html::em('object', $obj, $params);
+  }
+
+  public function getFieldEditURL(Node $node)
+  {
+    return 'admin/content/files?sendto=' . $node->id
+      . '.' . $this->value
+      . '&destination=' . urlencode($_GET['destination']);
   }
 };

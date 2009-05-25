@@ -357,4 +357,45 @@ class NodeApiModule extends RPCHandler
     }
     return $ctx->getRedirect();
   }
+
+  public static function on_post_sendto(Context $ctx)
+  {
+    if ($pick = $ctx->post('selected')) {
+      $ctx->db->beginTransaction();
+
+      $pick = Node::load(array(
+        'id' => $pick,
+        'deleted' => 0,
+        ));
+
+      list($nid, $fieldName) = explode('.', $ctx->post('sendto'));
+
+      $node = Node::load($nid);
+      if (!$node->checkPermission('u'))
+        throw new ForbiddenException();
+      $node->$fieldName = $pick;
+      $node->save();
+
+      $ctx->db->commit();
+
+      // destiantion сейчас указывает на список, а нам надо
+      // вернуться на уровень выше.
+      $url = new url($ctx->get('destination'));
+      if ($next = $url->arg('destination'))
+        $ctx->redirect($next);
+    }
+
+    return $ctx->getRedirect();
+  }
+
+  public static function on_get_refresh(Context $ctx)
+  {
+    $node = Node::load($ctx->get('id'));
+    if (!$node->checkPermission('u'))
+      throw new ForbiddenException();
+    $ctx->db->beginTransaction();
+    $node->touch()->save();
+    $ctx->db->commit();
+    return $ctx->getRedirect();
+  }
 };

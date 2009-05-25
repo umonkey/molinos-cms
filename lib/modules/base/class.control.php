@@ -379,6 +379,13 @@ abstract class Control implements iFormControl
   {
     return array();
   }
+
+  /**
+   * Возвращает ссылку на страницу редактирования поля.
+   */
+  public function getFieldEditURL(Node $node)
+  {
+  }
 };
 
 class ControlData

@@ -376,13 +376,19 @@ class Node
   {
     $links = array();
 
-    if ($this->checkPermission('u'))
+    if ($this->checkPermission('u')) {
       $links['edit'] = array(
         'href' => '?q=admin/edit/'. $this->id
-          .'&destination=CURRENT',
+          . '&destination=CURRENT',
         'title' => t('Редактировать'),
         'icon' => 'edit',
         );
+      $links['refresh'] = array(
+        'href' => 'nodeapi/refresh?id=' . $this->id
+          . '&destination=CURRENT',
+        'title' => t('Обновить XML'),
+        );
+    }
 
     if ($this->checkPermission('c'))
       $links['clone'] = array(
@@ -658,7 +664,7 @@ class Node
     $result = '';
     $editable = $this->checkPermission('u');
 
-    foreach ($this->getFormFields() as $name => $ctl) {
+    foreach ($this->getFormFields()->sort() as $name => $ctl) {
       if ($ctl->label)
         $result .= html::em('field', array(
           'name' => $name,

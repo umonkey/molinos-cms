@@ -180,7 +180,7 @@ class DocWidget extends Widget implements iWidget
   {
     $node = Node::load($options['root']);
 
-    $form = $node->formGet(false);
+    $form = $node->formGet();
     $form->addClass('tabbed');
 
     return $form->getHTML($node);

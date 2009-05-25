@@ -41,4 +41,16 @@ class URLControl extends EmailControl
       return $result;
     }
   }
+
+  public function preview($data)
+  {
+    if ($url = $data->{$this->value}) {
+      $a = html::em('a', array(
+        'href' => $url,
+        ), html::cdata($url));
+      return html::em('value', array(
+        'html' => true,
+        ), html::cdata($a));
+    }
+  }
 };

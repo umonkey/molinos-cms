@@ -36,6 +36,7 @@ form .help {
   display: block;
   color: gray;
   margin: .5em 0;
+  clear: both;
 }
 
 fieldset.select {

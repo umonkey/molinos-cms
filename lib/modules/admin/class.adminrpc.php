@@ -159,7 +159,7 @@ class AdminRPC extends RPCHandler
   {
     $node = Node::load($nid)->getObject();
 
-    $form = $node->formGet(false);
+    $form = $node->formGet();
     $form->addClass('tabbed');
 
     $page = new AdminPage(html::em('content', array(
@@ -174,6 +174,12 @@ class AdminRPC extends RPCHandler
   public static function on_get_edit_field_form(Context $ctx, $path, array $pathinfo, $nid, $fieldName)
   {
     $node = Node::load($nid)->getObject();
+
+    if (!array_key_exists($fieldName, $schema = $node->getFormFields()))
+      throw new PageNotFoundException();
+
+    if ($url = $schema[$fieldName]->getFieldEditURL($node))
+      $ctx->redirect($url);
 
     $form = $node->formGet($fieldName);
     $form->addClass('tabbed');
@@ -240,7 +246,7 @@ class AdminRPC extends RPCHandler
       foreach ($nodeargs as $k => $v)
         $node->$k = $v;
 
-    $form = $node->formGet(false);
+    $form = $node->formGet();
     $form->addClass('tabbed');
     $form->addClass("node-{$type}-create-form");
     $form->action = "?q=nodeapi.rpc&action=create&type={$type}&destination=". urlencode($ctx->get('destination'));

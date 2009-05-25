@@ -30,6 +30,7 @@
 
           <!-- action проставляется скриптом lib/modules/admin/scripts/admin/10massctl.js -->
           <form method="post" id="nodeList">
+            <input type="hidden" name="sendto" value="{$sendto}" />
             <xsl:apply-templates select="data" mode="massctl">
               <xsl:with-param name="edit" select="@canedit" />
               <xsl:with-param name="create" select="@create" />
@@ -126,19 +127,26 @@
       </div>
       <div class="actions">
         <span>Действия: </span>
-        <span class="fakelink actionlink action-delete">удалить</span>
-        <xsl:if test="$publish">
-          <xsl:text>, </xsl:text>
-          <span class="fakelink actionlink action-publish">опубликовать</span>
-        </xsl:if>
-        <xsl:if test="$hide">
-          <xsl:text>, </xsl:text>
-          <span class="fakelink actionlink action-unpublish">скрыть</span>
-        </xsl:if>
-        <xsl:if test="$edit">
-          <xsl:text>, </xsl:text>
-          <span class="fakelink actionlink action-edit">редактировать</span>
-        </xsl:if>
+        <xsl:choose>
+          <xsl:when test="$sendto">
+            <span class="fakelink actionlink action-sendto">использовать</span>
+          </xsl:when>
+          <xsl:otherwise>
+            <span class="fakelink actionlink action-delete">удалить</span>
+            <xsl:if test="$publish">
+              <xsl:text>, </xsl:text>
+              <span class="fakelink actionlink action-publish">опубликовать</span>
+            </xsl:if>
+            <xsl:if test="$hide">
+              <xsl:text>, </xsl:text>
+              <span class="fakelink actionlink action-unpublish">скрыть</span>
+            </xsl:if>
+            <xsl:if test="$edit">
+              <xsl:text>, </xsl:text>
+              <span class="fakelink actionlink action-edit">редактировать</span>
+            </xsl:if>
+          </xsl:otherwise>
+        </xsl:choose>
       </div>
     </div>
   </xsl:template>
@@ -150,7 +158,14 @@
       <xsl:text>published</xsl:text>
     </xsl:attribute>
     <td class="selector">
-      <input type="checkbox" name="selected[]" value="{@id}" />
+      <xsl:choose>
+        <xsl:when test="$sendto">
+          <input type="radio" name="selected" value="{@id}" />
+        </xsl:when>
+        <xsl:otherwise>
+          <input type="checkbox" name="selected[]" value="{@id}" />
+        </xsl:otherwise>
+      </xsl:choose>
     </td>
   </xsl:template>
 

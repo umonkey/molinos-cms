@@ -167,10 +167,12 @@ class TypeNode extends Node implements iContentType
   {
     $links = parent::getActionLinks();
 
+    $tmp = Node::create($this->name);
+
     if (in_array($this->name, self::getInternal()))
       $links['delete'] = null;
 
-    if ($this->canEditFields())
+    if ($tmp->canEditFields())
       $links['fields'] = array(
         'title' => t('Настроить поля'),
         'href' => 'admin/structure/fields?type=' . $this->name
@@ -182,6 +184,11 @@ class TypeNode extends Node implements iContentType
       if (isset($links['delete']))
         unset($links['delete']);
     }
+
+    $links['list'] = array(
+      'title' => t('Найти документы'),
+      'href' => $tmp->getListURL(),
+      );
 
     return $links;
   }
