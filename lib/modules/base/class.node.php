@@ -65,7 +65,7 @@ class Node
   /**
    * Создание новой ноды нужного типа.
    */
-  public static function create($class, array $data, PDO_Singleton $db = null)
+  public static function create($class, array $data = array(), PDO_Singleton $db = null)
   {
     if (null === $db)
       $db = Context::last()->db;
