@@ -65,9 +65,12 @@ class Node
   /**
    * Создание новой ноды нужного типа.
    */
-  public static function create($class, array $data = array())
+  public static function create($class, array $data, PDO_Singleton $db = null)
   {
-    $stub = NodeStub::create(null, Context::last()->db);
+    if (null === $db)
+      $db = Context::last()->db;
+
+    $stub = NodeStub::create(null, $db);
 
     $data['class'] = $class;
     foreach ($data as $k => $v)

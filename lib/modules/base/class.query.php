@@ -10,6 +10,16 @@ class Query
   private $offset = null;
   private $debug = false;
 
+  /**
+   * То же самое, что new, только возвращает объект.
+   * В основном предназначен для организации цепочек.
+   */
+  public static function build(array $filters)
+  {
+    $q = new Query($filters);
+    return $q;
+  }
+
   public function __construct(array $filters)
   {
     $this->tables[] = 'node';
@@ -102,6 +112,14 @@ class Query
         break;
       default:
         list($fieldName, $neg) = $this->getFieldSpec($k);
+
+        if ('`node`.`name_lc`' == $fieldName) {
+          $tmpv = array();
+          foreach ((array)$v as $v1)
+            $tmpv[] = self::getSortName($v1);
+          $v = $tmpv;
+        }
+
         if ($neg)
           $this->conditions[] = $fieldName . " " . sql::notIn($v, $this->params);
         else
@@ -126,14 +144,17 @@ class Query
   /**
    * Возвращает инструкцию для выборки идентификаторов.
    */
-  public function getSelect($limit = null, $offset = null)
+  public function getSelect($limit = null, $offset = null, $fields = null)
   {
     if (null === $limit)
       $limit = $this->limit;
     if (null === $offset)
       $offset = $this->offset;
 
-    $sql = sql::getSelect(array('*'), $this->tables, $this->conditions);
+    if (null === $fields)
+      $fields = array('*');
+
+    $sql = sql::getSelect((array)$fields, $this->tables, $this->conditions);
 
     if (!empty($this->order))
       $sql .= ' ORDER BY ' . join(', ', $this->order);
@@ -201,7 +222,10 @@ class Query
     if ($neg = ('-' == substr($name, 0, 1)))
       $name = substr($name, 1);
 
-    if (NodeStub::isBasicField($name)) {
+    if ('name' == $name) {
+      $tableName = 'node';
+      $fieldName = 'name_lc';
+    } elseif (NodeStub::isBasicField($name)) {
       $tableName = 'node';
       $fieldName = $name;
     } else {
@@ -216,5 +240,16 @@ class Query
     }
 
     return array("`{$tableName}`.`{$fieldName}`", $neg);
+  }
+
+  public static function getSortName($name)
+  {
+    $sortName = mb_strtolower($name);
+    if (substr($sortName, 0, 4) == 'the ')
+      $sortName = ltrim(substr($sortName, 4)) . ', the';
+    elseif (substr($sortName, 0, 2) == 'a ')
+      $sortName = ltrim(substr($sortName, 2)) . ', a';
+    $sortName = preg_replace('/[\[\]]/', '', $sortName);
+    return $sortName;
   }
 }
