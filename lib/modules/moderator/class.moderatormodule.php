@@ -46,8 +46,10 @@ class ModeratorModule
       return;
     }
 
+    $user = $ctx->user->getNode();
+
     $body = '<p>'. t($prepend, array(
-      '%user' => $ctx->user->name,
+      '%user' => $user ? $user->getName() : null,
       '%type' => isset($schema['title']) ? $schema['title'] : $node->class,
       )) .'</p>'. self::getNodeBody($node);
 
@@ -77,10 +79,10 @@ class ModeratorModule
             'href' => 'mailto:' . $node->$k,
             ), $node->$k);
         else
-          $value = mcms_plain($node->$k);
+          $value = html::plain($node->$k);
 
         if (null !== $value) {
-          $body .= '<dt>'. mcms_plain($v->label) .':</dt>';
+          $body .= '<dt>'. html::plain($v->label) .':</dt>';
           $body .= '<dd>'. $value .'</dd>';
         }
       }
