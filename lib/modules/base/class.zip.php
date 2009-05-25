@@ -43,6 +43,38 @@ class zip
     $z->close();
   }
 
+  public static function create($zipName, $paths, $reSkip = null)
+  {
+    if (!self::isAvailable())
+      throw new ZipException();
+
+    if (!is_writable(dirname($zipName)))
+      throw new RuntimeException(t('Невозможно создать %name: папка защищена от записи.', array(
+        '%name' => $zipName,
+        )));
+
+    if (file_exists($zipName))
+      unlink($zipName);
+
+    $z = new ZipArchive();
+    if (true !== ($res = $z->open($zipName, ZIPARCHIVE::CREATE)))
+      throw new RuntimeException(t('Не удалось создать архив %name.', array(
+        '%name' => $zipName,
+        )));
+
+    foreach ((array)$paths as $path) {
+      if (is_dir($path))
+        $files = os::listFiles($path);
+      else
+        $files = os::find($path);
+      foreach ($files as $file)
+        if (null === $reSkip or !preg_match($reSkip, $file))
+          $z->addFile($file);
+    }
+
+    $z->close();
+  }
+
   public static function unzipToFolder($zipName, $folderPath)
   {
     if (!self::isAvailable())
