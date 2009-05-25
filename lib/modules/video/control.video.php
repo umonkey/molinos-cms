@@ -1,6 +1,6 @@
 <?php
 
-class VideoControl extends TextLineControl
+class VideoControl extends URLControl
 {
   /**
    * @mcms_message ru.molinos.cms.control.enum
