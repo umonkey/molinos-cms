@@ -204,4 +204,13 @@ class Schema extends ArrayObject
 
     return html::wrap('schema', $result);
   }
+
+  /**
+   * Сортирует поля по весу.
+   */
+  public function sort()
+  {
+    uasort($this, array($this, 'sortByWeight'));
+    return $this;
+  }
 }
