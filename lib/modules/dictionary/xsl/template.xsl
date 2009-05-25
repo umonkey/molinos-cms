@@ -3,30 +3,31 @@
   <xsl:import href="../../admin/xsl/list.xsl" />
 
   <!-- вывод справочников -->
-  <xsl:template match="data[../@preset='dictlist']" mode="mcms_list">
+  <xsl:template match="data" mode="nodelist">
     <thead>
       <tr>
-        <th colspan="2" />
+        <th colspan="3" />
         <th>Имя</th>
       </tr>
     </thead>
     <tbody>
       <xsl:for-each select="node">
         <xsl:sort select="@title" />
-        <xsl:if test="@name != 'field'">
-          <tr>
-            <xsl:call-template name="odd_row" />
-            <td class="icon">
-              <a class="icon-edit" href="?q=admin/edit/{@id}&amp;destination={/page/@back}" />
-            </td>
-            <td>
-              <a href="?q=admin/content/list/{@name}">
-                <xsl:value-of select="@title" />
-              </a>
-              <xsl:apply-templates select="@count" />
-            </td>
-          </tr>
-        </xsl:if>
+        <tr>
+          <xsl:apply-templates select="." mode="trclass" />
+          <td class="icon">
+            <a class="icon-edit" href="?q=admin/edit/{@id}&amp;destination={/page/@back}" />
+          </td>
+          <td class="icon">
+            <a class="icon-validate" href="admin/structure/fields?type={@name}" />
+          </td>
+          <td>
+            <a href="?q=admin/content/list/{@name}">
+              <xsl:value-of select="@title" />
+            </a>
+            <xsl:apply-templates select="@count" />
+          </td>
+        </tr>
       </xsl:for-each>
     </tbody>
   </xsl:template>
