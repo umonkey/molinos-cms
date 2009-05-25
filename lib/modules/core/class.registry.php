@@ -181,4 +181,57 @@ class Registry
         require $fileName;
     }
   }
+
+  /**
+   * Сканирует классы, обновляет файлы module.ini
+   */
+  public function rebuildMeta()
+  {
+    foreach (os::find('lib', 'modules', '*', 'module.ini') as $iniFileName) {
+      $moduleName = basename(dirname($iniFileName));
+
+      if (!empty($argv[1]) and $argv[1] != $moduleName)
+        continue;
+
+      $ini = ini::read($iniFileName);
+      $path = dirname($iniFileName);
+
+      foreach ($ini as $k => $v)
+        if (is_array($v))
+          unset($ini[$k]);
+
+      foreach (os::find($path, '*.php') as $fileName) {
+        $baseName = basename($fileName);
+
+        if (0 === strpos($baseName, 'test'))
+          continue;
+        elseif ('.test.php' == substr($baseName, -9))
+          continue;
+
+        $source = strtolower(file_get_contents($fileName));
+
+        if (preg_match('@^\s*(?:abstract\s+)?class\s+([a-z0-9_]+)(\s+extends\s+([^\s]+))*(\s+implements\s+([^\n\r]+))*@m', $source, $m)) {
+          $className = $m[1];
+          $ini['classes'][$m[1]] = $baseName;
+
+          if (preg_match_all('#(?:@mcms_message\s+)([a-z0-9.]+)(?:[^{]*public\s+static\s+function\s+)([^(]+)#s', $source, $m)) {
+            foreach ($m[1] as $idx => $message) {
+              $method = $m[2][$idx];
+              $ini['messages'][$message][] = $className . '::' . $method;
+            }
+          }
+        }
+
+        elseif (preg_match('@^\s*interface\s+([a-z0-9_]+)@m', $source, $m))
+          $ini['classes'][$m[1]] = $baseName;
+      }
+
+      $ini['changelog'] = 'http://molinos-cms.googlecode.com/svn/dist/' . MCMS_RELEASE . '/changelogs/' . $moduleName . '.txt';
+
+      if (!empty($ini['classes']))
+        ksort($ini['classes']);
+
+      ini::write($iniFileName, $ini);
+    }
+  }
 }
