@@ -66,7 +66,7 @@ class Config extends ArrayObject
   public function getPath($keyName, $default = null)
   {
     if (!($value = $this->get($keyName, $default)))
-      mcms::fatal('Неизвестный путь: ' . $keyName . '.');
+      throw new InvalidArgumentException('Неизвестный путь: ' . $keyName . '.');
 
     $result = MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . $value;
 
