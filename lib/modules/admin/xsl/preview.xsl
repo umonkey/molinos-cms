@@ -104,6 +104,11 @@
           <xsl:for-each select="action[@name!='edit' and @href]">
             <li>
               <a href="{@href}">
+                <xsl:if test="@description">
+                  <xsl:attribute name="title">
+                    <xsl:value-of select="@description" />
+                  </xsl:attribute>
+                </xsl:if>
                 <xsl:value-of select="@title" />
               </a>
             </li>

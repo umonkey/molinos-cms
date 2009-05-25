@@ -120,7 +120,7 @@ class AdminTreeHandler
     else
       $ids = $this->ctx->db->getResultsV("id", "SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0 AND `parent_id` = ? ORDER BY `left`", array($this->type, $parent_id));
 
-    foreach ($ids as $id)
+    foreach ((array)$ids as $id)
       $output .= NodeStub::create($id, $this->ctx->db)->getTreeXML('node', 'children');
 
     return empty($output)
@@ -128,7 +128,7 @@ class AdminTreeHandler
       : html::em('data', $output);
   }
 
-  private function getParentId()
+  protected function getParentId()
   {
     switch ($this->preset) {
     case 'taxonomy':
