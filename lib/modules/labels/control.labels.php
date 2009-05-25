@@ -73,4 +73,22 @@ class LabelsControl extends ListControl
       $node->{$this->value} = $result;
     }
   }
+
+  /**
+   * Возвращает строку с текущими метками.
+   */
+  protected function getValue($data)
+  {
+    $nodes = Node::find(Context::last()->db, array(
+      'class' => 'label',
+      'deleted' => 0,
+      'tagged' => $data->id,
+      ));
+
+    $result = array();
+    foreach ($nodes as $node)
+      $result[] = $node->name;
+
+    return implode(', ', $result);
+  }
 }
