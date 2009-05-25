@@ -167,7 +167,7 @@ class TypeNode extends Node implements iContentType
   {
     $links = parent::getActionLinks();
 
-    $tmp = Node::create($this->name);
+    $tmp = Node::create($this->name, array());
 
     if (in_array($this->name, self::getInternal()))
       $links['delete'] = null;
@@ -188,6 +188,13 @@ class TypeNode extends Node implements iContentType
     $links['list'] = array(
       'title' => t('Найти документы'),
       'href' => $tmp->getListURL(),
+      );
+
+    $links['touch'] = array(
+      'title' => t('Обновить документы'),
+      'href' => 'admin/structure/types/refresh?type=' . $this->name
+        . '&destination=CURRENT',
+      'description' => t('Пересохраняет все документы этого типа, обновляет XML.'),
       );
 
     return $links;

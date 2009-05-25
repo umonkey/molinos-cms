@@ -258,4 +258,27 @@ class SchemaMenu
 
     return new Schema($schema);
   }
+
+  /**
+   * Пересохранение всех документов определённого типа.
+   */
+  public static function on_refresh_type(Context $ctx)
+  {
+    $tmp = Node::create($type = $ctx->get('type'), array(), $ctx->db);
+
+    if (!$tmp->checkPermission('u'))
+      throw new ForbiddenException();
+
+    $sth = $ctx->db->prepare("SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0");
+    $sth->execute(array($type));
+
+    $ctx->db->beginTransaction();
+
+    while ($id = $sth->fetchColumn(0))
+      Node::load($id, $ctx->db)->touch()->save();
+
+    $ctx->db->commit();
+
+    return $ctx->getRedirect();
+  }
 }
