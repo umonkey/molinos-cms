@@ -28,6 +28,9 @@ class Loader
 
     if (!defined('MCMS_REQUEST_URI'))
       define('MCMS_REQUEST_URI', isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '');
+
+    if (!defined('MCMS_TEMP_FOLDER'))
+      define('MCMS_TEMP_FOLDER', Context::last()->config->get('main/tmpdir', MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'tmp'));
   }
 
   private static function find_site_folder($hostName)
