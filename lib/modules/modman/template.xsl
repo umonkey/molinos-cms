@@ -11,6 +11,21 @@
           <input type="submit" value="Проверить ещё раз" />
         </form>
       </xsl:when>
+      <xsl:otherwise>
+        <div class="modman">
+          <form method="post" action="admin/system/modules/upgrade?destination={$back}">
+            <table>
+              <tbody>
+                <xsl:apply-templates select="module" />
+              </tbody>
+            </table>
+            <p>
+              <label><input type="checkbox" name="all" value="1" />Обновить все модули</label>
+            </p>
+            <input type="submit" value="Обновить выбранные" />
+          </form>
+        </div>
+      </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
@@ -38,6 +53,9 @@
             <p>Удивительно, но ни один модуль не найден.</p>
           </xsl:if>
         </div>
+      </xsl:when>
+      <xsl:when test="@count">
+        <p>У вас установлены все возможные модули (<xsl:value-of select="@count" /> шт).</p>
       </xsl:when>
       <xsl:otherwise>
         <p>Информация о модулях отсутствует. Обычно она обновляется автоматически, <a href="http://code.google.com/p/molinos-cms/wiki/mod_cron">планировщиком задач</a>. Если этого не происходит, значит настройки сервера не позволяют устанавливать соединения с другими веб-серверами. В любом случае, у вас есть два варианта действий:</p>

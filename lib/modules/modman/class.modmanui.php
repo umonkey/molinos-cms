@@ -145,6 +145,8 @@ class ModManUI
       $modules = modman::getAllModules();
     }
 
+    $count = count($modules);
+
     // Удаляем из списка обязательные модули: их нельзя отключать.
     // Это, за одно, позволит дробить модули без захламления интерфейса
     // и смущения пользователя.
@@ -159,6 +161,7 @@ class ModManUI
       'mode' => 'install',
       'title' => t('Установка модулей'),
       'release' => MCMS_RELEASE,
+      'count' => $count,
       ));
   }
 

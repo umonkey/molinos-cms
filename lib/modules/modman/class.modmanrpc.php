@@ -20,25 +20,21 @@ class ModManRPC extends RPCHandler
 
   public static function rpc_post_upgrade(Context $ctx)
   {
-    $status = array();
+    $selected = $ctx->post('all')
+      ? array_keys(modman::getUpdatedModules())
+      : $ctx->post('modules', array());
 
-    $db = modman::getAllModules();
-    $modules = $ctx->post('modules', array());
+    $errors = array();
 
-    $url = new url($ctx->get('destination'));
-    $url->setarg('status', null);
-
-    foreach ($modules as $module) {
-      $info = $db[$module];
-
-      $key = modman::updateModule($module)
-        ? 'updated'
-        : 'untouched';
-
-      $url->setarg('status[' . $key . '][]', $module);
-    }
+    foreach (modman::getUpdatedModules() as $moduleName => $moduleInfo)
+      if (in_array($moduleName, $selected))
+        if (!modman::updateModule($moduleName))
+          $errors[] = $moduleName;
 
     modman::updateDB();
+
+    $url = new url($ctx->get('destination'));
+    $url->setarg('errors', join('+', $errors));
 
     return new Redirect($url->string());
   }
