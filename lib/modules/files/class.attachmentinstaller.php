@@ -13,14 +13,15 @@ class AttachmentInstaller
       $node = Node::load(array(
         'class' => 'type',
         'name' => 'imgtransform',
-        ));
+        ), $ctx->db);
     } catch (ObjectNotFoundException $e) {
-      $ctx->db->beginTransaction();
       $node = Node::create('type', array(
         'name' => 'imgtransform',
         'title' => t('Правила трансформации'),
-        ))->save();
-      $ctx->db->commit();
+        ));
+      $node->getDB()->beginTransaction();
+      $node->save();
+      $node->getDB()->commit();
     }
   }
 }
