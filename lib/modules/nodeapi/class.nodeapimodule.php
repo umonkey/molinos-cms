@@ -338,7 +338,7 @@ class NodeApiModule extends RPCHandler
     if ($nodes = $ctx->post('selected', array())) {
       $ctx->db->beginTransaction();
       foreach ($nodes as $node)
-        Node::load($node)->publish()->save();
+        Node::load($node, $ctx->db)->publish()->save();
       $ctx->db->commit();
     }
     return $ctx->getRedirect();
