@@ -625,14 +625,6 @@ class FileNode extends Node implements iContentType
   }
 
   /**
-   * Возвращает имя шаблона для предварительного просмотра.
-   */
-  public function getPreviewXSLT()
-  {
-    return os::path('lib', 'modules', 'files', 'xsl', 'preview.xsl');
-  }
-
-  /**
    * Возвращает дополнительные поля для предварительного просмотра.
    */
   public function getPreviewXML(Context $ctx)
