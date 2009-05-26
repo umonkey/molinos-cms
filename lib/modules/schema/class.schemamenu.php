@@ -331,7 +331,7 @@ class SchemaMenu
    */
   public static function on_post_access(Context $ctx)
   {
-    if (!Node::create($ctx->get('type'))->checkPermission('u'))
+    if (!Node::create('type')->checkPermission('u'))
       throw new ForbiddenException();
 
     // Если объект не существует, выбросится 404.
