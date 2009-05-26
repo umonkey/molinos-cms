@@ -17,4 +17,7 @@ fieldset.tab > legend > span {
   padding: 0 14px 0 8px;
   font-size: 1.334em;
   line-height: 1;
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
 }
