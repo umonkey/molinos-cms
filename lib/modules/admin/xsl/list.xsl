@@ -8,11 +8,11 @@
       <h2>
         <xsl:choose>
           <xsl:when test="@typename">
-            <xsl:text>Список документов типа «</xsl:text>
             <a href="admin/node/{@typeid}">
               <xsl:value-of select="@typename" />
             </a>
-            <xsl:text>»</xsl:text>
+            <xsl:text>: </xsl:text>
+            <xsl:text>список документов</xsl:text>
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="@title" />
