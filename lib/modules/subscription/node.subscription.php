@@ -13,11 +13,11 @@ class SubscriptionNode extends Node
   }
 
   /**
-   * Схема фиксирована, изменение невозможно.
+   * Возвращает список полей.
    */
-  public static function getDefaultSchema()
+  public function getFormfields()
   {
-    return array(
+    return new Schema(array(
       'name' => array(
         'type' => 'EmailControl',
         'label' => t('Почтовый адрес'),
@@ -33,7 +33,7 @@ class SubscriptionNode extends Node
         'label' => t('Подписка распространяется на разделы'),
         'group' => t('Разделы'),
         ),
-      );
+      ));
   }
 
   public function getEnabledSections()
@@ -62,5 +62,12 @@ class SubscriptionNode extends Node
   public function getListURL()
   {
     return 'admin/service/subscription';
+  }
+
+  public function getActionLinks()
+  {
+    $links = parent::getActionLinks();
+    $links['locate'] = null;
+    return $links;
   }
 }

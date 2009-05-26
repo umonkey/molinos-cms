@@ -12,13 +12,14 @@ class SubscriptionAdminList extends AdminListHandler implements iAdminList
   {
     $this->types = array('subscription');
     $this->title = t('Управление рассылкой');
-    $this->columns = array('name', 'last', 'created');
-    $this->actions = array('publish', 'unpublish', 'delete');
+    $this->sort = 'name';
   }
 
   public static function on_get_list(Context $ctx)
   {
     $tmp = new SubscriptionAdminList($ctx);
-    return $tmp->getHTML();
+    return $tmp->getHTML(null, array(
+      '#raw' => true,
+      ));
   }
 }
