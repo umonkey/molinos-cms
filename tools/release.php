@@ -1,8 +1,7 @@
 <?php
 
 try {
-  require_once join(DIRECTORY_SEPARATOR, array(dirname(__FILE__), '..', 'lib', 'modules', 'core', 'class.loader.php'));
-  Loader::setup();
+  require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'client.inc';
 
   printf("Releasing version %s\n", MCMS_VERSION);
 
