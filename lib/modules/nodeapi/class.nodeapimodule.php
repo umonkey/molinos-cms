@@ -78,10 +78,10 @@ class NodeApiModule extends RPCHandler
   /**
    * Вывод содержимого объекта.
    */
-  public static function on_get_dump(Context $ctx, $path, $pathinfo, $nid)
+  public static function on_get_dump(Context $ctx)
   {
     $filter = array(
-      'id' => $nid,
+      'id' => $ctx->get('node'),
       );
 
     if (!$ctx->canDebug())
@@ -354,6 +354,8 @@ class NodeApiModule extends RPCHandler
       foreach ($nodes as $node)
         Node::load($node, $ctx->db)->delete();
       $ctx->db->commit();
+    } else {
+      throw new BadRequestException(t('Не указаны документы для удаления (массив selected).'));
     }
     return $ctx->getRedirect();
   }
@@ -397,5 +399,40 @@ class NodeApiModule extends RPCHandler
     $node->touch()->save();
     $ctx->db->commit();
     return $ctx->getRedirect();
+  }
+
+  /**
+   * Подтверждение удаления объектов.
+   */
+  public static function on_get_delete(Context $ctx)
+  {
+    $types = Node::getSortedList('type', 'title', 'name', 'name', 'name', 'name');
+
+    $nodes = Node::find($ctx->db, array(
+      'id' => explode(' ', $ctx->get('node')),
+      'deleted' => 0,
+      ));
+
+    if (empty($nodes))
+      throw new PageNotFoundException();
+
+    $result = '';
+    foreach ($nodes as $node) {
+      $node = $node->getObject();
+      if ($node->checkPermission('d'))
+        $result .= html::em('node', array(
+          'id' => $node->id,
+          'name' => $node->getName(),
+          'type' => $types[$node->class],
+          ));
+    }
+
+    if (empty($result))
+      throw new ForbiddenException();
+
+    return html::em('content', array(
+      'name' => 'confirmdelete',
+      'title' => t('Подтвердите удаление объектов'),
+      ), $result);
   }
 };

@@ -381,29 +381,31 @@ class Node
 
     if ($this->checkPermission('u')) {
       $links['edit'] = array(
-        'href' => '?q=admin/edit/'. $this->id
-          . '&destination=CURRENT',
+        'href' => 'admin/edit/'. $this->id
+          . '?destination=CURRENT',
         'title' => t('Редактировать'),
         'icon' => 'edit',
         );
       $links['refresh'] = array(
-        'href' => 'nodeapi/refresh?id=' . $this->id
+        'href' => 'nodeapi/refresh?node=' . $this->id
           . '&destination=CURRENT',
         'title' => t('Обновить XML'),
         );
     }
 
+    /*
     if ($this->checkPermission('c'))
       $links['clone'] = array(
-        'href' => '?q=nodeapi.rpc&action=clone&node='. $this->id
+        'href' => 'nodeapi/clone?node='. $this->id
           .'&destination=CURRENT',
         'title' => t('Клонировать'),
         'icon' => 'clone',
         );
+    */
 
     if ($this->checkPermission('d'))
       $links['delete'] = array(
-        'href' => '?q=nodeapi.rpc&action=delete&node='. $this->id
+        'href' => 'nodeapi/delete?node=' . $this->id
           .'&destination=CURRENT',
         'title' => t('Удалить'),
         'icon' => 'delete',
@@ -419,7 +421,7 @@ class Node
       }
 
       $links['publish'] = array(
-        'href' => '?q=nodeapi.rpc&action='. $action .'&node='. $this->id
+        'href' => 'nodeapi/'. $action . '?node=' . $this->id
           .'&destination=CURRENT',
         'title' => t($title),
         'icon' => $action,
@@ -435,7 +437,7 @@ class Node
 
     if (($ctx = Context::last()) and $ctx->canDebug())
       $links['dump'] = array(
-        'href' => 'node/' . $this->id . '/dump',
+        'href' => 'nodeapi/dump?node=' . $this->id,
         'title' => 'XML дамп',
         'icon' => 'dump',
         );
