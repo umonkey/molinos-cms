@@ -281,4 +281,86 @@ class SchemaMenu
 
     return $ctx->getRedirect();
   }
+
+  /**
+   * Возвращает информацию о правах на объект.
+   */
+  public static function on_get_access(Context $ctx)
+  {
+    if (!$ctx->get('type'))
+      throw new BadRequestException();
+
+    $type = Node::load(array(
+      'class' => 'type',
+      'deleted' => 0,
+      'name' => $ctx->get('type'),
+      ))->getObject();
+
+    if (empty($type))
+      throw new PageNotFoundException();
+    elseif (!$type->checkPermission('u'))
+      throw new ForbiddenException();
+
+    $groups = Node::getSortedList('group', 'title');
+    $groups[0] = t('Анонимные пользователи');
+    $perms = $ctx->db->getResultsK("uid", "SELECT * FROM `node__access` WHERE `nid` = ?", array($type->id));
+
+    $result = '';
+    foreach ($groups as $gid => $groupName) {
+      $result .= html::em('perm', array(
+        'gid' => $gid ? $gid : 'none',
+        'name' => $groupName,
+        'create' => !empty($perms[$gid]['c']),
+        'read' => !empty($perms[$gid]['r']),
+        'update' => !empty($perms[$gid]['u']),
+        'delete' => !empty($perms[$gid]['d']),
+        'publish' => !empty($perms[$gid]['p']),
+        ));
+    }
+
+    return html::em('content', array(
+      'id' => $type->id,
+      'name' => $type->name,
+      'title' => $type->title,
+      'next' => $ctx->get('destination'),
+      ), $result);
+  }
+
+  /**
+   * Изменение прав.
+   */
+  public static function on_post_access(Context $ctx)
+  {
+    if (!Node::create($ctx->get('type'))->checkPermission('u'))
+      throw new ForbiddenException();
+
+    // Если объект не существует, выбросится 404.
+    $node = Node::load(array(
+      'class' => 'type',
+      'name' => $ctx->get('type'),
+      'deleted' => 0,
+      ));
+
+    $ctx->db->beginTransaction();
+
+    $ctx->db->exec("DELETE FROM `node__access` WHERE `nid` = ?", array($node->id));
+    $sth = $ctx->db->prepare("INSERT INTO `node__access` (`uid`, `nid`, `c`, `r`, `u`, `d`, `p`) VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+    foreach ($ctx->post as $gid => $data) {
+      $params = array(
+        intval($gid),
+        $node->id,
+        !empty($data['c']),
+        !empty($data['r']),
+        !empty($data['u']),
+        !empty($data['d']),
+        !empty($data['p']),
+        );
+      $sth->execute($params);
+    }
+
+    $ctx->db->commit();
+
+    return $ctx->getRedirect();
+  }
 }

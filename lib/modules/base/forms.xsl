@@ -233,7 +233,7 @@
 
 
   <!-- управление правами -->
-  <xsl:template match="control[@type = 'access' or @type = 'accessrev']">
+  <xsl:template match="control[@type = 'accessrev']">
     <div>
       <xsl:call-template name="default_control_classes" />
       <xsl:call-template name="default_control_label" />

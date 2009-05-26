@@ -192,6 +192,12 @@ class TypeNode extends Node implements iContentType
       'description' => t('Пересохраняет все документы этого типа, обновляет XML.'),
       );
 
+    $links['access'] = array(
+      'title' => t('Изменить права'),
+      'href' => 'admin/structure/access?type=' . urlencode($this->name)
+        . '&destination=CURRENT',
+      );
+
     return $links;
   }
 

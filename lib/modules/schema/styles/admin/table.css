@@ -21,3 +21,6 @@ table.classic .optional .label {
 table.classic .mono {
   font-family: monospace;
 }
+table.classic .hl {
+  background-color: #cfc;
+}
