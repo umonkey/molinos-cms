@@ -213,4 +213,15 @@ class Schema extends ArrayObject
     uasort($this, array($this, 'sortByWeight'));
     return $this;
   }
+
+  /**
+   * Возвращает массив с именами свойств, т.к. array_keys() неприменим.
+   */
+  public function getFieldNames()
+  {
+    $result = array();
+    foreach ($this as $k => $v)
+      $result[] = $k;
+    return $result;
+  }
 }

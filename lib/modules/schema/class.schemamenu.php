@@ -275,7 +275,7 @@ class SchemaMenu
     $ctx->db->beginTransaction();
 
     while ($id = $sth->fetchColumn(0))
-      Node::load($id, $ctx->db)->touch()->save();
+      Node::load($id, $ctx->db)->refresh()->save();
 
     $ctx->db->commit();
 
