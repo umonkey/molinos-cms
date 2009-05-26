@@ -88,6 +88,7 @@ class TagNode extends Node implements iContentType
         'group' => t('Основные свойства'),
         'weight' => 20,
         ),
+      /*
       'perms' => array(
         'type' => 'AccessControl',
         'volatile' => true,
@@ -95,6 +96,7 @@ class TagNode extends Node implements iContentType
         'columns' => array('c'),
         'description' => t('Пользователи из отмеченных групп смогут добавлять документы в этот раздел.'),
         ),
+      */
       );
 
     foreach ($defaults as $k => $v)
