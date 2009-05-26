@@ -31,3 +31,12 @@ table.classic .c {
 table.classic thead th {
   background-color: #eee;
 }
+table.classic.wide {
+  width: 100%;
+}
+table.classic .wide {
+  width: 100%;
+}
+table.classic .nw {
+  white-space: nowrap;
+}
