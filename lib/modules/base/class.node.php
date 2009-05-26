@@ -386,11 +386,6 @@ class Node
         'title' => t('Редактировать'),
         'icon' => 'edit',
         );
-      $links['refresh'] = array(
-        'href' => 'nodeapi/refresh?node=' . $this->id
-          . '&destination=CURRENT',
-        'title' => t('Обновить XML'),
-        );
     }
 
     /*
