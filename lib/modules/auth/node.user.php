@@ -167,8 +167,13 @@ class UserNode extends Node implements iContentType
   {
     $schema = parent::getFormFields();
 
-    if (!Context::last()->user->hasAccess('u', 'group') and isset($schema['groups']))
-      unset($schema['groups']);
+    $schema['groups'] = new SetControl(array(
+      'value' => 'groups',
+      'group' => t('Группы'),
+      'label' => t('Группы'),
+      'dictionary' => 'group',
+      'parents' => true,
+      ));
 
     return $schema;
   }
@@ -189,13 +194,13 @@ class UserNode extends Node implements iContentType
   /**
    * Обработка формы, шифрует пароль.
    */
-  public function formProcess(array $data)
+  public function formProcess(array $data, $fieldName = null)
   {
     if (!$this->id)
       $this->setRegistered(Context::last());
 
     $oldpassword = $this->password;
-    $res = parent::formProcess($data);
+    $res = parent::formProcess($data, $fieldName);
 
     if ($oldpassword != $this->password)
       $this->password = md5($this->password);
@@ -228,5 +233,14 @@ class UserNode extends Node implements iContentType
   public function getListURL()
   {
     return 'admin/access/users';
+  }
+
+  /**
+   * Дополнительная информация для просмотра пользователя,
+   * пока выводит только список групп.
+   */
+  public function getPreviewXML(Context $ctx)
+  {
+    return parent::getPreviewXML($ctx);
   }
 };

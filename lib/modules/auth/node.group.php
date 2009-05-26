@@ -87,7 +87,7 @@ class GroupNode extends Node implements iContentType
           ),
         'users' => array(
           'type' => 'SetControl',
-          // 'label' => t('В группу входят'),
+          'label' => t('В группу входят'),
           'dictionary' => 'user',
           'group' => t('Участники'),
           'weight' => 50,
