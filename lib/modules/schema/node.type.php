@@ -185,11 +185,6 @@ class TypeNode extends Node implements iContentType
         unset($links['delete']);
     }
 
-    $links['list'] = array(
-      'title' => t('Найти документы'),
-      'href' => $tmp->getListURL(),
-      );
-
     $links['touch'] = array(
       'title' => t('Обновить документы'),
       'href' => 'admin/structure/types/refresh?type=' . $this->name
@@ -366,6 +361,20 @@ class TypeNode extends Node implements iContentType
         ));
       $result .= html::em('field', array(
         'title' => t('Комментарий'),
+        ), html::em('value', html::cdata($message)));
+    }
+
+    $count = Node::count($ctx->db, array(
+      'class' => $this->name,
+      'deleted' => 0,
+      ));
+    if ($count) {
+      $message = t('%count документов (<a href="@url">список</a>)', array(
+        '%count' => $count,
+        '@url' => Node::create($this->name)->getListURL(),
+        ));
+      $result .= html::em('field', array(
+        'title' => t('Статистика'),
         ), html::em('value', html::cdata($message)));
     }
 
