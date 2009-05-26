@@ -63,4 +63,9 @@ class PasswordControl extends Control
 
     return html::em('value', html::cdata($value));
   }
+
+  public function format()
+  {
+    return null;
+  }
 };
