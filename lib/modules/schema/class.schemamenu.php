@@ -79,6 +79,17 @@ class SchemaMenu
         '%field' => mb_strtolower($field['label']),
         )),
       ));
+
+    if (class_exists($field['type'])) {
+      $tmp = new $field['type'](array(
+        'value' => $fieldName,
+        ));
+      if ($tmp->getSQL())
+        $form->addControl(new BoolControl(array(
+          'value' => 'indexed',
+          'label' => t('Используется для поиска и сортировки'),
+          )));
+    }
     $form->addControl(new BoolControl(array(
       'value' => 'delete',
       'label' => t('Удалить это поле'),
