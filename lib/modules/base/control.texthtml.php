@@ -18,7 +18,7 @@
  * @package mod_base
  * @subpackage Controls
  */
-class TextHTMLControl extends Control
+class TextHTMLControl extends TextAreaControl
 {
   /**
    * @mcms_message ru.molinos.cms.control.enum
@@ -39,16 +39,13 @@ class TextHTMLControl extends Control
 
   public function getXML($data)
   {
-    if (null !== ($content = $data->{$this->value}))
-      $content = htmlspecialchars($content);
-
-    $this->addClass('form-text');
-    $this->addClass('visualEditor');
-
     return parent::wrapXML(array(
+      'type' => 'textarea',
+      'mode' => 'visual',
+      'class' => 'visualEditor',
       'rows' => $this->rows,
       'cols' => $this->cols,
-      ), html::cdata($content));
+      ), html::cdata($data->{$this->value}));
   }
 
   public function set($value, &$node)
