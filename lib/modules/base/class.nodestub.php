@@ -250,15 +250,13 @@ class NodeStub
         throw new RuntimeException(t('Для формирования XML представления ноды нужна БД.'));
 
       $schema = Schema::load($this->getDB(), $this->data['class']);
+      $properties = array_unique(array_merge($this->getProperties(), $schema->getFieldNames()));
 
-      foreach ($this->getProperties() as $k) {
+      foreach ($properties as $k) {
         if (empty($k) or 'xml' == $k)
           continue;
 
         $v = $this->$k;
-
-        if (empty($v))
-          continue;
 
         if (self::isBasicField($k)) {
           $data[$k] = $v;
