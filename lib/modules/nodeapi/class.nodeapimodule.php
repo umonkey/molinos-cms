@@ -392,7 +392,7 @@ class NodeApiModule extends RPCHandler
 
   public static function on_get_refresh(Context $ctx)
   {
-    $node = Node::load($ctx->get('id'), $ctx->db);
+    $node = Node::load($ctx->get('node'), $ctx->db);
     if (!$node->checkPermission('u'))
       throw new ForbiddenException();
     $ctx->db->beginTransaction();
