@@ -475,7 +475,7 @@ class Node
     else {
       foreach ((array)Node::find(Context::last()->db, array('class' => $class, 'deleted' => 0)) as $n) {
         $value = ('name' == $field)
-          ? $n->getName()
+          ? $n->getObject()->getName()
           : $n->$field;
 
         if (empty($value))
