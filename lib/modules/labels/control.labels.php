@@ -40,7 +40,8 @@ class LabelsControl extends ListControl
       if (!array_key_exists($id, $labels))
         $name = html::em('em', $name);
       $result[] = html::em('a', array(
-        'href' => 'admin/content/list?search=tags%3A' . $id,
+        'href' => 'admin/node/' . $id,
+        // 'href' => 'admin/content/list?search=tags%3A' . $id,
         ), $name);
     }
 
@@ -90,17 +91,7 @@ class LabelsControl extends ListControl
    */
   protected function getValue($data)
   {
-    $nodes = Node::find(Context::last()->db, array(
-      'class' => 'label',
-      'deleted' => 0,
-      'tagged' => $data->id,
-      ));
-
-    $result = array();
-    foreach ($nodes as $node)
-      $result[] = $node->name;
-
-    return implode(', ', $result);
+    return implode(', ', $this->getLabelsFor($data));
   }
 
   /**
