@@ -116,6 +116,7 @@
     <xsl:param name="hide" select="not(not(node[@published]))" />
     <xsl:param name="edit" select="0" />
     <xsl:param name="create" select="0" />
+    <xsl:param name="restore" select="0" />
 
     <div class="massctl">
       <div class="selectors">
@@ -137,13 +138,17 @@
         </xsl:if>
       </div>
       <div class="actions">
-        <span>Действия: </span>
+        <span>Выбранные: </span>
         <xsl:choose>
           <xsl:when test="$sendto">
             <span class="fakelink actionlink action-sendto">использовать</span>
           </xsl:when>
           <xsl:otherwise>
             <span class="fakelink actionlink action-delete">удалить</span>
+            <xsl:if test="$restore">
+              <xsl:text>, </xsl:text>
+              <span class="fakelink actionlink action-undelete">восстановить</span>
+            </xsl:if>
             <xsl:if test="$publish">
               <xsl:text>, </xsl:text>
               <span class="fakelink actionlink action-publish">опубликовать</span>
@@ -188,19 +193,21 @@
     <form method="post" action="?q=admin/search&amp;from={/page/@back}">
       <fieldset>
         <input type="hidden" name="search_from" value="{/page/@url}" />
-          <a class="newlink">
-            <xsl:attribute name="href">
-              <xsl:text>?q=admin/create</xsl:text>
-              <xsl:if test="@type">
-                <xsl:text>/</xsl:text>
-                <xsl:value-of select="@type" />
-              </xsl:if>
-              <xsl:text>&amp;destination=</xsl:text>
-              <xsl:value-of select="/page/@back" />
-            </xsl:attribute>
-            <xsl:text>Добавить</xsl:text>
-          </a>
-          <xsl:text> | </xsl:text>
+          <xsl:if test="@preset!='trash'">
+            <a class="newlink">
+              <xsl:attribute name="href">
+                <xsl:text>?q=admin/create</xsl:text>
+                <xsl:if test="@type">
+                  <xsl:text>/</xsl:text>
+                  <xsl:value-of select="@type" />
+                </xsl:if>
+                <xsl:text>&amp;destination=</xsl:text>
+                <xsl:value-of select="/page/@back" />
+              </xsl:attribute>
+              <xsl:text>Добавить</xsl:text>
+            </a>
+            <xsl:text> | </xsl:text>
+          </xsl:if>
           <input type="text" name="search_term" class="search_field" value="{/page/request/getArgs/arg[@name='search']}" />
           <input type="submit" value="Найти" />
           <xsl:if test="$advanced">

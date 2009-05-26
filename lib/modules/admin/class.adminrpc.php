@@ -140,7 +140,9 @@ class AdminRPC extends RPCHandler
   public static function on_get_trash(Context $ctx)
   {
     $tmp = new AdminListHandler($ctx);
-    return $tmp->getHTML('trash');
+    return $tmp->getHTML('trash', array(
+      '#raw' => true,
+      ));
   }
 
   public static function on_get_files(Context $ctx)
