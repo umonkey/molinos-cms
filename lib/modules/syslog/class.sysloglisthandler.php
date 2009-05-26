@@ -17,6 +17,7 @@ class SyslogListHandler extends AdminListHandler implements iAdminList
     $this->selectors = false;
     $this->noedit = true;
     $this->hidesearch = true;
+    $this->limit = 50;
   }
 
   protected function getData()
@@ -39,7 +40,9 @@ class SyslogListHandler extends AdminListHandler implements iAdminList
   public static function on_get_list(Context $ctx)
   {
     $tmp = new SyslogListHandler($ctx);
-    return $tmp->getHTML('syslog');
+    return $tmp->getHTML('syslog', array(
+      '#raw' => true,
+      ));
   }
 
   public function getNodeActions()
