@@ -100,6 +100,7 @@
         <xsl:attribute name="class">
           <xsl:text>text resizable</xsl:text>
           <xsl:if test="@class">
+            <xsl:text> </xsl:text>
             <xsl:value-of select="@class" />
           </xsl:if>
         </xsl:attribute>
