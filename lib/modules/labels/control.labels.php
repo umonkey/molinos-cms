@@ -24,14 +24,25 @@ class LabelsControl extends ListControl
     return html::wrap($em, $result);
   }
 
+  /**
+   * Формирование предварительного просмотра.
+   *
+   * Загружает данные прямо из БД, чтобы видеть метки, которые не дошли
+   * до XML представления.  Такие метки выделяются курсивом.
+   */
   public function preview($value)
   {
     $result = array();
 
-    foreach ((array)$value->{$this->value} as $id => $name)
+    $labels = $value->{$this->value};
+
+    foreach ($this->getLabelsFor($value) as $id => $name) {
+      if (!array_key_exists($id, $labels))
+        $name = html::em('em', $name);
       $result[] = html::em('a', array(
         'href' => 'admin/content/list?search=tags%3A' . $id,
-        ), html::cdata($name));
+        ), $name);
+    }
 
     return html::wrap('value', html::cdata(implode(', ', $result)), array(
       'html' => true,
@@ -42,7 +53,7 @@ class LabelsControl extends ListControl
   {
     $this->validate($value);
 
-    $node->onSave("DELETE FROM `node__rel` WHERE `nid` = %ID% AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = 'label')");
+    $node->onSave("DELETE FROM `node__rel` WHERE `nid` = %ID% AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = 'label') AND `key` = ?", array($this->value));
 
     if (empty($value)) {
       unset($node->{$this->value});
@@ -67,8 +78,8 @@ class LabelsControl extends ListControl
         $result[$tmp->id] = $tmp->name;
       }
 
-      $params = array();
-      $node->onSave($sql = "INSERT INTO `node__rel` (`nid`, `tid`) SELECT %ID%, `id` FROM `node` WHERE `class` = 'label' AND `id` " . sql::in(array_keys($result), $params), $params);
+      $params = array($this->value);
+      $node->onSave($sql = "INSERT INTO `node__rel` (`nid`, `tid`, `key`) SELECT %ID%, `id`, ? FROM `node` WHERE `class` = 'label' AND `id` " . sql::in(array_keys($result), $params), $params);
 
       $node->{$this->value} = $result;
     }
@@ -90,5 +101,16 @@ class LabelsControl extends ListControl
       $result[] = $node->name;
 
     return implode(', ', $result);
+  }
+
+  /**
+   * Возвращает список меток для документа.
+   */
+  protected function getLabelsFor(Node $node)
+  {
+    return (array)$node->getDB()->getResultsKV('id', 'name', "SELECT `id`, `name` FROM `node` "
+      . "WHERE `class` = 'label' AND `deleted` = 0 AND `id` "
+      . "IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ? AND `key` = ?)",
+      array($node->id, $this->value));
   }
 }
