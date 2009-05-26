@@ -15,7 +15,7 @@
         <tr>
           <xsl:apply-templates select="." mode="trclass" />
           <td class="icon">
-            <a class="icon-edit" href="admin/edit/{@id}?destination={/page/@back}" />
+            <a class="icon-zoom" href="admin/content/list/{@name}" />
           </td>
           <td class="icon">
             <xsl:if test="@dynamic">
