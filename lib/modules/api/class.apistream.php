@@ -11,12 +11,13 @@ class APIStream
 
   function stream_open($path, $mode, $options, &$opened_path)
   {
-    if (null === self::$router) {
-      mcms::flog('API not initialized: router not set.');
-      return false;
-    }
+    if (null === self::$router)
+      mcms::flog($message = 'API not initialized: router not set.');
 
-    if (is_array($url = parse_url($path)) and 'localhost' == $url['host']) {
+    elseif (false !== strpos($mode, 'w'))
+      mcms::flog($message = 'XML API is read only.');
+
+    elseif (is_array($url = parse_url($path)) and 'localhost' == $url['host']) {
       if (isset($url['path']) and 0 === strpos($url['path'], '/api/')) {
         $realpath = substr($url['path'], 1);
         if (isset($url['query']))
@@ -39,11 +40,17 @@ class APIStream
             ));
         }
 
+        if ($options & STREAM_USE_PATH)
+          $opened_path = $path;
+
         return true;
       }
     }
 
-    mcms::flog('API call failed: ' . $path);
+    if ($options & STREAM_REPORT_ERRORS)
+      trigger_error($message, E_WARNING);
+
+    return false;
   }
 
   function stream_read($count)
