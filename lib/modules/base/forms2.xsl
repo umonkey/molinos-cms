@@ -81,7 +81,11 @@
       <input type="hidden" name="{@name}[__reset]" value="1" />
       <xsl:for-each select="option[@value]">
         <label>
-          <input type="checkbox" name="{../@name}[]" value="{@value}" />
+          <input type="checkbox" name="{../@name}[]" value="{@value}">
+            <xsl:if test="@selected">
+              <xsl:attribute name="checked">checked</xsl:attribute>
+            </xsl:if>
+          </input>
           <xsl:value-of select="text()" />
         </label>
       </xsl:for-each>

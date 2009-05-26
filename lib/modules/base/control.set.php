@@ -62,7 +62,7 @@ class SetControl extends Control
 
       $output .= html::em('option', array(
         'value' => $k,
-        'checked' => in_array($k, $selected),
+        'selected' => in_array($k, $selected),
         'disabled' => !empty($disabled),
         ), html::cdata($v));
     }
@@ -165,5 +165,33 @@ class SetControl extends Control
     $node->onSave("DELETE FROM `node__rel` WHERE `tid` = %ID% AND `key` IS NULL AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = ?)", array($this->dictionary));
     $params = array();
     $node->onSave("INSERT INTO `node__rel` (`tid`, `nid`) SELECT %ID%, `id` FROM `node` WHERE `id` " . sql::in($value, $params), $params);
+  }
+
+  public function preview($data)
+  {
+    $nodes = Node::find($data->getDB(), $filter = array(
+      'class' => $this->dictionary,
+      'deleted' => 0,
+      $this->parents ? 'tagged' : 'tags' => $data->id,
+      ));
+
+    $items = array();
+    foreach ($nodes as $node)
+      $items [$node->id] = $node->getObject()->getName();
+    asort($items);
+
+    $result = array();
+    foreach ($items as $k => $v)
+      $result[] = html::em('a', array(
+        'href' => 'admin/node/' . $k,
+        ), html::plain($v));
+
+    $result = empty($result)
+      ? null
+      : implode(', ', $result) . '.';
+
+    return html::em('value', array(
+      'html' => true,
+      ), html::cdata($result));
   }
 };
