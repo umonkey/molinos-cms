@@ -1,0 +1,8 @@
+#console { width:100%; overflow:hidden; background:#333; background:rgba(0, 0, 0, .85); color:#fff; position:fixed; top:2.667em; }
+	#console .container { padding:0 20px 0 20px; }
+		#console h1 { font-size:1em; line-height:1.335; margin:1.335em 0 1.335em 0; }
+		#console .display { width:100%; height:13.35em; overflow:auto; margin:.667em 0 .667em 0; background:#222; background:rgba(0, 0, 0, .5); }
+			#console .display ul { list-style:none outside; margin:0; padding:10px; }
+				#console .display ul li { font-size:.917em; line-height:1.455; margin:0 0 .364em 0; }
+		#console input { border:none; background:#222; background:rgba(0, 0, 0, .5); width:300px; padding:.25em; margin:0; font:1em/1.335 Arial, Helvetica, sans-serif; color:#fff; }
+		#console .note { font-size:.834em; line-height:1.6; margin:.8em 0 .8em 0; }
