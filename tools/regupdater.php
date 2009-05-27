@@ -12,4 +12,14 @@ require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'client.inc';
 
 Context::last()->registry->rebuildMeta();
 
+$masks = array('.reg*.php', 'cache.*');
+foreach ($masks as $mask) {
+  foreach (os::find('sites', '*', $mask) as $path) {
+    if (file_exists($path)) {
+      unlink($path);
+      printf(" - %s\n", $path);
+    }
+  }
+}
+
 die("OK\n");
