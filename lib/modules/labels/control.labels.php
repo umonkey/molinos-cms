@@ -64,6 +64,7 @@ class LabelsControl extends ListControl
 
       foreach ($labels as $label) {
         try {
+          $label = trim($label);
           $tmp = Node::load($f = array(
             'class' => 'label',
             'name' => $label,
