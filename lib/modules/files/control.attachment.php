@@ -129,6 +129,19 @@ class AttachmentControl extends Control
     return html::wrap($em, html::cdata($value));
   }
 
+  public function preview($value)
+  {
+    if ($file = $value->{$this->value}) {
+      $html = t('<a href="@url">!img</a>', array(
+        '@url' => 'admin/node/' . $file->id,
+        '!img' => $this->getEmbedCode($value->{$this->value}),
+        ));
+      return html::em('value', array(
+        'html' => true,
+        ), html::cdata($html));
+    }
+  }
+
   /**
    * Возвращает код для встраивания файла, без обёртки.
    */
