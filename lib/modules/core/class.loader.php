@@ -53,7 +53,7 @@ class Loader
     self::setup();
 
     try {
-      $ctx = new Context();
+      $ctx = Context::last();
 
       if ('admin/install' != $ctx->query() and !$ctx->config->isOk())
         $ctx->redirect('admin/install');
