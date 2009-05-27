@@ -121,4 +121,24 @@ class NodeAPI
 
     return self::xml(html::em('fields', $options, $result));
   }
+
+  public static function on_get_related(Context $ctx)
+  {
+    $tags = $ctx->db->getResultsV("tid", "SELECT tid FROM node__rel WHERE nid = ? AND tid NOT IN (SELECT id FROM node WHERE deleted = 1)", array($ctx->get('node')));
+
+    $filter = array(
+      'deleted' => 0,
+      'published' => 1,
+      '#sort' => '-id',
+      'tags' => $tags,
+      '-id' => $ctx->get('node'),
+      );
+    if ($tmp = $ctx->get('class'))
+      $filter['class'] = $tmp;
+    $filter['#limit'] = $ctx->get('limit', 10);
+
+    $xml = Node::findXML($ctx->db, $filter);
+
+    return self::xml(html::em('nodes', $xml));
+  }
 }
