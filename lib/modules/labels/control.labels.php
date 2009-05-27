@@ -86,7 +86,7 @@ class LabelsControl extends ListControl
       $node->{$this->value} = $result;
     }
   }
-
+ 
   /**
    * Возвращает строку с текущими метками.
    */
@@ -104,5 +104,13 @@ class LabelsControl extends ListControl
       . "WHERE `class` = 'label' AND `deleted` = 0 AND `id` "
       . "IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ? AND `key` = ?)",
       array($node->id, $this->value));
+  }
+
+  /**
+   * Запрет на индексирование меток.
+   */
+  public function getSQL()
+  {
+    return false;
   }
 }
