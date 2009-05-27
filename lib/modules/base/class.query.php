@@ -131,7 +131,7 @@ class Query
 
   private function getTagsFilter($id)
   {
-    if ('+' == substr($id, -1)) {
+    if (is_string($id) and '+' == substr($id, -1)) {
       $sql = "IN (SELECT `n`.`id` FROM `node` `n`, `node` `t` WHERE `n`.`class` = 'tag' AND `n`.`left` >= `t`.`left` AND `n`.`right` <= `t`.`right` AND `t`.`id` = ? AND `n`.`deleted` = 0 AND `n`.`published` = 1)";
       $this->params[] = intval($id);
     } else {
