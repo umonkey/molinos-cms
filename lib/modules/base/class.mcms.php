@@ -562,7 +562,7 @@ class mcms
 
     try {
       if (null === $ctx)
-        $ctx = new Context();
+        $ctx = Context::last();
 
       $result['at'] = $ctx->host() . $ctx->folder();
       $result['version_link'] = 'http://code.google.com/p/molinos-cms/wiki/ChangeLog_' . str_replace('.', '_', mcms::version(mcms::VERSION_STABLE));

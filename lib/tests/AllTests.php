@@ -62,7 +62,7 @@ function get_test_context()
   static $ctx = null;
 
   if (null === $ctx)
-    $ctx = new Context(array(
+    $ctx = Context::yesIKnowThisIsStrangeButIWantANewInstance(array(
       'url' => 'http://test.cms.molinos.ru/',
       ));
 

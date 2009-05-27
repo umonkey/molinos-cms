@@ -25,7 +25,7 @@ class APIStream
 
         try {
           $time = microtime(true);
-          $ctx = new Context(array(
+          $ctx = Context::yesIKnowThisIsStrangeButIWantANewInstance(array(
             'url' => $realpath,
             ));
           if ($tmp = self::$router->dispatch($ctx))

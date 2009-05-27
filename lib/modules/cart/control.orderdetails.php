@@ -78,7 +78,7 @@ class OrderDetailsControl extends Control
 
   private function getProductLink(array $item)
   {
-    $ctx = new Context();
+    $ctx = Context::last();
 
     if (empty($item['id']))
       return htmlspecialchars($item['name']);

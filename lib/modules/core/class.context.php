@@ -70,7 +70,7 @@ class Context
    *
    * @return Context $ctx описание контекста.
    */
-  public function __construct(array $args = array())
+  private function __construct(array $args = array())
   {
     $this->_args = array_merge(array(
       'url' => null,
@@ -87,11 +87,22 @@ class Context
       $this->registry->rebuild();
   }
 
+  /**
+   * Возвращает текущий контекст.
+   */
   public static function last()
   {
     if (null === self::$_last)
       self::$_last = new Context();
     return self::$_last;
+  }
+
+  /**
+   * Создаёт новый контекст.
+   */
+  public static function yesIKnowThisIsStrangeButIWantANewInstance(array $args = array())
+  {
+    return new Context($args);
   }
 
   /**
