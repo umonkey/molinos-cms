@@ -13,7 +13,7 @@
             <tr>
               <td rowspan="3">
                 <a href="{../@path}/{filepath}">
-                  <img src="lib/modules/admin/styles/admin/images/user.png" />
+                  <xsl:apply-templates select="versions/version[@name='thumbnail']" />
                 </a>
               </td>
               <td class="r">Имя:</td>
@@ -48,5 +48,9 @@
         </tbody>
       </table>
     </form>
+  </xsl:template>
+
+  <xsl:template match="version">
+    <img src="{@url}" width="{@width}" height="{@height}" alt="{@name}" />
   </xsl:template>
 </xsl:stylesheet>

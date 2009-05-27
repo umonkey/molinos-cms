@@ -13,6 +13,7 @@ class AttachmentRPC extends RPCHandler
       'title' => t('Файловый архив'),
       'path' => os::webpath(MCMS_SITE_FOLDER, $ctx->config->get('modules/files/storage')),
       'advsearch' => true,
+      'canedit' => true,
       );
 
     $tmp = new AttachmentListHandler($ctx);
