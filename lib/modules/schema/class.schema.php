@@ -126,6 +126,9 @@ class Schema extends ArrayObject
       if (null !== $fieldName and $name != $fieldName)
         continue;
 
+      if (empty($ctl->label))
+        continue;
+
       if (!($group = trim($ctl->group)))
         $group = count($tabs)
           ? array_shift(array_keys($tabs))
