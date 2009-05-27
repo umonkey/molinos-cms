@@ -96,13 +96,13 @@ class Registry
    */
   public function load()
   {
-    if (file_exists($path = $this->getSavePath())) {
-      $data = include($path);
-      // $this->modules = $data['modules'];
+    if (is_array($data = Cache::getInstance()->get('registry'))) {
       $this->reg = $data['messages'];
       $this->paths = $data['paths'];
       return true;
     }
+
+    $this->log("could not load registry from cache");
 
     return false;
   }
@@ -116,8 +116,9 @@ class Registry
   public function rebuild(array $modules = array())
   {
     $this->modules = $this->reg = $this->paths = array();
-
     $search = os::path(dirname(dirname(__FILE__)), '*', 'module.ini');
+
+    $this->log('rebuilding registry from scratch');
 
     foreach (glob($search) as $iniFileName) {
       $ini = ini::read($iniFileName);
@@ -156,18 +157,12 @@ class Registry
     ksort($this->reg);
     ksort($this->paths);
 
-    os::writeArray($this->getSavePath(), array(
-      'modules' => $this->modules,
+    Cache::getInstance()->set('registry', array(
       'messages' => $this->reg,
       'paths' => $this->paths,
-      ), true);
+      ));
 
     return $this;
-  }
-
-  private function getSavePath()
-  {
-    return os::path(MCMS_ROOT, MCMS_SITE_FOLDER, '.registry.php');
   }
 
   /**
@@ -233,5 +228,13 @@ class Registry
 
       ini::write($iniFileName, $ini);
     }
+  }
+
+  /**
+   * Выводит сообщение в лог.
+   */
+  private function log($message)
+  {
+    error_log($message . "\n");
   }
 }
