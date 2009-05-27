@@ -235,6 +235,8 @@ class NodeStub
     $data = array();
 
     if (null !== $this->id and $this->getDB()) {
+      mcms::flog("rebuilding node/{$this->id}.xml");
+
       $data = array(
         'id' => $this->id,
         '#text' => null,
