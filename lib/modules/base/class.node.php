@@ -304,7 +304,7 @@ class Node
     $schema = $this->getFormFields();
 
     foreach ($schema as $name => $field) {
-      if (null === $fieldName or $fieldName == $name) {
+      if ($field->label and (null === $fieldName or $fieldName == $name)) {
         $value = array_key_exists($name, $data)
           ? $data[$name]
           : null;
@@ -430,12 +430,19 @@ class Node
         'icon' => 'locate',
         );
 
-    if (($ctx = Context::last()) and $ctx->canDebug())
+    if (($ctx = Context::last()) and $ctx->canDebug()) {
       $links['dump'] = array(
         'href' => 'nodeapi/dump?node=' . $this->id,
         'title' => 'XML дамп',
         'icon' => 'dump',
         );
+      $links['refresh'] = array(
+        'href' => 'nodeapi/refresh?node=' . $this->id
+          . '&destination=CURRENT',
+        'title' => 'Обновить XML',
+        'icon' => 'dump',
+        );
+    }
 
     return $links;
   }
