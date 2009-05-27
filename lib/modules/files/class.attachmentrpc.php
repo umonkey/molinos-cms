@@ -43,7 +43,7 @@ class AttachmentRPC extends RPCHandler
     $content = $help = '';
 
     if ($next = $ctx->get('destination'))
-      $next = '?desitnation=' . urlencode($next);
+      $next = '?destination=' . urlencode($next);
 
     $options = array(
       'name' => 'addfile',
@@ -220,7 +220,7 @@ class AttachmentRPC extends RPCHandler
     $ctx->db->beginTransaction();
 
     foreach ($ctx->post('files', array()) as $nid => $info) {
-      $node = Node::load($nid);
+      $node = Node::load($nid, $ctx->db);
       $node->name = $info['name'];
       $node->labels = array_merge($labels, preg_split('/,\s+/', $info['labels'], -1, PREG_SPLIT_NO_EMPTY));
       $node->save();
@@ -243,8 +243,9 @@ class AttachmentRPC extends RPCHandler
 
     foreach ($files as $file) {
       try {
-        $good[] = Node::create('file')->import($file)->save()->id;
+        $good[] = Node::create('file', array(), $ctx->db)->import($file)->save()->id;
       } catch (Exception $e) {
+        $bad = 1;
       }
     }
 
@@ -267,6 +268,9 @@ class AttachmentRPC extends RPCHandler
   private static function get_modes(Context $ctx, $mode)
   {
     $result = '';
+
+    if ($next = $ctx->get('destination'))
+      $next = '?destination=' . urlencode($next);
 
     if ($mode != 'normal')
       $result .= html::em('mode', array(
