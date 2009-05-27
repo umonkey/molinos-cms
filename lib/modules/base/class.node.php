@@ -203,7 +203,7 @@ class Node
     if (!$this->checkPermission($this->id ? 'u' : 'c'))
       throw new ForbiddenException(t('У вас недостаточно прав для работы с этим документом.'));
 
-    $form = $this->getFormFields()->getForm(array(
+    $form = $this->getFormFields()->sort()->getForm(array(
       'action' => $this->getFormAction(),
       'title' => $this->getFormTitle(),
       ), $fieldName);

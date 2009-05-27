@@ -54,7 +54,7 @@ class TextAreaControl extends Control
 
   public function set($value, &$node)
   {
-    $this->validate($value = trim($value));
+    $this->validate($value);
 
     $node->{$this->value} = $value;
   }
