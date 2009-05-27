@@ -103,7 +103,10 @@ class NodeAPI
    */
   public static function on_get_preview_xml(Context $ctx)
   {
-    $node = Node::load($ctx->get('id'));
+    if (!($nid = $ctx->get('id')))
+      throw new BadRequestException(t('Не указан идентификатор ноды (параметр id).'));
+
+    $node = Node::load($nid);
     $result = $node->getPreviewXML($ctx);
 
     $options = array(
