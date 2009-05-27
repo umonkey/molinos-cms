@@ -117,13 +117,21 @@ class AttachmentControl extends Control
   public function format($value, $em)
   {
     if (is_object($value) and 'file' == $value->class) {
-      $embed = $this->getEmbedCode($value);
+      if (!($inside = $value->getObject()->getVersionsXML()))
+        $inside = html::cdata($this->getEmbedCode($value));
+
+      $ctx = Context::last();
 
       return html::em($em, array(
+        'id' => $value->id,
         'name' => $value->name,
+        'fielname' => $value->name,
+        'filesize' => $value->filesize,
+        'filetype' => $value->filetype,
         'width' => $value->width,
         'height' => $value->height,
-        ), html::cdata($embed));
+        'url' => os::webpath($ctx->config->getPath('modules/files/storage', 'files'), $value->filepath),
+        ), $inside);
     }
 
     return html::wrap($em, html::cdata($value));

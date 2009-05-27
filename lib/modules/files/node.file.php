@@ -41,25 +41,10 @@ class FileNode extends Node implements iContentType
 
     $path = os::path(MCMS_SITE_FOLDER, Context::last()->config->get('modules/files/storage'), $this->filepath);
 
-    if ('image/' == substr($this->filetype, 0, 6)) {
-      if (is_readable($path) and ($info = @getimagesize($path))) {
-        $this->width = $info[0];
-        $this->height = $info[1];
-      }
-
-      // TODO: удалить старые версии файлов.
-      if (isset($this->versions))
-        unset($this->versions);
-
-      // Применяем трансформации.
-      $ts = Node::find($this->getDB(), array(
-        'class' => 'imgtransform',
-        'deleted' => 0,
-        'published' => 1,
-        ));
-      foreach ($ts as $t)
-        $t->getObject()->apply($this, Context::last(), true);
-    }
+    if ($tmp = Imgtr::transform($this)) 
+      $this->versions = $tmp;
+    else
+      unset($this->versions);
 
     $res = parent::save();
 
@@ -324,9 +309,9 @@ class FileNode extends Node implements iContentType
    *
    * @return void
    */
-  public function formProcess(array $data)
+  public function formProcess(array $data, $fileName = null)
   {
-    parent::formProcess($data);
+    parent::formProcess($data, $fileName);
 
     // Замена файла.
     if ($this->replace instanceof Node) {
@@ -715,5 +700,31 @@ class FileNode extends Node implements iContentType
         '%width' => $this->width,
         '%height' => $this->height,
         ));
+  }
+
+  /**
+   * Возвращает описание версий в XML.
+   */
+  public function getVersionsXML()
+  {
+    $result = '';
+
+    $storage = Context::last()->config->getPath('modules/files/storage', 'files');
+
+    foreach ((array)$this->versions as $name => $info) {
+      $info['url'] = os::webpath($storage, $info['filename']);
+      $info['filename'] = basename($info['filename']);
+      $result .= html::em('version', $info);
+    }
+
+    return $result;
+  }
+
+  /**
+   * Возвращает дополнительные XML данные для ноды.
+   */
+  public function getExtraXMLContent()
+  {
+    return html::wrap('versions', $this->getVersionsXML());
   }
 };
