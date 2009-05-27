@@ -141,4 +141,24 @@ class EnumControl extends Control
   {
     return 'drop';
   }
+
+  public function format($value, $em)
+  {
+    if (!empty($value) and is_object($value))
+      return $value->getXML($em);
+  }
+
+  public function preview($value)
+  {
+    if ($value = $value->{$this->value}) {
+      if (is_object($value)) {
+        $link = html::em('a', array(
+          'href' => 'admin/node/' . $value->id,
+          ), html::plain($value->name));
+        return html::wrap('value', html::cdata($link), array(
+          'html' => true,
+          ));
+      }
+    }
+  }
 };
