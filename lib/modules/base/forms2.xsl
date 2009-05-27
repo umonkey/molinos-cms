@@ -37,7 +37,7 @@
   <xsl:template match="input[@type='text']">
     <label class="control">
       <xsl:apply-templates select="." mode="label" />
-      <input type="text" name="{@name}" value="{@value}" class="text" />
+      <input type="text" name="{@name}" value="{text()}" class="text" />
     </label>
     <xsl:apply-templates select="." mode="help" />
   </xsl:template>
