@@ -79,6 +79,7 @@ class Config extends ArrayObject
 
   public function getArray($keyName, $default = array())
   {
+    return (array)$this->get($keyName, $default);
   }
 
   /**
