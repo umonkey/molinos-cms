@@ -191,7 +191,10 @@ class ModManUI
   {
     $ctx->theme = os::path('lib', 'modules', 'modman', 'template.xsl');
 
-    if (!count($modules = modman::getUpdatedModules())) {
+    $modules = modman::getUpdatedModules();
+
+    if (empty($modules)) {
+      // FIXME: когда перестанут сбрасывать кэш при каждом вздохе, всем станет лучше.
       modman::updateDB();
       $modules = modman::getUpdatedModules();
     }
@@ -209,7 +212,7 @@ class ModManUI
       ));
   }
 
-  public static function on_get_reload(Context $ctx)
+  public static function on_reload(Context $ctx)
   {
     modman::updateDB();
     return $ctx->getRedirect();

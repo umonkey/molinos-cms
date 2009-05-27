@@ -7,8 +7,8 @@
     <xsl:choose>
       <xsl:when test="not(module)">
         <p>Похоже, что для используемых вами модулей обновлений нет.</p>
-        <form method="post" action="?q=modman.rpc&amp;action=upgrade&amp;destination={/page/request/@uri}">
-          <input type="submit" value="Проверить ещё раз" />
+        <form method="post" action="admin/system/modules/reload?destination={$back}">
+          <input type="submit" value="Обновить информацию" />
         </form>
       </xsl:when>
       <xsl:otherwise>

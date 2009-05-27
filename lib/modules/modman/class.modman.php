@@ -2,33 +2,16 @@
 
 class modman
 {
-  /**
-   * Возвращает путь к файлу, хранящему информацию о модулях.
-   */
-  public static function getInfoPath()
-  {
-    return os::path(Context::last()->config->getPath('main/tmpdir'), 'modules.ini');
-  }
+  const cachekey = 'modules.ini';
 
   /**
    * Возвращает информацию обо всех модулях.
    */
   public static function getAllModules()
   {
-    if (!file_exists($path = self::getInfoPath()))
-      $ini = array();
-
-    else {
-      $ini = ini::read($path);
-
-      foreach ($ini as $k => $v) {
-        if (!empty($v['name.ru']))
-          $ini[$k]['name'] = $v['name.ru'];
-        $ini[$k]['installed'] = self::isInstalled($k);
-      }
-    }
-
-    return $ini;
+    if (!is_array($cached = Cache::getInstance()->get(self::cachekey)))
+      $cached = array();
+    return $cached;
   }
 
   /**
@@ -45,6 +28,11 @@ class modman
     return $result;
   }
 
+  /**
+   * Возвращает true, если модуль может быть обновлён:
+   * если он установлен и не является локальным (был
+   * установлен извне).
+   */
   private static function canUpdateModule($name, array $info)
   {
     if (!modman::isInstalled($name))
@@ -129,6 +117,8 @@ class modman
           $modules[$name] = $ini;
         else
           $modules[$name]['version.local'] = $ini['version.local'];
+
+        $modules[$name]['installed'] = true;
       }
 
       // Информации о файле нет, устанавливаем версию 0.0
@@ -146,7 +136,7 @@ class modman
 
     mcms::flog('module info updated, ' . count($modules) . ' module(s) available.');
 
-    ini::write(self::getInfoPath(), $modules);
+    Cache::getInstance()->set(self::cachekey, $modules);
 
     return $modules;
   }
