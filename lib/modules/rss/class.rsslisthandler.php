@@ -32,4 +32,19 @@ class RSSListHandler extends AdminListHandler implements iAdminList
     $tmp = new $class($ctx);
     return $tmp->getHTML($ctx->get('preset'));
   }
+
+  public static function on_get_custom(Context $ctx)
+  {
+    $filter = array();
+    if (!($filter['class'] = $ctx->get('type')))
+      $filter['class'] = $ctx->db->getResultsV("name", "SELECT name FROM node WHERE class = 'type' AND deleted = 0 AND published = 1");
+    if ($tmp = $ctx->get('tags'))
+      $filter['tags'] = explode('+', $tmp);
+
+    $feed = new RSSFeed($filter);
+
+    return $feed->render($ctx);
+
+    mcms::debug($feed->render($ctx));
+  }
 };
