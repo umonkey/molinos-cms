@@ -87,6 +87,10 @@
             <td>
               <form method="get" action="admin/edit/{$nid}?destination={$back}">
                 <input type="submit" value="Отредактировать" />
+                <xsl:if test="$next">
+                  <xsl:text> или </xsl:text>
+                  <a href="{$next}">вернуться</a>
+                </xsl:if>
               </form>
             </td>
           </tr>
