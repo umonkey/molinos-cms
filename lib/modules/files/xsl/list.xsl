@@ -32,6 +32,7 @@
               <xsl:attribute name="class">
                 <xsl:text>ft-</xsl:text>
                 <xsl:choose>
+                  <xsl:when test="contains(filetype, 'audio/')">audio</xsl:when>
                   <xsl:when test="contains(filetype, 'image/')">image</xsl:when>
                   <xsl:when test="contains(filetype, 'video/')">video</xsl:when>
                   <xsl:when test="contains(filetype, 'text/')">text</xsl:when>
