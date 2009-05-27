@@ -679,6 +679,20 @@ class FileNode extends Node implements iContentType
         ), html::em('value', array('class' => 'embed'), html::cdata($tmp)));
     }
 
+    $count = Node::count($ctx->db, array(
+      'deleted' => 0,
+      'tagged' => $this->id,
+      ));
+    if ($count) {
+      $message = t('%count документов используют этот файл (<a href="@url">список</a>)', array(
+        '%count' => $count,
+        '@url' => 'admin/content/list?search=tagged%3A' . $this->id,
+        ));
+      $result .= html::em('field', array(
+        'title' => t('Статистика'),
+        ), html::em('value', html::cdata($message)));
+    }
+
     return $result;
   }
 
