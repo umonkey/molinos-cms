@@ -664,6 +664,26 @@ class FileNode extends Node implements iContentType
         ), html::em('value', array('class' => 'embed'), html::cdata($tmp)));
     }
 
+    if (!empty($this->versions)) {
+      $versions = '';
+      foreach ((array)$this->versions as $name => $info) {
+        $url = os::webpath($ctx->config->getPath('modules/files/storage'), $info['filename']);
+        $versions .= t('<li><a href="@url">%name</a>:<br/><img src="@url" width="%width" height="%height" alt="%filename" /></li>', array(
+          '%name' => $name,
+          '%width' => $info['width'],
+          '%height' => $info['height'],
+          '%filename' => basename($info['filename']),
+          '@url' => $url,
+          ));
+      }
+
+      $versions = html::wrap('ul', $versions);
+
+      $result .= html::em('field', array(
+        'title' => t('Другие версии'),
+        ), html::em('value', html::cdata($versions)));
+    }
+
     $count = Node::count($ctx->db, array(
       'deleted' => 0,
       'tagged' => $this->id,
@@ -712,6 +732,7 @@ class FileNode extends Node implements iContentType
     $storage = Context::last()->config->getPath('modules/files/storage', 'files');
 
     foreach ((array)$this->versions as $name => $info) {
+      $info['name'] = $name;
       $info['url'] = os::webpath($storage, $info['filename']);
       $info['filename'] = basename($info['filename']);
       $result .= html::em('version', $info);
