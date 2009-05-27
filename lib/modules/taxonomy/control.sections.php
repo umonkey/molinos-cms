@@ -83,7 +83,7 @@ class SectionsControl extends SetControl
       foreach ($nodes as $node)
         $result[]= html::em('a', array(
           'href' => 'admin/node/' . $node->id,
-          ), html::cdata($node->getName()));
+          ), html::plain($node->getName()));
 
       return html::wrap('value', html::cdata(implode(', ', $result)), array(
         'html' => true,
