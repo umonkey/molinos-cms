@@ -81,10 +81,14 @@ class AdminPage
         xslt::transform($xml, $xsl)->send();
       }
 
-      if (empty($pathinfo['next']))
-        mcms::fatal(t('Не указан обработчик для страницы %path (параметр <tt>next</tt>).', array(
-          '%path' => $path,
-          )));
+      if (empty($pathinfo['next'])) {
+        if (!empty($pathinfo['xsl']))
+          $pathinfo['next'] = 'AdminPage::xsltonly';
+        else
+          mcms::fatal(t('Не указан обработчик для страницы %path (параметр <tt>next</tt>).', array(
+            '%path' => $path,
+            )));
+      }
 
       if (!is_callable($pathinfo['next']))
         mcms::fatal(t('Неверный обработчик для страницы %path (<tt>%next()</tt>).', array(
@@ -132,6 +136,16 @@ class AdminPage
       $xsl = os::path('lib', 'modules', 'admin', 'template.xsl');
       xslt::transform(html::em('page', $data), $xsl)->send();
     }
+  }
+
+  /**
+   * Пустой обработчик для случаев, когда достаточно шаблона.
+   */
+  private static function xsltonly(Context $ctx)
+  {
+    return html::em('content', array(
+      'mode' => 'custom',
+      ));
   }
 
   public static function checkperm(Context $ctx, array $pathinfo)
