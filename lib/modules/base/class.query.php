@@ -31,7 +31,27 @@ class Query
   private function findSpecial(array &$filters)
   {
     foreach ($filters as $k => $v) {
-      if (0 === strpos($k, '#')) {
+      // Поиск с помощью LIKE
+      if ('?|' == substr($k, -2)) {
+        unset($filters[$k]);
+
+        list($fieldName, $neg) = $this->getFieldSpec(substr($k, 0, -2));
+
+        $parts = array();
+        foreach ((array)$v as $part) {
+          $parts[] = $fieldName . ' LIKE ?';
+          $this->params[] = $part;
+        }
+
+        $sql = implode(' OR ', $parts);
+        if (count($parts) > 1)
+          $sql = '(' . $sql . ')';
+
+        if (!empty($sql))
+          $this->conditions[] = $sql;
+      }
+
+      elseif (0 === strpos($k, '#')) {
         unset($filters[$k]);
 
         switch ($k) {
