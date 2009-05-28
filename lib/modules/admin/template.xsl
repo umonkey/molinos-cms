@@ -12,6 +12,7 @@
   <xsl:variable name="back" select="/page/@back" />
   <xsl:variable name="sendto" select="/page/request/getArgs/arg[@name='sendto']/text()" />
   <xsl:variable name="next" select="/page/request/getArgs/arg[@name='destination']/text()" />
+  <xsl:variable name="page" select="/page/request/getArgs/arg[@name='page']/text()" />
 
   <xsl:output omit-xml-declaration="yes" method="xml" version="1.0" encoding="UTF-8" indent="yes" doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"/>
 
