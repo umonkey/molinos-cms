@@ -50,9 +50,9 @@ class Loader
 
   public static function run()
   {
-    self::setup();
-
     try {
+      self::setup();
+
       $ctx = Context::last();
 
       if ('admin/install' != $ctx->query() and !$ctx->config->isOk())
@@ -92,7 +92,13 @@ class Loader
         die($message);
       }
     } catch (Exception $e) {
-      mcms::fatal($e);
+      if (class_exists($e))
+        mcms::fatal($e);
+      else {
+        header('HTTP/1.1 500 FUBAR');
+        header('Content-Type: text/plain; charset=utf-8');
+        die(sprintf('%s: %s.', get_class($e), rtrim($e->getMessage(), '.')));
+      }
     }
   }
 }

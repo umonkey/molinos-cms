@@ -210,8 +210,14 @@ class DBA_DB4_provider extends cache
   public function __construct($handler)
   {
     $this->handler = $handler;
-    if (file_exists($filename = $this->getFileName()))
-      $this->db = dba_open($filename, 'rd', $this->handler);
+    if (file_exists($filename = $this->getFileName())) {
+      // Если вдруг файл существует, но закрыт для чтения, пытаемся это исправить.
+      if (!is_readable($filename) and is_writable(dirname($filename)))
+        unlink($filename);
+      if (file_exists($filename))
+        if (!($this->db = dba_open($filename, 'rd', $this->handler)))
+          throw new Exception("Cache file ({$filename})  is read protected.");
+    }
   }
 
   protected function getFileName()
@@ -245,16 +251,16 @@ class DBA_DB4_provider extends cache
   protected function reopen()
   {
     if ($this->write)
-      return;
+      return true;
     if ($this->db)
       dba_close($this->db);
-    $this->db = dba_open($this->getFilename(), 'cd', $this->handler);
+    return ($this->db = dba_open($this->getFilename(), 'cd', $this->handler));
   }
 
   public function __set($key, $value)
   {
-    $this->reopen();
-    dba_replace($key, serialize($value), $this->db);
+    if ($this->reopen())
+      dba_replace($key, serialize($value), $this->db);
   }
 
   public function __isset($key)
