@@ -80,16 +80,6 @@ class SchemaMenu
         )),
       ));
 
-    if (class_exists($field['type'])) {
-      $tmp = new $field['type'](array(
-        'value' => $fieldName,
-        ));
-      if ($tmp->getSQL())
-        $form->addControl(new BoolControl(array(
-          'value' => 'indexed',
-          'label' => t('Используется для поиска и сортировки'),
-          )));
-    }
     $form->addControl(new BoolControl(array(
       'value' => 'delete',
       'label' => t('Удалить это поле'),
@@ -152,7 +142,7 @@ class SchemaMenu
     }
 
     $ctx->db->beginTransaction();
-    $type->save();
+    $type->getObject()->save();
     $ctx->db->commit();
 
     return $ctx->getRedirect();
@@ -264,7 +254,14 @@ class SchemaMenu
       $ctl = new $className(array(
         'value' => 'tmp',
         ));
+
       $schema = array_merge($schema, $ctl->getExtraSettings());
+
+      if (class_exists('Indexer') and $ctl->getSQL())
+        $schema['indexed'] = array(
+          'type' => 'BoolControl',
+          'label' => t('Используется для поиска и сортировки'),
+          );
     }
 
     return new Schema($schema);
