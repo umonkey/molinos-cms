@@ -20,6 +20,7 @@
 
           <xsl:call-template name="mcms_list_search">
             <xsl:with-param name="advanced" select="@advsearch" />
+            <xsl:with-param name="advancedlink">admin/content/files/search</xsl:with-param>
             <xsl:with-param name="createtxt">Загрузить</xsl:with-param>
           </xsl:call-template>
           <form method="post" id="nodeList">
