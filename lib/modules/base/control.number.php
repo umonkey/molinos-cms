@@ -51,8 +51,7 @@ class NumberControl extends Control
     return parent::wrapXML(array(
       'type' => 'text',
       'mode' => 'number',
-      'value' => $value,
-      ));
+      ), $value);
   }
 
   public function set($value, &$node, array $data = array())
