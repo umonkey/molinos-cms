@@ -30,6 +30,10 @@
       <xsl:when test="contains($mimetype, 'image/')">image</xsl:when>
       <xsl:when test="contains($mimetype, 'video/')">video</xsl:when>
       <xsl:when test="contains($mimetype, 'text/')">text</xsl:when>
+      <xsl:when test="contains($mimetype, 'application/x-deb')">package</xsl:when>
+      <xsl:when test="contains($mimetype, 'application/x-rar')">package</xsl:when>
+      <xsl:when test="contains($mimetype, 'application/x-tar')">package</xsl:when>
+      <xsl:when test="contains($mimetype, 'application/zip')">package</xsl:when>
       <xsl:otherwise>binary</xsl:otherwise>
     </xsl:choose>
   </xsl:template>
