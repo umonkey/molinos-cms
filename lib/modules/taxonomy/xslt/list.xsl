@@ -3,7 +3,7 @@
   <xsl:import href="../../admin/xsl/list.xsl" />
 
   <xsl:template match="data[../@name='list' and ../@preset='taxonomy']" mode="nodelist">
-    <ul class="nodes">
+    <ul class="taxonomy">
       <xsl:apply-templates select="node" mode="tagtree" />
     </ul>
   </xsl:template>
