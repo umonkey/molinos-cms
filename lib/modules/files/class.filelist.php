@@ -25,6 +25,7 @@ class FileList extends AdminListHandler implements iAdminList
       $filter['filetype?|'] = array(
         'audio/%',
         'video/%',
+        'application/x-shockwave-flash',
         );
       break;
     case 'picture':
