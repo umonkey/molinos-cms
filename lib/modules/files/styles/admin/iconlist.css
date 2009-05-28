@@ -1,6 +1,7 @@
-ul.files { list-style:none outside; width:100%; overflow:hidden; margin:2.667em 0 0 0; }
-ul.files li { width:200px; float:left; text-align:center; margin:0; padding:0 0 2.667em 0; }
-ul.files li img { display:block; width:100px; margin:0 auto 1.335em auto; }
+ul.files { list-style:none outside; width:100%; overflow:hidden; margin:0;  }
+ul.files li { width:200px; text-align:center; margin:0; padding:1.335em 0 1.335em 0; display:-moz-inline-stack;  display:inline-block;  _overflow:hidden;  zoom:1;  *display:inline; vertical-align:top; }
+ul.files li a.thumbnail { display:block; width:100px; margin:0 auto 1.335em auto; }
+ul.files li img { display:block; }
 
 ul.files-edit { list-style:none outside; width:100%; overflow:hidden; }
 ul.files-edit li { width:100%; overflow:hidden; }
