@@ -47,18 +47,26 @@ class FileList extends AdminListHandler implements iAdminList
    */
   public static function on_get_list(Context $ctx)
   {
-    $options = array(
-      '#raw' => true,
-      'name' => 'list',
-      'title' => t('Файловый архив'),
-      'path' => os::webpath(MCMS_SITE_FOLDER, $ctx->config->get('modules/files/storage')),
-      'advsearch' => true,
-      'canedit' => true,
-      'mode' => $ctx->get('mode', 'table'),
-      'type' => $ctx->get('type', 'all'),
-      );
+    try {
+      $options = array(
+        '#raw' => true,
+        'name' => 'list',
+        'title' => t('Файловый архив'),
+        'path' => os::webpath(MCMS_SITE_FOLDER, $ctx->config->get('modules/files/storage')),
+        'advsearch' => true,
+        'canedit' => true,
+        'mode' => $ctx->get('mode', 'table'),
+        'type' => $ctx->get('type', 'all'),
+        );
 
-    $tmp = new FileList($ctx, $options['type']);
-    return $tmp->getHTML('files', $options);
+      $tmp = new FileList($ctx, $options['type']);
+      return $tmp->getHTML('files', $options);
+    } catch (TableNotFoundException $e) {
+      if ($e->getTableName() != 'node__idx_filetype')
+        throw $e;
+      throw new Exception(t('Отсутствует индекс по полю filetype, <a href="@url">исправьте это</a> и возвращайтесь.', array(
+        '@url' => 'admin/structure/fields/edit?type=file&field=filetype&destination=' . urlencode($_SERVER['REQUEST_URI']),
+        )));
+    }
   }
 }
