@@ -94,7 +94,7 @@ class RouteAdmin
 
     if (!empty($data['widgets'])) {
       sort($data['widgets']);
-      $data['widgets'] = join(',', $data['widgets']);
+      $data['widgets'] = $data['widgets'];
     }
 
     $data['call'] = 'BaseRoute::serve';
@@ -213,6 +213,7 @@ class RouteAdmin
         'type' => 'SetControl',
         'options' => $widgets,
         'group' => t('Виджеты'),
+        'label' => t('Виджеты'),
         'weight' => 9,
         ),
       'cache' => array(
