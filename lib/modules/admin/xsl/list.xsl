@@ -189,6 +189,7 @@
   <xsl:template name="mcms_list_search" mode="mcms_list">
     <xsl:param name="advanced" select="1" />
     <xsl:param name="createtxt">Добавить</xsl:param>
+    <xsl:param name="advancedlink" select="concat('?q=admin/search&amp;type=',@type,'&amp;destination=',$back)" />
 
     <div class="nodes-controls-basic">
     <form method="post" action="?q=admin/search&amp;from={/page/@back}">
@@ -213,7 +214,7 @@
           <input type="submit" value="Найти" />
           <xsl:if test="$advanced">
             <xsl:text> | </xsl:text>
-            <a href="?q=admin/search&amp;destination={/page/@back}">Расширенный поиск</a>
+            <a href="{$advancedlink}">Расширенный поиск</a>
           </xsl:if>
         </fieldset>
       </form>
