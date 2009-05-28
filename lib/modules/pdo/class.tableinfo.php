@@ -187,4 +187,23 @@ class TableInfo
 
       $this->db->exec("DROP TABLE `{$this->name}`");
     }
+
+  /**
+   * Возвращает имя таблицы.
+   */
+  public function getName()
+  {
+    return $this->name;
+  }
+
+  /**
+   * Проверяет структуру таблицы.
+   */
+  public static function check($tableName, array $columns)
+  {
+    $t = new TableInfo(Context::last()->db, $tableName);
+    foreach ($columns as $k => $v)
+      $t->columnSet($k, $v);
+    $t->commit();
+  }
 };
