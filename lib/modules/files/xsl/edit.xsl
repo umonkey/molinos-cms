@@ -7,44 +7,51 @@
     <h2>
       <xsl:value-of select="@title" />
     </h2>
-    <form id="editfiles" method="post" action="{@action}" enctype="multipart/form-data">
-      <table>
-        <tbody>
-          <xsl:apply-templates select="." mode="saveline" />
-          <xsl:for-each select="node">
-            <tr>
-              <td rowspan="3">
-                <a href="admin/node/{@id}?destination={$back}">
-                  <xsl:apply-templates select="." mode="thumbnail" />
-                </a>
-              </td>
-              <td class="r">Имя:</td>
-              <td>
-                <input type="text" name="files[{@id}][name]" value="{@name}" class="text" />
-              </td>
-            </tr>
-            <tr>
-              <td class="r">Метки:</td>
-              <td>
-                <input type="text" name="files[{@id}][labels]" value="{@labels}" class="text" />
-              </td>
-            </tr>
-            <tr>
-              <td colspan="2"> </td>
-            </tr>
-          </xsl:for-each>
-          <xsl:if test="count(node) &gt; 1">
-            <tr>
-              <td colspan="2" class="r">Метки для всех файлов:</td>
-              <td>
-                <input type="text" name="labels" class="text" />
-              </td>
-            </tr>
-          </xsl:if>
-          <xsl:apply-templates select="." mode="saveline" />
-        </tbody>
-      </table>
-    </form>
+    <xsl:choose>
+      <xsl:when test="node">
+        <form id="editfiles" method="post" action="{@action}" enctype="multipart/form-data">
+          <table>
+            <tbody>
+              <xsl:apply-templates select="." mode="saveline" />
+              <xsl:for-each select="node">
+                <tr>
+                  <td rowspan="3">
+                    <a href="admin/node/{@id}?destination={$back}">
+                      <xsl:apply-templates select="." mode="thumbnail" />
+                    </a>
+                  </td>
+                  <td class="r">Имя:</td>
+                  <td>
+                    <input type="text" name="files[{@id}][name]" value="{@name}" class="text" />
+                  </td>
+                </tr>
+                <tr>
+                  <td class="r">Метки:</td>
+                  <td>
+                    <input type="text" name="files[{@id}][labels]" value="{@labels}" class="text" />
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2"> </td>
+                </tr>
+              </xsl:for-each>
+              <xsl:if test="count(node) &gt; 1">
+                <tr>
+                  <td colspan="2" class="r">Метки для всех файлов:</td>
+                  <td>
+                    <input type="text" name="labels" class="text" />
+                  </td>
+                </tr>
+              </xsl:if>
+              <xsl:apply-templates select="." mode="saveline" />
+            </tbody>
+          </table>
+        </form>
+      </xsl:when>
+      <xsl:otherwise>
+        <p>Ни один файл не был успешно загружен. Скорее всего был превышен допустимый объём файла.</p>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="content" mode="saveline">
