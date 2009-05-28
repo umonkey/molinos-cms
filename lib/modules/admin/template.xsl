@@ -250,6 +250,9 @@
   <xsl:template match="content[@name = 'search']" mode="content">
     <h2>Расширенный поиск</h2>
     <form method="post" class="advsearch" action="?q=admin/search&amp;from={@from}">
+      <xsl:if test="count(types/type) = 1">
+        <input type="hidden" name="search_class" value="{types/type/@name}" />
+      </xsl:if>
       <table>
         <tr>
           <th>
@@ -259,7 +262,7 @@
             <input type="text" class="form-text" name="search_term" value="{@query}" />
           </td>
         </tr>
-        <xsl:if test="count(types/type)">
+        <xsl:if test="count(types/type) &gt; 1">
           <tr>
             <th>
               <xsl:text>Тип документа:</xsl:text>
