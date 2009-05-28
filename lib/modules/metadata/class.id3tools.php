@@ -40,6 +40,10 @@ class ID3Tools
     if (!empty($info['audio']['channels']))
       $more['channels'] = $info['audio']['channels'];
 
+    if (!empty($info['error']))
+      foreach ($info['error'] as $msg)
+        mcms::flog("metadata[{$node->id}]: " . $msg);
+
     foreach ($more as $k => $v)
       if (empty($v))
         unset($node->$k);
