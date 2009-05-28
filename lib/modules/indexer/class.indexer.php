@@ -81,8 +81,6 @@ class Indexer
     $schema = Schema::load($ctx->db, $type->name);
 
     foreach ($schema->getIndexes() as $fieldName) {
-      $ctx->db->beginTransaction();
-
       $tableName = 'node__idx_' . $fieldName;
 
       $sel = $ctx->db->prepare("SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0 AND `id` NOT IN (SELECT `id` FROM `{$tableName}`)");
@@ -97,11 +95,7 @@ class Indexer
           $nid,
           $schema[$fieldName]->getIndexValue($node->$fieldName),
           ));
-        $count++;
       }
-
-      if ($count)
-        $ctx->db->commit();
     }
   }
 }
