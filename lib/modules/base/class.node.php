@@ -696,27 +696,9 @@ class Node
 
     $ctx->registry->broadcast('ru.molinos.cms.hook.node.before', array($ctx, $this, $this->isNew() ? 'create' : 'update'));
 
-    $this->stub->save();
-
     if ($this->isNew() and $this->checkPermission('p'))
       $this->stub->publish();
-
-    if (count($indexes = $this->getSchema()->getIndexes())) {
-      $db = $this->stub->getDB();
-
-      foreach ($indexes as $idx) {
-        $data = array('id' => $this->id);
-        $table = 'node__idx_' . $idx;
-
-        list($sql, $params) = sql::getDelete($table, $data);
-        $db->exec($sql, $params);
-
-        foreach ($indexes as $idx)
-          $data['value'] = $this->$idx;
-        list($sql, $params) = sql::getInsert($table, $data);
-        $db->exec($sql, $params);
-      }
-    }
+    $this->stub->save();
 
     $ctx->registry->broadcast('ru.molinos.cms.hook.node', array($ctx, $this, $this->isNew() ? 'create' : 'update'));
 
