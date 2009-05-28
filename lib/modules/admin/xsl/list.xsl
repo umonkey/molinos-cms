@@ -188,6 +188,7 @@
   <!-- Форма поиска. -->
   <xsl:template name="mcms_list_search" mode="mcms_list">
     <xsl:param name="advanced" select="1" />
+    <xsl:param name="createtxt">Добавить</xsl:param>
 
     <div class="nodes-controls-basic">
     <form method="post" action="?q=admin/search&amp;from={/page/@back}">
@@ -196,15 +197,15 @@
           <xsl:if test="@preset!='trash'">
             <a class="newlink">
               <xsl:attribute name="href">
-                <xsl:text>?q=admin/create</xsl:text>
+                <xsl:text>admin/create</xsl:text>
                 <xsl:if test="@type">
                   <xsl:text>/</xsl:text>
                   <xsl:value-of select="@type" />
                 </xsl:if>
-                <xsl:text>&amp;destination=</xsl:text>
+                <xsl:text>?destination=</xsl:text>
                 <xsl:value-of select="/page/@back" />
               </xsl:attribute>
-              <xsl:text>Добавить</xsl:text>
+              <xsl:value-of select="$createtxt" />
             </a>
             <xsl:text> | </xsl:text>
           </xsl:if>
