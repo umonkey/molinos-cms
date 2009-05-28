@@ -113,6 +113,7 @@ class ListWidget extends Widget
       'types' => array(
         'type' => 'SetControl',
         'group' => t('Типы выводимых документов'),
+        'label' => t('Типы документов'),
         'options' => Node::getSortedList('type', 'title', 'name'),
         ),
       );
