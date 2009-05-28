@@ -1,40 +1,42 @@
-a.ft-audio {
-  background: transparent url(../../mime/audio.png) no-repeat top left;
-  padding-left: 20px;
+.ft-audio {
+  background-image: url(../../mime/audio.png);
 }
-a.ft-binary {
-  background: transparent url(../../mime/binary.png) no-repeat top left;
-  padding-left: 20px;
+.ft-binary {
+  background-image: url(../../mime/binary.png);
 }
-a.ft-calendar {
-  background: transparent url(../../mime/calendar.png) no-repeat top left;
-  padding-left: 20px;
+.ft-calendar {
+  background-image: url(../../mime/calendar.png);
 }
-a.ft-document {
-  background: transparent url(../../mime/document.png) no-repeat top left;
-  padding-left: 20px;
+.ft-document {
+  background-image: url(../../mime/document.png);
 }
-a.ft-drawing {
-  background: transparent url(../../mime/drawing.png) no-repeat top left;
-  padding-left: 20px;
+.ft-drawing {
+  background-image: url(../../mime/drawing.png);
 }
-a.ft-image {
-  background: transparent url(../../mime/image.png) no-repeat top left;
-  padding-left: 20px;
+.ft-image {
+  background-image: url(../../mime/image.png);
 }
-a.ft-presentation {
-  background: transparent url(../../mime/presentation.png) no-repeat top left;
-  padding-left: 20px;
+.ft-presentation {
+  background-image: url(../../mime/presentation.png);
 }
-a.ft-spreadsheet {
-  background: transparent url(../../mime/spreadsheet.png) no-repeat top left;
-  padding-left: 20px;
+.ft-spreadsheet {
+  background-image: url(../../mime/spreadsheet.png);
 }
-a.ft-text {
-  background: transparent url(../../mime/text.png) no-repeat top left;
-  padding-left: 20px;
+.ft-text {
+  background-image: url(../../mime/text.png);
 }
-a.ft-video {
-  background: transparent url(../../mime/video.png) no-repeat top left;
+.ft-video {
+  background-image: url(../../mime/video.png);
+}
+
+#filelist .field-name a {
   padding-left: 20px;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: top left;
+}
+
+#editfiles .preview {
+  background-position: center center;
+  background-repeat: no-repeat;
 }

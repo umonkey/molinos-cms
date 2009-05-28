@@ -13,7 +13,7 @@
         <th>Добавлен</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="filelist">
       <xsl:for-each select="node">
         <tr>
           <xsl:apply-templates select="." mode="trclass" />

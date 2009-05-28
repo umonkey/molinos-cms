@@ -12,9 +12,10 @@
           <xsl:for-each select="node">
             <tr>
               <td rowspan="3">
-                <a href="{../@path}/{filepath}">
-                  <xsl:apply-templates select="versions/version[@name='thumbnail']" />
-                </a>
+                <xsl:apply-templates select="filetype" mode="classname">
+                  <xsl:with-param name="prefix">preview</xsl:with-param>
+                </xsl:apply-templates>
+                <xsl:apply-templates select="versions/version[@name='thumbnail']" />
               </td>
               <td class="r">Имя:</td>
               <td>
@@ -52,5 +53,23 @@
 
   <xsl:template match="version">
     <img src="{@url}" width="{@width}" height="{@height}" alt="{@name}" />
+  </xsl:template>
+
+  <xsl:template match="filetype" mode="classname">
+    <xsl:param name="prefix" />
+    <xsl:attribute name="class">
+      <xsl:value-of select="$prefix" />
+      <xsl:if test="$prefix">
+        <xsl:text> </xsl:text>
+      </xsl:if>
+      <xsl:text>ft-</xsl:text>
+      <xsl:choose>
+        <xsl:when test="contains(filetype, 'audio/')">audio</xsl:when>
+        <xsl:when test="contains(filetype, 'image/')">image</xsl:when>
+        <xsl:when test="contains(filetype, 'video/')">video</xsl:when>
+        <xsl:when test="contains(filetype, 'text/')">text</xsl:when>
+        <xsl:otherwise>binary</xsl:otherwise>
+      </xsl:choose>
+    </xsl:attribute>
   </xsl:template>
 </xsl:stylesheet>
