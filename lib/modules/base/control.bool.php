@@ -36,7 +36,7 @@ class BoolControl extends Control
   {
     return parent::wrapXML(array(
       'type' => 'checkbox',
-      'checked' => !empty($data->{$this->value}),
+      'selected' => !empty($data->{$this->value}),
       ));
   }
 

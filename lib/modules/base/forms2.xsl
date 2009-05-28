@@ -129,7 +129,7 @@
             <xsl:text>1</xsl:text>
           </xsl:if>
         </xsl:attribute>
-        <xsl:if test="checked">
+        <xsl:if test="@selected">
           <xsl:attribute name="checked">checked</xsl:attribute>
         </xsl:if>
       </input>
