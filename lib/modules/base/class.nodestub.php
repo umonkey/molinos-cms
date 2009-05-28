@@ -978,20 +978,12 @@ class NodeStub
    */
   private function updateLinks()
   {
-    $data = $this->serialize();
-
-    $sel = $this->db->prepare("SELECT `tid`, `key`, `data` FROM `node__rel` "
+    $sel = $this->db->prepare("SELECT `tid`, `key` FROM `node__rel` "
       . "INNER JOIN `node` ON `node`.`id` = `node__rel`.`tid` "
       . "WHERE `tid` <> ? AND `nid` = ? AND `key` IS NOT NULL");
     $sel->execute(array($this->id, $this->id));
 
-    $upd = $this->db->prepare("UPDATE `node` SET `data` = ? WHERE `id` = ?");
-
-    while ($row = $sel->fetch(PDO::FETCH_ASSOC)) {
-      $tmp = (array)@unserialize($row['data']);
-      $tmp[$row['key']] = $data;
-
-      $upd->execute(array(serialize($tmp), $row['tid']));
-    }
+    while ($nid = $sel->fetchColumn(0))
+      NodeStub::create($nid, $this->getDB())->refresh()->save();
   }
 }
