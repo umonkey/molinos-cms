@@ -90,15 +90,18 @@ class Indexer
 
       $upd = $ctx->db->prepare("INSERT INTO `{$tableName}` (`id`, `value`) VALUES (?, ?)");
 
+      $count = 0;
       while ($nid = $sel->fetchColumn(0)) {
         $node = Node::load($nid, $ctx->db);
         $upd->execute(array(
           $nid,
           $schema[$fieldName]->getIndexValue($node->$fieldName),
           ));
+        $count++;
       }
 
-      $ctx->db->commit();
+      if ($count)
+        $ctx->db->commit();
     }
   }
 }
