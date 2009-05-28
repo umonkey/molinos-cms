@@ -386,6 +386,20 @@ abstract class Control implements iFormControl
   public function getFieldEditURL(Node $node)
   {
   }
+
+  /**
+   * Возвращает структуру индекса для контрола нужного типа.
+   */
+  public static function getIndexType($className)
+  {
+    if (!class_exists($className))
+      return false;
+
+    $ctl = new $className(array(
+      'value' => 'tmp',
+      ));
+    return $ctl->getSQL();
+  }
 };
 
 class ControlData
