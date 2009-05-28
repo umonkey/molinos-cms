@@ -215,7 +215,8 @@ class WidgetAdmin
 
     $schema['pages'] = array(
       'type' => 'SetControl',
-      'group' => t('Страницы'),
+      'group' => t('Маршруты'),
+      'label' => t('Маршруты'),
       'options' => self::get_pages($ctx),
       );
 
