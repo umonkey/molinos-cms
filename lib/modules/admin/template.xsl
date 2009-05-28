@@ -66,9 +66,10 @@
 
   <xsl:template match="/page[@status!=200 and @status!=401]">
     <html>
+      <xsl:apply-templates select="." mode="head" />
       <body>
         <h1>Ошибка <xsl:value-of select="@status" /></h1>
-        <p><xsl:value-of select="@message" /></p>
+        <p><xsl:value-of select="@message" disable-output-escaping="yes" /></p>
       </body>
     </html>
   </xsl:template>
@@ -114,7 +115,7 @@
     <div id="exception">
       <h2>Ошибка <xsl:value-of select="@status" /></h2>
       <p>
-        <xsl:value-of select="@title" />
+        <xsl:value-of select="@title" disable-output-escaping="yes" />
       </p>
     </div>
   </xsl:template>
