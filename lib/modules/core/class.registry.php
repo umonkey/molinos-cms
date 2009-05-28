@@ -235,6 +235,6 @@ class Registry
    */
   private function log($message)
   {
-    error_log($message . "\n");
+    error_log(trim($message));
   }
 }
