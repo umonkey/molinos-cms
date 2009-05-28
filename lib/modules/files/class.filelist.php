@@ -32,9 +32,9 @@ class FileList extends AdminListHandler implements iAdminList
       break;
     case 'office':
       $filter['filename?|'] = array(
-        '.doc%',
-        '.xsl%',
-        '.pdf%',
+        '%.doc',
+        '%.xsl',
+        '%.pdf',
         );
       break;
     }
@@ -48,9 +48,6 @@ class FileList extends AdminListHandler implements iAdminList
   public static function on_get_list(Context $ctx)
   {
     try {
-      if ('all' == ($type = $ctx->get('type')))
-        $type = null;
-
       $options = array(
         '#raw' => true,
         'name' => 'list',
@@ -59,10 +56,11 @@ class FileList extends AdminListHandler implements iAdminList
         'advsearch' => true,
         'canedit' => true,
         'mode' => $ctx->get('mode', 'table'),
-        'type' => $type,
+        'scope' => $ctx->get('scope'),
+        'type' => 'file',
         );
 
-      $tmp = new FileList($ctx, $options['type']);
+      $tmp = new FileList($ctx, $options['scope']);
       return $tmp->getHTML('files', $options);
     } catch (TableNotFoundException $e) {
       if ($e->getTableName() != 'node__idx_filetype')

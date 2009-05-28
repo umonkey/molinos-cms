@@ -10,16 +10,17 @@
       <xsl:choose>
         <xsl:when test="data/node">
           <div class="nodes-viewmodes">
-            <span class="presentations">Вид: <a class="table" href="admin/content/files?mode=table&amp;type={@type}&amp;page={$page}&amp;search={$search}">таблица</a> <a class="list" href="admin/content/files?mode=icons&amp;type={@type}&amp;page={$page}&amp;search={$search}">иконки</a></span>
+            <span class="presentations">Вид: <a class="table" href="admin/content/files?mode=table&amp;scope={@scope}&amp;page={$page}&amp;search={$search}">таблица</a> <a class="list" href="admin/content/files?mode=icons&amp;scope={@scope}&amp;page={$page}&amp;search={$search}">иконки</a></span>
             <span>Показывать: </span>
-            <a href="admin/content/files?mode={@mode}&amp;search={$search}">все</a>,
-            <a href="admin/content/files?mode={@mode}&amp;type=picture&amp;search={$search}">картинки</a>,
-            <a href="admin/content/files?mode={@mode}&amp;type=multimedia&amp;search={$search}">мультимедиа</a>,
-            <a href="admin/content/files?mode={@mode}&amp;type=office&amp;search={$search}">офис</a>
+            <a href="admin/content/files?mode={@mode}&amp;search={$search}&amp;destination={$next}">все</a>,
+            <a href="admin/content/files?mode={@mode}&amp;scope=picture&amp;search={$search}&amp;destination={$next}">картинки</a>,
+            <a href="admin/content/files?mode={@mode}&amp;scope=multimedia&amp;search={$search}&amp;destination={$next}">мультимедиа</a>,
+            <a href="admin/content/files?mode={@mode}&amp;scope=office&amp;search={$search}&amp;destination={$next}">офис</a>
           </div>
 
           <xsl:call-template name="mcms_list_search">
             <xsl:with-param name="advanced" select="@advsearch" />
+            <xsl:with-param name="createtxt">Загрузить</xsl:with-param>
           </xsl:call-template>
           <form method="post" id="nodeList">
             <input type="hidden" name="sendto" value="{$sendto}" />
@@ -36,14 +37,14 @@
             </xsl:apply-templates>
           </form>
         </xsl:when>
-        <xsl:when test="$search and @type">
-          <p>Нет таких файлов.  Попробуйте <a href="admin/content/files?mode={@mode}&amp;type={@type}&amp;destination={$next}">отменить поиск</a> или поискать «<xsl:value-of select="$search" />» среди файлов <a href="admin/content/files?mode={@mode}&amp;search={$search}&amp;destination={$next}">любого типа</a>.</p>
+        <xsl:when test="$search and @scope">
+          <p>Нет таких файлов.  Попробуйте <a href="admin/content/files?mode={@mode}&amp;scope={@scope}&amp;destination={$next}">отменить поиск</a> или поискать «<xsl:value-of select="$search" />» среди файлов <a href="admin/content/files?mode={@mode}&amp;search={$search}&amp;destination={$next}">любого типа</a>.</p>
         </xsl:when>
         <xsl:when test="$search">
-          <p>Нет таких файлов, попробуйте <a href="admin/content/files?mode={@mode}&amp;type={@type}&amp;destination={$next}">отменить поиск</a>.</p>
+          <p>Нет таких файлов, попробуйте <a href="admin/content/files?mode={@mode}&amp;scope={@scope}&amp;destination={$next}">отменить поиск</a>.</p>
         </xsl:when>
-        <xsl:when test="@type">
-          <p>Нет файлов такого типа, <a href="admin/content/files?mode={@mode}&amp;type=all&amp;search={$search}&amp;destination={$next}">показать все файлы</a>?</p>
+        <xsl:when test="@scope">
+          <p>Нет файлов такого типа, <a href="admin/content/files?mode={@mode}&amp;search={$search}&amp;destination={$next}">показать все файлы</a>?</p>
         </xsl:when>
         <xsl:otherwise>
         </xsl:otherwise>
