@@ -2,24 +2,6 @@
 
 class AttachmentRPC extends RPCHandler
 {
-  /**
-   * Вывод содержимого файлового архива.
-   */
-  public static function on_get_list(Context $ctx)
-  {
-    $options = array(
-      '#raw' => true,
-      'name' => 'list',
-      'title' => t('Файловый архив'),
-      'path' => os::webpath(MCMS_SITE_FOLDER, $ctx->config->get('modules/files/storage')),
-      'advsearch' => true,
-      'canedit' => true,
-      );
-
-    $tmp = new AttachmentListHandler($ctx);
-    return $tmp->getHTML('files', $options);
-  }
-
   public static function on_rpc(Context $ctx)
   {
     return parent::hookRemoteCall($ctx, __CLASS__);
@@ -202,6 +184,7 @@ class AttachmentRPC extends RPCHandler
       'title' => t('Редактирование файлов'),
       'action' => 'admin/files/edit?destination=' . urlencode($ctx->get('destination')),
       'path' => os::webpath(MCMS_SITE_FOLDER, $ctx->config->get('modules/files/storage')),
+      'ids' => $ctx->get('files'),
       ), $nodes);
   }
 
@@ -290,5 +273,24 @@ class AttachmentRPC extends RPCHandler
         ), html::cdata(t('по FTP')));
 
     return $result;
+  }
+
+  /**
+   * Обновление иконок файлов.
+   * Сейчас просто пересохраняет файлы, чтобы сгенерировать все версии.
+   */
+  public static function on_update_icons(Context $ctx)
+  {
+    $ids = explode(' ', $ctx->get('files'));
+
+    if (empty($ids))
+      throw new BadRequestException(t('Не указаны идентификаторы файлов (GET-параметр files).'));
+
+    $ctx->db->beginTransaction();
+    foreach ($ids as $id)
+      Node::load($id, $ctx->db)->touch()->getObject()->save();
+    $ctx->db->commit();
+
+    return $ctx->getRedirect();
   }
 }

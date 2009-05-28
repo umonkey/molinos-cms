@@ -1,0 +1,11 @@
+ul.files { list-style:none outside; width:100%; overflow:hidden; margin:2.667em 0 0 0; }
+ul.files li { width:200px; float:left; text-align:center; margin:0; padding:0 0 2.667em 0; }
+ul.files li img { display:block; width:100px; margin:0 auto 1.335em auto; }
+
+ul.files-edit { list-style:none outside; width:100%; overflow:hidden; }
+ul.files-edit li { width:100%; overflow:hidden; }
+ul.files-edit li img { float:left; margin:0 0 1.335em 0; }
+ul.files-edit li fieldset { padding:0 0 0 15px; }
+ul.files-edit li fieldset label { display:block; margin:0 0 .667em 0; font-weight:bold; }
+ul.files-edit li fieldset label span { display:block; float:left; width:70px; text-align:right; margin:0 10px 0 0;  }
+ul.files-edit li fieldset label input { width:280px; }

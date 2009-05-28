@@ -1,0 +1,5 @@
+.nodes-viewmodes { background:#C0D7E6; font-size:0.917em; line-height:1.455; padding:5px 10px; }
+.nodes-viewmodes .presentations { float:right; }
+.nodes-viewmodes .presentations a { padding:0 0 0 15px; margin:0 0 0 10px; }
+.nodes-viewmodes .presentations a.table { background:url(table.png) no-repeat 0 .364em; }
+.nodes-viewmodes .presentations a.list { background:url(list.png) no-repeat 0 .364em; }

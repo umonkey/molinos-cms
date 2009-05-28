@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:import href="lib.xsl" />
   <xsl:import href="../../admin/template.xsl" />
 
   <xsl:template match="content[@name='editfiles']" mode="content">
@@ -9,13 +10,13 @@
     <form id="editfiles" method="post" action="{@action}" enctype="multipart/form-data">
       <table>
         <tbody>
+          <xsl:apply-templates select="." mode="saveline" />
           <xsl:for-each select="node">
             <tr>
               <td rowspan="3">
-                <xsl:apply-templates select="filetype" mode="classname">
-                  <xsl:with-param name="prefix">preview</xsl:with-param>
-                </xsl:apply-templates>
-                <xsl:apply-templates select="versions/version[@name='thumbnail']" />
+                <a href="admin/node/{@id}?destination={$back}">
+                  <xsl:apply-templates select="." mode="thumbnail" />
+                </a>
               </td>
               <td class="r">Имя:</td>
               <td>
@@ -40,36 +41,22 @@
               </td>
             </tr>
           </xsl:if>
-          <tr>
-            <td colspan="2" />
-            <td>
-              <input type="submit" value="Сохранить" />
-            </td>
-          </tr>
+          <xsl:apply-templates select="." mode="saveline" />
         </tbody>
       </table>
     </form>
   </xsl:template>
 
-  <xsl:template match="version">
-    <img src="{@url}" width="{@width}" height="{@height}" alt="{@name}" />
-  </xsl:template>
-
-  <xsl:template match="filetype" mode="classname">
-    <xsl:param name="prefix" />
-    <xsl:attribute name="class">
-      <xsl:value-of select="$prefix" />
-      <xsl:if test="$prefix">
-        <xsl:text> </xsl:text>
-      </xsl:if>
-      <xsl:text>ft-</xsl:text>
-      <xsl:choose>
-        <xsl:when test="contains(filetype, 'audio/')">audio</xsl:when>
-        <xsl:when test="contains(filetype, 'image/')">image</xsl:when>
-        <xsl:when test="contains(filetype, 'video/')">video</xsl:when>
-        <xsl:when test="contains(filetype, 'text/')">text</xsl:when>
-        <xsl:otherwise>binary</xsl:otherwise>
-      </xsl:choose>
-    </xsl:attribute>
+  <xsl:template match="content" mode="saveline">
+    <tr class="okbtn">
+      <td colspan="2" />
+      <td>
+        <input type="submit" value="Сохранить" />
+        <xsl:if test="count(node[contains(filetype,'image/')]) &gt; count(node[contains(filetype,'image/') and versions/version[@width=100 and @height=100]])">
+          <xsl:text> или </xsl:text>
+          <a href="admin/files/update-icons?files={@ids}&amp;destination={$back}">обновить иконки</a>
+        </xsl:if>
+      </td>
+    </tr>
   </xsl:template>
 </xsl:stylesheet>

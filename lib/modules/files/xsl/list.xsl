@@ -1,8 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:import href="lib.xsl" />
   <xsl:import href="../../admin/xsl/list.xsl" />
 
-  <xsl:template match="data[../@name='list' and ../@preset='files']" mode="nodelist">
+  <xsl:template match="content" mode="content">
+    <div class="doclist filelist">
+      <h2>Файловый архив</h2>
+
+      <xsl:choose>
+        <xsl:when test="data/node">
+          <div class="nodes-viewmodes">
+            <span class="presentations">Вид: <a class="table" href="admin/content/files?mode=table&amp;type={@type}&amp;page={$page}&amp;search={$search}">таблица</a> <a class="list" href="admin/content/files?mode=icons&amp;type={@type}&amp;page={$page}&amp;search={$search}">иконки</a></span>
+            <span>Показывать: </span>
+            <a href="admin/content/files?mode={@mode}&amp;search={$search}">все</a>,
+            <a href="admin/content/files?mode={@mode}&amp;type=picture&amp;search={$search}">картинки</a>,
+            <a href="admin/content/files?mode={@mode}&amp;type=multimedia&amp;search={$search}">мультимедиа</a>,
+            <a href="admin/content/files?mode={@mode}&amp;type=office&amp;search={$search}">офис</a>
+          </div>
+
+          <xsl:call-template name="mcms_list_search">
+            <xsl:with-param name="advanced" select="@advsearch" />
+          </xsl:call-template>
+          <form method="post" id="nodeList">
+            <input type="hidden" name="sendto" value="{$sendto}" />
+            <xsl:apply-templates select="data" mode="massctl">
+              <xsl:with-param name="edit" select="@canedit" />
+              <xsl:with-param name="create" select="@create" />
+            </xsl:apply-templates>
+            <table class="nodes">
+              <xsl:apply-templates select="data" mode="nodelist" />
+            </table>
+            <xsl:apply-templates select="data" mode="massctl">
+              <xsl:with-param name="edit" select="@canedit" />
+              <xsl:with-param name="create" select="@create" />
+            </xsl:apply-templates>
+          </form>
+        </xsl:when>
+        <xsl:when test="$search and @type">
+          <p>Нет таких файлов.  Попробуйте <a href="admin/content/files?mode={@mode}&amp;type={@type}&amp;destination={$next}">отменить поиск</a> или поискать «<xsl:value-of select="$search" />» среди файлов <a href="admin/content/files?mode={@mode}&amp;search={$search}&amp;destination={$next}">любого типа</a>.</p>
+        </xsl:when>
+        <xsl:when test="$search">
+          <p>Нет таких файлов, попробуйте отменить поиск.</p>
+        </xsl:when>
+        <xsl:when test="@type">
+          <p>Нет файлов такого типа, <a href="admin/content/files?mode={@mode}&amp;type=all&amp;search={$search}&amp;destination={$next}">показать все файлы</a>?</p>
+        </xsl:when>
+        <xsl:otherwise>
+        </xsl:otherwise>
+      </xsl:choose>
+    </div>
+  </xsl:template>
+
+  <xsl:template match="data[../@mode='icons']" mode="nodelist">
+    <ul class="files nodes">
+      <xsl:for-each select="node">
+        <li>
+          <a href="admin/node/{@id}?destination={$back}">
+            <xsl:apply-templates select="." mode="thumbnail" />
+          </a>
+          <label>
+            <input type="checkbox" name="selected[]" value="{@id}" />
+            <a href="admin/node/{@id}">
+              <xsl:value-of select="@name" />
+            </a>
+          </label>
+        </li>
+      </xsl:for-each>
+    </ul>
+  </xsl:template>
+
+  <xsl:template match="data[../@mode='table']" mode="nodelist">
     <thead>
       <tr>
         <th/>
@@ -29,16 +96,9 @@
           </td>
           <td class="field-name">
             <a href="admin/node/{@id}">
-              <xsl:attribute name="class">
-                <xsl:text>ft-</xsl:text>
-                <xsl:choose>
-                  <xsl:when test="contains(filetype, 'audio/')">audio</xsl:when>
-                  <xsl:when test="contains(filetype, 'image/')">image</xsl:when>
-                  <xsl:when test="contains(filetype, 'video/')">video</xsl:when>
-                  <xsl:when test="contains(filetype, 'text/')">text</xsl:when>
-                  <xsl:otherwise>binary</xsl:otherwise>
-                </xsl:choose>
-              </xsl:attribute>
+              <xsl:apply-templates select="." mode="thumbnail">
+                <xsl:with-param name="size">16</xsl:with-param>
+              </xsl:apply-templates>
               <xsl:value-of select="@name" />
             </a>
           </td>

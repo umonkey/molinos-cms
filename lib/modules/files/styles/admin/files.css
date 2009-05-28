@@ -28,9 +28,12 @@
   padding-right: 4px;
 }
 #editfiles img {
-  border: solid 1px #eee;
   margin-right: 10px;
 }
 #editfiles .text {
   width: 300px;
+}
+
+.filelist .field-name img {
+  margin-right: 4px;
 }
