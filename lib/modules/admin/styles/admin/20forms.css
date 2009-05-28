@@ -56,3 +56,7 @@ fieldset.select legend {
 fieldset.select > label {
   display: block;
 }
+
+tr.okbtn {
+  background-color: #eee;
+}
