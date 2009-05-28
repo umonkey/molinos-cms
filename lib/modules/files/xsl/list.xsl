@@ -40,7 +40,7 @@
           <p>Нет таких файлов.  Попробуйте <a href="admin/content/files?mode={@mode}&amp;type={@type}&amp;destination={$next}">отменить поиск</a> или поискать «<xsl:value-of select="$search" />» среди файлов <a href="admin/content/files?mode={@mode}&amp;search={$search}&amp;destination={$next}">любого типа</a>.</p>
         </xsl:when>
         <xsl:when test="$search">
-          <p>Нет таких файлов, попробуйте отменить поиск.</p>
+          <p>Нет таких файлов, попробуйте <a href="admin/content/files?mode={@mode}&amp;type={@type}&amp;destination={$next}">отменить поиск</a>.</p>
         </xsl:when>
         <xsl:when test="@type">
           <p>Нет файлов такого типа, <a href="admin/content/files?mode={@mode}&amp;type=all&amp;search={$search}&amp;destination={$next}">показать все файлы</a>?</p>
@@ -55,7 +55,7 @@
     <ul class="files nodes">
       <xsl:for-each select="node">
         <li>
-          <a href="admin/node/{@id}?destination={$back}">
+          <a class="thumbnail" href="admin/node/{@id}?destination={$back}">
             <xsl:apply-templates select="." mode="thumbnail" />
           </a>
           <label>

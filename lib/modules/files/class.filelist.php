@@ -48,6 +48,9 @@ class FileList extends AdminListHandler implements iAdminList
   public static function on_get_list(Context $ctx)
   {
     try {
+      if ('all' == ($type = $ctx->get('type')))
+        $type = null;
+
       $options = array(
         '#raw' => true,
         'name' => 'list',
@@ -56,7 +59,7 @@ class FileList extends AdminListHandler implements iAdminList
         'advsearch' => true,
         'canedit' => true,
         'mode' => $ctx->get('mode', 'table'),
-        'type' => $ctx->get('type', 'all'),
+        'type' => $type,
         );
 
       $tmp = new FileList($ctx, $options['type']);
