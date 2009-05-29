@@ -120,7 +120,7 @@ class Node
     while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
       $id = $row['id'];
       unset($row['id']);
-      $result[$id] = NodeStub::create($id, $db, $row);
+      $result[$id] = NodeStub::create($id, $db, $row)->getObject();
     }
 
     return $result;
