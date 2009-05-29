@@ -34,7 +34,7 @@ try {
   printf("Updating ChangeLogs in %s/\n", $dirName);
   foreach (os::find('lib', 'modules', '*') as $tmp) {
     $fileName = os::path($dirName, basename($tmp) . '.txt');
-    if (os::exec(sprintf('git log -- %s > %s', $tmp, $fileName)))
+    if (os::exec(sprintf('git log --stat -- %s > %s', $tmp, $fileName)))
       printf("  - %s\n", $fileName);
     else
       printf("  + %s\n", $fileName);
@@ -83,6 +83,11 @@ try {
     if (os::exec('googlecode_upload.py', array('-s', $info, '-p', 'molinos-cms', '-l', 'Deprecated,Type-Module,R' . MCMS_RELEASE, $zipName)))
       printf("  error\n");
   }
+
+  printf("Sending changes to Subversion.\n");
+  chdir('tools/svn');
+  if (!os::exec('svn', array('commit', '-m', 'Automatic upload by tools/release.php'), $status))
+    printf("SVN SAID: %s\n\n\n", join("\n", $status));
 } catch (Exception $e) {
   printf("ERROR: %s\n", $e->getMessage());
   exit(1);
