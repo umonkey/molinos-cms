@@ -660,21 +660,30 @@ class FileNode extends Node implements iContentType
 
     if ($tmp = $this->getEmbedHTML($ctx)) {
       $result .= html::em('field', array(
-        'title' => t('Образец'),
+        'title' => t('Оригинал'),
         ), html::em('value', array('class' => 'embed'), html::cdata($tmp)));
     }
 
     if (!empty($this->versions)) {
-      $versions = '';
       foreach ((array)$this->versions as $name => $info) {
+        $em = array(
+          'title' => t('Версия %name', array(
+            '%name' => $name,
+            )),
+          );
+
         $url = os::webpath($ctx->config->getPath('modules/files/storage'), $info['filename']);
-        $versions .= t('<li><a href="@url">%name</a>:<br/><img src="@url" width="%width" height="%height" alt="%filename" /></li>', array(
+
+        $tmp = t('<a href="@url"><img src="@url" width="%width" height="%height" alt="%filename" /></a>', array(
           '%name' => $name,
           '%width' => $info['width'],
           '%height' => $info['height'],
           '%filename' => basename($info['filename']),
           '@url' => $url,
           ));
+        $em['#text'] = html::em('value', html::cdata($tmp));
+
+        $result .= html::em('field', $em);
       }
 
       $versions = html::wrap('ul', $versions);

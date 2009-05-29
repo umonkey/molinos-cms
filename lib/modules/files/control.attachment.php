@@ -139,15 +139,41 @@ class AttachmentControl extends Control
 
   public function preview($value)
   {
-    if ($file = $value->{$this->value}) {
-      $html = t('<a href="@url">!img</a>', array(
-        '@url' => 'admin/node/' . $file->id,
-        '!img' => $this->getEmbedCode($value->{$this->value}),
-        ));
-      return html::em('value', array(
-        'html' => true,
-        ), html::cdata($html));
+    $value = $value->{$this->value};
+
+    if (0 === strpos($value->filetype, 'image/')) {
+      $path = Context::last()->config->getPath('modules/files/storage');
+
+      if (isset($value->versions['thumbnail'])) {
+        $attrs = array(
+          'width' => $value->versions['thumbnail']['width'],
+          'height' => $value->versions['thumbnail']['height'],
+          'src' => os::webpath($path, $value->versions['thumbnail']['filename']),
+          );
+      } else {
+        $attrs = array(
+          'width' => $value->width,
+          'height' => $value->height,
+          'src' => os::webpath($path, $value->filepath),
+          );
+      }
+
+      $attrs['alt'] = $value->filename;
+
+      $img = html::em('img', $attrs);
+      $html = html::em('a', array(
+        'href' => 'admin/node/' . $value->id,
+        ), $img);
     }
+
+    // Не картинки.
+    else {
+      $html = $this->getEmbedCode($value);
+    }
+
+    return html::em('value', array(
+      'html' => true,
+      ), html::cdata($html));
   }
 
   /**
