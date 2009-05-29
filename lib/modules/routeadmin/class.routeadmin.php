@@ -138,9 +138,11 @@ class RouteAdmin
   private static function getSchema(Context $ctx)
   {
     $widgets = array();
-    foreach (Widget::loadWidgets($ctx) as $k => $v)
-      $widgets[$k] = sprintf("%s (%s)", $v['title'], $v['classname']);
-    asort($widgets);
+    if (class_exists('Widget')) {
+      foreach (Widget::loadWidgets($ctx) as $k => $v)
+        $widgets[$k] = sprintf("%s (%s)", $v['title'], $v['classname']);
+      asort($widgets);
+    }
 
     $themes = array();
     foreach (glob(os::path(MCMS_SITE_FOLDER, 'themes', '*'), GLOB_ONLYDIR) as $dir)
