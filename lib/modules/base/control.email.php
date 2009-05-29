@@ -40,8 +40,7 @@ class EmailControl extends Control
     return parent::wrapXML(array(
       'type' => 'text',
       'mode' => 'email',
-      'value' => $value,
-      ));
+      ), html::cdata($value));
   }
 
   public function getSQL()

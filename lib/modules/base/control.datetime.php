@@ -37,8 +37,7 @@ class DateTimeControl extends Control
     return parent::wrapXML(array(
       'type' => 'text',
       'mode' => 'datetime',
-      'value' => $data->{$this->value},
-      ));
+      ), html::cdata($data->{$this->value}));
   }
 
   public function getSQL()

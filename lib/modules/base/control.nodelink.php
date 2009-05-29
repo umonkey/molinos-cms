@@ -78,8 +78,9 @@ class NodeLinkControl extends Control
       $this->addClass('autocomplete');
 
     return parent::wrapXML(array(
-      'value' => $this->getCurrentValue($data),
-      ));
+      'type' => 'text',
+      'mode' => 'autocomplete',
+      ), html::cdata($this->getCurrentValue($data)));
   }
 
   // Возвращает текущее значение поля.

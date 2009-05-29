@@ -35,7 +35,6 @@ class HiddenControl extends Control
 
     return parent::wrapXML(array(
       'type' => 'hidden',
-      'value' => $value,
-      ));
+      ), html::cdata($value));
   }
 };
