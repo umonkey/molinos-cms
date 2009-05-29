@@ -34,8 +34,15 @@ class FileList extends AdminListHandler implements iAdminList
     case 'office':
       $filter['filename?|'] = array(
         '%.doc',
+        '%.docx',
+        '%.rtf',
         '%.xsl',
+        '%.xlsx',
         '%.pdf',
+        '%.ppt',
+        '%.pptx',
+        '%.pps',
+        '%.ppsx',
         );
       break;
     }

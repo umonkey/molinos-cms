@@ -29,6 +29,12 @@
       <xsl:when test="contains($mimetype, 'image/')">image</xsl:when>
       <xsl:when test="contains($mimetype, 'video/')">video</xsl:when>
       <xsl:when test="contains($mimetype, 'text/')">text</xsl:when>
+      <xsl:when test="contains($mimetype, 'application/pdf')">document</xsl:when>
+      <xsl:when test="contains($mimetype, 'application/vnd.openxmlformats-officedocument.word')">document</xsl:when>
+      <xsl:when test="contains($mimetype, 'application/msword')">document</xsl:when>
+      <xsl:when test="contains($mimetype, 'application/vnd.openxmlformats-officedocument.presentation')">presentation</xsl:when>
+      <xsl:when test="contains($mimetype, 'application/vnd.ms-powerpoint')">presentation</xsl:when>
+      <xsl:when test="contains($mimetype, 'application/vnd.openxmlformats-officedocument.spreadsheet')">spreadsheet</xsl:when>
       <xsl:when test="contains($mimetype, 'application/x-deb')">package</xsl:when>
       <xsl:when test="contains($mimetype, 'application/x-rar')">package</xsl:when>
       <xsl:when test="contains($mimetype, 'application/x-tar')">package</xsl:when>

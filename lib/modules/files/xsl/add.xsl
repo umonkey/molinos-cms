@@ -24,9 +24,11 @@
           <xsl:apply-templates select="." mode="addfilectl" />
         </li>
       </ol>
+      <!--
       <xsl:if test="@mode='remote'">
         <p><label><input type="checkbox" name="symlink" value="1" /> не скачивать файлы, использовать ссылки</label></p>
       </xsl:if>
+      -->
       <p>
         <input type="submit" value="Продолжить" />
         <span class="jsonly">

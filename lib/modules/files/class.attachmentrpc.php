@@ -43,7 +43,7 @@ class AttachmentRPC extends RPCHandler
 
     switch ($mode = $pathinfo['mode']) {
     case 'remote':
-      $options['title'] = t('Добавление <a href="@url">файлов</a> с другого сайта', array(
+      $options['title'] = t('Добавление файлов с другого сайта', array(
         '@url' => 'admin/content/files',
         ));
       $help = t('<p>Введите ссылки на файлы, включая префикс «http://».  Файлы могут быть любого размера.</p>');
@@ -83,13 +83,7 @@ class AttachmentRPC extends RPCHandler
    */
   public static function on_get_ftp_form(Context $ctx)
   {
-    if (!$ftp = $ctx->config->get('modules/files/ftp'))
-      throw new PageNotFoundException();
-
-    if (!is_dir($ftp = os::path(MCMS_SITE_FOLDER, $ftp)))
-      throw new PageNotFoundException();
-
-    if (!($files = os::find(os::path($ftp, '*'))))
+    if (!($files = self::getFtpFiles($ctx)))
       throw new PageNotFoundException();
 
     $options = array(
@@ -159,6 +153,9 @@ class AttachmentRPC extends RPCHandler
 
           $tmp = parse_url($url);
           $file['name'] = basename($tmp['path']);
+
+          if ('application/octet-stream' == $file['type'])
+            $file['type'] = os::getFileType($file['tmp_name'], $file['name']);
 
           $files[] = $file;
         }
@@ -266,7 +263,7 @@ class AttachmentRPC extends RPCHandler
         'name' => 'remote',
         'href' => 'admin/create/file/remote' . $next,
         ), html::cdata(t('с другого веб-сайта')));
-    if ($mode != 'ftp')
+    if ($mode != 'ftp' and self::getFtpFiles($ctx))
       $result .= html::em('mode', array(
         'name' => 'ftp',
         'href' => 'admin/create/file/ftp' . $next,
@@ -292,5 +289,23 @@ class AttachmentRPC extends RPCHandler
     $ctx->db->commit();
 
     return $ctx->getRedirect();
+  }
+
+  /**
+   * Проверяет, возможна ли работа с FTP.
+   * Возвращает список доступных файлов.
+   */
+  private static function getFtpFiles(Context $ctx)
+  {
+    if (!$ftp = $ctx->config->get('modules/files/ftp'))
+      return false;
+
+    if (!is_dir($ftp = os::path(MCMS_SITE_FOLDER, $ftp)))
+      return false;
+
+    if (!($files = os::find(os::path($ftp, '*'))))
+      return false;
+
+    return $files;
   }
 }

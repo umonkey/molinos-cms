@@ -714,21 +714,30 @@ class FileNode extends Node implements iContentType
   {
     $url = $ctx->url()->getBase($ctx) . os::webpath(MCMS_SITE_FOLDER, $ctx->config->get('modules/files/storage'), $this->filepath);
 
-    if (0 === strpos($this->filetype, 'image/'))
+    list($type) = explode('/', $this->filetype);
+    switch ($type) {
+    case 'image':
       return t('<img src="@url" alt="%name" />', array(
         '@url' => $url,
         '%name' => $this->name,
         '%width' => $this->width,
         '%height' => $this->height,
         ));
-
-    if (0 === strpos($this->filetype, 'video/'))
+    case 'video':
       return t('<object width="%width" height="%height" type="%type" data="@url" />', array(
         '@url' => $url,
         '%type' => $this->filetype,
         '%width' => $this->width,
         '%height' => $this->height,
         ));
+    case 'audio':
+      return t('<object width="%width" height="%height" type="%type" data="@url" />', array(
+        '@url' => $url,
+        '%type' => $this->filetype,
+        '%width' => 200,
+        '%height' => 50,
+        ));
+    }
   }
 
   /**

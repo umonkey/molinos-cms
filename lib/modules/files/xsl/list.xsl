@@ -79,6 +79,7 @@
         <th/>
         <th>Имя файла</th>
         <th>Объём</th>
+        <th>Владелец</th>
         <th>Добавлен</th>
       </tr>
     </thead>
@@ -97,7 +98,7 @@
             </a>
           </td>
           <td class="field-name">
-            <a href="admin/node/{@id}">
+            <a href="admin/node/{@id}?destination={$back}">
               <xsl:apply-templates select="." mode="thumbnail">
                 <xsl:with-param name="size">16</xsl:with-param>
               </xsl:apply-templates>
@@ -108,6 +109,9 @@
             <xsl:call-template name="filesize">
               <xsl:with-param name="size" select="filesize" />
             </xsl:call-template>
+          </td>
+          <td>
+            <xsl:apply-templates select="uid" />
           </td>
           <td>
             <xsl:apply-templates select="@created" />
@@ -189,5 +193,14 @@
         </tr>
       </xsl:for-each>
     </tbody>
+  </xsl:template>
+
+  <xsl:template match="uid">
+    <a href="admin/node/{@id}">
+      <xsl:value-of select="fullname" />
+      <xsl:if test="not(fullname)">
+        <xsl:value-of select="@name" />
+      </xsl:if>
+    </a>
   </xsl:template>
 </xsl:stylesheet>
