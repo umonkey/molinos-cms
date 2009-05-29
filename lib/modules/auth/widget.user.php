@@ -58,7 +58,7 @@ class UserWidget extends Widget
   {
     $result = '';
     if ($this->ctx->user->id)
-      $result .= $this->ctx->user->getNode()->getXML();
+      $result .= Node::findXML($this->ctx->db, array('id' => $this->ctx->user->getNode()->id));
 
     if (empty($options['uid']))
       return $result . $this->ctx->registry->unicast('ru.molinos.cms.auth.form', array($this->ctx));
