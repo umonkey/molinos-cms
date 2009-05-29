@@ -40,7 +40,7 @@ class AdminPage
 
     $request = '';
     if ($user = $ctx->user->getNode())
-      $request .= html::wrap('user', $user->getXML());
+      $request .= html::wrap('user', Node::findXML($ctx->db, array('id' => $user->id)));
     $request .= $ctx->url()->getArgsXML();
     $this->content .= html::wrap('request', $request);
 
