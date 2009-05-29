@@ -37,7 +37,15 @@
   <xsl:template match="input[@type='text']">
     <label class="control">
       <xsl:apply-templates select="." mode="label" />
-      <input type="text" name="{@name}" value="{text()}" class="text" />
+      <input type="text" name="{@name}" value="{text()}">
+        <xsl:attribute name="class">
+          <xsl:text>text</xsl:text>
+          <xsl:if test="@mode">
+            <xsl:text> mode-</xsl:text>
+            <xsl:value-of select="@mode" />
+          </xsl:if>
+        </xsl:attribute>
+      </input>
     </label>
     <xsl:apply-templates select="." mode="help" />
   </xsl:template>
