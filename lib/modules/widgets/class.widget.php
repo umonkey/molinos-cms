@@ -143,6 +143,7 @@ abstract class Widget implements iWidget
   {
     if (empty($this->options['#cache']))
       return null;
+    $this->options['#cacheseed'] = self::seed();
     return md5(serialize($this->options));
   }
 
@@ -468,6 +469,30 @@ abstract class Widget implements iWidget
 
     asort($result);
 
+    return $result;
+  }
+
+  /**
+   * Инвалидация кэша виджетов при изменении любой ноды.
+   * @mcms_message ru.molinos.cms.hook.node
+   */
+  public static function hook_node_update(Context $ctx)
+  {
+    self::seed(true);
+  }
+
+  /**
+   * Возвращает текущее зерно кэша, опционально его изменяет.
+   */
+  private static function seed($reset = false)
+  {
+    $cache = cache::getInstance();
+    $result = intval($cache->widgetseed);
+    if ($reset) {
+      $cache->widgetseed = ++$result;
+      if (defined('MCMS_FLOG_CACHE'))
+        mcms::flog('widget seed changed to ' . $result);
+    }
     return $result;
   }
 };
