@@ -228,7 +228,7 @@ class RouteAdmin
 
   private static function getFormData($key, array $data)
   {
-    list($dummy, $data['host'], $data['path']) = explode('/', $key, 3);
+    list($data['host'], $data['path']) = explode('/', $key, 2);
     return Control::data($data);
   }
 }
