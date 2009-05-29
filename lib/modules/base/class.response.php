@@ -12,6 +12,8 @@ class Response
 
   public function __construct($content, $type = 'text/html', $code = 200)
   {
+    if ('text/xml' == $type and 0 !== strpos($content, '<?xml'))
+      $content = '<?xml version="1.0"?>' . $content;
     $this->code = $code;
     $this->type = $type;
     $this->content = $content;
