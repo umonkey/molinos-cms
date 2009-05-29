@@ -66,11 +66,6 @@ class Router
     return $result;
   }
 
-  private static function getCacheFileName()
-  {
-    return MCMS_ROOT . DIRECTORY_SEPARATOR . MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'route.php';
-  }
-
   /**
    * Вытаскивает таблицу маршрутизации из .ini файла, если не находит — возвращает пустой массив.
    */
@@ -203,16 +198,6 @@ class Router
     }
 
     return false;
-  }
-
-  /**
-   * Сброс кэша.
-   */
-  public static function flush()
-  {
-    if (is_readable($fileName = self::getCacheFileName()))
-      unlink($fileName);
-    unset(cache::getInstance()->route);
   }
 
   /**
