@@ -396,7 +396,7 @@ class NodeApiModule extends RPCHandler
     if (!$node->checkPermission('u'))
       throw new ForbiddenException();
     $ctx->db->beginTransaction();
-    $node->touch()->save();
+    $node->refresh()->save();
     $ctx->db->commit();
     return $ctx->getRedirect();
   }
