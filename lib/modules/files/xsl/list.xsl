@@ -12,12 +12,39 @@
           <div class="nodes-viewmodes">
             <span class="presentations">Вид: <a class="table" href="admin/content/files?mode=table&amp;scope={@scope}&amp;page={$page}&amp;search={$search}">таблица</a> <a class="list" href="admin/content/files?mode=icons&amp;scope={@scope}&amp;page={$page}&amp;search={$search}">иконки</a></span>
             <span>Показывать: </span>
-            <a href="admin/content/files?mode={@mode}&amp;search={$search}&amp;destination={$next}">все</a>,
-            <a href="admin/content/files?mode={@mode}&amp;scope=picture&amp;search={$search}&amp;destination={$next}">картинки</a>,
-            <a href="admin/content/files?mode={@mode}&amp;scope=multimedia&amp;search={$search}&amp;destination={$next}">мультимедиа</a>,
-            <a href="admin/content/files?mode={@mode}&amp;scope=office&amp;search={$search}&amp;destination={$next}">офис</a>
+		<xsl:choose>
+			<xsl:when test="/page/content/@scope">
+				<a href="admin/content/files?mode={@mode}&amp;search={$search}&amp;destination={$next}">все</a>,
+			</xsl:when>
+			<xsl:otherwise>
+				все,
+			</xsl:otherwise>
+		</xsl:choose>
+		<xsl:choose>
+			<xsl:when test="/page/content/@scope = 'picture'">
+				картинки,
+			</xsl:when>
+			<xsl:otherwise>
+				<a href="admin/content/files?mode={@mode}&amp;scope=picture&amp;search={$search}&amp;destination={$next}">картинки</a>,
+			</xsl:otherwise>
+		</xsl:choose>
+            <xsl:choose>
+			<xsl:when test="/page/content/@scope = 'multimedia'">
+				мультимедиа,
+			</xsl:when>
+			<xsl:otherwise>
+				<a href="admin/content/files?mode={@mode}&amp;scope=multimedia&amp;search={$search}&amp;destination={$next}">мультимедиа</a>,
+			</xsl:otherwise>
+		</xsl:choose>
+		<xsl:choose>
+			<xsl:when test="/page/content/@scope = 'office'">
+				офис
+			</xsl:when>
+			<xsl:otherwise>
+				<a href="admin/content/files?mode={@mode}&amp;scope=office&amp;search={$search}&amp;destination={$next}">офис</a>
+			</xsl:otherwise>
+		</xsl:choose>
           </div>
-
           <xsl:call-template name="mcms_list_search">
             <xsl:with-param name="advanced" select="@advsearch" />
             <xsl:with-param name="advancedlink">admin/content/files/search</xsl:with-param>
@@ -102,7 +129,7 @@
               <xsl:apply-templates select="." mode="thumbnail">
                 <xsl:with-param name="size">16</xsl:with-param>
               </xsl:apply-templates>
-              <xsl:value-of select="@name" />
+              <span><xsl:value-of select="@name" /></span>
             </a>
           </td>
           <td class="r">

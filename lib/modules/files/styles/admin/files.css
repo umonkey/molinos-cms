@@ -37,3 +37,8 @@
 .filelist .field-name img {
   margin-right: 4px;
 }
+
+.filelist .field-name a { text-decoration:none; }
+	.filelist .field-name a img { vertical-align:middle; }
+	.filelist .field-name a span { text-decoration:underline; }
+	.filelist .field-name a:hover span { text-decoration:none; }
