@@ -29,16 +29,13 @@ class NodeApiModule extends RPCHandler
    */
   public static function rpc_post_modify(Context $ctx)
   {
-    $node = Node::load($ctx->get('node'));
-
     $field = $ctx->get('field');
     $value = $ctx->get('value');
 
     if (null === $field)
       throw new InvalidArgumentException(t('Не указан параметр field.'));
 
-    if (!$node->checkPermission('u'))
-      throw new ForbiddenException();
+    $node = Node::load($ctx->get('node'))->knock('u');
 
     $node->$field = $value;
     $node->save($ctx->db);
@@ -49,10 +46,7 @@ class NodeApiModule extends RPCHandler
    */
   public static function rpc_get_editor(Context $ctx)
   {
-    $node = Node::load($ctx->get('node'));
-
-    if (!$node->checkPermission('u'))
-      throw new ForbiddenException(t('Вам нельзя редактировать этот объект.'));
+    $node = Node::load($ctx->get('node'))->knock('u');
 
     $schema = $node->getSchema();
 
@@ -142,28 +136,14 @@ class NodeApiModule extends RPCHandler
   }
 
   /**
-   * Ренидексация объекта (используется?)
-   */
-  public static function rpc_get_reindex(Context $ctx)
-  {
-    $node = Node::load(array('id' => $ctx->get('node'), '#recurse' => 1));
-    $ctx->user->checkAccess('u', $node->class);
-
-    if ($node->class == 'type')
-      $node->updateTable();
-    else
-      $node->reindex();
-  }
-
-  /**
    * Публикация объектов.
    */
   public static function rpc_post_publish(Context $ctx)
   {
-    foreach (self::getNodes($ctx) as $nid) {
-      $node = Node::load($nid);
-      $node->publish();
-    }
+    $ctx->db->beginTransaction();
+    foreach (self::getNodes($ctx) as $nodle)
+      $node->knock('p')->publish()->save();
+    $ctx->db->commit();
   }
 
   /**
@@ -171,10 +151,10 @@ class NodeApiModule extends RPCHandler
    */
   public static function rpc_post_unpublish(Context $ctx)
   {
-    foreach (self::getNodes($ctx) as $nid) {
-      $node = Node::load($nid);
-      $node->unpublish();
-    }
+    $ctx->db->beginTransaction();
+    foreach (self::getNodes($ctx) as $node)
+      $node->knock('p')->unpublish()->save();
+    $ctx->db->commit();
   }
 
   /**
@@ -182,10 +162,10 @@ class NodeApiModule extends RPCHandler
    */
   public static function rpc_post_delete(Context $ctx)
   {
-    foreach (self::getNodes($ctx) as $nid) {
-      $node = Node::load($nid);
-      $node->delete();
-    }
+    $ctx->db->beginTransaction();
+    foreach (self::getNodes($ctx) as $node)
+      $node->knock('d')->delete()->save();
+    $ctx->db->commit();
   }
 
   /**
@@ -193,8 +173,10 @@ class NodeApiModule extends RPCHandler
    */
   public static function rpc_post_clone(Context $ctx)
   {
-    foreach (self::getNodes($ctx) as $nid)
-      $node = Node::load($nid)->duplicate();
+    $ctx->db->beginTransaction();
+    foreach (self::getNodes($ctx) as $node)
+      $node->knock('c')->duplicate();
+    $ctx->db->commit();
   }
 
   /**
@@ -205,7 +187,7 @@ class NodeApiModule extends RPCHandler
     $parent = $ctx->post('parent_id');
     $node = Node::create($ctx->get('type'), array(
       'parent_id' => empty($parent) ? null : $parent,
-      ));
+      ))->knock('c');
     $node->formProcess($ctx->post)->save($ctx->db);
     $next = $ctx->post('destination', $ctx->get('destination', ''));
 
@@ -217,7 +199,7 @@ class NodeApiModule extends RPCHandler
    */
   public static function rpc_post_edit(Context $ctx)
   {
-    $node = Node::load($ctx->get('node'), $ctx->db)->getObject();
+    $node = Node::load($ctx->get('node'), $ctx->db)->getObject()->knock('u');
     if (null === $node->uid and $node->isNew())
       $node->uid = $ctx->user->id;
     $node->formProcess($ctx->post, $ctx->get('field'))->save($ctx->db);
@@ -228,13 +210,10 @@ class NodeApiModule extends RPCHandler
    */
   public static function rpc_post_undelete(Context $ctx)
   {
-    $nodes = Node::find($ctx->db, array(
-      'id' => self::getNodes($ctx),
-      'deleted' => 1,
-      ));
-
-    foreach ($nodes as $node)
-      $node->undelete();
+    $ctx->db->beginTransaction();
+    foreach (self::getNodes($ctx) as $node)
+      $node->knock('d')->undelete();
+    $ctx->db->commit();
   }
 
   /**
@@ -242,18 +221,10 @@ class NodeApiModule extends RPCHandler
    */
   public static function rpc_post_erase(Context $ctx)
   {
-    $nodes = Node::find($ctx->db, array(
-      'id' => self::getNodes($ctx),
-      'deleted' => 1,
-      ));
-
-    foreach ($nodes as $node) {
-      try {
-        $node->erase();
-      } catch (ObjectNotFoundException $e) {
-        // случается при рекурсивном удалении вложенных объектов
-      }
-    }
+    $ctx->db->beginTransaction();
+    foreach (self::getNodes($ctx) as $node)
+      $node->knock('d')->erase();
+    $ctx->db->commit();
   }
 
   /**
@@ -261,12 +232,13 @@ class NodeApiModule extends RPCHandler
    */
   public static function rpc_get_raise(Context $ctx)
   {
-    if (null === $ctx->get('section')) {
-      $ctx->db->beginTransaction();
+    $ctx->db->beginTransaction();
+    foreach (self::getNodes($ctx) as $node) {
+      $node->knock('u');
       $tmp = new NodeMover($ctx->db);
-      $tmp->moveUp($ctx->get('node'));
-      $ctx->db->commit();
+      $tmp->moveUp($node->id);
     }
+    $ctx->db->commit();
   }
 
   /**
@@ -293,16 +265,6 @@ class NodeApiModule extends RPCHandler
       $node->touch();
       $node->save();
     }
-  }
-
-  /**
-   * Возвращает идентификаторы задействованных объектов.
-   */
-  private static function getNodes(Context $ctx)
-  {
-    if (!is_array($nodes = $ctx->post('nodes', array($ctx->get('node')))))
-      $nodes = array();
-    return $nodes;
   }
 
   /**
@@ -337,12 +299,10 @@ class NodeApiModule extends RPCHandler
    */
   public static function on_unpublish(Context $ctx)
   {
-    if ($nodes = self::get_node_ids($ctx)) {
-      $ctx->db->beginTransaction();
-      foreach ($nodes as $node)
-        Node::load($node, $ctx->db)->unpublish()->save();
-      $ctx->db->commit();
-    }
+    $ctx->db->beginTransaction();
+    foreach (self::getNodes($ctx) as $node)
+      $node->knock('p')->unpublish()->save();
+    $ctx->db->commit();
     return $ctx->getRedirect();
   }
 
@@ -351,12 +311,10 @@ class NodeApiModule extends RPCHandler
    */
   public static function on_publish(Context $ctx)
   {
-    if ($nodes = self::get_node_ids($ctx)) {
-      $ctx->db->beginTransaction();
-      foreach ($nodes as $node)
-        Node::load($node, $ctx->db)->publish()->save();
-      $ctx->db->commit();
-    }
+    $ctx->db->beginTransaction();
+    foreach (self::getNodes($ctx) as $node)
+      $node->knock('p')->publish()->save();
+    $ctx->db->commit();
     return $ctx->getRedirect();
   }
 
@@ -365,31 +323,24 @@ class NodeApiModule extends RPCHandler
    */
   public static function on_delete(Context $ctx)
   {
-    if ($nodes = self::get_node_ids($ctx)) {
-      $ctx->db->beginTransaction();
-      foreach ($nodes as $node)
-        Node::load($node, $ctx->db)->delete();
-      $ctx->db->commit();
-    }
+    $ctx->db->beginTransaction();
+    foreach (self::getNodes($ctx) as $node)
+      $node->knock('d')->delete()->save();
+    $ctx->db->commit();
 
     return $ctx->getRedirect();
   }
 
   public static function on_post_sendto(Context $ctx)
   {
-    if ($pick = self::get_node_ids($ctx)) {
-      $ctx->db->beginTransaction();
+    if ($pick = self::getNodes($ctx)) {
+      list($pick) = $pick;
 
-      $pick = Node::load(array(
-        'id' => $pick,
-        'deleted' => 0,
-        ));
+      $ctx->db->beginTransaction();
 
       list($nid, $fieldName) = explode('.', $ctx->post('sendto'));
 
-      $node = Node::load($nid);
-      if (!$node->checkPermission('u'))
-        throw new ForbiddenException();
+      $node = Node::load($nid)->knock('u');
       $node->$fieldName = $pick;
       $node->save();
 
@@ -407,11 +358,9 @@ class NodeApiModule extends RPCHandler
 
   public static function on_get_refresh(Context $ctx)
   {
-    $node = Node::load($ctx->get('node'), $ctx->db);
-    if (!$node->checkPermission('u'))
-      throw new ForbiddenException();
     $ctx->db->beginTransaction();
-    $node->refresh()->save();
+    foreach (self::getNodes($ctx) as $node)
+      $node->knock('u')->refresh()->save();
     $ctx->db->commit();
     return $ctx->getRedirect();
   }
@@ -452,11 +401,11 @@ class NodeApiModule extends RPCHandler
   }
 
   /**
-   * Возвращает идентификаторы обрабатываемых нод.
+   * Возвращает обрабатываемые ноды.
    * Для запросов методом POST использует массив selected[],
    * для запросов методом GET — параметр node.
    */
-  private static function get_node_ids(Context $ctx)
+  private static function getNodes(Context $ctx)
   {
     if ($ctx->method('post'))
       $ids = $ctx->post('selected', array());
@@ -466,6 +415,8 @@ class NodeApiModule extends RPCHandler
     if (empty($ids))
       throw new BadRequestException(t('Не указаны идентификаторы документов (POST-массив selected[] или GET-параметр node)'));
 
-    return $ids;
+    return Node::find($ctx->db, array(
+      'id' => $ids,
+      ));
   }
 };
