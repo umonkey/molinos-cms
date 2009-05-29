@@ -41,7 +41,7 @@ class AdminPage
     $request = '';
     if ($user = $ctx->user->getNode())
       $request .= html::wrap('user', $user->getXML());
-    $request .= BaseRoute::getGetParams($ctx);
+    $request .= $ctx->url()->getArgsXML();
     $this->content .= html::wrap('request', $request);
 
     return xslt::transform(html::em('page', $page, $this->content), $this->xsl);
