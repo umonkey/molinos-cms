@@ -197,15 +197,21 @@ class AttachmentControl extends Control
         'width' => 300,
         'height' => 20,
         ));
+    case 'image/jpeg':
+    case 'image/pjpeg':
+    case 'image/png':
+    case 'image/gif':
+      return html::em('img', array(
+        'src' => $url,
+        'width' => $data->width,
+        'height' => $data->height,
+        'alt' => $data->name,
+        ));
     default:
-      if (0 === strpos($data->filetype, 'image/')) {
-        return html::em('img', array(
-          'src' => $url,
-          'width' => $data->width,
-          'height' => $data->height,
-          'alt' => $data->name,
-          ));
-      }
+      return t('<a href="@url">Скачать %filename</a>', array(
+        '@url' => $url,
+        '%filename' => $data->filename,
+        ));
     }
   }
 
