@@ -23,7 +23,7 @@ class DictList extends AdminListHandler
       '#sort' => '-published name',
       ));
 
-    $counts = $this->ctx->db->getResultsKV("name", "count", "SELECT `class` AS `name`, COUNT(*) AS `count` FROM `node` GROUP BY `class`");
+    $counts = $this->ctx->db->getResultsKV("name", "count", "SELECT `class` AS `name`, COUNT(*) AS `count` FROM `node` WHERE `deleted` = 0 GROUP BY `class`");
 
     $nodes = '';
     foreach ($data as $node) {
