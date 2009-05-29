@@ -34,7 +34,6 @@ try {
   if (!is_dir($dirName = os::path('tools', 'svn', MCMS_RELEASE, 'changelogs')))
     if (!mkdir($dirName, 0750, true))
       throw new Exception('could not create ' . $dirName);
-  printf("Updating ChangeLogs in %s/\n", $dirName);
   foreach (os::find('lib', 'modules', '*') as $tmp)
     update_changelog(os::path($dirName, basename($tmp) . '.txt'), $tmp);
 
@@ -89,8 +88,12 @@ try {
 
   printf("Sending changes to Subversion.\n");
   chdir('tools/svn');
-  if (!os::exec('svn', array('commit', '-m', 'Automatic upload by tools/release.php'), $status))
-    printf("SVN SAID: %s\n\n\n", join("\n", $status));
+  if (!os::exec('svn', array('commit', '-m', 'Automatic upload by tools/release.php'), $status)) {
+    if ($rev = trim(array_pop(explode(' ', trim(implode('', $status)))), '.'))
+      printf("See http://code.google.com/p/molinos-cms/source/detail?r=%s\n", $rev);
+    else
+      printf("Could not find revision id, see status:\nhttp://code.google.com/p/molinos-cms/updates/list\n");
+  }
 } catch (Exception $e) {
   printf("ERROR: %s\n", $e->getMessage());
   exit(1);
@@ -166,7 +169,5 @@ function update_changelog($fileName, $filter = null, $range = null)
 
   printf("Updating {$fileName}\n");
   if (os::exec($cmd))
-    printf("  - %s\n", $fileName);
-  else
-    printf("  + %s\n", $fileName);
+    printf("  error\n");
 }
