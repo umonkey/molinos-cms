@@ -17,8 +17,6 @@ abstract class cache implements iCacheProvider
 {
   private static $instance = null;
 
-  private $_flush = false;
-
   protected $ttl = null;
   protected $prefix = null;
 
@@ -42,18 +40,6 @@ abstract class cache implements iCacheProvider
     }
 
     return self::$instance;
-  }
-
-  public function flush($now = false)
-  {
-    if (!$now)
-      $this->_flush = true;
-
-    elseif ($this->_flush) {
-      // mcms::flog('flush');
-      $this->setPrefix(true);
-      $this->_flush = false;
-    }
   }
 
   private function setPrefix($increment = false)
@@ -205,7 +191,6 @@ class DBA_DB4_provider extends cache
   protected $db;
   protected $write = false;
   private $handler;
-  private $flush = false;
 
   public function __construct($handler)
   {
@@ -275,17 +260,6 @@ class DBA_DB4_provider extends cache
     $this->reopen();
     dba_delete($key, $this->db);
   }
-
-  /**
-   * Очистка кэша.
-   */
-  public function flush($now)
-  {
-    if (!$now)
-      $this->flush = true;
-    elseif ($this->flush and file_exists($fileName = $this->getFileName()))
-      unlink($fileName);
-  }
 }
 
 class DBA_FlatFile_provider extends DBA_DB4_provider
@@ -333,17 +307,6 @@ class FileCache_provider extends cache
   {
     if ($this->__isset($key))
       unlink($this->getKeyPath($key));
-  }
-
-  public function flush($now = false)
-  {
-    if ($now) {
-      if (is_array($files = glob(self::$path . DIRECTORY_SEPARATOR . '*')))
-        foreach ($files as $file)
-          if (is_file($file))
-            unlink($file);
-    }
-    return parent::flush($now);
   }
 
   private function getKeyPath($key)

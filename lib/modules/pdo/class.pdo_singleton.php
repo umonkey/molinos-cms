@@ -207,7 +207,6 @@ class PDO_Singleton extends PDO
     if ($this->transaction) {
       parent::commit();
       $this->transaction = false;
-      mcms::flush();
     }
   }
 

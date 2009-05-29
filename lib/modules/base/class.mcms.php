@@ -142,12 +142,6 @@ class mcms
     return Context::last()->config->get($key, $default);
   }
 
-  public static function flush($flags = null)
-  {
-    if (null !== ($cache = cache::getInstance()))
-      $cache->flush($flags & self::FLUSH_NOW ? true : false);
-  }
-
   // Отладочные функции.
   public static function debug()
   {

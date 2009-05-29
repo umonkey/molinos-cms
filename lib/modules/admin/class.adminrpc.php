@@ -71,9 +71,6 @@ class AdminRPC extends RPCHandler
 
     $ctx->registry->broadcast('ru.molinos.cms.reload', array($ctx));
 
-    mcms::flush();
-    mcms::flush(mcms::FLUSH_NOW);
-
     Structure::getInstance()->rebuild();
     $ctx->registry->rebuild();
 

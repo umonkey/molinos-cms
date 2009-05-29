@@ -100,8 +100,6 @@ class NodeMover
     // Переносим куда надо.
     $this->moveOneBlock($n2);
     $this->moveOneBlock($n1);
-
-    mcms::flush();
   }
 
   private function moveOneBlock(array $block)

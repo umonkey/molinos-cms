@@ -193,13 +193,6 @@ class NodeStub
   }
 
   /**
-   * Удаляет ноду из кэша.
-   */
-  private function flush()
-  {
-  }
-
-  /**
    * Форсирует сохранение объекта.
    */
   public function touch()
@@ -428,8 +421,6 @@ class NodeStub
       $this->onsave = array();
       $this->dirty = false;
 
-      $this->flush();
-
       $this->updateXML();
       $this->checkSchema();
     }
@@ -592,7 +583,6 @@ class NodeStub
         $this->right,
         ));
       $this->checkSchema();
-      $this->flush();
     } else {
       $this->setDeleted(1);
     }
@@ -624,7 +614,6 @@ class NodeStub
     $sth = $this->db->prepare("UPDATE `node` SET `deleted` = ? WHERE `id` = ?");
     $sth->execute(array($value, $this->id));
     $this->checkSchema();
-    $this->flush();
   }
 
   /**
@@ -652,7 +641,6 @@ class NodeStub
     $this->makeSureFieldIsAvailable('published');
     $this->data['published'] = true;
     $this->checkSchema();
-    $this->flush();
   }
 
   /**

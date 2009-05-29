@@ -29,9 +29,6 @@ class Response
     if (headers_sent())
       die(t('<br/>Вывод страницы невозможен: заголовки уже ушли.'));
 
-    // Сбрасываем кэш, если просили.
-    mcms::flush(mcms::FLUSH_NOW);
-
     header('HTTP/1.1 ' . $this->code . ' ' . $this->getResponseTitle());
     header('Content-Type: ' . $this->type . '; charset=utf-8');
 

@@ -87,9 +87,6 @@ class ModManRPC extends RPCHandler
     self::rpc_rebuild($ctx);
     Structure::getInstance()->rebuild();
 
-    mcms::flush();
-    mcms::flush(mcms::FLUSH_NOW);
-
     // Обновляем базу модулей, чтобы выбросить удалённые локальные.
     modman::updateDB();
 
@@ -122,9 +119,6 @@ class ModManRPC extends RPCHandler
 
     self::rpc_rebuild($ctx);
     Structure::getInstance()->rebuild();
-
-    mcms::flush();
-    mcms::flush(mcms::FLUSH_NOW);
 
     // Обновляем базу модулей, чтобы выбросить удалённые локальные.
     modman::updateDB();
