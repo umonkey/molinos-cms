@@ -26,6 +26,11 @@ class AdminAdvSearch
 
       asort($list);
 
+      if ('file' == ($type = $ctx->get('type')) and array_key_exists($type, $list))
+        $list = array(
+          $type => $type,
+          );
+
       $tmp = '';
       foreach ($list as $k => $v)
         $tmp .= html::em('type', array(
@@ -79,6 +84,7 @@ class AdminAdvSearch
 
     $url = new url($ctx->get('from', $list));
     $url->setarg('search', trim($term));
+    $url->setarg('page', null);
 
     $ctx->redirect($url->string());
   }
