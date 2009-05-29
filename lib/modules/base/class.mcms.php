@@ -213,7 +213,7 @@ class mcms
   {
     $prefix = '';
 
-    if (is_array($trace = debug_backtrace()) and count($trace) >= 2) {
+    if (defined('MCMS_FLOG_CALLER') and is_array($trace = debug_backtrace()) and count($trace) >= 2) {
       $prefix = empty($trace[1]['class'])
         ? $trace[1]['function']
         : $trace[1]['class'] . $trace[1]['type'] . $trace[1]['function'] . '()';
