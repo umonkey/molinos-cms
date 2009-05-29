@@ -28,17 +28,15 @@ try {
   if ($break)
     throw new Exception('please fix these first.');
 
+
+  update_changelog(os::path('tools', 'svn', MCMS_RELEASE, 'changelog.txt'), null, 'rel-8.12..master');
+
   if (!is_dir($dirName = os::path('tools', 'svn', MCMS_RELEASE, 'changelogs')))
     if (!mkdir($dirName, 0750, true))
       throw new Exception('could not create ' . $dirName);
   printf("Updating ChangeLogs in %s/\n", $dirName);
-  foreach (os::find('lib', 'modules', '*') as $tmp) {
-    $fileName = os::path($dirName, basename($tmp) . '.txt');
-    if (os::exec(sprintf('git log --stat -- %s > %s', $tmp, $fileName)))
-      printf("  - %s\n", $fileName);
-    else
-      printf("  + %s\n", $fileName);
-  }
+  foreach (os::find('lib', 'modules', '*') as $tmp)
+    update_changelog(os::path($dirName, basename($tmp) . '.txt'), $tmp);
 
   os::exec('git clean -fd');
 
@@ -150,4 +148,20 @@ class Builder
 
     ini::write($this->inifile, $this->modules);
   }
+}
+
+function update_changelog($fileName, $filter = null, $range = null)
+{
+  $cmd = 'git log --stat';
+  if ($range)
+    $cmd .= ' ' . $range;
+  if ($filter)
+    $cmd .= ' -- ' . $filter;
+  $cmd .= ' > ' . $fileName;
+
+  printf("Updating {$fileName}\n");
+  if (os::exec($cmd))
+    printf("  - %s\n", $fileName);
+  else
+    printf("  + %s\n", $fileName);
 }
