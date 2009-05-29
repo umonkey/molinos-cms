@@ -39,7 +39,7 @@ class BaseRoute
 
     if (!self::check_param($ctx, $param))
       $page['status'] = 404;
-    else {
+    elseif (class_exists('Widget')) {
       try {
         $content .= self::renderWidgets($ctx, $handler, $param);
       } catch (UserErrorException $e) {
