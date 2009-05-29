@@ -425,7 +425,7 @@ class Node
 
     if ($this->published and !$this->deleted and !in_array($this->class, array('domain', 'widget', 'type')))
       $links['locate'] = array(
-        'href' => 'node/'. $this->id,
+        'href' => 'nodeapi/locate?node='. $this->id,
         'title' => t('Найти на сайте'),
         'icon' => 'locate',
         );

@@ -110,19 +110,35 @@ class NodeApiModule extends RPCHandler
   /**
    * Поиск объекта на сайте.
    */
-  public static function rpc_get_locate(Context $ctx)
+  public static function on_locate(Context $ctx)
   {
-    $node = Node::load($ctx->get('node'));
+    if (!($nid = $ctx->get('node')))
+      throw new BadRequestException(t('Не указан идентификатор объекта (GET-параметр node).'));
 
-    if ('tag' == $node->class)
-      $link = '?q=ID';
-    else
-      $link = '?q=node/ID';
+    $map = BaseRoute::load($ctx);
 
-    if ($ctx->get('__cleanurls'))
-      $link = substr($link, 3);
+    foreach ($map as $k => $v)
+      if (false === strpos($k, '*'))
+        unset($map[$k]);
 
-    return new Redirect(str_replace('ID', $node->id, $link));
+    if (empty($map))
+      throw new RuntimeException(t('Не удалось найти маршрут, пригодный для отображения документа.'));
+
+    // Выбираем первый маршрут.
+    list($path) = array_keys($map);
+
+    // Заменяем звезду на код документа.
+    $path = str_replace('*', $ctx->get('node'), $path);
+
+    // Заменяем localhost на имя текущего домена.
+    if (0 === strpos($path, 'localhost/'))
+      $path = MCMS_HOST_NAME . '/' . substr($path, 10);
+
+    // Формируем полноценный путь.
+    $path = 'http://' . $path;
+
+    // Готово.
+    $ctx->redirect($path, Redirect::OTHER);
   }
 
   /**
