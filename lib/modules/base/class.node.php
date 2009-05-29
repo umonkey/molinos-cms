@@ -195,6 +195,14 @@ class Node
     return $user->hasAccess($perm, $this->class);
   }
 
+  public function knock($mode)
+  {
+    if ($this->checkPermission($mode))
+      return $this;
+    else
+      throw new ForbiddenException();
+  }
+
   /**
    * Получение формы.
    */
