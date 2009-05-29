@@ -1,86 +1,28 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class XmlImporter extends Widget
+class XmlImporter
 {
-  public function __construct(Node $node)
+  public static function on_get_import(Context $ctx)
   {
-    parent::__construct($node);
-  }
+    if ($ttl = intval($ctx->get('cache')) < 600)
+      $ttl = 600;
 
-  public static function getWidgetInfo()
-  {
-    return array(
-      'name' => 'XML-импортер',
-      'description' => 'Возвращает массив, составленный из элементов XML-дерева.',
-      );
-  }
+    if (!($url = $ctx->get('url')))
+      throw new BadRequestException(t('Не указан адрес импортируемого XML канала (GET-параметр url).'));
 
-  public static function getConfigOptions()
-  {
-    return array(
-      'url' => array(
-        'type' => 'TextLineControl',
-        'label' => t('Адрес потока'),
-        'description' => t('Укажите адрес URI, по которому доступен поток XML-данных.'),
-        ),
-      );
-  }
+    $cache = cache::getInstance();
+    $ttl = floor(time() / $ttl);
+    $ckey = sprintf('xmlimport.xml|%u|%s', $ttl, $url);
 
-  // Препроцессор параметров.
-  protected function getRequestOptions(Context $ctx)
-  {
-    if (!is_array($options = parent::getRequestOptions($ctx)))
-      return $options;
+    if ($cached = $cache->$ckey)
+      return new Response($cached, 'text/xml');
 
-    $options['url'] = $this->url;
+    $xml = http::fetch($url, http::CONTENT);
+    $cache->$ckey = $xml;
 
-    return $options;
-  }
+    mcms::flog('Imported XML from ' . $url);
 
-  // Обработка GET запросов.
-  public function onGet(array $options)
-  {
-    $result = array();
-
-    if (!empty($this->url)) {
-      if (null !== ($fcont = http::fetch($options['url'], http::CONTENT))) {
-        $xmlStream = new SimpleXMLElement($fcont);
-        $result = $this->forArray($xmlStream);
-      } else {
-        // throw new Exception('Could not fetch XML-stream off ' . $options['url']);
-      }
-    }
-
-    return $result;
-  }
-
-  public function onPost(array $options)
-  {
-    return $this->onGet($options);
-  }
-
-  private function forArray($object)
-  {
-    $return = array();
-    if (is_array($object)) {
-      foreach ($object as $key => $value) {
-        $return[$key] = $this->forArray($value);
-      }
-    } else {
-      $vars = get_object_vars($object);
-      if (is_array($vars)) {
-        foreach ($vars as $key => $value) {
-          if (stristr($key, '@')) {
-            $key = str_replace('@', '', $key);
-          }
-          $return[$key] = ($key && !$value) ? null : $this->forArray($value);
-        }
-      } else {
-        return $object;
-      }
-    }
-
-    return $return;
+    return new Response($xml, 'text/xml');
   }
 };
