@@ -45,7 +45,7 @@
   <xsl:template match="input[@type='password']">
     <label class="control">
       <xsl:apply-templates select="." mode="label" />
-      <input type="password" name="{@name}" value="{@value}" class="text" />
+      <input type="password" name="{@name}" class="text" />
     </label>
     <xsl:apply-templates select="." mode="help" />
   </xsl:template>
@@ -152,7 +152,7 @@
   </xsl:template>
 
   <xsl:template match="input[@type='hidden']">
-    <input type="hidden" name="{@name}" value="{@value}" />
+    <input type="hidden" name="{@name}" value="{text()}" />
   </xsl:template>
 
   <!-- ВСПОМОГАТЕЛЬНЫЕ ШАБЛОНЫ -->
