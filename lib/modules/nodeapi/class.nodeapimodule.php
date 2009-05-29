@@ -337,7 +337,7 @@ class NodeApiModule extends RPCHandler
    */
   public static function on_unpublish(Context $ctx)
   {
-    if ($nodes = $ctx->post('selected', array())) {
+    if ($nodes = self::get_node_ids($ctx)) {
       $ctx->db->beginTransaction();
       foreach ($nodes as $node)
         Node::load($node, $ctx->db)->unpublish()->save();
@@ -351,7 +351,7 @@ class NodeApiModule extends RPCHandler
    */
   public static function on_publish(Context $ctx)
   {
-    if ($nodes = $ctx->post('selected', array())) {
+    if ($nodes = self::get_node_ids($ctx)) {
       $ctx->db->beginTransaction();
       foreach ($nodes as $node)
         Node::load($node, $ctx->db)->publish()->save();
@@ -365,20 +365,19 @@ class NodeApiModule extends RPCHandler
    */
   public static function on_delete(Context $ctx)
   {
-    if ($nodes = $ctx->post('selected', array())) {
+    if ($nodes = self::get_node_ids($ctx)) {
       $ctx->db->beginTransaction();
       foreach ($nodes as $node)
         Node::load($node, $ctx->db)->delete();
       $ctx->db->commit();
-    } else {
-      throw new BadRequestException(t('Не указаны документы для удаления (массив selected).'));
     }
+
     return $ctx->getRedirect();
   }
 
   public static function on_post_sendto(Context $ctx)
   {
-    if ($pick = $ctx->post('selected')) {
+    if ($pick = self::get_node_ids($ctx)) {
       $ctx->db->beginTransaction();
 
       $pick = Node::load(array(
@@ -450,5 +449,23 @@ class NodeApiModule extends RPCHandler
       'name' => 'confirmdelete',
       'title' => t('Подтвердите удаление объектов'),
       ), $result);
+  }
+
+  /**
+   * Возвращает идентификаторы обрабатываемых нод.
+   * Для запросов методом POST использует массив selected[],
+   * для запросов методом GET — параметр node.
+   */
+  private static function get_node_ids(Context $ctx)
+  {
+    if ($ctx->method('post'))
+      $ids = $ctx->post('selected', array());
+    else
+      $ids = explode(' ', $ctx->get('node'));
+
+    if (empty($ids))
+      throw new BadRequestException(t('Не указаны идентификаторы документов (POST-массив selected[] или GET-параметр node)'));
+
+    return $ids;
   }
 };
