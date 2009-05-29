@@ -23,6 +23,7 @@ class BaseRoute
       'api' => 'cms://localhost/api/',
       'uid' => $ctx->user->id,
       'query' => $ctx->query(),
+      'param' => $param,
       );
 
     if (isset($handler['title']))
@@ -37,22 +38,18 @@ class BaseRoute
 
     $page['prefix'] = MCMS_SITE_FOLDER . '/themes/' . $theme;
 
-    if (!self::check_param($ctx, $param))
-      $page['status'] = 404;
-    elseif (class_exists('Widget')) {
-      try {
-        $content .= self::renderWidgets($ctx, $handler, $param);
-      } catch (UserErrorException $e) {
-        $content = '';
-        $page['status'] = 500;
-        $page['error'] = get_class($e);
-        $page['title'] = $e->getMessage();
-      } catch (Exception $e) {
-        $content = '';
-        $page['status'] = 500;
-        $page['error'] = get_class($e);
-        $page['title'] = $e->getMessage();
-      }
+    try {
+      foreach ((array)$ctx->registry->poll('ru.molinos.cms.hook.pagecontent', array($ctx, $handler, $param)) as $block)
+        if (!empty($block['result']))
+          $content .= $block['result'];
+    } catch (UserErrorException $e) {
+      $page['status'] = $e->getCode();
+      $page['error'] = get_class($e);
+      $page['title'] = $e->getMessage();
+    } catch (Exception $e) {
+      $page['status'] = 500;
+      $page['error'] = get_class($e);
+      $page['title'] = $e->getMessage();
     }
 
     if (defined('MCMS_START_TIME'))
@@ -66,159 +63,6 @@ class BaseRoute
       : $handler['content_type'];
 
     return xslt::transform($xml, $xsl, $type);
-  }
-
-  /**
-   * Обрабатывает виджеты, возвращает результат в XML.
-   */
-  private static function renderWidgets(Context $ctx, array $pathinfo, $param = null)
-  {
-    $params = self::getWidgetParams($ctx, $pathinfo, $param);
-
-    $ctx->registry->broadcast('ru.molinos.cms.hook.request.before', array($ctx));
-
-    $content = html::wrap('request', self::getWidgetParamsXML($params) . self::getGetParams($ctx));
-
-    if (!empty($pathinfo['widgets'])) {
-      $count = 0;
-      $time = microtime(true);
-
-      $tmp = '';
-      $want = $ctx->get('widget');
-      $widgets = Widget::loadWidgets($ctx);
-      foreach ($pathinfo['widgets'] as $wname) {
-        if (null !== $want and $want != $wname)
-          continue;
-        if (array_key_exists($wname, $widgets) and empty($widgets[$wname]['disabled'])) {
-          if (null !== ($widget = Widget::getInstance($wname, $widgets[$wname]))) {
-            try {
-              $wxml = $widget->render($ctx, $params);
-            } catch (Exception $e) {
-              $wxml = html::em('widget', array(
-                'name' => $wname,
-                'error' => get_class($e),
-                'message' => $e->getMessage(),
-                ));
-            }
-
-            if ($wname == $ctx->get('widget')) {
-              $r = new Response('<?xml version="1.0"?>' . $wxml, 'text/xml');
-              $r->send();
-            }
-            $tmp .= $wxml;
-            $count++;
-          }
-        }
-      }
-
-      $content .= html::wrap('widgets', $tmp, array(
-        'count' => $count,
-        'time' => microtime(true) - $time,
-        ));
-    }
-
-    return $content;
-  }
-
-  /**
-   * Возвращает информацию об объектах, относящихся к запрошенной странице.
-   */
-  private static function getWidgetParams(Context $ctx, array $pathinfo, $param)
-  {
-    $defaultsection = isset($pathinfo['defaultsection'])
-      ? $pathinfo['defaultsection']
-      : null;
-
-    $ids = array();
-    if (null !== $param)
-      $ids[] = $param;
-    if (null !== $defaultsection)
-      $ids[] = $defaultsection;
-
-    $params = array();
-
-    $where = "n.id " . sql::in($ids, $params);
-
-    if (null !== $param) {
-      $where .= ' OR n.id IN (SELECT tid FROM node__rel WHERE nid = ?)';
-      $params[] = $param;
-    }
-
-    $sql = "SELECT id, class, xml FROM node n WHERE n.deleted = 0 AND n.published = 1 AND ({$where})";
-
-    $data = $ctx->db->getResultsK("id", $sql, $params);
-
-    $result = array(
-      'document' => null,
-      'section' => null,
-      'root' => null,
-      );
-
-    // Проверяем явно запрошенный объект.
-    if (null !== $param and isset($data[$param])) {
-      if ('tag' != $data[$param]['class'])
-        $result['document'] = $data[$param];
-      else
-        $result['section'] = $data[$param];
-    }
-
-    // Используем запрошенный вручную раздел.
-    if (null !== $result['document'] and $want = $ctx->get('section')) {
-      if (!isset($data[$want]) or 'tag' != $data[$want]['class'])
-        throw new PageNotFoundException();
-      $result['section'] = $data[$want];
-    }
-
-    // Определяем раздел для документа.
-    if (null !== $result['document'] and null === $result['section']) {
-      foreach ($data as $node) {
-        if ('tag' == $node['class'] and $node['id'] != $defaultsection) {
-          $result['section'] = $node;
-          break;
-        }
-      }
-    }
-
-    // Раздел по умолчанию для страницы.
-    if (null !== $defaultsection and isset($data[$defaultsection])) {
-      $tmp = $data[$defaultsection];
-      if ('tag' == $tmp['class']) {
-        $result['root'] = $tmp;
-        if (null === $result['section'])
-          $result['section'] = $tmp;
-      }
-    }
-
-    return $result;
-  }
-
-  private static function getWidgetParamsXML(array $params)
-  {
-    $result = '';
-    foreach ($params as $k => $v)
-      if (!empty($v['xml']))
-        $result .= html::em($k, $v['xml']);
-    return $result;
-  }
-
-  public static function getGetParams(Context $ctx)
-  {
-    $result = '';
-
-    foreach ($ctx->url()->args as $k => $v)
-      if (!is_array($v) and strlen($k) == strspn(strtolower($k), "abcdefghijklmnopqrstuvwxyz0123456789"))
-        $result .= html::em('arg', array(
-          'name' => $k,
-          ), html::cdata($v));
-
-    return html::wrap('getArgs', $result);
-  }
-
-  private static function isSection(Context $ctx, $param)
-  {
-    $sth = $ctx->db->prepare("SELECT 1 FROM node WHERE id = ? AND class = 'tag'");
-    $sth->execute(array($param));
-    return $sth->fetchColumn(0);
   }
 
   private static function getNameFromQuery($query)
@@ -248,6 +92,7 @@ class BaseRoute
   /**
    * Обновление списка страниц.
    * @mcms_message ru.molinos.cms.reload
+   * FIXME: удалить, не нужно это больше.
    */
   public static function on_install(Context $ctx)
   {
@@ -324,23 +169,5 @@ class BaseRoute
     $config->save();
 
     Router::flush();
-  }
-
-  private static function check_param(Context $ctx, $param)
-  {
-    if (empty($param))
-      return true;
-
-    $xml = Node::findXML($ctx->db, array(
-      'id' => $param,
-      'published' => 1,
-      'deleted' => 0,
-      'class' => $ctx->user->getAccess('r'),
-      ));
-
-    if (!empty($xml))
-      return true;
-
-    return false;
   }
 }
