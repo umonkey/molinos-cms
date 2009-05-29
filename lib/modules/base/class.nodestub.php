@@ -978,6 +978,7 @@ class NodeStub
    */
   private function updateLinks()
   {
+    return;
     $sel = $this->db->prepare("SELECT `tid`, `key` FROM `node__rel` "
       . "INNER JOIN `node` ON `node`.`id` = `node__rel`.`tid` "
       . "WHERE `tid` <> ? AND `nid` = ? AND `key` IS NOT NULL");
