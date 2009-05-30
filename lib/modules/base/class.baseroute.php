@@ -38,6 +38,8 @@ class BaseRoute
 
     $page['prefix'] = MCMS_SITE_FOLDER . '/themes/' . $theme;
 
+    $content = $ctx->url()->getArgsXML();
+
     try {
       foreach ((array)$ctx->registry->poll('ru.molinos.cms.hook.pagecontent', array($ctx, $handler, $param)) as $block)
         if (!empty($block['result']))
