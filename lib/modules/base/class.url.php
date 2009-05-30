@@ -371,17 +371,19 @@ class url
     $tmp = '';
     $get = preg_split('/[?&]+/', $this->getArgsAsString(), -1, PREG_SPLIT_NO_EMPTY);
 
+    $tmp2 = array();
+
     foreach ($get as $arg) {
       $parts = explode('=', $arg);
-      if ('q' != $parts[0])
+      if ('q' != $parts[0]) {
         $tmp .= html::em('arg', array(
           'name' => $parts[0],
           ), html::cdata(trim(urldecode($parts[1]))));
+        $tmp2[html::attrname($parts[0])] = trim(urldecode($parts[1]));
+      }
     }
 
-    return empty($tmp)
-      ? ''
-      : html::em('getArgs', $tmp);
+    return html::wrap('getArgs', $tmp) . html::em('args', $tmp2);
   }
 
   public function getWidgetArgs($widgetName)
