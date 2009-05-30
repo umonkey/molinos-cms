@@ -202,6 +202,6 @@ class html
 
   public static function attrname($string)
   {
-    return str_replace('_', '-', $string);
+    return preg_replace('/[^a-z0-9-]/', '', str_replace(array('_', '.'), array('-', '-'), $string));
   }
 }
