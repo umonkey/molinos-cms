@@ -333,15 +333,13 @@ class NodeApiModule extends RPCHandler
 
   public static function on_post_sendto(Context $ctx)
   {
-    if ($pick = self::getNodes($ctx)) {
-      list($pick) = $pick;
-
+    if ($pick = $ctx->post('selected')) {
       $ctx->db->beginTransaction();
 
       list($nid, $fieldName) = explode('.', $ctx->post('sendto'));
 
       $node = Node::load($nid)->knock('u');
-      $node->$fieldName = $pick;
+      $node->$fieldName = Node::load($pick);
       $node->save();
 
       $ctx->db->commit();
