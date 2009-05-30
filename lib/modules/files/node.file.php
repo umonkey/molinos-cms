@@ -65,7 +65,7 @@ class FileNode extends Node implements iContentType
    */
   public function delete()
   {
-    parent::delete();
+    return parent::delete();
   }
 
   /**
@@ -82,6 +82,8 @@ class FileNode extends Node implements iContentType
 
     if (file_exists($filename = os::path(self::getStoragePath(), $this->filepath)))
       unlink($filename);
+
+    return $this;
   }
 
   /**
