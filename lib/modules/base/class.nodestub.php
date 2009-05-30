@@ -586,6 +586,7 @@ class NodeStub
     } else {
       $this->setDeleted(1);
     }
+    return $this;
   }
 
   /**
@@ -597,6 +598,7 @@ class NodeStub
       throw new RuntimeException(t('Попытка удалить новый объект'));
     $this->getDB()->exec("DELETE FROM `node` WHERE `id` = ?", array($this->id));
     $this->id = null;
+    return $this;
   }
 
   /**
@@ -607,6 +609,7 @@ class NodeStub
     if (null === $this->id)
       throw new RuntimeException(t('Попытка восстановить новый объект.'));
     $this->setDeleted(0);
+    return $this;
   }
 
   private function setDeleted($value)
