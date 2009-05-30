@@ -106,6 +106,7 @@ abstract class Widget implements iWidget
     $options = array();
     $options['#cache'] = !$ctx->get('nocache');
     $options['#instance'] = $this->getInstanceName();
+    $options['#cacheseed'] = self::seed();
 
     $this->ctx = $ctx;
 
