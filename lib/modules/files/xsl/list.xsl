@@ -4,6 +4,8 @@
   <xsl:import href="../../admin/xsl/list.xsl" />
 
   <xsl:template match="content" mode="content">
+    <xsl:variable name="sendto" select="/page/request/getArgs/arg[@name='sendto']" />
+
     <div class="doclist filelist">
       <h2>Файловый архив</h2>
 
@@ -12,38 +14,38 @@
           <div class="nodes-viewmodes">
             <span class="presentations">Вид: <a class="table" href="admin/content/files?mode=table&amp;scope={@scope}&amp;page={$page}&amp;search={$search}">таблица</a> <a class="list" href="admin/content/files?mode=icons&amp;scope={@scope}&amp;page={$page}&amp;search={$search}">иконки</a></span>
             <span>Показывать: </span>
-		<xsl:choose>
-			<xsl:when test="/page/content/@scope">
-				<a href="admin/content/files?mode={@mode}&amp;search={$search}&amp;destination={$next}">все</a>,
-			</xsl:when>
-			<xsl:otherwise>
-				все,
-			</xsl:otherwise>
-		</xsl:choose>
-		<xsl:choose>
-			<xsl:when test="/page/content/@scope = 'picture'">
-				картинки,
-			</xsl:when>
-			<xsl:otherwise>
-				<a href="admin/content/files?mode={@mode}&amp;scope=picture&amp;search={$search}&amp;destination={$next}">картинки</a>,
-			</xsl:otherwise>
-		</xsl:choose>
             <xsl:choose>
-			<xsl:when test="/page/content/@scope = 'multimedia'">
-				мультимедиа,
-			</xsl:when>
-			<xsl:otherwise>
-				<a href="admin/content/files?mode={@mode}&amp;scope=multimedia&amp;search={$search}&amp;destination={$next}">мультимедиа</a>,
-			</xsl:otherwise>
-		</xsl:choose>
-		<xsl:choose>
-			<xsl:when test="/page/content/@scope = 'office'">
-				офис
-			</xsl:when>
-			<xsl:otherwise>
-				<a href="admin/content/files?mode={@mode}&amp;scope=office&amp;search={$search}&amp;destination={$next}">офис</a>
-			</xsl:otherwise>
-		</xsl:choose>
+              <xsl:when test="/page/content/@scope">
+                <a href="admin/content/files?mode={@mode}&amp;search={$search}&amp;sendto={$sendto}&amp;destination={$next}">все</a>,
+              </xsl:when>
+              <xsl:otherwise>
+                все,
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:choose>
+              <xsl:when test="/page/content/@scope='picture'">
+                картинки,
+              </xsl:when>
+              <xsl:otherwise>
+                <a href="admin/content/files?mode={@mode}&amp;scope=picture&amp;search={$search}&amp;sendto={$sendto}&amp;destination={$next}">картинки</a>,
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:choose>
+              <xsl:when test="/page/content/@scope='multimedia'">
+                мультимедиа,
+              </xsl:when>
+              <xsl:otherwise>
+                <a href="admin/content/files?mode={@mode}&amp;scope=multimedia&amp;search={$search}&amp;sendto={$sendto}&amp;destination={$next}">мультимедиа</a>,
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:choose>
+              <xsl:when test="/page/content/@scope = 'office'">
+                офис
+              </xsl:when>
+              <xsl:otherwise>
+                <a href="admin/content/files?mode={@mode}&amp;scope=office&amp;search={$search}&amp;sendto={$sendto}&amp;destination={$next}">офис</a>
+              </xsl:otherwise>
+            </xsl:choose>
           </div>
           <xsl:call-template name="mcms_list_search">
             <xsl:with-param name="advanced" select="@advsearch" />
