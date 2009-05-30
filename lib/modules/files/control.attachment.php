@@ -120,6 +120,9 @@ class AttachmentControl extends Control
       if (!($inside = $value->getObject()->getVersionsXML()))
         $inside = html::cdata($this->getEmbedCode($value));
 
+      if ($value->description)
+        $inside .= html::em('description', html::cdata($value->description));
+
       $ctx = Context::last();
 
       return html::em($em, array(
@@ -140,6 +143,8 @@ class AttachmentControl extends Control
   public function preview($value)
   {
     $value = $value->{$this->value};
+    if (empty($value))
+      return;
 
     if (0 === strpos($value->filetype, 'image/')) {
       $path = Context::last()->config->getPath('modules/files/storage');
