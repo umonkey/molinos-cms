@@ -199,4 +199,9 @@ class html
       ? null
       : html::em($em, $options, $content);
   }
+
+  public static function attrname($string)
+  {
+    return str_replace('_', '-', $string);
+  }
 }
