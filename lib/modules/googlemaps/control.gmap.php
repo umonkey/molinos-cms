@@ -16,7 +16,7 @@ class GMapControl extends TextLineControl
   public function __construct(array $form)
   {
     if (empty($form['description']))
-      $form['description'] = t('Можно использовать готовый код для вставки проигрывателя или ссылку на страницу с клипом.');
+      $form['description'] = t('Введите максимально точный адрес географической локации, например: «Россия, Санкт-Петербург, Сенная площадь».');
     parent::__construct($form, array('value'));
   }
 
@@ -28,11 +28,12 @@ class GMapControl extends TextLineControl
 
   public function format($value, $em)
   {
-    if (!empty($value)) {
+    if (is_array($value) and !empty($value['lat']) and !empty($value['lon'])) {
+      $ll = $value['lat'] . ',' . $value['lon'];
       $key = Context::last()->config->get('modules/googlemaps/key');
 
       $img = html::em('img', array(
-        'src' => sprintf('http://maps.google.com/staticmap?center=%s&zoom=%u&size=%ux%u&key=%s', $value, $this->zoom_embed, $this->width, $this->height, $key),
+        'src' => sprintf('http://maps.google.com/staticmap?center=%s&zoom=%u&size=%ux%u&hl=ru&key=%s', $ll, $this->zoom_embed, $this->width, $this->height, $key),
         'width' => $this->width,
         'height' => $this->height,
         'alt' => $value,
@@ -42,7 +43,7 @@ class GMapControl extends TextLineControl
         $zoom_link = $this->zoom_embed + 2;
 
       $result = html::em('a', array(
-        'href' => sprintf('http://maps.google.com/maps?ll=%s&z=%u', $value, $zoom_link),
+        'href' => sprintf('http://maps.google.com/maps?ll=%s&z=%u', $ll, $zoom_link),
         'title' => $value,
         ), $img);
 
@@ -88,5 +89,35 @@ class GMapControl extends TextLineControl
         'weight' => 104,
         ),
       );
+  }
+
+  /**
+   * Сохранение значения.
+   */
+  public function set($value, &$node)
+  {
+    $node->{$this->value} = null;
+
+    if (!empty($value)) {
+      if ($key = Context::last()->config->get('modules/googlemaps/key')) {
+        $url = 'http://maps.google.com/maps/geo?q=' . urlencode(trim($value)) . '&output=csv&oe=utf8&sensor=false&key=' . urlencode($key);
+        if ($data = http::fetch($url, http::CONTENT)) {
+          list($status, $accuracy, $lat, $lon) = explode(',', $data);
+          if (200 == $status) {
+            $node->{$this->value} = array(
+              'query' => $value,
+              'lat' => $lat,
+              'lon' => $lon,
+              );
+          }
+        }
+      }
+    }
+  }
+
+  protected function getValue($data)
+  {
+    if (is_array($value = $data->{$this->value}))
+      return $value['query'];
   }
 }
