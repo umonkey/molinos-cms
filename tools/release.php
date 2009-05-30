@@ -111,16 +111,19 @@ class Builder
 
   private function getExistingModules()
   {
+    $result = array();
+
     try {
-      $html = http::fetch('http://code.google.com/p/molinos-cms/downloads/list?can=1&q=label:Type-Module+label:R' . MCMS_RELEASE, http::CONTENT | http::NO_CACHE);
-    } catch (Exception $e) {
-      return array();
-    }
+      for ($start = 0; ; $start += 100) {
+        $html = http::fetch('http://code.google.com/p/molinos-cms/downloads/list?can=1&q=label:Type-Module+label:R' . MCMS_RELEASE . '&start=' . $start, http::CONTENT | http::NO_CACHE);
+        if (preg_match_all('@/files/([^"\']+\.zip)@', $html, $m))
+          $result = array_merge($result, $m[1]);
+        else
+          break;
+      }
+    } catch (Exception $e) { }
 
-    if (!preg_match_all('@/files/([^"\']+\.zip)@', $html, $m))
-      return array();
-
-    return $m[1];
+    return $result;
   }
 
   public function run()
