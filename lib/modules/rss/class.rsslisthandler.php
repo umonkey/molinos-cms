@@ -44,7 +44,5 @@ class RSSListHandler extends AdminListHandler implements iAdminList
     $feed = new RSSFeed($filter);
 
     return $feed->render($ctx);
-
-    mcms::debug($feed->render($ctx));
   }
 };
