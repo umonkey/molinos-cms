@@ -7,7 +7,7 @@ class TaxonomyAdmin extends AdminTreeHandler
     $tmp = new TaxonomyAdmin($ctx);
     return $tmp->getHTML('taxonomy', array(
       'edit' => $ctx->user->hasAccess('u', 'tag'),
-      'search' => false,
+      'nosearch' => true,
       ));
   }
 
