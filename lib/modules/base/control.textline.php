@@ -42,7 +42,7 @@ class TextLineControl extends Control
     return parent::wrapXML(array(
       'type' => 'text',
       'maxlength' => $this->getMaxLength(),
-      ), $this->getValue($data));
+      ), html::cdata($this->getValue($data)));
   }
 
   protected function getMaxLength()
