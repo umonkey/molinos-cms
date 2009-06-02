@@ -54,6 +54,8 @@ class Indexer
    */
   private static function recreateIndexes(Context $ctx, Node $type)
   {
+    $tran = $ctx->db->isTransactionRunning();
+
     foreach ((array)$type->fields as $name => $info)
       if (!NodeStub::isBasicField($name) and !empty($info['indexed'])) {
         if ($sql = Control::getIndexType($info['type'])) {
@@ -71,6 +73,9 @@ class Indexer
             ));
         }
       }
+
+    if ($tran)
+      $ctx->db->beginTransaction();
   }
 
   /**
