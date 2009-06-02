@@ -32,22 +32,22 @@ class LabelsControl extends ListControl
    */
   public function preview($value)
   {
-    $result = array();
+    if ($labels = $value->{$this->value}) {
+      $result = array();
 
-    $labels = $value->{$this->value};
+      foreach ($this->getLabelsFor($value) as $id => $name) {
+        if (!array_key_exists($id, $labels))
+          $name = html::em('em', $name);
+        $result[] = html::em('a', array(
+          'href' => 'admin/node/' . $id,
+          // 'href' => 'admin/content/list?search=tags%3A' . $id,
+          ), $name);
+      }
 
-    foreach ($this->getLabelsFor($value) as $id => $name) {
-      if (!array_key_exists($id, $labels))
-        $name = html::em('em', $name);
-      $result[] = html::em('a', array(
-        'href' => 'admin/node/' . $id,
-        // 'href' => 'admin/content/list?search=tags%3A' . $id,
-        ), $name);
+      return html::wrap('value', html::cdata(implode(', ', $result)), array(
+        'html' => true,
+        ));
     }
-
-    return html::wrap('value', html::cdata(implode(', ', $result)), array(
-      'html' => true,
-      ));
   }
 
   public function set($value, &$node)
@@ -100,10 +100,10 @@ class LabelsControl extends ListControl
    */
   protected function getLabelsFor(Node $node)
   {
-    return (array)$node->getDB()->getResultsKV('id', 'name', "SELECT `id`, `name` FROM `node` "
+    return array_unique((array)$node->getDB()->getResultsKV('id', 'name', "SELECT `id`, `name` FROM `node` "
       . "WHERE `class` = 'label' AND `deleted` = 0 AND `id` "
       . "IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ? AND `key` = ?)",
-      array($node->id, $this->value));
+      array($node->id, $this->value)));
   }
 
   /**
