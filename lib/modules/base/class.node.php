@@ -406,13 +406,22 @@ class Node
         );
     */
 
-    if ($this->checkPermission('d'))
-      $links['delete'] = array(
-        'href' => 'nodeapi/delete?node=' . $this->id
-          .'&destination=CURRENT',
-        'title' => t('Удалить'),
-        'icon' => 'delete',
-        );
+    if ($this->checkPermission('d')) {
+      if ($this->deleted)
+        $links['delete'] = array(
+          'href' => 'nodeapi/undelete?node=' . $this->id
+            .'&destination=CURRENT',
+          'title' => t('Восстановить'),
+          'icon' => 'delete',
+          );
+      else
+        $links['delete'] = array(
+          'href' => 'nodeapi/delete?node=' . $this->id
+            .'&destination=CURRENT',
+          'title' => t('Удалить'),
+          'icon' => 'delete',
+          );
+    }
 
     if ($this->checkPermission('p') and !in_array($this->class, array('type')) and !$this->deleted) {
       if ($this->published) {
