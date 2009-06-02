@@ -4,7 +4,7 @@ class NodeAPI
 {
   public static function get_xml(Context $ctx, $path, array $pathinfo)
   {
-    $data = $ctx->db->fetch('SELECT `xml` FROM `node` WHERE `id` = ?', array($ctx->get('id')));
+    $data = $ctx->db->fetch('SELECT `xml` FROM `node` WHERE `id` = ? AND `deleted` = 0 AND `published` = 1', array($ctx->get('id')));
     if (empty($data))
       throw new PageNotFoundException();
 
@@ -143,5 +143,19 @@ class NodeAPI
     $xml = Node::findXML($ctx->db, $filter);
 
     return self::xml(html::em('nodes', $xml));
+  }
+
+  /**
+   * Возвращает форму для создания документа.
+   */
+  public static function on_get_create_form(Context $ctx)
+  {
+    if (!($type = $ctx->get('type')))
+      throw new BadRequestException(t('Не указан тип документа (GET-параметр type.)'));
+
+    $node = Node::create($type)->knock('c');
+    $form = $node->formGet();
+
+    return new Response($form->getXML(), 'text/xml');
   }
 }
