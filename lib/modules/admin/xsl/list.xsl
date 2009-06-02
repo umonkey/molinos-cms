@@ -83,8 +83,11 @@
             </a>
           </td>
           <td class="field-name">
-            <a href="admin/node/{@id}">
+            <a href="admin/node/{@id}?destination={$back}">
               <xsl:value-of select="@name" />
+              <xsl:if test="not(@name)">
+                <xsl:text>(без имени)</xsl:text>
+              </xsl:if>
             </a>
           </td>
           <xsl:if test="$showtype">
