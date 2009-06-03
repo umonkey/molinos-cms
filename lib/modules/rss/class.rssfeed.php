@@ -25,7 +25,7 @@ class RSSFeed
       'language' => 'ru',
       ), $options);
 
-    $content = html::wrap('nodes', Node::findXML($ctx->db, $this->filter));
+    $content = html::wrap('nodes', Node::findXML($this->filter, $ctx->db));
     $content = html::em('rss', $options, $content);
 
     return xslt::transform($content, $options['xsl'], 'text/xml');
