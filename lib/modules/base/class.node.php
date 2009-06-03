@@ -689,12 +689,15 @@ class Node
     $editable = $this->checkPermission('u');
 
     foreach ($this->getFormFields()->sort() as $name => $ctl) {
-      if ($ctl->label)
-        $result .= html::em('field', array(
-          'name' => $name,
-          'title' => $ctl->label,
-          'editable' => $editable,
-          ), $ctl->preview($this));
+      if ($ctl->label) {
+        if (false !== ($tmp = $ctl->preview($this))) {
+          $result .= html::em('field', array(
+            'name' => $name,
+            'title' => $ctl->label,
+            'editable' => $editable and $ctl->isEditable(),
+            ), $tmp);
+        }
+      }
     }
 
     return $result;

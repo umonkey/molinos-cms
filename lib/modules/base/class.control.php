@@ -400,6 +400,11 @@ abstract class Control implements iFormControl
       ));
     return $ctl->getSQL();
   }
+
+  public function isEditable()
+  {
+    return true;
+  }
 };
 
 class ControlData
