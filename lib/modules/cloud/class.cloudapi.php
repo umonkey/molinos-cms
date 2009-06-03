@@ -2,6 +2,14 @@
 
 class CloudAPI
 {
+  /**
+   * Возвращает облако объектов.
+   *
+   * Параметрыж
+   *   st — типы возвращаемых объектов,
+   *   tt — типы связанных объектов,
+   *   limit — количество объектов.
+   */
   public static function on_get_list(Context $ctx)
   {
     if (!($st = $ctx->get('st')))

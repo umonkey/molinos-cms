@@ -3,6 +3,13 @@
 
 class XmlImporter
 {
+  /**
+   * Получение данных из внешнего XML источника.
+   *
+   * Параметры:
+   *   url — адрес источника.
+   *   cache — срок кэширования, в секундах (= 600).
+   */
   public static function on_get_import(Context $ctx)
   {
     if ($ttl = intval($ctx->get('cache')) < 600)
