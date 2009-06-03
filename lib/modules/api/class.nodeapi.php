@@ -174,4 +174,18 @@ class NodeAPI
 
     return new Response(html::em('nodes', $nodes), 'text/xml');
   }
+
+  /**
+   * Возвращает дерево объектов.
+   */
+  public static function on_get_tree_xml(Context $ctx)
+  {
+    if (!($node = $ctx->get('node')))
+      throw new BadRequestException(t('Не указан идентификатор объекта (GET-параметр node).'));
+
+    if (!($xml = Node::load($node, $ctx->db)->getObject()->getTreeXML()))
+      throw new PageNotFoundException();
+
+    return new Response($xml, 'text/xml');
+  }
 }
