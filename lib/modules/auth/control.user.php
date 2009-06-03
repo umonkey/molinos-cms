@@ -41,7 +41,7 @@ class UserControl extends Control
       return;
 
     // Пользователь залогинен, делать нечего.
-    if (Context::last()->user->id)
+    if (!$this->required)
       return parent::wrapXML(array(
         'type' => 'checkbox',
         'title' => t('Анонимно'),
@@ -60,18 +60,12 @@ class UserControl extends Control
     if ($node->id)
       return;
 
-    $user = Context::last()->user;
-
-    // Поле обязательно для заполнения, не разрешаем анонимный постинг.
-    if ($this->required and !$user->id)
-      throw new ForbiddenException();
-
-    // Пользователь запросил анонимность, предоставляем её.
-    if ($value)
+    // Анонимность разрешена и запрошена.
+    if (!$this->required and $value)
       return;
 
     // Сохраняем информацию.
-    $node->{$this->value} = $user->getNode();
+    $node->{$this->value} = Context::last()->user->getNode();
   }
 
   /**
