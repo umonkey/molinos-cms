@@ -386,6 +386,7 @@ class Node
   public function getActionLinks()
   {
     $links = array();
+    $ctx = Context::last();
 
     if ($this->checkPermission('u')) {
       $links['edit'] = array(
@@ -447,7 +448,21 @@ class Node
         'icon' => 'locate',
         );
 
-    if (($ctx = Context::last()) and $ctx->canDebug()) {
+    if ('type' != $this->class) {
+      try {
+        $tmp = Node::load(array(
+          'class' => 'type',
+          'deleted' => 0,
+          'name' => $this->class,
+          ));
+        $links['schema'] = array(
+          'href' => 'admin/node/' . $tmp->id . '?destination=CURRENT',
+          'title' => t('Настроить тип'),
+          );
+      } catch (Exception $e) { }
+    }
+
+    if ($ctx->canDebug()) {
       $links['dump'] = array(
         'href' => 'nodeapi/dump?node=' . $this->id,
         'title' => 'XML дамп',
