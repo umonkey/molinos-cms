@@ -74,13 +74,13 @@ class TagsWidget extends Widget implements iWidget
   public function onGet(array $options)
   {
     if (!empty($options['root'])) {
-      return html::wrap('sections', Node::findXML($this->ctx->db, array(
+      return html::wrap('sections', Node::findXML(array(
         'class' => 'tag',
         'deleted' => 0,
         'published' => 1,
         '#sort' => 'left',
         'parent_id' => $options['root'],
-        )));
+        ), $this->ctx->db));
     }
   }
 

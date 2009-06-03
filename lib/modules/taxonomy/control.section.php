@@ -76,11 +76,11 @@ class SectionControl extends EnumControl
   public function preview($value)
   {
     if ($value) {
-      $nodes = Node::find($value->getDB(), array(
+      $nodes = Node::find(array(
         'class' => 'tag',
         'deleted' => 0,
         'tagged' => $value->id,
-        ));
+        ), $value->getDB());
 
       $result = array();
       foreach ($nodes as $node)
@@ -92,5 +92,11 @@ class SectionControl extends EnumControl
         'html' => true,
         ));
     }
+  }
+
+  public function isEditable($node)
+  {
+    $enabled = $this->getEnabled($node);
+    return empty($enabled) or count($enabled) > 1;
   }
 }

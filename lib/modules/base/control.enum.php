@@ -56,7 +56,7 @@ class EnumControl extends Control
     $enabled = $this->getEnabled($data);
 
     if (is_array($enabled) and count($enabled) == 1)
-      return html::em('control', array(
+      return html::em('input', array(
         'type' => 'hidden',
         'name' => $this->value,
         'value' => array_shift($enabled),

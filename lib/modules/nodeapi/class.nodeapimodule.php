@@ -86,10 +86,7 @@ class NodeApiModule extends RPCHandler
       $temp = $node->{'never should this field exist'};
       mcms::debug($node);
     } else {
-      if ($ctx->get('fresh'))
-        $xml = Node::load($filter)->refresh()->getXML();
-      else
-        $xml = Node::findXML($ctx->db, $filter);
+      $xml = Node::findXML($filter, $ctx->db);
       if (empty($xml))
         mcms::fatal(t('Для этого документа нет XML представления (такого быть не должно), см. <a href="@url">сырой вариант</a>.', array(
           '@url' => '?q=node/' . $filter['id'] . '/dump&raw=1',
@@ -199,7 +196,7 @@ class NodeApiModule extends RPCHandler
    */
   public static function rpc_post_edit(Context $ctx)
   {
-    $node = Node::load($ctx->get('node'), $ctx->db)->getObject()->knock('u');
+    $node = Node::load($ctx->get('node'), $ctx->db)->knock('u');
     if (null === $node->uid and $node->isNew())
       $node->uid = $ctx->user->id;
     $node->formProcess($ctx->post, $ctx->get('field'))->save($ctx->db);
@@ -358,7 +355,7 @@ class NodeApiModule extends RPCHandler
   {
     $ctx->db->beginTransaction();
     foreach (self::getNodes($ctx) as $node)
-      $node->knock('u')->refresh()->save();
+      $node->knock('u')->touch()->save();
     $ctx->db->commit();
     return $ctx->getRedirect();
   }
@@ -370,17 +367,16 @@ class NodeApiModule extends RPCHandler
   {
     $types = Node::getSortedList('type', 'title', 'name', 'name', 'name', 'name');
 
-    $nodes = Node::find($ctx->db, array(
+    $nodes = Node::find(array(
       'id' => explode(' ', $ctx->get('node')),
       'deleted' => 0,
-      ));
+      ), $ctx->db);
 
     if (empty($nodes))
       throw new PageNotFoundException();
 
     $result = '';
     foreach ($nodes as $node) {
-      $node = $node->getObject();
       if ($node->checkPermission('d'))
         $result .= html::em('node', array(
           'id' => $node->id,
@@ -413,8 +409,8 @@ class NodeApiModule extends RPCHandler
     if (empty($ids))
       throw new BadRequestException(t('Не указаны идентификаторы документов (POST-массив selected[] или GET-параметр node)'));
 
-    return Node::find($ctx->db, array(
+    return Node::find(array(
       'id' => $ids,
-      ));
+      ), $ctx->db);
   }
 };

@@ -164,46 +164,12 @@ class Query
   /**
    * Возвращает инструкцию для выборки идентификаторов.
    */
-  public function getSelect($limit = null, $offset = null, $fields = null)
+  public function getSelect(array $fields = null)
   {
-    if (null === $limit)
-      $limit = $this->limit;
-    if (null === $offset)
-      $offset = $this->offset;
-
-    if (null === $fields)
-      $fields = array('*');
+    if (!$fields)
+      $fields = array('id', 'parent_id', 'name', 'lang', 'class', 'left', 'right', 'created', 'updated', 'published', 'deleted', 'data');
 
     $sql = sql::getSelect((array)$fields, $this->tables, $this->conditions);
-
-    if (!empty($this->order))
-      $sql .= ' ORDER BY ' . join(', ', $this->order);
-
-    if (null !== $limit) {
-      $lim = array();
-      if (null !== $offset)
-        $lim[] = intval($offset);
-      $lim[] = intval($limit);
-      $sql .= ' LIMIT ' . join(', ', $lim);
-    }
-
-    if ($this->debug)
-      mcms::debug($sql, $this->params);
-
-    return array($sql, $this->params);
-  }
-
-  /**
-   * Возвращает инструкцию для выборки XML версий объектов.
-   */
-  public function getSelectXML($limit = null, $offset = null)
-  {
-    if (null === $limit)
-      $limit = $this->limit;
-    if (null === $offset)
-      $offset = $this->offset;
-
-    $sql = sql::getSelect(array('`node`.`xml`'), $this->tables, $this->conditions);
 
     if (!empty($this->order))
       $sql .= ' ORDER BY ' . join(', ', $this->order);
@@ -245,7 +211,7 @@ class Query
     if ('name' == $name) {
       $tableName = 'node';
       $fieldName = 'name_lc';
-    } elseif (NodeStub::isBasicField($name)) {
+    } elseif (Node::isBasicField($name)) {
       $tableName = 'node';
       $fieldName = $name;
     } else {

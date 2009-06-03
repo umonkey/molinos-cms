@@ -76,7 +76,7 @@ class UserControl extends Control
     if ($value->id) {
       $options = array(
         'id' => $value->id,
-        'name' => $value->getObject()->getName(),
+        'name' => $value->getName(),
         'email' => $value->email,
         );
       return html::em($em, $options);
@@ -93,7 +93,7 @@ class UserControl extends Control
     if ($value->id)
       $html = html::em('a', array(
         'href' => 'admin/node/' . $value->id,
-        ), html::cdata($value->getObject()->getName()));
+        ), html::cdata($value->getName()));
     else
       $html = t('Авторство не установлено.');
 

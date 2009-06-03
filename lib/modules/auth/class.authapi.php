@@ -5,12 +5,12 @@ class AuthAPI
   public static function get_info_xml(Context $ctx)
   {
     if ($uid = $ctx->user->id)
-      $xml = Node::findXML($ctx->db, array(
+      $xml = Node::findXML(array(
         'class' => 'user',
         'published' => 1,
         'deleted' => 0,
         'id' => $uid,
-        ));
+        ), $ctx->db);
 
     if (empty($xml))
       $xml = html::em('node', array(
@@ -18,6 +18,6 @@ class AuthAPI
         'name' => 'anonymous',
         ));
 
-    return new Response('<?xml version="1.0"?>' . $xml, 'text/xml');
+    return new Response($xml, 'text/xml');
   }
 }

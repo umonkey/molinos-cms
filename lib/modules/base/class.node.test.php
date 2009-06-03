@@ -45,22 +45,6 @@ class NodeTests extends PHPUnit_Framework_TestCase
     $this->assertEquals('domain', $node->name);
   }
 
-  public function testFindNodes()
-  {
-    $nodes = Node::find(get_test_context()->db, array(
-      'class' => 'type',
-      ), 2);
-
-    $this->assertEquals(true, is_array($nodes));
-    $this->assertEquals(2, count($nodes));
-
-    foreach ($nodes as $node) {
-      $this->assertTrue($node instanceof NodeStub);
-      $this->assertTrue(is_integer($node->id));
-      $this->assertEquals('type', $node->class);
-    }
-  }
-
   public function testCountNodes()
   {
     $db = get_test_context()->db;
@@ -215,29 +199,5 @@ class NodeTests extends PHPUnit_Framework_TestCase
   {
     $node = Node::create('dummy');
     $node->getImage();
-  }
-
-  public function testGetNodesXML()
-  {
-    $xml = Node::getNodesXML('node', array());
-    $this->assertTrue(null === $xml);
-
-    $node = NodeStub::loadByName(get_test_context()->db, 'Molinos.CMS', 'tag');
-    $xml = Node::getNodesXML('node', array($node));
-    $this->assertTrue(0 === strpos($xml, '<nodes>'));
-  }
-
-  public function testListChildren()
-  {
-    $ctx = get_test_context();
-
-    $root = NodeStub::loadByName($ctx->db, 'Molinos.CMS', 'tag');
-    $this->assertTrue(null !== $root->id);
-
-    $list = Node::listChildren('tag', null);
-    $this->assertEquals(1, count($list));
-
-    $list = Node::listChildren('tag', $root->id);
-    $this->assertFalse(empty($list));
   }
 }

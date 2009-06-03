@@ -76,10 +76,10 @@ class AuthForm
 
   public static function on_get_groups(Context $ctx)
   {
-    $nodes = Node::find($ctx->db, array(
+    $nodes = Node::find(array(
       'class' => 'group',
       'deleted' => 0,
-      ));
+      ), $ctx->db);
 
     $counts = $ctx->db->getResultsKV('id', 'count', "SELECT tid AS id, COUNT(*) AS count FROM node__rel r INNER JOIN node g ON g.id = r.tid INNER JOIN node u ON u.id = r.nid WHERE g.deleted = 0 AND u.deleted = 0 AND g.class = 'group' AND u.class = 'user' GROUP BY tid");
 
@@ -93,7 +93,7 @@ class AuthForm
         'name' => $node->getName(),
         'created' => $node->created,
         'users' => $count,
-        'editable' => $node->getObject()->checkPermission('u'),
+        'editable' => $node->checkPermission('u'),
         'published' => true,
         ));
     }

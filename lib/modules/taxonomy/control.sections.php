@@ -72,12 +72,12 @@ class SectionsControl extends SetControl
   public function preview($value)
   {
     if ($value) {
-      $nodes = Node::find($value->getDB(), array(
+      $nodes = Node::find(array(
         'class' => 'tag',
         'deleted' => 0,
         'tagged' => $value->id,
         '#sort' => 'name',
-        ));
+        ), $value->getDB());
 
       $result = array();
       foreach ($nodes as $node)

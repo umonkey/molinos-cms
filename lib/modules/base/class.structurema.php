@@ -31,7 +31,7 @@ class StructureMA
       }
     }
 
-    $data = Node::find(Context::last()->db, array(
+    $data = Node::find(array(
       'class' => 'type',
       'deleted' => 0,
       ));

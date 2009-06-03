@@ -12,12 +12,12 @@ class AdminAdvSearch
     $url = new url($ctx->get('destination', $ctx->get('from')));
 
     if (null === $url->arg('preset')) {
-      $types = Node::find($ctx->db, array(
+      $types = Node::find(array(
         'class' => 'type',
         'published' => 1,
         'deleted' => 0,
         'name' => $ctx->user->getAccess('r'),
-        ));
+        ), $ctx->db);
 
       $list = array();
       foreach ($types as $type)

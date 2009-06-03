@@ -25,7 +25,7 @@ class CronModule
 
   private static function touch(Context $ctx)
   {
-    $node = Node::find($ctx->db, array('class' => 'cronstats'));
+    $node = Node::find(array('class' => 'cronstats'));
     if (empty($node))
       $node = Node::create('cronstats');
     else

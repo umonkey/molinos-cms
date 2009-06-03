@@ -199,7 +199,7 @@ class BaseInstaller
     $upd = $ctx->db->prepare("UPDATE `node` SET `name_lc` = ? WHERE `id` = ?");
 
     for ($sel->execute(); $row = $sel->fetch(PDO::FETCH_ASSOC); )
-      $upd->execute(array(NodeStub::getSortName($row['name']), $row['id']));
+      $upd->execute(array(Query::getSortName($row['name']), $row['id']));
 
     $ctx->db->commit();
   }
@@ -216,8 +216,8 @@ class BaseInstaller
       unset($row['id']);
       unset($row['xml']);
 
-      $node = NodeStub::create($id, $db, $row);
-      $upd->execute(array($node->refresh()->getXML(), $id));
+      $node = Node::load($id, $db);
+      $upd->execute(array($node->getXML(), $id));
     }
 
     $db->commit();

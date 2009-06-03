@@ -86,7 +86,7 @@ class NodeLinkControl extends Control
   // Возвращает текущее значение поля.
   private function getCurrentValue($data)
   {
-    if (($tmp = $data->{$this->value}) instanceof NodeStub)
+    if (($tmp = $data->{$this->value}) instanceof Node)
       return $tmp->name;
     return null;
   }
@@ -108,7 +108,7 @@ class NodeLinkControl extends Control
         else
           $db = Context::last()->db;
 
-        $n = Node::find($db, array(
+        $n = Node::find(array(
           'class' => $parts[0],
           'deleted' => 0,
           $parts[1] => $value,
@@ -181,7 +181,7 @@ class NodeLinkControl extends Control
     if (($count = $db->fetch($sql, $params) < 50)) {
       $result = '';
       $current = $this->getCurrentValue($data);
-      foreach (Node::find($db, $filter) as $node)
+      foreach (Node::find($filter) as $node)
         $result .= html::em('option', array(
           'value' => $node->name,
           'selected' => ($current == $node->name) ? 'yes' : null,

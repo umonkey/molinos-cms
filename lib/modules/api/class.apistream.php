@@ -34,6 +34,7 @@ class APIStream
             $this->data = html::em('error');
           mcms::flog(sprintf('API OK %f %s', microtime(true) - $time, substr($path, 16)));
         } catch (Exception $e) {
+          mcms::flog(sprintf('API ERROR %s', substr($path, 16)));
           $this->data = html::em('error', array(
             'type' => get_class($e),
             'message' => $e->getMessage(),

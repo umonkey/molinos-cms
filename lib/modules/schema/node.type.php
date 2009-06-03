@@ -21,10 +21,9 @@ class TypeNode extends Node implements iContentType
   // документы этого типа обновляются.
   private $oldname = null;
 
-  public function __construct(NodeStub $stub)
+  public function __construct(PDO_Singleton $db, array $data = array())
   {
-    parent::__construct($stub);
-
+    parent::__construct($db, $data);
     $this->oldname = $this->name;
   }
 
@@ -157,7 +156,7 @@ class TypeNode extends Node implements iContentType
     $ctx = Context::last();
     $result = array();
 
-    foreach (Node::find($ctx->db, array('class' => 'type', 'deleted' => 0)) as $type)
+    foreach (Node::find(array('class' => 'type', 'deleted' => 0), $ctx->db) as $type)
       if (null === $mode or $ctx->user->hasAccess('r', $type->name))
         $result[$type->name] = empty($type->title) ? $type->name : $type->title;
 
@@ -286,7 +285,7 @@ class TypeNode extends Node implements iContentType
 
   public static function getList()
   {
-    return Node::find(Context::last()->db, array(
+    return Node::find(array(
       'class' => 'type',
       'deleted' => 0,
       ));
@@ -302,7 +301,7 @@ class TypeNode extends Node implements iContentType
     if (null === $result) {
       $result = array();
 
-      foreach (Node::find(Context::last()->db, array('class' => 'type')) as $t)
+      foreach (Node::find(array('class' => 'type')) as $t)
         if ($t->isdictionary and $t->name != 'field')
           $result[$t->name] = $t->title;
     }
@@ -329,7 +328,7 @@ class TypeNode extends Node implements iContentType
       }
       if (empty($v['weight']))
         $v['weight'] = 50;
-      if (NodeStub::isBasicField($k))
+      if (Node::isBasicField($k))
         $v['indexed'] = true;
       $fields .= html::em('field', array('name' => $k) + $v);
     }
@@ -342,11 +341,11 @@ class TypeNode extends Node implements iContentType
     if (!empty($this->fields))
       return;
 
-    $fields = Node::find($this->getDB(), array(
+    $fields = Node::find(array(
       'class' => 'field',
       'deleted' => 0,
       'tags' => $this->id,
-      ));
+      ), $this->getDB());
     if (!empty($fields)) {
       $result = array();
       foreach ($fields as $field) {
@@ -394,10 +393,10 @@ class TypeNode extends Node implements iContentType
         ), html::em('value', html::cdata($message)));
     }
 
-    $count = Node::count($ctx->db, array(
+    $count = Node::count(array(
       'class' => $this->name,
       'deleted' => 0,
-      ));
+      ), $ctx->db);
     if ($count) {
       $message = t('%count документов (<a href="@url">список</a>)', array(
         '%count' => $count,

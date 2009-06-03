@@ -231,7 +231,7 @@ class AdminListHandler implements iAdminList
         ? TypeNode::getInternal()
         : array();
 
-      foreach (Node::find($this->ctx->db, array('class' => 'type')) as $n) {
+      foreach (Node::find(array('class' => 'type')) as $n) {
         if ($this->haveModule($n->adminmodule) and !in_array($n->name, $itypes))
           $filter['class'][] = $n->name;
       }
@@ -337,7 +337,7 @@ class AdminListHandler implements iAdminList
       $filter['#offset'] = ($this->page - 1) * $this->limit;
     }
 
-    $result = Node::findXML($this->ctx->db, $filter);
+    $result = Node::findXML($filter);
 
     return html::em('data', $result);
   }
@@ -351,7 +351,7 @@ class AdminListHandler implements iAdminList
         break;
       default:
         $filter = $this->getNodeFilter();
-        $this->pgcount = Node::count($this->ctx->db, $filter);
+        $this->pgcount = Node::count($filter, $this->ctx->db);
       }
     }
 

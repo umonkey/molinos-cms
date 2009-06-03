@@ -57,7 +57,7 @@ class Indexer
     $tran = $ctx->db->isTransactionRunning();
 
     foreach ((array)$type->fields as $name => $info)
-      if (!NodeStub::isBasicField($name) and !empty($info['indexed'])) {
+      if (!Node::isBasicField($name) and !empty($info['indexed'])) {
         if ($sql = Control::getIndexType($info['type'])) {
           TableInfo::check('node__idx_' . $name, array(
             'id' => array(

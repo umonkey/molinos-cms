@@ -13,7 +13,7 @@ class NodeAPI
 
   public static function get_parents_xml(Context $ctx)
   {
-    return self::xml(html::em('nodes', NodeStub::create($ctx->get('id'), $ctx->db)->getParentsXML()));
+    return self::xml(html::em('nodes', Node::load($ctx->get('id'), $ctx->db)->getParentsXML()));
   }
 
   public static function list_xml(Context $ctx)
@@ -36,10 +36,10 @@ class NodeAPI
       'skip' => $filter['#offset'],
       );
 
-    $output = Node::findXML($ctx->db, $filter);
+    $output = Node::findXML($filter, $ctx->db);
 
     if ($ctx->get('pager')) {
-      $attrs['total'] = Node::count($ctx->db, $filter);
+      $attrs['total'] = Node::count($filter, $ctx->db);
       $attrs['prev'] = max($filter['#offset'] - $filter['#limit'], 0);
 
       if ($filter['#offset'] + $filter['#limit'] < $attrs['total'])
@@ -56,12 +56,12 @@ class NodeAPI
 
   public static function get_sections_xml(Context $ctx)
   {
-    $result = Node::findXML($ctx->db, array(
+    $result = Node::findXML(array(
       'class' => 'tag',
       'published' => 1,
       'deleted' => 0,
       'tagged' => $ctx->get('id'),
-      ));
+      ), $ctx->db);
 
     return self::xml(html::em('nodes', $result));
   }
@@ -140,7 +140,7 @@ class NodeAPI
       $filter['class'] = $tmp;
     $filter['#limit'] = $ctx->get('limit', 10);
 
-    $xml = Node::findXML($ctx->db, $filter);
+    $xml = Node::findXML($filter, $ctx->db);
 
     return self::xml(html::em('nodes', $xml));
   }
@@ -164,13 +164,13 @@ class NodeAPI
    */
   public static function on_get_create_types(Context $ctx)
   {
-    $nodes = Node::findXML($ctx->db, array(
+    $nodes = Node::findXML(array(
       'class' => 'type',
       'name' => $ctx->user->getAccess('c'),
       '-name' => $ctx->user->getAnonymous()->getAccess('c'),
       'published' => 1,
       '#sort' => 'name',
-      ));
+      ), $ctx->db);
 
     return new Response(html::em('nodes', $nodes), 'text/xml');
   }
@@ -183,7 +183,7 @@ class NodeAPI
     if (!($node = $ctx->get('node')))
       throw new BadRequestException(t('Не указан идентификатор объекта (GET-параметр node).'));
 
-    if (!($xml = Node::load($node, $ctx->db)->getObject()->getTreeXML()))
+    if (!($xml = Node::load($node, $ctx->db)->getTreeXML()))
       throw new PageNotFoundException();
 
     return new Response($xml, 'text/xml');

@@ -39,8 +39,8 @@ class AdminPage
     $this->content .= /* $router->getPath($ctx) . */ $menu->getXML($ctx);
 
     $request = '';
-    if ($user = $ctx->user->getNode())
-      $request .= html::wrap('user', Node::findXML($ctx->db, array('id' => $user->id)));
+    if ($userid = $ctx->user->id)
+      $request .= html::wrap('user', Node::findXML(array('id' => $userid), $ctx->db));
     $request .= $ctx->url()->getArgsXML();
     $this->content .= html::wrap('request', $request);
 

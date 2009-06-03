@@ -12,7 +12,7 @@ class AttachmentRPC extends RPCHandler
     if (null === ($fid = $ctx->get('fid')))
       $fid = trim(strchr($ctx->query(), '/'), '/');
 
-    $node = NodeStub::create($fid, $ctx->db);
+    $node = Node::load($fid, $ctx->db);
     $path = os::webpath($ctx->config->getDirName(), $ctx->config->files, $node->filepath);
 
     return new Redirect($path, Redirect::PERMANENT);
@@ -170,7 +170,7 @@ class AttachmentRPC extends RPCHandler
    */
   public static function on_get_edit_form(Context $ctx)
   {
-    $nodes = Node::findXML($ctx->db, array(
+    $nodes = Node::findXML(array(
       'class' => 'file',
       'id' => explode(' ', $ctx->get('files')),
       'deleted' => 0,
@@ -285,7 +285,7 @@ class AttachmentRPC extends RPCHandler
 
     $ctx->db->beginTransaction();
     foreach ($ids as $id)
-      Node::load($id, $ctx->db)->touch()->getObject()->save();
+      Node::load($id, $ctx->db)->touch()->save();
     $ctx->db->commit();
 
     return $ctx->getRedirect();

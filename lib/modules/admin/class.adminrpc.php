@@ -115,7 +115,7 @@ class AdminRPC extends RPCHandler
       'class' => 'type',
       'name' => $type,
       'deleted' => 0,
-      ), $ctx->db)->getObject();
+      ), $ctx->db);
 
     $tmp = new AdminListHandler($ctx, $type);
     return $tmp->getHTML('default', array(
@@ -166,7 +166,7 @@ class AdminRPC extends RPCHandler
 
   public static function on_get_edit_form(Context $ctx, $path, array $pathinfo, $nid)
   {
-    $node = Node::load($nid)->getObject();
+    $node = Node::load($nid);
 
     $form = $node->formGet();
     $form->addClass('tabbed');
@@ -182,7 +182,7 @@ class AdminRPC extends RPCHandler
    */
   public static function on_get_edit_field_form(Context $ctx, $path, array $pathinfo, $nid, $fieldName)
   {
-    $node = Node::load($nid)->getObject();
+    $node = Node::load($nid);
 
     if (!array_key_exists($fieldName, $schema = $node->getFormFields()))
       throw new PageNotFoundException();
@@ -215,12 +215,12 @@ class AdminRPC extends RPCHandler
 
   public static function on_get_create_list(Context $ctx)
   {
-    $types = Node::find($ctx->db, array(
+    $types = Node::find(array(
       'class' => 'type',
       'name' => $ctx->user->getAccess('c'),
       '-name' => $ctx->user->getAnonymous()->getAccess('c'),
       'published' => 1,
-      ));
+      ), $ctx->db);
 
     $output = '';
     $names = array();
@@ -409,7 +409,7 @@ class AdminRPC extends RPCHandler
 
   private static function getDashboardXML(PDO_Singleton $db, array $query, array $options)
   {
-    return html::wrap('content', Node::findXML($db, $query), $options);
+    return html::wrap('content', Node::findXML($query, $ctx->db), $options);
   }
 
   /**

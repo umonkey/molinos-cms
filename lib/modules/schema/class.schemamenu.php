@@ -31,7 +31,7 @@ class SchemaMenu
       ), $ctx->db);
 
     if (empty($node->fields)) {
-      if ($node->getObject()->backportLinkedFields()) {
+      if ($node->backportLinkedFields()) {
         $ctx->db->beginTransaction();
         $node->save();
         $ctx->db->commit();
@@ -65,7 +65,7 @@ class SchemaMenu
       'name' => $ctx->get('type'),
       'deleted' => 0,
       ), $ctx->db);
-    $type->getObject()->backportLinkedFields();
+    $type->backportLinkedFields();
 
     if (!isset($type->fields[$fieldName = $ctx->get('field')]))
       throw new PageNotFoundException();
@@ -106,7 +106,7 @@ class SchemaMenu
       'deleted' => 0,
       ), $ctx->db);
 
-    $type->getObject()->backportLinkedFields();
+    $type->backportLinkedFields();
 
     if (!array_key_exists($fieldName = $ctx->get('field'), $type->fields))
       throw new PageNotFoundException();
@@ -142,7 +142,7 @@ class SchemaMenu
     }
 
     $ctx->db->beginTransaction();
-    $type->getObject()->save();
+    $type->save();
     $ctx->db->commit();
 
     return $ctx->getRedirect();
@@ -302,7 +302,7 @@ class SchemaMenu
       'class' => 'type',
       'deleted' => 0,
       'name' => $ctx->get('type'),
-      ))->getObject();
+      ));
 
     if (empty($type))
       throw new PageNotFoundException();

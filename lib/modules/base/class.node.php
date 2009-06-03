@@ -5,8 +5,8 @@
  * Реализует функции, общие для всех объектов, но не имеющие отношения к
  * взаимодействию с БД — этот код вынесен в класс NodeBase.
  *
- * @package mod_base
- * @subpackage Widgets
+ * @package Molinos CMS
+ * @subpackage mod_base
  * @author Justin Forest <justin.forest@gmail.com>
  * @copyright 2006-2008 Molinos.RU
  * @license http://www.gnu.org/copyleft/gpl.html GPL
@@ -17,111 +17,142 @@
  *
  * Реализует функции, общие для всех объектов, но не имеющие отношения к
  * взаимодействию с БД — этот код вынесен в класс NodeBase.
- *
- * @package mod_base
- * @subpackage Widgets
  */
 class Node
 {
-  private $stub;
-  private $isnew = true;
+  /**
+   * Содержимое полей объекта.
+   */
+  private $data;
+
+  /**
+   * SQL инструкции, выполняемые при сохранении объекта.
+   */
   private $onsave = array();
 
-  public function __construct(NodeStub $stub)
-  {
-    $this->stub = $stub;
-    if ($this->id)
-      $this->isnew = false;
-  }
-
-  private final function __get($key)
-  {
-    return $this->stub->$key;
-  }
-
-  private final function __set($key, $value)
-  {
-    $this->stub->$key = $value;
-  }
-
-  private final function __isset($key)
-  {
-    return isset($this->stub->$key);
-  }
-
-  private final function __unset($key)
-  {
-    unset($this->stub->$key);
-  }
+  /**
+   * Ссылка на базу данных.  Заполняется конструктором.
+   */
+  private $isnew = true;
 
   /**
-   * Проверяет, изменялся ли объект.
+   * Содержит true, если свойства объекта изменялись.
    */
-  public function isNew()
-  {
-    return $this->isnew;
-  }
+  private $dirty = false;
 
   /**
-   * Создание новой ноды нужного типа.
+   * Инициализация объекта. Извне следует использовать ::create().
    */
-  public static function create($class, array $data = array(), PDO_Singleton $db = null)
+  protected function __construct(PDO_Singleton $db, array $data = array())
   {
-    if (null === $db)
-      $db = Context::last()->db;
-
-    $stub = NodeStub::create(null, $db);
-
-    $data['class'] = $class;
-    foreach ($data as $k => $v)
-      $stub->$k = $v;
-
-    return $stub->getObject();
-  }
-
-  /**
-   * Загрузка конкретной ноды.
-   */
-  public static function load($id, PDO $db = null)
-  {
-    if (null === $db)
-      $db = Context::last()->db;
-
-    if (is_array($id)) {
-      if (!is_array($nodes = Node::find($db, $id)) or empty($nodes))
-        throw new ObjectNotFoundException();
-      return array_shift($nodes);
-    } elseif (!is_numeric($id)) {
-      throw new InvalidArgumentException(t('Идентификатор загружаемой ноды должен быть числовым.'));
+    // Разворачиваем сериализованные данные.  Свойства, пересекающиеся
+    // с базовыми, уничтожаются.
+    if (array_key_exists('data', $data)) {
+      if (is_array($tmp = @unserialize($data['data'])))
+        $data = array_merge($tmp, $data);
+      unset($data['data']);
     }
 
-    return NodeStub::create($id, $db)->getObject();
+    $this->db = $db;
+    $this->data = $data;
+    $this->isnew = !empty($data['id']);
+
+    if (!empty($this->data['id'])) {
+      $this->retrieve();
+      mcms::flog("node {$this->data['id']} read from DB (slow).");
+    }
   }
 
   /**
-   * Поиск нод.
+   * Загрузка привязанных объектов.
    */
-  public static function find(PDO_Singleton $db, $query, $limit = null, $offset = null)
+  private function retrieve()
   {
-    if ($query instanceof Query)
-      ;
-    elseif (is_array($query))
-      $query = new Query($query);
-    else
-      throw new InvalidArgumentException(t('Запрос должен быть описан массивом или объектом Query.'));
+    if (!empty($this->data['id'])) {
+      $rows = $this->getDB()->getResultsK("key", "SELECT `node__rel`.`key`, `node`.* FROM `node__rel` "
+        . "INNER JOIN `node` ON `node`.`id` = `node__rel`.`nid` "
+        . "WHERE `node`.`deleted` = 0 AND `node__rel`.`tid` = ? "
+        . "AND `node__rel`.`tid` <> `node__rel`.`nid` " // предотвращение простейшей рекурсии
+        . "AND `node__rel`.`key` IS NOT NULL", array($this->data['id']));
 
-    list($sql, $params) = $query->getSelect($limit, $offset, '*');
+      foreach ($rows as $field => $data)
+        $this->data[$field] = Node::create($data, $this->getDB());
+    }
+  }
 
-    $result = array();
+  /**
+   * Создание нового объекта.  Если БД не указана, используется текущее подключение.
+   */
+  public static function create($fields, PDO_Singleton $db = null)
+  {
+    if (!is_array($fields))
+      $fields = array(
+        'class' => $fields,
+        );
+
+    if (empty($fields['class']))
+      throw new InvalidArgumentException(t('Не указан тип создаваемой ноды.'));
+
+    if (!class_exists($factory = $fields['class'] . 'Node'))
+      $factory = __CLASS__;
+
+    if (null === $db)
+      $db = Context::last()->db;
+
+    return new $factory($db, $fields);
+  }
+
+  /**
+   * Загрузка конкретной ноды по id.
+   *
+   * Параметры:
+   *   $query — идентификатор ноды или описание запроса.
+   *   $db — база данных. Если не указано, используется текущее подключение.
+   *
+   * Если объект не найден, кидает ObjectNotFoundException; если найдено больше
+   * одного объекта, кидает RuntimeException.
+   */
+  public static function load($query, PDO $db = null)
+  {
+    if (null === $db)
+      $db = Context::last()->db;
+
+    if (!is_array($query))
+      $query = array('id' => $query);
+
+    if (!is_array($nodes = Node::find($query, $db)))
+      throw new ObjectNotFoundException();
+    elseif (count($nodes) > 1)
+      throw new RuntimeException(t('Запрос к Node::load() вернул более одного объекта.'));
+
+    return array_shift($nodes);
+  }
+
+  /**
+   * Загрузка нод из БД.
+   *
+   * Параметры:
+   *   $query — запрос.
+   *   $db — БД. Если не указана, используется текущее подключение.
+   */
+  public static function find($query, PDO_Singleton $db = null)
+  {
+    if (is_array($query))
+      $query = Query::build($query);
+    elseif (!($query instanceof Query))
+      throw new InvalidArgumentException(t('Запрос должен быть массивом или объектом Query.'));
+
+    if (null === $db)
+      $db = Context::last()->db;
+
+    list($sql, $params) = $query->getSelect();
 
     $sth = $db->prepare($sql);
     $sth->execute($params);
 
-    while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-      $id = $row['id'];
-      unset($row['id']);
-      $result[$id] = NodeStub::create($id, $db, $row)->getObject();
-    }
+    $result = array();
+    while ($row = $sth->fetch(PDO::FETCH_ASSOC))
+      $result[$row['id']] = Node::create($row, $db);
 
     return $result;
   }
@@ -129,37 +160,41 @@ class Node
   /**
    * Поиск нод, результат — в XML.
    */
-  public static function findXML(PDO_Singleton $db, $query, $em = null)
+  public static function findXML($query, PDO_Singleton $db = null)
   {
-    $output = '';
-
-    if ('node' == $em)
-      $em = null;
-
     if (is_array($query))
-      $query = new Query($query);
+      $query = Query::build($query);
+    elseif (!($query instanceof Query))
+      throw new InvalidArgumentException(t('Запрос должен быть массивом или объектом Query.'));
 
-    list($sql, $params) = $query->getSelectXML();
+    if (null === $db)
+      $db = Context::last()->db;
 
-    try {
-      for ($sth = $db->exec($sql, $params); $xml = $sth->fetchColumn(0); ) {
-        if (null !== $em)
-          $xml = '<' . $em . substr($xml, 5, -5) . $em . '>';
-        $output .= $xml;
-      }
-    } catch (PDOException $e) {
-      mcms::flog('database needs an upgrade');
-    }
+    list($sql, $params) = $query->getSelect(array('xml'));
+
+    $sel = $db->prepare($sql);
+    $sel->execute($params);
+
+    $output = '';
+    while ($xml = $sel->fetchColumn(0))
+      $output .= $xml;
 
     return $output;
   }
 
   /**
-   * Подсчёт нод.
+   * Возвращает количество нод, удовлетворяющих запросу.
    */
-  public static function count(PDO_Singleton $db, array $query)
+  public static function count($query, PDO_Singleton $db = null)
   {
-    $query = new Query($query);
+    if (is_array($query))
+      $query = Query::build($query);
+    elseif (!($query instanceof Query))
+      throw new InvalidArgumentException(t('Запрос должен быть массивом или объектом Query.'));
+
+    if (null === $db)
+      $db = Context::last()->db;
+
     list($sql, $params) = $query->getCount();
 
     $sth = $db->prepare($sql);
@@ -169,7 +204,182 @@ class Node
   }
 
   /**
-   * Проверка доступа.
+   * Возвращает родителей текущей ноды.
+   */
+  public function getParents()
+  {
+    $sql = "SELECT `parent`.`id` as `id` "
+      ."FROM `node` AS `self`, `node` AS `parent` "
+      ."WHERE `self`.`left` BETWEEN `parent`.`left` "
+      ."AND `parent`.`right` AND `self`.`id` = ? "
+      ."ORDER BY `parent`.`left`";
+
+    return self::find(array(
+      'deleted' => 0,
+      'id' => (array)$this->getDB()->getResultsV("id", $sql, array($this->data['id'])),
+      '#sort' => 'left',
+      ), $this->getDB());
+  }
+
+  /**
+   * Возвращает родителей текущей ноды в XML.
+   */
+  public function getParentsXML()
+  {
+    $sql = "SELECT `parent`.`id` as `id` "
+      ."FROM `node` AS `self`, `node` AS `parent` "
+      ."WHERE `self`.`left` BETWEEN `parent`.`left` "
+      ."AND `parent`.`right` AND `self`.`id` = ? "
+      ."ORDER BY `parent`.`left`";
+
+    return self::findXML(array(
+      'deleted' => 0,
+      'id' => (array)$this->getDB()->getResultsV("id", $sql, array($this->data['id'])),
+      '#sort' => 'left',
+      ), $this->getDB());
+  }
+
+  /**
+   * Получение списка связанных объектов.
+   * TODO: оптимизировать.
+   */
+  public function getLinked($class = null, $ids = false)
+  {
+    $result = array();
+
+    if (!empty($this->data['id'])) {
+      $params = array($this->data['id']);
+      $sql = "SELECT `nid` FROM `node__rel` WHERE `tid` = ?";
+
+      if (null !== $class) {
+        $sql .= " AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0)";
+        $params[] = $class;
+      } else {
+        $sql .= " AND `nid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 1)";
+      }
+
+      foreach ((array)$this->getDB()->getResultsV("nid", $sql, $params) as $id)
+        $result[] = $ids
+          ? $id
+          : self::load($id, $this->getDB());
+    }
+
+    return $result;
+  }
+
+  /**
+   * Получение списка объектов, к которым привязан текущий.
+   * TODO: оптимизировать.
+   */
+  public function getLinkedTo($class = null, $ids = false)
+  {
+    $result = array();
+
+    if (!empty($this->data['id'])) {
+      $params = array($this->data['id']);
+      $sql = "SELECT `tid` FROM `node__rel` WHERE `nid` = ?";
+
+      if (null !== $class) {
+        $sql .= " AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0)";
+        $params[] = $class;
+      } else {
+        $sql .= ' AND `tid` NOT IN (SELECT `id` FROM `node` WHERE `deleted` = 1)';
+      }
+
+      foreach ((array)$this->getDB()->getResultsV("tid", $sql, $params) as $id)
+        $result[] = $ids
+          ? $id
+          : self::load($id, $this->getDB());
+    }
+
+    return $result;
+  }
+
+  /**
+   * Возвращает ссылку на БД.
+   */
+  public function getDB()
+  {
+    return $this->db
+      ? $this->db
+      : Context::last()->db;
+  }
+
+  /**
+   * Доступ к свойствам объекта.
+   */
+  private final function __get($key)
+  {
+    return array_key_exists($key, $this->data)
+      ? $this->data[$key]
+      : null;
+  }
+
+  private final function __set($key, $value)
+  {
+    $this->data[$key] = $value;
+    $this->dirty = true;
+  }
+
+  private final function __isset($key)
+  {
+    return isset($this->data[$key]);
+  }
+
+  private final function __unset($key)
+  {
+    if (array_key_exists($key, $this->data)) {
+      unset($this->data[$key]);
+      $this->dirty = true;
+    }
+  }
+
+  /**
+   * Заглушка для неверных вызовов.
+   */
+  private final function __call($method, $args)
+  {
+    throw new RuntimeException(t('Метод %class::%method() не существует.', array(
+      '%class' => get_class($this),
+      '%method' => $method,
+      )));
+  }
+
+  /**
+   * Сериализация ноды: возвращаем только данные.
+   */
+  public function __sleep()
+  {
+    return array('data');
+  }
+
+  /**
+   * Возвращает true, если объект создан с нуля, а не загружен из БД.
+   */
+  public function isNew()
+  {
+    return $this->isnew;
+  }
+
+  /**
+   * Возвращает имя объекта.
+   */
+  public function getName()
+  {
+    return $this->name;
+  }
+
+  /**
+   * Заставляет объект думать, что он изменился.
+   */
+  public function touch()
+  {
+    $this->dirty = true;
+    return $this;
+  }
+
+  /**
+   * Возвращает true, если у пользователя есть нужный доступ к объекту.
    */
   public function checkPermission($perm)
   {
@@ -195,6 +405,9 @@ class Node
     return $user->hasAccess($perm, $this->class);
   }
 
+  /**
+   * Кидает ForbiddenException, если у пользователя нет нужного доступа.
+   */
   public function knock($mode)
   {
     if ($this->checkPermission($mode))
@@ -250,20 +463,6 @@ class Node
         ));
 
     return $schema;
-  }
-
-  /**
-   * Форвардим вызовы в стаб.
-   */
-  private function __call($method, $args)
-  {
-    if (!method_exists($this->stub, $method))
-      throw new RuntimeException(t('Метод %class::%method() не существует.', array(
-        '%class' => __CLASS__,
-        '%method' => $method,
-        )));
-    $result = call_user_func_array(array($this->stub, $method), $args);
-    return $result;
   }
 
   /**
@@ -507,9 +706,9 @@ class Node
 
     // Вывод обычных списков
     else {
-      foreach ((array)Node::find(Context::last()->db, array('class' => $class, 'deleted' => 0)) as $n) {
+      foreach ((array)Node::find(array('class' => $class, 'deleted' => 0)) as $n) {
         $value = ('name' == $field)
-          ? $n->getObject()->getName()
+          ? $n->getName()
           : $n->$field;
 
         if (empty($value))
@@ -527,11 +726,6 @@ class Node
     }
 
     return $result;
-  }
-
-  public function getName()
-  {
-    return $this->name;
   }
 
   /**
@@ -709,7 +903,8 @@ class Node
           $result .= html::em('field', array(
             'name' => $name,
             'title' => $ctl->label,
-            'editable' => $editable and $ctl->isEditable(),
+            'editable' => $editable and $ctl->isEditable($this),
+            'class' => get_class($ctl),
             ), $tmp);
         }
       }
@@ -723,42 +918,289 @@ class Node
    */
   public function save()
   {
-    $ctx = Context::last();
-    $user = $ctx->user;
+    if ($this->dirty) {
+      $ctx = Context::last();
 
-    if (!$this->uid and $user->id and $user->id != $this->id)
-      $this->uid = $user->getNode();
+      // Публикация при создании, если есть права.
+      // TODO: вынести в отдельный модуль?
+      if ($this->isNew() and $this->checkPermission('p'))
+        $this->data['published'] = true;
 
-    $ctx->registry->broadcast('ru.molinos.cms.hook.node.before', array($ctx, $this, $this->isNew() ? 'create' : 'update'));
-
-    if ($this->isNew() and $this->checkPermission('p'))
-      $this->stub->publish();
-    $this->stub->save();
-
-    $ctx->registry->broadcast('ru.molinos.cms.hook.node', array($ctx, $this, $this->isNew() ? 'create' : 'update'));
+      $ctx->registry->broadcast('ru.molinos.cms.hook.node.before', array($ctx, $this, $this->isNew() ? 'create' : 'update'));
+      $this->realSave();
+      $ctx->registry->broadcast('ru.molinos.cms.hook.node', array($ctx, $this, $this->isNew() ? 'create' : 'update'));
+    }
 
     return $this;
   }
 
-  public function getListURL()
+  /**
+   * Реальное сохранение объекта в БД.
+   */
+  private function realSave()
   {
-    switch ($this->class) {
-    case 'domain':
-      return 'admin/structure/routes';
-    case 'widget':
-      return 'admin/structure/widgets';
-    default:
-      return 'admin/content/list/' . $this->class;
+    $this->data['lang'] = 'ru';
+    $this->data['updated'] = gmdate('Y-m-d H:i:s');
+    if (empty($this->data['created']))
+      $this->data['created'] = $this->data['updated'];
+
+    $data = $this->pack();
+
+    if (null === $this->id)
+      $this->saveNew($data);
+    else
+      $this->saveOld($data);
+
+    foreach ($this->onsave as $query) {
+      list($sql, $params) = $query;
+      $sth = $this->getDB()->prepare(str_replace('%ID%', intval($this->id), $sql));
+      $sth->execute($params);
     }
+
+    $this->cascade();
+
+    $this->onsave = array();
+    $this->dirty = false;
+
+    $this->updateXML();
   }
 
+  /**
+   * Упаковывает ноду для сохранения в БД.
+   */
+  private function pack()
+  {
+    $fields = $extra = array();
+
+    foreach ($this->data as $k => $v) {
+      if (!empty($v)) {
+        if ($v instanceof Node) {
+          if (null === $v->id)
+            $v->save();
+          // Запрещаем ссылки на себя.
+          if ($this->id == $v->id)
+            continue;
+          $this->onSave("DELETE FROM `node__rel` WHERE `tid` = %ID% AND `key` = ?", array($k));
+          $this->onSave("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) VALUES (%ID%, ?, ?)", array($v->id, $k));
+        } elseif (self::isBasicField($k)) {
+          $fields[$k] = $v;
+        } elseif ('xml' == $k) {
+        } else {
+          $extra[$k] = $v;
+        }
+      }
+    }
+
+    $fields['data'] = serialize($extra);
+    $fields['name_lc'] = sql::getSortName($this->name);
+
+    return $fields;
+  }
+
+  /**
+   * Создание новой ноды.
+   */
+  private function saveNew(array $data)
+  {
+    if (null !== $this->parent_id) {
+      $position = $this->getDB()->getResult("SELECT `right` FROM `node` WHERE `id` = ?", array($this->parent_id));
+      $max = intval($this->getDB()->getResult("SELECT MAX(`right`) FROM `node`"));
+
+      // Превращаем простую ноду в родительску.
+      if (null === $position) {
+        $this->getDB()->exec("UPDATE `node` SET `left` = ?, `right` = ? WHERE `id` = ?", array($max, $max + 4, $this->parent_id));
+        $data['left'] = $this->data['left'] = $max + 1;
+        $data['right'] = $this->data['right'] = $max + 2;
+      }
+
+      // Расширяем существующую ноду.
+      else {
+        $delta = $max - $position + 1;
+
+        // mcms::debug($position, $max, $delta);
+
+        // Вообще можно было бы обойтись сортированным обновлением, но не все серверы
+        // это поддерживают, поэтому делаем в два захода: сначала выносим хвост за
+        // пределы текущего пространства, затем — возвращаем на место + 2.
+        $this->getDB()->exec("UPDATE `node` SET `left` = `left` + ? WHERE `left` >= ?", array($delta + 2, $position));
+        $this->getDB()->exec("UPDATE `node` SET `right` = `right` + ? WHERE `right` >= ?", array($delta + 2, $position));
+
+        $this->getDB()->exec("UPDATE `node` SET `left` = `left` - ? WHERE `left` >= ?", array($delta, $position + 2));
+        $this->getDB()->exec("UPDATE `node` SET `right` = `right` - ? WHERE `right` >= ?", array($delta, $position + 2));
+
+        $data['left'] = $this->data['left'] = $position;
+        $data['right'] = $this->data['right'] = $position + 1;
+      }
+    }
+
+    list($sql, $params) = sql::getInsert('node', $data);
+    $sth = $this->getDB()->prepare($sql);
+    $sth->execute($params);
+    $this->id = $this->getDB()->lastInsertId();
+  }
+
+  /**
+   * Обновление существующей ноды.
+   */
+  private function saveOld(array $data)
+  {
+    list($sql, $params) = sql::getUpdate('node', $data, 'id');
+    $sth = $this->getDB()->prepare($sql);
+    $sth->execute($params);
+  }
+
+  /**
+   * Каскадное обновление объектов, использующих текущий.
+   */
+  private function cascade()
+  {
+    static $stack = array();
+
+    if (empty($this->data['id']))
+      return;
+
+    if (isset($stack[$this->data['id']]))
+      return;
+
+    mcms::flog("UL[{$this->data['id']}]: " . join(',', array_keys($stack)));
+    $stack[$this->data['id']] = true;
+
+    $sel = $this->getDB()->prepare("SELECT DISTINCT(`tid`) FROM `node__rel` WHERE `nid` = ? AND `key` IS NOT NULL AND `tid` IN (SELECT `id` FROM `node`)");
+    $sel->execute(array($this->data['id']));
+
+    while ($nid = $sel->fetchColumn(0)) {
+      mcms::flog("UL[{$this->data['id']}]: » " . $nid);
+      self::load($nid, $this->getDB())->refresh()->save();
+    }
+
+    unset($stack[$this->data['id']]);
+  }
+
+  /**
+   * Добавление запроса в пост-обработку.
+   */
+  public function onSave($sql, array $params = null)
+  {
+    $this->onsave[] = array($sql, $params);
+    return $this->touch();
+  }
+
+  /**
+   * Удаление ноды.
+   */
+  public function delete()
+  {
+    $this->data['deleted'] = true;
+    return $this->touch();
+  }
+
+  /**
+   * Удаление из корзины.
+   */
+  public function erase()
+  {
+    if (empty($this->data['id']))
+      throw new RuntimeException(t('Попытка удалить новый объект'));
+    $this->getDB()->exec("DELETE FROM `node` WHERE `id` = ?", array($this->data['id']));
+    $this->data['id'] = null;
+    return $this->touch();
+  }
+
+  /**
+   * Восстановление из корзины.
+   */
+  public function undelete()
+  {
+    $this->data['deleted'] = false;
+    return $this->touch();
+  }
+
+  /**
+   * Публикация ноды.
+   */
+  public function publish()
+  {
+    $this->data['published'] = true;
+    return $this->touch();
+  }
+
+  /**
+   * Сокрытие ноды.
+   */
+  public function unpublish()
+  {
+    $this->data['published'] = false;
+    return $this->touch();
+  }
+
+  /**
+   * Клонирование объекта.
+   */
+  public function duplicate($parent = null, $with_children = true)
+  {
+    if (!empty($this->data['id'])) {
+      $id = $this->data['id'];
+
+      $this->data['id'] = null;
+      $this->data['published'] = false;
+      $this->data['deleted'] = false;
+      $this->data['created'] = null;
+
+      // Даём возможность прикрепить клон к новому родителю.
+      if (null !== $parent)
+        $this->data['parent_id'] = $parent;
+
+      $this->dirty = true;
+      $this->save();
+
+      $pdo = $this->getDB();
+      $params = array(':new' => $this->data['id'], ':old' => $id);
+
+      if ($with_children) {
+        // Копируем права.
+        $pdo->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`)"
+          ."SELECT :new, `uid`, `c`, `r`, `u`, `d`, `p` FROM `node__access` WHERE `nid` = :old", $params);
+
+        // Копируем связи с другими объектами.
+        $pdo->exec("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
+          ."SELECT :new, `nid`, `key` FROM `node__rel` WHERE `tid` = :old", $params);
+        $pdo->exec("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
+          ."SELECT `tid`, :new, `key` FROM `node__rel` WHERE `nid` = :old", $params);
+
+        /*
+        if (($this->right - $this->left) > 1) {
+          $children = Node::find(array(
+            'parent_id' => $id,
+            ));
+
+          foreach ($children as $c)
+            $c->duplicate($this->data['id']);
+        }
+        */
+      }
+    }
+
+    return $this;
+  }
+
+  /**
+   * Возвращает адрес списка документов этого типа.
+   */
+  public function getListURL()
+  {
+    return 'admin/content/list/' . $this->class;
+  }
+
+  /**
+   * Возвращает true, если у объекта есть дети.
+   */
   public function hasChildren()
   {
-    if (empty($this->left) or empty($this->right))
+    if (empty($this->data['left']) or empty($this->data['right']))
       return false;
-    if ($this->right - $this->left == 1)
+    if ($this->data['right'] - $this->data['left'] == 1)
       return false;
-    $count = $this->getDB()->fetch("SELECT COUNT(*) FROM `node` WHERE `parent_id` = ? AND `deleted` = 0 AND `published` = 1", array($this->id));
+    $count = $this->getDB()->fetch("SELECT COUNT(*) FROM `node` WHERE `parent_id` = ? AND `deleted` = 0 AND `published` = 1", array($this->data['id']));
     return $count != 0;
   }
 
@@ -769,13 +1211,103 @@ class Node
   {
     $xml = '';
 
-    if ($this->id) {
-      $children = $this->getDB()->getResultsV("id", "SELECT `id` FROM `node` WHERE `parent_id` = ? AND `deleted` = 0 AND `published` = 1 ORDER BY `left`", array($this->id));
+    if ($this->data['id']) {
+      $children = $this->getDB()->getResultsV("id", "SELECT `id` FROM `node` WHERE `parent_id` = ? AND `deleted` = 0 AND `published` = 1 ORDER BY `left`", array($this->data['id']));
       foreach ((array)$children as $nid)
         $xml .= Node::load($nid, $this->getDB())->getTreeXML();
       $xml = $this->getXML('node', $xml, false);
     }
 
     return $xml;
+  }
+
+  /**
+   * Возвращает список стандартных полей объекта.
+   */
+  public static function getBasicFields()
+  {
+    return array(
+      'id',
+      'parent_id',
+      'name',
+      'name_lc',
+      'lang',
+      'class',
+      'left',
+      'right',
+      'created',
+      'updated',
+      'published',
+      'deleted',
+      );
+  }
+
+  /**
+   * Проверяет, является ли поле стандартным.
+   */
+  public static function isBasicField($fieldName)
+  {
+    return is_string($fieldName)
+      ? in_array($fieldName, self::getBasicFields())
+      : false;
+  }
+
+  /**
+   * Формирование XML кода объекта.
+   */
+  public final function getXML($em = 'node', $extraContent = null)
+  {
+    $data = array();
+
+    if (null !== $this->id and $this->getDB()) {
+      mcms::flog("rebuilding node/{$this->id}.xml");
+
+      $data = array(
+        'id' => $this->id,
+        '#text' => null,
+        );
+
+      if (empty($this->data['class']))
+        throw new RuntimeException(t('Не удалось определить тип ноды.'));
+
+      $schema = Schema::load($this->getDB(), $this->data['class']);
+      $properties = array_unique(array_merge(self::getBasicFields(), $schema->getFieldNames()));
+
+      foreach ($properties as $k) {
+        if (empty($k) or in_array($k, array('xml', 'left', 'right')))
+          continue;
+
+        $v = $this->$k;
+
+        if (self::isBasicField($k)) {
+          $data[$k] = $v;
+          continue;
+        }
+
+        if (isset($schema[$k])) {
+          $data['#text'] .= $schema[$k]->format($v, $k);
+          continue;
+        }
+      }
+
+      $data['#text'] .= $this->getExtraXMLContent();
+    }
+
+    if (null !== $extraContent) {
+      if (!array_key_exists('#text', $data))
+        $data['#text'] = $extraContent;
+      else
+        $data['#text'] .= $extraContent;
+    }
+
+    return html::em($em, $data);
+  }
+
+  /**
+   * Сохраняет XML представление ноды в БД.
+   */
+  private function updateXML()
+  {
+    $this->getDB()->exec("UPDATE `node` SET `xml` = ? WHERE `id` = ?", array($this->getXML(), $this->id));
   }
 };

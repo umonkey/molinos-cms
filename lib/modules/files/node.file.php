@@ -693,10 +693,10 @@ class FileNode extends Node implements iContentType
       }
     }
 
-    $count = Node::count($ctx->db, array(
+    $count = Node::count(array(
       'deleted' => 0,
       'tagged' => $this->id,
-      ));
+      ), $ctx->db);
     if ($count) {
       $message = t('%count документов используют этот файл (<a href="@url">список</a>)', array(
         '%count' => $count,

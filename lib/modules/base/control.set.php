@@ -77,7 +77,7 @@ class SetControl extends Control
   {
     if (!empty($form['values']) and !is_array($form['values'])) {
       if (0 === strpos($form['values'], ':')) {
-        $nodes = Node::find(Context::last()->db, array(
+        $nodes = Node::find(array(
           'class' => substr($form['values'], 1),
           'published' => 1,
           '#sort' => 'name',
@@ -169,7 +169,7 @@ class SetControl extends Control
 
   public function preview($data)
   {
-    $nodes = Node::find($data->getDB(), $filter = array(
+    $nodes = Node::find($filter = array(
       'class' => $this->dictionary,
       'deleted' => 0,
       $this->parents ? 'tagged' : 'tags' => $data->id,
@@ -177,7 +177,7 @@ class SetControl extends Control
 
     $items = array();
     foreach ($nodes as $node)
-      $items [$node->id] = $node->getObject()->getName();
+      $items [$node->id] = $node->getName();
     asort($items);
 
     $result = array();
@@ -189,6 +189,9 @@ class SetControl extends Control
     $result = empty($result)
       ? null
       : implode(', ', $result) . '.';
+
+    if (empty($result))
+      $result = t('нет');
 
     return html::em('value', array(
       'html' => true,

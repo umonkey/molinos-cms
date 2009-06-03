@@ -111,12 +111,12 @@ class BaseRoute
 
   private static function rebuild(Context $ctx, array &$map, $parent = null, $prefix = null)
   {
-    $nodes = Node::find($ctx->db, array(
+    $nodes = Node::find(array(
       'class' => 'domain',
       'deleted' => 0,
       'published' => 1,
       'parent_id' => $parent,
-      ));
+      ), $ctx->db);
 
     foreach ($nodes as $node) {
       $key = $prefix . '/' . $node->name;
