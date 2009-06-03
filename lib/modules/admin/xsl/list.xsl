@@ -62,6 +62,7 @@
   <!-- базовый вывод документов -->
   <xsl:template match="data" mode="nodelist">
     <xsl:variable name="showtype" select="not(../@type)" />
+    <xsl:variable name="authors" select="not(not(node/uid))"  />
     <thead>
       <tr>
         <th colspan="2"/>
@@ -69,7 +70,9 @@
         <xsl:if test="$showtype">
           <th>Тип</th>
         </xsl:if>
-        <th>Автор</th>
+        <xsl:if test="$authors">
+          <th>Автор</th>
+        </xsl:if>
         <th>Дата добавления</th>
       </tr>
     </thead>
@@ -95,16 +98,18 @@
               <xsl:value-of select="@class" />
             </td>
           </xsl:if>
-          <td>
-            <xsl:if test="uid/@id">
-              <a href="admin/node/{uid/@id}">
-                <xsl:value-of select="uid/fullname" />
-                <xsl:if test="not(uid/fullname)">
-                  <xsl:value-of select="uid/@name" />
-                </xsl:if>
-              </a>
-            </xsl:if>
-          </td>
+          <xsl:if test="$authors">
+            <td>
+              <xsl:if test="uid/@id">
+                <a href="admin/node/{uid/@id}">
+                  <xsl:value-of select="uid/fullname" />
+                  <xsl:if test="not(uid/fullname)">
+                    <xsl:value-of select="uid/@name" />
+                  </xsl:if>
+                </a>
+              </xsl:if>
+            </td>
+          </xsl:if>
           <td class="field-created">
             <xsl:apply-templates select="@created" />
           </td>
