@@ -965,17 +965,29 @@ class NodeStub
   }
 
   /**
-   * Обновление ссылок на себя во всех объектах.
+   * Пересохраняет все объекты, ссылающиеся на текущий.
    */
   private function updateLinks()
   {
-    return;
-    $sel = $this->db->prepare("SELECT `tid`, `key` FROM `node__rel` "
-      . "INNER JOIN `node` ON `node`.`id` = `node__rel`.`tid` "
-      . "WHERE `tid` <> ? AND `nid` = ? AND `key` IS NOT NULL");
-    $sel->execute(array($this->id, $this->id));
+    static $stack = array();
 
-    while ($nid = $sel->fetchColumn(0))
+    if (!$this->id)
+      return;
+
+    if (isset($stack[$this->id]))
+      return;
+
+    mcms::flog("UL[{$this->id}]: " . join(',', array_keys($stack)));
+    $stack[$this->id] = true;
+
+    $sel = $this->db->prepare("SELECT DISTINCT(`tid`) FROM `node__rel` WHERE `nid` = ? AND `key` IS NOT NULL AND `tid` IN (SELECT `id` FROM `node`)");
+    $sel->execute(array($this->id));
+
+    while ($nid = $sel->fetchColumn(0)) {
+      mcms::flog("UL[{$this->id}]: » " . $nid);
       NodeStub::create($nid, $this->getDB())->refresh()->save();
+    }
+
+    unset($stack[$this->id]);
   }
 }
