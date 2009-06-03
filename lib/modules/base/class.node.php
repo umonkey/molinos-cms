@@ -761,4 +761,21 @@ class Node
     $count = $this->getDB()->fetch("SELECT COUNT(*) FROM `node` WHERE `parent_id` = ? AND `deleted` = 0 AND `published` = 1", array($this->id));
     return $count != 0;
   }
+
+  /**
+   * Возвращает XML текущего объекта со всеми детьми.
+   */
+  public function getTreeXML()
+  {
+    $xml = '';
+
+    if ($this->id) {
+      $children = $this->getDB()->getResultsV("id", "SELECT `id` FROM `node` WHERE `parent_id` = ? AND `deleted` = 0 AND `published` = 1", array($this->id));
+      foreach ((array)$children as $nid)
+        $xml .= Node::load($nid, $this->getDB())->getTreeXML();
+      $xml = $this->getXML('node', $xml, false);
+    }
+
+    return $xml;
+  }
 };

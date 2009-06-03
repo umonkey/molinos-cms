@@ -248,7 +248,7 @@ class NodeStub
       $properties = array_unique(array_merge($this->getProperties(), $schema->getFieldNames()));
 
       foreach ($properties as $k) {
-        if (empty($k) or 'xml' == $k)
+        if (empty($k) or in_array($k, array('xml', 'left', 'right')))
           continue;
 
         $v = $this->$k;
@@ -261,50 +261,6 @@ class NodeStub
         if (isset($schema[$k])) {
           $data['#text'] .= $schema[$k]->format($v, $k);
           continue;
-        }
-
-        $wrap_cdata = true;
-        $wrap_element = true;
-
-        if ($v instanceof NodeStub or $v instanceof Node) {
-          try {
-            $fmt = isset($schema[$k])
-              ? $schema[$k]->format($v)
-              : null;
-            $_html = html::cdata($fmt);
-            $_html = empty($_html)
-              ? null
-              : html::em('html', $_html);
-            $v = $v->getXML($k, $_html);
-            $wrap_cdata = false;
-            $wrap_element = false;
-          } catch (ObjectNotFoundException $e) {
-            $v = null;
-          }
-        }
-
-        elseif (isset($schema[$k])) {
-          $v = $schema[$k]->format($v, $k);
-          if (0 === strpos($v, '<')) {
-            $data['#text'] .= $v;
-            continue;
-          }
-          $wrap_cdata = false;
-        }
-
-        elseif (is_array($v))
-          $v = null;
-
-        if (!empty($v)) {
-          if (self::isBasicField($k))
-            $data[$k] = $v;
-          elseif (!empty($v)) {
-            if ($wrap_cdata)
-              $v = html::cdata($v);
-            if ($wrap_element)
-              $v = html::em($k, $v);
-            $data['#text'] .= $v;
-          }
         }
       }
 
