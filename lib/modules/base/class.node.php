@@ -770,7 +770,7 @@ class Node
     $xml = '';
 
     if ($this->id) {
-      $children = $this->getDB()->getResultsV("id", "SELECT `id` FROM `node` WHERE `parent_id` = ? AND `deleted` = 0 AND `published` = 1", array($this->id));
+      $children = $this->getDB()->getResultsV("id", "SELECT `id` FROM `node` WHERE `parent_id` = ? AND `deleted` = 0 AND `published` = 1 ORDER BY `left`", array($this->id));
       foreach ((array)$children as $nid)
         $xml .= Node::load($nid, $this->getDB())->getTreeXML();
       $xml = $this->getXML('node', $xml, false);
