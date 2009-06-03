@@ -167,7 +167,8 @@ class AttachmentControl extends Control
 
       $img = html::em('img', $attrs);
       $html = html::em('a', array(
-        'href' => 'admin/node/' . $value->id,
+        'href' => 'admin/node/' . $value->id
+          .  '?destination=' . urlencode($_SERVER['REQUEST_URI']),
         ), $img);
     }
 
