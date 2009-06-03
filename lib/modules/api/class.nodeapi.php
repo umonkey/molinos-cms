@@ -158,4 +158,20 @@ class NodeAPI
 
     return new Response($form->getXML(), 'text/xml');
   }
+
+  /**
+   * Возвращает список доступных пользователю типов.
+   */
+  public static function on_get_create_types(Context $ctx)
+  {
+    $nodes = Node::findXML($ctx->db, array(
+      'class' => 'type',
+      'name' => $ctx->user->getAccess('c'),
+      '-name' => $ctx->user->getAnonymous()->getAccess('c'),
+      'published' => 1,
+      '#sort' => 'name',
+      ));
+
+    return new Response(html::em('nodes', $nodes), 'text/xml');
+  }
 }
