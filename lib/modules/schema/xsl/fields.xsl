@@ -5,8 +5,10 @@
   <!-- список полей в типе документа -->
   <xsl:template match="content[@name='typefields']" mode="content">
     <h2>
-      <xsl:value-of select="@title" />
+      <xsl:value-of select="node/title" />
+      <xsl:text> (список полей)</xsl:text>
     </h2>
+    <p class="hint">Изменить другие свойства этого типа документов можно <a href="admin/node/{node/@id}">здесь</a>.</p>
     <xsl:apply-templates select="node/fields" mode="typefields" />
     <xsl:apply-templates select="types" />
   </xsl:template>
