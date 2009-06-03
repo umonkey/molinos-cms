@@ -683,16 +683,14 @@ class FileNode extends Node implements iContentType
           '%filename' => basename($info['filename']),
           '@url' => $url,
           ));
+        $tmp .= t('<br/>%width×%height', array(
+          '%width' => $info['width'],
+          '%height' => $info['height'],
+          ));
         $em['#text'] = html::em('value', html::cdata($tmp));
 
         $result .= html::em('field', $em);
       }
-
-      $versions = html::wrap('ul', $versions);
-
-      $result .= html::em('field', array(
-        'title' => t('Другие версии'),
-        ), html::em('value', html::cdata($versions)));
     }
 
     $count = Node::count($ctx->db, array(
