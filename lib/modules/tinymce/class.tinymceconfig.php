@@ -8,16 +8,6 @@ class TinyMCEConfig
   public static function on_get_settings(Context $ctx)
   {
     return new Schema(array(
-      'pages' => array(
-        'type' => 'SetControl',
-        'group' => t('Использование'),
-        'options' => array(
-          'website' => t('Используется на сайте'),
-          'admin' => t('Используется в админке'),
-          ),
-        'weight' => 10,
-        'default' => array('admin'),
-        ),
       'theme' => array(
         'type' => 'EnumControl',
         'label' => t('Режим работы'),
@@ -42,6 +32,17 @@ class TinyMCEConfig
         'type' => 'TextAreaControl',
         'label' => t('Дополнительные инициализаторы'),
         'description' => t('Например: content_css: mcms_path + "/tiny.css", theme_advanced_styles: "Слева=left,Справа=right"'),
+        'group' => t('Настройки редактора'),
+        ),
+      'pages' => array(
+        'type' => 'SetControl',
+        'label' => t('Область применения'),
+        'options' => array(
+          'website' => t('Используется на сайте'),
+          'admin' => t('Используется в админке'),
+          ),
+        'weight' => 30,
+        'default' => array('admin'),
         'group' => t('Настройки редактора'),
         ),
       ));
