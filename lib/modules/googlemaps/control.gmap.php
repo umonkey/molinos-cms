@@ -47,7 +47,9 @@ class GMapControl extends TextLineControl
         'title' => $value,
         ), $img);
 
-      return html::wrap($em, html::cdata($result));
+      return html::wrap($em, html::cdata($result), array(
+        'address' => $value['query'],
+        ));
     }
   }
 
