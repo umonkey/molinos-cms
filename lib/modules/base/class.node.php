@@ -992,7 +992,7 @@ class Node
     }
 
     $fields['data'] = serialize($extra);
-    $fields['name_lc'] = sql::getSortName($this->name);
+    $fields['name_lc'] = Query::getSortName($this->name);
 
     return $fields;
   }
@@ -1070,7 +1070,7 @@ class Node
 
     while ($nid = $sel->fetchColumn(0)) {
       mcms::flog("UL[{$this->data['id']}]: » " . $nid);
-      self::load($nid, $this->getDB())->refresh()->save();
+      self::load($nid, $this->getDB())->touch()->save();
     }
 
     unset($stack[$this->data['id']]);
