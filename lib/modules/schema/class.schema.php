@@ -92,7 +92,7 @@ class Schema extends ArrayObject
 
   /**
    * Проверка наличия созданных вручную индексов.
-   * Стандартные индексы (name, uid итд) не учитываются.
+   * Стандартные индексы (name, created итд) не учитываются.
    */
   public function hasIndexes()
   {
@@ -106,7 +106,7 @@ class Schema extends ArrayObject
   {
     $result = array();
     foreach ($this as $k => $v)
-      if ($v->indexed and !in_array($k, array('name', 'uid', 'created', 'updated')) and null !== $v->getSQL())
+      if ($v->indexed and !in_array($k, array('name', 'created', 'updated')) and null !== $v->getSQL())
         $result[] = $k;
     return $result;
   }

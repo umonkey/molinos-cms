@@ -47,6 +47,30 @@ class TypeNode extends Node implements iContentType
     // Подгружаем поля, ранее описанные отдельными объектами (9.03 => 9.05).
     $this->backportLinkedFields();
 
+    // Добавляем привычные поля, если ничего нет.
+    if ($isnew and empty($this->fields))
+      $this->fields = array(
+        'name' => array(
+          'type' => 'TextLineControl',
+          'label' => t('Название'),
+          'required' => true,
+          'weight' => 10,
+          ),
+        'uid' => array(
+          'type' => 'UserControl',
+          'label' => t('Автор'),
+          'required' => true,
+          'weight' => 20,
+          ),
+        'created' => array(
+          'type' => class_exists('DateTimeControl')
+            ? 'DateTimeControl'
+            : 'TextLineControl',
+          'label' => t('Дата создания'),
+          'weight' => 100,
+          ),
+        );
+
     // Всегда сохраняем без очистки.
     parent::save();
 
