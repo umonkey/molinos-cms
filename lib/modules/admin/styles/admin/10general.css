@@ -206,3 +206,7 @@ div.code {
   font-family: monospace;
   max-width: 300px;
 }
+
+p.hint {
+  font-style: italic;
+}
