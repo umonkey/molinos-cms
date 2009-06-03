@@ -13,12 +13,12 @@ class CommentAPI
     if (!$ctx->user->hasAccess('r', 'comment'))
       throw new ForbiddenException();
 
-    $nodes = Node::findXML($ctx->db, array(
+    $nodes = Node::findXML(array(
       'class' => 'comment',
       'deleted' => 0,
       'tags' => $nid,
       '#sort' => 'id',
-      ));
+      ), $ctx->db);
 
     return new Response(html::em('comments', $nodes), 'text/xml');
   }
