@@ -31,6 +31,17 @@ class VideoControl extends URLControl
     }
   }
 
+  /**
+   * Предварительный просмотр.
+   */
+  public function preview($node)
+  {
+    if (is_array($value = $node->{$this->value}))
+      return html::em('value', array(
+        'html' => true,
+        ), html::cdata($value['embed']));
+  }
+
   private function parse($url, $options = array())
   {
     $options = array_merge(array('width' => 425, 'height' => 318), $options);
