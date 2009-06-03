@@ -174,11 +174,11 @@ class Query
     if (!empty($this->order))
       $sql .= ' ORDER BY ' . join(', ', $this->order);
 
-    if (null !== $limit) {
+    if (null !== $this->limit) {
       $lim = array();
-      if (null !== $offset)
-        $lim[] = intval($offset);
-      $lim[] = intval($limit);
+      if (null !== $this->offset)
+        $lim[] = intval($this->offset);
+      $lim[] = intval($this->limit);
       $sql .= ' LIMIT ' . join(', ', $lim);
     }
 
