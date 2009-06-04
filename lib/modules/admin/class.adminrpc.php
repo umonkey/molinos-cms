@@ -246,7 +246,8 @@ class AdminRPC extends RPCHandler
 
   public static function on_get_create_form(Context $ctx, $path, array $pathinfo, $type, $parent_id = null)
   {
-    $node = Node::create($type, array(
+    $node = Node::create(array(
+      'class' => $type,
       'parent_id' => $parent_id,
       'isdictionary' => $ctx->get('dictionary'),
       ));

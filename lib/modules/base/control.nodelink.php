@@ -117,7 +117,8 @@ class NodeLinkControl extends Control
         if (!empty($n))
           $n = array_shift($n);
         else
-          $n = Node::create($parts[0], array(
+          $n = Node::create(array(
+            'class' => $parts[0],
             $parts[1] => $value,
             'published' => 1,
             ));

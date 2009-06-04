@@ -9,7 +9,8 @@ class NodeTests extends PHPUnit_Framework_TestCase
 
   public function testCreateNewNode()
   {
-    $node = Node::create('xyz', array(
+    $node = Node::create(array(
+      'class' => 'xyz',
       'name' => 'hello',
       ));
 
@@ -171,7 +172,8 @@ class NodeTests extends PHPUnit_Framework_TestCase
     $node = Node::create('dummy');
     $this->assertTrue(null === $node->getName());
 
-    $node = Node::create('dummy', array(
+    $node = Node::create(array(
+      'class' => 'dummy',
       'name' => 'xyz',
       ));
     $this->assertTrue('xyz' === $node->name);

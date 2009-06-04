@@ -48,7 +48,8 @@ class BasicReg
       throw new BadRequestException(t('Пароль подтверждён неверно.'));
 
     $ctx->db->beginTransaction();
-    $node = Node::create('user', array(
+    $node = Node::create(array(
+      'class' => 'user',
       'name' => $params['email'],
       'published' => 1,
       ));

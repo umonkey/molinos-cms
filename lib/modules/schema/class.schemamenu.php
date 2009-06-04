@@ -272,7 +272,7 @@ class SchemaMenu
    */
   public static function on_refresh_type(Context $ctx)
   {
-    $tmp = Node::create($type = $ctx->get('type'), array(), $ctx->db);
+    $tmp = Node::create($type = $ctx->get('type'), $ctx->db);
 
     if (!$tmp->checkPermission('u'))
       throw new ForbiddenException();

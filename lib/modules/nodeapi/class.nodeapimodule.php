@@ -183,7 +183,8 @@ class NodeApiModule extends RPCHandler
   public static function rpc_post_create(Context $ctx)
   {
     $parent = $ctx->post('parent_id');
-    $node = Node::create($ctx->get('type'), array(
+    $node = Node::create(array(
+      'class' => $ctx->get('type'),
       'parent_id' => empty($parent) ? null : $parent,
       ))->knock('c');
     $node->formProcess($ctx->post)->save($ctx->db);

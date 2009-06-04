@@ -8,7 +8,8 @@ class AuthModuleTests extends PHPUnit_Framework_TestCase
     $db = $ctx->db;
     $db->beginTransaction();
 
-    $node = Node::create('user', array(
+    $node = Node::create(array(
+      'class' => 'user',
       'parent_id' => null,
       'name' => 'tt@mail.ru',
        ));

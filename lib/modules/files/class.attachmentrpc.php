@@ -224,7 +224,7 @@ class AttachmentRPC extends RPCHandler
 
     foreach ($files as $file) {
       try {
-        $good[] = Node::create('file', array(), $ctx->db)->import($file)->save()->id;
+        $good[] = Node::create('file', $ctx->db)->import($file)->save()->id;
       } catch (Exception $e) {
         $bad = 1;
       }

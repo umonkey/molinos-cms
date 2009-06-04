@@ -190,7 +190,7 @@ class TypeNode extends Node implements iContentType
   {
     $links = parent::getActionLinks();
 
-    $tmp = Node::create($this->name, array());
+    $tmp = Node::create($this->name);
 
     if (in_array($this->name, self::getInternal()))
       $links['delete'] = null;
