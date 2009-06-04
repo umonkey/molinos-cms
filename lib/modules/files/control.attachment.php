@@ -143,7 +143,8 @@ class AttachmentControl extends Control
   public function preview($value)
   {
     $value = $value->{$this->value};
-    if (empty($value))
+
+    if (!($value instanceof FileNode))
       return;
 
     if (0 === strpos($value->filetype, 'image/')) {
@@ -187,6 +188,9 @@ class AttachmentControl extends Control
    */
   protected function getEmbedCode($data)
   {
+    if (!($data instanceof Node))
+      return;
+
     $ctx = Context::last();
     $url = os::path($ctx->config->getPath('modules/files/storage', 'files'), $data->filepath);
 
