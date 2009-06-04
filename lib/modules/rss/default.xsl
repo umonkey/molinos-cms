@@ -105,11 +105,13 @@
   </xsl:template>
 
   <xsl:template name="enclosure">
-    <enclosure
-      url="{/rss/@base}{@url}"
-      length="{@filesize}"
-      type="{@filetype}"
-      />
+    <xsl:if test="not(contains(@filetype,'image/'))">
+      <enclosure
+        url="{/rss/@base}{@url}"
+        length="{@filesize}"
+        type="{@filetype}"
+        />
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="@created" mode="pubDate">
