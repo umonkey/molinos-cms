@@ -73,7 +73,7 @@ class UserControl extends Control
    */
   public function format($value, $em)
   {
-    if ($value->id) {
+    if (is_object($value) and $value->id) {
       $options = array(
         'id' => $value->id,
         'name' => $value->getName(),
@@ -90,7 +90,7 @@ class UserControl extends Control
   {
     $value = $node->{$this->value};
 
-    if ($value->id)
+    if (is_object($value) and $value->id)
       $html = html::em('a', array(
         'href' => 'admin/node/' . $value->id,
         ), html::cdata($value->getName()));
