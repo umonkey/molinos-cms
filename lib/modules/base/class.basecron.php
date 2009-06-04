@@ -23,7 +23,7 @@ class BaseCron
     if (!empty($ids)) {
       $ctx->db->beginTransaction();
       foreach ($ids as $id)
-        $node = Node::load($id)->refresh()->save();
+        $node = Node::load($id)->touch()->save();
       $ctx->db->commit();
     }
   }
