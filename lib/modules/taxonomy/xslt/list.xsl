@@ -3,7 +3,7 @@
   <xsl:import href="../../admin/xsl/list.xsl" />
 
   <xsl:template match="data[../@name='list' and ../@preset='taxonomy']" mode="nodelist">
-    <ul class="taxonomy">
+    <ul class="taxonomy nodes">
       <xsl:apply-templates select="node" mode="tagtree" />
     </ul>
   </xsl:template>
@@ -34,7 +34,7 @@
         <!--
         <a title="Найти все документы из этого раздела" href="admin/content/list?search=tags%3A{@id}">
         -->
-        <a href="admin/node/{@id}">
+        <a href="admin/node/{@id}?destination={$back}">
           <xsl:attribute name="class">
           <xsl:text>picker</xsl:text>
             <xsl:if test="not(@published)">
