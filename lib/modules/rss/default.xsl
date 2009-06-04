@@ -13,7 +13,7 @@
 
   <xsl:template match="rss" mode="channel">
     <channel>
-      <atom:link rel="self" type="application/rss+xml" href="{/rss/@base}{/rss/@name}.rss" />
+      <atom:link rel="self" type="application/rss+xml" href="{/rss/@url}" />
       <title>
         <xsl:value-of select="@title" />
       </title>
@@ -36,9 +36,10 @@
 
   <xsl:template match="node">
     <item>
-      <xsl:apply-templates select="@name|@id|uid|text" mode="item" />
+      <xsl:apply-templates select="@name|@id|uid" mode="item" />
+      <xsl:apply-templates select="." mode="description" />
       <xsl:apply-templates select="@created" mode="pubDate" />
-      <xsl:for-each select="*[@class='file']">
+      <xsl:for-each select="*[@filetype]">
         <xsl:call-template name="enclosure" />
       </xsl:for-each>
     </item>
@@ -66,16 +67,28 @@
   <xsl:template match="uid" mode="item">
     <author>
       <xsl:value-of select="email" />
-      <xsl:if test="not(email)">
-        <xsl:value-of select="@name" />
-      </xsl:if>
+      <xsl:value-of select="@email" />
+      <xsl:if test="not(@email)">unknown@example.com</xsl:if>
       <xsl:text> (</xsl:text>
-      <xsl:value-of select="fullname" />
-      <xsl:if test="not(fullname)">
+      <xsl:value-of select="@name" />
+      <xsl:if test="not(@name)">
         <xsl:text>Anonymous Coward</xsl:text>
       </xsl:if>
       <xsl:text>)</xsl:text>
     </author>
+  </xsl:template>
+
+  <xsl:template match="node" mode="description">
+    <description>
+      <xsl:choose>
+        <xsl:when test="text">
+          <xsl:value-of select="text" />
+        </xsl:when>
+        <xsl:when test="body">
+          <xsl:value-of select="body" />
+        </xsl:when>
+      </xsl:choose>
+    </description>
   </xsl:template>
 
   <xsl:template match="text" mode="item">
@@ -93,9 +106,9 @@
 
   <xsl:template name="enclosure">
     <enclosure
-      url="{/rss/@base}{versions/version[@name='original']/@url}"
-      length="{filesize}"
-      type="{filetype}"
+      url="{/rss/@base}{@url}"
+      length="{@filesize}"
+      type="{@filetype}"
       />
   </xsl:template>
 
@@ -150,7 +163,7 @@
       <xsl:text> </xsl:text>
       <!-- вывод времени, если есть -->
       <xsl:choose>
-        <xsl:when test="string-length(.) &lt; 20">
+        <xsl:when test="string-length(.) &lt; 19">
           <xsl:text>12:00:00</xsl:text>
         </xsl:when>
         <xsl:otherwise>

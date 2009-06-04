@@ -40,6 +40,8 @@ class RSSListHandler extends AdminListHandler implements iAdminList
       $filter['class'] = $ctx->db->getResultsV("name", "SELECT name FROM node WHERE class = 'type' AND deleted = 0 AND published = 1");
     if ($tmp = $ctx->get('tags'))
       $filter['tags'] = explode('+', $tmp);
+    if ($tmp = $ctx->get('author'))
+      $filter['uid'] = $tmp;
 
     $feed = new RSSFeed($filter);
 

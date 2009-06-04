@@ -23,6 +23,7 @@ class RSSFeed
       'base' => $ctx->url()->getBase($ctx),
       'description' => 'News from ' . MCMS_HOST_NAME,
       'language' => 'ru',
+      'url' => 'http://' . MCMS_HOST_NAME . $ctx->url()->string(),
       ), $options);
 
     $content = html::wrap('nodes', Node::findXML($this->filter, $ctx->db));
