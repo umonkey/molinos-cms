@@ -213,7 +213,7 @@ class SchemaMenu
         'type' => 'TextLineControl',
         'label' => t('Внутреннее имя'),
         'required' => true,
-        're' => '@^[a-z0-9]+$@',
+        're' => '@^[a-z0-9_]+$@',
         'description' => t('Используется внутри системы и в шаблонах. Только латинские буквы и арабские цифры.'),
         'weight' => 1,
         ),
@@ -283,7 +283,7 @@ class SchemaMenu
     $ctx->db->beginTransaction();
 
     while ($id = $sth->fetchColumn(0))
-      Node::load($id, $ctx->db)->refresh()->save();
+      Node::load($id, $ctx->db)->touch()->save();
 
     $ctx->db->commit();
 
