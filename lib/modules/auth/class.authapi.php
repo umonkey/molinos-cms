@@ -20,4 +20,10 @@ class AuthAPI
 
     return new Response($xml, 'text/xml');
   }
+
+  public static function get_form_xml(Context $ctx)
+  {
+    $form = $ctx->registry->unicast('ru.molinos.cms.auth.form', array($ctx));
+    return new Response($form, 'text/xml');
+  }
 }
