@@ -40,3 +40,7 @@ table.classic .wide {
 table.classic .nw {
   white-space: nowrap;
 }
+
+table.classic tr.hidden {
+  opacity: 0.5;
+}
