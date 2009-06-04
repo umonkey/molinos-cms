@@ -30,6 +30,7 @@ class AdminPage
       'memory' => ini_get('memory_limit'),
       'time' => microtime(true) - MCMS_START_TIME,
       'back' => urlencode(MCMS_REQUEST_URI),
+      'next' => $ctx->get('destination'),
       );
 
     $router = new Router();
@@ -127,6 +128,7 @@ class AdminPage
         'base' => $ctx->url()->getBase($ctx),
         'prefix' => MCMS_SITE_FOLDER . '/themes',
         'back' => urlencode($_SERVER['REQUEST_URI']),
+        'next' => urlencode($ctx->get('destination')),
         'clean' => !empty($_GET['__cleanurls']),
         );
 
