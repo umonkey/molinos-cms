@@ -163,6 +163,7 @@ class NodeApiModule extends RPCHandler
     foreach (self::getNodes($ctx) as $node)
       $node->knock('d')->delete()->save();
     $ctx->db->commit();
+    return $ctx->getRedirect();
   }
 
   /**

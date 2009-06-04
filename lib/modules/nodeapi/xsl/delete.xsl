@@ -6,7 +6,7 @@
     <h2>
       <xsl:value-of select="@title" />
     </h2>
-    <form method="post" action="nodeapi/delete">
+    <form method="post" action="nodeapi/delete?destination={$next}">
       <ol>
         <xsl:for-each select="node">
           <li>
