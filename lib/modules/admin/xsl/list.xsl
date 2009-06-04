@@ -172,6 +172,24 @@
           </xsl:otherwise>
         </xsl:choose>
       </div>
+      <div class="saveas">
+        <xsl:variable name="filter">
+          <xsl:text>?limit=20</xsl:text>
+          <xsl:if test="../@type">
+            <xsl:text>&amp;class=</xsl:text>
+            <xsl:value-of select="../@type" />
+          </xsl:if>
+          <xsl:if test="../@author">
+            <xsl:text>&amp;author=</xsl:text>
+            <xsl:value-of select="../@author" />
+          </xsl:if>
+        </xsl:variable>
+
+        <span>Скачать: </span>
+        <a href="api/node/list.xml{$filter}">XML</a>
+        <xsl:text>, </xsl:text>
+        <a href="custom.rss{$filter}">RSS</a>
+      </div>
     </div>
   </xsl:template>
 

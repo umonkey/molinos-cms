@@ -67,6 +67,7 @@ class AdminListHandler implements iAdminList
       'search' => $this->hidesearch ? null : 'yes',
       'type' => $this->getType(),
       'addlink' => $this->addlink,
+      'author' => $this->ctx->get('author'),
       ), $options);
 
     $output = html::em('content', $options, $output);
@@ -265,6 +266,9 @@ class AdminListHandler implements iAdminList
       unset($filter['class']);
 
     $filter['deleted'] = !empty($this->deleted);
+
+    if ($tmp = Context::last()->get('author'))
+      $filter['uid'] = $tmp;
 
     // $q = new Query($filter); mcms::debug($q, $q->getSelect());
 

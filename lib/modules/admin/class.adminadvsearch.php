@@ -73,16 +73,17 @@ class AdminAdvSearch
     $list = 'admin/content/list';
     $term = $ctx->post('search_term');
 
+    $url = new url($ctx->get('from', $list));
+
     if (null !== ($tmp = $ctx->post('search_class')))
       $list = Node::create($tmp)->getListURL();
 
     if (null !== ($tmp = $ctx->post('search_uid')))
-      $term .= ' uid:' . $tmp;
+      $url->setarg('author', $tmp);
 
     if (null !== ($tmp = $ctx->post('search_tag')))
       $term .= ' tags:' . $tmp;
 
-    $url = new url($ctx->get('from', $list));
     $url->setarg('search', trim($term));
     $url->setarg('page', null);
 
