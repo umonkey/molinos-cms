@@ -172,4 +172,20 @@ class BaseRoute
 
     Router::flush();
   }
+
+  /**
+   * Выдаёт в страницу запрошенный объект, проверяет доступ.
+   * @mcms_message ru.molinos.cms.hook.pagecontent
+   */
+  public static function on_get_current_node(Context $ctx, $handler, $param)
+  {
+    $data = $ctx->db->fetch("SELECT `published`, `deleted`, `xml` FROM `node` WHERE `id` = ?", array($param));
+
+    if (empty($data['xml']) or !empty($data['deleted']))
+      throw new PageNotFoundException();
+    elseif (empty($data['published']))
+      throw new ForbiddenException();
+
+    return $data['xml'];
+  }
 }
