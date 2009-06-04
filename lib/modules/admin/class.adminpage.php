@@ -31,6 +31,7 @@ class AdminPage
       'time' => microtime(true) - MCMS_START_TIME,
       'back' => urlencode(MCMS_REQUEST_URI),
       'next' => $ctx->get('destination'),
+      'api' => 'cms://localhost/api/',
       );
 
     $router = new Router();
