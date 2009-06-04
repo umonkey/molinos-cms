@@ -21,12 +21,12 @@
         <xsl:if test="position() = last()">
           <xsl:text> last</xsl:text>
         </xsl:if>
-        <xsl:if test="children/node">
+        <xsl:if test="node">
           <xsl:text> with-children</xsl:text>
         </xsl:if>
       </xsl:attribute>
       
-      <xsl:if test="children/node">
+      <xsl:if test="node">
         <span class="expand-collapse" />
       </xsl:if>
       
@@ -54,9 +54,9 @@
           <a title="Изменить свойства раздела" class="icon tag-edit" href="admin/edit/{@id}?destination={/page/@back}"></a>
         </span>
       </span>
-      <xsl:if test="children/node">
+      <xsl:if test="node">
         <ul>
-          <xsl:apply-templates select="children/node" mode="tagtree" />
+          <xsl:apply-templates select="node" mode="tagtree" />
         </ul>
       </xsl:if>
     </li>

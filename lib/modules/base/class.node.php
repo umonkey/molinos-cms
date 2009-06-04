@@ -1246,14 +1246,15 @@ class Node
   /**
    * Возвращает XML текущего объекта со всеми детьми.
    */
-  public function getTreeXML()
+  public function getTreeXML($published = true)
   {
     $xml = '';
 
     if ($this->data['id']) {
-      $children = $this->getDB()->getResultsV("id", "SELECT `id` FROM `node` WHERE `parent_id` = ? AND `deleted` = 0 AND `published` = 1 ORDER BY `left`", array($this->data['id']));
+      $mod = $published ? ' AND `published` = 1' : '';
+      $children = $this->getDB()->getResultsV("id", "SELECT `id` FROM `node` WHERE `parent_id` = ? AND `deleted` = 0{$mod} ORDER BY `left`", array($this->data['id']));
       foreach ((array)$children as $nid)
-        $xml .= Node::load($nid, $this->getDB())->getTreeXML();
+        $xml .= Node::load($nid, $this->getDB())->getTreeXML($published);
       $xml = $this->getXML('node', $xml, false);
     }
 

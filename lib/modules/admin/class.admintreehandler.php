@@ -121,7 +121,7 @@ class AdminTreeHandler
       $ids = $this->ctx->db->getResultsV("id", "SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0 AND `parent_id` = ? ORDER BY `left`", array($this->type, $parent_id));
 
     foreach ((array)$ids as $id)
-      $output .= Node::load($id, $this->ctx->db)->getTreeXML();
+      $output .= Node::load($id, $this->ctx->db)->getTreeXML(false);
 
     return empty($output)
       ? null
