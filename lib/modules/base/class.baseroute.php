@@ -179,13 +179,15 @@ class BaseRoute
    */
   public static function on_get_current_node(Context $ctx, $handler, $param)
   {
-    $data = $ctx->db->fetch("SELECT `published`, `deleted`, `xml` FROM `node` WHERE `id` = ?", array($param));
+    if (!empty($param)) {
+      $data = $ctx->db->fetch("SELECT `published`, `deleted`, `xml` FROM `node` WHERE `id` = ?", array($param));
 
-    if (empty($data['xml']) or !empty($data['deleted']))
-      throw new PageNotFoundException();
-    elseif (empty($data['published']))
-      throw new ForbiddenException();
+      if (empty($data['xml']) or !empty($data['deleted']))
+        throw new PageNotFoundException();
+      elseif (empty($data['published']))
+        throw new ForbiddenException();
 
-    return $data['xml'];
+      return $data['xml'];
+    }
   }
 }
