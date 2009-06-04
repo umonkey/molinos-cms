@@ -12,6 +12,11 @@ class LabelNode extends Node
         'title' => t('Показать документы'),
         'href' => 'admin/content/list?search=tags%3A' . $this->id,
         ),
+      'manage' => array(
+        'title' => t('Изменить документы'),
+        'href' => 'admin/content/labels/manage?id=' . $this->id
+          . '&destination=CURRENT',
+        ),
       ));
   }
 

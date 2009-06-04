@@ -54,7 +54,8 @@ class LabelsControl extends ListControl
   {
     $this->validate($value);
 
-    $node->onSave("DELETE FROM `node__rel` WHERE `nid` = %ID% AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = 'label') AND `key` = ?", array($this->value));
+    $fieldName = $this->value . '*';
+    $node->onSave("DELETE FROM `node__rel` WHERE `nid` = %ID% AND `key` = ?", array($fieldName));
 
     if (empty($value)) {
       unset($node->{$this->value});
@@ -71,7 +72,8 @@ class LabelsControl extends ListControl
             'deleted' => 0,
             ), $node->getDB());
         } catch (ObjectNotFoundException $e) {
-          $tmp = Node::create('label', array(
+          $tmp = Node::create(array(
+            'class' => 'label',
             'name' => $label,
             'published' => 1,
             ), $node->getDB())->save();
@@ -80,7 +82,7 @@ class LabelsControl extends ListControl
         $result[$tmp->id] = $tmp->name;
       }
 
-      $params = array($this->value);
+      $params = array($fieldName);
       $node->onSave($sql = "INSERT INTO `node__rel` (`nid`, `tid`, `key`) SELECT %ID%, `id`, ? FROM `node` WHERE `class` = 'label' AND `id` " . sql::in(array_keys($result), $params), $params);
 
       $node->{$this->value} = $result;
@@ -103,7 +105,7 @@ class LabelsControl extends ListControl
     return array_unique((array)$node->getDB()->getResultsKV('id', 'name', "SELECT `id`, `name` FROM `node` "
       . "WHERE `class` = 'label' AND `deleted` = 0 AND `id` "
       . "IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ? AND `key` = ?)",
-      array($node->id, $this->value)));
+      array($node->id, $this->value . '*')));
   }
 
   /**
