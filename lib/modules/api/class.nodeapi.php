@@ -31,6 +31,9 @@ class NodeAPI
     if ($tmp = $ctx->get('tags'))
       $filter['tags'] = self::split($tmp);
 
+    if ($tmp = $ctx->get('author'))
+      $filter['uid'] = $tmp;
+
     $attrs = array(
       'limit' => $filter['#limit'],
       'skip' => $filter['#offset'],
