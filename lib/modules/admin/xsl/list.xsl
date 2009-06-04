@@ -120,8 +120,8 @@
 
   <!-- Массовые операции: селекторы, действия. -->
   <xsl:template match="data" mode="massctl">
-    <xsl:param name="publish" select="not(not(node[not(@published)]))" />
-    <xsl:param name="hide" select="not(not(node[@published]))" />
+    <xsl:param name="publish" select="not(not(.//node[not(@published)]))" />
+    <xsl:param name="hide" select="not(not(.//node[@published]))" />
     <xsl:param name="edit" select="0" />
     <xsl:param name="create" select="0" />
     <xsl:param name="restore" select="0" />
