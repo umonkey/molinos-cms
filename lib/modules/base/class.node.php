@@ -55,11 +55,13 @@ class Node
 
     $this->db = $db;
     $this->data = $data;
-    $this->isnew = !empty($data['id']);
+    $this->isnew = empty($data['id']);
 
     if (!empty($this->data['id'])) {
       $this->retrieve();
       mcms::flog("node {$this->data['id']} read from DB (slow).");
+    } else {
+      $this->dirty = true;
     }
   }
 
@@ -69,14 +71,32 @@ class Node
   private function retrieve()
   {
     if (!empty($this->data['id'])) {
-      $rows = $this->getDB()->getResultsK("key", "SELECT `node__rel`.`key`, `node`.* FROM `node__rel` "
+      $extra = array();
+
+      $rows = $this->getDB()->getResults("SELECT `node__rel`.`key`, `node`.* FROM `node__rel` "
         . "INNER JOIN `node` ON `node`.`id` = `node__rel`.`nid` "
         . "WHERE `node`.`deleted` = 0 AND `node__rel`.`tid` = ? "
         . "AND `node__rel`.`tid` <> `node__rel`.`nid` " // предотвращение простейшей рекурсии
         . "AND `node__rel`.`key` IS NOT NULL", array($this->data['id']));
 
-      foreach ($rows as $field => $data)
-        $this->data[$field] = Node::create($data, $this->getDB());
+      foreach ($rows as $data) {
+        // Звездой отмечены массивы.
+        if ('*' === substr($data['key'], -1))
+          continue;
+
+        $field = $data['key'];
+        unset($data['key']);
+
+        if (isset($extra[$field])) {
+          if (!is_array($extra[$field]))
+            $extra[$field] = array($extra[$field]);
+          $extra[$field][] = Node::create($data, $this->getDB());
+        } else {
+          $extra[$field] = Node::create($data, $this->getDB());
+        }
+      }
+
+      $this->data = array_merge($extra, $this->data);
     }
   }
 
@@ -120,10 +140,10 @@ class Node
     if (!is_array($query))
       $query = array('id' => $query);
 
-    if (!is_array($nodes = Node::find($query, $db)))
-      throw new ObjectNotFoundException();
-    elseif (count($nodes) > 1)
+    if (count($nodes = (array)Node::find($query, $db)) > 1)
       throw new RuntimeException(t('Запрос к Node::load() вернул более одного объекта.'));
+    elseif (empty($nodes))
+      throw new ObjectNotFoundException();
 
     return array_shift($nodes);
   }
@@ -339,6 +359,7 @@ class Node
    */
   private final function __call($method, $args)
   {
+    mcms::debug('Bad method call', $method);
     throw new RuntimeException(t('Метод %class::%method() не существует.', array(
       '%class' => get_class($this),
       '%method' => $method,
@@ -617,7 +638,7 @@ class Node
       else
         $links['delete'] = array(
           'href' => 'nodeapi/delete?node=' . $this->id
-            .'&destination=CURRENT',
+            .'&destination=admin/content/list/' . $this->class,
           'title' => t('Удалить'),
           'icon' => 'delete',
           );
@@ -856,7 +877,7 @@ class Node
       $filter['-id'] = $this->id;
 
     try {
-      if (Node::count($this->getDB(), $filter))
+      if (Node::count($filter, $this->getDB()))
         throw new DuplicateException($message ? $message : t('Такой объект уже существует.'));
     } catch (PDOException $e) { }
   }
@@ -953,8 +974,16 @@ class Node
 
     foreach ($this->onsave as $query) {
       list($sql, $params) = $query;
-      $sth = $this->getDB()->prepare(str_replace('%ID%', intval($this->id), $sql));
+      $sth = $this->getDB()->prepare($sql = str_replace('%ID%', intval($this->id), $sql));
       $sth->execute($params);
+
+      if (defined('MCMS_FLOG_NODE_UPDATES')) {
+        $tmp = array($sql);
+        foreach ($params as $p)
+          $tmp[] = var_export($p, true);
+
+        mcms::flog("onSave[{$this->id}]: " . join('; ', $tmp));
+      }
     }
 
     $this->cascade();
@@ -973,8 +1002,14 @@ class Node
     $fields = $extra = array();
 
     foreach ($this->data as $k => $v) {
+      // Числовые ключи игнорируем.
+      if (is_numeric($k))
+        continue;
+
       if (!empty($v)) {
         if ($v instanceof Node) {
+          mcms::flog("pack[{$this->id}] » {$v->id}($v->name)");
+
           if (null === $v->id)
             $v->save();
           // Запрещаем ссылки на себя.
@@ -988,6 +1023,8 @@ class Node
         } else {
           $extra[$k] = $v;
         }
+      } elseif ('published' == $k or 'deleted' == $k) {
+        $fields[$k] = 0;
       }
     }
 
@@ -1057,23 +1094,25 @@ class Node
     static $stack = array();
 
     if (empty($this->data['id']))
-      return;
+      return $this;
 
-    if (isset($stack[$this->data['id']]))
-      return;
+    if (isset($stack[$this->data['id']])) {
+      mcms::flog("cascade[{$this->id}]: refusing");
+      return $this;
+    }
 
-    mcms::flog("UL[{$this->data['id']}]: " . join(',', array_keys($stack)));
     $stack[$this->data['id']] = true;
 
     $sel = $this->getDB()->prepare("SELECT DISTINCT(`tid`) FROM `node__rel` WHERE `nid` = ? AND `key` IS NOT NULL AND `tid` IN (SELECT `id` FROM `node`)");
     $sel->execute(array($this->data['id']));
 
     while ($nid = $sel->fetchColumn(0)) {
-      mcms::flog("UL[{$this->data['id']}]: » " . $nid);
+      mcms::flog("cascade[{$this->id}]: » " . $nid);
       self::load($nid, $this->getDB())->touch()->save();
     }
 
     unset($stack[$this->data['id']]);
+    return $this;
   }
 
   /**
