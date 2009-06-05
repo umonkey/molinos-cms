@@ -95,4 +95,27 @@ class TaxonomyAdmin extends AdminTreeHandler
     $ctx->db->commit();
     return $ctx->getRedirect();
   }
+
+  /**
+   * Добавляет информацию о разделах в предварительный просмотр.
+   * @mcms_message ru.molinos.cms.hook.preview.xml
+   */
+  public static function on_preview_tags(Node $node)
+  {
+    if ($data = $node->getDB()->getResultsKV("id", "name", "SELECT `id`, `name` FROM `node` WHERE `deleted` = 0 AND `class` = 'tag' AND `id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ?)", array($node->id))) {
+      $result = array();
+      foreach ($data as $k => $v)
+        $result[] = html::em('a', array(
+          'href' => "admin/node/{$k}?destination=CURRENT",
+          ), html::plain($v));
+
+      $result = html::em('value', html::cdata(implode(', ', $result)));
+
+      return html::em('field', array(
+        'html' => true,
+        'title' => t('Находится в разделах'),
+        'editurl' => "admin/structure/taxonomy/setup?node={$node->id}&destination=" . urlencode($_SERVER['REQUEST_URI']),
+        ), $result);
+    }
+  }
 }

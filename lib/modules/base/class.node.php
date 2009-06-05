@@ -925,15 +925,21 @@ class Node
     foreach ($this->getFormFields()->sort() as $name => $ctl) {
       if ($ctl->label) {
         if (false !== ($tmp = $ctl->preview($this))) {
+          $editurl = ($editable and $ctl->isEditable($this))
+            ? "admin/edit/{$this->id}/{$name}?destination=" . urlencode($_SERVER['REQUEST_URI'])
+            : null;
           $result .= html::em('field', array(
             'name' => $name,
             'title' => $ctl->label,
-            'editable' => $editable and $ctl->isEditable($this),
+            'editurl' => $editurl,
             'class' => get_class($ctl),
             ), $tmp);
         }
       }
     }
+
+    foreach ($ctx->registry->poll('ru.molinos.cms.hook.preview.xml', array($this)) as $tmp)
+      $result .= $tmp['result'];
 
     return $result;
   }

@@ -62,8 +62,8 @@
                 <xsl:text>:</xsl:text>
               </th>
               <td>
-                <xsl:if test="@editable">
-                  <a href="admin/edit/{$nid}/{@name}?destination={$back}" class="edit">
+                <xsl:if test="@editurl">
+                  <a href="{@editurl}" class="edit">
                     <img src="lib/modules/admin/styles/admin/images/icons/icon-edit.png" />
                   </a>
                 </xsl:if>
