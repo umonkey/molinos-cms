@@ -1,75 +1,53 @@
 <?php
 
-class RSSRouter implements iRequestRouter
+class RSSRouter
 {
-  protected $query;
-
-  public function __construct($query)
+  public static function on_route_poll(Context $ctx)
   {
-    $this->query = $query;
+    $result = array();
+
+    foreach ($ctx->config->getArray('modules/rss/feeds/export') as $name => $settings)
+      if ('custom' != $name) {
+        $settings['call'] = __CLASS__ . '::on_get_feed';
+        $result['GET//' . $name . '.rss'] = $settings;
+      }
+
+    return $result;
   }
 
-  public function route(Context $ctx)
+  public static function on_get_feed(Context $ctx, $name, array $settings)
   {
-    $feed = Node::find($ctx->db, array(
-      'class' => 'rssfeed',
-      'deleted' => 0,
-      ));
+    $filter = array();
+    if (!empty($settings['types']))
+      $filter['class'] = $settings['types'];
+    if (!empty($settings['tags']))
+      $filter['tags'] = $settings['tags'];
+    if (!empty($settings['author']))
+      $filter['uid'] = $settings['author'];
+    if (!empty($settings['limit']))
+      $filter['#limit'] = $settings['limit'];
 
-    if (empty($feed))
-      throw new PageNotFoundException();
-    $feed = array_shift($feed);
+    $options = array();
+    foreach (array('title', 'description', 'xsl') as $key)
+      if (!empty($settings[$key]))
+        $options[$key] = $settings[$key];
 
-    if (!$feed->published)
-      throw new ForbiddenException();
+    $feed = new RSSFeed($filter);
+    return $feed->render($ctx, $options);
+  }
 
-    $query = array(
-      'class' => array(),
-      'deleted' => 0,
-      'published' => 1,
-      '#sort' => '-created',
-      '#limit' => 10,
-      );
+  public static function on_get_custom(Context $ctx)
+  {
+    $filter = array();
+    if (!($filter['class'] = $ctx->get('type')))
+      $filter['class'] = $ctx->db->getResultsV("name", "SELECT name FROM node WHERE class = 'type' AND deleted = 0 AND published = 1");
+    if ($tmp = $ctx->get('tags'))
+      $filter['tags'] = explode('+', $tmp);
+    if ($tmp = $ctx->get('author'))
+      $filter['uid'] = $tmp;
 
-    foreach ($feed->getLinked('type') as $t)
-      $query['class'][] = $t->name;
+    $feed = new RSSFeed($filter);
 
-    $content = $title = '';
-
-    if ($id = $ctx->get('id')) {
-      try {
-        $filter = Node::load($id, $ctx->db);
-      } catch (ObjectNotFoundException $e) {
-        throw new PageNotFoundException();
-      }
-
-      switch ($filter->class) {
-      case 'user':
-        $query['uid'] = $filter->id;
-        $title = $filter->fullname;
-        break;
-      default:
-        $query['tags'] = $filter->id;
-      }
-
-      $content .= $filter->getXML('filter');
-    }
-
-    $content .= html::wrap('nodes', Node::findXML($ctx->db, $query));
-
-    $output = html::em('rss', array(
-      'name' => $feed->name,
-      'title' => empty($title) ? $feed->title : $title,
-      'description' => $feed->description,
-      'base' => $ctx->url()->getBase($ctx),
-      'language' => $feed->language,
-      ), $content);
-
-    if (isset($feed->template) and file_exists($feed->template))
-      $template = $feed->template;
-    else
-      $template = os::path('lib', 'modules', 'rss', 'default.xsl');
-
-    return xslt::transform($output, $template, 'text/xml'); // 'application/rss+xml');
+    return $feed->render($ctx);
   }
 }
