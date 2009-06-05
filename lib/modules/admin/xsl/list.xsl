@@ -176,7 +176,7 @@
         <xsl:variable name="filter">
           <xsl:text>?limit=20</xsl:text>
           <xsl:if test="../@type">
-            <xsl:text>&amp;class=</xsl:text>
+            <xsl:text>&amp;type=</xsl:text>
             <xsl:value-of select="../@type" />
           </xsl:if>
           <xsl:if test="../@author">

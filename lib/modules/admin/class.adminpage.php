@@ -65,23 +65,8 @@ class AdminPage
     try {
       self::checkperm($ctx, $pathinfo);
 
-      if (!$ctx->user->id) {
-        $page = array(
-          'status' => 401,
-          'error' => 'UnauthorizedException',
-          'version' => MCMS_VERSION,
-          'base' => $ctx->url()->getBase($ctx),
-          'prefix' => MCMS_SITE_FOLDER . '/themes',
-          'back' => $_SERVER['REQUEST_URI'],
-          );
-
-        $html = $ctx->registry->unicast('ru.molinos.cms.auth.form', array($ctx, $ctx->get('authmode')));
-
-        $xml = html::em('page', $page, $html);
-        $xsl = os::path('lib', 'modules', 'admin', 'template.xsl');
-
-        xslt::transform($xml, $xsl)->send();
-      }
+      if (!$ctx->user->id and empty($pathinfo['anonymous']))
+        throw new UnauthorizedException();
 
       if (empty($pathinfo['next'])) {
         if (!empty($pathinfo['xsl']))
