@@ -7,10 +7,15 @@ class BaseRoute
     // TODO: делать это в xslt::transform(), если необходимо.
     APIStream::init($ctx);
 
+    if (empty($param) and !empty($handler['default']))
+      $param = $handler['default'];
+
     $content = '';
     $page = array(
       'status' => 200,
-      'name' => self::getNameFromQuery($query, $param),
+      'name' => empty($handler['pagename'])
+        ? self::getNameFromQuery($query, $param)
+        : $handler['pagename'],
       'title' => null,
       'host' => MCMS_HOST_NAME,
       'peer' => $_SERVER['REMOTE_ADDR'],
