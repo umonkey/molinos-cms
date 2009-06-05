@@ -873,6 +873,9 @@ class Node
    */
   protected function checkUnique($field, $message = null, array $filter = array())
   {
+    if ($this->deleted)
+      return;
+
     $filter['class'] = $this->class;
     $filter['deleted'] = 0;
     $filter[$field] = $this->$field;
