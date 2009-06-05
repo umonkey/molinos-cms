@@ -35,11 +35,11 @@ class DictWidget extends Widget
 
   public function onGet(array $options)
   {
-    return Node::findXML($this->ctx->db, array(
+    return Node::findXML(array(
       'class' => $this->type,
       'deleted' => 0,
       'published' => 1,
       '#sort' => 'name',
-      ));
+      ), $this->ctx->db);
   }
 }

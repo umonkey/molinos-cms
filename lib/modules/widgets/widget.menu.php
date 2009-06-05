@@ -140,7 +140,7 @@ class MenuWidget extends Widget implements iWidget
   private function checkNeedParent($root)
   {
     if ('anything' == $this->fixed and $root->parent_id and !$root->hasChildren())
-      $root = Node::load($root->parent_id)->getObject();
+      $root = Node::load($root->parent_id);
 
     return $root;
   }

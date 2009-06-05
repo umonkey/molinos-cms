@@ -32,13 +32,13 @@ class SubscriptionRPC extends RPCHandler
         ),
       ));
 
-    $sections = Node::findXML($ctx->db, array(
+    $sections = Node::findXML(array(
       'class' => 'tag',
       'deleted' => 0,
       'published' => 1,
       'id' => $data['sections'],
       '#sort' => 'name',
-      ), 'section');
+      ), $ctx->db, 'section');
     if (empty($sections))
       throw new InvalidArgumentException("Выбраны несуществующие разделы для подписки.");
 

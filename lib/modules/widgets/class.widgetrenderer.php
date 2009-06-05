@@ -165,12 +165,12 @@ class WidgetRenderer
     if (empty($param))
       return true;
 
-    $xml = Node::findXML($ctx->db, array(
+    $xml = Node::findXML(array(
       'id' => $param,
       'published' => 1,
       'deleted' => 0,
       'class' => $ctx->user->getAccess('r'),
-      ));
+      ), $ctx->db);
 
     if (!empty($xml))
       return true;

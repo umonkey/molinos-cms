@@ -20,23 +20,23 @@ class SubscriptionScheduler
 
     $ctx->db->beginTransaction();
 
-    $users = Node::find($ctx->db, array(
+    $users = Node::find(array(
       'class' => 'subscription',
       'deleted' => 0,
       'published' => 1,
       '#sort' => 'name',
-      ));
+      ), $ctx->db);
 
     // Обрабатываем активных пользователей.
     foreach ($users as $user) {
       $olast = $last = intval($user->last);
 
       // Получаем список разделов, на которые распространяется подписка.
-      $tags = Node::find($ctx->db, array(
+      $tags = Node::find(array(
         'class' => 'tag',
         'published' => 1,
         'tagged' => $user->id,
-        ));
+        ), $ctx->db);
 
       if (empty($tags))
         continue;

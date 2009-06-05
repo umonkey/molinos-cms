@@ -102,13 +102,13 @@ class LinkedNodesWidget extends Widget
    */
   public function onGet(array $options)
   {
-    $nodes = Node::findXML($this->ctx->db, array(
+    $nodes = Node::findXML(array(
       'class' => $options['classes'],
       'tagged' => $options['doc'],
       'published' => 1,
       'deleted' => 0,
       '#sort' => $options['sort'],
-      ));
+      ), $this->ctx->db);
 
     return $nodes;
   }

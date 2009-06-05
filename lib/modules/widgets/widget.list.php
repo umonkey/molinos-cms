@@ -209,7 +209,7 @@ class ListWidget extends Widget
   public function onGet(array $options)
   {
     $count = null;
-    $result = html::wrap('nodes', Node::findXML($this->ctx->db, $query = $this->getQuery($options)));
+    $result = html::wrap('nodes', Node::findXML($query = $this->getQuery($options), $this->ctx->db));
 
     // Пусто: откатываемся на другой раздел, но только если в текущем разделе
     // вообще ничего нет, на несуществующей странице выводим пустой список.
@@ -218,7 +218,7 @@ class ListWidget extends Widget
 
       if (!$count and 'empty' == $this->fallbackmode and $this->fixed) {
         $options['section']['id'] = $this->fixed;
-        $result = html::wrap('nodes', Node::findXML($this->ctx->db, $query = $this->getQuery($options)));
+        $result = html::wrap('nodes', Node::findXML($query = $this->getQuery($options), $this->ctx->db));
         $count = null;
       }
     }

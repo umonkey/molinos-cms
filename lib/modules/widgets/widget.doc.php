@@ -143,19 +143,19 @@ class DocWidget extends Widget implements iWidget
     if (isset($options['document']['xml']))
       $output = $options['document']['xml'];
     else
-      $output = Node::findXML($this->ctx->db, array(
+      $output = Node::findXML(array(
         'id' => $options['document']['id'],
         'deleted' => 0,
         'published' => 1,
-        ));
+        ), $this->ctx->db);
 
     if ($this->show_sections)
-      $sections = Node::findXML($this->ctx->db, $q = array(
+      $sections = Node::findXML($q = array(
         'class' => 'tag',
         'tagged' => $options['document']['id'],
         'published' => 1,
         'deleted' => 0,
-        ));
+        ), $this->ctx->db);
     elseif (isset($options['section']['xml']))
       $sections = $options['section']['xml'];
 

@@ -58,10 +58,10 @@ class SubscriptionControl extends SectionsControl
     if (null === ($email = $this->findEmail($node)))
       throw new InvalidArgumentException(t('Не удалось подписать вас на новости: в профиле не обнаружен ни один почтовый адрес.'));
 
-    $s = Node::find($node->getDB(), array(
+    $s = Node::find(array(
       'class' => 'subscription',
       'name' => $email,
-      ));
+      ), $node->getDB());
 
     if (empty($s))
       $s = Node::create('subscription', array(

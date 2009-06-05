@@ -45,7 +45,7 @@ class ArchiveWidget extends Widget implements iWidget
   {
     $widgets = array();
 
-    foreach (Node::find($ctx->db, array('class' => 'widget')) as $w)
+    foreach (Node::find(array('class' => 'widget'), $ctx->db) as $w)
       if (!strcasecmp('ListWidget', $w->classname))
         $widgets[$w->name] = $w->title;
 

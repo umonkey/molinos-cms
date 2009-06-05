@@ -204,7 +204,7 @@ class FormWidget extends Widget
     if (!empty($root))
       $filter['tags'] = $root;
 
-    $allowed = Node::find($this->ctx->db, $filter);
+    $allowed = Node::find($filter, $this->ctx->db);
 
     $atypes = $this->getAllowedTypes();
 

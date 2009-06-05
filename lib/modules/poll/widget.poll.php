@@ -115,14 +115,15 @@ class PollWidget extends Widget
 
   protected function getCurrentPoll(array $options)
   {
-    $nodes = Node::find($this->ctx->db, $filter = array(
+    $nodes = Node::find($filter = array(
       'class' => 'poll',
       'tags' => $options['section'],
       '#sort' => '-id',
-      ), 1, 0);
+      '#limit' => 1,
+      ), $this->ctx->db);
 
     if (!empty($nodes))
-      return $nodes[key($nodes)]->getObject();
+      return $nodes[key($nodes)];
 
     return null;
   }

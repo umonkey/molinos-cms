@@ -17,11 +17,11 @@ class DictList extends AdminListHandler
 
   protected function getData()
   {
-    $data = Node::find($this->ctx->db, array(
+    $data = Node::find(array(
       'class' => 'type',
       'deleted' => 0,
       '#sort' => '-published name',
-      ));
+      ), $this->ctx->db);
 
     $counts = $this->ctx->db->getResultsKV("name", "count", "SELECT `class` AS `name`, COUNT(*) AS `count` FROM `node` WHERE `deleted` = 0 GROUP BY `class`");
 
