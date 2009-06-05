@@ -62,16 +62,23 @@
     <form method="post" action="{@action}" id="login">
       <h1>Вход в Molinos CMS</h1>
       <xsl:for-each select="input[@type='group']">
-        <label class="switch">
-          <input type="radio" name="auth_type" value="{@mode}">
-            <xsl:if test="@selected">
-              <xsl:attribute name="checked">checked</xsl:attribute>
-            </xsl:if>
-          </input>
-          <span>
-            <xsl:value-of select="@title" />
-          </span>
-        </label>
+          <xsl:choose>
+            <xsl:when test="count(../input[@type='group'])=1">
+              <input type="hidden" name="auth_type" value="{@mode}" />
+            </xsl:when>
+            <xsl:otherwise>
+              <label class="switch">
+                <input type="radio" name="auth_type" value="{@mode}">
+                  <xsl:if test="@selected">
+                    <xsl:attribute name="checked">checked</xsl:attribute>
+                  </xsl:if>
+                </input>
+                <span>
+                  <xsl:value-of select="@title" />
+                </span>
+              </label>
+            </xsl:otherwise>
+          </xsl:choose>
 
         <xsl:variable name="mode" select="@mode" />
 
