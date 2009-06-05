@@ -410,7 +410,7 @@ class AdminRPC extends RPCHandler
 
   private static function getDashboardXML(PDO_Singleton $db, array $query, array $options)
   {
-    return html::wrap('content', Node::findXML($query, $ctx->db), $options);
+    return html::wrap('content', Node::findXML($query, $db), $options);
   }
 
   /**
