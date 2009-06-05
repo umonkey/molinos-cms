@@ -16,7 +16,8 @@ class LabelsInstaller
         ), $ctx->db);
     } catch (ObjectNotFoundException $e) {
       $ctx->db->beginTransaction();
-      $node = Node::create('type', array(
+      $node = Node::create(array(
+        'class' => 'type',
         'name' => 'label',
         'label' => t('Метка'),
         'isdictionary' => true,
