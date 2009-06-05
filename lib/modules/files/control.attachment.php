@@ -241,7 +241,7 @@ class AttachmentControl extends Control
     $_file = $base . $_url;
 
     $url = new url(array(
-      'path' => $base . 'lib/modules/attachment/player.swf',
+      'path' => $base . 'lib/modules/files/player.swf',
       ));
     $url->setarg('file', os::webpath($_file));
     $url->setarg('width', $options['width']);
