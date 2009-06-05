@@ -30,7 +30,7 @@
   </xsl:template>
 
   <xsl:template match="fields" mode="typefields">
-    <xsl:variable name="groups" select="not(not(field[@group]))" />
+    <xsl:variable name="groups" select="not(not(field[@group and @typeName]))" />
     <xsl:variable name="flags" select="not(not(field[@indexed]))" />
     <table class="classic">
       <thead>
@@ -49,7 +49,7 @@
         </tr>
       </thead>
       <tbody>
-        <xsl:for-each select="field">
+        <xsl:for-each select="field[@typeName]">
           <xsl:sort select="@weight" data-type="number" />
           <xsl:sort select="@label" data-type="text" />
           <tr>
