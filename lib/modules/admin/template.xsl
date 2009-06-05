@@ -13,6 +13,7 @@
   <xsl:variable name="sendto" select="/page/request/getArgs/arg[@name='sendto']/text()" />
   <xsl:variable name="next" select="/page/request/getArgs/arg[@name='destination']/text()" />
   <xsl:variable name="page" select="/page/request/getArgs/arg[@name='page']/text()" />
+  <xsl:variable name="args" select="/page/request/args" />
 
   <xsl:output omit-xml-declaration="yes" method="xml" version="1.0" encoding="UTF-8" indent="yes" doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"/>
 
@@ -443,6 +444,18 @@
       <xsl:otherwise>
         <xsl:value-of select="$size" />
         <xsl:text>Б</xsl:text>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <!-- Выводит название объекта, используя наиболее подходящее свойство. -->
+  <xsl:template match="node" mode="displayName">
+    <xsl:choose>
+      <xsl:when test="@class = 'type'">
+        <xsl:value-of select="title" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="@name" />
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
