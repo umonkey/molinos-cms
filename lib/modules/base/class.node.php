@@ -696,6 +696,10 @@ class Node
         );
     }
 
+    foreach ($ctx->registry->poll('ru.molinos.cms.node.actions', array($ctx, $this)) as $tmp)
+      foreach ($tmp['result'] as $k => $v)
+        $links[$k] = $v;
+
     return $links;
   }
 
