@@ -10,7 +10,7 @@ class BaseRoute
     $content = '';
     $page = array(
       'status' => 200,
-      'name' => self::getNameFromQuery($query),
+      'name' => self::getNameFromQuery($query, $param),
       'title' => null,
       'host' => MCMS_HOST_NAME,
       'peer' => $_SERVER['REMOTE_ADDR'],
@@ -67,16 +67,15 @@ class BaseRoute
     return xslt::transform($xml, $xsl, $type);
   }
 
-  private static function getNameFromQuery($query)
+  private static function getNameFromQuery($query, $param)
   {
     if (empty($query))
       return 'index';
 
-    foreach ($parts = explode('/', $query) as $k => $v)
-      if (is_numeric($v))
-        unset($parts[$k]);
+    if (!empty($param))
+      $query = str_replace($param, '', $query);
 
-    return implode('-', $parts);
+    return str_replace('/', '-', trim($query, '/'));
   }
 
   private static function findStyleSheet($themeName, $pageName)
