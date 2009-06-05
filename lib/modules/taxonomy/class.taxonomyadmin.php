@@ -53,4 +53,46 @@ class TaxonomyAdmin extends AdminTreeHandler
 
     return html::wrap('counts', $result);
   }
+
+  /**
+   * Добавляет специфичные действия для типов документов.
+   * @mcms_message ru.molinos.cms.node.actions
+   */
+  public static function on_get_actions(Context $ctx, Node $node)
+  {
+    $result = array();
+
+    if ($node->id) {
+      switch ($node->class) {
+      case 'type':
+      default:
+        $result['sections'] = array(
+          'href' => "admin/structure/taxonomy/setup?node={$node->id}&destination=CURRENT",
+          'title' => t('Привязать к разделам'),
+          );
+        break;
+      }
+    }
+
+    return $result;
+  }
+
+  /**
+   * Изменяет список разделов, разрешённых для ноды.
+   */
+  public static function on_post_setup(Context $ctx)
+  {
+    if (!($node = $ctx->get('node')))
+      throw new BadRequestException();
+
+    $ctx->db->beginTransaction();
+    $ctx->db->exec("DELETE FROM `node__rel` WHERE `nid` = ? AND `tid` IN (SELECT `id` FROM `node` WHERE `class` = 'tag')", array($node));
+
+    $params = array($node);
+    $sql = "INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, ? FROM `node` WHERE `id` " . sql::in($ctx->post('selected'), $params);
+    $ctx->db->exec($sql, $params);
+
+    $ctx->db->commit();
+    return $ctx->getRedirect();
+  }
 }
