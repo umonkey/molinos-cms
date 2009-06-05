@@ -207,7 +207,7 @@ class DBA_DB4_provider extends cache
 
   protected function getFileName()
   {
-    return MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'cache.' . $this->handler;
+    return MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'cache.' . $this->handler . '.dba';
   }
 
   public static function initialize()
