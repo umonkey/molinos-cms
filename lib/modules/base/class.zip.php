@@ -77,6 +77,8 @@ class zip
 
   public static function unzipToFolder($zipName, $folderPath)
   {
+    umask(0022);
+
     if (!self::isAvailable())
       throw new ZipException();
 
