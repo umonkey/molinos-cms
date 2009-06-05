@@ -14,7 +14,10 @@
 
     <xsl:choose>
       <xsl:when test="$node/@class = 'type'">
-        <p>Выберите, в какие разделы можно будет помещать <a href="admin/content/list/{$node/@name}">документы этого типа</a>.</p>
+        <p>
+          Выберите, в какие разделы можно будет помещать <a href="admin/content/list/{$node/@name}">документы этого типа</a>.
+          Вы также можете <a href="admin/system/settings/taxonomy?destination={$back}">указать</a>, какие документы можно помещать в один раздел, а какие — в несколько.
+        </p>
       </xsl:when>
       <xsl:otherwise>
         <p>
