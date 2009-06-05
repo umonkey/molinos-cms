@@ -61,22 +61,22 @@
   <xsl:template match="form">
     <form method="post" action="{@action}" id="login">
       <h1>Вход в Molinos CMS</h1>
-      <xsl:for-each select="input[@name='auth_type']/option">
+      <xsl:for-each select="input[@type='group']">
         <label class="switch">
-          <input type="radio" name="{../@name}" value="{@value}">
+          <input type="radio" name="auth_type" value="{@mode}">
             <xsl:if test="@selected">
               <xsl:attribute name="checked">checked</xsl:attribute>
             </xsl:if>
           </input>
           <span>
-            <xsl:value-of select="text()" />
+            <xsl:value-of select="@title" />
           </span>
         </label>
 
-        <xsl:variable name="mode" select="@value" />
+        <xsl:variable name="mode" select="@mode" />
 
         <div id="{$mode}" class="tab">
-          <xsl:apply-templates select="../../input[@type='group' and @mode=$mode]/input" />
+          <xsl:apply-templates select="input" />
         </div>
       </xsl:for-each>
 
