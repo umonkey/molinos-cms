@@ -72,11 +72,11 @@ class OpenIdModule extends RPCHandler
       if (null === $openid)
         throw new RuntimeException('OpenID провайдер не вернул идентификатор.');
 
-      $nodes = Node::find($ctx->db, array(
+      $nodes = Node::find(array(
         'class' => 'user',
         'name' => $openid,
         'deleted' => 0,
-        ));
+        ), $ctx->db);
 
       if (!count($nodes)) {
         if ('open' != $mode)
@@ -88,7 +88,8 @@ class OpenIdModule extends RPCHandler
           'sreg_nickname' => 'nickname',
           );
 
-        $node = Node::create('user', array(
+        $node = Node::create(array(
+          'class' => 'user',
           'parent_id' => null,
           'name' => $openid,
           'published' => true,

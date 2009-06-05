@@ -40,7 +40,7 @@ class OpenIdSettings
   {
     $result = array();
 
-    foreach (Node::find(Context::last()->db, array('class' => 'group')) as $g)
+    foreach (Node::find(array('class' => 'group')) as $g)
       $result[$g->id] = $g->name;
 
     asort($result);
