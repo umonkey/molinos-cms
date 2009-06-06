@@ -1,20 +1,15 @@
 <?php
 
-class AvatarRPC extends RPCHandler
+class AvatarRPC
 {
-  public static function on_rpc(Context $ctx)
-  {
-    return parent::hookRemoteCall($ctx, __CLASS__);
-  }
-
-  protected static function rpc_get_default(Context $ctx)
+  public static function rpc_get_default(Context $ctx)
   {
     $user = Node::load(array(
       'class' => 'user',
       'deleted' => 0,
       'published' => 1,
       'id' => $ctx->get('id'),
-      ));
+      ), $ctx->db);
 
     $email = $user
       ? $user->email
@@ -22,7 +17,7 @@ class AvatarRPC extends RPCHandler
 
     $gurl = 'http://www.gravatar.com/avatar/' . md5($email);
     if (null !== ($s = $ctx->get('s')))
-      $gurl .= '?s=' . intval($s);
+      $gurl .= '?s=' . intval($s) . '&r=x';
 
     return new Redirect($gurl);
   }
