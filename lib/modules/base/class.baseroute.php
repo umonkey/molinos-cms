@@ -77,10 +77,12 @@ class BaseRoute
     if (empty($query))
       return 'index';
 
-    if (!empty($param))
-      $query = str_replace($param, '', $query);
+    $parts = explode('/', $query);
 
-    return str_replace('/', '-', trim($query, '/'));
+    if (!empty($param))
+      $parts = array_diff($parts, array($param));
+
+    return implode('-', $parts);
   }
 
   private static function findStyleSheet($themeName, $pageName)
