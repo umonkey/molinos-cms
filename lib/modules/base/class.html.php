@@ -99,7 +99,7 @@ class html
           $v = 'yes';
         else
           $v = html::plain($v, false);
-        $result .= ' '.$k.'=\''. $v .'\'';
+        $result .= ' '.self::attrname($k).'=\''. $v .'\'';
       } elseif ($k == 'value') {
         $result .= " value=''";
       }
@@ -202,6 +202,6 @@ class html
 
   public static function attrname($string)
   {
-    return preg_replace('/[^a-z0-9-]/', '', str_replace(array('_', '.'), array('-', '-'), $string));
+    return preg_replace('/[^a-z0-9-]/i', '', str_replace(array('_', '.'), array('-', '-'), $string));
   }
 }
