@@ -117,7 +117,7 @@
         <tr>
           <xsl:apply-templates select="." mode="trclass" />
           <td class="icon">
-            <a class="icon-download" href="{../../@path}/{filepath}">
+            <a class="icon-download" href="download/{@id}/{filename}">
               <span>Скачать</span>
             </a>
           </td>
