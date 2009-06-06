@@ -159,7 +159,7 @@ class NodeAPI
     $node = Node::create($type)->knock('c');
     $form = $node->formGet();
 
-    return new Response($form->getXML(), 'text/xml');
+    return new Response($form->getXML(Control::data()), 'text/xml');
   }
 
   /**
