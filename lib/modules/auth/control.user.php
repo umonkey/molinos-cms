@@ -37,7 +37,7 @@ class UserControl extends Control
   public function getXML($data)
   {
     // Существующий объект, ничего не делаем.
-    if ($data->id)
+    if (!empty($data->id))
       return;
 
     // Пользователь залогинен, делать нечего.
