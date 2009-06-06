@@ -96,7 +96,7 @@ class Node
         }
       }
 
-      $this->data = array_merge($extra, $this->data);
+      $this->data = array_merge($this->data, $extra);
     }
   }
 
