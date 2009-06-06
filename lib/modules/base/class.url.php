@@ -383,7 +383,10 @@ class url
       }
     }
 
-    return html::wrap('getArgs', $tmp) . html::em('args', $tmp2);
+    $result = html::wrap('getArgs', $tmp);
+    if (!empty($tmp2))
+      $result .= html::em('args', $tmp2);
+    return $result;
   }
 
   public function getWidgetArgs($widgetName)
