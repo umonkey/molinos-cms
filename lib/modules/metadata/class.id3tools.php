@@ -44,10 +44,6 @@ class ID3Tools
       foreach ($info['error'] as $msg)
         mcms::flog("metadata[{$node->id}]: " . $msg);
 
-    foreach ($more as $k => $v)
-      if (empty($v))
-        unset($node->$k);
-      else
-        $node->$k = $v;
+    $node->metadata = $more;
   }
 }
