@@ -308,4 +308,19 @@ class AttachmentRPC extends RPCHandler
 
     return $files;
   }
+
+  public static function on_download(Context $ctx, $path, array $pathinfo, $node, $filename)
+  {
+    $node = Node::load(array(
+      'class' => 'file',
+      'deleted' => 0,
+      'published' => 1,
+      'id' => $node,
+      ), $ctx->db);
+
+    if (!($url = $node->remoteurl) and !file_exists($url = $node->getRealURL()))
+      throw new PageNotFoundException();
+
+    return new Redirect($url, Redirect::TEMPORARY);
+  }
 }

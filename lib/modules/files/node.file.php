@@ -764,6 +764,16 @@ class FileNode extends Node implements iContentType
    */
   public function getExtraXMLContent()
   {
-    return html::wrap('versions', $this->getVersionsXML());
+    $extra = '';
+
+    $tmp = '';
+    foreach ($this->metadata as $k => $v)
+      if (!empty($v))
+        $tmp .= html::em($k, html::cdata($v));
+    $extra = html::wrap('metadata', $tmp);
+
+    $extra .= html::wrap('versions', $this->getVersionsXML());
+
+    return $extra;
   }
 };

@@ -125,7 +125,11 @@ class AttachmentControl extends Control
 
       $ctx = Context::last();
 
-      return html::em($em, array(
+      $url = (0 === strpos($value->filetype, 'image/'))
+        ? os::webpath($ctx->config->getPath('modules/files/storage', 'files'), $value->filepath)
+        : "download/{$value->id}/{$value->filename}";
+
+      $options = array_merge(array(
         'id' => $value->id,
         'name' => $value->name,
         'fielname' => $value->name,
@@ -133,8 +137,10 @@ class AttachmentControl extends Control
         'filetype' => $value->filetype,
         'width' => $value->width,
         'height' => $value->height,
-        'url' => os::webpath($ctx->config->getPath('modules/files/storage', 'files'), $value->filepath),
-        ), $inside);
+        'url' => $url,
+        ), (array)$value->metadata);
+
+      return html::em($em, $options, $inside);
     }
 
     return html::wrap($em, html::cdata($value));
@@ -192,7 +198,8 @@ class AttachmentControl extends Control
       return;
 
     $ctx = Context::last();
-    $url = os::path($ctx->config->getPath('modules/files/storage', 'files'), $data->filepath);
+    $url = "download/{$data->id}/{$data->filename}";
+    // $url = os::path($ctx->config->getPath('modules/files/storage', 'files'), $data->filepath);
 
     switch ($data->filetype) {
     case 'video/flv':
