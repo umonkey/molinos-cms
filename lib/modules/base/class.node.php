@@ -1120,8 +1120,10 @@ class Node
     $sel->execute(array($this->data['id']));
 
     while ($nid = $sel->fetchColumn(0)) {
-      mcms::flog("cascade[{$this->id}]: » " . $nid);
-      self::load($nid, $this->getDB())->touch()->save();
+      if ($this->id != $nid) {
+        mcms::flog("cascade[{$this->id}] » {$nid}");
+        self::load($nid, $this->getDB())->touch()->save();
+      }
     }
 
     unset($stack[$this->data['id']]);
