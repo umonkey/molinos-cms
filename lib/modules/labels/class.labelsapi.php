@@ -19,7 +19,7 @@ class LabelsAPI
       ))->getSelect(null, null, 'name');
 
     $result = '';
-    foreach ($ctx->db->getResultsV("name", $sql, $params) as $name)
+    foreach ((array)$ctx->db->getResultsV("name", $sql, $params) as $name)
       $result .= html::em('label', html::cdata($name));
 
     return new Response(html::em('labels', array(
