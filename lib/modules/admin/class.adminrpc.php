@@ -300,7 +300,7 @@ class AdminRPC extends RPCHandler
         'type' => 'NodeLinkControl',
         'label' => t('Администратор сервера'),
         'dictionary' => 'user',
-        'required' => true,
+        'required' => false,
         'description' => t('Выберите пользователя, который занимается администрированием этого сайта. На его почтовый адрес будут приходить сообщения о состоянии системы.'),
         'nonew' => true,
         ),
@@ -312,6 +312,13 @@ class AdminRPC extends RPCHandler
           '127.0.0.1',
           $_SERVER['REMOTE_ADDR'],
           ),
+        ),
+      'requiregroup' => array(
+        'type' => 'EnumControl',
+        'label' => t('Доступ к админке'),
+        'required' => false,
+        'default_label' => t('разрешить всем'),
+        'options' => Node::getSortedList('group'),
         ),
       ));
   }
