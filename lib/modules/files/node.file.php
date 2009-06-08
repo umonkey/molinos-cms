@@ -34,17 +34,14 @@ class FileNode extends Node implements iContentType
     if (!empty($this->nosave))
       return $this;
 
-    if (empty($this->filepath))
-      throw new RuntimeException(t('Ошибка загрузки файла.'));
-    if (DIRECTORY_SEPARATOR == substr($this->filepath, 0, 0))
-      throw new RuntimeException(t('Путь к файлу должен быть относительным, а не абсолютным.'));
-
-    $path = os::path(MCMS_SITE_FOLDER, Context::last()->config->get('modules/files/storage'), $this->filepath);
-
-    if ($tmp = Imgtr::transform($this)) 
-      $this->versions = $tmp;
-    else
-      unset($this->versions);
+    // К локальным файлам применяются трансформации.
+    if ($this->filepath) {
+      $path = os::path(MCMS_SITE_FOLDER, Context::last()->config->get('modules/files/storage'), $this->filepath);
+      if ($tmp = Imgtr::transform($this)) 
+        $this->versions = $tmp;
+      else
+        unset($this->versions);
+    }
 
     $res = parent::save();
 
@@ -125,49 +122,62 @@ class FileNode extends Node implements iContentType
    */
   public function import(array $file, $uploaded = true)
   {
-    $storage = os::path(MCMS_SITE_FOLDER, Context::last()->config->get('modules/files/storage'));
+    if (!empty($file['tmp_name'])) {
+      $storage = os::path(MCMS_SITE_FOLDER, Context::last()->config->get('modules/files/storage'));
 
-    // Немного валидации.
-    if (empty($file['tmp_name']) or !file_exists($file['tmp_name']))
-      throw new Exception(t("Не удалось импортировать исходный файл."));
+      // Немного валидации.
+      if (!file_exists($file['tmp_name']))
+        throw new Exception(t('Загружаемый файл перестал существовать.'));
 
-    // Угадваем значения некоторых полей, для упрощения скриптинга.
-    if (!isset($file['size']))
-      $file['size'] = filesize($file['tmp_name']);
-    if (!isset($file['name']))
-      $file['name'] = basename($file['tmp_name']);
-    if (!isset($file['type']))
-      $file['type'] = os::getFileType($file['tmp_name']);
+      // Угадваем значения некоторых полей, для упрощения скриптинга.
+      if (!isset($file['size']))
+        $file['size'] = filesize($file['tmp_name']);
+      if (!isset($file['name']))
+        $file['name'] = basename($file['tmp_name']);
+      if (!isset($file['type']))
+        $file['type'] = os::getFileType($file['tmp_name']);
 
-    if ($this->id === null and FileNode::isUnzipable($file)) {
-      if (null === ($node = $this->unzip($file['tmp_name'])))
-        throw new InvalidArgumentException("ZIP file was empty");
-      $this->data = $node->getRaw();
-      return $this;
+      if ($this->id === null and FileNode::isUnzipable($file)) {
+        if (null === ($node = $this->unzip($file['tmp_name'])))
+          throw new InvalidArgumentException("ZIP file was empty");
+        $this->data = $node->getRaw();
+        return $this;
+      }
+
+      $this->filepath = os::mkunique($this->getCleanFileName($file), $storage);
+    } elseif (!empty($file['url'])) {
+      $this->remoteurl = $file['url'];
     }
 
-    $this->filepath = os::mkunique($this->getCleanFileName($file), $storage);
+    $file = array_merge(array(
+      'name' => 'unnamed.bin',
+      'type' => 'application/octet-stream',
+      'size' => 0,
+      ), $file);
+
     $this->filename = $this->name = $file['name'];
     $this->filetype = $file['type'];
     $this->filesize = $file['size'];
 
-    // Сюда будем копировать файл.
-    $dest = os::path($storage, $this->filepath);
+    if ($this->filepath and !empty($file['tmp_name'])) {
+      // Сюда будем копировать файл.
+      $dest = os::path($storage, $this->filepath);
 
-    if (file_exists($dest))
-      throw new RuntimeException(t('Такой файл уже есть.'));
+      if (file_exists($dest))
+        throw new RuntimeException(t('Такой файл уже есть.'));
 
-    // Создаём каталог для него.
-    os::mkdir(dirname($dest), 'Файл не удалось сохранить, т.к. отсутствуют права на запись в каталог, где этот файл должен был бы храниться (%path).  Сообщите об этой проблеме администратору сайта.', array(
-      '%path' => dirname($dest),
-      ));
+      // Создаём каталог для него.
+      os::mkdir(dirname($dest), 'Файл не удалось сохранить, т.к. отсутствуют права на запись в каталог, где этот файл должен был бы храниться (%path).  Сообщите об этой проблеме администратору сайта.', array(
+        '%path' => dirname($dest),
+        ));
 
-    // Копируем файл.
-    if (!os::copy($file['tmp_name'], $dest))
-      throw new RuntimeException(t('Не удалось скопировать файл %src в %dst.', array(
-        '%src' => $file['tmp_name'],
-        '%dst' => $dest,
-        )));
+      // Копируем файл.
+      if (!os::copy($file['tmp_name'], $dest))
+        throw new RuntimeException(t('Не удалось скопировать файл %src в %dst.', array(
+          '%src' => $file['tmp_name'],
+          '%dst' => $dest,
+          )));
+    }
 
     // Прикрепляем файл к родительскому объекту.
     if (!empty($file['parent_id']))
@@ -552,11 +562,10 @@ class FileNode extends Node implements iContentType
   {
     $list = parent::getActionLinks();
 
-    if (array_key_exists('locate', $list)) {
-      $list['locate']['href'] = $this->_url;
-      $list['locate']['icon'] = 'download';
-      $list['locate']['title'] = t('Скачать');
-    }
+    $list['locate'] = array(
+      'href' => "download/{$this->id}/{$this->filename}",
+      'title' => t('Скачать'),
+      );
 
     if (array_key_exists('clone', $list))
       unset($list['clone']);

@@ -145,16 +145,17 @@ class AttachmentRPC extends RPCHandler
           $file = array(
             'type' => $head['Content-Type'],
             'size' => $head['Content-Length'],
-            'tmp_name' => http::fetch($url),
             'remove' => true,
             'url' => $url,
-            'symlink' => (bool)$ctx->post('symlink'),
             );
+
+          if (!$ctx->post('symlink'))
+            $file['tmp_name'] = http::fetch($url);
 
           $tmp = parse_url($url);
           $file['name'] = basename($tmp['path']);
 
-          if ('application/octet-stream' == $file['type'])
+          if ('application/octet-stream' == $file['type'] and !empty($file['tmp_name']))
             $file['type'] = os::getFileType($file['tmp_name'], $file['name']);
 
           $files[] = $file;

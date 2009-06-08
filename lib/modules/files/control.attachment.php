@@ -132,7 +132,7 @@ class AttachmentControl extends Control
       $options = array_merge(array(
         'id' => $value->id,
         'name' => $value->name,
-        'fielname' => $value->name,
+        'filename' => $value->name,
         'filesize' => $value->filesize,
         'filetype' => $value->filetype,
         'width' => $value->width,
@@ -181,7 +181,10 @@ class AttachmentControl extends Control
 
     // Не картинки.
     else {
-      $html = $this->getEmbedCode($value);
+      $html = html::em('a', array(
+        'href' => "admin/node/{$value->id}?destination=CURRENT",
+        ), html::plain($value->filename));
+      // $html = $this->getEmbedCode($value);
     }
 
     return html::em('value', array(
