@@ -309,6 +309,9 @@ class AttachmentRPC extends RPCHandler
     return $files;
   }
 
+  /**
+   * Скачивание файлов.
+   */
   public static function on_download(Context $ctx, $path, array $pathinfo, $node, $filename)
   {
     $node = Node::load(array(
@@ -320,6 +323,8 @@ class AttachmentRPC extends RPCHandler
 
     if (!($url = $node->remoteurl) and !file_exists($url = $node->getRealURL()))
       throw new PageNotFoundException();
+
+    $ctx->registry->broadcast('ru.molinos.cms.log.access', array($ctx, $node));
 
     return new Redirect($url, Redirect::TEMPORARY);
   }
