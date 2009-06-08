@@ -206,7 +206,7 @@ class User
    */
   public function hasGroups(array $ids)
   {
-    $i = array_intersect(array_keys($this->groups), $ids);
+    $i = array_intersect(array_keys($this->getGroups()), $ids);
 
     return !empty($i);
   }
