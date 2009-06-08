@@ -59,7 +59,7 @@ class Node
 
     if (!empty($this->data['id'])) {
       $this->retrieve();
-      mcms::flog("node {$this->data['id']} read from DB (slow).");
+      mcms::flog("node[{$this->data['id']}]: read from DB (slow).");
     } else {
       $this->dirty = true;
     }
@@ -688,12 +688,6 @@ class Node
         'title' => 'XML дамп',
         'icon' => 'dump',
         );
-      $links['refresh'] = array(
-        'href' => 'nodeapi/refresh?node=' . $this->id
-          . '&destination=CURRENT',
-        'title' => 'Обновить XML',
-        'icon' => 'dump',
-        );
     }
 
     foreach ($ctx->registry->poll('ru.molinos.cms.node.actions', array($ctx, $this)) as $tmp)
@@ -999,8 +993,6 @@ class Node
       }
     }
 
-    $this->cascade();
-
     $this->onsave = array();
     $this->dirty = false;
 
@@ -1097,37 +1089,6 @@ class Node
     list($sql, $params) = sql::getUpdate('node', $data, 'id');
     $sth = $this->getDB()->prepare($sql);
     $sth->execute($params);
-  }
-
-  /**
-   * Каскадное обновление объектов, использующих текущий.
-   */
-  private function cascade()
-  {
-    static $stack = array();
-
-    if (empty($this->data['id']))
-      return $this;
-
-    if (isset($stack[$this->data['id']])) {
-      mcms::flog("cascade[{$this->id}]: refusing");
-      return $this;
-    }
-
-    $stack[$this->data['id']] = true;
-
-    $sel = $this->getDB()->prepare("SELECT DISTINCT(`tid`) FROM `node__rel` WHERE `nid` = ? AND `key` IS NOT NULL AND `tid` IN (SELECT `id` FROM `node`)");
-    $sel->execute(array($this->data['id']));
-
-    while ($nid = $sel->fetchColumn(0)) {
-      if ($this->id != $nid) {
-        mcms::flog("cascade[{$this->id}] » {$nid}");
-        self::load($nid, $this->getDB())->touch()->save();
-      }
-    }
-
-    unset($stack[$this->data['id']]);
-    return $this;
   }
 
   /**
@@ -1315,7 +1276,7 @@ class Node
     $data = array();
 
     if (null !== $this->id and $this->getDB()) {
-      mcms::flog("rebuilding node/{$this->id}.xml");
+      mcms::flog("node[{$this->id}]: rebuilding XML");
 
       $data = array(
         'id' => $this->id,

@@ -92,18 +92,20 @@ class Indexer
     foreach ($schema->getIndexes() as $fieldName) {
       $tableName = 'node__idx_' . $fieldName;
 
-      $sel = $ctx->db->prepare("SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0 AND `id` NOT IN (SELECT `id` FROM `{$tableName}`)");
-      $sel->execute(array($type->name));
+      try {
+        $ids = $ctx->db->getResultsV("id", "SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0 AND `id` NOT IN (SELECT `id` FROM `{$tableName}`)", array($type->name));
+        $upd = $ctx->db->prepare("INSERT INTO `{$tableName}` (`id`, `value`) VALUES (?, ?)");
 
-      $upd = $ctx->db->prepare("INSERT INTO `{$tableName}` (`id`, `value`) VALUES (?, ?)");
-
-      $count = 0;
-      while ($nid = $sel->fetchColumn(0)) {
-        $node = Node::load($nid, $ctx->db);
-        $upd->execute(array(
-          $nid,
-          $schema[$fieldName]->getIndexValue($node->$fieldName),
-          ));
+        $count = 0;
+        foreach ((array)$ids as $nid) {
+          $node = Node::load($nid, $ctx->db);
+          $upd->execute(array(
+            $nid,
+            $schema[$fieldName]->getIndexValue($node->$fieldName),
+            ));
+        }
+      } catch (TableNotFoundException $e) {
+        mcms::flog($e->getTableName() . ': missing table.');
       }
     }
   }
