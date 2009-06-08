@@ -4,19 +4,26 @@
 class GoogleAnalyticsModule
 {
   /**
-   * @mcms_message ru.molinos.cms.hook.request.after
+   * Возвращает код для включения в страницу.
+   * @mcms_message ru.molinos.cms.hook.pagecontent
    */
-  public static function hookRequest(Context $ctx)
+  public static function on_get_content(Context $ctx)
   {
-    $conf = $ctx->config->get('modules/googleanalytics/config');
+    $conf = $ctx->config->get('modules/googleanalytics');
     if (!empty($conf['account'])) {
-      $script = 'var gaJsHost = (("https:" == document.location.protocol) '
-        . '? "https://ssl." : "http://www.");document.write(unescape("%3Cscript src=\'" + gaJsHost + '
-        . '"google-analytics.com/ga.js\' type=\'text/javascript\'%3E%3C/script%3E"));';
-      $ctx->addExtra('script', $script);
-      $script = 'try{var pageTracker = _gat._getTracker("' . $conf['account']
-        . '");pageTracker._trackPageview();}catch(err){}';
-      $ctx->addExtra('script', $script);
+      $proto = empty($_SERVER['HTTPS'])
+        ? 'http'
+        : 'https';
+      $output = html::em('script', array(
+        'src' => $proto . '://google-analytics.com/ga.js',
+        'type' => 'text/javascript',
+        ));
+      $output .= '<script type="text/javascript">try{var pageTracker = _gat._getTracker("' . $conf['account']
+        . '");pageTracker._trackPageview();}catch(err){}</script>';
+
+      return html::em('head', array(
+        'module' => 'googleanalytics',
+        ), html::cdata($output));
     }
   }
 };

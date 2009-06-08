@@ -112,4 +112,31 @@ class CompressorModule
 
     return $data;
   }
+
+  /**
+   * Вывод инфорамации о подключаемых скриптах и стилях.
+   * @mcms_message ru.molinos.cms.hook.pagecontent
+   */
+  public static function on_get_head(Context $ctx, array $pathinfo)
+  {
+    $output = '';
+    $prefix = os::path(MCMS_SITE_FOLDER, 'themes', $pathinfo['theme'], 'compressed.');
+
+    if (file_exists($fileName = $prefix . 'js'))
+      $output .= html::em('script', array(
+        'src' => os::webpath($fileName),
+        'type' => 'text/javascript',
+        ));
+    if (file_exists($fileName = $prefix . 'css'))
+      $output .= html::em('link', array(
+        'rel' => 'stylesheet',
+        'type' => 'text/css',
+        'href' => os::webpath($fileName),
+        ));
+
+    return html::wrap('head', html::cdata($output), array(
+      'module' => 'compressor',
+      'weight' => 100,
+      ));
+  }
 }
