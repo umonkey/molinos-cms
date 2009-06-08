@@ -167,7 +167,7 @@ class Query
   public function getSelect(array $fields = null)
   {
     if (!$fields)
-      $fields = array('id', 'parent_id', 'name', 'lang', 'class', 'left', 'right', 'created', 'updated', 'published', 'deleted', 'data');
+      $fields = array('`node`.`id`', '`parent_id`', '`name`', '`lang`', '`class`', '`left`', '`right`', '`created`', '`updated`', '`published`', '`deleted`', '`data`');
 
     $sql = sql::getSelect((array)$fields, $this->tables, $this->conditions);
 
