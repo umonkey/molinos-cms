@@ -59,18 +59,22 @@ class Indexer
     foreach ((array)$type->fields as $name => $info)
       if (!Node::isBasicField($name) and !empty($info['indexed'])) {
         if ($sql = Control::getIndexType($info['type'])) {
-          TableInfo::check('node__idx_' . $name, array(
-            'id' => array(
-              'type' => 'integer',
-              'required' => true,
-              'key' => 'pri',
-              ),
-            'value' => array(
-              'type' => $sql,
-              'required' => false,
-              'key' => 'mul',
-              ),
-            ));
+          try {
+            TableInfo::check('node__idx_' . $name, array(
+              'id' => array(
+                'type' => 'integer',
+                'required' => true,
+                'key' => 'pri',
+                ),
+              'value' => array(
+                'type' => $sql,
+                'required' => false,
+                'key' => 'mul',
+                ),
+              ));
+          } catch (PDOException $e) {
+            mcms::flog("error reindexing {$info['type']}.{$name}: " . $e->getMessage());
+          }
         }
       }
 
