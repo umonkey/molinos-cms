@@ -36,6 +36,15 @@ class Router
   }
 
   /**
+   * Обновление кэша маршрутов.
+   */
+  public static function reload()
+  {
+    $tmp = new Router();
+    $tmp->load(Context::last(), true);
+  }
+
+  /**
    * Вытаскивает таблицу маршрутизации из .php файла, если не находит — читает из .ini.
    */
   private function load_php(Context $ctx)

@@ -176,7 +176,7 @@ class BaseRoute
     $config['routes'] = $map;
     $config->save();
 
-    Router::flush();
+    Router::reload();
   }
 
   /**
