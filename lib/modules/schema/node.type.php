@@ -274,11 +274,13 @@ class TypeNode extends Node implements iContentType
         'volatile' => true,
         ));
 
-    $tmp = Node::create($this->name);
-    if (!$tmp->canEditFields() and isset($schema['fields']))
-      unset($schema['fields']);
-    if (!$tmp->canEditSections())
-      unset($schema['tags']);
+    if ($this->id) {
+      $tmp = Node::create($this->name);
+      if (!$tmp->canEditFields() and isset($schema['fields']))
+        unset($schema['fields']);
+      if (!$tmp->canEditSections())
+        unset($schema['tags']);
+    }
 
     return $schema;
   }
