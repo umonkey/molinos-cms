@@ -201,6 +201,7 @@ class TableInfo
    */
   public static function check($tableName, array $columns)
   {
+    mcms::flog("checking({$tableName}): " . implode(', ', array_keys($columns)) . '.');
     $t = new TableInfo(Context::last()->db, $tableName);
     foreach ($columns as $k => $v)
       $t->columnSet($k, $v);
