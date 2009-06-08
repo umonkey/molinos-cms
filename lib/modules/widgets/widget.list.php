@@ -227,7 +227,7 @@ class ListWidget extends Widget
       // Добавляем информацию о разделе.
       if ($this->showpath and !empty($options['section'])) {
         $tmp = '';
-        $section = NodeStub::create($options['section'], $this->ctx->db);
+        $section = Node::load($options['section'], $this->ctx->db);
         foreach ($section->getParents() as $node)
           $tmp .= $node->push('section');
         if (!empty($tmp))

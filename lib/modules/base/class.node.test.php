@@ -2,11 +2,6 @@
 
 class NodeTests extends PHPUnit_Framework_TestCase
 {
-  public function testNewNode()
-  {
-    return new Node(NodeStub::create(null, get_test_context()->db));
-  }
-
   public function testCreateNewNode()
   {
     $node = Node::create(array(

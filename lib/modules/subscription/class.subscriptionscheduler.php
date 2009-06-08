@@ -92,7 +92,7 @@ class SubscriptionScheduler
 
     $result = array();
     foreach ((array)$ctx->db->getResultsV('id', $sql, $params) as $id)
-      $result[] = NodeStub::create($id, $ctx->db);
+      $result[] = Node::load($id, $ctx->db);
 
     return $result;
   }
