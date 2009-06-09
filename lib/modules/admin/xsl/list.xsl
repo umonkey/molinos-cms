@@ -201,7 +201,7 @@
     </xsl:attribute>
     <td class="selector">
       <xsl:choose>
-        <xsl:when test="$sendto">
+        <xsl:when test="$sendto and contains($sendto,'.')">
           <input type="radio" name="selected" value="{@id}" />
         </xsl:when>
         <xsl:otherwise>
