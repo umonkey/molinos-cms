@@ -8,7 +8,7 @@ class DictAdmin
     return $tmp->getHTML('dictlist', array(
       '#raw' => true,
       'nosearch' => true,
-      'create' => 'admin/content/create/type',
+      'create' => 'admin/create/type',
       ));
   }
 
