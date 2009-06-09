@@ -42,6 +42,21 @@
       <xsl:for-each select="*[@filetype]">
         <xsl:call-template name="enclosure" />
       </xsl:for-each>
+      <xsl:for-each select="files/node">
+        <xsl:if test="not(contains(filetype,'image/'))">
+          <enclosure
+            url="{/rss/@base}download/{@id}/{filename}"
+            length="{filesize}"
+            type="{filetype}"
+            />
+        </xsl:if>
+      </xsl:for-each>
+      <xsl:if test="filetype">
+        <enclosure
+          url="{/rss/@base}download/{@id}/{filename}"
+          length="{filesize}"
+          type="{filetype}" />
+      </xsl:if>
     </item>
   </xsl:template>
 
@@ -107,7 +122,7 @@
   <xsl:template name="enclosure">
     <xsl:if test="not(contains(@filetype,'image/'))">
       <enclosure
-        url="{/rss/@base}{@url}"
+        url="{/rss/@base}download/{@id}/{@filename}"
         length="{@filesize}"
         type="{@filetype}"
         />
