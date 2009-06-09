@@ -60,7 +60,7 @@ class AdminAdvSearch
 
     return html::em('content', array(
       'name' => 'search',
-      'query' => $url->arg('search'),
+      'query' => self::get_clean_query($url->arg('search')),
       'from' => urlencode($ctx->get('from')),
       ), $output);
   }
@@ -88,5 +88,20 @@ class AdminAdvSearch
     $url->setarg('page', null);
 
     $ctx->redirect($url->string());
+  }
+
+  /**
+   * Очищает поисковый запрос от мусора.
+   */
+  private static function get_clean_query($query)
+  {
+    $parts = preg_split('/\s+/', $query, -1, PREG_SPLIT_NO_EMPTY);
+
+    $new = array();
+    foreach ($parts as $part)
+      if (0 !== strpos($part, 'tags:'))
+        $new[] = $part;
+
+    return implode(' ', $new);
   }
 }
