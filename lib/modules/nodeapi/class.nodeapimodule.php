@@ -333,14 +333,16 @@ class NodeApiModule extends RPCHandler
   public static function on_post_sendto(Context $ctx)
   {
     if ($pick = $ctx->post('selected')) {
+      if (false === strpos($ctx->post('sendto')))
+        list($nid, $fieldName) = array($ctx->post('sendto'), null);
+      else
+        list($nid, $fieldName) = explode('.', $ctx->post('sendto'));
+
+      $params = array($fieldName);
+      $sql = "REPLACE INTO `node__rel` (`tid`, `nid`, `key`) SELECT %ID%, `id`, ? FROM `node` WHERE `deleted` = 0 AND `id` " . sql::in($pick, $params);
+
       $ctx->db->beginTransaction();
-
-      list($nid, $fieldName) = explode('.', $ctx->post('sendto'));
-
-      $node = Node::load($nid)->knock('u');
-      $node->$fieldName = Node::load($pick);
-      $node->save();
-
+      $node = Node::load($nid)->knock('u')->onSave($sql, $params)->save();
       $ctx->db->commit();
 
       // destiantion сейчас указывает на список, а нам надо
