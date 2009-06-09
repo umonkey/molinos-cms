@@ -7,16 +7,17 @@ class CartInstaller
    */
   public static function onInstall(Context $ctx)
   {
-    $count = Node::count($ctx->db, array(
+    $count = Node::count(array(
       'class' => 'type',
       'name' => 'order',
       'deleted' => 0,
-      ));
+      ), $ctx->db);
 
     if (!$count) {
       $ctx->db->beginTransaction();
 
-      Node::create('type', array(
+      Node::create(array(
+        'class' => 'type',
         'name' => 'order',
         'title' => 'Заказ',
         ))->save();
