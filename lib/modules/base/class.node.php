@@ -905,6 +905,11 @@ class Node
    */
   public function getExtraXMLContent()
   {
+    $result = '';
+    foreach (Context::last()->registry->poll('ru.molinos.cms.node.xml', array($this)) as $tmp)
+      if (!empty($tmp['result']))
+        $result .= $tmp['result'];
+    return $result;
   }
 
   public function getExtraPreviewXML(Context $ctx)
