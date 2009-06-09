@@ -1,0 +1,10 @@
+#extrafiles .tn a img {
+  vertical-align: middle;
+  margin-right: 4px;
+}
+#extrafiles .tn a {
+  text-decoration: none;
+}
+#extrafiles .tn span {
+  text-decoration: underline;
+}

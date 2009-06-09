@@ -12,7 +12,7 @@
       <xsl:choose>
         <xsl:when test="data/node">
           <div class="nodes-viewmodes">
-            <span class="presentations">Вид: <a class="table" href="admin/content/files?mode=table&amp;scope={@scope}&amp;page={$page}&amp;search={$search}">таблица</a> <a class="list" href="admin/content/files?mode=icons&amp;scope={@scope}&amp;page={$page}&amp;search={$search}">иконки</a></span>
+            <span class="presentations">Вид: <a class="table" href="admin/content/files?mode=table&amp;scope={@scope}&amp;page={$page}&amp;search={$search}&amp;sendto={$sendto}">таблица</a> <a class="list" href="admin/content/files?mode=icons&amp;scope={@scope}&amp;page={$page}&amp;search={$search}&amp;sendto={$sendto}">иконки</a></span>
             <span>Показывать: </span>
             <xsl:choose>
               <xsl:when test="/page/content/@scope">
