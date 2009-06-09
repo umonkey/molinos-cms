@@ -42,7 +42,7 @@ class Cart
       $sum = $sumqty = 0;
       $ids = array_keys($cart);
 
-      foreach ($nodes = Node::find(Context::last()->db, array('id' => $ids)) as $node) {
+      foreach ($nodes = Node::find(array('id' => $ids)) as $node) {
         if (empty($items))
           $qty = $cart[$node->id];
         else {
@@ -135,7 +135,7 @@ class Cart
 
     $output = html::em('items', $result['total'], $output);
     if ($details)
-      $output .= html::wrap('details', Node::findXML($this->ctx->db, array(
+      $output .= html::wrap('details', Node::findXML(array(
         'deleted' => 0,
         'published' => 1,
         'id' => array_keys($cart),
