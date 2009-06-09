@@ -71,9 +71,13 @@ class AttachmentRPC extends RPCHandler
 
     $files = array();
 
+    if (empty($data['name']) or !is_array($data['name']))
+      throw new BadRequestException(t('Не выбраны файлы для загрузки.'));
+
     for ($i = 0; isset($data['name'][$i]); $i++)
       foreach ($keys as $key)
-        $files[$i][$key] = $data[$key][$i];
+        if (!empty($data[$key][$i]['tmp_name']))
+          $files[$i][$key] = $data[$key][$i];
 
     return self::add_files($ctx, $files);
   }
