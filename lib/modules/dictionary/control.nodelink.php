@@ -68,18 +68,15 @@ class NodeLinkControl extends Control
     if ($this->hidden)
       return $this->getHidden($data);
 
-    if ($tmp = $this->getSelect($data))
+    if ('enter' != $this->mode)
       return parent::wrapXML(array(
+        'type' => 'select',
+        'mode' => 'drop',
         'value' => $this->getCurrentValue($data),
-        ), $tmp);
-
-    $this->addClass('form-text');
-    if (!$this->readonly)
-      $this->addClass('autocomplete');
+        ), $this->getSelect($data));
 
     return parent::wrapXML(array(
       'type' => 'text',
-      'mode' => 'autocomplete',
       ), html::cdata($this->getCurrentValue($data)));
   }
 
@@ -149,10 +146,14 @@ class NodeLinkControl extends Control
         'options' => TypeNode::getDictionaries(),
         'weight' => 4,
         ),
-      'nonew' => array(
-        'type' => 'BoolControl',
-        'label' => t('Запретить прозрачное добавление'),
-        'weight' => 5,
+      'mode' => array(
+        'type' => 'EnumControl',
+        'label' => t('Режим работы'),
+        'options' => array(
+          'select' => t('выпадающий список'),
+          'enter' => t('текстовое поле'),
+          ),
+        'required' => true,
         ),
       );
 
@@ -164,30 +165,16 @@ class NodeLinkControl extends Control
    */
   protected function getSelect($data)
   {
-    if (!$this->nonew)
-      return null;
-
-    $db = Context::last()->db;
     $parts = explode('.', $this->values);
 
-    $q = new Query($filter = array(
-      'class' => $parts[0],
-      'published' => 1,
-      'deleted' => 0,
-      '#sort' => 'name',
-      ));
+    $current = $this->getCurrentValue($data);
 
-    list($sql, $params) = $q->getCount();
-
-    if (($count = $db->fetch($sql, $params) < 50)) {
-      $result = '';
-      $current = $this->getCurrentValue($data);
-      foreach (Node::find($filter) as $node)
-        $result .= html::em('option', array(
-          'value' => $node->name,
-          'selected' => ($current == $node->name) ? 'yes' : null,
-          ));
-      return html::em('options', $result);
-    }
+    $options = '';
+    foreach (Node::getSortedList($parts[0]) as $k => $v)
+      $options .= html::em('option', array(
+        'value' => $v,
+        'selected' => ($current == $v)
+        ), html::plain($v));
+    return $options;
   }
 };
