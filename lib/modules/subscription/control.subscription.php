@@ -1,6 +1,6 @@
 <?php
 
-class SubscriptionControl extends SectionsControl
+class SubscriptionControl extends SetControl
 {
   private $enabled = array();
 
