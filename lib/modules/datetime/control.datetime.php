@@ -29,6 +29,8 @@ class DateTimeControl extends Control
 
   public function __construct(array $form)
   {
+    if (empty($form['description']))
+      $form['description'] = t('Формат: «ГГГГ-ММ-ДД ЧЧ:ММ:СС», время можно опустить.');
     parent::__construct($form, array('value'));
   }
 
