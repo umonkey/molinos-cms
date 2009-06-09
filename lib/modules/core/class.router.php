@@ -106,6 +106,12 @@ class Router
       }
     }
 
+    // Опрос динамических маршрутов.
+    foreach ((array)$ctx->registry->poll('ru.molinos.cms.route.poll') as $tmp)
+      if (!empty($tmp['result']))
+        foreach ($tmp['result'] as $k => $v)
+          $raw[$k] = $v;
+
     return $raw;
   }
 
