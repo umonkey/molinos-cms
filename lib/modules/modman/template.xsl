@@ -7,12 +7,13 @@
     <xsl:choose>
       <xsl:when test="not(module)">
         <p>Похоже, что для используемых вами модулей обновлений нет.</p>
-        <form method="post" action="admin/system/modules/reload?destination={$back}">
+        <form method="post" action="admin/system/modules/reload?destination={$next}">
           <input type="submit" value="Обновить информацию" />
         </form>
       </xsl:when>
       <xsl:otherwise>
         <div class="modman">
+          <p>Для вашей системы есть обновления. Ознакомиться со списком изменений можно кликнув в иконку <img src="lib/modules/modman/images/changelog.png" /> рядом с интересующим модулем.</p>
           <form method="post" action="admin/system/modules/upgrade?destination={$back}">
             <table>
               <tbody>

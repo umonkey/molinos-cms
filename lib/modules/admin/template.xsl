@@ -189,6 +189,14 @@
         </a>
       </li>
       -->
+      <xsl:if test="document(concat($api,'modman/updates.xml'))/modules/module">
+        <li class="icon icon-updates">
+          <a href="admin/system/modules/upgrade?destination={$back}" title="Есть обновления">
+            <span>Установить обновления</span>
+          </a>
+        </li>
+      </xsl:if>
+
       <li>
         <a title="Выйти" href="?q=auth/logout&amp;from={/page/@back}">
           <img src="lib/modules/admin/styles/admin/images/icons/icon-exit.png" alt="logout" width="16" height="16" />

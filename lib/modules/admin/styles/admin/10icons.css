@@ -2,20 +2,21 @@
 .nodes td.icon a { display:block; width:16px; height:16px; }
 .nodes td.icon span { display:none; }
 
-.nodes a.icon-dump { 		background-image:url(images/icons/icon-dump.gif); }
-.nodes a.icon-edit { 		background-image:url(images/icons/icon-edit.png); }
-.nodes a.icon-locate { 		background-image:url(images/icons/icon-www.png); }
-.nodes a.icon-download { 	background-image:url(images/icons/icon-download.png); }
-.nodes a.icon-sudo { 		background-image:url(images/icons/icon-sudo.gif); }
-.nodes a.icon-delete { 		background-image:url(images/icons/icon-delete.png); }
-.nodes a.icon-unpublish { 	background-image:url(images/icons/icon-unpublish.png); }
-.nodes a.icon-publish { 		background-image:url(images/icons/icon-publish.png); }
-.nodes a.icon-add { 		background-image:url(images/icons/icon-add.png); }
-.nodes a.icon-feed { 		background-image:url(images/icons/icon-feed.png); }
-.nodes a.icon-validate { 	background-image:url(images/icons/icon-validate.gif); }
-.nodes a.icon-search { 		background-image:url(images/icons/icon-search.png); }
-.nodes a.icon-clone { 		background-image:url(images/icons/icon-clone.png); }
-.nodes a.icon-link { 		background-image:url(images/icons/icon-link.png); }
-.nodes a.icon-zoom { 		background-image:url(images/icons/find.png); }
-.nodes a.icon-raise { 		background-image:url(images/icons/raise.png); }
-.nodes a.icon-sink { 		background-image:url(images/icons/sink.png); }
+.icon-dump { 		background-image:url(images/icons/icon-dump.gif); }
+.icon-edit { 		background-image:url(images/icons/icon-edit.png); }
+.icon-locate { 		background-image:url(images/icons/icon-www.png); }
+.icon-download { 	background-image:url(images/icons/icon-download.png); }
+.icon-updates { 	background-image:url(images/icons/icon-updates.png); }
+.icon-sudo { 		background-image:url(images/icons/icon-sudo.gif); }
+.icon-delete { 		background-image:url(images/icons/icon-delete.png); }
+.icon-unpublish { 	background-image:url(images/icons/icon-unpublish.png); }
+.icon-publish { 		background-image:url(images/icons/icon-publish.png); }
+.icon-add { 		background-image:url(images/icons/icon-add.png); }
+.icon-feed { 		background-image:url(images/icons/icon-feed.png); }
+.icon-validate { 	background-image:url(images/icons/icon-validate.gif); }
+.icon-search { 		background-image:url(images/icons/icon-search.png); }
+.icon-clone { 		background-image:url(images/icons/icon-clone.png); }
+.icon-link { 		background-image:url(images/icons/icon-link.png); }
+.icon-zoom { 		background-image:url(images/icons/find.png); }
+.icon-raise { 		background-image:url(images/icons/raise.png); }
+.icon-sink { 		background-image:url(images/icons/sink.png); }

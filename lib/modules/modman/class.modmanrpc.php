@@ -192,4 +192,19 @@ class ModManRPC extends RPCHandler
 
     zip_close($f);
   }
+
+  /**
+   * Возвращает информацию о наличиях обновлений.
+   */
+  public static function on_get_updates(Context $ctx)
+  {
+    $output = '';
+
+    foreach (modman::getupdatedModules() as $name => $info)
+      $output .= html::em('module', array_merge($info, array(
+        'id' => $name,
+        )));
+
+    return new Response(html::em('modules', $output), 'text/xml');
+  }
 }
