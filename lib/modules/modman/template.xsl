@@ -6,7 +6,12 @@
     <h2>Обновление модулей</h2>
     <xsl:choose>
       <xsl:when test="not(module)">
-        <p>Похоже, что для используемых вами модулей обновлений нет.</p>
+        <p>
+          Все обновления установлены.
+          <xsl:if test="$next">
+            <a href="{$next}">Продолжить работу</a>.
+          </xsl:if>
+        </p>
         <form method="post" action="admin/system/modules/reload?destination={$next}">
           <input type="submit" value="Обновить информацию" />
         </form>
