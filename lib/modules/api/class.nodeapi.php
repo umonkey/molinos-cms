@@ -34,6 +34,10 @@ class NodeAPI
     if ($tmp = $ctx->get('author'))
       $filter['uid'] = $tmp;
 
+    foreach (explode(',', $ctx->get('filters')) as $f)
+      if (!empty($f))
+        $filter[$f] = $ctx->get('filetype');
+
     $attrs = array(
       'limit' => $filter['#limit'],
       'skip' => $filter['#offset'],
