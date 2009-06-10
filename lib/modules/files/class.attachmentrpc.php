@@ -143,7 +143,7 @@ class AttachmentRPC extends RPCHandler
 
     foreach ($ctx->post('files') as $url) {
       if (!empty($url)) {
-        $head = http::head($url);
+        $head = http::head(str_replace(' ', '+', $url));
 
         if ($head['_status'] == 200) {
           $file = array(
