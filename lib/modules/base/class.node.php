@@ -1238,11 +1238,18 @@ class Node
   {
     $xml = '';
 
-    if ($this->data['id']) {
+    if ($this->data['id'] and $this->data['left'] and $this->data['right']) {
+      mcms::flog("node[{$this->id}]: rebuilding XML tree");
+
       $mod = $published ? ' AND `published` = 1' : '';
-      $children = $this->getDB()->getResultsV("id", "SELECT `id` FROM `node` WHERE `parent_id` = ? AND `deleted` = 0{$mod} ORDER BY `left`", array($this->data['id']));
-      foreach ((array)$children as $nid)
-        $xml .= Node::load($nid, $this->getDB())->getTreeXML($published);
+      $children = $this->getDB()->getResultsKV("id", "xmltree", "SELECT `id`, `xmltree` FROM `node` WHERE `parent_id` = ? AND `deleted` = 0{$mod} ORDER BY `left`", array($this->data['id']));
+
+      foreach ((array)$children as $nid => $xmltree) {
+        if (null === $xmltree)
+          $xmltree = Node::load($nid, $this->getDB())->getTreeXML($published);
+        $xml .= $xmltree;
+      }
+
       $xml = $this->getXML('node', $xml, false);
     }
 
@@ -1288,7 +1295,7 @@ class Node
     $data = array();
 
     if (null !== $this->id and $this->getDB()) {
-      mcms::flog("node[{$this->id}]: rebuilding XML");
+      mcms::flog("node[{$this->id}]: rebuilding XML ({$this->class},{$this->name})");
 
       $data = array(
         'id' => $this->id,

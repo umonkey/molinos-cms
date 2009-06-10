@@ -108,6 +108,9 @@ class TreeAPI
   public static function on_node_change(Context $ctx, Node $node, $op)
   {
     if ($parents = Node::getNodeParentIds($node->getDB(), $node->id)) {
+      $params = array();
+      $node->getDB()->exec($sql = "UPDATE `node` SET `xmltree` = NULL WHERE `id` " . sql::in($parents, $params));
+
       $upd = $node->getDB()->prepare("UPDATE `node` SET `xmltree` = ? WHERE `id` = ?");
       foreach ($parents as $id)
         $upd->execute(array(Node::load($id, $node->getDB())->getTreeXML(false), $id));
