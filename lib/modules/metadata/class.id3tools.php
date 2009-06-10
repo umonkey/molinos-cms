@@ -7,7 +7,7 @@ class ID3Tools
    */
   public static function on_node_update(Context $ctx, Node &$node, $op)
   {
-    if ('file' != $node->class)
+    if ('file' != $node->class or empty($node->filepath))
       return;
 
     require_once dirname(__FILE__) .'/getid3/getid3.php';
