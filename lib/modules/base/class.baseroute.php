@@ -50,10 +50,12 @@ class BaseRoute
         if (!empty($block['result']))
           $content .= $block['result'];
     } catch (UserErrorException $e) {
+      Logger::trace($e);
       $page['status'] = $e->getCode();
       $page['error'] = get_class($e);
       $page['title'] = $e->getMessage();
     } catch (Exception $e) {
+      Logger::trace($e);
       $page['status'] = 500;
       $page['error'] = get_class($e);
       $page['title'] = $e->getMessage();

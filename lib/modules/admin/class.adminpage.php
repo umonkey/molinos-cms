@@ -98,6 +98,7 @@ class AdminPage
     }
 
     catch (NotConnectedException $e) {
+      Logger::trace($e);
       if (is_dir(os::path('lib', 'modules', 'install')))
         $ctx->redirect('install?destination=' . urlencode($_SERVER['REQUEST_URI']));
       else
@@ -105,6 +106,7 @@ class AdminPage
     }
 
     catch (Exception $e) {
+      Logger::trace($e);
       $data = array(
         'status' => 500,
         'error' => get_class($e),
