@@ -346,7 +346,7 @@
   <xsl:template match="typechooser">
     <h2>Документ какого типа вы хотите создать?</h2>
     <dl>
-      <xsl:for-each select="type[not(isdictionary)]">
+      <xsl:for-each select="document(concat($api,'forms/create/types.xml'))/nodes/node[not(isdictionary)]">
         <xsl:sort select="title" />
         <dt>
           <a href="?q=admin/create/{@name}?destination={../@destination}">

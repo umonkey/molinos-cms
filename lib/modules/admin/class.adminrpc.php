@@ -215,30 +215,9 @@ class AdminRPC extends RPCHandler
 
   public static function on_get_create_list(Context $ctx)
   {
-    $types = Node::find(array(
-      'class' => 'type',
-      'name' => $ctx->user->getAccess('c'),
-      '-name' => $ctx->user->getAnonymous()->getAccess('c'),
-      'published' => 1,
-      ), $ctx->db);
-
-    $output = '';
-    $names = array();
-
-    foreach ($types as $type) {
-      $output .= $type->getXML('type');
-      $names[] = $type->name;
-    }
-
-    if (1 == count($names)) {
-      $ctx->redirect("admin/create/{$names[0]}?destination="
-        . urlencode($ctx->get('destination')));
-    }
-
     $output = html::em('typechooser', array(
       'destination' => urlencode($ctx->get('destination')),
-      ), $output);
-
+      ));
     return html::em('content', array(
       'name' => 'create',
       ), $output);
