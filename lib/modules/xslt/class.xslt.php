@@ -49,7 +49,7 @@ class xslt
 
       restore_error_handler();
 
-      if ($output = $proc->transformToXML($doc))
+      if ($output = str_replace(' xmlns=""', '', $proc->transformToXML($doc)))
         $cache->$ckey = $output;
     }
 
