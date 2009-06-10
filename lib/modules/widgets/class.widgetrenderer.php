@@ -165,16 +165,19 @@ class WidgetRenderer
     if (empty($param))
       return true;
 
-    $xml = Node::findXML(array(
-      'id' => $param,
-      'published' => 1,
-      'deleted' => 0,
-      'class' => $ctx->user->getAccess('r'),
-      ), $ctx->db);
+    $data = $ctx->db->fetch("SELECT `id`, `published`, `deleted`, `class`, `xml` FROM `node` WHERE `id` = ?", array($param));
 
-    if (!empty($xml))
-      return true;
+    if (empty($data))
+      throw new PageNotFoundException();
+    elseif (empty($data['xml']))
+      throw new PageNotFoundException(t('Этот документ не может быть отображён.'));
+    elseif (empty($data['published']))
+      throw new ForbiddenException(t('Этот документ не опубликован.'));
+    elseif (!empty($data['deleted']))
+      throw new ForbiddenException(t('Такого документа больше нет.'));
+    elseif (!$ctx->user->hasAccess('r', $data['class']))
+      throw new ForbiddenException(t('У вас нет доступа к этому объекту.'));
 
-    return false;
+    return true;
   }
 }
