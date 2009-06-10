@@ -37,6 +37,7 @@
       <xsl:when test="contains($mimetype, 'application/vnd.openxmlformats-officedocument.spreadsheet')">spreadsheet</xsl:when>
       <xsl:when test="contains($mimetype, 'application/x-deb')">package</xsl:when>
       <xsl:when test="contains($mimetype, 'application/x-rar')">package</xsl:when>
+      <xsl:when test="contains($mimetype, 'application/rar')">package</xsl:when>
       <xsl:when test="contains($mimetype, 'application/x-tar')">package</xsl:when>
       <xsl:when test="contains($mimetype, 'application/zip')">package</xsl:when>
       <xsl:otherwise>binary</xsl:otherwise>
