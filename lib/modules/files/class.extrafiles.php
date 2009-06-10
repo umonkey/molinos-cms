@@ -68,4 +68,19 @@ class ExtraFiles
       'id' => $node->getDB()->getResultsV("nid", "SELECT `nid` FROM `node__rel` WHERE `tid` = ? AND `key` IS NULL", array($node->id)),
       ), $node->getDB()));
   }
+
+  /**
+   * Открепление файлов от ноды.
+   */
+  public static function on_post_detach(Context $ctx)
+  {
+    if (is_array($ids = $ctx->post('remove'))) {
+      $ctx->db->beginTransaction();
+      $params = array();
+      Node::load($ctx->get('id'), $ctx->db)->touch('u')->onSave('DELETE FROM `node__rel` WHERE `tid` = %ID% AND `key` IS NULL AND `nid` ' . sql::in($ids, $params), $params)->save();
+      $ctx->db->commit();
+    }
+
+    return $ctx->getRedirect();
+  }
 }

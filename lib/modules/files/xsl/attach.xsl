@@ -15,41 +15,43 @@
   </xsl:template>
 
   <xsl:template match="files[node]">
-    <table class="classic" id="extrafiles">
-      <thead>
-        <tr>
-          <th/>
-          <th>Имя файла</th>
-          <th>Тип</th>
-          <th>Объём</th>
-        </tr>
-      </thead>
-      <xsl:for-each select="node">
-        <tr>
-          <td>
-            <input type="checkbox" name="selected[]" value="{@id}" />
-          </td>
-          <td class="tn">
-            <a href="admin/node/{@id}?destination={$back}">
-              <xsl:apply-templates select="." mode="thumbnail">
-                <xsl:with-param name="size">16</xsl:with-param>
-              </xsl:apply-templates>
-              <span>
-                <xsl:value-of select="@name" />
-              </span>
-            </a>
-          </td>
-          <td>
-            <xsl:value-of select="filetype" />
-          </td>
-          <td class="r">
-            <xsl:call-template name="filesize">
-              <xsl:with-param name="size" select="filesize" />
-            </xsl:call-template>
-          </td>
-        </tr>
-      </xsl:for-each>
-    </table>
-    <input type="submit" value="Открепить выделенные" /> или <a href="admin/content/files?sendto={../node/@id}&amp;destination={$back}">добавить ещё файлов</a> или <a href="{$next}">вернуться</a>
+    <form method="post">
+      <table class="classic" id="extrafiles">
+        <thead>
+          <tr>
+            <th/>
+            <th>Имя файла</th>
+            <th>Тип</th>
+            <th>Объём</th>
+          </tr>
+        </thead>
+        <xsl:for-each select="node">
+          <tr>
+            <td>
+              <input type="checkbox" name="remove[]" value="{@id}" />
+            </td>
+            <td class="tn">
+              <a href="admin/node/{@id}?destination={$back}">
+                <xsl:apply-templates select="." mode="thumbnail">
+                  <xsl:with-param name="size">16</xsl:with-param>
+                </xsl:apply-templates>
+                <span>
+                  <xsl:value-of select="@name" />
+                </span>
+              </a>
+            </td>
+            <td>
+              <xsl:value-of select="filetype" />
+            </td>
+            <td class="r">
+              <xsl:call-template name="filesize">
+                <xsl:with-param name="size" select="filesize" />
+              </xsl:call-template>
+            </td>
+          </tr>
+        </xsl:for-each>
+      </table>
+      <input type="submit" value="Открепить выделенные" /> или <a href="admin/content/files?sendto={../node/@id}&amp;destination={$back}">добавить ещё файлов</a> или <a href="{$next}">вернуться</a>
+    </form>
   </xsl:template>
 </xsl:stylesheet>
