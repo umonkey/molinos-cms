@@ -240,6 +240,11 @@ class User
   public function getAnonymous()
   {
     $user = new User($this->ctx);
+    $user->node = Node::create(array(
+      'class' => 'user',
+      ));
+    $user->groups = array(0);
+
     $user->load = false;
     return $user;
   }
