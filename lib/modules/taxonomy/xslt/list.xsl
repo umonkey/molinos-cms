@@ -4,6 +4,9 @@
 
   <xsl:template match="data[../@name='list' and ../@preset='taxonomy']" mode="nodelist">
     <ul class="taxonomy nodes">
+      <!--
+      <xsl:apply-templates select="document(concat($api,'node/tree.xml?type=tag'))/node" mode="tagtree" />
+      -->
       <xsl:apply-templates select="node" mode="tagtree" />
     </ul>
   </xsl:template>
