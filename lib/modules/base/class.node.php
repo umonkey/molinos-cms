@@ -228,17 +228,24 @@ class Node
    */
   public function getParents()
   {
+    return self::find(array(
+      'deleted' => 0,
+      'id' => self::getNodeParentIds($this->getDB(), $this->data['id']),
+      '#sort' => 'left',
+      ), $this->getDB());
+  }
+
+  /**
+   * Возвращает идентификаторы родителей указанной ноды.
+   */
+  public static function getNodeParentIds(PDO_Singleton $db, $id)
+  {
     $sql = "SELECT `parent`.`id` as `id` "
       ."FROM `node` AS `self`, `node` AS `parent` "
       ."WHERE `self`.`left` BETWEEN `parent`.`left` "
       ."AND `parent`.`right` AND `self`.`id` = ? "
       ."ORDER BY `parent`.`left`";
-
-    return self::find(array(
-      'deleted' => 0,
-      'id' => (array)$this->getDB()->getResultsV("id", $sql, array($this->data['id'])),
-      '#sort' => 'left',
-      ), $this->getDB());
+    return $db->getResultsV("id", $sql, array($id));
   }
 
   /**
