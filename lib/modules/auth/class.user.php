@@ -69,7 +69,7 @@ class User
   private function loadAccess()
   {
     if (null === $this->access)
-      $this->access = Structure::getInstance()->getGroupAccess(array_keys($this->getGroups()));
+      $this->access = Structure::getInstance()->getGroupAccess($this->getGroups());
 
     return $this->access;
   }
@@ -123,7 +123,20 @@ class User
 
     $this->node = $node;
 
-    mcms::session('uid', $node->id);
+    self::storeSessionData($node->id);
+  }
+
+  /**
+   * Сохраняет информацию о пользователе в сессии.
+   */
+  public static function storeSessionData($userid)
+  {
+    $groups = $userid
+      ? Context::last()->db->getResultsV("id", "SELECT `id`, `name` FROM `node` WHERE `deleted` = 0 AND `published` = 1 AND `class` = 'group' AND `id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ?)", array($userid))
+      : null;
+    mcms::session('uid', $userid);
+    mcms::session('groups', $groups);
+    mcms::session()->save();
   }
 
   /**
@@ -131,7 +144,7 @@ class User
    */
   public function logout()
   {
-    mcms::session('uid', null);
+    self::storeSessionData(null);
     $this->reset();
   }
 
@@ -143,9 +156,7 @@ class User
   {
     switch ($key) {
     case 'id':
-      if (null === ($node = $this->getNode()))
-        return null;
-      return $node->id;
+      return mcms::session('uid');
     default:
       throw new InvalidArgumentException(t('У класса %class нет свойства %property.', array(
         '%class' => __CLASS__,
@@ -181,8 +192,8 @@ class User
   public function getGroups()
   {
     if (null === $this->groups) {
-      $this->groups = (array)$this->ctx->db->getResultsKV("id", "name", "SELECT `id`, `name` FROM `node` WHERE `deleted` = 0 AND `published` = 1 AND `class` = 'group' AND `id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ?)", array($this->id));
-      $this->groups[0] = t('Посетители');
+      $this->groups = (array)mcms::session('groups');
+      $this->groups[] = 0;
     }
 
     return $this->groups;
@@ -193,7 +204,7 @@ class User
    */
   public function getGroupKeys()
   {
-    $list = array_keys($this->getGroups());
+    $list = $this->getGroups();
     asort($list);
     return implode(',', $list);
   }
@@ -206,7 +217,9 @@ class User
    */
   public function hasGroups(array $ids)
   {
-    $i = array_intersect(array_keys($this->getGroups()), $ids);
+    $i = array_intersect($this->getGroups(), $ids);
+
+    mcms::debug($ids, $this->getGroups(), $i);
 
     return !empty($i);
   }
@@ -216,7 +229,7 @@ class User
    */
   public function getPermittedSections()
   {
-    $uids = join(", ", array_keys($this->getGroups()));
+    $uids = join(", ", $this->getGroups());
     $list = $this->ctx->db->getResultsV("nid", "SELECT nid FROM node__access WHERE uid IN ({$uids}) AND c = 1 AND nid IN (SELECT id FROM node WHERE class = 'tag' AND deleted = 0)");
     return $list;
   }

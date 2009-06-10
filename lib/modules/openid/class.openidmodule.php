@@ -36,8 +36,7 @@ class OpenIdModule extends RPCHandler
     try {
       $ctx->db->beginTransaction();
       $node = self::openIDAuthorize($openidinfo['mode'], $ctx);
-      mcms::session('uid', $node->id);
-      mcms::session()->save();
+      User::storeSessionData($node->id);
       $ctx->db->commit();
 
       $ctx->redirect($ctx->get('destination', ''));
