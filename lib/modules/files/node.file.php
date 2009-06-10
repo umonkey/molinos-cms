@@ -776,7 +776,7 @@ class FileNode extends Node implements iContentType
     $extra = '';
 
     $tmp = '';
-    foreach ($this->metadata as $k => $v)
+    foreach ((array)$this->metadata as $k => $v)
       if (!empty($v))
         $tmp .= html::em($k, html::cdata($v));
     $extra = html::wrap('metadata', $tmp);
