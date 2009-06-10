@@ -177,4 +177,29 @@ class NodeLinkControl extends Control
         ), html::plain($v));
     return $options;
   }
+
+  /**
+   * Возвращает имя связанного объекта для предварительного просмотра.
+   */
+  public function preview($value)
+  {
+    if ($value = $value->{$this->value}) {
+      $html = html::em('a', array(
+        'href' => 'admin/node/' . $value->id
+          . '?destination=CURRENT',
+        ), html::plain($value->getName()));
+      return html::em('value', array(
+        'html' => true,
+        ), html::cdata($html));
+    }
+  }
+
+  /**
+   * Вставляет ноду в родительский объект.
+   */
+  public function format($value, $em)
+  {
+    if ($value)
+      return $value->getXML($em);
+  }
 };
