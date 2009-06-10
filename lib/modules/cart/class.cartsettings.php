@@ -95,6 +95,19 @@ class CartSettings
         'type' => 'NumberControl',
         'label' => t('Стоимость доставки'),
         ),
+      'invoice_template' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Шаблон для счетов заказчикам'),
+        'description' => t('Относительный путь к XSLT файлу.'),
+        'group' => t('Шаблоны'),
+        'weight' => 100,
+        ),
+      'notification_template' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Шаблон для уведомлений администраторам'),
+        'group' => t('Шаблоны'),
+        'weight' => 101,
+        ),
       ));
   }
 }

@@ -33,15 +33,14 @@ class OrderNode extends Node implements iContentType
       return;
     }
 
-    $result = $this->render(null, null, array(
-      'mode' => $mode,
-      'content' => $this->orderdetails,
-      'details' => $this->data,
-      ));
+    if (!($xslt = Context::last()->config->get("modules/cart/{$mode}_templates"))) {
+      mcms::flog($mode . ' not sent: XSLT file not set');
+      return;
+    }
 
-    if (!empty($result)) {
+    if ($html = xslt::process($this->getXML(), $xslt)) {
       $subject = t('Заказ на %host', array('%host' => $_SERVER['HTTP_HOST']));
-      BebopMimeMail::send(null, $to, $subject, $result);
+      BebopMimeMail::send(null, $to, $subject, $html);
     }
   }
 
@@ -61,5 +60,21 @@ class OrderNode extends Node implements iContentType
     return $this->id
       ? t('Информация о заказе от %email', array('%email' => $this->email))
       : t('Добавление нового заказа');
+  }
+
+  /**
+   * Добавляет содержимое заказа в XML.
+   */
+  public function getExtraXMLContent()
+  {
+    $result = '';
+
+    foreach ((array)$this->orderdetails as $k => $v)
+      $result .= html::em('product', array(
+        'id' => $k,
+        'qty' => $v,
+        ));
+
+    return html::wrap('orderdetails', $result);
   }
 }
