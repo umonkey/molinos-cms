@@ -782,6 +782,7 @@ class FileNode extends Node implements iContentType
     $extra = html::wrap('metadata', $tmp);
 
     $extra .= html::wrap('versions', $this->getVersionsXML());
+    $extra .= html::wrap('download-url', $this->getRealURL());
 
     return $extra;
   }
