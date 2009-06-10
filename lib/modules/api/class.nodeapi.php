@@ -4,11 +4,11 @@ class NodeAPI
 {
   public static function get_xml(Context $ctx, $path, array $pathinfo)
   {
-    $data = $ctx->db->fetch('SELECT `xml` FROM `node` WHERE `id` = ? AND `deleted` = 0 AND `published` = 1', array($ctx->get('id')));
+    $data = $ctx->db->fetch('SELECT `id`, `class`, `xml` FROM `node` WHERE `id` = ? AND `deleted` = 0 AND `published` = 1', array($ctx->get('id')));
     if (empty($data))
       throw new PageNotFoundException();
-
-    return new Response('<?xml version="1.0"?>' . $data, 'text/xml');
+    $ctx->user->checkAccess('r', $data['class']);
+    return new Response('<?xml version="1.0"?>' . $data['xml'], 'text/xml');
   }
 
   public static function get_parents_xml(Context $ctx)
