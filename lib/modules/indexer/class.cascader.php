@@ -33,13 +33,11 @@ class Cascader
   private static function update_node_xml(Node $node)
   {
     if ($ids = self::get_ids($node)) {
-      // $node->getDB()->beginTransaction();
       $upd = $node->getDB()->prepare("UPDATE `node` SET `xml` = ? WHERE `id` = ?");
       foreach ($ids as $id) {
         $upd->execute(array(Node::load($id, $node->getDB())->getXML(), $id));
         mcms::flog("node[{$id}]: XML updated");
       }
-      // $node->getDB()->commit();
     }
   }
 
@@ -47,13 +45,10 @@ class Cascader
   {
     $ids = array($node->id);
 
-    if ($node instanceof TypeNode)
-      $ids = array_merge($ids, $node->getDB()->getResultsV("id", "SELECT `id` FROM `node` WHERE `deleted` = 0 AND `class` = ?", array($node->name)));
-
     while (true) {
       $params = array();
       $sql = "SELECT DISTINCT `id` FROM `node` WHERE `deleted` = 0 AND `id` IN "
-        . "(SELECT `tid` FROM `node__rel` WHERE `nid` " . sql::in($ids, $params) . " AND `key` IS NOT NULL)"
+        . "(SELECT `tid` FROM `node__rel` WHERE `nid` " . sql::in($ids, $params) . ")"
         . " AND `id` " . sql::notIn($ids, $params);
       $rows = $node->getDB()->getResultsV("id", $sql, $params);
       if (empty($rows))
