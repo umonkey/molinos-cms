@@ -219,8 +219,6 @@ class User
   {
     $i = array_intersect($this->getGroups(), $ids);
 
-    mcms::debug($ids, $this->getGroups(), $i);
-
     return !empty($i);
   }
 
