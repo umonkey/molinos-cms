@@ -27,8 +27,6 @@ class WidgetRenderer
 
     $params = self::getWidgetParams($ctx, $pathinfo, $param);
 
-    $ctx->registry->broadcast('ru.molinos.cms.hook.request.before', array($ctx));
-
     $content = html::wrap('request', self::getWidgetParamsXML($params) . $ctx->url()->getArgsXML());
 
     if (!empty($pathinfo['widgets'])) {

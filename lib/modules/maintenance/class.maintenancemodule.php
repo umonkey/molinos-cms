@@ -21,7 +21,7 @@ class MaintenanceModule
   }
 
   /**
-   * @mcms_message ru.molinos.cms.hook.request.before
+   * @mcms_message ru.molinos.cms.page.content
    */
   public static function hookRequest(Context $ctx)
   {
