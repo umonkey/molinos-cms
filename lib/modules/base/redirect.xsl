@@ -6,7 +6,7 @@
 
     <html>
       <head>
-        <meta http-equiv="refresh" content="0; {$href}" />
+        <meta http-equiv="refresh" content="0;URL={$href}" />
       </head>
       <body>
         <h1>Перенаправление</h1>
