@@ -47,19 +47,27 @@ class Registry
     return $this;
   }
 
-  public function poll($method, array $args = array())
+  /**
+   * Отправляет сообщение всем подписчикам, возвращает массив с результатами.
+   */
+  public function poll($method, array $args = array(), $safe = false)
   {
     $result = array();
 
     if (array_key_exists($method, $this->reg))
       foreach ($this->reg[$method] as $handler) {
         if (is_callable($handler)) {
-          $parts = explode('::', $handler);
-          $result[] = array(
-            'class' => $parts[0],
-            'method' => $parts[1],
-            'result' => call_user_func_array($handler, $args),
-            );
+          try {
+            $parts = explode('::', $handler);
+            $result[] = array(
+              'class' => $parts[0],
+              'method' => $parts[1],
+              'result' => call_user_func_array($handler, $args),
+              );
+          } catch (Exception $e) {
+            if (!$safe)
+              throw $e;
+          }
         }
       }
 
