@@ -38,6 +38,7 @@ class Cart
   {
     $result = array();
 
+    $sumqty = 0;
     if (count($cart = $this->getItems())) {
       $sum = $sumqty = 0;
       $ids = array_keys($cart);
@@ -109,7 +110,7 @@ class Cart
       }
     }
 
-    if ($discounter = $ctx->config->cart_discounter) {
+    if ($discounter = Context::last()->config->get('modules/cart/discounter')) {
       if (class_exists($discounter)) {
         $d = new $discounter();
         $d->process($result);
@@ -151,9 +152,11 @@ class Cart
   {
     $result = '';
 
+    /*
     if (is_array($tmp = $this->ctx->config->cart)) {
       mcms::debug($tmp);
     }
+    */
 
     return html::wrap('config', $result);
   }
