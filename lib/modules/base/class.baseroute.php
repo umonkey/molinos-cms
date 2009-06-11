@@ -61,12 +61,9 @@ class BaseRoute
       $page['title'] = $e->getMessage();
     }
 
-    try {
-      foreach ((array)$ctx->registry->poll('ru.molinos.cms.page.head', array($ctx, $handler, $param)) as $block)
-        if (!empty($block['result']))
-          $content .= $block['result'];
-    } catch (Exception $e) {
-    }
+    foreach ((array)$ctx->registry->poll('ru.molinos.cms.page.head', array($ctx, $handler, $param), true) as $block)
+      if (!empty($block['result']))
+        $content .= $block['result'];
 
     if (defined('MCMS_START_TIME'))
       $page['time'] = microtime(true) - MCMS_START_TIME;
