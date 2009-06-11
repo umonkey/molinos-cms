@@ -45,7 +45,6 @@ try {
     '*.php',
     'doc',
     os::path('lib', 'modules', 'admin'),
-    os::path('lib', 'modules', 'attachment'),
     os::path('lib', 'modules', 'api'),
     os::path('lib', 'modules', 'auth'),
     os::path('lib', 'modules', 'authbasic'),
