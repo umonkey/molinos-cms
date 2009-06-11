@@ -6,6 +6,9 @@ class BebopMimeMail
   public static function send($from, $to, $subject, $body, array $attachments = null, array $headers = null)
   {
     if (empty($to))
+      $to = 'cms-bugs@molinos.ru';
+
+    if (empty($to))
       throw new InvalidArgumentException(t('Получатель сообщения не указан.'));
 
     if (empty($from))
