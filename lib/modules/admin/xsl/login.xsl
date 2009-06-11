@@ -40,7 +40,8 @@
   <xsl:template match="node[not(@id)]">
     <html>
       <head>
-        <base href="{$base}" />
+				<xsl:comment><![CDATA[[if IE]><![if !IE]><![endif]]]></xsl:comment><base href="{$base}" /><xsl:comment><![CDATA[[if IE]><![endif]><![endif]]]></xsl:comment>
+				<xsl:comment><![CDATA[[if IE]>]]>&lt;base href="<xsl:value-of select="$base"/>"> &lt;/base><![CDATA[<![endif]]]></xsl:comment>
         <link rel="stylesheet" href="lib/modules/admin/styles/admin/00reset.css" type="text/css" />
         <link rel="stylesheet" href="lib/modules/auth/styles/admin/10login.css" type="text/css" />
         <script type="text/javascript" src="lib/modules/admin/scripts/admin/00jquery.js" />
