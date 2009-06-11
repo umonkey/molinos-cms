@@ -193,8 +193,10 @@ class Registry
    */
   public static function on_shutdown()
   {
-    if (null !== ($e = error_get_last()) and $e['type'] & (E_ERROR|E_RECOVERABLE_ERROR))
-      self::send_error("shutdown[{$e['type']}]");
+    if (null !== ($e = error_get_last()) and $e['type'] & (E_ERROR|E_RECOVERABLE_ERROR)) {
+      self::send_error("shutdown[{$e['type']}]: {$e['message']}",
+        sprintf("File:    %s\nLine:    %u\n\n", os::localpath($e['file']), $e['line']));
+    }
   }
 
   /**
@@ -209,13 +211,13 @@ class Registry
   /**
    * Отправляет сообщение об ошибке куда следует.
    */
-  private static function send_error($message = "undefined")
+  private static function send_error($message = "undefined", $extra = null)
   {
     Logger::trace($message);
 
     $subject = "Error at " . $_SERVER['HTTP_HOST'];
     $content = "<pre>Message: {$message}\nMethod:  {$_SERVER['REQUEST_METHOD']}\n"
-      . "URL:     http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}\n\n"
+      . "URL:     http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}\n{$extra}\n"
       . "Backtrace follows.\n\n" . Logger::backtrace() . '</pre>';
 
     BebopMimeMail::send(null, Context::last()->config->get('main/errors/mail'), $subject, $content);
