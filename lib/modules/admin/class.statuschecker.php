@@ -9,9 +9,6 @@ class StatusChecker
   {
     $parts = array();
 
-    if ($message = self::getBrokenTrees($ctx))
-      $parts[] = $message;
-
     if (null !== ($message = self::checkAccessRights($ctx)))
       $parts[] = $message;
 
@@ -81,33 +78,6 @@ class StatusChecker
     }
 
     return join(', ', $parts);
-  }
-
-  private static function getBrokenTrees(Context $ctx)
-  {
-    if (!self::checkBrokenTrees($ctx))
-      return null;
-
-    $fixxxer = new TreeBuilder();
-    $fixxxer->run($ctx);
-
-    $result = t('Были найдены повреждённые ветки дерева. Всё дерево данных было перестроено.');
-
-    return $result;
-  }
-
-  private static function checkBrokenTrees(Context $ctx)
-  {
-    if ($count = $ctx->db->fetch("SELECT COUNT(*) FROM `node` `n` WHERE `n`.`deleted` = 0 AND `n`.`left` >= `n`.`right`"))
-      return true;
-
-    if ($ctx->db->fetch("SELECT COUNT(*) AS `c` FROM `node` GROUP BY `left` HAVING `c` > 1"))
-      return true;
-
-    if ($ctx->db->fetch("SELECT COUNT(*) AS `c` FROM `node` GROUP BY `right` HAVING `c` > 1"))
-      return true;
-
-    return false;
   }
 
   private static function count(Context $ctx, array &$parts, $query, $text, $link = null)
