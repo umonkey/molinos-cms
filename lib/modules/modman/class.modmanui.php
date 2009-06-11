@@ -2,9 +2,6 @@
 
 class ModManUI
 {
-  /**
-   * @mcms_message ru.molinos.cms.admin.ui.modman
-   */
   public static function onGet(Context $ctx)
   {
     $method = 'aui_' . $ctx->get('mode', 'settings');
