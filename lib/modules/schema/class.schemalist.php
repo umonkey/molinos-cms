@@ -18,7 +18,7 @@ class SchemaList extends AdminListhandler
       'class' => 'type',
       'deleted' => 0,
       '#sort' => '-published name',
-      ), $ctx->db);
+      ), Context::last()->db);
 
     $counts = $this->ctx->db->getResultsKV("name", "count", "SELECT `class` AS `name`, COUNT(*) AS `count` FROM `node` WHERE `deleted` = 0 GROUP BY `class`");
 

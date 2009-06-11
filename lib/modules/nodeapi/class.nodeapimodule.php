@@ -329,7 +329,7 @@ class NodeApiModule extends RPCHandler
   public static function on_post_sendto(Context $ctx)
   {
     if ($pick = $ctx->post('selected')) {
-      if (false === strpos($ctx->post('sendto')))
+      if (false === strpos($ctx->post('sendto'), '.'))
         list($nid, $fieldName) = array($ctx->post('sendto'), null);
       else
         list($nid, $fieldName) = explode('.', $ctx->post('sendto'));
