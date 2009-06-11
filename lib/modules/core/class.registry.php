@@ -202,7 +202,8 @@ class Registry
    */
   public function on_error($errno, $errstr, $errfile, $errline, array $context)
   {
-    self::send_error("error[{$errno}]: {$errstr}");
+    if (error_reporting())
+      self::send_error("error[{$errno}]: {$errstr}");
   }
 
   /**
