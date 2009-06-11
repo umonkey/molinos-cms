@@ -24,31 +24,27 @@ class Request
 
     $query = $ctx->query();
 
-    try {
-      if (null === ($router = $this->getRequestRouter($query)))
-        throw new RuntimeException(t('Не удалось найти обработчик запроса: %query.', array(
-          '%query' => $query,
-          )));
+    if (null === ($router = $this->getRequestRouter($query)))
+      throw new RuntimeException(t('Не удалось найти обработчик запроса: %query.', array(
+        '%query' => $query,
+        )));
 
-      if (!($router instanceof iRequestRouter))
-        throw new RuntimeException(t('Класс %class не является маршрутизатором запросов.', array(
-          '%class' => get_class($router),
-          )));
+    if (!($router instanceof iRequestRouter))
+      throw new RuntimeException(t('Класс %class не является маршрутизатором запросов.', array(
+        '%class' => get_class($router),
+        )));
 
-      ob_start();
+    ob_start();
 
-      if (!(($response = $router->route($ctx))) instanceof Response)
-        throw new RuntimeException(t('%class::route() вернул %type, а не объект класса Response.', array(
-          '%type' => is_object($response)
-            ? get_class($response)
-            : gettype($response),
-          '%class' => get_class($router),
-          )));
+    if (!(($response = $router->route($ctx))) instanceof Response)
+      throw new RuntimeException(t('%class::route() вернул %type, а не объект класса Response.', array(
+        '%type' => is_object($response)
+          ? get_class($response)
+          : gettype($response),
+        '%class' => get_class($router),
+        )));
 
-      ob_end_clean();
-    } catch (Exception $e) {
-      mcms::fatal($e);
-    }
+    ob_end_clean();
 
     return $response;
   }

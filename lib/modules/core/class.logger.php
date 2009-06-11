@@ -44,4 +44,59 @@ class Logger
 
     error_log(" -- {$_SERVER['REQUEST_URI']}", 0);
   }
+
+  /**
+   * Форматирует содержимое стэка.
+   */
+  public static function backtrace($stack = null)
+  {
+    $output = '';
+
+    if ($stack instanceof Exception) {
+      $tmp = $stack->getTrace();
+      array_unshift($tmp, array(
+        'file' => $stack->getFile(),
+        'line' => $stack->getLine(),
+        'function' => sprintf('throw new %s', get_class($stack)),
+        ));
+      $stack = $tmp;
+    } elseif (null === $stack or !is_array($stack)) {
+      $stack = debug_backtrace();
+      array_shift($stack);
+    }
+
+    $libdir = 'lib'. DIRECTORY_SEPARATOR .'modules'. DIRECTORY_SEPARATOR;
+
+    $idx = 1;
+    foreach ($stack as $k => $v) {
+      /*
+      if (!empty($v['file']))
+        $v['file'] = preg_replace('@.*'. preg_quote($libdir) .'@', $libdir, $v['file']);
+
+      if (!empty($v['class']))
+        $func = $v['class'] .$v['type']. $v['function'];
+      else
+        $func = $v['function'];
+      */
+
+      if (empty($v['file']))
+        continue;
+
+      $output .= sprintf("%2d. ", $idx++);
+      $output .= mcms::formatStackElement($v);
+
+      /*
+      if (!empty($v['file']) and !empty($v['line']))
+        $output .= sprintf('%s(%d) — ', ltrim(str_replace(MCMS_ROOT, '', $v['file']), '/'), $v['line']);
+      else
+        $output .= '??? — ';
+
+      $output .= $func .'()';
+      */
+
+      $output .= "\n";
+    }
+
+    return $output;
+  }
 }

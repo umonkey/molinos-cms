@@ -92,13 +92,10 @@ class Loader
         die($message);
       }
     } catch (Exception $e) {
-      if (class_exists($e))
-        mcms::fatal($e);
-      else {
-        header('HTTP/1.1 500 FUBAR');
-        header('Content-Type: text/plain; charset=utf-8');
-        die(sprintf('%s: %s.', get_class($e), rtrim($e->getMessage(), '.')));
-      }
+      Logger::trace($e);
+      header('HTTP/1.1 500 FUBAR');
+      header('Content-Type: text/plain; charset=utf-8');
+      die(sprintf('%s: %s.', get_class($e), rtrim($e->getMessage(), '.')));
     }
   }
 }

@@ -176,7 +176,7 @@ class mcms
       if (true /* !empty($_SERVER['REMOTE_ADDR']) */) {
         printf("--- backtrace (request duration: %s) ---\n",
           microtime(true) - MCMS_START_TIME);
-        print mcms::backtrace();
+        print Logger::backtrace();
 
         if (function_exists('memory_get_peak_usage'))
           printf("\n--- memory usage ---\nnow:  %s\npeak: %s\n",
@@ -284,24 +284,6 @@ class mcms
     return html::em('pager', $result, $list);
   }
 
-  public static function fatal()
-  {
-    $args = func_get_args();
-
-    if (!empty($_GET['debug']) and 'fatal' == $_GET['debug'])
-      mcms::debug($args);
-
-    $report = new CrashReport($args);
-    $report->send();
-    $report->show();
-    die();
-  }
-
-  private static function fatalSendReport($message, array $extras, array $backtrace)
-  {
-    mcms::debug($message, $extras, $backtrace);
-  }
-
   private static function writeCrashDump($contents)
   {
     // Узнаем, куда же складывать дампы.
@@ -344,58 +326,6 @@ class mcms
     return MCMS_VERSION;
   }
 
-  public static function backtrace($stack = null)
-  {
-    $output = '';
-
-    if ($stack instanceof Exception) {
-      $tmp = $stack->getTrace();
-      array_unshift($tmp, array(
-        'file' => $stack->getFile(),
-        'line' => $stack->getLine(),
-        'function' => sprintf('throw new %s', get_class($stack)),
-        ));
-      $stack = $tmp;
-    } elseif (null === $stack or !is_array($stack)) {
-      $stack = debug_backtrace();
-      array_shift($stack);
-    }
-
-    $libdir = 'lib'. DIRECTORY_SEPARATOR .'modules'. DIRECTORY_SEPARATOR;
-
-    $idx = 1;
-    foreach ($stack as $k => $v) {
-      /*
-      if (!empty($v['file']))
-        $v['file'] = preg_replace('@.*'. preg_quote($libdir) .'@', $libdir, $v['file']);
-
-      if (!empty($v['class']))
-        $func = $v['class'] .$v['type']. $v['function'];
-      else
-        $func = $v['function'];
-      */
-
-      if (empty($v['file']))
-        continue;
-
-      $output .= sprintf("%2d. ", $idx++);
-      $output .= mcms::formatStackElement($v);
-
-      /*
-      if (!empty($v['file']) and !empty($v['line']))
-        $output .= sprintf('%s(%d) — ', ltrim(str_replace(MCMS_ROOT, '', $v['file']), '/'), $v['line']);
-      else
-        $output .= '??? — ';
-
-      $output .= $func .'()';
-      */
-
-      $output .= "\n";
-    }
-
-    return $output;
-  }
-
   public static function now($time = null)
   {
     if (null === $time)
@@ -417,22 +347,6 @@ class mcms
         $repack[$k] = $v;
 
     $a = $repack;
-  }
-
-  public static function deprecated($break = false)
-  {
-    $frame = array_slice(debug_backtrace(), 1, 1);
-    $frame = array_pop($frame);
-
-    $func = $frame['function'] .'()';
-    $line = ltrim(str_replace(MCMS_ROOT, '', $frame['file']), '/')
-      .'('. $frame['line'] .')';
-
-    mcms::flog($msg = 'deprecated function '
-      .$func .' called from '. $line);
-
-    if ($break)
-      mcms::debug($msg);
   }
 
   public static function path()
@@ -524,35 +438,6 @@ class mcms
     $sig['name'] = 'signature';
 
     return html::em('block', $sig);
-  }
-
-  /**
-   * @mcms_message ru.molinos.cms.start
-   */
-  public static function run(Context $ctx)
-  {
-    try {
-      $ctx->checkEnvironment();
-
-      if (!$ctx->config->isok() and 'install.rpc' != $ctx->query()) {
-        if (class_exists('InstallModule'))
-          $ctx->redirect('?q=install.rpc');
-        else
-          mcms::fatal(t('Система не готова к использованию, и инсталллера нет (модуль install); придётся инсталлировать вручную. Если будете добавлять модуль, не забудьте удалить файл sites/*/.registry.php'));
-      }
-
-      $request = new Request();
-      $response = $request->process($ctx);
-
-      $response->send();
-    }
-
-    catch (Exception $e) {
-      $output = $e->getMessage() . "\n\n" . mcms::backtrace($e);
-      header('Content-Type: text/plain; charset=utf-8');
-      header('Content-Length: ' . strlen($output));
-      die($output);
-    }
   }
 
   public static function matchip($value, $ips)
@@ -745,98 +630,3 @@ class mcms
     return $output;
   }
 };
-
-class CrashReport
-{
-  private $stack;
-  private $message;
-  private $args;
-  private $_send;
-
-  public function __construct(array $args)
-  {
-    $this->_send = true;
-
-    if (null === ($e = array_shift($args)))
-      $this->message = 'Unknown fatal error.';
-
-    elseif ($e instanceof Exception) {
-      $this->message = $e->getMessage();
-      if ($e instanceof UserErrorException) {
-        $this->_send = false;
-        $this->message = 'Ошибка ' . $e->getCode() . ': ' . $this->message;
-      }
-      $this->stack = $e->getTrace();
-      array_unshift($this->stack, array(
-        'file' => $e->getFile(),
-        'line' => $e->getLine(),
-        'function' => 'throw new ' . get_class($e),
-        ));
-    }
-
-    else {
-      $this->message = $e;
-      $this->stack = debug_backtrace();
-      array_shift($this->stack);
-    }
-
-    // Удаляем лишние пути.
-    foreach ($this->stack as $k => $v)
-      if (!empty($v['file']))
-        $this->stack[$k]['file'] = os::localPath($v['file']);
-
-    $this->args = $args;
-  }
-
-  public function show()
-  {
-    $html = '<html><head><title>Fatal Error</title></head>'
-      . '<body>'
-      . '<h1>Fatal Error</h1><p>'. $this->message .'</p>';
-
-    if (null !== $this->stack)
-      $html .= '<h2>Стэк вызова</h2><pre>'. mcms::backtrace($this->stack) .'</pre>';
-
-    $sig = mcms::getSignature();
-    $html .= sprintf('<hr/><em><a href="%s">Molinos CMS v%s</a> at <a href="http://%s/">%s</a> for %s</em>',
-        $sig['version_link'], $sig['version'], $sig['at'], $sig['at'], $sig['client']);
-
-    $html .= '</body></html>';
-
-    if (ob_get_length())
-      ob_end_clean();
-
-    if (!headers_sent()) {
-      header('HTTP/1.1 500 FUBAR');
-      header('Content-Type: text/html; charset=utf-8');
-      header('Content-Length: ' . strlen($html));
-    }
-
-    print $html;
-  }
-
-  public function send()
-  {
-    if (!$this->_send)
-      return;
-
-    $to = mcms::config('main/errors/email', 'cms-bugs@molinos.ru');
-
-    if (class_exists('BebopMimeMail') and !empty($to)) {
-      $output = html::em('p', $this->message);
-
-      $output .= html::em('p', 'HOST: ' . $_SERVER['HTTP_HOST']);
-      $output .= html::em('p', 'METHOD: ' . $_SERVER['REQUEST_METHOD']);
-      $output .= html::em('p', 'URI: ' . MCMS_REQUEST_URI);
-
-      if (!empty($this->stack))
-        $output .= html::em('pre', mcms::backtrace($this->stack));
-
-      if (!empty($_POST))
-        $output .= html::em('pre', html::cdata('$_POST = ' . var_export($_POST, true) . ';'));
-
-      $subject = 'Molinos CMS v' . MCMS_VERSION . ' crashed at ' . $_SERVER['HTTP_HOST'];
-      BebopMimeMail::send(null, $to, $subject, $output);
-    }
-  }
-}

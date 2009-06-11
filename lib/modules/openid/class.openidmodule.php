@@ -125,7 +125,7 @@ class OpenIdModule extends RPCHandler
     // No auth request means we can't begin OpenID.
 
     if (!($auth_request = $consumer->begin($openid))) {
-      mcms::fatal(t('Не удалось соединиться с провайдером OpenID, '
+      throw new RuntimeExteption(t('Не удалось соединиться с провайдером OpenID, '
         .'попробуйте повторить попытку позже.'));
 
       $r = new Redirect('?q=auth.rpc&action=logout');

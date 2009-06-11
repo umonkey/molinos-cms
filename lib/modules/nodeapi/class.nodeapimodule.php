@@ -5,15 +5,11 @@ class NodeApiModule extends RPCHandler
 {
   public static function hookRemoteCall(Context $ctx)
   {
-    try {
-      if ($commit = $ctx->method('post'))
-        $ctx->db->beginTransaction();
-      $next = parent::hookRemoteCall($ctx, __CLASS__);
-      if ($commit)
-        $ctx->db->commit();
-    } catch (Exception $e) {
-      mcms::fatal($e);
-    }
+    if ($commit = $ctx->method('post'))
+      $ctx->db->beginTransaction();
+    $next = parent::hookRemoteCall($ctx, __CLASS__);
+    if ($commit)
+      $ctx->db->commit();
 
     if ($next instanceof Response)
       return $next;
@@ -88,7 +84,7 @@ class NodeApiModule extends RPCHandler
     } else {
       $xml = Node::findXML($filter, $ctx->db);
       if (empty($xml))
-        mcms::fatal(t('Для этого документа нет XML представления (такого быть не должно), см. <a href="@url">сырой вариант</a>.', array(
+        throw new RuntimeExteption(t('Для этого документа нет XML представления (такого быть не должно), см. <a href="@url">сырой вариант</a>.', array(
           '@url' => '?q=node/' . $filter['id'] . '/dump&raw=1',
           )));
       $res = new Response('<?xml version="1.0"?>' . $xml, 'text/xml');

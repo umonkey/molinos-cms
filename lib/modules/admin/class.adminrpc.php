@@ -538,11 +538,7 @@ class AdminRPC extends RPCHandler
     $xml = '<?xml version="1.0" encoding="utf-8"?>';
     $xml .= html::em('page', $data, $content);
 
-    try {
-      $output = xslt::transform($xml, $theme);
-    } catch (Exception $e) {
-      mcms::fatal($e);
-    }
+    $output = xslt::transform($xml, $theme);
 
     return $output;
   }

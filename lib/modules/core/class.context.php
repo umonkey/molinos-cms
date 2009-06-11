@@ -552,74 +552,70 @@ class Context
    */
   public function checkEnvironment()
   {
-    try {
-      $htreq = array(
-        'register_globals' => 0,
-        'magic_quotes_gpc' => 0,
-        'magic_quotes_runtime' => 0,
-        'magic_quotes_sybase' => 0,
-        );
+    $htreq = array(
+      'register_globals' => 0,
+      'magic_quotes_gpc' => 0,
+      'magic_quotes_runtime' => 0,
+      'magic_quotes_sybase' => 0,
+      );
 
-      $errors = $messages = array();
+    $errors = $messages = array();
 
-      if (function_exists('mb_internal_encoding'))
-        mb_internal_encoding('UTF-8');
+    if (function_exists('mb_internal_encoding'))
+      mb_internal_encoding('UTF-8');
 
-      foreach ($htreq as $k => $v) {
-        $key = ltrim($k, '@');
+    foreach ($htreq as $k => $v) {
+      $key = ltrim($k, '@');
 
-        ini_set($key, $v);
+      ini_set($key, $v);
 
-        if (($v != ($current = ini_get($key))) and (substr($k, 0, 1) != '@'))
-          $errors[] = $key;
+      if (($v != ($current = ini_get($key))) and (substr($k, 0, 1) != '@'))
+        $errors[] = $key;
+    }
+
+    if (!extension_loaded('pdo'))
+      $messages[] = t('Отсутствует поддержка <a href=\'@url\'>PDO</a>.  Она очень нужна, '
+        .'без неё не получится работать с базами данных.', array(
+          '@url' => 'http://docs.php.net/pdo',
+          ));
+
+    if (!extension_loaded('mbstring'))
+      $messages[] = t('Отсутствует поддержка юникода.  21й век на дворе, '
+        .'пожалуйста, установите расширение '
+        .'<a href=\'http://php.net/mbstring\'>mbstring</a>.');
+    elseif (!mb_internal_encoding('UTF-8'))
+      $messages[] = t('Не удалось установить UTF-8 в качестве '
+        .'базовой кодировки для модуля mbstr.');
+
+    /*
+    if (!class_exists('XSLTProcessor'))
+      $messages[] = t('Для работы этой версии Molinos CMS необходимо расширение xslt.');
+    */
+
+    if (!empty($errors) or !empty($messages)) {
+      $output = "<html><head><title>Ошибка конфигурации</title></head><body>";
+
+      if (!empty($errors)) {
+        $output .= '<h1>'. t('Нарушение безопасности') .'</h1>';
+        $output .= "<p>Следующие настройки <a href='http://php.net/'>PHP</a> неверны и не могут быть <a href='http://php.net/ini_set'>изменены на лету</a>:</p>";
+        $output .= "<table border='1'><tr><th>Параметр</th><th>Значение</th><th>Требуется</th></tr>";
+
+        foreach ($errors as $key)
+          $output .= "<tr><td>{$key}</td><td>". ini_get($key) ."</td><td>{$htreq[$key]}</td></tr>";
+
+        $output .= "</table>";
       }
 
-      if (!extension_loaded('pdo'))
-        $messages[] = t('Отсутствует поддержка <a href=\'@url\'>PDO</a>.  Она очень нужна, '
-          .'без неё не получится работать с базами данных.', array(
-            '@url' => 'http://docs.php.net/pdo',
-            ));
-
-      if (!extension_loaded('mbstring'))
-        $messages[] = t('Отсутствует поддержка юникода.  21й век на дворе, '
-          .'пожалуйста, установите расширение '
-          .'<a href=\'http://php.net/mbstring\'>mbstring</a>.');
-      elseif (!mb_internal_encoding('UTF-8'))
-        $messages[] = t('Не удалось установить UTF-8 в качестве '
-          .'базовой кодировки для модуля mbstr.');
-
-      /*
-      if (!class_exists('XSLTProcessor'))
-        $messages[] = t('Для работы этой версии Molinos CMS необходимо расширение xslt.');
-      */
-
-      if (!empty($errors) or !empty($messages)) {
-        $output = "<html><head><title>Ошибка конфигурации</title></head><body>";
-
-        if (!empty($errors)) {
-          $output .= '<h1>'. t('Нарушение безопасности') .'</h1>';
-          $output .= "<p>Следующие настройки <a href='http://php.net/'>PHP</a> неверны и не могут быть <a href='http://php.net/ini_set'>изменены на лету</a>:</p>";
-          $output .= "<table border='1'><tr><th>Параметр</th><th>Значение</th><th>Требуется</th></tr>";
-
-          foreach ($errors as $key)
-            $output .= "<tr><td>{$key}</td><td>". ini_get($key) ."</td><td>{$htreq[$key]}</td></tr>";
-
-          $output .= "</table>";
-        }
-
-        if (!empty($messages)) {
-          $output .= '<h1>'. t('Ошибка настройки') .'</h1>';
-          $output .= '<ol><li>'. join('</li><li>', $messages) .'</li></ol>';
-        }
-
-        $output .= '<p>'. t('Свяжитесь с администратором вашего хостинга для исправления этих проблем.&nbsp; <a href=\'http://code.google.com/p/molinos-cms/\'>Molinos.CMS</a> на данный момент не может работать.') .'</p>';
-        $output .= "</body></html>";
-
-        $r = new Response($output, 'text/html', 500);
-        $r->send();
+      if (!empty($messages)) {
+        $output .= '<h1>'. t('Ошибка настройки') .'</h1>';
+        $output .= '<ol><li>'. join('</li><li>', $messages) .'</li></ol>';
       }
-    } catch (Exception $e) {
-      mcms::fatal($e);
+
+      $output .= '<p>'. t('Свяжитесь с администратором вашего хостинга для исправления этих проблем.&nbsp; <a href=\'http://code.google.com/p/molinos-cms/\'>Molinos.CMS</a> на данный момент не может работать.') .'</p>';
+      $output .= "</body></html>";
+
+      $r = new Response($output, 'text/html', 500);
+      $r->send();
     }
   }
 }

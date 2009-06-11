@@ -215,7 +215,7 @@ class Registry
     $subject = "Error at " . $_SERVER['HTTP_HOST'];
     $content = "<pre>Message: {$message}\nMethod:  {$_SERVER['REQUEST_METHOD']}\n"
       . "URL:     http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}\n\n"
-      . "Backtrace follows.\n\n" . mcms::backtrace() . '</pre>';
+      . "Backtrace follows.\n\n" . Logger::backtrace() . '</pre>';
 
     BebopMimeMail::send(null, Context::last()->config->get('main/errors/mail'), $subject, $content);
   }

@@ -54,7 +54,7 @@ class xslt
     }
 
     if (empty($output))
-      mcms::fatal(t('Шаблон %xslt ничего не вернул.', array(
+      throw new RuntimeExteption(t('Шаблон %xslt ничего не вернул.', array(
         '%xslt' => $xsltName
         )));
 
@@ -80,7 +80,7 @@ class xslt
   public static function eh($errno, $errstr, $errfile, $errline, $errcontext)
   {
     $message = str_replace("\n", '<br/>', $errstr);
-    mcms::flog($message);
-    mcms::fatal($message);
+    Logger::trace($message);
+    throw new RuntimeExteption($message);
   }
 }
