@@ -1341,8 +1341,9 @@ class Node
   /**
    * Сохраняет XML представление ноды в БД.
    */
-  private function updateXML()
+  public function updateXML()
   {
     $this->getDB()->exec("UPDATE `node` SET `xml` = ? WHERE `id` = ?", array($this->getXML(), $this->id));
+    return $this;
   }
 };

@@ -281,10 +281,8 @@ class SchemaMenu
     $sth->execute(array($type));
 
     $ctx->db->beginTransaction();
-
     while ($id = $sth->fetchColumn(0))
-      Node::load($id, $ctx->db)->touch()->save();
-
+      Node::load($id, $ctx->db)->updateXML();
     $ctx->db->commit();
 
     return $ctx->getRedirect();
