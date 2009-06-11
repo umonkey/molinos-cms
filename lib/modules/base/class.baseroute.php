@@ -46,7 +46,7 @@ class BaseRoute
     $content = $ctx->url()->getArgsXML();
 
     try {
-      foreach ((array)$ctx->registry->poll('ru.molinos.cms.hook.pagecontent', array($ctx, $handler, $param)) as $block)
+      foreach ((array)$ctx->registry->poll('ru.molinos.cms.page.content', array($ctx, $handler, $param)) as $block)
         if (!empty($block['result']))
           $content .= $block['result'];
     } catch (UserErrorException $e) {
@@ -59,6 +59,13 @@ class BaseRoute
       $page['status'] = 500;
       $page['error'] = get_class($e);
       $page['title'] = $e->getMessage();
+    }
+
+    try {
+      foreach ((array)$ctx->registry->poll('ru.molinos.cms.page.head', array($ctx, $handler, $param)) as $block)
+        if (!empty($block['result']))
+          $content .= $block['result'];
+    } catch (Exception $e) {
     }
 
     if (defined('MCMS_START_TIME'))
@@ -183,15 +190,19 @@ class BaseRoute
 
   /**
    * Выдаёт в страницу запрошенный объект, проверяет доступ.
-   * @mcms_message ru.molinos.cms.hook.pagecontent
+   * @mcms_message ru.molinos.cms.page.content
    */
   public static function on_get_current_node(Context $ctx, $handler, $param)
   {
     if (!empty($param)) {
       $data = $ctx->db->fetch("SELECT `published`, `deleted`, `xml` FROM `node` WHERE `id` = ?", array($param));
 
-      if (empty($data['xml']) or !empty($data['deleted']))
+      if (empty($data))
         throw new PageNotFoundException();
+      elseif (empty($data['xml']))
+        throw new ForbiddenException(t('Объект не предназначен для отображения.'));
+      elseif (!empty($data['deleted']))
+        throw new PageNotFoundException(t('Объект удалён.'));
       elseif (empty($data['published']))
         throw new ForbiddenException();
 

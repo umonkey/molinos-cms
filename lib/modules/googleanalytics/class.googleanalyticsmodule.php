@@ -5,7 +5,7 @@ class GoogleAnalyticsModule
 {
   /**
    * Возвращает код для включения в страницу.
-   * @mcms_message ru.molinos.cms.hook.pagecontent
+   * @mcms_message ru.molinos.cms.page.head
    */
   public static function on_get_content(Context $ctx)
   {

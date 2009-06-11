@@ -8,7 +8,7 @@
  *
  * http://code.google.com/p/molinos-cms/wiki/XMLAPI
  *
- * Этот класс перехватывает сообщение ru.molinos.cms.hook.pagecontent
+ * Этот класс перехватывает сообщение ru.molinos.cms.page.content
  * и возвращает XML блок с виджетами.
  * 
  */
@@ -18,7 +18,7 @@ class WidgetRenderer
   /**
    * Рендеринг виджетов для конкретного маршрута.
    * Возвращает результат в XML (<widgets/>).
-   * @mcms_message ru.molinos.cms.hook.pagecontent
+   * @mcms_message ru.molinos.cms.page.content
    */
   public static function on_render(Context $ctx, array $pathinfo, $param = null)
   {

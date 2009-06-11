@@ -4,7 +4,7 @@ class UebAPI
 {
   /**
    * Выводит <link>
-   * @mcms_message ru.molinos.cms.hook.pagecontent
+   * @mcms_message ru.molinos.cms.page.head
    */
   public static function on_get_head(Context $ctx, array $pathinfo, $param)
   {

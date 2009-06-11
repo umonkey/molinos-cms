@@ -115,7 +115,7 @@ class CompressorModule
 
   /**
    * Вывод инфорамации о подключаемых скриптах и стилях.
-   * @mcms_message ru.molinos.cms.hook.pagecontent
+   * @mcms_message ru.molinos.cms.page.head
    */
   public static function on_get_head(Context $ctx, array $pathinfo)
   {
