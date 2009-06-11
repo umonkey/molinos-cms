@@ -23,6 +23,8 @@ class Registry
   public function __construct()
   {
     spl_autoload_register(array($this, 'autoload'));
+    register_shutdown_function(array(__CLASS__, 'on_shutdown'));
+    set_error_handler(array($this, 'on_error'), defined('MCMS_ERROR_LEVEL') ? MCMS_ERROR_LEVEL : (E_ERROR|E_WARNING));
   }
 
   /**
@@ -30,6 +32,7 @@ class Registry
    */
   public function __destruct()
   {
+    restore_error_handler();
     spl_autoload_unregister(array($this, 'autoload'));
   }
 
@@ -183,6 +186,38 @@ class Registry
       if (file_exists($fileName = MCMS_ROOT . DIRECTORY_SEPARATOR . $this->paths[$className]))
         require $fileName;
     }
+  }
+
+  /**
+   * Обрабатывает экстренное завершение работы.
+   */
+  public static function on_shutdown()
+  {
+    if (null !== ($e = error_get_last()) and $e['type'] & (E_ERROR|E_RECOVERABLE_ERROR))
+      self::send_error("shutdown[{$e['type']}]");
+  }
+
+  /**
+   * Дополнительная обработка ошибок.
+   */
+  public function on_error($errno, $errstr, $errfile, $errline, array $context)
+  {
+    self::send_error("error[{$errno}]: {$errstr}");
+  }
+
+  /**
+   * Отправляет сообщение об ошибке куда следует.
+   */
+  private static function send_error($message = "undefined")
+  {
+    Logger::trace($message);
+
+    $subject = "Error at " . $_SERVER['HTTP_HOST'];
+    $content = "<pre>Message: {$message}\nMethod:  {$_SERVER['REQUEST_METHOD']}\n"
+      . "URL:     http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}\n\n"
+      . "Backtrace follows.\n\n" . mcms::backtrace() . '</pre>';
+
+    BebopMimeMail::send(null, Context::last()->config->get('main/errors/mail'), $subject, $content);
   }
 
   /**

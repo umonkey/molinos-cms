@@ -396,69 +396,6 @@ class mcms
     return $output;
   }
 
-  public static function error_handler($errno, $errstr, $errfile, $errline, array $context)
-  {
-    if ($errno == 2048)
-      return;
-
-    if ($errno == 2 and substr($errstr, 0, 5) == 'dl():')
-      return;
-
-    if (ob_get_length())
-      ob_end_clean();
-
-    if (($ctx = Context::last()) and $ctx->canDebug()) {
-      $output = "\nError {$errno}: {$errstr}.\n";
-      $output .= sprintf("File: %s at line %d.\n", ltrim(str_replace(MCMS_ROOT, '', $errfile), '/'), $errline);
-      $output .= "\nDon't panic.  You see this message because you're listed as a debugger.\n";
-      $output .= "Regular web site visitors don't see this message.\n";
-
-      if ($errno & 4437)
-        $output .= "They most likely see a White Screen Of Death.\n\n";
-      elseif (ini_get('error_reporting'))
-        $output .= "They most likely see some damaged HTML markup.\n\n";
-      else
-        $output .= "\n";
-
-      $output .= "--- backtrace ---\n";
-      $output .= mcms::backtrace();
-
-      $r = new Response($output, 'text/plain', 500);
-      $r->send();
-    }
-  }
-
-  public static function shutdown_handler()
-  {
-    if (null !== ($e = error_get_last()) and ($e['type'] & (E_ERROR|E_RECOVERABLE_ERROR))) {
-      if (null !== ($re = mcms::config('main/errors/mail', 'cms-bugs@molinos.ru'))) {
-        $release = substr(mcms::version(), 0, -(strrpos(mcms::version(), '.') + 1));
-
-        $message = 'oops.';
-
-        $subject = t('Фатальная ошибка на %host', array('%host' => $_SERVER['HTTP_HOST']));
-
-        BebopMimeMail::send(null, $re, $subject, $message);
-
-        if (ob_get_length())
-          ob_end_clean();
-
-        $output = "Случилось что-то страшное.  Администрация сервера поставлена в известность, скоро всё должно снова заработать.\n";
-
-        if (($ctx = Context::last()) and $ctx->canDebug())
-          $output .= sprintf("\n--- 8< --- Отладочная информация --- 8< ---\n\n"
-            ."Код ошибки: %s\n"
-            ."   Локация: %s(%s)\n"
-            ." Сообщение: %s\n"
-            ."    Версия: %s\n",
-            $e['type'], ltrim(str_replace(MCMS_ROOT, '', $e['file']), '/'), $e['line'], $e['message'], mcms::version());
-
-        $r = new Response($output, 'text/plain', 500);
-        $r->send();
-      }
-    }
-  }
-
   public static function now($time = null)
   {
     if (null === $time)
@@ -903,7 +840,3 @@ class CrashReport
     }
   }
 }
-
-set_exception_handler('mcms::fatal');
-set_error_handler('mcms::error_handler', E_ERROR /*|E_WARNING|E_PARSE*/);
-register_shutdown_function('mcms::shutdown_handler');
