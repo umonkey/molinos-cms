@@ -95,18 +95,19 @@
 
       <div id="footer">
         <a href="http://molinos-cms.googlecode.com/">Molinos CMS</a>
-              <xsl:text> v</xsl:text>
-              <xsl:value-of select="/page/@version" />
-              <xsl:text> [</xsl:text>
-              <xsl:value-of select="/page/@memory" />
-              <xsl:text>+</xsl:text>
-              <xsl:value-of select="/page/@cache" />
-              <xsl:text>] at </xsl:text>
-              <a href="{@base}">
-                <xsl:value-of select="@host" />
-              </a>
+        <xsl:text> v</xsl:text>
+        <xsl:value-of select="/page/@version" />
+        <xsl:text> [</xsl:text>
+        <xsl:value-of select="/page/@memory" />
+        <xsl:text>+</xsl:text>
+        <xsl:value-of select="/page/@cache" />
+        <xsl:text>] at </xsl:text>
+        <a href="{@base}">
+          <xsl:value-of select="@host" />
+        </a>
       </div>
 
+      <img src="cron.rpc?destination=lib/modules/admin/styles/admin/images/pixel.gif" alt="cron runner" />
     </div>
 
   </xsl:template>
@@ -349,7 +350,7 @@
       <xsl:for-each select="document(concat($api,'forms/create/types.xml'))/nodes/node[not(isdictionary)]">
         <xsl:sort select="title" />
         <dt>
-          <a href="?q=admin/create/{@name}?destination={../@destination}">
+          <a href="?q=admin/create/{@name}?destination={$next}">
             <xsl:value-of select="title" />
           </a>
         </dt>

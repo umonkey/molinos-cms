@@ -3,35 +3,40 @@
 
 class CronModule
 {
+  /**
+   * Запуск периодических задач.
+   *
+   * Проверяется время последнего запуска, чаще установленного администратором
+   * времени запуск производиться не будет (по умолчанию 15 минут).
+   */
   public static function on_rpc(Context $ctx)
   {
-    if (!empty($_SERVER['HTTP_HOST']) and !$ctx->canDebug())
-      throw new BadRequestException(t('Запуск планировщика возможен только из консоли.'));
+    $status = "DELAYED";
 
-    @set_time_limit(0);
+    $lastrun = $ctx->config->get('modules/cron/lastrun');
+    $delay = $ctx->config->get('modules/cron/delay', 15) * 60;
 
-    header('HTTP/1.1 200 OK');
+    if (time() >= $lastrun + $delay) {
+      $ctx->config->set('modules/cron/lastrun', time());
+      $ctx->config->save();
+
+      @set_time_limit(0);
+
+      ob_start();
+      try {
+        $ctx->registry->broadcast('ru.molinos.cms.cron', array($ctx));
+        $status = "OK";
+      } catch (Exception $e) {
+        Logger::trace($e);
+        $status = "ERROR: " . get_class($e) . '; ' . trim($e->getMessage(), '.') . '.';
+      }
+      ob_end_clean();
+    }
+
+    if ($ctx->get('destination'))
+      return $ctx->getRedirect();
+
     header('Content-Type: text/plain; charset=utf-8');
-
-    $ctx->registry->broadcast('ru.molinos.cms.cron', array($ctx));
-
-    self::touch($ctx);
-
-    if (null !== ($next = $ctx->get('destination')))
-      $ctx->redirect($next);
-
-    die("OK\n");
-  }
-
-  private static function touch(Context $ctx)
-  {
-    $node = Node::find(array('class' => 'cronstats'));
-    if (empty($node))
-      $node = Node::create('cronstats');
-    else
-      $node = array_shift($node);
-    $ctx->db->beginTransaction();
-    $node->save();
-    $ctx->db->commit();
+    die($status);
   }
 };
