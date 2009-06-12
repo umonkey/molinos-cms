@@ -70,7 +70,7 @@ class Cart
 
       $total = $sum;
 
-      $conf = $ctx->config->cart;
+      $conf = $this->ctx->config->cart;
 
       if (!empty($conf['discount_threshold'])) {
         if ($sum >= $conf['discount_threshold']) {
@@ -110,7 +110,7 @@ class Cart
       }
     }
 
-    if ($discounter = Context::last()->config->get('modules/cart/discounter')) {
+    if ($discounter = $this->ctx->config->get('modules/cart/discounter')) {
       if (class_exists($discounter)) {
         $d = new $discounter();
         $d->process($result);

@@ -19,7 +19,7 @@ class OrderNode extends Node implements iContentType
 
     if ($isnew) {
       $this->sendEmail($this->email, 'invoice');
-      $this->sendEmail($ctx->config->get('modules/cart/email', 'notification'));
+      $this->sendEmail($ctx->config->get('modules/cart/email'), 'notification');
       $cart->setItems(array());
     }
 
