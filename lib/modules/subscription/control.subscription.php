@@ -11,7 +11,6 @@ class SubscriptionControl extends SetControl
   {
     return array(
       'name' => t("Подписка на новости"),
-      'class' => __CLASS__,
       );
   }
 

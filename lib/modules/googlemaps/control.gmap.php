@@ -9,7 +9,6 @@ class GMapControl extends TextLineControl
   {
     return array(
       'name' => t('Карта'),
-      'class' => __CLASS__,
       );
   }
 

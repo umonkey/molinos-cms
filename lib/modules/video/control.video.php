@@ -9,7 +9,6 @@ class VideoControl extends URLControl
   {
     return array(
       'name' => t('Видео'),
-      'class' => __CLASS__,
       );
   }
 

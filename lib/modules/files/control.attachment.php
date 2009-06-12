@@ -24,7 +24,6 @@ class AttachmentControl extends Control
   {
     return array(
       'name' => t('Файл'),
-      'class' => __CLASS__,
       );
   }
 
