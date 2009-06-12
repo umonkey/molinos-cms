@@ -106,13 +106,13 @@ abstract class Pride_Typograph_RuleHandler_Abstract
     {
         foreach ($this->_safetyBlocks as $block) {
             if (in_array($before, $block) || in_array($before, $after)) {
-                require_once 'Pride/Typograph/Exception.php';
+                // require_once 'Pride/Typograph/Exception.php';
                 throw new Pride_Typograph_Exception("'$before' or '$after' already exists in safety blocks");
             }
         }
         
         if ($before === '<' || $after === '>') {
-        	require_once 'Pride/Typograph/Exception.php';
+        	// require_once 'Pride/Typograph/Exception.php';
             throw new Pride_Typograph_Exception("Bad '$before' or '$after'");
         }
         
@@ -139,14 +139,14 @@ abstract class Pride_Typograph_RuleHandler_Abstract
     public function setText($text)
     {
         if (!is_string($text)) {
-            require_once 'Pride/Typograph/Exception.php';
+            // require_once 'Pride/Typograph/Exception.php';
             throw new Pride_Typograph_Exception('Incorrect data');
         }
         
         $text = trim($text);
         
         if ('' === $text) {
-            require_once 'Pride/Typograph/Exception.php';
+            // require_once 'Pride/Typograph/Exception.php';
             throw new Pride_Typograph_Exception('String is empty');
         }
         
@@ -166,7 +166,7 @@ abstract class Pride_Typograph_RuleHandler_Abstract
     public function setParseOption($key, $value)
     {
         if (!is_bool($value)) {
-            require_once 'Pride/Typograph/Exception.php';
+            // require_once 'Pride/Typograph/Exception.php';
             throw new Pride_Typograph_Exception("Access key '$key' must be boolean");
         }
         
@@ -186,7 +186,7 @@ abstract class Pride_Typograph_RuleHandler_Abstract
     public function setParseOptions(array $options)
     {
         if (!count($options)) {
-            require_once 'Pride/Typograph/Exception.php';
+            // require_once 'Pride/Typograph/Exception.php';
             throw new Pride_Typograph_Exception('Options array is empty');
         }
         
@@ -206,7 +206,7 @@ abstract class Pride_Typograph_RuleHandler_Abstract
     protected function _safeChars($safe = true)
     {
         if (!is_bool($safe)) {
-            require_once 'Pride/Typograph/Exception.php';
+            // require_once 'Pride/Typograph/Exception.php';
             throw new Pride_Typograph_Exception('Incorrect var type');
         }
 

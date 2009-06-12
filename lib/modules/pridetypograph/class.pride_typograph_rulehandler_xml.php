@@ -10,7 +10,7 @@
 /**
  * @see Pride_Typograph_RuleHandler_Abstract
  */
-require_once 'Pride/Typograph/RuleHandler/Abstract.php';
+// require_once 'Pride/Typograph/RuleHandler/Abstract.php';
 
 /**
  * Pride_Typograph_RuleHandler_Xml
@@ -118,17 +118,17 @@ class Pride_Typograph_RuleHandler_Xml extends Pride_Typograph_RuleHandler_Abstra
 	protected function _checkXmlFile($path)
 	{
 		if (!is_string($path) || empty($path)) {
-			require_once 'Pride/Typograph/Exception.php';
+			// require_once 'Pride/Typograph/Exception.php';
 			throw new Pride_Typograph_Exception('Bad regex file name');
 		}
 		
 		if (!is_readable($path)) {
-			require_once 'Pride/Typograph/Exception.php';
+			// require_once 'Pride/Typograph/Exception.php';
 			throw new Pride_Typograph_Exception("File '{$path}' isn't readable");
 		}
 		
 		if (!filesize($this->_options['xml_regex_file'])) {
-			require_once 'Pride/Typograph/Exception.php';
+			// require_once 'Pride/Typograph/Exception.php';
 			throw new Pride_Typograph_Exception("File '{$path}' is empty");
 		}
 	}

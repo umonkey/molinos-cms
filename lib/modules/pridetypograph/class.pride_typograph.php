@@ -29,12 +29,12 @@ class Pride_Typograph
     	$handlerName = ucfirst(strtolower($handlerName));
     	
     	if ('' === $handlerName) {
-    		require_once 'Pride/Typograph/Exception.php';
+    		// require_once 'Pride/Typograph/Exception.php';
     		throw new Pride_Typograph_Exception('Incorrect rule handler name');
     	}
     	
     	if (!count($options)) {
-    		require_once 'Pride/Typograph/Exception.php';
+    		// require_once 'Pride/Typograph/Exception.php';
     		throw new Pride_Typograph_Exception('Options is empty');
     	}
     	
@@ -46,10 +46,10 @@ class Pride_Typograph
     	$ruleHandler = new $handlerClass($options);
     	
     	if (!$ruleHandler instanceof Pride_Typograph_RuleHandler_Abstract) {
-            require_once 'Pride/Typograph/Exception.php';
+        // require_once 'Pride/Typograph/Exception.php';
     		throw new Pride_Typograph_Exception('Handler class must be extend Pride_Typograph_RuleHandler_Abstract');
-        }
-    	
-        return $ruleHandler;
+      }
+    
+      return $ruleHandler;
     }
 }
