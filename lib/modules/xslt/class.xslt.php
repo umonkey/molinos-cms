@@ -81,6 +81,6 @@ class xslt
   {
     $message = str_replace("\n", '<br/>', $errstr);
     Logger::trace($message);
-    throw new RuntimeExteption($message);
+    throw new RuntimeException($message);
   }
 }
