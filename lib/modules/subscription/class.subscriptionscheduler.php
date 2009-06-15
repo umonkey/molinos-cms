@@ -33,7 +33,7 @@ class SubscriptionScheduler
           'tags' => $sections,
           'published' => 1,
           'deleted' => 0,
-          'id' => array('>' . $olast),
+          'id' => array('>' . ($olast + 1)),
           ))->getSelect(array('id', 'xml'));
         $nodes = $ctx->db->getResultsKV('id', 'xml', $sql, $params);
 
