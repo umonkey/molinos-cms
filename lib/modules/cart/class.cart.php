@@ -70,7 +70,7 @@ class Cart
 
       $total = $sum;
 
-      $conf = $this->ctx->config->cart;
+      $conf = $this->ctx->config->getArray('modules/cart');
 
       if (!empty($conf['discount_threshold'])) {
         if ($sum >= $conf['discount_threshold']) {
