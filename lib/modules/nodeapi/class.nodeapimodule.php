@@ -163,17 +163,6 @@ class NodeApiModule extends RPCHandler
   }
 
   /**
-   * Клонирование объектов.
-   */
-  public static function rpc_post_clone(Context $ctx)
-  {
-    $ctx->db->beginTransaction();
-    foreach (self::getNodes($ctx) as $node)
-      $node->knock('c')->duplicate();
-    $ctx->db->commit();
-  }
-
-  /**
    * Создание объекта.
    */
   public static function rpc_post_create(Context $ctx)
