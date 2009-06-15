@@ -87,7 +87,8 @@ class SubscriptionRPC extends RPCHandler
 
       $status = t('Параметры подписки успешно изменены.');
     } catch (ObjectNotFoundException $e) {
-      $node = Node::create('subscription', array(
+      $node = Node::create(array(
+        'class' => 'subscription',
         'name' => $data['email'],
         'last' => $last,
         'published' => true,
