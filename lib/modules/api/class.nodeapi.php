@@ -134,7 +134,15 @@ class NodeAPI
 
   public static function on_get_related(Context $ctx)
   {
-    $tags = $ctx->db->getResultsV("tid", "SELECT tid FROM node__rel WHERE nid = ? AND tid NOT IN (SELECT id FROM node WHERE deleted = 1)", array($ctx->get('node')));
+    $params = array($ctx->get('node'));
+    $sql = "SELECT tid FROM node__rel WHERE nid = ? AND tid NOT IN (SELECT id FROM node WHERE deleted = 1)";
+
+    if ($tmp = $ctx->get('key')) {
+      $sql .= " AND `key` = ?";
+      $params[] = $tmp;
+    }
+
+    $tags = $ctx->db->getResultsV("tid", $sql, $params);
 
     $filter = array(
       'deleted' => 0,
