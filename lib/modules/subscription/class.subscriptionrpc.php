@@ -93,16 +93,14 @@ class SubscriptionRPC extends RPCHandler
         'last' => $last,
         'published' => true,
         ));
-
       $status = t('Подписка активирована.');
     }
 
     $ctx->db->beginTransaction();
 
     if (!empty($data['sections'])) {
-      foreach ($data['sections'] as $id)
-        $node->linkTo($id);
-      $node->save();
+      $node->tags = $data['sections'];
+      $node->linkTo($data['sections'])->save();
     } elseif (!empty($node->id)) {
       $node->delete();
       $status = t('Подписка удалена.');

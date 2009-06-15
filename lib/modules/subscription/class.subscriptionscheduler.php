@@ -7,10 +7,6 @@ class SubscriptionScheduler
    */
   public static function taskRun(Context $ctx)
   {
-    // Отправка почты занимает много времени.
-    if (!ini_get('safe_mode'))
-      set_time_limit(0);
-
     $types = $ctx->config->get('modules/subscription/types', array());
     $xsl = $ctx->config->get('modules/subscription/stylesheet', os::path('lib', 'modules', 'subscription', 'message.xsl'));
     $sub = $ctx->config->get('modules/subscription/subject', 'Новости сайта %host');
@@ -31,40 +27,39 @@ class SubscriptionScheduler
     foreach ($users as $user) {
       $olast = $last = intval($user->last);
 
-      // Получаем список разделов, на которые распространяется подписка.
-      $tags = Node::find(array(
-        'class' => 'tag',
-        'published' => 1,
-        'tagged' => $user->id,
-        ), $ctx->db);
+      if ($sections = (array)$user->tags) {
+        list($sql, $params) = Query::build(array(
+          'class' => $types,
+          'tags' => $sections,
+          'published' => 1,
+          'deleted' => 0,
+          'id' => array('>' . $olast),
+          ))->getSelect(array('id', 'xml'));
+        $nodes = $ctx->db->getResultsKV('id', 'xml', $sql, $params);
 
-      if (empty($tags))
-        continue;
+        // Отправляем документы.
+        foreach ($nodes as $nid => $node) {
+          $xml = html::em('message', array(
+            'mode' => 'regular',
+            'unsubscribe' => 'subscription.rpc?action=remove&name=' . urlencode($user->name)
+              . '&id=' . $user->id,
+            'base' => $ctx->url()->getBase($ctx),
+            'host' => url::host(),
+            ), $node);
 
-      $nodes = self::getNodes($ctx, $types, $tags, $last);
+          $body = xslt::transform($xml, $xsl, null);
+          $subject = t($sub, array(
+            '%host' => $ctx->url()->host(),
+            ));
 
-      // Отправляем документы.
-      foreach ($nodes as $node) {
-        $xml = html::em('message', array(
-          'mode' => 'regular',
-          'unsubscribe' => '?q=subscription.rpc&action=remove&name=' . urlencode($user->name)
-            . '&id=' . $user->id,
-          'base' => $ctx->url()->getBase($ctx),
-          'host' => url::host(),
-          ), $node->getXML('document'));
+          BebopMimeMail::send(null, $user->name, $subject, $body);
+          $last = max($last, $nid);
+        }
 
-        $body = xslt::transform($xml, $xsl, null);
-        $subject = t($sub, array(
-          '%host' => $ctx->url()->host(),
-          ));
-
-        BebopMimeMail::send(null, $user->name, $subject, $body);
-        $last = max($last, $node->id);
+        // Запоминаем последнее отправленное сообщение.
+        $user->last = $last;
+        $user->save();
       }
-
-      // Запоминаем последнее отправленное сообщение.
-      $user->last = $last;
-      $user->save();
     }
 
     $ctx->db->commit();
@@ -75,25 +70,6 @@ class SubscriptionScheduler
     $result = array();
     foreach ($tags as $tag)
       $result[] = $tag->id;
-    return $result;
-  }
-
-  private static function getNodes(Context $ctx, array $types, array $sections, $last)
-  {
-    $params = array(intval($last));
-
-    $tags = array();
-    foreach ($sections as $section)
-      $tags[] = $section->id;
-
-    $sql = 'SELECT `id` FROM `node` WHERE `deleted` = 0 AND `published` = 1 AND `id` > ? AND `class` ' . sql::in($types, $params);
-    $sql .= ' AND `id` IN (SELECT `nid` FROM `node__rel` WHERE `tid` ' . sql::in($tags, $params) . ')';
-    $sql .= ' ORDER BY `created` DESC';
-
-    $result = array();
-    foreach ((array)$ctx->db->getResultsV('id', $sql, $params) as $id)
-      $result[] = Node::load($id, $ctx->db);
-
     return $result;
   }
 }
