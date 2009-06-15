@@ -98,7 +98,9 @@ class APIStream
 
   public static function init(Context $ctx)
   {
-    if (!stream_wrapper_register('cms', __CLASS__))
+    if (in_array('cms', stream_get_wrappers()))
+      ;
+    elseif (!stream_wrapper_register('cms', __CLASS__))
       throw new RuntimeException(t('Не удалось инициализировать обработчик cms://'));
     else {
       self::$router = new Router();
