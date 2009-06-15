@@ -4,7 +4,7 @@ class SchemaList extends AdminListhandler
 {
   protected function setUp()
   {
-    $this->actions = array('delete', 'publish', 'unpublish', 'clone', 'reindex', 'touch');
+    $this->actions = array('delete', 'publish', 'unpublish', 'reindex', 'touch');
     $this->title = t('Типы документов');
     $this->limit = null;
     $this->hidesearch = true;

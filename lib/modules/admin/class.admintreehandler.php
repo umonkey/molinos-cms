@@ -64,7 +64,7 @@ class AdminTreeHandler
       $this->type = 'domain';
       $this->parent = null;
       $this->columns = array('name', 'title', 'language', 'params', 'theme');
-      $this->actions = array('publish', 'unpublish', 'delete', 'clone');
+      $this->actions = array('publish', 'unpublish', 'delete');
 
       try {
         $node = Node::load(array(

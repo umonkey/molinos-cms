@@ -125,7 +125,7 @@ class AdminListHandler implements iAdminList
         $this->types = array('group');
         $this->title = t('Список групп');
         $this->limit = null;
-        $this->actions = array('delete', 'clone');
+        $this->actions = array('delete');
         $this->selectors = array(
           'all' => 'все',
           'none' => 'ни одной',
@@ -209,7 +209,6 @@ class AdminListHandler implements iAdminList
         'delete',
         'publish',
         'unpublish',
-        'clone',
         );
   }
 

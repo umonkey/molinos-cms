@@ -624,16 +624,6 @@ class Node
         );
     }
 
-    /*
-    if ($this->checkPermission('c'))
-      $links['clone'] = array(
-        'href' => 'nodeapi/clone?node='. $this->id
-          .'&destination=CURRENT',
-        'title' => t('Клонировать'),
-        'icon' => 'clone',
-        );
-    */
-
     if ($this->checkPermission('d')) {
       if ($this->deleted)
         $links['delete'] = array(

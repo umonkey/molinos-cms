@@ -141,7 +141,7 @@ class NodeTests extends PHPUnit_Framework_TestCase
     $links = Node::create('dummy')->getActionLinks();
 
     $this->assertTrue(is_array($links));
-    foreach (array('edit', 'clone', 'delete', 'publish') as $action)
+    foreach (array('edit', 'delete', 'publish') as $action)
       $this->assertTrue(array_key_exists($action, $links));
   }
 
