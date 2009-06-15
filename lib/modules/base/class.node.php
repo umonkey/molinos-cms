@@ -1168,32 +1168,17 @@ class Node
         $this->data['parent_id'] = $parent;
 
       $this->dirty = true;
-      $this->save();
-
-      $pdo = $this->getDB();
-      $params = array(':new' => $this->data['id'], ':old' => $id);
 
       if ($with_children) {
         // Копируем права.
-        $pdo->exec("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`)"
-          ."SELECT :new, `uid`, `c`, `r`, `u`, `d`, `p` FROM `node__access` WHERE `nid` = :old", $params);
+        $this->onSave("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`)"
+          ."SELECT %ID%, `uid`, `c`, `r`, `u`, `d`, `p` FROM `node__access` WHERE `nid` = ?", array($id));
 
         // Копируем связи с другими объектами.
-        $pdo->exec("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
-          ."SELECT :new, `nid`, `key` FROM `node__rel` WHERE `tid` = :old", $params);
-        $pdo->exec("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
-          ."SELECT `tid`, :new, `key` FROM `node__rel` WHERE `nid` = :old", $params);
-
-        /*
-        if (($this->right - $this->left) > 1) {
-          $children = Node::find(array(
-            'parent_id' => $id,
-            ));
-
-          foreach ($children as $c)
-            $c->duplicate($this->data['id']);
-        }
-        */
+        $this->onSave("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
+          ."SELECT %ID%, `nid`, `key` FROM `node__rel` WHERE `tid` = ?", array($id));
+        $this->onSave("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
+          ."SELECT `tid`, %ID%, `key` FROM `node__rel` WHERE `nid` = ?", array($id));
       }
     }
 
