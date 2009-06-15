@@ -183,7 +183,7 @@ class NodeLinkControl extends Control
    */
   public function preview($value)
   {
-    if ($value = $value->{$this->value}) {
+    if (is_object($value = $value->{$this->value})) {
       $html = html::em('a', array(
         'href' => 'admin/node/' . $value->id
           . '?destination=CURRENT',
@@ -199,7 +199,7 @@ class NodeLinkControl extends Control
    */
   public function format($value, $em)
   {
-    if ($value)
+    if (is_object($value))
       return $value->getXML($em);
   }
 };

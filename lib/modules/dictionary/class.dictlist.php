@@ -10,7 +10,7 @@ class DictList extends AdminListHandler
     $this->sort = 'name';
     $this->limit = null;
     $this->page = 1;
-    $this->actions = array('delete', 'publish', 'unpublish', 'clone', 'touch');
+    $this->actions = array('delete', 'publish', 'unpublish', 'touch');
     $this->addlink = 'admin/content/dict/add';
     $this->hidesearch = true;
   }
