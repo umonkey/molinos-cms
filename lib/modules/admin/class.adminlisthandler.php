@@ -226,18 +226,10 @@ class AdminListHandler implements iAdminList
     if (null !== $this->types)
       $filter['class'] = $this->types;
     else {
-      $filter['class'] = array();
-
-      $itypes = ('trash' != $this->preset)
+      $filter['-class'] = ('trash' != $this->preset)
         ? TypeNode::getInternal()
         : array();
-
-      foreach (Node::find(array('class' => 'type')) as $n) {
-        if ($this->haveModule($n->adminmodule) and !in_array($n->name, $itypes))
-          $filter['class'][] = $n->name;
-      }
-
-      $filter['class'] = self::filterImmutable($filter['class']);
+      $filter['#public'] = true;
     }
 
     if (!empty($this->sort))

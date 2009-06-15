@@ -98,6 +98,7 @@ class AdminRPC extends RPCHandler
     $tmp = new AdminListHandler($ctx);
     return $tmp->getHTML('default', array(
       '#raw' => true,
+      '#public' => true,
       'advsearch' => true,
       ));
   }
