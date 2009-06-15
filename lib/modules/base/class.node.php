@@ -1234,11 +1234,14 @@ class Node
   /**
    * Возвращает XML текущего объекта со всеми детьми.
    */
-  public function getTreeXML($published = true)
+  public function getTreeXML($published = true, $force = false)
   {
     $xml = '';
 
-    if ($this->data['id'] and $this->data['left'] and $this->data['right']) {
+    if (!empty($this->data['left']) or !empty($this->data['right']))
+      $force = true;
+
+    if ($this->data['id'] and $force) {
       mcms::flog("node[{$this->id}]: rebuilding XML tree");
 
       $mod = $published ? ' AND `published` = 1' : '';
