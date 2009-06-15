@@ -1349,4 +1349,14 @@ class Node
     $this->getDB()->exec("UPDATE `node` SET `xml` = ? WHERE `id` = ?", array($this->getXML(), $this->id));
     return $this;
   }
+
+  /**
+   * Добавляет связь между текущим объектом и другими.
+   */
+  public function linkTo(array $ids, $replace = true)
+  {
+    $params = array();
+    $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, %ID% FROM `node` WHERE `id` " . sql::in($ids, $params), $params);
+    return $this;
+  }
 };
