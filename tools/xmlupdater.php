@@ -10,13 +10,13 @@
  * Выполнение этого действия через веб тоже не всегда возможно, т.к. если объектов
  * много, скрипту может не хватить времени на завершение транзакции.
  *
- * Пример использования: php -f tools/nodeupdater.php story
+ * Пример использования: php -f tools/xmlupdater.php story
  */
 
 require_once dirname(__FILE__) . '/client.inc';
 
 if (empty($argv[1]))
-  die("Usage: php -f tools/nodeupdater.php typeName\n");
+  die("Usage: php -f tools/xmlupdater.php typeName\n");
 
 $db = Context::last()->db;
 
