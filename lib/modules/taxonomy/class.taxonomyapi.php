@@ -46,4 +46,25 @@ class TaxonomyAPI
       ));
     return new Response(html::em('nodes', $xml), 'text/xml');
   }
+
+  /**
+   * Добавляет в XML нод информацию о разделах.
+   * @mcms_message ru.molinos.cms.node.xml
+   */
+  public static function on_node_xml(Node $node)
+  {
+    list($sql, $params) = Query::build(array(
+      'class' => 'tag',
+      'deleted' => 0,
+      'tagged' => $node->id,
+      ))->getSelect(array('id', 'published', 'name', 'class'));
+
+    $data = $node->getDB()->getResults($sql, $params);
+
+    $result = '';
+    foreach ($data as $row)
+      $result .= html::em('node', $row);
+
+    return html::wrap('taxonomy', $result);
+  }
 }
