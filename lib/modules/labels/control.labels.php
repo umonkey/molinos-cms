@@ -16,10 +16,16 @@ class LabelsControl extends ListControl
   {
     $result = '';
 
-    foreach ((array)$value as $id => $name)
-      $result .= html::em('label', array(
-        'id' => $id,
-        ), html::cdata($name));
+    if (!empty($value) and is_array($value)) {
+      $params = array();
+      $data = (array)Context::last()->db->getResults($sql = "SELECT `id`, `published`, `name` FROM `node` WHERE `class` = 'label' AND `deleted` = 0 AND `id` " . sql::in(array_keys($value), $params), $params);
+
+      foreach ($data as $row)
+        $result .= html::em('label', array(
+          'id' => $row['id'],
+          'published' => (bool)$row['published'],
+          ), html::cdata($row['name']));
+    }
 
     return html::wrap($em, $result);
   }
