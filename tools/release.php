@@ -132,9 +132,12 @@ class Builder
 
     foreach (glob(os::path('lib', 'modules', '*', 'module.ini')) as $inifile) {
       $module = basename(dirname($inifile));
-      $ini = ini::read($inifile);
+      $ini = array_merge(array(
+        'priority' => 'optional',
+        'section' => 'service',
+        ), ini::read($inifile));
 
-      foreach (array('section', 'priority', 'version', 'name') as $k) {
+      foreach (array('section', 'version', 'name') as $k) {
         if (!array_key_exists($k, $ini)) {
           printf("warning: %s has no '%s' key, module ignored.\n", $module, $k);
           continue 2;
