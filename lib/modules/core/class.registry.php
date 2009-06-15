@@ -137,7 +137,7 @@ class Registry
       $moduleName = basename(dirname($iniFileName));
 
       if (empty($ini['priority']))
-        continue;
+        $ini['priority'] = 'optional';
 
       /*
       if ('required' != $ini['priority'] and !in_array(basename(dirname($iniFileName)), $modules))
