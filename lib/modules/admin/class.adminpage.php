@@ -15,6 +15,9 @@ class AdminPage
 
   public function getResponse(Context $ctx)
   {
+    if (class_exists('APIStream'))
+      APIStream::init($ctx);
+
     $page = array(
       'status' => 200,
       'base' => $ctx->url()->getBase($ctx),
