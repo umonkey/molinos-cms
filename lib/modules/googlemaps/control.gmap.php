@@ -100,19 +100,27 @@ class GMapControl extends TextLineControl
     $node->{$this->value} = null;
 
     if (!empty($value)) {
-      if ($key = Context::last()->config->get('modules/googlemaps/key')) {
+      if (preg_match('/^[0-9\.\,]+$/', $value))
+        list($lat, $lon) = explode(',', $value);
+
+      elseif ($key = Context::last()->config->get('modules/googlemaps/key')) {
         $url = 'http://maps.google.com/maps/geo?q=' . urlencode(trim($value)) . '&output=csv&oe=utf8&sensor=false&key=' . urlencode($key);
         if ($data = http::fetch($url, http::CONTENT)) {
           list($status, $accuracy, $lat, $lon) = explode(',', $data);
-          if (200 == $status) {
-            $node->{$this->value} = array(
-              'query' => $value,
-              'lat' => $lat,
-              'lon' => $lon,
-              );
-          }
+          if (200 != $status)
+            return;
+        } else {
+          return;
         }
+      } else {
+        return;
       }
+
+      $node->{$this->value} = array(
+        'query' => $value,
+        'lat' => $lat,
+        'lon' => $lon,
+        );
     }
   }
 
