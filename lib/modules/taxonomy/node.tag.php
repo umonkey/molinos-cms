@@ -36,8 +36,17 @@ class TagNode extends Node implements iContentType
   {
     $isnew = empty($this->id);
 
-    if ($isnew and !isset($this->parent_id))
-      throw new RuntimeException(t('Нельзя создать новый корневой раздел.'));
+    if ($isnew and !isset($this->parent_id)) {
+      try {
+        Node::load(array(
+          'class' => 'tag',
+          'parent_id' => null,
+          'deleted' => 0,
+          ), $this->getDB());
+        throw new RuntimeException(t('Нельзя создать новый корневой раздел.'));
+      } catch (ObjectNotFoundException $e) {
+      }
+    }
 
     parent::save();
 
@@ -71,43 +80,6 @@ class TagNode extends Node implements iContentType
     return Node::count(array('class' => 'tag', 'parent_id' => null, 'deleted' => 0));
   }
 
-  public function getFormFields()
-  {
-    $schema = parent::getFormFields();
-
-    $defaults = array(
-      'name' => array(
-        'type' => 'TextLineControl',
-        'label' => t('Название раздела'),
-        'group' => t('Основные свойства'),
-        'weight' => 10,
-        ),
-      'description' => array(
-        'type' => 'TextAreaControl',
-        'label' => t('Описание'),
-        'group' => t('Основные свойства'),
-        'weight' => 20,
-        ),
-      /*
-      'perms' => array(
-        'type' => 'AccessControl',
-        'volatile' => true,
-        'group' => t('Права на добавление документов'),
-        'columns' => array('c'),
-        'description' => t('Пользователи из отмеченных групп смогут добавлять документы в этот раздел.'),
-        ),
-      */
-      );
-
-    foreach ($defaults as $k => $v)
-      if (!isset($schema[$k])) {
-        $v['value'] = $k;
-        $schema[$k] = new $v['type']($v);
-      }
-
-    return $schema;
-  }
-
   public function getListURL()
   {
     return 'admin/structure/taxonomy';
@@ -124,5 +96,18 @@ class TagNode extends Node implements iContentType
         'href' => 'admin/content/list?search=tags%3A' . $this->id,
         ),
       ));
+  }
+
+  /**
+   * Возвращает XML ветки.
+   *
+   * Форсирует формирование дерева, т.к. родительская реализация проверяет
+   * наличие у объекта границ и отказывается формировать XML при их отсутствии,
+   * что приводит к невозможности сформировать дерево при наличии только одного
+   * раздела.
+   */
+  public function getTreeXML($published = true)
+  {
+    return parent::getTreeXML($published, true);
   }
 };
