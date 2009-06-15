@@ -83,16 +83,8 @@ class TypeNode extends Node implements iContentType
 
     // Обновляем кэш.
     $this->flush();
-  }
 
-  public function duplicate($parent = null)
-  {
-    $this->name = preg_replace('/_[0-9]+$/', '', $this->name) .'_'. rand();
-    $this->oldname = null;
-
-    parent::duplicate($parent);
-
-    $this->flush();
+    return $this;
   }
 
   public function publish()
@@ -291,6 +283,16 @@ class TypeNode extends Node implements iContentType
       'class' => 'type',
       'deleted' => 0,
       ));
+  }
+
+  /**
+   * Уникальное имя при клонировании.
+   * @mcms_message ru.molinos.cms.node.clone
+   */
+  public static function on_clone(Node &$node)
+  {
+    $node->name .= '_' . rand();
+    $node->oldname = null;
   }
 
   /**

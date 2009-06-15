@@ -39,21 +39,6 @@ class UserNode extends Node implements iContentType
   }
 
   /**
-   * Клонирование профиля.
-   *
-   * @param integer $parent новый код родителя, не используется и не работает.
-   * Нужен только для подавления нотиса о несоответствии декларации
-   * родительской.
-   *
-   * @return Node ссылка на новый объект.
-   */
-  public function duplicate($parent = null)
-  {
-    $this->name = $this->name . '/tmp' . rand();
-    return parent::duplicate($parent);
-  }
-
-  /**
    * Проверка пароля.
    *
    * @param string $password пробуемый пароль.

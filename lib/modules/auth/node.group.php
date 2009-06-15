@@ -34,21 +34,6 @@ class GroupNode extends Node implements iContentType
     return parent::save();
   }
 
-  /**
-   * Клонирование группы.
-   *
-   * Добавляет к имени группы немного цифр.
-   *
-   * @return Node новая группа.
-   */
-  public function duplicate()
-  {
-    $this->login = preg_replace('/_[0-9]+$/', '', $this->login) .'_'. ($rand = rand());
-    $this->name = preg_replace('/ \([0-9]+\)$/', '', $this->name) .' ('. $rand .')';
-
-    return parent::duplicate();
-  }
-
   public function getFormTitle()
   {
     return $this->id

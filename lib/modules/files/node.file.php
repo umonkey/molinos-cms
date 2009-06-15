@@ -84,17 +84,6 @@ class FileNode extends Node implements iContentType
   }
 
   /**
-   * Залушка: кидает ForbiddenException с сообщением о невозможности
-   * клонирования файлов.
-   *
-   * @return void
-   */
-  public function duplicate()
-  {
-    throw new ForbiddenException(t('Клонирование файлов невозможно.'));
-  }
-
-  /**
    * Импорт файла из внешнего источника.
    *
    * Используется как для обработки полученных от браузера файлов, так и для

@@ -1151,41 +1151,6 @@ class Node
   }
 
   /**
-   * Клонирование объекта.
-   */
-  public function duplicate($parent = null, $with_children = true)
-  {
-    if (!empty($this->data['id'])) {
-      $id = $this->data['id'];
-
-      $this->data['id'] = null;
-      $this->data['published'] = false;
-      $this->data['deleted'] = false;
-      $this->data['created'] = null;
-
-      // Даём возможность прикрепить клон к новому родителю.
-      if (null !== $parent)
-        $this->data['parent_id'] = $parent;
-
-      $this->dirty = true;
-
-      if ($with_children) {
-        // Копируем права.
-        $this->onSave("REPLACE INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`)"
-          ."SELECT %ID%, `uid`, `c`, `r`, `u`, `d`, `p` FROM `node__access` WHERE `nid` = ?", array($id));
-
-        // Копируем связи с другими объектами.
-        $this->onSave("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
-          ."SELECT %ID%, `nid`, `key` FROM `node__rel` WHERE `tid` = ?", array($id));
-        $this->onSave("REPLACE INTO `node__rel` (`tid`, `nid`, `key`) "
-          ."SELECT `tid`, %ID%, `key` FROM `node__rel` WHERE `nid` = ?", array($id));
-      }
-    }
-
-    return $this;
-  }
-
-  /**
    * Возвращает адрес списка документов этого типа.
    */
   public function getListURL()
