@@ -4,7 +4,18 @@ class TaxonomyAdmin
 {
   public static function on_get_list(Context $ctx)
   {
-    $data = html::em('data', $ctx->db->getResult("SELECT `xmltree` FROM `node` WHERE `class` = 'tag' AND `parent_id` IS NULL"));
+    $xml = $ctx->db->getResult("SELECT `xmltree` FROM `node` WHERE `class` = 'tag' AND `parent_id` IS NULL");
+    if (empty($xml)) {
+      $node = Node::load(array(
+        'class' => 'tag',
+        'deleted' => 0,
+        'parent_id' => null,
+        ), $ctx->db);
+      $xml = $node->getTreeXML(false, true);
+    }
+
+    $data = html::em('data', $xml);
+
     return html::em('content', array(
       'edit' => true,
       'nosearch' => true,
