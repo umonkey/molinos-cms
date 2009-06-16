@@ -123,4 +123,13 @@ class Sitemap
   {
     return os::path($ctx->config->getPath('main/tmpdir'), 'sitemap-' . MCMS_HOST_NAME . '.xml');
   }
+
+  /**
+   * Добавление в robots.txt
+   * @mcms_message ru.molinos.cms.robots.txt
+   */
+  public static function on_get_robots(Context $ctx)
+  {
+    return 'Sitemap: ' . $ctx->url()->getBase($ctx) . 'sitemap.xml';
+  }
 }
