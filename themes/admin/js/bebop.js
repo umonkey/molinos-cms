@@ -240,3 +240,35 @@ function bebop_selected_action(action)
     }
   }
 }
+
+/* Добавление в список разделов чекбокса, позволяющего выбирать/снимать выбор со всех
+ * разделов, http://code.google.com/p/molinos-cms/issues/detail?id=517
+ * -------------------------------------------------------------------------------------------------------------------
+ */
+$(function() {
+  var wrapper = $('.control.sections-wrapper');
+  var checkboxes = wrapper.find('input[type=checkbox]').click(function() {
+    var allChecked = true;
+    checkboxes.each(function() {
+      if (!$(this).is(':checked') ) {
+        allChecked = false;
+        return false;
+      }
+    });
+    if (allChecked) {
+      checkboxesLeader.attr('checked', 'checked');
+    } else {
+      checkboxesLeader.removeAttr('checked');
+    }
+  });
+  var checkboxesLeader = $('<div class="form-checkbox"><label class="normal"><input type="checkbox" /><strong>Все разделы</strong></label></div>').insertAfter(wrapper.find('>label')).find('input').click(function() {
+    if ($(this).is(':checked')) {
+      checkboxes.attr('checked', 'checked');
+    } else {
+      checkboxes.removeAttr('checked');
+    }
+  });
+});
+/*
+ * ----------------------------------------------------------------------------------------------------------------
+ */
