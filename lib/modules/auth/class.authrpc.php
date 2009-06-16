@@ -49,10 +49,10 @@ class AuthRPC extends RPCHandler
    * @param Context $ctx используется для доступа к GET/POST данным.
    * @return string адрес перенаправления пользователя.
    */
-  protected static function rpc_get_su(Context $ctx)
+  public static function rpc_get_su(Context $ctx)
   {
     if (!$ctx->canDebug())
-      throw new ForbiddenException(t('У вас нет прав доступа к sudo'));
+      throw new ForbiddenException();
 
     if (null === ($uid = $ctx->get('uid'))) {
       if ($username = $ctx->get('username'))
@@ -74,17 +74,18 @@ class AuthRPC extends RPCHandler
     }
   }
 
+  /**
+   * Переключается в указанного пользователя, проверяет его статус.
+   */
   private static function login($uid)
   {
-    $node = Node::load(array(
-      'class' => 'user',
-      'id' => $uid,
-      ));
-
-    if (!$node->published)
+    $data = Context::last()->db->fetch("SELECT `id`, `published` FROM `node` WHERE `class` = 'user' AND `deleted` = 0 AND `id` = ?", array($uid));
+    if (empty($data))
+      throw new ForbiddenException(t('Нет такого пользователя.'));
+    elseif (empty($data['published']))
       throw new ForbiddenException(t('Ваш профиль заблокирован.'));
 
-    mcms::session('uid', $node->id);
+    User::storeSessionData($uid);
   }
 
   /**
