@@ -166,7 +166,7 @@ class NodeAPI
   public static function on_get_create_form(Context $ctx)
   {
     if (!($type = $ctx->get('type')))
-      throw new BadRequestException(t('Не указан тип документа (GET-параметр type.)'));
+      throw new BadRequestException(t('Не указан тип документа (GET-параметр type).'));
 
     $node = Node::create($type)->knock('c');
     $form = $node->formGet();
