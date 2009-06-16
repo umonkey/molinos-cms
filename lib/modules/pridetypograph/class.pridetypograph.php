@@ -33,7 +33,12 @@ class PrideTypograph
   {
     $fields = $ctx->config->get('modules/pridetypograph/fields', array());
 
-    if (true or in_array($fieldName, array()) and !empty($text)) {
+    /*
+    if (!in_array($fieldName, $fields))
+      return;
+    */
+
+    if (strlen(trim($text))) {
       try {
         $typo = self::getTypo();
         $text = $typo->parse($text);
