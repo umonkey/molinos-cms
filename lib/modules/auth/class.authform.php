@@ -127,7 +127,7 @@ class AuthForm
    */
   public static function on_get_login_form(Context $ctx)
   {
-    if ($ctx->user->id)
+    if ($ctx->user->id and !$ctx->get('stay'))
       return $ctx->getRedirect();
 
     if (class_exists('APIStream'))
