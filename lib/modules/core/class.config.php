@@ -16,8 +16,11 @@ class Config extends ArrayObject
     else {
       $cache = cache::getInstance();
 
-      if (!is_array($data = $cache->config)) {
+      $fmtime = filemtime($this->path);
+
+      if (!is_array($data = $cache->config) or empty($data['#mtime']) or $data['#mtime'] < $fmtime) {
         $data = Spyc::YAMLLoad($this->path);
+        $data['#mtime'] = $fmtime;
         $cache->config = $data;
       }
     }
