@@ -54,7 +54,7 @@ class xslt
     }
 
     if (empty($output))
-      throw new RuntimeExteption(t('Шаблон %xslt ничего не вернул.', array(
+      throw new RuntimeException(t('Шаблон %xslt ничего не вернул.', array(
         '%xslt' => $xsltName
         )));
 
