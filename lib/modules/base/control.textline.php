@@ -81,8 +81,10 @@ class TextLineControl extends Control
    */
   public function format($value, $em)
   {
+    /*
     $ctx = Context::last();
     $ctx->registry->broadcast('ru.molinos.cms.format.text', array($ctx, $this->value, &$value));
+    */
     return html::wrap($em, html::cdata($value));
   }
 };
