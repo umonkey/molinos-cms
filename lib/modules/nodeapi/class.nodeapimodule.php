@@ -328,7 +328,12 @@ class NodeApiModule extends RPCHandler
       $sql = "REPLACE INTO `node__rel` (`tid`, `nid`, `key`) SELECT %ID%, `id`, ? FROM `node` WHERE `deleted` = 0 AND `id` " . sql::in($pick, $params);
 
       $ctx->db->beginTransaction();
-      $node = Node::load($nid)->knock('u')->onSave($sql, $params)->save();
+      $node = Node::load($nid)->knock('u');
+      if (isset($node->$fieldName))
+        unset($node->$fieldName);
+      $node->onSave("DELETE FROM `node__rel` WHERE `tid` = %ID% AND `key` = ?", array($fieldName))
+        ->onSave($sql, $params)
+        ->save();
       $ctx->db->commit();
 
       // destiantion сейчас указывает на список, а нам надо
