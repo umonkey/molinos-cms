@@ -31,8 +31,8 @@ class Sitemap
           if (count($hosts = explode("\n", $conf['ping']))) {
             $sm = 'http://'. MCMS_HOST_NAME . mcms::path() . '/';
             $sm .= empty($_GET['__cleanurls'])
-              ? '?q=sitemap.rpc'
-              : 'sitemap.rpc';
+              ? '?q=sitemap.xml'
+              : 'sitemap.xml';
 
             foreach ($hosts as $host) {
               mcms::flog('pinging '. $host .' with '. $sm);
@@ -66,8 +66,10 @@ class Sitemap
     $f = fopen($filename . '.tmp', 'w');
 
     fwrite($f, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    /*
     fwrite($f, "<?xml-stylesheet href=\"http://" . url::host() . mcms::path()
       ."/lib/modules/sitemap/sitemap.xsl\" type=\"text/xsl\" media=\"screen\"?>\n");
+    */
     fwrite($f, "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
 
     self::write_sections($ctx, $f);
@@ -84,14 +86,14 @@ class Sitemap
     $res = $ctx->db->getResultsV('id', "SELECT `n`.`id` AS `id` "
       ."FROM `node` `n` "
       ."WHERE `n`.`deleted` = 0 AND `n`.`published` = 1 "
-      ."AND `n`.`class` = 'tag' AND `n`.`id` IN "
+      ."AND `n`.`class` IN('tag', 'label') AND `n`.`id` IN "
       ."(SELECT `tid` FROM `node__rel`)");
 
     if (!empty($res)) {
       fwrite($f, "<!-- sections -->\n");
 
       foreach ($res as $id)
-        fwrite($f, "<url><loc>http://" . url::host() . "/{$id}</loc></url>\n");
+        fwrite($f, "<url><loc>http://" . url::host() . "/node/{$id}</loc></url>\n");
     }
   }
 
@@ -106,14 +108,15 @@ class Sitemap
     if (empty($filter))
       throw new PageNotFoundException(t('Карта сайта не настроена.'));
 
-    if (count($nodes = Node::find($ctx->db, $filter))) {
+    list($sql, $params) = Query::build($filter)->getSelect(array('id', 'updated'));
+    if ($nodes = $ctx->db->getResults($sql, $params)) {
       fwrite($f, "<!-- documents -->\n");
 
       foreach ($nodes as $node) {
         $line = "<url>"
-          ."<loc>http://" . MCMS_HOST_NAME . "/node/{$node->id}</loc>";
-        if (!empty($node->updated)) {
-          $date = gmdate('Y-m-d', strtotime($node->updated));
+          ."<loc>http://" . MCMS_HOST_NAME . "/node/{$node['id']}</loc>";
+        if (!empty($node['updated'])) {
+          $date = gmdate('Y-m-d', strtotime($node['updated']));
           $line .= "<lastmod>{$date}</lastmod>";
         }
         $line .= "</url>\n";
