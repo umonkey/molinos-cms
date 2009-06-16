@@ -175,7 +175,7 @@ class ModManUI
     // Это, за одно, позволит дробить модули без захламления интерфейса
     // и смущения пользователя.
     foreach ($modules as $k => $v)
-      if (empty($v['installed']) or 'required' == $v['priority'])
+      if (empty($v['installed']) or 'required' == @$v['priority'])
         unset($modules[$k]);
 
     return self::getXML2($ctx, $modules, array(

@@ -100,7 +100,7 @@ class ModManRPC extends RPCHandler
 
     // Удаляем отключенные модули.
     foreach (modman::getLocalModules() as $name => $info) {
-      if ('required' != $info['priority'] and in_array($name, $remove)) {
+      if ('required' != @$info['priority'] and in_array($name, $remove)) {
         // Отказываемся удалять локальные модули, которые нельзя вернуть.
         if (!empty($info['url'])) {
           if (modman::uninstall($name))
