@@ -68,7 +68,12 @@ class S3API
     $conf = $ctx->config->get('modules/s3');
     $s3 = new S3($conf['accesskey'], $conf['secretkey']);
 
-    $bucketName = trim($ctx->config->get('modules/s3/bucket', 'files'), '/');
+    if (!($bucketName = trim($ctx->config->get('modules/s3/bucket', 'files'), '/')))
+      throw new RuntimeException(t('Модуль s3 не настроен (bucket).'));
+
+    if ($folderName = $ctx->config->get('module/s3/folder', 'files'))
+      $folderName .= '/';
+
     /*
     if (!in_array($bucketName, $s3->listBuckets()))
       throw new RuntimeException(t('Нет такой папки: ' . $bucketName));
@@ -80,13 +85,13 @@ class S3API
           '%filename' => $fileName,
           )));
 
-      if (!($response = S3::putObject($r, $bucketName, basename($fileName), S3::ACL_PUBLIC_READ)))
+      if (!($response = S3::putObject($r, $bucketName, $folderName . basename($fileName), S3::ACL_PUBLIC_READ)))
         throw new RuntimeException(t('Не удалось загрузить файл %filename в папку %bucket.', array(
           '%filename' => $fileName,
           '%bucket' => $bucketName,
           )));
 
-      $url = 'http://' . $bucketName . '.s3.amazonaws.com/' . basename($fileName);
+      $url = 'http://' . $bucketName . '.s3.amazonaws.com/' . $folderName . basename($fileName);
       mcms::flog('S3: ' . $url);
       return $url;
     }

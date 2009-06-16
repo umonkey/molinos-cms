@@ -20,7 +20,15 @@ class S3Settings
         ),
       'bucket' => array(
         'type' => 'TextLineControl',
-        'label' => t('Ведро'),
+        'label' => t('Субдомен'),
+        'description' => t('Произвольное имя, в домене .s3.amazonaws.com, обычно похоже на что-то вроде «example-com-files».'),
+        'default' => str_replace('.', '-', MCMS_HOST_NAME) . '-files',
+        ),
+      'folder' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Папка'),
+        'description' => t('Файлы можно заливать и в корень, но рекомендуется использовать папку, для порядка.'),
+        'default' => 'files',
         ),
       ));
   }
