@@ -12,13 +12,8 @@ class OpenIdModule extends RPCHandler
    */
   public static function on_auth_start(Context $ctx, array $params)
   {
-    if (false === strpos($params['id'], '://')) {
-      switch ($params['type']) {
-      case 'livejournal':
-        $params['id'] = 'http://' . $params['id'] . '.livejournal.com/';
-        break;
-      }
-    }
+    if (array_key_exists($params['type'], $map = self::getProviders()))
+      $params['id'] = str_replace('!', $params['id'], $map[$params['type']]['rewrite']);
 
     self::OpenIDVerify($params['id']);
     exit();
@@ -256,15 +251,18 @@ class OpenIdModule extends RPCHandler
    */
   public static function on_enum_providers()
   {
+    $list = array(
+      'standard' => 'OpenID',
+      );
+    foreach (self::getProviders() as $k => $v)
+      $list[$k] = $v['name'];
+
     $schema = new Schema(array(
       'type' => array(
         'type' => 'EnumControl',
         'label' => t('Тип провайдера'),
         'required' => true,
-        'options' => array(
-          'livejournal' => 'LiveJournal',
-          'standard' => 'OpenID',
-          ),
+        'options' => $list,
         'default' => 'standard',
         ),
       'id' => array(
@@ -276,5 +274,32 @@ class OpenIdModule extends RPCHandler
       ));
 
     return array('openid', t('Войти с помощью OpenID'), $schema);
+  }
+
+  /**
+   * Возвращает информацию о провайдерах.
+   */
+  protected static function getProviders()
+  {
+    return array(
+      // http://info.diary.ru/index.php?title=OpenID
+      'diary' => array(
+        'name' => 'Diary.ru',
+        'rewrite' => 'http://!.diary.ru/',
+        ),
+      'livejournal' => array(
+        'name' => 'Live Journal',
+        'rewrite' => 'http://!.livejournal.com/',
+        ),
+      // http://www.livejournal.com/userinfo.bml?userid=11742265&t=I
+      'liveinternet' => array(
+        'name' => 'Live Internet',
+        'rewrite' => 'http://www.liveinternet.ru/users/!/',
+        ),
+      'yaru' => array(
+        'name' => 'Я.ру',
+        'rewrite' => 'http://!.ya.ru/',
+        ),
+      );
   }
 }
