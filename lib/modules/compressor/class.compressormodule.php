@@ -14,7 +14,7 @@ class CompressorModule
   /**
    * @mcms_message ru.molinos.cms.reload
    */
-  public static function on_reload(Context $ctx)
+  public static function on_reload(Context $ctx, $path = null)
   {
     $scripts = $styles = array();
 
@@ -27,16 +27,19 @@ class CompressorModule
     }
 
     foreach (os::find('sites', '*', 'themes', '*') as $theme) {
-      if (is_dir($theme)) {
-        $lscripts = array_merge($scripts, os::find($theme, 'scripts', '*.js'));
-        $lstyles = array_merge($styles, os::find($theme, 'styles', '*.css'));
+      if (null === $path or $theme == $path) {
+        if (is_dir($theme)) {
+          $lscripts = array_merge($scripts, os::find($theme, 'scripts', '*.js'));
+          $lstyles = array_merge($styles, os::find($theme, 'styles', '*.css'));
 
-        os::write(os::path($theme, 'compressed.js'), self::get_js_prefix($ctx) . self::join($lscripts, ';'));
-        os::write(os::path($theme, 'compressed.css'), self::join($lstyles));
+          os::write(os::path($theme, 'compressed.js'), self::get_js_prefix($ctx) . self::join($lscripts, ';'));
+          os::write(os::path($theme, 'compressed.css'), self::join($lstyles));
+        }
       }
     }
 
-    self::on_reload_admin($ctx);
+    if (null === $path)
+      self::on_reload_admin($ctx);
   }
 
   private static function on_reload_admin(Context $ctx)
@@ -120,18 +123,24 @@ class CompressorModule
   public static function on_get_head(Context $ctx, array $pathinfo)
   {
     $output = '';
-    $prefix = os::path(MCMS_SITE_FOLDER, 'themes', $pathinfo['theme'], 'compressed.');
+    $theme = os::path(MCMS_SITE_FOLDER, 'themes', $pathinfo['theme']);
 
-    if (file_exists($fileName = $prefix . 'js'))
+    $js = $theme . DIRECTORY_SEPARATOR . 'compressed.js';
+    $css = $theme . DIRECTORY_SEPARATOR . 'compressed.css';
+
+    if (!file_exists($js) or !file_exists($css))
+      self::on_reload($ctx, $theme);
+
+    if (filesize($js))
       $output .= html::em('script', array(
-        'src' => os::webpath($fileName),
+        'src' => os::webpath($js),
         'type' => 'text/javascript',
         ));
-    if (file_exists($fileName = $prefix . 'css'))
+    if (filesize($css))
       $output .= html::em('link', array(
         'rel' => 'stylesheet',
         'type' => 'text/css',
-        'href' => os::webpath($fileName),
+        'href' => os::webpath($css),
         ));
 
     return html::wrap('head', html::cdata($output), array(
