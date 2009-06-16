@@ -143,14 +143,17 @@ class AdminPage
 
   public static function checkperm(Context $ctx, array $pathinfo)
   {
+    if (!empty($pathinfo['anonymous']))
+      return;
+
+      if (!$ctx->user->id)
+        throw new UnauthorizedException();
+
     if ($gid = $ctx->config->get('modules/admin/requiregroup'))
       if (!$ctx->user->hasGroups(array($gid)))
         throw new ForbiddenException();
 
     if (!empty($pathinfo['perms'])) {
-      if (!$ctx->user->id)
-        throw new UnauthorizedException();
-
       if ('debug' == $pathinfo['perms'])
         $result = $ctx->canDebug();
       else {

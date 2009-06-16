@@ -71,6 +71,9 @@
       <body>
         <h1>Ошибка <xsl:value-of select="@status" /></h1>
         <p><xsl:value-of select="@message" disable-output-escaping="yes" /></p>
+        <xsl:if test="@status=403">
+          <p>Вы можете <a href="auth/logout.rpc?destination={$back}">выйти</a> или <a href="login?stay=1&amp;destination={$back}">переключиться в другого пользователя</a>.</p>
+        </xsl:if>
       </body>
     </html>
   </xsl:template>
@@ -199,7 +202,7 @@
       </xsl:if>
 
       <li>
-        <a title="Выйти" href="?q=auth/logout&amp;from={/page/@back}">
+        <a title="Выйти" href="auth/logout.rpc?from={/page/@back}">
           <img src="lib/modules/admin/styles/admin/images/icons/icon-exit.png" alt="logout" width="16" height="16" />
         </a>
       </li>

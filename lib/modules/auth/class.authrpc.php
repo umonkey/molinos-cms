@@ -51,27 +51,25 @@ class AuthRPC extends RPCHandler
    */
   public static function rpc_get_su(Context $ctx)
   {
-    if (!$ctx->canDebug())
-      throw new ForbiddenException();
-
-    if (null === ($uid = $ctx->get('uid'))) {
-      if ($username = $ctx->get('username'))
-        $uid = Node::load(array('class' => 'user', 'name' => $username))->id;
-      else
-        throw new PageNotFoundException(t('Нет такого пользователя.'));
-    }
+    $user = Node::load(array(
+      'class' => 'user',
+      'deleted' => 0,
+      'id' => $ctx->get('id'),
+      ), $ctx->db)->knock('c');
 
     $curuid = $ctx->user->id;
 
-    if ($uid and $uid != $curuid) {
+    if ($user->id and $user->id != $curuid) {
       if (!is_array($stack = mcms::session('uidstack')))
         $stack = array();
 
       $stack[] = $curuid;
       mcms::session('uidstack', $stack);
 
-      self::login($uid);
+      self::login($user->id);
     }
+
+    return $ctx->getRedirect();
   }
 
   /**
@@ -79,11 +77,13 @@ class AuthRPC extends RPCHandler
    */
   private static function login($uid)
   {
-    $data = Context::last()->db->fetch("SELECT `id`, `published` FROM `node` WHERE `class` = 'user' AND `deleted` = 0 AND `id` = ?", array($uid));
-    if (empty($data))
-      throw new ForbiddenException(t('Нет такого пользователя.'));
-    elseif (empty($data['published']))
-      throw new ForbiddenException(t('Ваш профиль заблокирован.'));
+    if ($uid) {
+      $data = Context::last()->db->fetch("SELECT `id`, `published` FROM `node` WHERE `class` = 'user' AND `deleted` = 0 AND `id` = ?", array($uid));
+      if (empty($data))
+        throw new ForbiddenException(t('Нет такого пользователя.'));
+      elseif (empty($data['published']))
+        throw new ForbiddenException(t('Ваш профиль заблокирован.'));
+    }
 
     User::storeSessionData($uid);
   }
@@ -98,12 +98,9 @@ class AuthRPC extends RPCHandler
   {
     $uid = null;
 
-    if (is_array($stack = mcms::session('uidstack'))) {
-      $uid = array_pop($stack);
-      mcms::session('uidstack', $stack);
-    } elseif (mcms::session('uid')) {
-      mcms::session('uid', null);
-    }
+    $stack = (array)mcms::session('uidstack');
+    $uid = array_pop($stack);
+    mcms::session('uidstack', $stack);
 
     if (empty($uid))
       $ctx->user->logout();

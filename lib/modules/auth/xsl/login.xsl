@@ -17,26 +17,6 @@
     />
 
   <xsl:template match="page">
-    <xsl:apply-templates select="document(concat($api,'auth/info.xml'))/node" />
-  </xsl:template>
-
-  <xsl:template match="node[@id]">
-    <xsl:call-template name="redirect">
-      <xsl:with-param name="href">
-        <xsl:choose>
-          <xsl:when test="$next">
-            <xsl:value-of select="$next" />
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="$base" />
-            <xsl:text>admin</xsl:text>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:with-param>
-    </xsl:call-template>
-  </xsl:template>
-
-  <xsl:template match="node[not(@id)]">
     <html>
       <head>
 				<xsl:comment><![CDATA[[if IE]><![if !IE]><![endif]]]></xsl:comment><base href="{$base}" /><xsl:comment><![CDATA[[if IE]><![endif]><![endif]]]></xsl:comment>
@@ -52,7 +32,7 @@
       </head>
       <body>
         <div id="login-form">
-          <xsl:apply-templates select="document(concat($api,'auth/form.xml'))/form" />
+          <xsl:apply-templates select="form" />
         </div>
       </body>
     </html>

@@ -69,7 +69,7 @@ class AuthForm
         )));
     }
 
-    $form->action = '?q=auth.rpc&action=auth&destination=CURRENT';
+    $form->action = 'auth/login.rpc?destination=CURRENT';
 
     return $form;
   }
