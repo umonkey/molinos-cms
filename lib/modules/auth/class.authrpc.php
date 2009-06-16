@@ -1,19 +1,14 @@
 <?php
 
-class AuthRPC extends RPCHandler
+class AuthRPC
 {
-  public static function on_rpc(Context $ctx)
-  {
-    return parent::hookRemoteCall($ctx, __CLASS__);
-  }
-
   /**
    * Обработка запросов на авторизацию. Переправляет в нужный модуль.
    * 
    * @param Context $ctx 
-   * @return void
+   * @return Redirect
    */
-  public static function rpc_post_auth(Context $ctx)
+  public static function rpc_post_login(Context $ctx)
   {
     if (!($mode = $ctx->post('auth_type')))
       throw new BadRequestException(t('Не указан тип авторизации.'));
@@ -94,7 +89,7 @@ class AuthRPC extends RPCHandler
    * @param Context $ctx 
    * @return Response
    */
-  public static function rpc_logout(Context $ctx)
+  public static function rpc_get_logout(Context $ctx)
   {
     $uid = null;
 
