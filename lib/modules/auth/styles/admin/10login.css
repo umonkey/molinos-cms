@@ -1,33 +1,63 @@
-form#login {
+/**
+ * Форма входа.
+ **/
+#login-form {
+  display: block;
+  width: 500px;
+  margin: 200px auto;
+  /*
+  background: url(../img/mcms.logo_90ccw.jpg) no-repeat right bottom;
+  */
+}
+#login-form fieldset {
+  margin: 0;
+  padding: 10px;
+  border: none;
+}
+#login-form legend {
+  display: none;
+}
+#login-form legend span {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+}
+#login-form .control {
+  margin: 10px 0 10px 0;
+}
+#login-form .control label > span {
+  display: block;
+  margin: 4px 0;
+}
+#login-form input.form-text {
+  display: block;
+  width: 462px;
   font-size: 10pt;
-  width: 300px;
-  margin: 1em auto auto;
+  border: solid 2px #ccc;
+  padding: 4px 6px;
 }
-
-#login h1 {
-  font-weight: bold;
-  font-size: 1.5em;
-  margin: .5em 0;
+#login-form .submit-wrapper {
+  background-color: #eee;
+  padding: 5px 10px;
 }
-
-#login .tab {
+#login-form input.submit {
+  height: 2em;
+  padding: 0 40px;
+  font-size: 1.25em;
+}
+#login-form input.submit1 {
+  margin-right: 10px;
+}
+#login-form .auth_type-field-wrapper label {
   display: block;
-  margin: .5em 0 1em 2em;
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+  margin-bottom: .25em;
 }
-#login .tab label {
-  display: block;
-  margin: 0 0 .5em;
+#login-form .auth_type-field-wrapper input {
+  display: none;
 }
-#login .tab label span {
-  display: block;
-}
-
-#login .tab input {
-  width: 100%;
-}
-
-#login .switch {
-  display: block;
-  font-weight: bold;
-  margin: 1em 0 .5em;
+#login-form .note {
+  color: gray;
 }

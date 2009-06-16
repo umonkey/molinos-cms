@@ -35,7 +35,7 @@
     <xsl:call-template name="redirect">
       <xsl:with-param name="href">
         <xsl:value-of select="@base" />
-        <xsl:text>admin/login?destination=</xsl:text>
+        <xsl:text>login?destination=</xsl:text>
         <xsl:value-of select="$back" />
       </xsl:with-param>
     </xsl:call-template>

@@ -108,4 +108,59 @@ class AuthForm
       'create' => 'admin/create/group',
       ), $html);
   }
+
+  /**
+   * Возвращает маршрут для вывода формы авторизации.
+   * @mcms_message ru.molinos.cms.route.poll
+   */
+  public static function on_route_poll()
+  {
+    return array(
+      'GET//login' => array(
+        'call' => __CLASS__ . '::on_get_login_form'
+        ),
+      );
+  }
+
+  /**
+   * Вывод формы авторизации.
+   */
+  public static function on_get_login_form(Context $ctx)
+  {
+    if ($ctx->user->id)
+      return $ctx->getRedirect();
+
+    if (class_exists('APIStream'))
+      APIStream::init($ctx);
+
+    $handler = array(
+      'theme' => $ctx->config->get('modules/auth/login_theme'),
+      );
+
+    $content = '';
+    foreach ((array)$ctx->registry->poll('ru.molinos.cms.page.head', array($ctx, $handler, null), true) as $block)
+      if (!empty($block['result']))
+        $content .= $block['result'];
+
+    $content .= self::getXML($ctx);
+
+    $xml = html::em('page', array(
+      'status' => 401,
+      'base' => $ctx->url()->getBase($ctx),
+      'host' => MCMS_HOST_NAME,
+      'prefix' => os::webpath(MCMS_SITE_FOLDER, 'themes'),
+      'back' => urlencode(MCMS_REQUEST_URI),
+      'next' => $ctx->get('destination'),
+      'api' => APIStream::getPrefix(),
+      'query' => $ctx->query(),
+      ), $content);
+
+    if (file_exists($xsl = os::path(MCMS_SITE_FOLDER, 'themes', $handler['theme'], 'templates', 'login.xsl'))) {
+      try {
+        return xslt::transform($xml, $xsl);
+      } catch (Exception $e) { }
+    }
+
+    return xslt::transform($xml, 'lib/modules/auth/xsl/login.xsl');
+  }
 }
