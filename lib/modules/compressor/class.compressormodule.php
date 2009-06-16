@@ -16,21 +16,15 @@ class CompressorModule
    */
   public static function on_reload(Context $ctx, $path = null)
   {
-    $scripts = $styles = array();
-
-    foreach ($ctx->registry->enum_simple('ru.molinos.cms.compressor.enum', array($ctx)) as $v1) {
-      foreach ($v1 as $v2)
-        if ('script' == $v2[0])
-          $scripts[] = $v2[1];
-        else
-          $styles[] = $v2[1];
-    }
+    list($scripts, $styles) = self::getGlobal($ctx);
 
     foreach (os::find('sites', '*', 'themes', '*') as $theme) {
       if (null === $path or $theme == $path) {
         if (is_dir($theme)) {
           $lscripts = array_merge($scripts, os::find($theme, 'scripts', '*.js'));
           $lstyles = array_merge($styles, os::find($theme, 'styles', '*.css'));
+
+          mcms::debug($path, $scripts, $styles);
 
           os::write(os::path($theme, 'compressed.js'), self::get_js_prefix($ctx) . self::join($lscripts, ';'));
           os::write(os::path($theme, 'compressed.css'), self::join($lstyles));
@@ -125,27 +119,87 @@ class CompressorModule
     $output = '';
     $theme = os::path(MCMS_SITE_FOLDER, 'themes', $pathinfo['theme']);
 
-    $js = $theme . DIRECTORY_SEPARATOR . 'compressed.js';
-    $css = $theme . DIRECTORY_SEPARATOR . 'compressed.css';
+    list($scripts, $styles) = self::getThemeFiles($ctx, $pathinfo['theme'], !$ctx->get('nocompress'));
 
-    if (!file_exists($js) or !file_exists($css))
-      self::on_reload($ctx, $theme);
-
-    if (file_exists($js) and filesize($js))
-      $output .= html::em('script', array(
-        'src' => os::webpath($js),
-        'type' => 'text/javascript',
-        ));
-    if (file_exists($css) and filesize($css))
-      $output .= html::em('link', array(
-        'rel' => 'stylesheet',
-        'type' => 'text/css',
-        'href' => os::webpath($css),
-        ));
+    foreach ($scripts as $fileName)
+      if (file_exists($fileName) and filesize($fileName))
+        $output .= html::em('script', array(
+          'src' => os::webpath($fileName),
+          'type' => 'text/javascript',
+          ));
+    foreach ($styles as $fileName)
+      if (file_exists($fileName) and filesize($fileName))
+        $output .= html::em('link', array(
+          'rel' => 'stylesheet',
+          'type' => 'text/css',
+          'href' => os::webpath($fileName),
+          ));
 
     return html::wrap('head', html::cdata($output), array(
       'module' => 'compressor',
       'weight' => 100,
       ));
+  }
+
+  /**
+   * Возвращает файлы для конкретной шкуры.
+   */
+  private static function getThemeFiles(Context $ctx, $themeName, $compressed = true)
+  {
+    $theme = MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR . $themeName;
+
+    if (!$compressed) {
+      list($scripts, $styles) = self::getGlobal($ctx);
+
+      foreach (os::find($theme, 'scripts', '*.js') as $fileName)
+        $scripts[] = $fileName;
+      foreach (os::find($theme, 'styles', '*.css') as $fileName)
+        $styles[] = $fileName;
+    }
+
+    else {
+      $scripts = $styles = array();
+
+      if (file_exists($js = $theme . DIRECTORY_SEPARATOR . 'compressed.js'))
+        $scripts[] = $js;
+      if (file_exists($css = $theme . DIRECTORY_SEPARATOR . 'compressed.css'))
+        $styles[] = $css;
+
+      if (empty($scripts) or empty($styles)) {
+        list($scripts, $styles) = self::getThemeFiles($ctx, $themeName, false);
+
+        if (empty($scripts))
+          touch($js);
+        else
+          os::write($js, self::get_js_prefix($ctx) . self::join($scripts, ';'));
+        $scripts = array($js);
+
+        if (empty($styles))
+          touch($css);
+        else
+          os::write($css, self::join($styles));
+        $styles = array($css);
+      }
+    }
+
+    return array($scripts, $styles);
+  }
+
+  /**
+   * Возвращает файлы, общие для всех шкур.
+   */
+  public static function getGlobal(Context $ctx)
+  {
+    $scripts = $styles = array();
+
+    foreach ($ctx->registry->enum_simple('ru.molinos.cms.compressor.enum', array($ctx)) as $v1) {
+      foreach ($v1 as $v2)
+        if ('script' == $v2[0])
+          $scripts[] = $v2[1];
+        else
+          $styles[] = $v2[1];
+    }
+
+    return array($scripts, $styles);
   }
 }
