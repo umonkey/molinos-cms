@@ -60,8 +60,8 @@ class UserNode extends Node implements iContentType
     $user = Context::last()->user;
 
     if ($user->id != $this->id and $this->published and $user->hasAccess('u', 'user'))
-      $links['sudo'] = array(
-        'href' => 'auth.rpc?action=su&uid='. $this->id
+      $links['su'] = array(
+        'href' => 'auth/su.rpc?id='. $this->id
           .'&destination=CURRENT',
         'title' => 'Переключиться в пользователя',
         'icon' => 'sudo',
