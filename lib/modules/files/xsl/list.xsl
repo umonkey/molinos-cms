@@ -107,6 +107,7 @@
         <th/>
         <th/>
         <th>Имя файла</th>
+        <th>Хост</th>
         <th>Объём</th>
         <th>Владелец</th>
         <th>Добавлен</th>
@@ -133,6 +134,9 @@
               </xsl:apply-templates>
               <span><xsl:value-of select="@name" /></span>
             </a>
+          </td>
+          <td>
+            <xsl:value-of select="remoteurl/@host" />
           </td>
           <td class="r">
             <xsl:call-template name="filesize">
