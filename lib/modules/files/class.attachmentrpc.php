@@ -333,4 +333,19 @@ class AttachmentRPC extends RPCHandler
 
     return new Redirect($url, Redirect::TEMPORARY);
   }
+
+  /**
+   * Открепляет файл от документа.
+   */
+  public static function on_unlink_from_node(Context $ctx)
+  {
+    $ctx->db->beginTransaction();
+    $ctx->db->exec("DELETE FROM `node__rel` WHERE `tid` = ? AND `nid` = ? AND `key` = ?",
+      array($ctx->get('node'), $ctx->get('file'), $ctx->get('field')));
+    // Пересохраняем ноду, чтобы сработали обработчики изменения, вроде индексатора.
+    Node::load($ctx->get('node'), $ctx->db)->touch()->save();
+    $ctx->db->commit();
+
+    return $ctx->getRedirect();
+  }
 }

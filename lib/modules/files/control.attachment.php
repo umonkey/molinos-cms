@@ -147,33 +147,33 @@ class AttachmentControl extends Control
 
   public function preview($value)
   {
-    $value = $value->{$this->value};
+    $file = $value->{$this->value};
 
-    if (!($value instanceof FileNode))
+    if (!($file instanceof FileNode))
       return;
 
-    if (0 === strpos($value->filetype, 'image/')) {
+    if (0 === strpos($file->filetype, 'image/')) {
       $path = Context::last()->config->getPath('modules/files/storage');
 
-      if (isset($value->versions['thumbnail'])) {
+      if (isset($file->versions['thumbnail'])) {
         $attrs = array(
-          'width' => $value->versions['thumbnail']['width'],
-          'height' => $value->versions['thumbnail']['height'],
-          'src' => os::webpath($path, $value->versions['thumbnail']['filename']),
+          'width' => $file->versions['thumbnail']['width'],
+          'height' => $file->versions['thumbnail']['height'],
+          'src' => os::webpath($path, $file->versions['thumbnail']['filename']),
           );
       } else {
         $attrs = array(
-          'width' => $value->width,
-          'height' => $value->height,
-          'src' => os::webpath($path, $value->filepath),
+          'width' => $file->width,
+          'height' => $file->height,
+          'src' => os::webpath($path, $file->filepath),
           );
       }
 
-      $attrs['alt'] = $value->filename;
+      $attrs['alt'] = $file->filename;
 
       $img = html::em('img', $attrs);
       $html = html::em('a', array(
-        'href' => 'admin/node/' . $value->id
+        'href' => 'admin/node/' . $file->id
           .  '?destination=' . urlencode($_SERVER['REQUEST_URI']),
         ), $img);
     }
@@ -181,10 +181,15 @@ class AttachmentControl extends Control
     // Не картинки.
     else {
       $html = html::em('a', array(
-        'href' => "admin/node/{$value->id}?destination=CURRENT",
-        ), html::plain($value->filename));
-      // $html = $this->getEmbedCode($value);
+        'href' => "admin/node/{$file->id}?destination=CURRENT",
+        ), html::plain($file->filename));
+      // $html = $this->getEmbedCode($file);
     }
+
+    if ($value->checkPermission('u'))
+      $html .= t('<p><a href="@url">Открепить файл</a></p>', array(
+        '@url' => "files/unlink.rpc?node={$value->id}&file={$file->id}&field={$this->value}&destination=" . urlencode($_SERVER['REQUEST_URI']),
+        ));
 
     return html::em('value', array(
       'html' => true,
