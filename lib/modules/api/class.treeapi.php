@@ -112,7 +112,7 @@ class TreeAPI
       $node->getDB()->exec($sql = "UPDATE `node` SET `xmltree` = NULL WHERE `id` " . sql::in($parents, $params));
 
       $upd = $node->getDB()->prepare("UPDATE `node` SET `xmltree` = ? WHERE `id` = ?");
-      foreach ($parents as $id)
+      while ($id = array_pop($parents))
         $upd->execute(array(Node::load($id, $node->getDB())->getTreeXML(false), $id));
     }
   }
