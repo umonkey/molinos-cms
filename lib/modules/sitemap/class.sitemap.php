@@ -66,13 +66,9 @@ class Sitemap
     $f = fopen($filename . '.tmp', 'w');
 
     fwrite($f, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-    /*
-    fwrite($f, "<?xml-stylesheet href=\"http://" . url::host() . mcms::path()
-      ."/lib/modules/sitemap/sitemap.xsl\" type=\"text/xsl\" media=\"screen\"?>\n");
-    */
     fwrite($f, "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
 
-    self::write_sections($ctx, $f);
+    self::write_root($ctx, $f);
     self::write_nodes($ctx, $f);
 
     fwrite($f, "</urlset>\n");
@@ -81,32 +77,14 @@ class Sitemap
     rename($filename . '.tmp', $filename);
   }
 
-  private static function write_sections(Context $ctx, $f)
-  {
-    $res = $ctx->db->getResultsV('id', "SELECT `n`.`id` AS `id` "
-      ."FROM `node` `n` "
-      ."WHERE `n`.`deleted` = 0 AND `n`.`published` = 1 "
-      ."AND `n`.`class` IN('tag', 'label') AND `n`.`id` IN "
-      ."(SELECT `tid` FROM `node__rel`)");
-
-    if (!empty($res)) {
-      fwrite($f, "<!-- sections -->\n");
-
-      foreach ($res as $id)
-        fwrite($f, "<url><loc>http://" . url::host() . "/node/{$id}</loc></url>\n");
-    }
-  }
-
   private static function write_nodes(Context $ctx, $f)
   {
     $filter = array(
-      'class' => (array)$ctx->config->get('modules/sitemap/send_types'),
+      'class' => $ctx->db->getResultsV("name", "SELECT `name` FROM `node` WHERE `class` = 'type' AND `deleted` = 0 AND `published` = 1"),
       'published' => 1,
       'deleted' => 0,
+      '#sort' => '-id',
       );
-
-    if (empty($filter))
-      throw new PageNotFoundException(t('Карта сайта не настроена.'));
 
     list($sql, $params) = Query::build($filter)->getSelect(array('id', 'updated'));
     if ($nodes = $ctx->db->getResults($sql, $params)) {
@@ -116,7 +94,7 @@ class Sitemap
         $line = "<url>"
           ."<loc>http://" . MCMS_HOST_NAME . "/node/{$node['id']}</loc>";
         if (!empty($node['updated'])) {
-          $date = gmdate('Y-m-d', strtotime($node['updated']));
+          $date = gmdate('c', strtotime($node['updated']));
           $line .= "<lastmod>{$date}</lastmod>";
         }
         $line .= "</url>\n";
@@ -125,45 +103,24 @@ class Sitemap
     }
   }
 
+  private static function write_root(Context $ctx, $f)
+  {
+    $types = $ctx->db->getResultsV("name", "SELECT `name` FROM `node` WHERE `class` = 'type' AND `deleted` = 0 AND `published` = 1");
+
+    $params = array();
+    $max = $ctx->db->fetch("SELECT MAX(updated) FROM `node` WHERE `published` = 1 AND `deleted` = 0 AND `class` " . sql::in($types, $params), $params);
+
+    $line = "<!-- root -->\n<url>"
+      ."<loc>http://" . MCMS_HOST_NAME . "/</loc>";
+    $date = gmdate('c', strtotime($max));
+    $line .= '<changefreq>hourly</changefreq>';
+    $line .= "<lastmod>{$date}</lastmod>";
+    $line .= "</url>\n";
+    fwrite($f, $line);
+  }
+
   private static function get_file_path(Context $ctx)
   {
     return os::path($ctx->config->getPath('main/tmpdir'), 'sitemap-' . MCMS_HOST_NAME . '.xml');
-  }
-
-  /**
-   * @mcms_message ru.molinos.cms.module.settings.sitemap
-   */
-  public static function on_get_settings(Context $ctx)
-  {
-    return new Schema(array(
-      'ping' => array(
-        'type' => 'TextAreaControl',
-        'label' => t('Уведомлять поисковые серверы'),
-        'default' => "www.google.com",
-        'description' => t('Не все серверы поддерживают уведомления, не надо добавлять всё подряд!'),
-        'weight' => 1,
-        'group' => t('Серверы'),
-        ),
-      'no_ping' => array(
-        'type' => 'BoolControl',
-        'label' => t('Не надо никого уведомлять'),
-        'description' => t('Отправка уведомлений производится при каждом '
-          .'добавлении или удалении документа, что может тормозить работу. '
-          .'Гораздо лучше явно <a href="@url">сказать поисковым серверам</a>, '
-          .'где следует брать карту сайта.', array(
-            '@url' => 'http://www.google.com/webmasters/sitemaps/',
-            )),
-        'weight' => 2,
-        'group' => t('Серверы'),
-        ),
-      'send_types' => array(
-        'type' => 'SetControl',
-        'label' => t('Сообщать о документах типов'),
-        'options' => Node::getSortedList('type', 'title', 'name'),
-        'weight' => 3,
-        'group' => t('Типы доокументов'),
-        'store' => true,
-        ),
-      ));
   }
 }
