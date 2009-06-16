@@ -12,20 +12,67 @@ html, body { height:100%; overflow:hidden; }
 			#console .panels li.panel.xmlapi-constructor { display:none; }
 			#console .panels li.panel.xmlapi-inspector { display:none; }
 				#console .panels li.panel .display { width:100%; height:100%; overflow:auto; background:#131313; }
-					#console .panels li.panel .display ul { list-style:none outside; margin:0; padding:10px; }
-						#console .panels li.panel .display ul li { font-size:.917em; line-height:1.455; margin:0 0 .364em 0; }
-						#console .panels li.panel .display ul li.error { color:red; }
+				
+					#console .panels li.panel.console .display ul { list-style:none outside; margin:0; padding:10px; }
+						#console .panels li.panel.console .display ul li { font-size:.917em; line-height:1.455; margin:0 0 .364em 0; }
+						#console .panels li.panel.console .display ul li.error { color:red; }
 						
 				#console .panels li.panel.console .input { margin:.667em 0 0 0; }
 		
 		#console ul.panel-selector { list-style:none outside; width:100%; overflow:hidden; margin:0; }
 			#console ul.panel-selector li { float:left; padding:6px 10px; background:#262626; cursor:pointer; margin:0; }
 			#console ul.panel-selector li.active { background:#131313; }
-		
-		
+
 		#console input.console-command { border:none; background:#131313; width:400px; padding:.25em; margin:0; font:1em/1.335 Verdana, sans-serif; color:#fff; }
 		#console input.submit { border:none; background:#131313; width:30px; padding:.15em .25em; margin:0 0 0 10px; font:1em/1.335 Verdana, sans-serif; color:#fff; cursor:pointer; }
 		#console span.clear { font-size:.917em; line-height:1.455; margin:0 0 0 10px; text-decoration:underline; cursor:pointer; }
 		#console span.clear:hover { text-decoration:none; }
 		
 		#console .note { font-size:.834em; line-height:1.6; margin:.8em 0 .8em 0; }
+		
+		
+		
+		
+		#console .panels li.panel.xmlapi-constructor {  }
+			#console .panels li.panel.xmlapi-constructor .display {  }
+				#console .panels li.panel.xmlapi-constructor .points { float:left; width:270px; padding:0 20px;  }
+				#console .panels li.panel.xmlapi-constructor .params {  float:left; width:350px; padding:0 20px; }
+				#console .panels li.panel.xmlapi-constructor .result {  float:left; width:300px; padding:0 20px; }
+				
+				#console .panels li.panel.xmlapi-constructor .display h2 { font-size:1em; line-height:1.335; margin:1.335em 0 1.335em 0; }
+				#console .panels li.panel.xmlapi-constructor .display ul { padding:0; }
+				#console .panels li.panel.xmlapi-constructor .display a { color:#A7C0DC; }
+				
+					#console .panels li.panel.xmlapi-constructor .points ul { list-style:none outside; margin:0 0 1.335em 0; }
+						#console .panels li.panel.xmlapi-constructor .points ul li { margin:0 0 1.335em 0; cursor:pointer; }
+							#console .panels li.panel.xmlapi-constructor .points ul li h3 { font-size:1em; line-height:1.335; margin:0 0 .335em 0; }	
+								#console .panels li.panel.xmlapi-constructor .points ul li h3 a { text-decoration:none; }
+								#console .panels li.panel.xmlapi-constructor .points ul li h3 a:hover { text-decoration:underline; }
+							#console .panels li.panel.xmlapi-constructor .points ul li p.description { margin:0; color:#ccc; }
+							
+								#console .panels li.panel.xmlapi-constructor .points ul li ul { margin:.667em 0 0 15px; display:none; }
+									#console .panels li.panel.xmlapi-constructor .points ul li ul li { font-size:.917em; line-height:1.455; margin:0 0 -2px 0; padding:.667em; border:2px solid #000; }
+						
+					
+					#console .panels li.panel.xmlapi-constructor .params p.noparams { display:none; font-size:.917em; line-height:1.46; margin:0 0 .36em 0; color:#ccc; }
+						
+					#console .panels li.panel.xmlapi-constructor .params form { display:none; }
+						#console .panels li.panel.xmlapi-constructor .params div { display:block; margin:0 0 .667em 0; }
+							#console .panels li.panel.xmlapi-constructor .params div p.title { font-size:.917em; line-height:1.46; margin:0 0 .36em 0; font-weight:bold; }
+							
+							#console .panels li.panel.xmlapi-constructor .params div input,
+							#console .panels li.panel.xmlapi-constructor .result textarea { border:none; background:#262626; width:300px; padding:.25em; margin:0; font:1em/1.335 Verdana, sans-serif; color:#fff; } 
+							
+							#console .panels li.panel.xmlapi-constructor .params div p.description { font-size:.917em; line-height:1.46; margin:.36em 0 .36em 0; color:#ccc; width:300px; }
+			
+					
+					#console .panels li.panel.xmlapi-constructor .result h3 { font-size:1em; line-height:1.335; margin:1.335em 0 .335em 0; font-weight:normal; }
+					#console .panels li.panel.xmlapi-constructor .result textarea { margin:0 0 .335em 0; }
+					#console .panels li.panel.xmlapi-constructor .result input { border:none; background:#262626; padding:.15em .25em; margin:0; font:1em/1.335 Verdana, sans-serif; color:#fff; cursor:pointer; }
+		
+		
+		
+		
+		
+		
+		

@@ -24,6 +24,7 @@
 				
 				<script src="./lib/modules/console/scripts/jquery.js" type="text/javascript"></script>
 				<script src="./lib/modules/console/scripts/jqXMLUtils_beta3.js" type="text/javascript"></script>
+				<script src="./lib/modules/console/scripts/constructor-config.js" type="text/javascript"></script>
 				<script src="./lib/modules/console/scripts/console-core.js" type="text/javascript"></script>
 				<script src="./lib/modules/console/scripts/console-commands.js" type="text/javascript"></script>
 			</head>
@@ -36,7 +37,6 @@
 						<ul class="panel-selector">
 							<li class="active">Консоль</li>
 							<li>XML API - конструктор</li>
-							<li>XML API - инспектор</li>
 						</ul>
 						
 						<ul class="panels">
@@ -55,14 +55,29 @@
 							</li>
 							<li class="panel xmlapi-constructor">
 								<div class="display">
-									<ul />
-									Здесь пока ничего нет
-								</div>
-							</li>
-							<li class="panel xmlapi-inspector">
-								<div class="display">
-									<ul />
-									Здесь пока тоже пусто
+									
+									<div class="points">
+										<h2>Точки вызова</h2>
+										<ul />
+									</div>
+									
+									<div class="params">
+										<h2>Параметры</h2>
+										<p class="noparams">Выбранная точка вызова не имеет параметров.</p>
+										<form action="">
+											<fieldset />
+										</form>
+									</div>
+									
+									<div class="result">
+										<h2>Код</h2>
+										<h3>URL:</h3>
+										<textarea cols="50" rows="3"></textarea>
+										<input type="submit" value="Перейти »" />
+										<h3>В шаблоне:</h3>
+										<textarea cols="50" rows="3"></textarea>
+									</div>
+									
 								</div>
 							</li>
 						</ul>
