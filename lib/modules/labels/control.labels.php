@@ -108,6 +108,8 @@ class LabelsControl extends ListControl
    */
   protected function getLabelsFor(Node $node)
   {
+    if (!$node->id)
+      return array();
     return array_unique((array)$node->getDB()->getResultsKV('id', 'name', "SELECT `id`, `name` FROM `node` "
       . "WHERE `class` = 'label' AND `deleted` = 0 AND `id` "
       . "IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ? AND `key` = ?)",
