@@ -24,6 +24,11 @@ class UserConfig
         'type' => 'BoolControl',
         'label' => t('Проверять пароль при изменении профиля'),
         ),
+      'login_theme' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Шкура для формы входа'),
+        'description' => t('Используется шаблон login.xsl, если такого нет или в нём ошибка — используется встроенный.'),
+        ),
       ));
   }
 
