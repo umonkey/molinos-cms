@@ -100,7 +100,8 @@ class LabelsControl extends ListControl
    */
   protected function getValue($data)
   {
-    return implode(', ', $this->getLabelsFor($data));
+    if ($data instanceof Node)
+      return implode(', ', $this->getLabelsFor($data));
   }
 
   /**
