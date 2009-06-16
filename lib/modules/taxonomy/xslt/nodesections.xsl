@@ -19,39 +19,31 @@
           Вы также можете <a href="admin/system/settings/taxonomy?destination={$back}">указать</a>, какие документы можно помещать в один раздел, а какие — в несколько.
         </p>
       </xsl:when>
-      <xsl:when test="$enabled/node">
+      <xsl:otherwise>
         <p>В каких <a href="admin/structure/taxonomy">разделах</a> следует разместить этот документ?</p>
-      </xsl:when>
-      <xsl:when test="$enabled/@typeid">
-        <p>
-          Этот документ нельзя поместить ни в один раздел.
-          <a href="admin/structure/taxonomy/setup?node={$enabled/@typeid}&amp;destination={$back}">Изменить это</a>?
-        </p>
-      </xsl:when>
+      </xsl:otherwise>
     </xsl:choose>
 
-    <xsl:if test="$enabled/node">
-      <form method="post">
-        <table class="classic" id="nodesections">
-          <thead>
-            <xsl:call-template name="okbtn" />
-          </thead>
-          <tbody>
-            <xsl:apply-templates select="document(concat($api,'node/tree.xml?type=tag'))/node" mode="treeTable">
-              <xsl:with-param name="type">
-                <xsl:choose>
-                  <xsl:when test="not($enabled/@multiple)">radio</xsl:when>
-                  <xsl:otherwise>checkbox</xsl:otherwise>
-                </xsl:choose>
-              </xsl:with-param>
-            </xsl:apply-templates>
-          </tbody>
-          <tfoot>
-            <xsl:call-template name="okbtn" />
-          </tfoot>
-        </table>
-      </form>
-    </xsl:if>
+    <form method="post">
+      <table class="classic" id="nodesections">
+        <thead>
+          <xsl:call-template name="okbtn" />
+        </thead>
+        <tbody>
+          <xsl:apply-templates select="document(concat($api,'node/tree.xml?type=tag'))/node" mode="treeTable">
+            <xsl:with-param name="type">
+              <xsl:choose>
+                <xsl:when test="not($enabled/@multiple)">radio</xsl:when>
+                <xsl:otherwise>checkbox</xsl:otherwise>
+              </xsl:choose>
+            </xsl:with-param>
+          </xsl:apply-templates>
+        </tbody>
+        <tfoot>
+          <xsl:call-template name="okbtn" />
+        </tfoot>
+      </table>
+    </form>
 
     <xsl:if test="$enabled/@typeid">
       <p>
@@ -80,16 +72,14 @@
 
     <xsl:variable name="id" select="@id" />
 
-    <xsl:if test="$enabled/node[@id=$id]">
+    <xsl:if test="not($enabled/node) or $enabled/node[@id=$id]">
       <tr>
         <th>
-          <xsl:if test="$enabled/node[@id=$id]">
-            <input type="{$type}" value="{@id}" name="selected[]" id="cb-{@id}">
-              <xsl:if test="$selected/node[@id=$id]">
-                <xsl:attribute name="checked">checked</xsl:attribute>
-              </xsl:if>
-            </input>
-          </xsl:if>
+          <input type="{$type}" value="{@id}" name="selected[]" id="cb-{@id}">
+            <xsl:if test="$selected/node[@id=$id]">
+              <xsl:attribute name="checked">checked</xsl:attribute>
+            </xsl:if>
+          </input>
         </th>
         <td>
           <label for="cb-{@id}">
