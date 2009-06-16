@@ -1,12 +1,7 @@
 <?php
 
-class AuthBasicRPC extends RPCHandler
+class AuthBasicRPC
 {
-  public static function on_rpc(Context $ctx)
-  {
-    return parent::hookRemoteCall($ctx, __CLASS__);
-  }
-
   public static function rpc_get_restore(Context $ctx)
   {
     $node = Node::load(array(

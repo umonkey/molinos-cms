@@ -56,7 +56,7 @@ class BasicRestorePW
       'email' => $node->name,
       'host' => MCMS_HOST_NAME,
       'base' => $ctx->url()->getBase($ctx),
-      'link' => '?q=authbasic.rpc&action=restore&email=' . urlencode($node->name)
+      'link' => 'authbasic/restore.rpc?email=' . urlencode($node->name)
         . '&otp=' . urlencode($salt),
       ));
 
