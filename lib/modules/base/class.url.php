@@ -366,7 +366,7 @@ class url
     return $result;
   }
 
-  public function getArgsXML()
+  public function getArgsXML($old = true)
   {
     $tmp = '';
     $get = preg_split('/[?&]+/', $this->getArgsAsString(), -1, PREG_SPLIT_NO_EMPTY);
@@ -383,7 +383,9 @@ class url
       }
     }
 
-    $result = html::wrap('getArgs', $tmp);
+    $result = '';
+    if ($old)
+      $result .= html::wrap('getArgs', $tmp);
     if (!empty($tmp2))
       $result .= html::em('args', $tmp2);
     return $result;
