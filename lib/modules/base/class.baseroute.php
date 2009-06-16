@@ -206,4 +206,13 @@ class BaseRoute
       return $data['xml'];
     }
   }
+
+  /**
+   * Выдаёт информацию о параметрах запроса.
+   * @mcms_message ru.molinos.cms.page.head
+   */
+  public static function on_get_page_head(Context $ctx)
+  {
+    return $ctx->url()->getArgsXML(false);
+  }
 }
