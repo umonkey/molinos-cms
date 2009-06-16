@@ -131,12 +131,12 @@ class CompressorModule
     if (!file_exists($js) or !file_exists($css))
       self::on_reload($ctx, $theme);
 
-    if (filesize($js))
+    if (file_exists($js) and filesize($js))
       $output .= html::em('script', array(
         'src' => os::webpath($js),
         'type' => 'text/javascript',
         ));
-    if (filesize($css))
+    if (file_exists($css) and filesize($css))
       $output .= html::em('link', array(
         'rel' => 'stylesheet',
         'type' => 'text/css',
