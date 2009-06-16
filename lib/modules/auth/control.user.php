@@ -41,10 +41,10 @@ class UserControl extends Control
       return;
 
     // Пользователь залогинен, делать нечего.
-    if (!$this->required)
+    if (!$this->required and Context::last()->user->id)
       return parent::wrapXML(array(
         'type' => 'checkbox',
-        'title' => t('Анонимно'),
+        'title' => t('Опубликовать анонимно'),
         ));
   }
 
