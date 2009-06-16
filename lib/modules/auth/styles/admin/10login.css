@@ -61,3 +61,37 @@
 #login-form .note {
   color: gray;
 }
+
+form#login {
+  font-size: 10pt;
+  width: 300px;
+  margin: 1em auto auto;
+}
+
+#login h1 {
+  font-weight: bold;
+  font-size: 1.5em;
+  margin: .5em 0;
+}
+
+#login .tab {
+  display: block;
+  margin: .5em 0 1em 2em;
+}
+#login .tab label {
+  display: block;
+  margin: 0 0 .5em;
+}
+#login .tab label span {
+  display: block;
+}
+
+#login .tab input {
+  width: 100%;
+}
+
+#login .switch {
+  display: block;
+  font-weight: bold;
+  margin: 1em 0 .5em;
+}
