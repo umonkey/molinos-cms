@@ -19,36 +19,46 @@
           Вы также можете <a href="admin/system/settings/taxonomy?destination={$back}">указать</a>, какие документы можно помещать в один раздел, а какие — в несколько.
         </p>
       </xsl:when>
-      <xsl:otherwise>
+      <xsl:when test="$enabled/node">
+        <p>В каких <a href="admin/structure/taxonomy">разделах</a> следует разместить этот документ?</p>
+      </xsl:when>
+      <xsl:when test="$enabled/@typeid">
         <p>
-          В каких <a href="admin/structure/taxonomy">разделах</a> следует разместить этот документ?
-          <xsl:if test="$enabled/@typeid">
-            Можно выбрать только разделы, <a href="admin/structure/taxonomy/setup?node={$enabled/@typeid}&amp;destination={$back}">разрешённые для документов этого типа</a>.
-          </xsl:if>
+          Этот документ нельзя поместить ни в один раздел.
+          <a href="admin/structure/taxonomy/setup?node={$enabled/@typeid}&amp;destination={$back}">Изменить это</a>?
         </p>
-      </xsl:otherwise>
+      </xsl:when>
     </xsl:choose>
 
-    <form method="post">
-      <table class="classic" id="nodesections">
-        <thead>
-          <xsl:call-template name="okbtn" />
-        </thead>
-        <tbody>
-          <xsl:apply-templates select="document(concat($api,'node/tree.xml?type=tag'))/node" mode="treeTable">
-            <xsl:with-param name="type">
-              <xsl:choose>
-                <xsl:when test="not($enabled/@multiple)">radio</xsl:when>
-                <xsl:otherwise>checkbox</xsl:otherwise>
-              </xsl:choose>
-            </xsl:with-param>
-          </xsl:apply-templates>
-        </tbody>
-        <tfoot>
-          <xsl:call-template name="okbtn" />
-        </tfoot>
-      </table>
-    </form>
+    <xsl:if test="$enabled/node">
+      <form method="post">
+        <table class="classic" id="nodesections">
+          <thead>
+            <xsl:call-template name="okbtn" />
+          </thead>
+          <tbody>
+            <xsl:apply-templates select="document(concat($api,'node/tree.xml?type=tag'))/node" mode="treeTable">
+              <xsl:with-param name="type">
+                <xsl:choose>
+                  <xsl:when test="not($enabled/@multiple)">radio</xsl:when>
+                  <xsl:otherwise>checkbox</xsl:otherwise>
+                </xsl:choose>
+              </xsl:with-param>
+            </xsl:apply-templates>
+          </tbody>
+          <tfoot>
+            <xsl:call-template name="okbtn" />
+          </tfoot>
+        </table>
+      </form>
+    </xsl:if>
+
+    <xsl:if test="$enabled/@typeid">
+      <p>
+        Видны только разделы, в которые можно помещать документы этого типа.
+        Вы можете <a href="admin/structure/taxonomy/setup?node={$enabled/@typeid}&amp;destination={$back}">изменить этот список</a>.
+      </p>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template name="okbtn">
@@ -70,25 +80,27 @@
 
     <xsl:variable name="id" select="@id" />
 
-    <tr>
-      <th>
-        <xsl:if test="$enabled/node[@id=$id]">
-          <input type="{$type}" value="{@id}" name="selected[]" id="cb-{@id}">
-            <xsl:if test="$selected/node[@id=$id]">
-              <xsl:attribute name="checked">checked</xsl:attribute>
-            </xsl:if>
-          </input>
-        </xsl:if>
-      </th>
-      <td>
-        <label for="cb-{@id}">
-          <xsl:value-of select="$pad" />
-          <a href="admin/node/{@id}">
-            <xsl:apply-templates select="." mode="displayName" />
-          </a>
-        </label>
-      </td>
-    </tr>
+    <xsl:if test="$enabled/node[@id=$id]">
+      <tr>
+        <th>
+          <xsl:if test="$enabled/node[@id=$id]">
+            <input type="{$type}" value="{@id}" name="selected[]" id="cb-{@id}">
+              <xsl:if test="$selected/node[@id=$id]">
+                <xsl:attribute name="checked">checked</xsl:attribute>
+              </xsl:if>
+            </input>
+          </xsl:if>
+        </th>
+        <td>
+          <label for="cb-{@id}">
+            <xsl:value-of select="$pad" />
+            <a href="admin/node/{@id}">
+              <xsl:apply-templates select="." mode="displayName" />
+            </a>
+          </label>
+        </td>
+      </tr>
+    </xsl:if>
     <xsl:apply-templates select="node" mode="treeTable">
       <xsl:with-param name="pad" select="concat($pad,'&#160;&#160;')" />
       <xsl:with-param name="type" select="$type" />
