@@ -107,4 +107,12 @@ class APIStream
       self::$router->poll($ctx);
     }
   }
+
+  /**
+   * Возвращает префикс для обращения к XML API из шаблонов.
+   */
+  public static function getPrefix()
+  {
+    return 'cms://localhost/api/';
+  }
 }
