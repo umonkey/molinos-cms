@@ -2,8 +2,10 @@
 
 class AdminUI
 {
-  public static function submenu(Context $ctx, $query)
+  public static function submenu(Context $ctx, $query, array $pathinfo)
   {
+    AdminPage::checkperm($ctx, $pathinfo);
+
     $router = new Router();
     $router->poll($ctx);
 
