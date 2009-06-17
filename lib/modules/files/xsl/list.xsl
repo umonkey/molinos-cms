@@ -7,7 +7,9 @@
     <xsl:variable name="sendto" select="/page/request/getArgs/arg[@name='sendto']" />
 
     <div class="doclist filelist">
-      <h2>Файловый архив</h2>
+      <xsl:if test="not(/page/request/args/@bare)">
+        <h2>Файловый архив</h2>
+      </xsl:if>
 
       <xsl:choose>
         <xsl:when test="data/node">
@@ -131,7 +133,17 @@
             </a>
           </td>
           <td class="field-name">
-            <a href="admin/node/{@id}?destination={$back}">
+            <a>
+              <xsl:attribute name="href">
+                <xsl:choose>
+                  <xsl:when test="/page/request/args/@picker">
+                    <xsl:value-of select="concat('javascript:mcms_tinymce_pick(',@id,',&quot;',/page/request/args/@picker,'&quot;);')" />
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:value-of select="concat('admin/node/',@id,'?destination=',$back)" />
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:attribute>
               <xsl:apply-templates select="." mode="thumbnail">
                 <xsl:with-param name="size">16</xsl:with-param>
               </xsl:apply-templates>
