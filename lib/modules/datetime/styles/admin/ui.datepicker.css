@@ -60,3 +60,8 @@
     width: 200px; /*must have*/
     height: 200px; /*must have*/
 }
+
+/**
+ * Без этого на всех страницах появляется вертикальная прокрутка.
+ */
+#ui-datepicker-div { display:none; }

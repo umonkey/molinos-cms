@@ -108,9 +108,9 @@
           <a href="{@base}">
             <xsl:value-of select="@host" />
           </a>
+          <img src="cron.rpc?destination=lib/modules/admin/styles/admin/images/pixel.gif" alt="cron runner" />
         </div>
 
-        <img src="cron.rpc?destination=lib/modules/admin/styles/admin/images/pixel.gif" alt="cron runner" />
       </xsl:if>
     </div>
 
