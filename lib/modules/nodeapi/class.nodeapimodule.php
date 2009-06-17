@@ -84,7 +84,7 @@ class NodeApiModule extends RPCHandler
     } else {
       $xml = Node::findXML($filter, $ctx->db);
       if (empty($xml))
-        throw new RuntimeExteption(t('Для этого документа нет XML представления (такого быть не должно), см. <a href="@url">сырой вариант</a>.', array(
+        throw new RuntimeException(t('Для этого документа нет XML представления (такого быть не должно), см. <a href="@url">сырой вариант</a>.', array(
           '@url' => '?q=node/' . $filter['id'] . '/dump&raw=1',
           )));
       $res = new Response('<?xml version="1.0"?>' . $xml, 'text/xml');

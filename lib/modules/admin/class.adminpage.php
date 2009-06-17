@@ -81,7 +81,7 @@ class AdminPage
       }
 
       if (!is_callable($pathinfo['next']))
-        throw new RuntimeExteption(t('Неверный обработчик для страницы %path (<tt>%next()</tt>).', array(
+        throw new RuntimeException(t('Неверный обработчик для страницы %path (<tt>%next()</tt>).', array(
           '%path' => $path,
           '%next' => $pathinfo['next'],
           )));
@@ -105,7 +105,7 @@ class AdminPage
       if (is_dir(os::path('lib', 'modules', 'install')))
         $ctx->redirect('install?destination=' . urlencode($_SERVER['REQUEST_URI']));
       else
-        throw new RuntimeExteption('Система не проинсталлирована и модуля install нет.');
+        throw new RuntimeException('Система не проинсталлирована и модуля install нет.');
     }
 
     catch (Exception $e) {
