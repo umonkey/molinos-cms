@@ -5,14 +5,15 @@ class BebopMimeMail
 {
   public static function send($from, $to, $subject, $body, array $attachments = null, array $headers = null)
   {
-    if (empty($to))
-      $to = 'cms-bugs@molinos.ru';
+    if (empty($to)) {
+      Logger::trace("mail not sent: no recipients: {$subject}");
+      return;
+    }
 
-    if (empty($to))
-      throw new InvalidArgumentException(t('Получатель сообщения не указан.'));
+    $config = Context::last()->config;
 
     if (empty($from))
-      if (($from = mcms::config('mail.from')) === null)
+      if (!($from = $config->get('modules/mail/from')))
         $from = "Molinos.CMS <no-reply@" . url::host() . ">";
 
     if (strstr($body, '<html>') === false)
@@ -21,12 +22,12 @@ class BebopMimeMail
     if (!is_array($to))
       $to = preg_split('/, */', $to, -1, PREG_SPLIT_NO_EMPTY);
 
-    mcms::flog(t('to=%to, subject=%subject', array('%to' => join(',', $to), '%subject' => $subject)));
+    Logger::log(sprintf('to=%s, subject=%s', join(',', $to), $subject));
 
-    $transport = (null == mcms::config('mail.server', null)) ? 'mail' : 'smtp';
     $mail = new htmlMimeMail();
 
-    $mail->setSMTPParams(mcms::config('mail.server'));
+    if ('smtp' == ($transport = ($server = $config->get('modules/mail/server')) ? 'smtp' : 'mail'))
+      $mail->setSMTPParams($server);
 
     $mail->setFrom($from);
     $mail->setSubject($subject);
@@ -38,16 +39,12 @@ class BebopMimeMail
     $mail->setHTMLEncoding('UTF-8');
     $mail->setHeadCharset('UTF-8');
 
-    if (!empty($attachments)) {
-      foreach ($attachments as $file) {
-        $mail->addAttachment($file['data'], $file['name'], $file['type']);
-      }
-    }
+    foreach ((array)$attachments as $file)
+      $mail->addAttachment($file['data'], $file['name'], $file['type']);
 
-    if (null !== $headers)
-      foreach ($headers as $k => $v)
-        if (!empty($v))
-          $mail->setHeader($k, $v);
+    foreach ((array)$headers as $k => $v)
+      if (!empty($v))
+        $mail->setHeader($k, $v);
 
     return $mail->send($to, $transport);
   }
