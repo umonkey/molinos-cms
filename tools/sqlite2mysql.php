@@ -35,6 +35,7 @@ function convert_schema(PDO $db, $f)
         ), $row['sql']);
 
       $row['sql'] = preg_replace('|(int[^P]+) PRIMARY KEY[^,]*,|', '\1 PRIMARY KEY AUTO_INCREMENT,', $row['sql']);
+      $row['sql'] .= " DEFAULT CHARSET utf8";
     }
     fwrite($f, $row['sql'] . ";\n");
   }
