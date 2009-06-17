@@ -236,6 +236,10 @@ class Registry
 
       $ini = ini::read($iniFileName);
       $path = dirname($iniFileName);
+      if (file_exists($routeFileName = os::path($path, 'route.ini')))
+        $routes = ini::read($routeFileName);
+      else
+        $routes = array();
 
       foreach ($ini as $k => $v)
         if (is_array($v))
@@ -261,6 +265,16 @@ class Registry
               $ini['messages'][$message][] = $className . '::' . $method;
             }
           }
+
+          if (preg_match_all('#(?:@route\s+)([a-z0-9./-]+)(?:[^{]*public\s+static\s+function\s+)([^(]+)#s', $source, $m)) {
+            foreach ($m[1] as $idx => $route) {
+              $parts = explode('//', $route);
+              $parts[0] = strtoupper($parts[0]);
+              $routes[implode('//', $parts)] = array(
+                'call' => $className . '::' . $m[2][$idx],
+                );
+            }
+          }
         }
 
         elseif (preg_match('@^\s*interface\s+([a-z0-9_]+)@m', $source, $m))
@@ -271,6 +285,13 @@ class Registry
 
       if (!empty($ini['classes']))
         ksort($ini['classes']);
+
+      if (empty($routes) and file_exists($routeFileName))
+        unlink($routeFileName);
+      else {
+        ksort($routes);
+        ini::write($routeFileName, $routes);
+      }
 
       ini::write($iniFileName, $ini);
     }
