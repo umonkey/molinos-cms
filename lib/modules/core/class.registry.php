@@ -286,11 +286,11 @@ class Registry
       if (!empty($ini['classes']))
         ksort($ini['classes']);
 
-      if (empty($routes) and file_exists($routeFileName))
-        unlink($routeFileName);
-      else {
+      if (!empty($routes)) {
         ksort($routes);
         ini::write($routeFileName, $routes);
+      } elseif (file_exists($routeFileName)) {
+        unlink($routeFileName);
       }
 
       ini::write($iniFileName, $ini);
