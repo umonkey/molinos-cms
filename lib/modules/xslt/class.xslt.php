@@ -2,7 +2,7 @@
 
 class xslt
 {
-  public static function transform($xml, $xsltName, $mimeType = 'text/html')
+  public static function transform($xml, $xsltName, $mimeType = 'text/html', $status = 200)
   {
     $mode = empty($_GET['xslt'])
       ? 'server'
@@ -11,7 +11,7 @@ class xslt
     $xml = self::fixEntities($xml);
 
     if ('none' == $mode or empty($xsltName))
-      return new Response('<?xml version="1.0"?>' . $xml, 'text/xml');
+      return new Response('<?xml version="1.0"?>' . $xml, 'text/xml', $status);
 
     if (!file_exists($xsltName))
       throw new RuntimeException(t('Шаблон %name не найден.', array(
@@ -61,7 +61,7 @@ class xslt
     if (null === $mimeType)
       return trim(str_replace('<?xml version="1.0"?>', '', $output));
 
-    return new Response($output, $mimeType);
+    return new Response($output, $mimeType, $status);
   }
 
   public static function fixEntities($xml)
