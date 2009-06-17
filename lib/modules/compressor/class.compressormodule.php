@@ -24,8 +24,6 @@ class CompressorModule
           $lscripts = array_merge($scripts, os::find($theme, 'scripts', '*.js'));
           $lstyles = array_merge($styles, os::find($theme, 'styles', '*.css'));
 
-          mcms::debug($path, $scripts, $styles);
-
           os::write(os::path($theme, 'compressed.js'), self::get_js_prefix($ctx) . self::join($lscripts, ';'));
           os::write(os::path($theme, 'compressed.css'), self::join($lstyles));
         }
