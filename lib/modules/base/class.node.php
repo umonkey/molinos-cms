@@ -1251,8 +1251,10 @@ class Node
       $schema = Schema::load($this->getDB(), $this->data['class']);
       $properties = array_unique(array_merge(self::getBasicFields(), $schema->getFieldNames()));
 
+      $stop = $this->getXMLStopFields();
+
       foreach ($properties as $k) {
-        if (empty($k) or in_array($k, array('xml', 'left', 'right')))
+        if (empty($k) or in_array($k, $stop))
           continue;
 
         $v = $this->$k;
@@ -1279,6 +1281,14 @@ class Node
     }
 
     return html::em($em, $data);
+  }
+
+  /**
+   * Возвращает список полей, которые не нужно выводить в XML.
+   */
+  protected function getXMLStopFields()
+  {
+    return array('xml', 'left', 'right');
   }
 
   /**
