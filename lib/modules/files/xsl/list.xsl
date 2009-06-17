@@ -101,13 +101,16 @@
   </xsl:template>
 
   <xsl:template match="data[../@mode='table']" mode="nodelist">
+    <xsl:variable name="haveRemote" select="not(not(node/remoteurl))" />
     <thead>
       <tr>
         <th/>
         <th/>
         <th/>
         <th>Имя файла</th>
-        <th>Хост</th>
+        <xsl:if test="$haveRemote">
+          <th>Хост</th>
+        </xsl:if>
         <th>Объём</th>
         <th>Владелец</th>
         <th>Добавлен</th>
@@ -135,9 +138,11 @@
               <span><xsl:value-of select="@name" /></span>
             </a>
           </td>
-          <td>
-            <xsl:value-of select="remoteurl/@host" />
-          </td>
+          <xsl:if test="$haveRemote">
+            <td>
+              <xsl:value-of select="remoteurl/@host" />
+            </td>
+          </xsl:if>
           <td class="r">
             <xsl:call-template name="filesize">
               <xsl:with-param name="size" select="filesize" />
