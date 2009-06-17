@@ -7,7 +7,7 @@ class OrderNode extends Node implements iContentType
     if ($isnew = (!$this->id)) {
       $cart = new Cart($ctx = Context::last());
       $this->orderdetails = $cart->getItems();
-    } elseif (array_key_exists('orderdetails', $this->olddata)) {
+    } elseif (array_key_exists('orderdetails', (array)$this->olddata)) {
       $this->orderdetails = $this->olddata['orderdetails'];
     }
 
