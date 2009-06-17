@@ -19,20 +19,8 @@ class TreeAPI
   }
 
   /**
-   * Добавление маршрута api/node/tree.xml
-   * @mcms_message ru.molinos.cms.route.poll
-   */
-  public static function on_route_poll()
-  {
-    return array(
-      'GET//api/node/tree.xml' => array(
-        'call' => __CLASS__ . '::on_get_tree_xml',
-        ),
-      );
-  }
-
-  /**
    * Возвращает фрагмент дерева (обработчик api/node/tree.xml).
+   * @route GET//api/node/tree.xml
    */
   public static function on_get_tree_xml(Context $ctx)
   {

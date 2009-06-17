@@ -60,22 +60,11 @@ class BannerNode extends Node
   }
 
   /**
-   * Возвращает маршрут для получения баннеров.
-   * @mcms_message ru.molinos.cms.route.poll
-   */
-  public static function on_route_poll()
-  {
-    return array(
-      'GET//api/ads/get.xml' => array(
-        'call' => __CLASS__ . '::on_get_banners',
-        ),
-      );
-  }
-
-  /**
    * Вызов api/ads/get.xml
    *
    * Возвращает случайные баннеры.
+   *
+   * @route GET//api/ads/get.xml
    */
   public static function on_get_banners(Context $ctx)
   {

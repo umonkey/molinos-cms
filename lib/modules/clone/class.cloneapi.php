@@ -22,20 +22,8 @@ class CloneAPI
   }
 
   /**
-   * Добавляет clone.rpc в маршруты.
-   * @mcms_message ru.molinos.cms.route.poll
-   */
-  public static function on_route_poll()
-  {
-    return array(
-      'GET//clone.rpc' => array(
-        'call' => __CLASS__ . '::on_clone',
-        ),
-      );
-  }
-
-  /**
    * Клонирование объекта.
+   * @GET//clone.rpc
    */
   public static function on_clone(Context $ctx)
   {

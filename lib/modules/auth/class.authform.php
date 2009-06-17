@@ -110,20 +110,8 @@ class AuthForm
   }
 
   /**
-   * Возвращает маршрут для вывода формы авторизации.
-   * @mcms_message ru.molinos.cms.route.poll
-   */
-  public static function on_route_poll()
-  {
-    return array(
-      'GET//login' => array(
-        'call' => __CLASS__ . '::on_get_login_form'
-        ),
-      );
-  }
-
-  /**
    * Вывод формы авторизации.
+   * @route GET//login
    */
   public static function on_get_login_form(Context $ctx)
   {

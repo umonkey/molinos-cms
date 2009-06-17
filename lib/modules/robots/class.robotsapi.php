@@ -3,20 +3,8 @@
 class RobotsAPI
 {
   /**
-   * Настройка маршрутов.
-   * @mcms_message ru.molinos.cms.route.poll
-   */
-  public static function on_route_poll()
-  {
-    return array(
-      'GET//robots.txt' => array(
-        'call' => __CLASS__ . '::on_get_robots'
-        ),
-      );
-  }
-
-  /**
    * Возвращает содержимое файла для текущего домена.
+   * @route GET//robots.txt
    */
   public static function on_get_robots(Context $ctx)
   {
