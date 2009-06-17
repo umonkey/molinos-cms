@@ -37,12 +37,6 @@ class AdminPage
       'api' => 'cms://localhost/api/',
       );
 
-    $router = new Router();
-    $router->poll($ctx);
-    $menu = new AdminMenu($router->getStatic());
-
-    $this->content .= /* $router->getPath($ctx) . */ $menu->getXML($ctx);
-
     $request = '';
     if ($userid = $ctx->user->id)
       $request .= html::wrap('user', Node::findXML(array('id' => $userid), $ctx->db));

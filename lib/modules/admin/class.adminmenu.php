@@ -152,4 +152,17 @@ class AdminMenu
 
     return self::$permcache[$item['perms']];
   }
+
+  /**
+   * Добавление маршрутов.
+   * @route GET//api/admin/menu.xml
+   */
+  public static function on_get_menu(Context $ctx)
+  {
+    $router = new Router();
+    $router->poll($ctx);
+    $menu = new AdminMenu($router->getStatic());
+
+    return new Response($menu->getXML($ctx), 'text/xml');
+  }
 }

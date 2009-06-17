@@ -81,36 +81,37 @@
   <xsl:template match="page" mode="body">
 
     <div id="wrapper">
-
       <div id="non-footer">
-
-        <div id="toolbar">
-          <xsl:apply-templates select="menu" />
-          <xsl:apply-templates select="request/user/node" mode="toolbar" />
-        </div>
+        <xsl:if test="not(/page/request/args/@bare)">
+          <div id="toolbar">
+            <xsl:apply-templates select="document(concat($api,'admin/menu.xml'))/menu" />
+            <xsl:apply-templates select="request/user/node" mode="toolbar" />
+          </div>
+        </xsl:if>
 
         <div id="content">
           <xsl:apply-templates select="content" mode="content" />
           <xsl:apply-templates select="content/pager" />
         </div>
-
       </div>
 
-      <div id="footer">
-        <a href="http://molinos-cms.googlecode.com/">Molinos CMS</a>
-        <xsl:text> v</xsl:text>
-        <xsl:value-of select="/page/@version" />
-        <xsl:text> [</xsl:text>
-        <xsl:value-of select="/page/@memory" />
-        <xsl:text>+</xsl:text>
-        <xsl:value-of select="/page/@cache" />
-        <xsl:text>] at </xsl:text>
-        <a href="{@base}">
-          <xsl:value-of select="@host" />
-        </a>
-      </div>
+      <xsl:if test="not(/page/request/args/@bare)">
+        <div id="footer">
+          <a href="http://molinos-cms.googlecode.com/">Molinos CMS</a>
+          <xsl:text> v</xsl:text>
+          <xsl:value-of select="/page/@version" />
+          <xsl:text> [</xsl:text>
+          <xsl:value-of select="/page/@memory" />
+          <xsl:text>+</xsl:text>
+          <xsl:value-of select="/page/@cache" />
+          <xsl:text>] at </xsl:text>
+          <a href="{@base}">
+            <xsl:value-of select="@host" />
+          </a>
+        </div>
 
-      <img src="cron.rpc?destination=lib/modules/admin/styles/admin/images/pixel.gif" alt="cron runner" />
+        <img src="cron.rpc?destination=lib/modules/admin/styles/admin/images/pixel.gif" alt="cron runner" />
+      </xsl:if>
     </div>
 
   </xsl:template>
