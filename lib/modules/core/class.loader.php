@@ -31,6 +31,8 @@ class Loader
 
     if (!defined('MCMS_TEMP_FOLDER'))
       define('MCMS_TEMP_FOLDER', Context::last()->config->get('main/tmpdir', MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'tmp'));
+
+    mb_internal_encoding('utf-8');
   }
 
   private static function find_site_folder($hostName)
