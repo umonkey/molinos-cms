@@ -30,7 +30,7 @@ class S3API
     $node = Node::load($ctx->get('node'), $ctx->db);
 
     if (file_exists($fileName = $node->getRealURL())) {
-      if ($url = self::moveFileToS3($fileName)) {
+      if ($url = self::moveFileToS3($fileName, null, $node->filename)) {
         $ctx->db->beginTransaction();
         $node->remoteurl = $url;
         $node->save();
@@ -61,7 +61,7 @@ class S3API
   /**
    * Загружает файл в S3.
    */
-  public static function moveFileToS3($fileName, $mimeType = null)
+  public static function moveFileToS3($fileName, $mimeType = null, $baseName = null)
   {
     self::checkEnv($ctx = Context::last());
 
@@ -80,18 +80,21 @@ class S3API
     */
 
     if ($f = fopen($fileName, 'rb')) {
+      if (null === $baseName)
+        $baseName = basename($fileName);
+
       if (!$r = S3::inputResource($f, filesize($fileName)))
         throw new RuntimeException(t('Не удалось создать ресурс из файла %filename.', array(
           '%filename' => $fileName,
           )));
 
-      if (!($response = S3::putObject($r, $bucketName, $folderName . basename($fileName), S3::ACL_PUBLIC_READ)))
+      if (!($response = S3::putObject($r, $bucketName, $folderName . $baseName, S3::ACL_PUBLIC_READ)))
         throw new RuntimeException(t('Не удалось загрузить файл %filename в папку %bucket.', array(
           '%filename' => $fileName,
           '%bucket' => $bucketName,
           )));
 
-      $url = 'http://' . $bucketName . '.s3.amazonaws.com/' . $folderName . basename($fileName);
+      $url = 'http://' . $bucketName . '.s3.amazonaws.com/' . $folderName . $baseName;
       mcms::flog('S3: ' . $url);
       return $url;
     }
