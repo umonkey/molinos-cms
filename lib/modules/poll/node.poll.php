@@ -72,4 +72,26 @@ class PollNode extends Node implements iContentType
         ),
       );
   }
+
+  public function getExtraXMLContent()
+  {
+    $result = '';
+
+    foreach (explode("\n", $this->answers) as $answer) {
+      if (1 == count($parts = explode('=', $answer)))
+        $parts[] = $parts[0];
+      $result .= html::em('answer', array(
+        'value' => trim($parts[0]),
+        ), html::cdata(trim($parts[1])));
+    }
+
+    return parent::getExtraXMLContent() . html::wrap('answers', $result);
+  }
+
+  protected function getXMLStopFields()
+  {
+    $result = parent::getXMLStopFields();
+    $result[] = 'answers';
+    return $result;
+  }
 };
