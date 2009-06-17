@@ -12,7 +12,9 @@ class BaseRoute
 
     $content = '';
     $page = array(
-      'status' => 200,
+      'status' => empty($handler['status'])
+        ? 200
+        : $handler['status'],
       'name' => empty($handler['pagename'])
         ? self::getNameFromQuery($query, $param)
         : $handler['pagename'],
@@ -75,7 +77,7 @@ class BaseRoute
       ? 'text/html'
       : $handler['content_type'];
 
-    return xslt::transform($xml, $xsl, $type);
+    return xslt::transform($xml, $xsl, $type, $page['status']);
   }
 
   private static function getNameFromQuery($query, $param)
