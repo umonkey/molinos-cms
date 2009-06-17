@@ -130,7 +130,8 @@ class Router
       }
     }
 
-    $tmp = $this->find($ctx);
+    if (false === ($tmp = $this->find($ctx, $ctx->query())))
+      $tmp = $this->find($ctx, 'errors/404');
 
     if ($ctx->debug('route'))
       mcms::debug($tmp, $this);
@@ -171,14 +172,10 @@ class Router
     return 'page:' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
   }
 
-  public function find(Context $ctx)
+  public function find(Context $ctx, $realQuery)
   {
     $args = array();
-    /*
-    if ($query = $ctx->query())
-      $query = '/' . $query;
-    */
-    $query = '/' . $ctx->query();
+    $query = '/' . $realQuery;
     $prefix = strtoupper($ctx->method()) . '/';
 
     $q = array(
@@ -193,12 +190,6 @@ class Router
       if (false !== ($tmp = $this->findre($mask)))
         return $tmp;
     }
-
-    /*
-    foreach ($q as $mask)
-      if (false !== ($tmp = $this->findre($mask)))
-        return $tmp;
-    */
 
     return false;
   }
