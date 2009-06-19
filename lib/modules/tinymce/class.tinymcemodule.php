@@ -13,9 +13,6 @@ class TinyMceModule
     $result = array();
     $conf = $ctx->config->get('modules/tinymce');
 
-    if (empty($conf['pages']) or !in_array($mode, (array)$conf['pages']))
-      return $result;
-
     $conf['gzip'] = false;
 
     if (empty($conf['gzip']))
@@ -58,29 +55,50 @@ class TinyMceModule
    */
   public static function on_get_head(Context $ctx)
   {
-    $result = '';
+    if (self::isPageEnabled($ctx)) {
+      $result = '';
 
-    $base = $ctx->url()->getBase($ctx);
-    $result .= html::em('script', array(
-      'type' => 'text/javascript',
-      ), "var mcms_url = '{$base}';");
-
-    if ($picker = $ctx->get('tinymcepicker')) {
-      $result .= html::em('script', "var tinyMcePicker = '{$picker}';");
+      $base = $ctx->url()->getBase($ctx);
       $result .= html::em('script', array(
-        'src' => $base . 'lib/modules/tinymce/editor/tiny_mce_popup.js',
         'type' => 'text/javascript',
-        ));
-    } elseif (preg_match('%^(admin/edit/|admin/create/)%', $ctx->query())) {
-      foreach (self::on_compressor_admin($ctx) as $script)
+        ), "var mcms_url = '{$base}';");
+
+      if ($picker = $ctx->get('tinymcepicker')) {
+        $result .= html::em('script', "var tinyMcePicker = '{$picker}';");
         $result .= html::em('script', array(
-          'src' => $base . $script[1],
+          'src' => $base . 'lib/modules/tinymce/editor/tiny_mce_popup.js',
           'type' => 'text/javascript',
           ));
-    }
+      } elseif (preg_match('%^(admin/edit/|admin/create/)%', $ctx->query())) {
+        foreach (self::on_compressor_admin($ctx) as $script)
+          $result .= html::em('script', array(
+            'src' => $base . $script[1],
+            'type' => 'text/javascript',
+            ));
+      }
 
-    return html::wrap('head', html::cdata($result), array(
-      'module' => 'tinymce',
+      return html::wrap('head', html::cdata($result), array(
+        'module' => 'tinymce',
+        ));
+    }
+  }
+
+  /**
+   * Проверяет, разрешено ли использовать редактор на странице.
+   */
+  private static function isPageEnabled(Context $ctx)
+  {
+    $pages = $ctx->config->getArray('modules/tinymce/routes', array(
+      'admin/edit/',
+      'admin/create/',
       ));
+
+    $query = $ctx->query();
+
+    foreach ($pages as $prefix)
+      if (0 === strpos($query, $prefix))
+        return true;
+
+    return false;
   }
 }

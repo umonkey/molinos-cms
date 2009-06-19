@@ -34,16 +34,11 @@ class TinyMCEConfig
         'description' => t('Например: content_css: mcms_path + "/tiny.css", theme_advanced_styles: "Слева=left,Справа=right"'),
         'group' => t('Настройки редактора'),
         ),
-      'pages' => array(
-        'type' => 'SetControl',
-        'label' => t('Область применения'),
-        'options' => array(
-          'website' => t('Используется на сайте'),
-          'admin' => t('Используется в админке'),
-          ),
-        'weight' => 30,
-        'default' => array('admin'),
-        'group' => t('Настройки редактора'),
+      'routes' => array(
+        'type' => 'ListControl',
+        'label' => t('Выводить на страницах'),
+        'default' => array('admin/edit/', 'admin/create/'),
+        'description' => t('Вводить следует только префикс адреса страницы.'),
         ),
       ));
   }
