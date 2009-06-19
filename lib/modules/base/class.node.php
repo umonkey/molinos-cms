@@ -59,7 +59,8 @@ class Node
 
     if (!empty($this->data['id'])) {
       $this->retrieve();
-      mcms::flog("node[{$this->data['id']}]: read from DB (slow).");
+      if (defined('MCMS_FLOG_SLOW'))
+        Logger::log("node[{$this->data['id']}]: read from DB (slow); {$this->class},{$this->name}");
     } else {
       $this->dirty = true;
     }
