@@ -21,14 +21,14 @@
   <xsl:template match="page" mode="head">
     <xsl:param name="title" select="'Molinos CMS'" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <xsl:for-each select="head">
+      <xsl:sort select="@weight" />
+      <xsl:value-of select="text()" disable-output-escaping="yes" />
+    </xsl:for-each>
     <title>
       <xsl:value-of select="$title" />
     </title>
-    <xsl:comment><![CDATA[[if IE]><![if !IE]><![endif]]]></xsl:comment><base href="{@base}" /><xsl:comment><![CDATA[[if IE]><![endif]><![endif]]]></xsl:comment>
-    <xsl:comment><![CDATA[[if IE]>]]>&lt;base href="<xsl:value-of select="@base"/>">&lt;/base><![CDATA[<![endif]]]></xsl:comment>
     <link rel="shortcut icon" href="lib/modules/admin/styles/admin/images/icons/favicon.ico" type="image/x-icon" />
-    <link rel="stylesheet" href="{@prefix}/.admin.css" type="text/css" />
-    <script type="text/javascript" src="{@prefix}/.admin.js" />
   </xsl:template>
 
   <xsl:template match="/page[@status=401]">
@@ -45,19 +45,15 @@
     <html lang="ru">
       <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>
-          <xsl:if test="content[@title]">
-            <xsl:value-of select="content[position() = 1]/@title" />
-            <xsl:text> — </xsl:text>
-          </xsl:if>
-          <xsl:text>Molinos CMS v</xsl:text>
-          <xsl:value-of select="@version" />
-        </title>
-        <xsl:comment><![CDATA[[if IE]><![if !IE]><![endif]]]></xsl:comment><base href="{/page/@base}" /><xsl:comment><![CDATA[[if IE]><![endif]><![endif]]]></xsl:comment>
-        <xsl:comment><![CDATA[[if IE]>]]>&lt;base href="<xsl:value-of select="/page/@base"/>">&lt;/base><![CDATA[<![endif]]]></xsl:comment>
+        <xsl:apply-templates select="." mode="head">
+          <xsl:with-param name="title">
+            <xsl:if test="content[@title]">
+              <xsl:value-of select="content[position() = 1]/@title" />
+              <xsl:text> — </xsl:text>
+            </xsl:if>
+          </xsl:with-param>
+        </xsl:apply-templates>
         <link rel="shortcut icon" href="lib/modules/admin/styles/admin/images/icons/favicon.ico" type="image/x-icon" />
-        <link rel="stylesheet" href="{@prefix}/.admin.css" type="text/css" />
-        <script type="text/javascript" src="{@prefix}/.admin.js" />
       </head>
       <body>
         <xsl:apply-templates select="." mode="body" />

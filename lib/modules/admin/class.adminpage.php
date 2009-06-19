@@ -43,6 +43,10 @@ class AdminPage
     $request .= $ctx->url()->getArgsXML();
     $this->content .= html::wrap('request', $request);
 
+    foreach ((array)$ctx->registry->poll('ru.molinos.cms.page.head', array($ctx, array(), null)) as $block)
+      if (!empty($block['result']))
+        $this->content .= $block['result'];
+
     return xslt::transform(html::em('page', $page, $this->content), $this->xsl);
   }
 
@@ -54,10 +58,6 @@ class AdminPage
   {
     if (class_exists('APIStream'))
       APIStream::init($ctx);
-
-    if (!file_exists(os::path(MCMS_ROOT, MCMS_SITE_FOLDER, 'themes', '.admin.css')))
-      if (class_exists('CompressorModule'))
-        CompressorModule::on_install($ctx);
 
     try {
       self::checkperm($ctx, $pathinfo);
