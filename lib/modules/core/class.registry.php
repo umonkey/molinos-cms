@@ -194,7 +194,8 @@ class Registry
   public static function on_shutdown()
   {
     if (null !== ($e = error_get_last()) and $e['type'] & (E_ERROR|E_RECOVERABLE_ERROR)) {
-      self::send_error("shutdown[{$e['type']}]: {$e['message']}",
+      $type = self::getErrorType($e['type']);
+      self::send_error("shutdown[{$type}]: {$e['message']}",
         sprintf("File:    %s\nLine:    %u\n\n", os::localpath($e['file']), $e['line']));
     }
   }
@@ -205,7 +206,42 @@ class Registry
   public function on_error($errno, $errstr, $errfile, $errline, array $context)
   {
     if (error_reporting())
-      self::send_error("error[{$errno}]: {$errstr}");
+      self::send_error(sprintf('error[%s]: %s', self::getErrorType($errno), $errstr));
+  }
+
+  /**
+   * Возвращает тип ошибки по номеру.
+   */
+  private static function getErrorType($errno)
+  {
+    $map = array(
+      E_ERROR => 'E_ERROR',
+      E_WARNING => 'E_WARNING',
+      E_NOTICE => 'E_NOTICE',
+      E_CORE_ERROR => 'E_CORE_ERROR',
+      E_CORE_WARNING => 'E_CORE_WARNING',
+      E_COMPILE_ERROR => 'E_COMPILE_ERROR',
+      E_COMPILE_WARNING => 'E_COMPILE_WARNING',
+      E_USER_ERROR => 'E_USER_ERROR',
+      E_USER_WARNING => 'E_USER_WARNING',
+      E_USER_NOTICE => 'E_USER_NOTICE',
+      E_STRICT => 'E_STRICT',
+      E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
+      );
+
+    if (defined('E_DEPRECATED'))
+      $map[E_DEPRECATED] = 'E_DEPRECATED';
+
+    $result = array();
+    foreach ($map as $k => $v)
+      if ($errno & $k) {
+        $result[] = $v;
+        $errno &= ~$k;
+      }
+    if ($errno)
+      $result[] = $errno;
+
+    return implode('|', $result);
   }
 
   /**
@@ -215,9 +251,12 @@ class Registry
   {
     Logger::trace($message);
 
+    $message = wordwrap(strip_tags($message), 75, "\n         ");
+
     $subject = "Error at " . $_SERVER['HTTP_HOST'];
     $content = "<pre>Message: {$message}\nMethod:  {$_SERVER['REQUEST_METHOD']}\n"
       . "URL:     http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}\n{$extra}\n"
+      . "Referer: {$_SERVER['HTTP_REFERER']}\n"
       . "Backtrace follows.\n\n" . Logger::backtrace() . '</pre>';
 
     BebopMimeMail::send(null, Context::last()->config->get('main/errors/mail'), $subject, $content);
