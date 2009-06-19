@@ -31,6 +31,7 @@ class BaseRoute
       'uid' => $ctx->user->id,
       'query' => $ctx->query(),
       'param' => $param,
+      'date' => mcms::now(),
       );
 
     if (isset($handler['title']))
@@ -215,6 +216,13 @@ class BaseRoute
    */
   public static function on_get_page_head(Context $ctx)
   {
-    return $ctx->url()->getArgsXML(false);
+    $result = $ctx->url()->getArgsXML(false);
+
+    $base = $ctx->url()->getBase($ctx);
+    $result .= html::em('head', array(
+      'weight' => -100,
+      ), html::cdata("<!--[if IE]><![if !IE]><![endif]--><base href=\"{$base}\" /><!--[if IE]><![endif]><![endif]--><!--[if IE]><base href=\"{$base}\"></base><![endif]-->"));
+
+    return $result;
   }
 }
