@@ -8,6 +8,7 @@ class Cascader
    */
   public static function on_node_save(Context $ctx, Node $node)
   {
+    Logger::trace("node[{$node->id}]: cascade " . implode(',', self::get_ids($node)));
     self::update_node_xml($node);
   }
 
@@ -57,6 +58,9 @@ class Cascader
         $ids[] = $id;
     }
 
-    return $ids;
+    $params = array();
+    $ids = $node->getDB()->getResultsV("id", "SELECT `id` FROM `node` WHERE `class` NOT IN ('tag', 'label') AND `id` " . sql::in($ids, $params), $params);
+
+    return array_reverse($ids);
   }
 }
