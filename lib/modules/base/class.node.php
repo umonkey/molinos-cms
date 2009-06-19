@@ -1296,7 +1296,9 @@ class Node
    */
   public function updateXML()
   {
-    $this->getDB()->exec("UPDATE `node` SET `xml` = ? WHERE `id` = ?", array($this->getXML(), $this->id));
+    if (!mb_check_encoding($xml = $this->getXML(), 'utf-8'))
+      throw new RuntimeException(t('Попытка сохранить невалидный UTF-8 текст.'));
+    $this->getDB()->exec("UPDATE `node` SET `xml` = ? WHERE `id` = ?", array($xml, $this->id));
     return $this;
   }
 

@@ -290,6 +290,9 @@ abstract class Control implements iFormControl
 
   protected function validate($value)
   {
+    if (!empty($value) and !mb_check_encoding($value, 'utf-8'))
+      throw new RuntimeException(t('Вы использовали некорректные символы, используйте UTF-8.'));
+
     if ($this->required and empty($value))
       throw new ValidationException($this->label ? $this->label : $this->value);
 
