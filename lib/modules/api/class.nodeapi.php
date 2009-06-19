@@ -36,7 +36,7 @@ class NodeAPI
 
     foreach (explode(',', $ctx->get('filters')) as $f)
       if (!empty($f))
-        $filter[$f] = $ctx->get('filetype');
+        $filter[$f] = $ctx->get($f);
 
     $attrs = array(
       'limit' => $filter['#limit'],
