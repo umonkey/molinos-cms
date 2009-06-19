@@ -50,4 +50,27 @@ class RSSRouter
 
     return $feed->render($ctx);
   }
+
+  /**
+   * Добавляет главный RSS во все страницы.
+   * @mcms_message ru.molinos.cms.page.head
+   */
+  public static function on_get_head(Context $ctx)
+  {
+    $result = '';
+
+    if ($rss = $ctx->config->get('modules/rss/feedurl')) {
+      $result .= html::em('link', array(
+        'rel' => 'alternate',
+        'type' => 'application/rss+xml',
+        'href' => $rss,
+        'title' => $ctx->config->get('modules/rss/feedname'),
+        ));
+    }
+
+    return html::wrap('head', html::cdata($result), array(
+      'module' => 'rss',
+      'weight' => 50,
+      ));
+  }
 }
