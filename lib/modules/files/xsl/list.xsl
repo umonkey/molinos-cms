@@ -5,6 +5,7 @@
 
   <xsl:template match="content" mode="content">
     <xsl:variable name="sendto" select="/page/request/getArgs/arg[@name='sendto']" />
+    <xsl:variable name="picker" select="/page/request/args/@tinymcepicker" />
 
     <div class="doclist filelist">
       <xsl:if test="not(/page/request/args/@bare)">
@@ -55,6 +56,9 @@
             <xsl:with-param name="createtxt">Загрузить</xsl:with-param>
           </xsl:call-template>
           <form method="post" id="nodeList">
+            <xsl:if test="$picker">
+              <xsl:attribute name="class">picker</xsl:attribute>
+            </xsl:if>
             <input type="hidden" name="sendto" value="{$sendto}" />
             <xsl:apply-templates select="data" mode="massctl">
               <xsl:with-param name="edit" select="@canedit" />
@@ -104,11 +108,17 @@
 
   <xsl:template match="data[../@mode='table']" mode="nodelist">
     <xsl:variable name="haveRemote" select="not(not(node/remoteurl))" />
+    <xsl:variable name="picker" select="/page/request/args/@tinymcepicker" />
+    <xsl:if test="$picker">
+      <input id="pickerId" type="hidden" name="pickerId" value="{$picker}" />
+    </xsl:if>
     <thead>
       <tr>
         <th/>
-        <th/>
-        <th/>
+        <xsl:if test="not($picker)">
+          <th/>
+          <th/>
+        </xsl:if>
         <th>Имя файла</th>
         <xsl:if test="$haveRemote">
           <th>Хост</th>
@@ -122,25 +132,30 @@
       <xsl:for-each select="node">
         <tr>
           <xsl:apply-templates select="." mode="trclass" />
-          <td class="icon">
-            <a class="icon-download" href="download/{@id}/{filename}">
-              <span>Скачать</span>
-            </a>
-          </td>
-          <td class="icon">
-            <a class="icon-edit" href="admin/edit/{@id}?destination={/page/@back}">
-              <span>Изменить</span>
-            </a>
-          </td>
+          <xsl:if test="not($picker)">
+            <td class="icon">
+              <a class="icon-download" href="download/{@id}/{filename}">
+                <span>Скачать</span>
+              </a>
+            </td>
+            <td class="icon">
+              <a class="icon-edit" href="admin/edit/{@id}?destination={/page/@back}">
+                <span>Изменить</span>
+              </a>
+            </td>
+          </xsl:if>
           <td class="field-name">
-            <a>
+            <a href="admin/node/{@id}?destination={$back}">
               <xsl:attribute name="href">
                 <xsl:choose>
-                  <xsl:when test="/page/request/args/@picker">
-                    <xsl:value-of select="concat('javascript:mcms_tinymce_pick(',@id,',&quot;',/page/request/args/@picker,'&quot;);')" />
+                  <xsl:when test="$picker and contains(filetype,'image/')">
+                    <xsl:value-of select="download-url" />
+                  </xsl:when>
+                  <xsl:when test="$picker and not(contains(filetype,'image/'))">
+                    <xsl:value-of select="concat('download/',@id,'/',filename)" />
                   </xsl:when>
                   <xsl:otherwise>
-                    <xsl:value-of select="concat('admin/node/',@id,'?destination=',$back)" />
+                    <xsl:value-of select="concat('admin/node/',@id,'?destination=',$back,'')" />
                   </xsl:otherwise>
                 </xsl:choose>
               </xsl:attribute>
@@ -187,12 +202,12 @@
       </tr>
     </thead>
     <tbody>
-      <xsl:if test="/page/@picker">
+      <xsl:if test="$picker">
         <xsl:attribute name="class">
           <xsl:text>picker</xsl:text>
         </xsl:attribute>
         <xsl:attribute name="id">
-          <xsl:value-of select="/page/@picker" />
+          <xsl:value-of select="$picker" />
         </xsl:attribute>
       </xsl:if>
       <xsl:for-each select="node">
