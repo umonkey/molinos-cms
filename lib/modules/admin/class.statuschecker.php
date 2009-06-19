@@ -114,7 +114,7 @@ class StatusChecker
       if (0 === strpos(realpath($file), MCMS_ROOT . DIRECTORY_SEPARATOR)) {
         $url = 'http://' . url::host() . mcms::path() . '/' . os::webpath($file);
 
-        if (false !== ($headers = get_headers($url, 1))) {
+        if (false !== ($headers = (array)@get_headers($url, 1))) {
           if (3 == count($parts = explode(' ', $headers[0]))) {
             if (200 == $parts[1]) {
               return t('Файл базы данных доступен веб серверу, любой желающий может <a href=\'@url\'>скачать его</a>. Пожалуйста, вынесите его в папку, недоступную веб серверу, и измените путь в конфигурационном файле (%config).', array(
