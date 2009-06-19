@@ -48,7 +48,7 @@ class url
       // пользователь, а добавленые правилом аргументы видны только в
       // QUERY_STRING.
 
-      $this->fromString(MCMS_REQUEST_URI);
+      $this->fromString('http://' . MCMS_HOST_NAME . MCMS_REQUEST_URI);
       // $this->args = $_GET;
     }
 
