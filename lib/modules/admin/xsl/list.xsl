@@ -217,7 +217,7 @@
   <xsl:template name="mcms_list_search" mode="mcms_list">
     <xsl:param name="advanced" select="1" />
     <xsl:param name="createtxt">Добавить</xsl:param>
-    <xsl:param name="advancedlink" select="concat('?q=admin/search&amp;type=',@type,'&amp;destination=',$back)" />
+    <xsl:param name="advancedlink" select="concat('?q=admin/search&amp;type=',@type,'&amp;destination=',$back,'&amp;bare=',/page/request/args/@bare)" />
 
     <div class="nodes-controls-basic">
     <form method="post" action="?q=admin/search&amp;from={/page/@back}">
@@ -238,7 +238,7 @@
             </a>
             <xsl:text> | </xsl:text>
           </xsl:if>
-          <input type="text" name="search_term" class="search_field" value="{/page/request/getArgs/arg[@name='search']}" />
+          <input type="text" name="search_term" class="search_field" value="{$search}" />
           <input type="submit" value="Найти" />
           <xsl:if test="$advanced">
             <xsl:text> | </xsl:text>
