@@ -30,6 +30,8 @@ class NodeAPI
       $filter['class'] = self::split($tmp);
     if ($tmp = $ctx->get('tags'))
       $filter['tags'] = self::split($tmp);
+    if ($tmp = $ctx->get('tagged'))
+      $filter['tagged'] = self::split($tmp);
 
     if ($tmp = $ctx->get('author'))
       $filter['uid'] = $tmp;
@@ -94,7 +96,7 @@ class NodeAPI
   public static function get_actions_xml(Context $ctx)
   {
     $result = '';
-    $from = $ctx->get('from');
+    $from = $ctx->get('from', $_SERVER['REQUEST_URI']);
 
     foreach (Node::load($ctx->get('id'))->getActionLinks() as $k => $v) {
       if ($from)
@@ -134,12 +136,20 @@ class NodeAPI
 
   public static function on_get_related(Context $ctx)
   {
+    if (!($xml = self::get_related($ctx, $ctx->get('key'))) and $ctx->get('fallback'))
+      $xml = self::get_related($ctx);
+
+    return self::xml(html::em('nodes', $xml));
+  }
+
+  private static function get_related(Context $ctx, $key = null)
+  {
     $params = array($ctx->get('node'));
     $sql = "SELECT tid FROM node__rel WHERE nid = ? AND tid NOT IN (SELECT id FROM node WHERE deleted = 1)";
 
-    if ($tmp = $ctx->get('key')) {
+    if ($key) {
       $sql .= " AND `key` = ?";
-      $params[] = $tmp;
+      $params[] = $key;
     }
 
     $tags = $ctx->db->getResultsV("tid", $sql, $params);
@@ -155,9 +165,7 @@ class NodeAPI
       $filter['class'] = $tmp;
     $filter['#limit'] = $ctx->get('limit', 10);
 
-    $xml = Node::findXML($filter, $ctx->db);
-
-    return self::xml(html::em('nodes', $xml));
+    return Node::findXML($filter, $ctx->db);
   }
 
   /**
@@ -168,8 +176,17 @@ class NodeAPI
     if (!($type = $ctx->get('type')))
       throw new BadRequestException(t('Не указан тип документа (GET-параметр type).'));
 
-    $node = Node::create($type)->knock('c');
+    $node = Node::create(array(
+      'class' => $type,
+      'parent_id' => $ctx->get('parent'),
+      ))->knock('c');
     $form = $node->formGet();
+
+    // destination берётся из $_SERVER, и при работе через XML API содержит не то,
+    // что может быть нужно, поэтому корректируем руками.
+    $action = new url($form->action);
+    $action->setarg('destination', $ctx->get('destination'));
+    $form->action = $action->string();
 
     return new Response($form->getXML(Control::data()), 'text/xml');
   }
