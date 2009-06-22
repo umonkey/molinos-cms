@@ -17,6 +17,7 @@ class Loader
   public static function setup()
   {
     define('MCMS_ROOT', dirname(dirname(dirname(dirname(realpath(__FILE__))))));
+    chdir(MCMS_ROOT);
 
     if (!defined('MCMS_HOST_NAME'))
       define('MCMS_HOST_NAME', isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost');
@@ -42,8 +43,10 @@ class Loader
       $options[] = 'sites' . DIRECTORY_SEPARATOR . join('.', $parts);
     $options[] = $default = 'sites' . DIRECTORY_SEPARATOR . 'default';
 
+    $prefix = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
+
     foreach ($options as $path)
-      if (is_dir($path))
+      if (is_dir($prefix . $path))
         return $path;
 
     header('Content-Type: text/plain; charset=utf-8');
