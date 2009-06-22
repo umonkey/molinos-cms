@@ -40,11 +40,20 @@ class UserControl extends Control
     if (!empty($data->id))
       return;
 
+    $user = Context::last()->user;
+
     // Пользователь залогинен, делать нечего.
-    if (!$this->required and Context::last()->user->id)
+    if (!$this->required and $user->id)
       return parent::wrapXML(array(
         'type' => 'checkbox',
-        'title' => t('Опубликовать анонимно'),
+        'title' => t('Опубликовать анонимно (а не как %name)', array(
+          '%name' => $user->getNode()->getName(),
+          )),
+        ));
+    elseif (!$user->id)
+      return parent::wrapXML(array(
+        'type' => 'text',
+        'title' => t('Имя или ник'),
         ));
   }
 
@@ -60,12 +69,17 @@ class UserControl extends Control
     if ($node->id)
       return;
 
+    $user = Context::last()->user;
+
     // Анонимность разрешена и запрошена.
-    if (!$this->required and $value)
+    if (!$this->required and $user->id and $value)
       return;
 
     // Сохраняем информацию.
-    $node->{$this->value} = Context::last()->user->getNode();
+    if ($user->id)
+      $node->{$this->value} = Context::last()->user->getNode();
+    else
+      $node->{$this->value} = $value;
   }
 
   /**
@@ -73,14 +87,16 @@ class UserControl extends Control
    */
   public function format($value, $em)
   {
-    if (is_object($value) and $value->id) {
-      $options = array(
+    if (is_object($value) and $value->id)
+      return html::em($em, array(
         'id' => $value->id,
         'name' => $value->getName(),
         'email' => $value->email,
-        );
-      return html::em($em, $options);
-    }
+        ));
+    elseif (is_string($value))
+      return html::em($em, array(
+        'name' => $value,
+        ));
   }
 
   /**
