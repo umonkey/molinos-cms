@@ -252,11 +252,13 @@ class Registry
     Logger::trace($message);
 
     $message = wordwrap(strip_tags($message), 75, "\n         ");
+    $referer = empty($_SERVER['HTTP_REFERER'])
+      ? null
+      : "Referer: {$_SERVER['HTTP_REFERER']}\n";
 
     $subject = "Error at " . $_SERVER['HTTP_HOST'];
     $content = "<pre>Message: {$message}\nMethod:  {$_SERVER['REQUEST_METHOD']}\n"
-      . "URL:     http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}\n{$extra}\n"
-      . "Referer: {$_SERVER['HTTP_REFERER']}\n"
+      . "URL:     http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}\n{$extra}\n{$referer}"
       . "Backtrace follows.\n\n" . Logger::backtrace() . '</pre>';
 
     BebopMimeMail::send(null, Context::last()->config->get('main/errors/mail'), $subject, $content);
