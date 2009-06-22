@@ -171,7 +171,7 @@ class NodeApiModule extends RPCHandler
     $node = Node::create(array(
       'class' => $ctx->get('type'),
       'parent_id' => empty($parent) ? null : $parent,
-      ))->knock('c');
+      ), $ctx->db)->knock('c');
     $node->formProcess($ctx->post)->save($ctx->db);
     $next = $ctx->post('destination', $ctx->get('destination', ''));
 
