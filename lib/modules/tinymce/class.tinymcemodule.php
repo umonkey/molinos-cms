@@ -20,8 +20,6 @@ class TinyMceModule
     else
       $result[] = array('script', 'lib/modules/tinymce/editor/tiny_mce_gzip.js');
 
-    $result[] = array('script', 'lib/modules/tinymce/file_picker.js');
-
     $initializer = empty($conf['initializer']) ? '' : $conf['initializer'] . ', ';
     $initializer .= 'document_base_url: "http://' . MCMS_HOST_NAME . $ctx->folder() . '/", ';
     $initializer .= 'tiny_mce_path: "lib/modules/tinymce/editor"';
@@ -71,10 +69,11 @@ class TinyMceModule
           ));
       } elseif (preg_match('%^(admin/edit/|admin/create/)%', $ctx->query())) {
         foreach (self::on_compressor_admin($ctx) as $script)
-          $result .= html::em('script', array(
-            'src' => $base . $script[1],
-            'type' => 'text/javascript',
-            ));
+          if (file_exists($script[1]))
+            $result .= html::em('script', array(
+              'src' => $base . $script[1],
+              'type' => 'text/javascript',
+              ));
       }
 
       return html::wrap('head', html::cdata($result), array(
@@ -92,6 +91,9 @@ class TinyMceModule
       'admin/edit/',
       'admin/create/',
       ));
+
+    if ($ctx->get('tinymcepicker'))
+      $pages[] = 'admin/content/files';
 
     $query = $ctx->query();
 
