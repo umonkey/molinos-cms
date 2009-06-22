@@ -30,7 +30,7 @@ class S3API
     $node = Node::load($ctx->get('node'), $ctx->db);
 
     if (file_exists($fileName = $node->getRealURL())) {
-      if ($url = self::moveFileToS3($fileName, null, $node->filename)) {
+      if ($url = self::moveFileToS3($fileName, null, $node->id . '/' . $node->filename)) {
         $ctx->db->beginTransaction();
         $node->remoteurl = $url;
         $node->save();
@@ -38,6 +38,8 @@ class S3API
 
         unlink($fileName);
       }
+    } else {
+      Logger::log('file not found: ' . $fileName);
     }
 
     return $ctx->getRedirect();
