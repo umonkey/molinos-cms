@@ -24,7 +24,7 @@ class CompressorModule
           $lscripts = array_merge($scripts, os::find($theme, 'scripts', '*.js'));
           $lstyles = array_merge($styles, os::find($theme, 'styles', '*.css'));
 
-          os::write(os::path($theme, 'compressed.js'), self::get_js_prefix($ctx) . self::join($lscripts, ';'));
+          os::write(os::path($theme, 'compressed.js'), self::join($lscripts, ';'));
           os::write(os::path($theme, 'compressed.css'), self::join($lstyles));
         }
       }
@@ -34,12 +34,6 @@ class CompressorModule
       if (file_exists($fileName))
         unlink($fileName);
     self::getAdminFiles($ctx);
-  }
-
-  private static function get_js_prefix(Context $ctx)
-  {
-    return "var mcms_path = '" . $ctx->folder() . "';\n"
-      . "var mcms_url = 'http://" . MCMS_HOST_NAME . $ctx->folder() . "/';\n";
   }
 
   public static function join(array $filenames)
@@ -154,7 +148,7 @@ class CompressorModule
         if (empty($scripts))
           touch($js);
         else
-          os::write($js, self::get_js_prefix($ctx) . self::join($scripts, ';'));
+          os::write($js, self::join($scripts, ';'));
         $scripts = array($js);
 
         if (empty($styles))
@@ -197,7 +191,7 @@ class CompressorModule
         if (empty($scripts))
           touch($js);
         else
-          os::write($js, self::get_js_prefix($ctx) . self::join($scripts, ';'));
+          os::write($js, self::join($scripts, ';'));
         $scripts = array($js);
 
         if (empty($styles))

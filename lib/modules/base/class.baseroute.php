@@ -219,9 +219,13 @@ class BaseRoute
     $result = $ctx->url()->getArgsXML(false);
 
     $base = $ctx->url()->getBase($ctx);
+    $content = "<!--[if IE]><![if !IE]><![endif]--><base href=\"{$base}\" /><!--[if IE]><![endif]><![endif]--><!--[if IE]><base href=\"{$base}\"></base><![endif]-->";
+    $content .= "<script type='text/javascript'>var mcms_path='" . $ctx->folder() . "',"
+      . "mcms_url='http://" . MCMS_HOST_NAME . $ctx->folder() . "/';</script>";
+
     $result .= html::em('head', array(
       'weight' => -100,
-      ), html::cdata("<!--[if IE]><![if !IE]><![endif]--><base href=\"{$base}\" /><!--[if IE]><![endif]><![endif]--><!--[if IE]><base href=\"{$base}\"></base><![endif]-->"));
+      ), html::cdata($content));
 
     return $result;
   }
