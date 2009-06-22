@@ -15,6 +15,10 @@ class CommentListHandler extends AdminListHandler implements iAdminList
   public static function on_list(Context $ctx)
   {
     $list = new CommentListHandler($ctx);
-    return $list->getHTML();
+    return $list->getHTML('users', array(
+      'edit' => $ctx->user->hasAccess('u', 'user'),
+      '#raw' => true,
+      'self' => $ctx->user->id,
+      ));
   }
 };
