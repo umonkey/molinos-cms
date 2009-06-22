@@ -5,23 +5,36 @@ class CommentNode extends Node
 {
   public function save()
   {
-    if ($this->anonymous)
-      unset($this->uid);
-    else
-      $this->uid = Context::last()->user->getNode();
+    if ($this->isNew() and $this->parent_id) {
+      $this->node = $this->parent_id;
+      $this->parent_id = null;
+      $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`) VALUES (?, %ID%)", array($this->node));
+    }
 
-    parent::save();
-    $this->publish();
-    return $this;
+    return parent::save();
   }
 
   public function getName()
   {
-    $name = $this->uid
-      ? t('Комментарий к ноде %id', array('%id' => $this->node))
-      : t('Анонимный комментарий к ноде %id', array('%id' => $this->node));
-
+    if (!($name = $this->name))
+      $name = mb_substr(preg_replace('/\s+/', ' ', strip_tags($this->text)), 0, 40) . '...';
     return $name;
+  }
+
+  /**
+   * Добавляет в комментарий информацию о ноде.
+   */
+  public function getExtraXMLContent()
+  {
+    $db = Context::last()->db;
+
+    $node = $this->node
+      ? $this->node
+      : $db->fetch("SELECT `tid` FROM `node__rel` WHERE `nid` = ? LIMIT 1", array($this->id));
+
+    if ($node)
+      if ($data = $db->getResults("SELECT id, class, name FROM node WHERE id = ?", array($node)))
+        return html::em('node', $data[0]);
   }
 
   public function getFormTitle()
@@ -29,27 +42,6 @@ class CommentNode extends Node
     return $this->id
       ? t('Редактирование комментария')
       : t('Добавление комментария');
-  }
-
-  public function formProcess(array $data)
-  {
-    if (empty($this->node))
-      $this->node = $data['comment_node'];
-
-    if (!empty($data['anonymous']))
-      $this->anonymous = true;
-
-    $res = parent::formProcess($data);
-
-    if (empty($this->node))
-      throw new ValidationException(t('Не указан документ, '
-        .'к которому добавлен комментарий.'));
-    else {
-      $this->onSave("DELETE FROM `node__rel` WHERE `nid` = %ID%");
-      $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`) VALUES (?, %ID%)", array($this->node));
-    }
-
-    return $res;
   }
 
   public static function getDefaultSchema()
@@ -62,16 +54,11 @@ class CommentNode extends Node
     );
   }
 
-  public function getFormFields()
+  /**
+   * Возвращает форму.  Проверяет, установлен ли родитель.
+   */
+  public function formGet($fieldName = null)
   {
-    $schema = parent::getFormFields();
-
-    $schema['anonymous'] = new BoolControl(array(
-      'value' => 'anonymous',
-      'label' => t('Оставить анонимный комментарий'),
-      'weight' => 100,
-      ));
-
-    return $schema;
+    return parent::formGet($fieldName);
   }
-};
+}
