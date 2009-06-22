@@ -371,13 +371,6 @@ class TypeNode extends Node implements iContentType
     return false;
   }
 
-  public function getName()
-  {
-    return $this->title
-      ? $this->title
-      : $this->name;
-  }
-
   public function getListURL()
   {
     return 'admin/structure/types';
