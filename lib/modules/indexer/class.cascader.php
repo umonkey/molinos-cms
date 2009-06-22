@@ -59,7 +59,7 @@ class Cascader
     }
 
     $params = array();
-    $ids = $node->getDB()->getResultsV("id", "SELECT `id` FROM `node` WHERE `class` NOT IN ('tag', 'label') AND `id` " . sql::in($ids, $params), $params);
+    $ids = (array)$node->getDB()->getResultsV("id", "SELECT `id` FROM `node` WHERE `class` NOT IN ('tag', 'label') AND `id` " . sql::in($ids, $params), $params);
 
     return array_reverse($ids);
   }
