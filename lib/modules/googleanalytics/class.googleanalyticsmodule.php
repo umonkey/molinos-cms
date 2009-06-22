@@ -15,7 +15,7 @@ class GoogleAnalyticsModule
         ? 'http'
         : 'https';
       $output = html::em('script', array(
-        'src' => $proto . '://google-analytics.com/ga.js',
+        'src' => $proto . '://www.google-analytics.com/ga.js',
         'type' => 'text/javascript',
         ));
       $output .= '<script type="text/javascript">try{var pageTracker = _gat._getTracker("' . $conf['account']
