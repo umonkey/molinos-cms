@@ -5,6 +5,8 @@
   <xsl:template match="content" mode="content">
     <h2>Поиск файлов</h2>
     <form method="get" class="advsearch" action="admin/content/files">
+      <input type="hidden" name="bare" value="{$bare}" />
+      <input type="hidden" name="tinymcepicker" value="{$args/@tinymcepicker}" />
       <table>
         <tbody>
           <tr>
