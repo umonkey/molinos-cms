@@ -41,7 +41,11 @@ class PrideTypograph
     if (strlen(trim($text))) {
       try {
         $typo = self::getTypo();
-        $text = $typo->parse($text);
+        if (mb_check_encoding($text2 = $typo->parse($text), 'utf-8')) {
+          $text = $text2;
+        } else {
+          Logger::log('Waring: PrideTypograph failed to process this text: ' . $text);
+        }
       } catch (Exception $e) {
         Logger::trace($e);
       }
