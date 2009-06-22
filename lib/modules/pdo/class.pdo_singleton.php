@@ -69,8 +69,12 @@ class PDO_Singleton extends PDO
 
   public function exec($sql, array $params = null)
   {
-    $sth = $this->prepare($sql);
-    $sth->execute($params);
+    if (!is_string($sql))
+      throw new InvalidArgumentException(t('SQL запрос должен быть строкой.'));
+    if ($sth = $this->prepare($sql))
+      $sth->execute($params);
+    else
+      throw new RuntimeException(t('Не удалось приготовить запрос.'));
     return $sth;
   }
 
@@ -137,8 +141,11 @@ class PDO_Singleton extends PDO
 
   public function getResultsV($key, $sql, array $params = null)
   {
+    if (!is_string($sql))
+      throw new InvalidArgumentException(t('Неверная параметризация getResultsV(): забыл указать имя поля?'));
+
     $result = array();
-    $rows  = $this->getResults($sql, $params);
+    $rows = $this->getResults($sql, $params);
     if ($rows) {
       if (!array_key_exists($key,$rows[0]))
          $key = '`'.$key.'`';
