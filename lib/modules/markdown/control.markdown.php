@@ -19,7 +19,7 @@ class MarkdownControl extends TextAreaControl
     if (empty($form['cols']))
       $form['cols'] = 50;
     if (empty($form['description']))
-      $form['description'] = t('Вы можете использовать <a href="@url" target="_blank">синтаксис markdown</a> при оформлении текста.', array(
+      $form['description'] = t('Для оформления текста можно использовать <a href="@url" target="_blank">синтаксис markdown</a>.', array(
         '@url' => 'http://daringfireball.net/projects/markdown/syntax',
         ));
 
@@ -35,5 +35,10 @@ class MarkdownControl extends TextAreaControl
     $ctx->registry->broadcast('ru.molinos.cms.format.text', array($ctx, $this->value, &$output));
 
     return html::wrap($em, html::cdata(trim($output)));
+  }
+
+  public function isVisible()
+  {
+    return true;
   }
 }
