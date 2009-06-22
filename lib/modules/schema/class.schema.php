@@ -126,7 +126,7 @@ class Schema extends ArrayObject
       if (null !== $fieldName and $name != $fieldName)
         continue;
 
-      if (empty($ctl->label))
+      if (!$ctl->isVisible())
         continue;
 
       if (!($group = trim($ctl->group)))

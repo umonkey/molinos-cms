@@ -408,6 +408,14 @@ abstract class Control implements iFormControl
   {
     return true;
   }
+
+  /**
+   * Возвращает false, если контрол не следует выводить в форму.
+   */
+  public function isVisible()
+  {
+    return !empty($this->label);
+  }
 };
 
 class ControlData
