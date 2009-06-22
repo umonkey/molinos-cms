@@ -2,8 +2,14 @@
 
 class CaptchaControl extends Control
 {
+  /**
+   * @mcms_message ru.molinos.cms.control.enum
+   */
   public static function getInfo()
   {
+    return array(
+      'name' => t('Капча'),
+      );
   }
 
   public function __construct(array $form)
@@ -18,13 +24,17 @@ class CaptchaControl extends Control
     if (!$this->isActive($data))
       return;
 
-    $key = $this->generate();
+    // Сбрасываем капчу, чтобы если отключена загрузка картинок,
+    // пользователь получил ошибку.
+    mcms::session('captcha:' . $this->value, null);
 
     return parent::wrapXML(array(
-      'key' => $key,
       ));
   }
 
+  /**
+   * Ничего никуда не сохраняет, просто валидирует значение.
+   */
   public function set($value, Node &$node)
   {
     if (!$this->isActive($node))
@@ -33,39 +43,24 @@ class CaptchaControl extends Control
     $this->validate($value);
   }
 
+  /**
+   * Сверяет введённое значение с сохранённым в сессии.
+   */
   protected function validate($value)
   {
-    if (is_array($value) and 2 == count($value)) {
-      if ($value[0] == crypt::decrypt($value[1]))
-        return true;
-    }
-
-    throw new ValidationException($this->label, t('Вы неверно ввели символы с картинки. Похоже, вы — робот, рассылающий спам!'));
+    if (!($good = mcms::session('captcha:' . $this->value)) or $good != $value)
+      throw new ValidationException($this->label, t('Вы неверно ввели символы с картинки. Похоже, вы — робот, рассылающий спам!'));
+    mcms::session('captcha:' . $this->value, null);
   }
 
   private function isActive($data)
   {
-    if (!($data instanceof Node))
-      return false;
-
     if ($data->id)
       return false;
 
     $ctx = Context::last();
 
-    if ($ctx->user->id)
-      return false;
-
-    if (!is_array($types = $ctx->config->get('modules/captcha/types')))
-      return false;
-
-    if (isset($types['__reset']))
-      unset($types['__reset']);
-
-    if (empty($types))
-      return false;
-
-    if (!in_array($data->class, $types))
+    if ($ctx->user->id and !$this->required)
       return false;
 
     return true;
@@ -73,7 +68,7 @@ class CaptchaControl extends Control
 
   private function generate()
   {
-    $result = strtolower(substr(base64_encode(rand()), 0, 6));
+    $result = substr(base64_encode(rand()), 0, 6);
 
     return crypt::encrypt($result);
   }

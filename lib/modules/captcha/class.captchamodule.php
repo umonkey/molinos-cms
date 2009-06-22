@@ -20,16 +20,9 @@
 
 class CaptchaModule
 {
-  public static function hookRemoteCall(Context $ctx)
-  {
-    $cp = new CaptchaModule($ctx->get('seed'));
-    $cp->drawImage();
-    exit();
-  }
-
   public function __construct($keyStr)
   {
-    $iniParams = parse_ini_file(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config.ini');
+    $iniParams = ini::read(os::path('lib', 'modules', 'captcha', 'config.ini'));
 
     foreach ($iniParams as $k => $v)
       $this->$k = $v;
@@ -41,7 +34,7 @@ class CaptchaModule
     $this->background_color = array(mt_rand(200,255), mt_rand(200,255), mt_rand(200,255));
 
     // Что надо нарисовать
-    $this->keyString = crypt::decrypt($keyStr);
+    $this->keyString = $keyStr;
   }
 
   // generates image
@@ -242,4 +235,21 @@ class CaptchaModule
         break;
     }
   }
+
+  /**
+   * Обработка запросов на вывод капчи.
+   * @route GET//captcha.png
+   */
+    public static function on_show(Context $ctx)
+    {
+      $id = $ctx->get('id', 'captcha');
+      $seed = substr(preg_replace('/[^0-9]/', '', md5(rand() . microtime())), 0, 6);
+
+      mcms::session('captcha:' . $id, $seed);
+
+      $captcha = new CaptchaModule($seed);
+      $captcha->drawImage();
+
+      exit();
+    }
 }

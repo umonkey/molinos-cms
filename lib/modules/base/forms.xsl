@@ -155,6 +155,15 @@
     <xsl:apply-templates select="." mode="help" />
   </xsl:template>
 
+  <xsl:template match="input[@type='captcha']">
+    <label class="control">
+      <xsl:apply-templates select="." mode="label" />
+      <img src="captcha.png?id={@name}" alt="captcha" />
+      <input type="text" name="{@name}" class="text mode-captcha" />
+    </label>
+    <xsl:apply-templates select="." mode="help" />
+  </xsl:template>
+
   <xsl:template match="input[@type='submit']">
     <input type="submit" value="{@text}" class="control button" />
   </xsl:template>
