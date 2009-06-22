@@ -27,6 +27,7 @@ class ExtraFiles
         'href' => 'admin/node/attach?id=' . $node->id
           . '&destination=CURRENT',
         'title' => t('Прикрепить файлы'),
+        'scope' => 'edit',
         ),
       );
   }

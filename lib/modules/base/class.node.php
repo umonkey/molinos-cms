@@ -622,6 +622,7 @@ class Node
           . '?destination=CURRENT',
         'title' => t('Редактировать'),
         'icon' => 'edit',
+        'scope' => 'edit',
         );
     }
 
@@ -632,6 +633,7 @@ class Node
             .'&destination=CURRENT',
           'title' => t('Восстановить'),
           'icon' => 'delete',
+          'scope' => 'edit',
           );
       else
         $links['delete'] = array(
@@ -639,6 +641,7 @@ class Node
             .'&destination=admin/content/list/' . $this->class,
           'title' => t('Удалить'),
           'icon' => 'delete',
+          'scope' => 'edit',
           );
     }
 
@@ -656,6 +659,7 @@ class Node
           .'&destination=CURRENT',
         'title' => t($title),
         'icon' => $action,
+        'scope' => 'edit',
         );
     }
 
@@ -676,6 +680,7 @@ class Node
         $links['schema'] = array(
           'href' => 'admin/node/' . $tmp->id . '?destination=CURRENT',
           'title' => t('Настроить тип'),
+          'scope' => 'settings',
           );
       } catch (Exception $e) { }
     }
@@ -685,6 +690,7 @@ class Node
         'href' => 'nodeapi/dump?node=' . $this->id,
         'title' => 'XML дамп',
         'icon' => 'dump',
+        'scope' => 'debug',
         );
     }
 
