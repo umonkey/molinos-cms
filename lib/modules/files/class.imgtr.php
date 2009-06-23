@@ -177,7 +177,7 @@ class Imgtr
       'jpg' => 'image/jpeg',
       );
 
-    foreach (Context::last()->config->get(self::confroot) as $name => $settings) {
+    foreach (Context::last()->config->getArray(self::confroot) as $name => $settings) {
       $target = substr($source, 0, - strlen($ext)) . $name . '.' . $settings['format'];
 
       if (file_exists($target))
