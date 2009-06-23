@@ -78,8 +78,8 @@ class ModeratorModule
           $value = html::em('a', array(
             'href' => 'mailto:' . $node->$k,
             ), $node->$k);
-        elseif (!is_object($node->$k))
-          $value = $node->$k;
+        else
+          $value = html::plain($node->$k);
 
         if (null !== $value) {
           $body .= '<dt>'. html::plain($v->label) .':</dt>';
