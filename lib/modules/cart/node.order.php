@@ -77,4 +77,40 @@ class OrderNode extends Node implements iContentType
 
     return html::wrap('orderdetails', $result);
   }
+
+  /**
+   * Формирует таблицу для предварительного просмотра.
+   */
+  public function getPreviewXML(Context $ctx)
+  {
+    $xml = parent::getPreviewXML($ctx);
+
+    if (is_array($this->orderdetails)) {
+      $params = array();
+      $names = $this->getDB()->getResultsKV("id", "name", "SELECT `id`, `name` FROM `node` WHERE `id` " . sql::in(array_keys($this->orderdetails), $params), $params);
+
+      $table = '';
+      foreach ($this->orderdetails as $k => $v) {
+        $name = isset($names[$k])
+          ? $names[$k]
+          : '???';
+
+        $row = html::em('td', html::em('a', array(
+          'href' => "admin/node/{$k}?destination=CURRENT",
+          ), html::plain($name)));
+        $row .= html::em('td', html::cdata('× ' . $v));
+
+        $table .= html::em('tr', $row);
+      }
+
+      if ($value = html::wrap('table', $table, array('class' => 'classic'))) {
+        $xml .= html::em('field', array(
+          'title' => t('Содержимое заказа'),
+          ), html::em('value', array('html' => true), html::cdata($value)));
+      }
+    }
+
+
+    return $xml;
+  }
 }
