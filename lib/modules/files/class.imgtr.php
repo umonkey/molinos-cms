@@ -23,7 +23,7 @@ class Imgtr
       ));
     return html::em('content', array(
       'name' => 'form',
-      ), $form->getXML());
+      ), $form->getXML(Control::data()));
   }
 
   /**
