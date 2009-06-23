@@ -36,6 +36,7 @@ class AdminPage
       'back_raw' => MCMS_REQUEST_URI,
       'next' => $ctx->get('destination'),
       'api' => 'cms://localhost/api/',
+      'rss' => class_exists('RSSRouter'),
       );
 
     $request = '';

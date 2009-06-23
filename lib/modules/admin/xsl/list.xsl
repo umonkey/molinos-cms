@@ -188,8 +188,10 @@
 
           <span>Скачать: </span>
           <a href="api/node/list.xml{$filter}">XML</a>
-          <xsl:text>, </xsl:text>
-          <a href="custom.rss{$filter}">RSS</a>
+          <xsl:if test="/page/@rss">
+            <xsl:text>, </xsl:text>
+            <a href="custom.rss{$filter}">RSS</a>
+          </xsl:if>
         </div>
       </xsl:if>
     </div>
