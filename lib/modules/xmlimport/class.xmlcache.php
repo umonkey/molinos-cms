@@ -1,14 +1,10 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class XmlImporter
+class XmlCache
 {
   /**
-   * Получение данных из внешнего XML источника.
-   *
-   * Параметры:
-   *   url — адрес источника.
-   *   cache — срок кэширования, в секундах (= 600).
+   * @route GET//api/xml/cached.xml
    */
   public static function on_get_import(Context $ctx)
   {
@@ -20,7 +16,7 @@ class XmlImporter
 
     $cache = cache::getInstance();
     $ttl = floor(time() / $ttl);
-    $ckey = sprintf('xmlimport.xml|%u|%s', $ttl, $url);
+    $ckey = sprintf('XmlCache|%u|%s', $ttl, $url);
 
     if ($cached = $cache->$ckey)
       return new Response($cached, 'text/xml');
