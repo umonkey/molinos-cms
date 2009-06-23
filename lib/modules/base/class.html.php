@@ -179,6 +179,8 @@ class html
    */
   public static function plain($text, $strip = true)
   {
+    if (is_object($text) or is_array($text))
+      throw new InvalidArgumentException(t('Параметр для html::plain() должен быть строкой.'));
     if ($strip)
       $text = strip_tags($text);
     return str_replace(array('&amp;quot;'), array('&quot;'), htmlspecialchars($text, ENT_QUOTES));
