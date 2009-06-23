@@ -44,7 +44,7 @@ class XMLImport
    */
   public static function on_schedule(Context $ctx)
   {
-    if ($sources = $ctx->config->getArray('modules/rss/import/sources')) {
+    if ($sources = $ctx->config->getArray('modules/xml/import/sources')) {
       $ctx->db->beginTransaction();
 
       $sel = $ctx->db->prepare("SELECT 1 FROM `node__xmlimport` WHERE `source` = ? AND `guid` = ?");
