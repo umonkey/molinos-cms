@@ -3,61 +3,6 @@
 
 class PollNode extends Node implements iContentType
 {
-  public function getOptions($withCounts = true)
-  {
-    $total = 0;
-    $result = array();
-
-    foreach (preg_split('/[\r\n]+/', $this->answers) as $idx => $name) {
-      $parts = explode('=', $name, 2);
-      if (count($parts) == 1)
-        array_unshift($parts, $idx);
-      $result[$parts[0]] = array(
-        'text' => $parts[1],
-        'count' => 0,
-        'percent' => 0,
-        );
-    }
-
-    // Запрашиваем информацию о голосах.
-    foreach ($this->getDB()->getResultsKV('option', 'count', 'SELECT `option`, COUNT(*) AS `count` FROM `node__poll` WHERE `nid` = ? GROUP BY `option`', array($this->id)) as $k => $v) {
-      if (array_key_exists($k, $result)) {
-        $result[$k]['count'] = $v;
-        $total += $v;
-      }
-    }
-
-    // Считаем проценты.
-    if ($total)
-      foreach ($result as $k => $v)
-        $result[$k]['percent'] = $v['count'] / ($total / 100);
-
-    $result['#total'] = $total;
-
-    return $result;
-  }
-
-  public function getOptionsXML()
-  {
-    $xml = '';
-    $total = 0;
-
-    foreach ($options = $this->getOptions() as $k => $v) {
-      if ('#total' == $k)
-        $total = $v;
-      else
-        $xml .= html::em('option', array(
-          'value' => $k,
-          'count' => $v['count'],
-          'percent' => $v['percent'],
-          ), $v['text']);
-    }
-
-    return html::em('options', array(
-      'votes' => $total,
-      ), $xml);
-  }
-
   public static function getDefaultSchema()
   {
     return array(
@@ -76,22 +21,55 @@ class PollNode extends Node implements iContentType
   public function getExtraXMLContent()
   {
     $result = '';
-
-    foreach (explode("\n", $this->answers) as $answer) {
-      if (1 == count($parts = explode('=', $answer)))
-        $parts[] = $parts[0];
+    foreach (self::split($this->answers) as $k => $v)
       $result .= html::em('answer', array(
-        'value' => trim($parts[0]),
-        ), html::cdata(trim($parts[1])));
-    }
+        'value' => $k,
+        ), html::cdata($v));
 
     return parent::getExtraXMLContent() . html::wrap('answers', $result);
+  }
+
+  public function getPreviewXML(Context $ctx)
+  {
+    $xml = parent::getPreviewXML($ctx);
+    $data = $ctx->db->getResultsKV("option", "count", "SELECT `option`, COUNT(*) AS `count` FROM `node__poll` WHERE `nid` = ? GROUP BY `option`", array($this->id));
+
+    $result = '';
+    foreach (self::split($this->answers) as $k => $v) {
+      $count = isset($data[$k])
+        ? $data[$k]
+        : 0;
+      $result .= html::em('li', $v . ': ' . $count);
+    }
+
+    if (!empty($result)) {
+      $value = html::em('value', html::cdata(html::em('ul', $result)));
+      $xml .= html::em('field', array(
+        'title' => t('Результаты'),
+        'editurl' => "admin/edit/{$this->id}/answers?destination=" . urlencode(MCMS_REQUEST_URI),
+        ), $value);
+    }
+
+    return $xml;
   }
 
   protected function getXMLStopFields()
   {
     $result = parent::getXMLStopFields();
     $result[] = 'answers';
+    return $result;
+  }
+
+  public static function split($answers)
+  {
+    $result = array();
+
+    foreach (explode("\n", $answers) as $line) {
+      if (1 == count($parts = explode('=', $line, 2)))
+        $parts[] = $parts[0];
+      $result[trim($parts[0])] = trim($parts[1]);
+    }
+
     return $result;
   }
 };
