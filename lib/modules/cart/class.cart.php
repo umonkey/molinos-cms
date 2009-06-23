@@ -24,9 +24,14 @@ class Cart
    */
   public function setItems(array $items)
   {
-    foreach ($items as $k => $v)
+    foreach ($items as $k => $v) {
       if (empty($v))
         unset($items[$k]);
+      elseif (!is_numeric($v))
+        throw new BadRequestException(t('Количество должно быть числом.'));
+      elseif (!is_numeric($k))
+        throw new BadRequestException(t('Идентификатор товара должен быть числом.'));
+    }
 
     mcms::session('cart.' . $this->ctx->user->id, $items);
   }
