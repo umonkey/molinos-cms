@@ -33,6 +33,7 @@ class AdminPage
       'memory' => ini_get('memory_limit'),
       'time' => microtime(true) - MCMS_START_TIME,
       'back' => urlencode(MCMS_REQUEST_URI),
+      'back_raw' => MCMS_REQUEST_URI,
       'next' => $ctx->get('destination'),
       'api' => 'cms://localhost/api/',
       );

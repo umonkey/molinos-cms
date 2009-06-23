@@ -85,7 +85,8 @@
             <th/>
             <td/>
             <td>
-              <form method="get" action="admin/edit/{$nid}?destination={$back}">
+              <form method="get" action="admin/edit/{$nid}">
+                <input type="hidden" name="destination" value="{$back_get}" />
                 <input type="submit" value="Отредактировать" />
                 <xsl:if test="$next">
                   <xsl:text> или </xsl:text>

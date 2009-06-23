@@ -10,6 +10,7 @@
   <xsl:variable name="search" select="/page/request/args/@search" />
   <xsl:variable name="query" select="/page/@query" />
   <xsl:variable name="back" select="/page/@back" />
+  <xsl:variable name="back_get" select="/page/@back-raw" />
   <xsl:variable name="sendto" select="/page/request/args/@sendto" />
   <xsl:variable name="next" select="/page/request/args/@destination" />
   <xsl:variable name="page" select="/page/request/args/@page" />
