@@ -26,6 +26,8 @@ class RSSRouter
       $filter['uid'] = $settings['author'];
     if (!empty($settings['limit']))
       $filter['#limit'] = $settings['limit'];
+    if (!empty($settings['filters']))
+      $filter = array_merge($filter, $settings['filters']);
 
     $options = array();
     foreach (array('title', 'description', 'xsl') as $key)
