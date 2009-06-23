@@ -2,17 +2,11 @@
 
 class Logger
 {
-  const BACKTRACE = 1;
-
-  public static function log($message, $options = null)
+  public static function log($message, $condition = null)
   {
+    if (null !== $condition and !defined($condition))
+      return;
     error_log($message, 0);
-
-    if ($options & self::BACKTRACE) {
-      foreach (debug_backtrace() as $idx => $line)
-        if ($idx >= 2 and !empty($line['class']) and !empty($line['function']))
-          error_log(" -- {$line['class']}{$line['type']}{$line['function']}()", 0);
-    }
   }
 
   public static function trace($message)
@@ -48,9 +42,12 @@ class Logger
   /**
    * Форматирует содержимое стэка.
    */
-  public static function backtrace($stack = null)
+  public static function backtrace($stack, $condition = null)
   {
     $output = '';
+
+    if (null !== $condition and !defined($condition))
+      return;
 
     if ($stack instanceof Exception) {
       $tmp = $stack->getTrace();
