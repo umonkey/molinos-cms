@@ -208,7 +208,7 @@ class OpenIdModule extends RPCHandler
   private static function getReturnTo($id = null)
   {
     $url = sprintf('http://%s%s/?q=openid.rpc&action=openid&id=%s&sid=%s',
-      $_SERVER['HTTP_HOST'], mcms::path(), urlencode($id), mcms::session()->id);
+      MCMS_HOST_NAME, mcms::path(), urlencode($id), mcms::session()->id);
 
     if (!empty($_GET['destination']))
       $url .= '&destination='. urlencode($_GET['destination']);

@@ -256,9 +256,9 @@ class Registry
       ? null
       : "Referer: {$_SERVER['HTTP_REFERER']}\n";
 
-    $subject = "Error at " . $_SERVER['HTTP_HOST'];
+    $subject = "Error at " . MCMS_HOST_NAME;
     $content = "<pre>Message: {$message}\nMethod:  {$_SERVER['REQUEST_METHOD']}\n"
-      . "URL:     http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}\n{$extra}\n{$referer}"
+      . "URL:     http://" . MCMS_HOST_NAME . MCMS_REQUEST_URI . "\n{$extra}\n{$referer}"
       . "Backtrace follows.\n\n" . Logger::backtrace() . '</pre>';
 
     BebopMimeMail::send(null, Context::last()->config->get('main/errors/mail'), $subject, $content);

@@ -58,7 +58,7 @@ class ModeratorModule
         null,
         $to,
         t('Редакторская активность на сайте %site',
-          array('%site' => $_SERVER['HTTP_HOST'])),
+          array('%site' => MCMS_HOST_NAME)),
         $body
         );
     }

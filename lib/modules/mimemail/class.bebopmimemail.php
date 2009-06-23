@@ -14,7 +14,7 @@ class BebopMimeMail
 
     if (empty($from))
       if (!($from = $config->get('modules/mail/from')))
-        $from = "Molinos.CMS <no-reply@" . url::host() . ">";
+        $from = "Molinos.CMS <no-reply@" . MCMS_HOST_NAME . ">";
 
     if (strstr($body, '<html>') === false)
       $body = '<html><head><title>'. html::plain($subject) .'</title></head><body>'. $body .'</body></html>';
@@ -74,7 +74,7 @@ class BebopMimeMail
         if (false !== strpos($href, 'mailto:'))
           continue;
 
-        $new = 'http://'. url::host() . mcms::path() .'/'. $href;
+        $new = 'http://'. MCMS_HOST_NAME . mcms::path() .'/'. $href;
 
         $new = str_replace($href, $new, $m[0][$idx]);
         $html = str_replace($m[0][$idx], $new, $html);

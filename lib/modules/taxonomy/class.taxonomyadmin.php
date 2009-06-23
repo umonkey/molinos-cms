@@ -85,7 +85,7 @@ class TaxonomyAdmin
       return html::em('field', array(
         'html' => true,
         'title' => t('Находится в разделах'),
-        'editurl' => "admin/structure/taxonomy/setup?node={$node->id}&destination=" . urlencode($_SERVER['REQUEST_URI']),
+        'editurl' => "admin/structure/taxonomy/setup?node={$node->id}&destination=" . urlencode(MCMS_REQUEST_URI),
         ), $result);
     }
   }

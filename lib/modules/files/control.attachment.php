@@ -174,7 +174,7 @@ class AttachmentControl extends Control
       $img = html::em('img', $attrs);
       $html = html::em('a', array(
         'href' => 'admin/node/' . $file->id
-          .  '?destination=' . urlencode($_SERVER['REQUEST_URI']),
+          .  '?destination=' . urlencode(MCMS_REQUEST_URI),
         ), $img);
     }
 
@@ -188,7 +188,7 @@ class AttachmentControl extends Control
 
     if ($value->checkPermission('u'))
       $html .= t('<p><a href="@url">Открепить файл</a></p>', array(
-        '@url' => "files/unlink.rpc?node={$value->id}&file={$file->id}&field={$this->value}&destination=" . urlencode($_SERVER['REQUEST_URI']),
+        '@url' => "files/unlink.rpc?node={$value->id}&file={$file->id}&field={$this->value}&destination=" . urlencode(MCMS_REQUEST_URI),
         ));
 
     return html::em('value', array(

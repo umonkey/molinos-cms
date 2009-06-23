@@ -39,7 +39,7 @@ class OrderNode extends Node implements iContentType
     }
 
     if ($html = xslt::process($this->getXML(), $xslt)) {
-      $subject = t('Заказ на %host', array('%host' => $_SERVER['HTTP_HOST']));
+      $subject = t('Заказ на %host', array('%host' => MCMS_HOST_NAME));
       BebopMimeMail::send(null, $to, $subject, $html);
     }
   }

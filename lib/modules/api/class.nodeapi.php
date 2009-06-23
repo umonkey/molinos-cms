@@ -96,7 +96,7 @@ class NodeAPI
   public static function get_actions_xml(Context $ctx)
   {
     $result = '';
-    $from = $ctx->get('from', $_SERVER['REQUEST_URI']);
+    $from = $ctx->get('from', MCMS_REQUEST_URI);
 
     foreach (Node::load($ctx->get('id'))->getActionLinks() as $k => $v) {
       if ($from)

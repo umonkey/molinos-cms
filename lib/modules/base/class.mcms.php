@@ -365,7 +365,7 @@ class mcms
           $path = '';
       }
       else { //скрипт запускается из командной строки
-        $curpath = $_SERVER['PWD'];
+        $curpath = getcwd(); // $_SERVER['PWD'];
         $p = strpos($curpath,'/lib/');
 
         if ($p > 0) {

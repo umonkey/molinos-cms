@@ -44,7 +44,7 @@ class SubscriptionScheduler
             'unsubscribe' => 'subscription.rpc?action=remove&name=' . urlencode($user->name)
               . '&id=' . $user->id,
             'base' => $ctx->url()->getBase($ctx),
-            'host' => url::host(),
+            'host' => MCMS_HOST_NAME,
             ), $node);
 
           $body = xslt::transform($xml, $xsl, null);

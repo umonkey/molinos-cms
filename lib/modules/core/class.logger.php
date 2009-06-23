@@ -42,7 +42,7 @@ class Logger
         error_log(" -- {$line['class']}{$line['type']}{$line['function']}() — {$file}", 0);
       }
 
-    error_log(" -- {$_SERVER['REQUEST_URI']}", 0);
+    error_log(' -- ' . MCMS_REQUEST_URI, 0);
   }
 
   /**

@@ -9,7 +9,7 @@ class SchemaList extends AdminListhandler
     $this->limit = null;
     $this->hidesearch = true;
     $this->addlink = '?q=admin/create/type&destination='
-      . urlencode($_SERVER['REQUEST_URI']);
+      . urlencode(MCMS_REQUEST_URI);
   }
 
   protected function getData()

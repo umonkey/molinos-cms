@@ -169,7 +169,7 @@ class Router
 
   private function getCacheKey()
   {
-    return 'page:' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    return 'page:' . MCMS_HOST_NAME . MCMS_REQUEST_URI;
   }
 
   public function find(Context $ctx, $realQuery)

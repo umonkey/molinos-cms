@@ -191,7 +191,7 @@ class Context
         $this->_folder = $this->_args['folder'];
 
       // Запуск через веб, всё просто.
-      elseif (!empty($_SERVER['HTTP_HOST']))
+      elseif (!empty($_SERVER['SCRIPT_NAME']))
         $this->_folder = trim(dirname($_SERVER['SCRIPT_NAME']), DIRECTORY_SEPARATOR);
 
       // Запуск из командной строки.
@@ -324,8 +324,8 @@ class Context
       return $this->_args['host'];
     elseif ($host = $this->url()->host)
       return $host;
-    elseif (array_key_exists('HTTP_HOST', $_SERVER))
-      return $_SERVER['HTTP_HOST'];
+    elseif (defined('MCMS_HOST_NAME'))
+      return MCMS_HOST_NAME;
     else
       return 'localhost';
   }
@@ -493,7 +493,7 @@ class Context
     if (null === $this->_debug) {
       if (null === ($debuggers = $this->config->get('main/debug/allow')))
         $this->_debug = false;
-      else
+      elseif (!empty($_SERVER['REMOTE_ADDR']))
         $this->_debug = mcms::matchip($_SERVER['REMOTE_ADDR'], $debuggers);
     }
 

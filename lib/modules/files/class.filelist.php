@@ -74,7 +74,7 @@ class FileList extends AdminListHandler implements iAdminList
       if ($e->getTableName() != 'node__idx_filetype')
         throw $e;
       throw new Exception(t('Отсутствует индекс по полю filetype, <a href="@url">исправьте это</a> и возвращайтесь.', array(
-        '@url' => 'admin/structure/fields/edit?type=file&field=filetype&destination=' . urlencode($_SERVER['REQUEST_URI']),
+        '@url' => 'admin/structure/fields/edit?type=file&field=filetype&destination=' . urlencode(MCMS_REQUEST_URI),
         )));
     }
   }

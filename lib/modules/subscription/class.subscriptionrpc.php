@@ -44,7 +44,7 @@ class SubscriptionRPC extends RPCHandler
 
     $xml = html::em('message', array(
       'mode' => 'confirm',
-      'host' => url::host(),
+      'host' => MCMS_HOST_NAME,
       'email' => $data['email'],
       'base' => $ctx->url()->getBase($ctx),
       'confirmLink' => $link->string(),
@@ -56,7 +56,7 @@ class SubscriptionRPC extends RPCHandler
       throw new RuntimeException(t('Возникла ошибка при форматировании почтового сообщения.'));
 
     $subject = t('Подписка на новости сайта %host', array(
-      '%host' => url::host(),
+      '%host' => MCMS_HOST_NAME,
       ));
 
     // mcms::debug($data['email'], $subject, $body);

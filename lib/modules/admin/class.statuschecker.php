@@ -20,11 +20,11 @@ class StatusChecker
 
     if (!empty($parts) and ($email = self::getEmail($ctx))) {
       $subject = t('Отчёт о состоянии %host', array(
-        '%host' => url::host(),
+        '%host' => MCMS_HOST_NAME,
         ));
 
       $body = t('<p>Анализ сайта %host выявил следующие аномалии:</p>!list<p>!signature</p>', array(
-        '%host' => url::host(),
+        '%host' => MCMS_HOST_NAME,
         '!list' => '<ol><li>' . join('</li><li>', $parts) . '</li></ol>',
         '!signature' => mcms::getSignature()
         ));
@@ -112,7 +112,7 @@ class StatusChecker
   {
     if (null !== ($file = $ctx->db->getDbFile())) {
       if (0 === strpos(realpath($file), MCMS_ROOT . DIRECTORY_SEPARATOR)) {
-        $url = 'http://' . url::host() . mcms::path() . '/' . os::webpath($file);
+        $url = 'http://' . MCMS_HOST_NAME . mcms::path() . '/' . os::webpath($file);
 
         if (false !== ($headers = (array)@get_headers($url, 1))) {
           if (3 == count($parts = explode(' ', $headers[0]))) {

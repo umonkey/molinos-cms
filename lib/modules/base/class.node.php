@@ -932,7 +932,7 @@ class Node
       if ($ctl->label) {
         if (false !== ($tmp = $ctl->preview($this))) {
           $editurl = ($editable and $ctl->isEditable($this))
-            ? "admin/edit/{$this->id}/{$name}?destination=" . urlencode($_SERVER['REQUEST_URI'])
+            ? "admin/edit/{$this->id}/{$name}?destination=" . urlencode(MCMS_REQUEST_URI)
             : null;
           $result .= html::em('field', array(
             'name' => $name,

@@ -97,7 +97,7 @@ class AdminPage
     catch (NotConnectedException $e) {
       Logger::trace($e);
       if (is_dir(os::path('lib', 'modules', 'install')))
-        $ctx->redirect('install?destination=' . urlencode($_SERVER['REQUEST_URI']));
+        $ctx->redirect('install?destination=' . urlencode(MCMS_REQUEST_URI));
       else
         throw new RuntimeException('Система не проинсталлирована и модуля install нет.');
     }
@@ -112,7 +112,7 @@ class AdminPage
         'release' => MCMS_RELEASE,
         'base' => $ctx->url()->getBase($ctx),
         'prefix' => MCMS_SITE_FOLDER . '/themes',
-        'back' => urlencode($_SERVER['REQUEST_URI']),
+        'back' => urlencode(MCMS_REQUEST_URI),
         'next' => urlencode($ctx->get('destination')),
         'clean' => !empty($_GET['__cleanurls']),
         );
