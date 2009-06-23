@@ -928,8 +928,10 @@ class Node
     $result = '';
     $editable = $this->checkPermission('u');
 
+    $stop = $this->getXMLStopFields();
+
     foreach ($this->getFormFields()->sort() as $name => $ctl) {
-      if ($ctl->label) {
+      if ($ctl->isVisible() and !in_array($name, $stop)) {
         if (false !== ($tmp = $ctl->preview($this))) {
           $editurl = ($editable and $ctl->isEditable($this))
             ? "admin/edit/{$this->id}/{$name}?destination=" . urlencode(MCMS_REQUEST_URI)
