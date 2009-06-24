@@ -50,40 +50,26 @@ class mcms_sqlite_driver extends PDO_Singleton
     }
   }
 
+  /**
+   * Подмена несуществующих функций готовыми значениями.
+   */
+  protected function rewriteSQL($sql)
+  {
+    $fixes = array(
+      'UTC_TIMESTAMP()' => '\''. gmdate('Y-m-d H:i:s') .'\'',
+      'YEAR(' => 'strftime(\'%Y\', ',
+      'MONTH(' => 'strftime(\'%m\', ',
+      'DAY(' => 'strftime(\'%d\', ',
+      'RAND()' => 'RANDOM()',
+      );
+
+    return parent::rewriteSQL(str_replace(array_keys($fixes), array_values($fixes), $sql));
+  }
+
   public function prepare($sql, array $options = null)
   {
-    static $log = false;
-    static $count = 1;
-
-    if (false === $log)
-      $log = mcms::config('log.sql');
-
-    if ($log) {
-      error_log('> ' . wordwrap($sql, 80, "\n  ") . "\n", 3, $log);
-      error_log('@ ' . mcms::now() . ', #' . $count++ . "\n", 3, $log);
-      foreach (debug_backtrace() as $item)
-        error_log('  ' . mcms::formatStackElement($item) . "\n", 3, $log);
-      error_log("\n", 3, $log);
-    }
-
-    $newsql = $sql;
-
-    $newsql = str_replace(array(
-      'UTC_TIMESTAMP()',
-      'YEAR(',
-      'MONTH(',
-      'DAY(',
-      'RAND()',
-      ), array(
-      '\''. gmdate('Y-m-d H:i:s') .'\'',
-      'strftime(\'%Y\', ',
-      'strftime(\'%m\', ',
-      'strftime(\'%d\', ',
-      'RANDOM()',
-      ), $newsql);
-
     try {
-      return parent::prepare($newsql);
+      return parent::prepare($sql);
     } catch (PDOException $e) {
       if (false !== ($pos = strpos($e->getMessage(), 'General error: 1 no such table: ')))
         throw new TableNotFoundException(substr($e->getMessage(), $pos + 32));

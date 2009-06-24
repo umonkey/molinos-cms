@@ -57,13 +57,6 @@ class mcms_mysql_driver extends PDO_Singleton
     return $columns;
   }
 
-  public function exec($sql, array $params = null)
-  {
-    $sth = $this->prepare($sql);
-    $sth->execute($params);
-    return $sth;
-  }
-
   public function dropColumn($tblname, $coldel)
   {
     $sql = "ALTER TABLE `{$tblname}` DROP COLUMN `$coldel`";

@@ -10,6 +10,11 @@ class PDO_Singleton extends PDO
 
   private $transaction = false;
 
+  /**
+   * Префикс для имени таблицы.  Используется только если не пуст.
+   */
+  private $prefix = null;
+
   public function __construct($dsn, $user, $pass)
   {
     parent::__construct($dsn, $user, $pass);
@@ -56,11 +61,16 @@ class PDO_Singleton extends PDO
         '%name' => $dsn['type'],
         )));
 
-    return new $driver($dsn);
+    $db = new $driver($dsn);
+    if (array_key_exists('prefix', $dsn))
+      $db->prefix = $dsn['prefix'];
+
+    return $db;
   }
 
   public function prepare($sql)
   {
+    $sql = $this->rewriteSQL($sql);
     if (!$this->transaction and $this->isModifying($sql))
       throw new RuntimeException(t('Модификация данных вне транзакции.'));
     $sth = parent::prepare($sql);
@@ -238,5 +248,14 @@ class PDO_Singleton extends PDO
     return array_diff(
       PDO::getAvailableDrivers(),
       mcms::config('runtime.db.drivers.disable', array()));
+  }
+
+  /**
+   * Модификация текста SQL запроса.  Добавляет префикс,
+   * может использоваться для других вещей.
+   */
+  protected function rewriteSQL($sql)
+  {
+    return str_replace(array('{', '}'), array('`' . $this->prefix, '`'), $sql);
   }
 }
