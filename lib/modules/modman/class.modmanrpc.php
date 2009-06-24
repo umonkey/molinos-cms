@@ -32,6 +32,7 @@ class ModManRPC extends RPCHandler
           $errors[] = $moduleName;
 
     modman::updateDB();
+    self::rpc_rebuild($ctx);
 
     $url = new url($ctx->get('destination'));
     $url->setarg('errors', join('+', $errors));
