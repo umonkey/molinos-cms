@@ -203,8 +203,34 @@ class TableInfo
   {
     mcms::flog("checking({$tableName}): " . implode(', ', array_keys($columns)) . '.');
     $t = new TableInfo(Context::last()->db, $tableName);
-    foreach ($columns as $k => $v)
+    foreach ($columns as $k => $v) {
+      // FIXME: на переходном этапе конвертируем структуру, вообще надо её понимать сразу правильно.
+      switch ($v['type']) {
+      case 'decimal':
+        $v['type'] = $v['type'] . '(' . $v['length'] . ',' . $v['precision'];
+        break;
+      case 'bool':
+        $v['type'] = 'tinyint(1)';
+        break;
+      case 'char':
+      case 'varchar':
+        $v['type'] = $v['type'] . '(' . $v['length'] . ')';
+        break;
+      case 'text':
+        $v['type'] = 'mediumtext';
+        break;
+      case 'blob':
+        $v['type'] = 'mediumblob';
+        break;
+      }
+
+      if (!empty($v['primary']))
+        $v['key'] = 'pri';
+      elseif (!empty($v['indexed']))
+        $v['key'] = 'mul';
+
       $t->columnSet($k, $v);
+    }
     $t->commit();
   }
 };

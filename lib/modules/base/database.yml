@@ -1,0 +1,129 @@
+---
+tables:
+  node:
+    id:
+      type: integer
+      required: true
+      primary: true
+    lang:
+      type: char
+      length: 4
+      required: true
+      indexed: true
+    parent_id:
+      type: integer
+      indexed: true
+    class:
+      type: varchar
+      length: 16
+      required: true
+      indexed: true
+    left:
+      type: integer
+      indexed: true
+    right:
+      type: integer
+      indexed: true
+    created:
+      type: datetime
+      required: true
+      indexed: true
+    updated:
+      type: datetime
+      required: true
+      indexed: true
+    deleted:
+      type: bool
+      required: true
+      indexed: true
+      default: 0
+    published:
+      type: bool
+      required: true
+      indexed: true
+      default: 0
+    name:
+      type: varchar
+      length: 255
+      indexed: true
+    name_lc:
+      type: varchar
+      length: 255
+      indexed: true
+    data:
+      type: blob
+    xml:
+      type: text
+  node__rel:
+    nid:
+      type: integer
+      required: true
+      indexed: true
+    tid:
+      type: integer
+      required: true
+      indexed: true
+    key:
+      type: varchar
+      length: 255
+      indexed: true
+    order:
+      type: integer
+      indexed: true
+  node__access:
+    nid:
+      type: integer
+      required: true
+      indexed: true
+    uid:
+      type: integer
+      required: true
+      indexed: true
+    c:
+      type: bool
+      required: true
+      indexed: true
+      default: 0
+    r:
+      type: bool
+      required: true
+      indexed: true
+      default: 0
+    u:
+      type: bool
+      required: true
+      indexed: true
+      default: 0
+    d:
+      type: bool
+      required: true
+      indexed: true
+      default: 0
+    p:
+      type: bool
+      required: true
+      indexed: true
+      default: 0
+  node__session:
+    sid:
+      type: char
+      length: 32
+      primary: true
+      required: true
+    created:
+      type: datetime
+      required: true
+      indexed: true
+    data:
+      type: blob
+      required: true
+  node__fallback:
+    old:
+      type: varchar
+      length: 255
+      required: true
+      indexed: true
+      unique: true
+    new:
+      type: varchar
+      length: 255

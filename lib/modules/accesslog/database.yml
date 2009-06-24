@@ -1,0 +1,14 @@
+---
+tables:
+  node__astat:
+    lid:
+      type: integer
+      primary: true
+      autoincrement: true
+    nid:
+      type: integer
+      required: true
+      indexed: true
+    timestamp:
+      type: datetime
+      indexed: true

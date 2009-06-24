@@ -1,0 +1,19 @@
+---
+tables:
+  node__poll:
+    nid:
+      type: integer
+      required: true
+      indexed: true
+    uid:
+      type: integer
+      indexed: true
+    ip:
+      type: varchar
+      length: 15
+      required: true
+      indexed: true
+    option:
+      type: integer
+      required: true
+      indexed: true

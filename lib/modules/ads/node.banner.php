@@ -34,32 +34,6 @@ class BannerNode extends Node
   }
 
   /**
-   * Создание таблицы node__banners.
-   * @mcms_message ru.molinos.cms.install
-   */
-  public static function on_install(Context $ctx)
-  {
-    TableInfo::check('node__banners', array(
-      'id' => array(
-        'type' => 'integer',
-        'key' => 'pri',
-        ),
-      'time_limit' => array(
-        'type' => 'datetime',
-        'key' => 'mul',
-        ),
-      'display_count' => array(
-        'type' => 'integer',
-        'key' => 'mul',
-        ),
-      'display_limit' => array(
-        'type' => 'integer',
-        'key' => 'mul',
-        ),
-      ));
-  }
-
-  /**
    * Вызов api/ads/get.xml
    *
    * Возвращает случайные баннеры.

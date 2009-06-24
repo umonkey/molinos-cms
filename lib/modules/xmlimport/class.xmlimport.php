@@ -3,43 +3,6 @@
 class XMLImport
 {
   /**
-   * @mcms_message ru.molinos.cms.install
-   */
-  public static function on_install(Context $ctx)
-  {
-    $t = new TableInfo($ctx->db, 'node__xmlimport');
-
-    if (!$t->exists()) {
-      $t->columnSet('id', array(
-        'type' => 'integer',
-        'required' => true,
-        'key' => 'pri',
-        ));
-      $t->columnSet('date', array(
-        'type' => 'datetime',
-        'required' => true,
-        'key' => 'mul',
-        ));
-      $t->columnSet('source', array(
-        'type' => 'varchar(255)',
-        'required' => true,
-        'key' => 'mul',
-        ));
-      $t->columnSet('guid', array(
-        'type' => 'varchar(255)',
-        'required' => true,
-        'key' => 'mul',
-        ));
-      $t->columnSet('item', array(
-        'type' => 'text',
-        'required' => true,
-        ));
-
-      $t->commit();
-    }
-  }
-
-  /**
    * @mcms_message ru.molinos.cms.cron
    */
   public static function on_schedule(Context $ctx)

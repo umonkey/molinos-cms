@@ -1,0 +1,15 @@
+---
+tables:
+  node__banners:
+    id:
+      type: integer
+      primary: true
+    time_limit:
+      type: datetime
+      indexed: true
+    display_count:
+      type: integer
+      indexed: true
+    display_limit:
+      type: integer
+      indexed: true

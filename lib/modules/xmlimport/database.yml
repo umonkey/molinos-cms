@@ -1,0 +1,24 @@
+---
+tables:
+  node__xmlimport:
+    id:
+      type: integer
+      required: true
+      primary: true
+    date:
+      type: datetime
+      required: true
+      indexed: true
+    source:
+      type: varchar
+      length: 255
+      required: true
+      indexed: true
+    guid:
+      type: varchar
+      length: 255
+      required: true
+      indexed: true
+    item:
+      type: text
+      required: true

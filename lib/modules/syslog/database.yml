@@ -1,0 +1,29 @@
+---
+tables:
+  node__log:
+    lid:
+      type: integer
+      required: true
+      primary: true
+      autoincrement: true
+    nid:
+      type: integer
+      indexed: true
+    uid:
+      type: integer
+      indexed: true
+    username:
+      type: varchar
+      length: 255
+    operation:
+      type: varchar
+      length: 255
+    ip:
+      type: varchar
+      length: 15
+    timestamp:
+      type: datetime
+      indexed: true
+    name:
+      type: varchar
+      length: 255

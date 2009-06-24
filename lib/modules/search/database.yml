@@ -1,0 +1,13 @@
+---
+tables:
+  node__searchindex:
+    nid:
+      type: integer
+      required: true
+      primary: true
+    url:
+      type: varchar
+      length: 255
+      required: true
+    html:
+      type: text

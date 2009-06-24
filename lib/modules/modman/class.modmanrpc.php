@@ -42,6 +42,17 @@ class ModManRPC extends RPCHandler
 
   public static function rpc_rebuild(Context $ctx)
   {
+    // Обновление БД.
+    foreach (os::find('lib/modules/*/*.yml') as $fileName) {
+      $schema = Spyc::YAMLLoad($fileName);
+      Logger::log('applying ' . $fileName);
+      if (!empty($schema['tables'])) {
+        foreach ($schema['tables'] as $tableName => $tableInfo)
+          TableInfo::check($tableName, $tableInfo);
+      }
+    }
+
+
     $ctx->registry->rebuild();
     $ctx->registry->broadcast('ru.molinos.cms.install', array($ctx));
   }
