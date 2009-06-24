@@ -19,7 +19,7 @@ class os
   public static function path()
   {
     $components = func_get_args();
-    return implode(DIRECTORY_SEPARATOR, $components);
+    return str_replace('/', DIRECTORY_SEPARATOR, implode(DIRECTORY_SEPARATOR, $components));
   }
 
   /**
@@ -70,7 +70,7 @@ class os
   public static function find()
   {
     $path = func_get_args();
-    $path = join(DIRECTORY_SEPARATOR, $path);
+    $path = str_replace('/', DIRECTORY_SEPARATOR, implode(DIRECTORY_SEPARATOR, $path));
     return glob($path);
   }
 
