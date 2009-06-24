@@ -12,9 +12,6 @@
             <a href="{$next}">Продолжить работу</a>.
           </xsl:if>
         </p>
-        <form method="post" action="admin/system/modules/reload?destination={$next}">
-          <input type="submit" value="Обновить информацию" />
-        </form>
       </xsl:when>
       <xsl:otherwise>
         <div class="modman">

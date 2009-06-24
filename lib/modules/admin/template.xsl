@@ -194,7 +194,7 @@
       -->
       <xsl:if test="document(concat($api,'modman/updates.xml'))/modules/module">
         <li class="icon icon-updates">
-          <a href="admin/system/modules/upgrade?destination={$back}" title="Есть обновления">
+          <a href="admin/system/upgrade?destination={$back}" title="Есть обновления">
             <span>Установить обновления</span>
           </a>
         </li>
