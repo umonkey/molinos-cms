@@ -114,6 +114,13 @@
         <input type="text" class="form-text" name="main/debug/errors" value="cms-bugs@molinos.ru" />
       </label>
     </fieldset>
+    <fieldset>
+      <legend>Параллельная установка <span>(лучше не трогать)</span></legend>
+      <label>
+        <span>Префикс для таблиц</span>
+        <input type="text" name="db[prefix]" class="form-text" />
+      </label>
+    </fieldset>
   </xsl:template>
 
   <xsl:template name="info">

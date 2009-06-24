@@ -31,7 +31,10 @@ class InstallModule
     if ($config->isok())
       throw new ForbiddenException(t('Инсталляция невозможна: конфигурационный файл уже есть.'));
 
-    $config->set('modules/db', self::getDSN($data['dbtype'], $data['db'][$data['dbtype']]));
+    $dsn = self::getDSN($data['dbtype'], $data['db'][$data['dbtype']]);
+    if (!empty($data['db']['prefix']))
+      $dsn['prefix'] = $data['db']['prefix'];
+    $config->set('modules/db', $dsn);
 
     foreach (array('modules/mail/server', 'modules/mail/from', 'main/debug/errors') as $key)
       if (!empty($data[$key]))
