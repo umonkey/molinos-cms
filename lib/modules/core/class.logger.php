@@ -42,7 +42,7 @@ class Logger
   /**
    * Форматирует содержимое стэка.
    */
-  public static function backtrace($stack, $condition = null)
+  public static function backtrace($stack = null, $condition = null)
   {
     $output = '';
 
