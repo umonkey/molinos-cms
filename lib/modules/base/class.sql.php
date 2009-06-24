@@ -126,7 +126,7 @@ class sql
   public static function getSelect(array $fieldNames, array $tableNames, array $conditions)
   {
     $sql = "SELECT " . join(', ', $fieldNames)
-      . " FROM `" . join('`, `', $tableNames) . "`";
+      . " FROM {" . join('}, {', $tableNames) . "}";
 
     if (!empty($conditions))
       $sql .= ' WHERE ' . join(' AND ', $conditions);
