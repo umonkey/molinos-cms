@@ -110,6 +110,8 @@ class UserControl extends Control
       $html = html::em('a', array(
         'href' => 'admin/node/' . $value->id,
         ), html::cdata($value->getName()));
+    elseif (is_string($value))
+      $html = html::plain($value);
     else
       $html = t('Авторство не установлено.');
 
