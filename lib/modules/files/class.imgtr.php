@@ -168,8 +168,10 @@ class Imgtr
     $storage = Context::last()->config->getPath('modules/files/storage', 'files');
 
     // Файлы без расширений не обрабатываем, чтобы не нагенерировать каких-нибудь странных имён.
+    /*
     if (!($ext = os::getFileExtension($source)))
       return;
+    */
 
     // Правила перевода расширений в типы.
     $typemap = array(
@@ -178,14 +180,17 @@ class Imgtr
       );
 
     foreach (Context::last()->config->getArray(self::confroot) as $name => $settings) {
-      $target = substr($source, 0, - strlen($ext)) . $name . '.' . $settings['format'];
+      if (empty($ext))
+        $target = $source . '.' . $name . '.' . $settings['format'];
+      else
+        $target = substr($source, 0, - strlen($ext)) . $name . '.' . $settings['format'];
 
       if (file_exists($target))
         unlink($target);
 
       $im = ImageMagick::getInstance();
 
-      if ($im->open($source)) {
+      if ($im->open($source, $node->filetype)) {
         $options = array(
           'downsize' => ($settings['scalemode'] != 'crop'),
           'crop' => ($settings['scalemode'] == 'crop'),
