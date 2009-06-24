@@ -51,7 +51,7 @@
           </tr>
         </xsl:for-each>
       </table>
-      <input type="submit" value="Открепить выделенные" /> или <a href="admin/content/files?sendto={../node/@id}&amp;destination={$back}">добавить ещё файлов</a> или <a href="{$next}">вернуться</a>
+      <input type="submit" value="Открепить выделенные" /> или <a href="admin/create/file?sendto={../node/@id}&amp;destination={$back}">добавить ещё файлов</a> или <a href="{$next}">вернуться</a>
     </form>
   </xsl:template>
 </xsl:stylesheet>

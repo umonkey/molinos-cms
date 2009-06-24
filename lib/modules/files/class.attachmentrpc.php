@@ -25,14 +25,12 @@ class AttachmentRPC extends RPCHandler
   {
     $content = $help = '';
 
-    if ($next = $ctx->get('destination'))
-      $next = '?destination=' . urlencode($next);
+    $next = '?destination=' . urlencode($ctx->get('destination'));
+    $next .= '&sendto=' . urlencode($ctx->get('sendto'));
 
     $options = array(
       'name' => 'addfile',
-      'title' => t('Добавление файлов в <a href="@url">архив</a>', array(
-        '@url' => 'admin/content/files',
-        )),
+      'title' => t('Добавление файлов в архив'),
       'mode' => $pathinfo['mode'],
       'target' => $path . $next,
       'back' => $ctx->get('destination'),
@@ -184,7 +182,8 @@ class AttachmentRPC extends RPCHandler
     return html::em('content', array(
       'name' => 'editfiles',
       'title' => t('Редактирование файлов'),
-      'action' => 'admin/files/edit?destination=' . urlencode($ctx->get('destination')),
+      'action' => 'admin/files/edit?destination=' . urlencode($ctx->get('destination'))
+        . '&sendto=' . urlencode($ctx->get('sendto')),
       'path' => os::webpath(MCMS_SITE_FOLDER, $ctx->config->get('modules/files/storage')),
       'ids' => $ctx->get('files'),
       ), $nodes);
@@ -211,6 +210,9 @@ class AttachmentRPC extends RPCHandler
       $node->labels = array_merge($labels, preg_split('/,\s+/', $info['labels'], -1, PREG_SPLIT_NO_EMPTY));
       $node->save();
     }
+
+    if ($to = $ctx->get('sendto'))
+      $node = Node::load($to)->link(array_keys($ctx->post('files')), false)->save();
 
     $ctx->db->commit();
 
@@ -244,6 +246,7 @@ class AttachmentRPC extends RPCHandler
 
     if ($bad)
       $next .= '&bad=' . $bad;
+    $next .= '&sendto=' . $ctx->get('sendto');
 
     $ctx->redirect($next);
   }
@@ -255,8 +258,14 @@ class AttachmentRPC extends RPCHandler
   {
     $result = '';
 
-    if ($next = $ctx->get('destination'))
-      $next = '?destination=' . urlencode($next);
+    $next = array();
+    if ($tmp = $ctx->get('sendto'))
+      $next[] = 'sendto=' . urlencode($tmp);
+    if ($tmp = $ctx->get('destination'))
+      $next[] = 'destination=' . urlencode($tmp);
+    $next = empty($next)
+      ? ''
+      : '?' . implode('&', $next);
 
     if ($mode != 'normal')
       $result .= html::em('mode', array(
@@ -273,6 +282,11 @@ class AttachmentRPC extends RPCHandler
         'name' => 'ftp',
         'href' => 'admin/create/file/ftp' . $next,
         ), html::cdata(t('по FTP')));
+
+    $result .= html::em('mode', array(
+      'name' => 'archive',
+      'href' => 'admin/content/files' . $next,
+      ), html::cdata(t('найти нужные файлы в архиве')));
 
     return $result;
   }

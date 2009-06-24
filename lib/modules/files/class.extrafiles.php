@@ -22,14 +22,28 @@ class ExtraFiles
     if ($node instanceof FileNode)
       return;
 
-    return array(
-      'attach' => array(
-        'href' => 'admin/node/attach?id=' . $node->id
-          . '&destination=CURRENT',
-        'title' => t('Прикрепить файлы'),
-        'scope' => 'edit',
-        ),
-      );
+    $count = Node::count(array(
+      'class' => 'file',
+      'deleted' => 0,
+      'tags' => $node->id,
+      ), $node->getDB());
+
+    if ($count)
+      return array(
+        'attach' => array(
+          'href' => "admin/node/attach?id={$node->id}&destination=CURRENT",
+          'title' => t('Управление файлами'),
+          'scope' => 'edit',
+          ),
+        );
+    else
+      return array(
+        'attach' => array(
+          'href' => "admin/create/file?sendto={$node->id}&destination=CURRENT",
+          'title' => t('Добавить файлы'),
+          'scope' => 'edit',
+          ),
+        );
   }
 
   /**
