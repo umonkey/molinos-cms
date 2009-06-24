@@ -91,7 +91,7 @@ class CompressorModule
   {
     $output = '';
 
-    if ('admin' == ($query = $ctx->query()) or 0 === strpos($query, 'admin/'))
+    if (self::isAdminPage($query = $ctx->query()))
       list($scripts, $styles) = self::getAdminFiles($ctx, !$ctx->get('nocompress'));
     elseif (null !== $pathinfo and !empty($pathinfo['theme']))
       list($scripts, $styles) = self::getThemeFiles($ctx, $pathinfo['theme'], !$ctx->get('nocompress'));
@@ -221,5 +221,19 @@ class CompressorModule
     }
 
     return array($scripts, $styles);
+  }
+
+  /**
+   * Проверяет, является ли страница административной.
+   */
+  private static function isAdminPage($query)
+  {
+    if ('admin' === $query)
+      return true;
+    if (0 === strpos($query, 'admin/'))
+      return true;
+    if (0 === strpos($query, 'nodeapi/'))
+      return true;
+    return false;
   }
 }
