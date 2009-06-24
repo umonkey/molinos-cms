@@ -1,7 +1,7 @@
 <?php
 
 define('MCMS_RELEASE', '9.05');
-define('MCMS_VERSION', '9.05B3');
+define('MCMS_VERSION', '9.05B4');
 
 $dirName = dirname(__FILE__);
 foreach (array('os', 'ini', 'registry', 'cache', 'config', 'router', 'context') as $className)
