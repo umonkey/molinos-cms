@@ -1320,4 +1320,14 @@ class Node
     $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`) SELECT `id`, %ID% FROM `node` WHERE `id` " . sql::in($ids, $params), $params);
     return $this;
   }
+
+  /**
+   * Привязывает объекты к текущему.
+   */
+  public function link(array $ids, $replace = true, $field = null)
+  {
+    $params = array($field);
+    $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`, `key`) SELECT %ID%, `id`, ? FROM `node` WHERE `id` " . sql::in($ids, $params), $params);
+    return $this;
+  }
 };
