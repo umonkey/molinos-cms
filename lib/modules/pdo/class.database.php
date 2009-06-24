@@ -1,7 +1,7 @@
 <?php
 // vim: set expandtab tabstop=2 shiftwidth=2 softtabstop=2:
 
-class PDO_Singleton extends PDO
+class Database extends PDO
 {
   protected $dbname = null;
   protected $dbtype = null;

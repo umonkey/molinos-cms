@@ -416,7 +416,7 @@ class mcms
         $options = array();
 
         if (count($parts = explode(':', mcms::config('db'))))
-          if (in_array($parts[0], PDO_Singleton::listDrivers()))
+          if (in_array($parts[0], Database::listDrivers()))
             $options[] = $parts[0];
 
         $options[] = str_replace('_provider', '', get_class(cache::getInstance()));

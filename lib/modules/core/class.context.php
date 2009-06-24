@@ -363,7 +363,7 @@ class Context
       if (null === $this->_db) {
         if (!is_array($dsn = $this->config->get('modules/db')))
           throw new InvalidArgumentException(t('Соединение с БД не настроено.'));
-        $this->_db = PDO_Singleton::connect($dsn);
+        $this->_db = Database::connect($dsn);
       }
       return $this->_db;
 

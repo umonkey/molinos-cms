@@ -21,7 +21,7 @@ class TypeNode extends Node implements iContentType
   // документы этого типа обновляются.
   private $oldname = null;
 
-  public function __construct(PDO_Singleton $db, array $data = array())
+  public function __construct(Database $db, array $data = array())
   {
     parent::__construct($db, $data);
     $this->oldname = $this->name;

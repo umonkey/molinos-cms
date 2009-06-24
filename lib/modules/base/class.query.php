@@ -188,7 +188,7 @@ class Query
     return array($sql, $this->params);
   }
 
-  public function getCount(PDO_Singleton $db = null)
+  public function getCount(Database $db = null)
   {
     $sql = sql::getSelect(array('COUNT(*)'), $this->tables, $this->conditions);
 

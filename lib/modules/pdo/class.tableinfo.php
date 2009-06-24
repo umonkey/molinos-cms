@@ -9,7 +9,7 @@ class TableInfo
     protected $alter;
     protected $db;
 
-    public function __construct(PDO_Singleton $db, $name)
+    public function __construct(Database $db, $name)
     {
       $this->db = $db;
       $this->name = $name;

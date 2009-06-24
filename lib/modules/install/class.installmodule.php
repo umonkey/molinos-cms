@@ -50,7 +50,7 @@ class InstallModule
       );
 
     // Проверим соединение с БД.
-    $pdo = PDO_Singleton::connect($config->get('modules/db'));
+    $pdo = Database::connect($config->get('modules/db'));
 
     // Подключились, можно сохранять конфиг.
     $config->save();
@@ -99,7 +99,7 @@ class InstallModule
     $options = array();
 
     if (class_exists('PDO', false)) {
-      foreach (PDO_Singleton::listDrivers() as $el) {
+      foreach (Database::listDrivers() as $el) {
         $title = null;
 
         switch ($el) {

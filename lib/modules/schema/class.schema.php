@@ -46,7 +46,7 @@ class Schema extends ArrayObject
   /**
    * Возвращает схему указанного типа документа.
    */
-  public static function load(PDO_Singleton $db, $className)
+  public static function load(Database $db, $className)
   {
     $cache = cache::getInstance();
     $ckey = 'schema:' . $className;
@@ -59,7 +59,7 @@ class Schema extends ArrayObject
   /**
    * Воссоздаёт контролы из БД.
    */
-  public static function rebuild(PDO_Singleton $db, $className)
+  public static function rebuild(Database $db, $className)
   {
     try {
       $node = Node::load(array(

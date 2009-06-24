@@ -20,9 +20,9 @@ class NodeMover
   private $db;
 
   /**
-   * @param PDO_Singleton $db соединение с базой данных.
+   * @param Database $db соединение с базой данных.
    */
-  public function __construct(PDO_Singleton $db)
+  public function __construct(Database $db)
   {
     $this->db = $db;
   }

@@ -43,7 +43,7 @@ class Node
   /**
    * Инициализация объекта. Извне следует использовать ::create().
    */
-  protected function __construct(PDO_Singleton $db, array $data = array())
+  protected function __construct(Database $db, array $data = array())
   {
     // Разворачиваем сериализованные данные.  Свойства, пересекающиеся
     // с базовыми, уничтожаются.
@@ -104,7 +104,7 @@ class Node
   /**
    * Создание нового объекта.  Если БД не указана, используется текущее подключение.
    */
-  public static function create($fields, PDO_Singleton $db = null)
+  public static function create($fields, Database $db = null)
   {
     if (!is_array($fields))
       $fields = array(
@@ -156,7 +156,7 @@ class Node
    *   $query — запрос.
    *   $db — БД. Если не указана, используется текущее подключение.
    */
-  public static function find($query, PDO_Singleton $db = null)
+  public static function find($query, Database $db = null)
   {
     if (is_array($query))
       $query = Query::build($query);
@@ -181,7 +181,7 @@ class Node
   /**
    * Поиск нод, результат — в XML.
    */
-  public static function findXML($query, PDO_Singleton $db = null)
+  public static function findXML($query, Database $db = null)
   {
     if (is_array($query))
       $query = Query::build($query);
@@ -206,7 +206,7 @@ class Node
   /**
    * Возвращает количество нод, удовлетворяющих запросу.
    */
-  public static function count($query, PDO_Singleton $db = null)
+  public static function count($query, Database $db = null)
   {
     if (is_array($query))
       $query = Query::build($query);
@@ -239,7 +239,7 @@ class Node
   /**
    * Возвращает идентификаторы родителей указанной ноды.
    */
-  public static function getNodeParentIds(PDO_Singleton $db, $id)
+  public static function getNodeParentIds(Database $db, $id)
   {
     $sql = "SELECT `parent`.`id` as `id` "
       ."FROM `node` AS `self`, `node` AS `parent` "
