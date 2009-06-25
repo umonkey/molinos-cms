@@ -45,7 +45,7 @@ class ModManRPC extends RPCHandler
     // Обновление БД.
     foreach (os::find('lib/modules/*/*.yml') as $fileName) {
       $schema = Spyc::YAMLLoad($fileName);
-      Logger::log('applying ' . $fileName);
+      Logger::log('applying ' . $fileName, 'module');
       if (!empty($schema['tables'])) {
         foreach ($schema['tables'] as $tableName => $tableInfo)
           TableInfo::check($tableName, $tableInfo);
@@ -70,7 +70,7 @@ class ModManRPC extends RPCHandler
 
     $ctx->config->set('modules/' . $moduleName, $conf->dump())->save();
 
-    mcms::flog($moduleName . ': configuration updated.');
+    Logger::log($moduleName . ': configuration updated.');
 
     Structure::getInstance()->drop();
   }

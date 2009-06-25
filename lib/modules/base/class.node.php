@@ -60,7 +60,7 @@ class Node
     if (!empty($this->data['id'])) {
       $this->retrieve();
       if (defined('MCMS_FLOG_SLOW'))
-        Logger::log("node[{$this->data['id']}]: read from DB (slow); {$this->class},{$this->name}");
+        Logger::log("node[{$this->data['id']}]: read from DB (slow); {$this->class},{$this->name}", 'slow');
     } else {
       $this->dirty = true;
     }
@@ -1000,7 +1000,7 @@ class Node
         foreach ($params as $p)
           $tmp[] = var_export($p, true);
 
-        mcms::flog("onSave[{$this->id}]: " . join('; ', $tmp));
+        Logger::log("onSave[{$this->id}]: " . join('; ', $tmp), 'update');
       }
     }
 
@@ -1024,7 +1024,7 @@ class Node
 
       if (!empty($v)) {
         if ($v instanceof Node) {
-          mcms::flog("pack[{$this->id}] » {$v->id}($v->name)");
+          Logger::log("pack[{$this->id}] » {$v->id}($v->name)", 'update');
 
           if (null === $v->id)
             $v->save();
@@ -1191,7 +1191,7 @@ class Node
       $force = true;
 
     if ($this->data['id'] and $force) {
-      mcms::flog("node[{$this->id}]: rebuilding XML tree");
+      Logger::log("node[{$this->id}]: rebuilding XML tree", 'xml');
 
       $mod = $published ? ' AND `published` = 1' : '';
       $children = $this->getDB()->getResultsKV("id", "xmltree", "SELECT `id`, `xmltree` FROM `node` WHERE `parent_id` = ? AND `deleted` = 0{$mod} ORDER BY `left`", array($this->data['id']));
@@ -1247,7 +1247,7 @@ class Node
     $data = array();
 
     if (null !== $this->id and $this->getDB()) {
-      mcms::flog("node[{$this->id}]: rebuilding XML ({$this->class},{$this->name})");
+      Logger::log("node[{$this->id}]: rebuilding XML ({$this->class},{$this->name})", 'xml');
 
       $data = array(
         'id' => $this->id,

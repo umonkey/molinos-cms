@@ -106,7 +106,7 @@ class OpenIdModule extends RPCHandler
       return $node;
     } else {
       // Login canceled
-      mcms::flog('login cancelled ?!');
+      Logger::log('login cancelled ?!');
       $ctx->redirect("?q=auth.rpc&action=logout");
     }
   }
@@ -152,7 +152,7 @@ class OpenIdModule extends RPCHandler
       $redirect_url = $auth_request->redirectURL(self::getTrustRoot(), self::getReturnTo($openid));
       if (Auth_OpenID::isFailure($redirect_url)) {
         // If the redirect URL can't be built, display an error message.
-        mcms::flog("Could not redirect to server: " . $redirect_url->message);
+        Logger::log("Could not redirect to server: " . $redirect_url->message);
       } else {
         // Send redirect.
         $r = new Redirect($redirect_url);
@@ -166,7 +166,7 @@ class OpenIdModule extends RPCHandler
       // Display an error if the form markup couldn't be generated;
       // otherwise, render the HTML.
       if (Auth_OpenID::isFailure($form_html)) {
-        mcms::flog("Could not redirect to server: " . $form_html->message);
+        Logger::log("Could not redirect to server: " . $form_html->message);
       } else {
         $page_contents = array(
           "<html><head><title>",

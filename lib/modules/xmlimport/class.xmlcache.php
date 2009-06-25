@@ -24,7 +24,7 @@ class XmlCache
     $xml = http::fetch($url, http::CONTENT);
     $cache->$ckey = $xml;
 
-    mcms::flog('Imported XML from ' . $url);
+    Logger::log('Imported XML from ' . $url);
 
     return new Response($xml, 'text/xml');
   }

@@ -492,7 +492,7 @@ abstract class Widget implements iWidget
     if ($reset) {
       $cache->widgetseed = ++$result;
       if (defined('MCMS_FLOG_CACHE'))
-        mcms::flog('widget seed changed to ' . $result);
+        Logger::log('widget seed changed to ' . $result);
     }
     return $result;
   }

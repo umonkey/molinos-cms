@@ -12,10 +12,10 @@ class APIStream
   function stream_open($path, $mode, $options, &$opened_path)
   {
     if (null === self::$router)
-      mcms::flog($message = 'API not initialized: router not set.');
+      Logger::log($message = 'API not initialized: router not set.', 'api');
 
     elseif (false !== strpos($mode, 'w'))
-      mcms::flog($message = 'XML API is read only.');
+      Logger::log($message = 'XML API is read only.', 'api');
 
     elseif (is_array($url = parse_url($path)) and 'localhost' == $url['host']) {
       if (isset($url['path']) and 0 === strpos($url['path'], '/api/')) {
@@ -32,9 +32,9 @@ class APIStream
             $this->data = $tmp->dump();
           else
             $this->data = html::em('error');
-          mcms::flog(sprintf('API OK %f %s', microtime(true) - $time, substr($path, 16)));
+          Logger::log(sprintf('OK %f %s', microtime(true) - $time, substr($path, 16)), 'api');
         } catch (Exception $e) {
-          mcms::flog(sprintf('API ERROR %s', substr($path, 16)));
+          Logger::log(sprintf('ERROR %s', substr($path, 16)), 'api');
           $this->data = html::em('error', array(
             'type' => get_class($e),
             'message' => $e->getMessage(),
@@ -93,7 +93,7 @@ class APIStream
 
   public function __call($name, array $args)
   {
-    mcms::flog('stream op not handled: ' . $name);
+    Logger::log('stream op not handled: ' . $name, 'api');
   }
 
   public static function init(Context $ctx)
@@ -105,6 +105,7 @@ class APIStream
     else {
       self::$router = new Router();
       self::$router->poll($ctx);
+      Logger::log("IN 0.000000 " . substr(MCMS_REQUEST_URI, 1), 'api');
     }
   }
 

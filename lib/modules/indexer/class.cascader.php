@@ -37,7 +37,7 @@ class Cascader
       $upd = $node->getDB()->prepare("UPDATE `node` SET `xml` = ? WHERE `id` = ?");
       foreach ($ids as $id) {
         $upd->execute(array(Node::load($id, $node->getDB())->getXML(), $id));
-        mcms::flog("node[{$id}]: XML updated");
+        Logger::log("node[{$id}]: XML updated", 'xml');
       }
     }
   }

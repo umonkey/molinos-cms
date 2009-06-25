@@ -9,7 +9,7 @@ class TreeBuilder
   public static function on_task_run(Context $ctx)
   {
     if ($message = self::checkBrokenTrees($ctx)) {
-      mcms::flog("Node tree structure is damaged: {$message}, fixing.");
+      Logger::log("Node tree structure is damaged: {$message}, fixing.");
 
       $db = $ctx->db;
       $old = $data = $db->getResultsK("id", "SELECT `id`, `parent_id`, `class`, `deleted`, NULL AS `left`, NULL AS `right` "
@@ -26,7 +26,7 @@ class TreeBuilder
 
         if (!array_key_exists($v['parent_id'], $data)) {
           if (empty($v['deleted'])) {
-            mcms::flog($v['parent_id'] . ': unknown parent id, deleting node ' . $v['id']);
+            Logger::log($v['parent_id'] . ': unknown parent id, deleting node ' . $v['id']);
             $db->exec('DELETE FROM `node` WHERE `id` = ?', array($v['id']));
           }
           unset($data[$k]);
@@ -48,7 +48,7 @@ class TreeBuilder
         $next += 2;
       }
 
-      mcms::flog('Checking tree structure.');
+      Logger::log('Checking tree structure.');
 
       $db->exec("UPDATE `node` SET `left` = NULL, `right` = NULL");
       $sth = $db->prepare("UPDATE `node` SET `left` = ?, `right` = ? WHERE `id` = ?");

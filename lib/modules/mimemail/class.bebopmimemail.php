@@ -22,7 +22,7 @@ class BebopMimeMail
     if (!is_array($to))
       $to = preg_split('/, */', $to, -1, PREG_SPLIT_NO_EMPTY);
 
-    Logger::log(sprintf('to=%s, subject=%s', join(',', $to), $subject));
+    Logger::log(sprintf('to=%s, subject=%s', join(',', $to), $subject), 'mail');
 
     $mail = new htmlMimeMail();
 

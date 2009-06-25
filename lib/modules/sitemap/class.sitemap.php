@@ -35,7 +35,7 @@ class Sitemap
               : 'sitemap.xml';
 
             foreach ($hosts as $host) {
-              mcms::flog('pinging '. $host .' with '. $sm);
+              Logger::log('pinging '. $host .' with '. $sm);
               http::fetch('http://'. $host .'/ping?sitemap='. urlencode($sm), http::CONTENT | http::NO_CACHE);
             }
           }

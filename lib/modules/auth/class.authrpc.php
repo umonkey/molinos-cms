@@ -21,7 +21,7 @@ class AuthRPC
     $result = $ctx->registry->unicast($message = 'ru.molinos.cms.auth.process.' . $mode, array($ctx, $params));
 
     if (false === $result)
-      mcms::flog($message . ' not handled.');
+      Logger::log($message . ' not handled.', 'auth');
 
     if (!($result instanceof Response))
       $result = $ctx->getRedirect();

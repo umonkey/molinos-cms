@@ -73,7 +73,7 @@ class Indexer
                 ),
               ));
           } catch (PDOException $e) {
-            mcms::flog("error reindexing {$info['type']}.{$name}: " . $e->getMessage());
+            Logger::log("error reindexing {$info['type']}.{$name}: " . $e->getMessage());
           }
         }
       }
@@ -105,7 +105,7 @@ class Indexer
             ));
         }
       } catch (TableNotFoundException $e) {
-        mcms::flog($e->getTableName() . ': missing table.');
+        Logger::log($e->getTableName() . ': missing table.');
       }
     }
   }

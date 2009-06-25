@@ -29,12 +29,12 @@ class OrderNode extends Node implements iContentType
   protected function sendEmail($to, $mode)
   {
     if (empty($to)) {
-      mcms::flog($mode . ' not sent: email not found');
+      Logger::log($mode . ' not sent: email not found', 'cart');
       return;
     }
 
     if (!($xslt = Context::last()->config->get("modules/cart/{$mode}_templates"))) {
-      mcms::flog($mode . ' not sent: XSLT file not set');
+      Logger::log($mode . ' not sent: XSLT file not set', 'cart');
       return;
     }
 

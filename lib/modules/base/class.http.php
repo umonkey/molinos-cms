@@ -38,14 +38,14 @@ class http
 
     if (file_exists($outfile) and (($options & self::NO_CACHE) or ((time() - $ttl) > @filectime($outfile)))) {
       if (is_writable(dirname($outfile))) {
-        // mcms::flog('removing cached copy of ' . $url);
+        Logger::log('removing cached copy of ' . $url, 'fetch');
         unlink($outfile);
       }
     }
 
     // Скачиваем файл только если его нет на диске во временной директории
     if (file_exists($outfile)) {
-      // mcms::flog('found in cache: '. $url);
+      Logger::log('found in cache: '. $url, 'fetch');
     } else {
       if (function_exists('curl_init')) {
         $ch = curl_init($url);
@@ -69,7 +69,7 @@ class http
         fclose($fp);
 
         if (200 != $code) {
-          mcms::flog($url . ': error ' . $code);
+          Logger::log($url . ': error ' . $code, 'fetch');
           unlink($outfile);
           return null;
         }
@@ -87,7 +87,7 @@ class http
       }
 
       else {
-        mcms::flog($url . ': failed.');
+        Logger::log($url . ': failed.', 'fetch');
         throw new RuntimeException(t('Не удалось загрузить файл: '
           .'модуль CURL отсутствует, '
           .'открыть поток HTTP тоже не удалось.'));

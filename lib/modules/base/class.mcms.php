@@ -199,29 +199,6 @@ class mcms
   {
     if (class_exists('SysLogmodule'))
       SysLogModule::log($op, $message, $nid);
-    else
-      self::flog($op, $message);
-  }
-
-  public static function flog($message)
-  {
-    $prefix = '';
-
-    if (defined('MCMS_FLOG_CALLER') and is_array($trace = debug_backtrace()) and count($trace) >= 2) {
-      $prefix = empty($trace[1]['class'])
-        ? $trace[1]['function']
-        : $trace[1]['class'] . $trace[1]['type'] . $trace[1]['function'] . '()';
-
-      if (defined('FLOG_FILE_NAMES'))
-        $prefix = os::localpath($trace[0]['file']) . ':' . $trace[0]['line'];
-
-      $prefix = '[' . $prefix . '] ';
-    }
-
-    if ($message instanceof Exception)
-      $message = get_class($message) . ': ' . $message->getMessage();
-
-    error_log($prefix . $message, 0);
   }
 
   // Возвращает список доступных классов и файлов, в которых они описаны.

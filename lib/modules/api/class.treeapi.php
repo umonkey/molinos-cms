@@ -65,7 +65,7 @@ class TreeAPI
 
     $ids = $ctx->db->getResultsV("id", "SELECT `id` FROM `node` WHERE `parent_id` IS NOT NULL AND `xmltree` IS NULL ORDER BY `left` DESC");
     foreach ($ids as $id) {
-      mcms::flog("node[{$id}]: updating xmltree");
+      Logger::log("node[{$id}]: updating xmltree", 'xml');
       $upd->execute(array(Node::load($id)->getTreeXML(false), $id));
       if ($step++ == 10) {
         $ctx->db->commit();

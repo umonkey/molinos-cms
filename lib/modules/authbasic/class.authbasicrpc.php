@@ -20,6 +20,6 @@ class AuthBasicRPC
     $ctx->db->commit();
 
     $ctx->user->login($node->name, null, true);
-    mcms::flog($node->name . ' logged in using OTP.');
+    Logger::log($node->name . ' logged in using OTP.', 'auth');
   }
 }

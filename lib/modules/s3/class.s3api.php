@@ -39,7 +39,7 @@ class S3API
         unlink($fileName);
       }
     } else {
-      Logger::log('file not found: ' . $fileName);
+      Logger::log('file not found: ' . $fileName, 's3');
     }
 
     return $ctx->getRedirect();
@@ -97,7 +97,7 @@ class S3API
           )));
 
       $url = 'http://' . $bucketName . '.s3.amazonaws.com/' . $folderName . $baseName;
-      mcms::flog('S3: ' . $url);
+      Logger::log('S3: ' . $url);
       return $url;
     }
   }

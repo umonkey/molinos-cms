@@ -140,7 +140,7 @@ class Structure
   public function drop()
   {
     if (file_exists($file = $this->getFileName())) {
-      mcms::flog('removed ' . $file);
+      Logger::log('removed ' . $file);
       unlink($file);
     }
   }

@@ -82,7 +82,7 @@ class mcms_sqlite_driver extends Database
   	// Прежде чем все похерить, стоит сделать резервную копию.
   	$this->makeBackup();
 
-    mcms::flog('deleting everything');
+    Logger::log('deleting everything');
 
     $sql = "SELECT `tbl_name` FROM `sqlite_master` WHERE `type` = 'table' AND `tbl_name` NOT LIKE 'sqlite_%'";
     $rows = $this->getResults($sql);
@@ -108,7 +108,7 @@ class mcms_sqlite_driver extends Database
     if ((null !== $this->dbfile) and file_exists($this->dbfile) and
         filesize($this->dbfile) > 0) {
       $fname = $this->dbfile .'.'. gmdate('YmdHis');
-      mcms::flog('backing up as '. $fname);
+      Logger::log('backing up as '. $fname);
       copy($this->dbfile, $fname);
     }
   }
