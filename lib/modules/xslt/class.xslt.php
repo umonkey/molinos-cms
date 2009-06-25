@@ -2,8 +2,15 @@
 
 class xslt
 {
+  private static $lock = null;
+
   public static function transform($xml, $xsltName, $mimeType = 'text/html', $status = 200)
   {
+    if (null !== self::$lock) {
+      Logger::backtrace('XSLT recursion: ' . $xsltName . ' while in ' . self::$lock);
+      throw new RuntimeException(t('Рекурсия в XSLT недопустима.'));
+    }
+
     $mode = empty($_GET['xslt'])
       ? 'server'
       : $_GET['xslt'];
@@ -47,10 +54,12 @@ class xslt
         $proc->importStyleSheet($xsl);
       }
 
-      restore_error_handler();
-
+      self::$lock = $xsltName;
       if ($output = str_replace(' xmlns=""', '', $proc->transformToXML($doc)))
         $cache->$ckey = $output;
+      self::$lock = null;
+
+      restore_error_handler();
     }
 
     if (empty($output))
