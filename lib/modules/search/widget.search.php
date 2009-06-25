@@ -90,7 +90,7 @@ class SearchWidget extends Widget implements iWidget
         "items_on_page" => udm_get_res_param($res, UDM_PARAM_NUM_ROWS),
         "time"          => udm_get_res_param($res, UDM_PARAM_SEARCHTIME),
         "info"          => udm_get_res_param($res, UDM_PARAM_WORDINFO),
-        "page"          => $options['page'],
+        "page"          => intval($options['page']) - 1,
         "query"         => $options['q'],
     );
 
