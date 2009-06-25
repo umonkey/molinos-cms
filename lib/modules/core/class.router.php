@@ -99,7 +99,7 @@ class Router
                   $raw[$k] = $v;
               }
             } catch (Exception $e) {
-              mcms::flog(get_class($e) . ' in ' . $v . '()');
+              Logger::log(get_class($e) . ' in ' . $v . '()');
             }
           }
         }
@@ -121,8 +121,9 @@ class Router
     $ckey = $this->getCacheKey();
 
     // Если страница есть в кэше — выводим сразу, даже не ищем маршрут.
-    if (is_array($cached = $cache->$ckey)) {
+    if (empty($_GET['nocache']) and is_array($cached = $cache->$ckey)) {
       if (isset($cached['expires']) and time() < $cached['expires']) {
+        Logger::log('hit: ' . MCMS_HOST_NAME . $_SERVER['REQUEST_URI'], 'cache');
         header('HTTP/1.1 ' . $cached['code'] . ' ' . $cached['text']);
         header('Content-Type: ' . $cached['type']);
         header('Content-Length: ' . $cached['length']);
@@ -132,6 +133,12 @@ class Router
 
     if (false === ($tmp = $this->find($ctx, $ctx->query())))
       $tmp = $this->find($ctx, 'errors/404');
+
+    if (!empty($tmp[0]['cache']))
+      Logger::log('mis: ' . MCMS_HOST_NAME . '/' . $ctx->query(), 'cache');
+    elseif (0 !== strpos($ctx->query(), 'api/')) {
+      Logger::log('ign: ' . MCMS_HOST_NAME . '/' . $ctx->query(), 'cache');
+    }
 
     if ($ctx->debug('route'))
       mcms::debug($tmp, $this);
@@ -169,7 +176,7 @@ class Router
 
   private function getCacheKey()
   {
-    return 'page:' . MCMS_HOST_NAME . MCMS_REQUEST_URI;
+    return 'page:' . str_replace('www.', '', MCMS_HOST_NAME) . MCMS_REQUEST_URI;
   }
 
   public function find(Context $ctx, $realQuery)

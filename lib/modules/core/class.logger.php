@@ -4,9 +4,20 @@ class Logger
 {
   public static function log($message, $condition = null)
   {
-    if (null !== $condition and !defined($condition))
-      return;
-    error_log($message, 0);
+    $constant = null;
+
+    if (null !== $condition) {
+      $dname = 'MCMS_FLOG_' . strtoupper($condition);
+      if (defined($dname) and ($constant = constant($dname)) === false)
+        return;
+    }
+
+    if (null === $condition)
+      error_log($message, 0);
+    elseif ($constant and is_string($constant))
+      error_log($message . "\n", 3, $constant);
+    else
+      error_log('[' . $condition . '] ' . $message, 0);
   }
 
   public static function trace($message)

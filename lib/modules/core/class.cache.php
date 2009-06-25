@@ -52,8 +52,6 @@ abstract class cache implements iCacheProvider
       $this->__serial = ++$serial;
 
     $this->prefix = 'mcms:' . crc32(__FILE__) . ':' . $serial . ':';
-
-    // mcms::flog('prefix: ' . $this->prefix);
   }
 
   public static function set($key, $value)
