@@ -40,5 +40,7 @@ class CronModule
       header('Content-Type: text/plain; charset=utf-8');
       die($status);
     }
+
+    die();
   }
 };
