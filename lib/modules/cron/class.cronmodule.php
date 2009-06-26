@@ -36,7 +36,9 @@ class CronModule
     if ($ctx->get('destination'))
       return $ctx->getRedirect();
 
-    header('Content-Type: text/plain; charset=utf-8');
-    die($status);
+    if (!MCMS_CONSOLE) {
+      header('Content-Type: text/plain; charset=utf-8');
+      die($status);
+    }
   }
 };

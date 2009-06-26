@@ -33,6 +33,9 @@ class Loader
     if (!defined('MCMS_TEMP_FOLDER'))
       define('MCMS_TEMP_FOLDER', Context::last()->config->get('main/tmpdir', MCMS_SITE_FOLDER . DIRECTORY_SEPARATOR . 'tmp'));
 
+    if (!defined('MCMS_CONSOLE'))
+      define('MCMS_CONSOLE', empty($_SERVER['REMOTE_ADDR']));
+
     mb_internal_encoding('utf-8');
   }
 
