@@ -13,7 +13,7 @@ class CloneAPI
 
     if ($node->id and $node->checkPermission('c')) {
       $result['clone'] = array(
-        'href' => "clone.rpc?id={$node->id}&destination=CURRENT",
+        'href' => "api/node/clone.rpc?id={$node->id}&destination=CURRENT",
         'title' => t('Клонировать'),
         );
     }
@@ -23,13 +23,13 @@ class CloneAPI
 
   /**
    * Клонирование объекта.
-   * @GET//clone.rpc
+   * @route GET//api/node/clone.rpc
    */
   public static function on_clone(Context $ctx)
   {
-    $ctx->db->beginTransaction();
     $node = Node::load($ctx->get('id'))->knock('c');
 
+    $ctx->db->beginTransaction();
     $node->published = false;
     $node->deleted = false;
     $node->created = null;
