@@ -34,7 +34,13 @@ class MarkdownControl extends TextAreaControl
     $ctx = Context::last();
     $ctx->registry->broadcast('ru.molinos.cms.format.text', array($ctx, $this->value, &$output));
 
-    return html::wrap($em, html::cdata(trim($output)));
+    $attrs = array();
+
+    if (!($sniplen = $this->sniplen))
+      $sniplen = 50;
+    $attrs['snippet'] = mb_strimwidth(strip_tags($output), 0, $sniplen, '…');
+
+    return html::wrap($em, html::cdata(trim($output)), $attrs);
   }
 
   public function isVisible()
