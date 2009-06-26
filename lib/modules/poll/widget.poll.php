@@ -23,6 +23,10 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
         'default' => t('Текущего (из пути или свойств страницы)'),
         'required' => true,
         ),
+      'random' => array(
+        'type' => 'BoolControl',
+        'label' => t('Выводить случайный доступный опрос'),
+        ),
       );
   }
 
@@ -128,12 +132,23 @@ class PollWidget extends Widget implements /* iNodeHook, */ iModuleConfig
 
   protected function getCurrentPoll(array $options)
   {
-    $nodes = Node::find($filter = array(
+    $filter = array(
       'class' => 'poll',
       'tags' => $options['section'],
       '#sort' => '-id',
       'published' => 1,
-      ), 1, 0);
+      );
+
+    if ($this->random) {
+      if ($uid = mcms::user()->id)
+        $ids = mcms::db()->getResultsV("nid", "SELECT DISTINCT(`nid`) FROM `node__poll` WHERE `uid` = ?", array($uid));
+      else
+        $ids = mcms::db()->getResultsV("nid", "SELECT DISTINCT(`nid`) FROM `node__poll` WHERE `ip` = ?", array($_SERVER['REMOTE_ADDR']));
+      if (!empty($ids))
+        $filter['-id'] = $ids;
+    }
+
+    $nodes = Node::find($filter, 1, 0);
 
     if (!empty($nodes))
       return $nodes[key($nodes)];
