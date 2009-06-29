@@ -19,7 +19,7 @@ class ExtraFiles
    */
   public static function on_get_actions(Context $ctx, Node $node)
   {
-    if ($node instanceof FileNode)
+    if ($node instanceof FileNode or !$node->checkPermission('u'))
       return;
 
     $count = Node::count(array(
