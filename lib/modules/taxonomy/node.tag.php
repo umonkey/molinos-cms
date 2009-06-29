@@ -34,30 +34,32 @@ class TagNode extends Node implements iContentType
    */
   public function save()
   {
-    $isnew = empty($this->id);
-
-    if ($isnew and !isset($this->parent_id)) {
-      try {
-        Node::load(array(
-          'class' => 'tag',
-          'parent_id' => null,
-          'deleted' => 0,
-          ), $this->getDB());
-        throw new RuntimeException(t('Нельзя создать новый корневой раздел.'));
-      } catch (ObjectNotFoundException $e) {
+    if ($this->isNew()) {
+      if (!$this->parent_id) {
+        try {
+          Node::load(array(
+            'class' => 'tag',
+            'parent_id' => null,
+            'deleted' => 0,
+            ), $this->getDB());
+          throw new RuntimeException(t('Нельзя создать новый корневой раздел.'));
+        } catch (ObjectNotFoundException $e) {
+        }
       }
+
+      // Копируем родительскую привязку к типам.
+      $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) "
+        ."SELECT %ID%, `nid`, `key`, `order` FROM `node__rel` "
+        ."WHERE `tid` = ? AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = 'type')",
+        array($this->parent_id));
+
+      // Копируем родительские права.
+      $this->onSave("INSERT INTO `node__access` (`nid`, `uid`, `p`) "
+        . "SELECT %ID%, `uid`, `p` FROM `node__access` WHERE `nid` = ?",
+        array($this->parent_id));
     }
 
-    parent::save();
-
-    // При добавлении раздела копируем родительский список типов.
-    if ($isnew and !empty($this->parent_id))
-      Context::last()->db->exec("INSERT INTO `node__rel` (`tid`, `nid`, `key`, `order`) "
-        ."SELECT :me, `nid`, `key`, `order` FROM `node__rel` "
-        ."WHERE `tid` = :parent AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = 'type')",
-        array(':me' => $this->id, ':parent' => $this->parent_id));
-
-    return $this;
+    return parent::save();
   }
 
   public function getFormTitle()
