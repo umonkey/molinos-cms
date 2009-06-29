@@ -210,7 +210,7 @@ class DBA_DB4_provider extends cache
 
   public static function initialize()
   {
-    if (in_array('db4', dba_handlers()))
+    if (function_exists('dba_handlers') and in_array('db4', dba_handlers()))
       return new DBA_DB4_provider('db4');
   }
 
@@ -264,7 +264,7 @@ class DBA_FlatFile_provider extends DBA_DB4_provider
 {
   public static function initialize()
   {
-    if (in_array('flatfile', dba_handlers()))
+    if (function_exists('dba_handlers') and in_array('flatfile', dba_handlers()))
       return new DBA_FlatFile_provider('flatfile');
   }
 }
