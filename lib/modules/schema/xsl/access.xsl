@@ -73,11 +73,13 @@
         </input>
       </td>
       <td>
-        <input type="checkbox" name="{@gid}[o]">
-          <xsl:if test="@own">
-            <xsl:attribute name="checked">checked</xsl:attribute>
-          </xsl:if>
-        </input>
+        <xsl:if test="@gid!='none'">
+          <input type="checkbox" name="{@gid}[o]">
+            <xsl:if test="@own">
+              <xsl:attribute name="checked">checked</xsl:attribute>
+            </xsl:if>
+          </input>
+        </xsl:if>
       </td>
     </tr>
   </xsl:template>
