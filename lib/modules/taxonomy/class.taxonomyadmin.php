@@ -31,6 +31,11 @@ class TaxonomyAdmin
    */
   public static function on_get_actions(Context $ctx, Node $node)
   {
+    if ($node instanceof TagNode)
+      return;
+    elseif (!$node->checkPermission('u'))
+      return;
+
     $result = array();
 
     if ($node->id) {
