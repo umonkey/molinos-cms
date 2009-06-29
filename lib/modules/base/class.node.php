@@ -677,11 +677,12 @@ class Node
           'deleted' => 0,
           'name' => $this->class,
           ));
-        $links['schema'] = array(
-          'href' => 'admin/node/' . $tmp->id . '?destination=CURRENT',
-          'title' => t('Настроить тип'),
-          'scope' => 'settings',
-          );
+        if ($ctx->user->hasAccess('u', 'type'))
+          $links['schema'] = array(
+            'href' => 'admin/node/' . $tmp->id . '?destination=CURRENT',
+            'title' => t('Настроить тип'),
+            'scope' => 'settings',
+            );
       } catch (Exception $e) { }
     }
 
@@ -738,11 +739,6 @@ class Node
           $value = $n->getName();
 
         $result[$n->$key] = $value;
-
-        /*
-        if ('name' != $field)
-          $result[$n->$key] .= ' (' . $n->name . ')';
-        */
       }
 
       asort($result);
