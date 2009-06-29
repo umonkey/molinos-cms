@@ -20,6 +20,7 @@
             <th class="c" title="Изменение (update)">U</th>
             <th class="c" title="Удаление (delete)">D</th>
             <th class="c" title="Публикация (publish)">P</th>
+            <th class="c" title="Только на свои объекты">O</th>
           </tr>
         </thead>
         <tbody>
@@ -67,6 +68,13 @@
       <td>
         <input type="checkbox" name="{@gid}[p]">
           <xsl:if test="@publish">
+            <xsl:attribute name="checked">checked</xsl:attribute>
+          </xsl:if>
+        </input>
+      </td>
+      <td>
+        <input type="checkbox" name="{@gid}[o]">
+          <xsl:if test="@own">
             <xsl:attribute name="checked">checked</xsl:attribute>
           </xsl:if>
         </input>

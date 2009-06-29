@@ -321,6 +321,7 @@ class SchemaMenu
         'update' => !empty($perms[$gid]['u']),
         'delete' => !empty($perms[$gid]['d']),
         'publish' => !empty($perms[$gid]['p']),
+        'own' => !empty($perms[$gid]['o']),
         ));
     }
 
@@ -334,6 +335,7 @@ class SchemaMenu
 
   /**
    * Изменение прав.
+   * @route POST//admin/structure/access
    */
   public static function on_post_access(Context $ctx)
   {
@@ -350,7 +352,7 @@ class SchemaMenu
     $ctx->db->beginTransaction();
 
     $ctx->db->exec("DELETE FROM `node__access` WHERE `nid` = ?", array($node->id));
-    $sth = $ctx->db->prepare("INSERT INTO `node__access` (`uid`, `nid`, `c`, `r`, `u`, `d`, `p`) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $sth = $ctx->db->prepare("INSERT INTO `node__access` (`uid`, `nid`, `c`, `r`, `u`, `d`, `p`, `o`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
     foreach ($ctx->post as $gid => $data) {
       $params = array(
@@ -361,6 +363,7 @@ class SchemaMenu
         !empty($data['u']),
         !empty($data['d']),
         !empty($data['p']),
+        !empty($data['o']),
         );
       $sth->execute($params);
     }
