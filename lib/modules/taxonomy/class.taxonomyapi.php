@@ -76,7 +76,7 @@ class TaxonomyAPI
    */
   public static function on_get_access(Context $ctx)
   {
-    if (!$ctx->user->hasAccess('u', 'tag'))
+    if (!$ctx->user->hasAccess(ACL::UPDATE, 'tag'))
       throw new ForbiddenException();
 
     $result = '';
@@ -106,7 +106,7 @@ class TaxonomyAPI
    */
   public static function on_post_access(Context $ctx)
   {
-    $ctx->user->checkAccess('u', 'tag');
+    $ctx->user->checkAccess(ACL::UPDATE, 'tag');
 
     $ctx->db->beginTransaction();
     $ctx->db->exec("DELETE FROM `node__access` WHERE `nid` IN (SELECT `id` FROM `node` WHERE `class` = 'tag')");
@@ -133,7 +133,7 @@ class TaxonomyAPI
       'id' => self::getPermittedSections($ctx),
       );
 
-    if (!$ctx->user->hasAccess('p', 'tag'))
+    if (!$ctx->user->hasAccess(ACL::PUBLISH, 'tag'))
       $filter['published'] = 1;
 
     $result = Node::findXML($filter, $ctx->db);

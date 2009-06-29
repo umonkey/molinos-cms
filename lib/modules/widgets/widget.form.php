@@ -223,7 +223,7 @@ class FormWidget extends Widget
     if ($this->anonymous)
       $u = $u->getAnonymous();
 
-    return $u->getAccess('c');
+    return $u->getAccess(ACL::CREATE);
   }
 
   // РАБОТА С ФОРМАМИ.
@@ -239,7 +239,7 @@ class FormWidget extends Widget
 
       $node = Node::load($this->options['node']);
 
-      if (!$node->checkPermission('u'))
+      if (!$node->checkPermission(ACL::UPDATE))
         throw new ForbiddenException();
 
       return $node->formGet();

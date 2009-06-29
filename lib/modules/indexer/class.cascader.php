@@ -18,7 +18,7 @@ class Cascader
    */
   public static function on_get_actions(Context $ctx, Node $node)
   {
-    if ($node->checkPermission('u'))
+    if ($node->checkPermission(ACL::UPDATE))
       return array(
         'refresh' => array(
           'href' => 'nodeapi/refresh?node=' . $node->id

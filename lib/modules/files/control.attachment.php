@@ -186,7 +186,7 @@ class AttachmentControl extends Control
       // $html = $this->getEmbedCode($file);
     }
 
-    if ($value->checkPermission('u'))
+    if ($value->checkPermission(ACL::UPDATE))
       $html .= t('<p><a href="@url">Открепить файл</a></p>', array(
         '@url' => "files/unlink.rpc?node={$value->id}&file={$file->id}&field={$this->value}&destination=" . urlencode(MCMS_REQUEST_URI),
         ));

@@ -173,7 +173,7 @@ class WidgetRenderer
       throw new ForbiddenException(t('Этот документ не опубликован.'));
     elseif (!empty($data['deleted']))
       throw new ForbiddenException(t('Такого документа больше нет.'));
-    elseif (!$ctx->user->hasAccess('r', $data['class']))
+    elseif (!$ctx->user->hasAccess(ACL::READ, $data['class']))
       throw new ForbiddenException(t('У вас нет доступа к этому объекту.'));
 
     return true;

@@ -93,7 +93,7 @@ class AuthForm
         'name' => $node->getName(),
         'created' => $node->created,
         'users' => $count,
-        'editable' => $node->checkPermission('u'),
+        'editable' => $node->checkPermission(ACL::UPDATE),
         'published' => true,
         ));
     }

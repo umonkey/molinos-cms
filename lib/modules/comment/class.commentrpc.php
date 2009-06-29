@@ -9,10 +9,10 @@ class CommentRPC extends RPCHandler
 
   public static function rpc_post_add(Context $ctx)
   {
-    $ctx->user->checkAccess('c', 'comment');
+    $ctx->user->checkAccess(ACL::CREATE, 'comment');
 
     $node = Node::create('comment', array(
-      'published' => $ctx->user->hasAccess('p', 'comment'),
+      'published' => $ctx->user->hasAccess(ACL::PUBLISH, 'comment'),
       ));
 
     $node->formProcess($ctx->post);

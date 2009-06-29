@@ -59,7 +59,7 @@ class UserNode extends Node implements iContentType
     $links = parent::getActionLinks();
     $user = Context::last()->user;
 
-    if ($user->id != $this->id and $this->published and $user->hasAccess('u', 'user'))
+    if ($user->id != $this->id and $this->published and $user->hasAccess(ACL::UPDATE, 'user'))
       $links['su'] = array(
         'href' => 'auth/su.rpc?id='. $this->id
           .'&destination=CURRENT',

@@ -137,7 +137,7 @@ class DocWidget extends Widget implements iWidget
    */
   protected function onGetView(array $options)
   {
-    if (isset($options['document']['class']) and !$this->ctx->user->hasAccess('r', $options['document']['class']))
+    if (isset($options['document']['class']) and !$this->ctx->user->hasAccess(ACL::READ, $options['document']['class']))
       throw new PageNotFoundException();
 
     if (isset($options['document']['xml']))

@@ -417,7 +417,7 @@ class Node
 
     $user = Context::last()->user;
 
-    if ('user' == $this->class and $user->id == $this->id and 'u' == $perm)
+    if ('user' == $this->class and $user->id == $this->id and ACL::UPDATE == $perm)
       return true;
 
     if (is_object($this->uid))
@@ -450,7 +450,7 @@ class Node
    */
   public function formGet($fieldName = null)
   {
-    if (!$this->checkPermission($this->id ? 'u' : 'c'))
+    if (!$this->checkPermission($this->id ? ACL::UPDATE : ACL::CREATE))
       throw new ForbiddenException(t('У вас недостаточно прав для работы с этим документом.'));
 
     $form = $this->getFormFields()->sort()->getForm(array(
@@ -533,7 +533,7 @@ class Node
    */
   public function formProcess(array $data, $fieldName = null)
   {
-    if (!$this->checkPermission($this->id ? 'u' : 'c'))
+    if (!$this->checkPermission($this->id ? ACL::UPDATE : ACL::CREATE))
       throw new ForbiddenException(t('Ваших полномочий недостаточно '
         .'для редактирования этого объекта.'));
 
@@ -616,7 +616,7 @@ class Node
     $links = array();
     $ctx = Context::last();
 
-    if ($this->checkPermission('u')) {
+    if ($this->checkPermission(ACL::UPDATE)) {
       $links['edit'] = array(
         'href' => 'admin/edit/'. $this->id
           . '?destination=CURRENT',
@@ -626,7 +626,7 @@ class Node
         );
     }
 
-    if ($this->checkPermission('d')) {
+    if ($this->checkPermission(ACL::DELETE)) {
       if ($this->deleted)
         $links['delete'] = array(
           'href' => 'nodeapi/undelete?node=' . $this->id
@@ -645,7 +645,7 @@ class Node
           );
     }
 
-    if ($this->checkPermission('p') and !in_array($this->class, array('type')) and !$this->deleted) {
+    if ($this->checkPermission(ACL::PUBLISH) and !in_array($this->class, array('type')) and !$this->deleted) {
       if ($this->published) {
         $action = 'unpublish';
         $title = 'Скрыть';
@@ -677,7 +677,7 @@ class Node
           'deleted' => 0,
           'name' => $this->class,
           ));
-        if ($ctx->user->hasAccess('u', 'type'))
+        if ($ctx->user->hasAccess(ACL::UPDATE, 'type'))
           $links['schema'] = array(
             'href' => 'admin/node/' . $tmp->id . '?destination=CURRENT',
             'title' => t('Настроить тип'),
@@ -922,7 +922,7 @@ class Node
   public function getPreviewXML(Context $ctx)
   {
     $result = '';
-    $editable = $this->checkPermission('u');
+    $editable = $this->checkPermission(ACL::UPDATE);
 
     $stop = $this->getXMLStopFields();
 
@@ -958,7 +958,7 @@ class Node
 
       // Публикация при создании, если есть права.
       // TODO: вынести в отдельный модуль?
-      if ($this->isNew() and $this->checkPermission('p'))
+      if ($this->isNew() and $this->checkPermission(ACL::PUBLISH))
         $this->data['published'] = true;
 
       $ctx->registry->broadcast('ru.molinos.cms.hook.node.before', array($ctx, $this, $this->isNew() ? 'create' : 'update'));

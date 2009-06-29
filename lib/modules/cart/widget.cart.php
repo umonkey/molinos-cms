@@ -155,6 +155,6 @@ class CartWidget extends Widget
 
   private function checkPermission()
   {
-    return Node::create('order')->checkPermission('c');
+    return Node::create('order')->checkPermission(ACL::CREATE);
   }
 };

@@ -50,7 +50,7 @@ class AuthRPC
       'class' => 'user',
       'deleted' => 0,
       'id' => $ctx->get('id'),
-      ), $ctx->db)->knock('c');
+      ), $ctx->db)->knock(ACL::CREATE);
 
     $curuid = $ctx->user->id;
 

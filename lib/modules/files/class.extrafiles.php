@@ -19,7 +19,7 @@ class ExtraFiles
    */
   public static function on_get_actions(Context $ctx, Node $node)
   {
-    if ($node instanceof FileNode or !$node->checkPermission('u'))
+    if ($node instanceof FileNode or !$node->checkPermission(ACL::UPDATE))
       return;
 
     $count = Node::count(array(
@@ -92,7 +92,7 @@ class ExtraFiles
     if (is_array($ids = $ctx->post('remove'))) {
       $ctx->db->beginTransaction();
       $params = array();
-      Node::load($ctx->get('id'), $ctx->db)->touch('u')->onSave('DELETE FROM `node__rel` WHERE `tid` = %ID% AND `key` IS NULL AND `nid` ' . sql::in($ids, $params), $params)->save();
+      Node::load($ctx->get('id'), $ctx->db)->touch(ACL::UPDATE)->onSave('DELETE FROM `node__rel` WHERE `tid` = %ID% AND `key` IS NULL AND `nid` ' . sql::in($ids, $params), $params)->save();
       $ctx->db->commit();
     }
 

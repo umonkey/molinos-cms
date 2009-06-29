@@ -34,10 +34,10 @@ class User
   {
     $map = $this->loadAccess();
 
-    if (array_key_exists($mode, $map) and in_array($type, $map[$mode]))
-      return true;
-
-    return false;
+    if (isset($map[$type][0]))
+      return $map[$type][0] & $mode;
+    else
+      return false;
   }
 
   /**
@@ -53,51 +53,23 @@ class User
   /**
    * Возвращает список типов, к которым у пользователя есть доступ.
    */
-  public function getAccess($mode = 'r')
+  public function getAccess($mode = ACL::READ)
   {
-    $map = $this->loadAccess();
-
-    if (array_key_exists($mode, $map))
-      return $map[$mode];
-
-    return array();
+    $result = array();
+    foreach ($this->loadAccess() as $type => $info)
+      if (isset($info[0]) and $info[0] & $mode)
+        $result[] = $type;
+    return $result;
   }
 
   /**
-   * Загрузка информации о правах.
+   * Загрузка информации о правах пользователя.
    */
   private function loadAccess()
   {
     if (null === $this->access)
-      $this->access = Structure::getInstance()->getGroupAccess($this->getGroups());
-
+      $this->access = ACL::getTypeAccess($this->getGroups());
     return $this->access;
-  }
-
-  // Выполняет запрос, парсит результат в пригодный вид.
-  // Использует быстрый кэш для хранения результата.
-  private function loadRawAccess($sql)
-  {
-    $key = 'access:'. md5($sql);
-
-    $cache = cache::getInstance();
-
-    if (is_array($result = $cache->$key))
-      return $result;
-
-    $result = array();
-    $data = $this->ctx->db->getResults($sql);
-    $mask = array('c', 'r', 'u', 'd', 'p');
-
-    foreach ($data as $row) {
-      foreach ($mask as $mode)
-        if (!empty($row[$mode]))
-          $result[$mode][] = $row['name'];
-    }
-
-    $cache->$key = $result;
-
-    return $result;
   }
 
   /**

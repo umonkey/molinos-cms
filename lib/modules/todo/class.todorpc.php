@@ -30,7 +30,7 @@ class TodoRPC
   {
     switch ($ctx->get('action')) {
     case 'add':
-      $ctx->user->checkAccess('c', 'todo');
+      $ctx->user->checkAccess(ACL::CREATE, 'todo');
 
       $node = Node::create('todo', array(
         'name' => $ctx->post('name'),

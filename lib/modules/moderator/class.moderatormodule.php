@@ -18,7 +18,7 @@ class ModeratorModule
       return;
 
     // Пользователь сам себе публикатор.
-    if ($ctx->user->hasAccess('p', $node->class))
+    if ($ctx->user->hasAccess(ACL::PUBLISH, $node->class))
       return;
 
     switch ($op) {
@@ -78,8 +78,8 @@ class ModeratorModule
           $value = html::em('a', array(
             'href' => 'mailto:' . $node->$k,
             ), $node->$k);
-        else
-          $value = html::plain($node->$k);
+        elseif (!is_object($node->$k))
+          $value = $node->$k;
 
         if (null !== $value) {
           $body .= '<dt>'. html::plain($v->label) .':</dt>';

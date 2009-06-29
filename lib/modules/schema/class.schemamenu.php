@@ -274,7 +274,7 @@ class SchemaMenu
   {
     $tmp = Node::create($type = $ctx->get('type'), $ctx->db);
 
-    if (!$tmp->checkPermission('u'))
+    if (!$tmp->checkPermission(ACL::UPDATE))
       throw new ForbiddenException();
 
     $sth = $ctx->db->prepare("SELECT `id` FROM `node` WHERE `class` = ? AND `deleted` = 0");
@@ -304,7 +304,7 @@ class SchemaMenu
 
     if (empty($type))
       throw new PageNotFoundException();
-    elseif (!$type->checkPermission('u'))
+    elseif (!$type->checkPermission(ACL::UPDATE))
       throw new ForbiddenException();
 
     $groups = Node::getSortedList('group', 'title');
@@ -339,7 +339,7 @@ class SchemaMenu
    */
   public static function on_post_access(Context $ctx)
   {
-    if (!Node::create('type')->checkPermission('u'))
+    if (!Node::create('type')->checkPermission(ACL::UPDATE))
       throw new ForbiddenException();
 
     // Если объект не существует, выбросится 404.

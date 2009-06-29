@@ -145,7 +145,7 @@ class ListWidget extends Widget
       $options['section'] = $params['section'];
 
     if (!empty($this->types))
-      $options['classes'] = array_intersect((array)$this->types, $ctx->user->getAccess('r'));
+      $options['classes'] = array_intersect((array)$this->types, $ctx->user->getAccess(ACL::READ));
 
     if ($this->onlyathome and $options['section'] != $params['root'])
       return $this->halt();

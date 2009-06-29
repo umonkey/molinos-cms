@@ -16,7 +16,7 @@ class AdminAdvSearch
         'class' => 'type',
         'published' => 1,
         'deleted' => 0,
-        'name' => $ctx->user->getAccess('r'),
+        'name' => $ctx->user->getAccess(ACL::READ),
         ), $ctx->db);
 
       $list = array();

@@ -143,13 +143,13 @@ class TypeNode extends Node implements iContentType
     return array('type', 'tag', 'widget', 'domain', 'moduleinfo', 'file', 'user', 'group', 'comment', 'moduleinfo');
   }
 
-  public static function getAccessible($mode = 'r')
+  public static function getAccessible($mode = ACL::READ)
   {
     $ctx = Context::last();
     $result = array();
 
     foreach (Node::find(array('class' => 'type', 'deleted' => 0), $ctx->db) as $type)
-      if (null === $mode or $ctx->user->hasAccess('r', $type->name))
+      if (null === $mode or $ctx->user->hasAccess(ACL::READ, $type->name))
         $result[$type->name] = empty($type->title) ? $type->name : $type->title;
 
     asort($result);

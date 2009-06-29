@@ -330,7 +330,7 @@ class AdminRPC extends RPCHandler
         '#sort' => '-id',
         '#public' => true,
         '#limit' => 10,
-        'class' => $ctx->user->getAccess('p'),
+        'class' => $ctx->user->getAccess(ACL::PUBLISH),
       ), array(
       'name' => 'queue',
       'title' => t('Очередь модерации'),
@@ -354,8 +354,8 @@ class AdminRPC extends RPCHandler
     $output .= self::getDashboardXML($ctx->db, array(
       'published' => 1,
       'class' => 'type',
-      'name' => $ctx->user->getAccess('c'),
-      '-name' => $anon->getAccess('c'),
+      'name' => $ctx->user->getAccess(ACL::CREATE),
+      '-name' => $anon->getAccess(ACL::CREATE),
       '#limit' => 10,
       ), array(
       'name' => 'create',

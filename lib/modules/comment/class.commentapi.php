@@ -10,7 +10,7 @@ class CommentAPI
     if (!($nid = $ctx->get('node')))
       throw new BadRequestException(t('Не указан идентификатор ноды (GET-параметр node).'));
 
-    if (!$ctx->user->hasAccess('r', 'comment'))
+    if (!$ctx->user->hasAccess(ACL::READ, 'comment'))
       throw new ForbiddenException();
 
     $nodes = Node::findXML(array(

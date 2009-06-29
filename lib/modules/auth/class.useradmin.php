@@ -6,7 +6,7 @@ class UserAdmin
   {
     $tmp = new AdminListHandler($ctx);
     return $tmp->getHTML('users', array(
-      'edit' => $ctx->user->hasAccess('u', 'user'),
+      'edit' => $ctx->user->hasAccess(ACL::UPDATE, 'user'),
       '#raw' => true,
       'self' => $ctx->user->id,
       ));

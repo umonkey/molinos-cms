@@ -559,7 +559,7 @@ class FileNode extends Node implements iContentType
     if (array_key_exists('clone', $list))
       unset($list['clone']);
 
-    if ($this->checkPermission('u'))
+    if ($this->checkPermission(ACL::UPDATE))
       $list['replace'] = array(
         'icon' => 'upload',
         'title' => t('Заменить файл'),

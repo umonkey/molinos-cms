@@ -55,21 +55,6 @@ class GroupNode extends Node implements iContentType
           'type' => 'TextAreaControl',
           'weight' => 20,
           ),
-        'typerms' => array(
-          'type' => 'AccessRevControl',
-          'group' => t('Доступ к типам документов'),
-          // 'label' => t('Доступ к типам документов'),
-          'dictionary' => 'type',
-          'weight' => 30,
-          ),
-        'tagperms' => array(
-          'type' => 'AccessRevControl',
-          'group' => t('Доступ на публикацию в разделы'),
-          // 'label' => t('Доступ к разделам'),
-          'dictionary' => 'tag',
-          'columns' => array('c'),
-          'weight' => 40,
-          ),
         'users' => array(
           'type' => 'SetControl',
           'label' => t('В группу входят'),

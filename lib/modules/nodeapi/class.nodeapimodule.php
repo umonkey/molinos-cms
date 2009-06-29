@@ -31,7 +31,7 @@ class NodeApiModule extends RPCHandler
     if (null === $field)
       throw new InvalidArgumentException(t('Не указан параметр field.'));
 
-    $node = Node::load($ctx->get('node'))->knock('u');
+    $node = Node::load($ctx->get('node'))->knock(ACL::UPDATE);
 
     $node->$field = $value;
     $node->save($ctx->db);
@@ -42,7 +42,7 @@ class NodeApiModule extends RPCHandler
    */
   public static function rpc_get_editor(Context $ctx)
   {
-    $node = Node::load($ctx->get('node'))->knock('u');
+    $node = Node::load($ctx->get('node'))->knock(ACL::UPDATE);
 
     $schema = $node->getSchema();
 
@@ -135,7 +135,7 @@ class NodeApiModule extends RPCHandler
   {
     $ctx->db->beginTransaction();
     foreach (self::getNodes($ctx) as $nodle)
-      $node->knock('p')->publish()->save();
+      $node->knock(ACL::PUBLISH)->publish()->save();
     $ctx->db->commit();
   }
 
@@ -146,7 +146,7 @@ class NodeApiModule extends RPCHandler
   {
     $ctx->db->beginTransaction();
     foreach (self::getNodes($ctx) as $node)
-      $node->knock('p')->unpublish()->save();
+      $node->knock(ACL::PUBLISH)->unpublish()->save();
     $ctx->db->commit();
   }
 
@@ -157,7 +157,7 @@ class NodeApiModule extends RPCHandler
   {
     $ctx->db->beginTransaction();
     foreach (self::getNodes($ctx) as $node)
-      $node->knock('d')->delete()->save();
+      $node->knock(ACL::DELETE)->delete()->save();
     $ctx->db->commit();
     return $ctx->getRedirect();
   }
@@ -171,7 +171,7 @@ class NodeApiModule extends RPCHandler
     $node = Node::create(array(
       'class' => $ctx->get('type'),
       'parent_id' => empty($parent) ? null : $parent,
-      ), $ctx->db)->knock('c');
+      ), $ctx->db)->knock(ACL::CREATE);
     $node->formProcess($ctx->post)->save($ctx->db);
     $next = $ctx->post('destination', $ctx->get('destination', ''));
 
@@ -183,7 +183,7 @@ class NodeApiModule extends RPCHandler
    */
   public static function rpc_post_edit(Context $ctx)
   {
-    $node = Node::load($ctx->get('node'), $ctx->db)->knock('u');
+    $node = Node::load($ctx->get('node'), $ctx->db)->knock(ACL::UPDATE);
     if (null === $node->uid and $node->isNew())
       $node->uid = $ctx->user->id;
     $node->formProcess($ctx->post, $ctx->get('field'))->save($ctx->db);
@@ -196,7 +196,7 @@ class NodeApiModule extends RPCHandler
   {
     $ctx->db->beginTransaction();
     foreach (self::getNodes($ctx) as $node)
-      $node->knock('d')->undelete();
+      $node->knock(ACL::DELETE)->undelete();
     $ctx->db->commit();
     return $ctx->getRedirect();
   }
@@ -208,7 +208,7 @@ class NodeApiModule extends RPCHandler
   {
     $ctx->db->beginTransaction();
     foreach (self::getNodes($ctx) as $node)
-      $node->knock('d')->erase();
+      $node->knock(ACL::DELETE->erase();
     $ctx->db->commit();
   }
 
@@ -219,7 +219,7 @@ class NodeApiModule extends RPCHandler
   {
     $ctx->db->beginTransaction();
     foreach (self::getNodes($ctx) as $node) {
-      $node->knock('u');
+      $node->knock(ACL::UPDATE);
       $tmp = new NodeMover($ctx->db);
       $tmp->moveUp($node->id);
     }
@@ -286,7 +286,7 @@ class NodeApiModule extends RPCHandler
   {
     $ctx->db->beginTransaction();
     foreach (self::getNodes($ctx) as $node)
-      $node->knock('p')->unpublish()->save();
+      $node->knock(ACL::PUBLISH)->unpublish()->save();
     $ctx->db->commit();
     return $ctx->getRedirect();
   }
@@ -298,7 +298,7 @@ class NodeApiModule extends RPCHandler
   {
     $ctx->db->beginTransaction();
     foreach (self::getNodes($ctx) as $node)
-      $node->knock('p')->publish()->save();
+      $node->knock(ACL::PUBLISH)->publish()->save();
     $ctx->db->commit();
     return $ctx->getRedirect();
   }
@@ -310,7 +310,7 @@ class NodeApiModule extends RPCHandler
   {
     $ctx->db->beginTransaction();
     foreach (self::getNodes($ctx) as $node)
-      $node->knock('d')->delete()->save();
+      $node->knock(ACL::DELETE->delete()->save();
     $ctx->db->commit();
 
     return $ctx->getRedirect();
@@ -328,7 +328,7 @@ class NodeApiModule extends RPCHandler
       $sql = "REPLACE INTO `node__rel` (`tid`, `nid`, `key`) SELECT %ID%, `id`, ? FROM `node` WHERE `deleted` = 0 AND `id` " . sql::in($pick, $params);
 
       $ctx->db->beginTransaction();
-      $node = Node::load($nid)->knock('u');
+      $node = Node::load($nid)->knock(ACL::UPDATE);
       if (isset($node->$fieldName))
         unset($node->$fieldName);
       $node->onSave("DELETE FROM `node__rel` WHERE `tid` = %ID% AND `key` = ?", array($fieldName))
@@ -350,7 +350,7 @@ class NodeApiModule extends RPCHandler
   {
     $ctx->db->beginTransaction();
     foreach (self::getNodes($ctx) as $node)
-      $node->knock('u')->touch()->save();
+      $node->knock(ACL::UPDATE)->touch()->save();
     $ctx->db->commit();
     return $ctx->getRedirect();
   }
@@ -372,7 +372,7 @@ class NodeApiModule extends RPCHandler
 
     $result = '';
     foreach ($nodes as $node) {
-      if ($node->checkPermission('d'))
+      if ($node->checkPermission(ACL::DELETE))
         $result .= html::em('node', array(
           'id' => $node->id,
           'name' => $node->getName(),

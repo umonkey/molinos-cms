@@ -7,7 +7,7 @@ class NodeAPI
     $data = $ctx->db->fetch('SELECT `id`, `class`, `xml` FROM `node` WHERE `id` = ? AND `deleted` = 0 AND `published` = 1', array($ctx->get('id')));
     if (empty($data))
       throw new PageNotFoundException();
-    $ctx->user->checkAccess('r', $data['class']);
+    $ctx->user->checkAccess(ACL::READ, $data['class']);
     return new Response('<?xml version="1.0"?>' . $data['xml'], 'text/xml');
   }
 
@@ -120,7 +120,7 @@ class NodeAPI
 
     $options = array(
       'class' => $node->class,
-      'editable' => $node->checkPermission('u'),
+      'editable' => $node->checkPermission(ACL::UPDATE),
       'list' => $node->getListURL(),
       'nodename' => $node->getName(),
       );
@@ -179,7 +179,7 @@ class NodeAPI
     $node = Node::create(array(
       'class' => $type,
       'parent_id' => $ctx->get('parent'),
-      ))->knock('c');
+      ))->knock(ACL::CREATE);
     $form = $node->formGet();
 
     // destination берётся из $_SERVER, и при работе через XML API содержит не то,
@@ -198,8 +198,8 @@ class NodeAPI
   {
     $nodes = Node::findXML(array(
       'class' => 'type',
-      'name' => $ctx->user->getAccess('c'),
-      '-name' => $ctx->user->getAnonymous()->getAccess('c'),
+      'name' => $ctx->user->getAccess(ACL::CREATE),
+      '-name' => $ctx->user->getAnonymous()->getAccess(ACL::CREATE),
       'published' => 1,
       '#sort' => 'name',
       ), $ctx->db);

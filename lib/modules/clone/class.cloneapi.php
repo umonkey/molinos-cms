@@ -11,7 +11,7 @@ class CloneAPI
   {
     $result = array();
 
-    if ($node->id and $node->checkPermission('c')) {
+    if ($node->id and $node->checkPermission(ACL::CREATE)) {
       $result['clone'] = array(
         'href' => "api/node/clone.rpc?id={$node->id}&destination=CURRENT",
         'title' => t('Клонировать'),
@@ -27,7 +27,7 @@ class CloneAPI
    */
   public static function on_clone(Context $ctx)
   {
-    $node = Node::load($ctx->get('id'))->knock('c');
+    $node = Node::load($ctx->get('id'))->knock(ACL::CREATE);
 
     $ctx->db->beginTransaction();
     $node->published = false;

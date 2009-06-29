@@ -69,8 +69,8 @@ class NodeTests extends PHPUnit_Framework_TestCase
   public function testCheckPermissions()
   {
     $node = Node::create('dummy');
-    $this->assertTrue($node->checkPermission('c'));
-    $this->assertTrue($node->checkPermission('d'));
+    $this->assertTrue($node->checkPermission(ACL::CREATE));
+    $this->assertTrue($node->checkPermission(ACL::DELETE));
   }
 
   /**

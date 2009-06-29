@@ -73,7 +73,7 @@ class TodoNode extends Node
   {
     $links = parent::getActionLinks();
 
-    if ($this->checkPermission('u'))
+    if ($this->checkPermission(ACL::UPDATE))
       $links['todoaction'] = array(
         'href' => '?q=todo.rpc&action=toggle&id='. $this->id
           .'&destination=CURRENT',
