@@ -18,14 +18,15 @@ class Cascader
    */
   public static function on_get_actions(Context $ctx, Node $node)
   {
-    return array(
-      'refresh' => array(
-        'href' => 'nodeapi/refresh?node=' . $node->id
-          . '&destination=CURRENT',
-        'title' => 'Обновить XML',
-        'icon' => 'dump',
-        ),
-      );
+    if ($node->checkPermission('u'))
+      return array(
+        'refresh' => array(
+          'href' => 'nodeapi/refresh?node=' . $node->id
+            . '&destination=CURRENT',
+          'title' => 'Обновить XML',
+          'icon' => 'dump',
+          ),
+        );
   }
 
   /**
