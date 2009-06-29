@@ -284,7 +284,7 @@ class Registry
 
       // Удаляем временные маршруты, считанные из комментариев в прошлый раз.
       foreach ($routes as $k => $v)
-        if (!empty($v['volatile']))
+        if (is_array($v) and !empty($v['volatile']))
           unset($routes[$k]);
 
       foreach ($ini as $k => $v)
