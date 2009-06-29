@@ -7,7 +7,7 @@
     <p>Укажите, какие группы пользователей в каких разделах могут размещать документы.</p>
     <p>Помните, что здесь вы управляете только видимостью разделов, права на создание и публикацию документов разных типов <a href="admin/structure/types">настраиваются отдельно</a>. Подробнее о настройке прав на разделы можно <a href="http://code.google.com/p/molinos-cms/wiki/mod_taxonomy">прочитать в документации</a>.</p>
 
-    <xsl:variable name="groups" select="document(concat($api,'node/list.xml?class=group'))/nodes" />
+    <xsl:variable name="groups" select="document(concat($api,'node/list.xml?class=group&amp;limit=1000'))/nodes" />
 
     <form method="post" action="api/taxonomy/access.rpc">
       <table class="classic">
@@ -59,6 +59,7 @@
     <xsl:param name="current" />
     <select name="section[{$node}]">
       <xsl:for-each select="node">
+        <xsl:sort select="@name" />
         <option value="{@id}">
           <xsl:if test="@id=$current">
             <xsl:attribute name="selected">
