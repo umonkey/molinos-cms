@@ -104,6 +104,11 @@ tables:
       required: true
       indexed: true
       default: 0
+    o:
+      type: bool
+      required: true
+      indexed: true
+      default: 0
   node__session:
     sid:
       type: char
