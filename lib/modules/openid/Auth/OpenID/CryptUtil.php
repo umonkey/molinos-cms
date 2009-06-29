@@ -46,7 +46,7 @@ class Auth_OpenID_CryptUtil {
                 $f = false;
             } else {
                 $f = @fopen(Auth_OpenID_RAND_SOURCE, "r");
-                mcms::flog('Security breach: OpenID could not read from ' . Auth_OpenID_RAND_SOURCE . '.');
+                Logger::log('Security breach: OpenID could not read from ' . Auth_OpenID_RAND_SOURCE . '.');
                 /*
                 if ($f === false) {
                     $msg = 'Define Auth_OpenID_RAND_SOURCE as null to ' .
