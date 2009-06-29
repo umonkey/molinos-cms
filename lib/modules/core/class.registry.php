@@ -282,6 +282,11 @@ class Registry
       else
         $routes = array();
 
+      // Удаляем временные маршруты, считанные из комментариев в прошлый раз.
+      foreach ($routes as $k => $v)
+        if (!empty($v['volatile']))
+          unset($routes[$k]);
+
       foreach ($ini as $k => $v)
         if (is_array($v))
           unset($ini[$k]);
@@ -313,6 +318,7 @@ class Registry
               $parts[0] = strtoupper($parts[0]);
               $routes[implode('//', $parts)] = array(
                 'call' => $className . '::' . $m[2][$idx],
+                'volatile' => true,
                 );
             }
           }
@@ -343,6 +349,6 @@ class Registry
    */
   private function log($message)
   {
-    error_log(trim($message));
+    // error_log(trim($message));
   }
 }
