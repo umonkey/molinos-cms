@@ -330,6 +330,7 @@ class SchemaMenu
       'name' => $type->name,
       'title' => $type->title,
       'next' => $ctx->get('destination'),
+      'own' => !empty($type->fields['uid']),
       ), $result);
   }
 
