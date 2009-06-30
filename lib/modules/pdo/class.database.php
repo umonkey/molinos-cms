@@ -258,4 +258,20 @@ class Database extends PDO
   {
     return str_replace(array('{', '}'), array('`' . $this->prefix, '`'), $sql);
   }
+
+  /**
+   * Выполняет вызов в рамках транзакции.
+   */
+  public function execSecure(array $callee, array $params)
+  {
+    $this->beginTransaction();
+
+    try {
+      call_user_func_array($callee, $params);
+      $this->commit();
+    } catch (Exception $e) {
+      $this->rollback();
+      throw $e;
+    }
+  }
 }
