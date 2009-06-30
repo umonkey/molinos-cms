@@ -34,8 +34,8 @@ class User
   {
     $map = $this->loadAccess();
 
-    if (isset($map[$type][0]))
-      return $map[$type][0] & $mode;
+    if (isset($map[$type][$idx = $mode & ACL::OWN ? 1 : 0]))
+      return $map[$type][$idx] & $mode;
     else
       return false;
   }
