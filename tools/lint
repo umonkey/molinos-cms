@@ -1,0 +1,18 @@
+#!/bin/sh
+cd $(dirname $0)/..
+RETURN=0
+for f in lib/modules/*/*.php; do
+  php -l $f >/dev/null 2>&1
+  STATUS=$?
+  while [ $STATUS = 139 ]; do
+    php -l $f >/dev/null 2>&1
+    STATUS=$?
+    echo "${f}: segfault, retrying"
+  done
+  if [ 0 != $STATUS ]; then
+    RETURN=1
+    echo "${f} has errors:"
+    php -d display_errors=on -l $f
+  fi
+done
+exit $RETURN
