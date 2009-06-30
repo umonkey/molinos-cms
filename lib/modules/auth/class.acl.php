@@ -41,21 +41,22 @@ class ACL
   {
     if (!intval($nid))
       throw new InvalidArgumentException(t('Идентификатор ноды должен быть числовым.'));
-    elseif (!intval($mode))
+    elseif (!is_numeric($mode))
       throw new InvalidArgumentException(t('Режим доступа должен быть числовым.'));
 
     $db = Context::last()->db;
     $db->exec("DELETE FROM `node__access` WHERE `nid` = ? AND `uid` = ? AND `o` = ?", array($nid, $uid, $mode & self::OWN ? 1 : 0));
-    $db->exec("INSERT INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`, `o`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", array(
-      intval($nid),
-      intval($uid),
-      $mode & self::CREATE ? 1 : 0,
-      $mode & self::READ ? 1 : 0,
-      $mode & self::UPDATE ? 1 : 0,
-      $mode & self::DELETE ? 1 : 0,
-      $mode & self::PUBLISH ? 1 : 0,
-      $mode & self::OWN ? 1 : 0,
-      ));
+    if ($mode & ~self::OWN)
+      $db->exec("INSERT INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`, `o`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", array(
+        intval($nid),
+        intval($uid),
+        $mode & self::CREATE ? 1 : 0,
+        $mode & self::READ ? 1 : 0,
+        $mode & self::UPDATE ? 1 : 0,
+        $mode & self::DELETE ? 1 : 0,
+        $mode & self::PUBLISH ? 1 : 0,
+        $mode & self::OWN ? 1 : 0,
+        ));
 
     self::flush();
   }

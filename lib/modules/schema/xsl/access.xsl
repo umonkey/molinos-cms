@@ -36,6 +36,7 @@
     <tr>
       <th>
         <xsl:value-of select="@name" />
+        <input type="hidden" name="{@gid}[reset]" value="1" />
       </th>
       <td>
         <input type="checkbox" name="{@gid}[c]">
