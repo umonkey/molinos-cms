@@ -1093,6 +1093,8 @@ class Node
    */
   private function saveOld(array $data)
   {
+    if (array_key_exists('uid', $data))
+      unset($data['uid']);
     list($sql, $params) = sql::getUpdate('node', $data, 'id');
     $sth = $this->getDB()->prepare($sql);
     $sth->execute($params);
