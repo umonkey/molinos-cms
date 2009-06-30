@@ -91,7 +91,8 @@ class Logger
         continue;
 
       $output .= sprintf("%2d. ", $idx++);
-      $output .= mcms::formatStackElement($v);
+      if (class_exists('mcms'))
+        $output .= mcms::formatStackElement($v);
 
       /*
       if (!empty($v['file']) and !empty($v['line']))

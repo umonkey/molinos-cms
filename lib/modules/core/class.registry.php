@@ -251,17 +251,19 @@ class Registry
   {
     Logger::trace($message);
 
-    $message = wordwrap(strip_tags($message), 75, "\n         ");
-    $referer = empty($_SERVER['HTTP_REFERER'])
-      ? null
-      : "Referer: {$_SERVER['HTTP_REFERER']}\n";
+    if (class_exists('BebopMimeMail')) {
+      $message = wordwrap(strip_tags($message), 75, "\n         ");
+      $referer = empty($_SERVER['HTTP_REFERER'])
+        ? null
+        : "Referer: {$_SERVER['HTTP_REFERER']}\n";
 
-    $subject = "Error at " . MCMS_HOST_NAME;
-    $content = "<pre>Message: {$message}\nMethod:  {$_SERVER['REQUEST_METHOD']}\n"
-      . "URL:     http://" . MCMS_HOST_NAME . MCMS_REQUEST_URI . "\n{$extra}\n{$referer}"
-      . "Backtrace follows.\n\n" . Logger::backtrace() . '</pre>';
+      $subject = "Error at " . MCMS_HOST_NAME;
+      $content = "<pre>Message: {$message}\nMethod:  {$_SERVER['REQUEST_METHOD']}\n"
+        . "URL:     http://" . MCMS_HOST_NAME . MCMS_REQUEST_URI . "\n{$extra}\n{$referer}"
+        . "Backtrace follows.\n\n" . Logger::backtrace() . '</pre>';
 
-    BebopMimeMail::send(null, Context::last()->config->get('main/errors/mail'), $subject, $content);
+      BebopMimeMail::send(null, Context::last()->config->get('main/errors/mail'), $subject, $content);
+    }
   }
 
   /**
