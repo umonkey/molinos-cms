@@ -542,6 +542,9 @@ class Node
       }
     }
 
+    if ($this->isNew() and !isset($schema['uid']))
+      $this->uid = Context::last()->user->id;
+
     return $this;
   }
 
