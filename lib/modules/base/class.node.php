@@ -428,7 +428,7 @@ class Node
       $uid = null;
 
     if (null !== $uid and $uid == $user->id)
-      if (in_array($perm, Structure::getInstance()->getOwnDocAccess($this->class)))
+      if ($user->hasAccess($perm | ACL::OWN, $this->class))
         return true;
 
     return $user->hasAccess($perm, $this->class);

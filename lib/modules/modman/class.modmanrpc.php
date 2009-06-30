@@ -71,8 +71,6 @@ class ModManRPC extends RPCHandler
     $ctx->config->set('modules/' . $moduleName, $conf->dump())->save();
 
     Logger::log($moduleName . ': configuration updated.');
-
-    Structure::getInstance()->drop();
   }
 
   public static function rpc_post_install(Context $ctx)
@@ -97,7 +95,6 @@ class ModManRPC extends RPCHandler
     $next->setarg('status', $status);
 
     self::rpc_rebuild($ctx);
-    Structure::getInstance()->rebuild();
 
     // Обновляем базу модулей, чтобы выбросить удалённые локальные.
     modman::updateDB();
@@ -130,7 +127,6 @@ class ModManRPC extends RPCHandler
     $next->setarg('status', $status);
 
     self::rpc_rebuild($ctx);
-    Structure::getInstance()->rebuild();
 
     // Обновляем базу модулей, чтобы выбросить удалённые локальные.
     modman::updateDB();
