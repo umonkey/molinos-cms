@@ -20,9 +20,6 @@ class BaseModule
       // Удаляем связи.
       $node->getDB()->exec("DELETE FROM `node__rel` WHERE `nid` = :nid OR `tid` = :tid", array(':nid' => $node->id, ':tid' => $node->id));
 
-      // Удаляем доступ.
-      $node->getDB()->exec("DELETE FROM `node__access` WHERE `nid` = :nid OR `uid` = :uid", array(':nid' => $node->id, ':uid' => $node->id));
-
       break;
     }
 

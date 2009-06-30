@@ -109,16 +109,11 @@ class TaxonomyAPI
     $ctx->user->checkAccess(ACL::UPDATE, 'tag');
 
     $ctx->db->beginTransaction();
-    $ctx->db->exec("DELETE FROM `node__access` WHERE `nid` IN (SELECT `id` FROM `node` WHERE `class` = 'tag')");
-    $sth = $ctx->db->prepare("INSERT INTO `node__access` (`nid`, `uid`, `p`) VALUES (?, ?, 1)");
-    foreach ((array)$ctx->post('section') as $nid => $gid) {
-      $sth->execute(array($nid, $gid));
-      Logger::log("section: {$nid}, owner: {$gid}");
-    }
+    foreach ((array)$ctx->post('section') as $nid => $gid)
+      ACL::set($nid, $gid, ACL::PUBLISH);
     $ctx->db->commit();
 
     return $ctx->getRedirect('admin/structure/taxonomy');
-    mcms::debug($ctx->post);
   }
 
   /**
@@ -146,10 +141,6 @@ class TaxonomyAPI
    */
   public static function getPermittedSections(Context $ctx)
   {
-    $params = array();
-    $sql = "SELECT `nid` FROM `node__access` WHERE `p` = 1 "
-      . "AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = 'tag') "
-      . "AND `uid` " . sql::in($ctx->user->getGroups(), $params);
-    return (array)$ctx->db->getResultsV("nid", $sql, $params);
+    return ACL::getPermittedNodeIds(ACL::PUBLISH, 'tag');
   }
 }

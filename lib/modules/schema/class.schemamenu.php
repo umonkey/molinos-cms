@@ -350,24 +350,8 @@ class SchemaMenu
       ));
 
     $ctx->db->beginTransaction();
-
-    $ctx->db->exec("DELETE FROM `node__access` WHERE `nid` = ?", array($node->id));
-    $sth = $ctx->db->prepare("INSERT INTO `node__access` (`uid`, `nid`, `c`, `r`, `u`, `d`, `p`, `o`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-
-    foreach ($ctx->post as $gid => $data) {
-      $params = array(
-        intval($gid),
-        $node->id,
-        !empty($data['c']),
-        !empty($data['r']),
-        !empty($data['u']),
-        !empty($data['d']),
-        !empty($data['p']),
-        !empty($data['o']),
-        );
-      $sth->execute($params);
-    }
-
+    foreach ($ctx->post as $gid => $data)
+      ACL::set($node->id, intval($gid), ACL::asint($data));
     $ctx->db->commit();
 
     return $ctx->getRedirect();

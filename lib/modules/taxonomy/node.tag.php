@@ -34,6 +34,8 @@ class TagNode extends Node implements iContentType
    */
   public function save()
   {
+    $copyACL = false;
+
     if ($this->isNew()) {
       if (!$this->parent_id) {
         try {
@@ -53,13 +55,13 @@ class TagNode extends Node implements iContentType
         ."WHERE `tid` = ? AND `nid` IN (SELECT `id` FROM `node` WHERE `class` = 'type')",
         array($this->parent_id));
 
-      // Копируем родительские права.
-      $this->onSave("INSERT INTO `node__access` (`nid`, `uid`, `p`) "
-        . "SELECT %ID%, `uid`, `p` FROM `node__access` WHERE `nid` = ?",
-        array($this->parent_id));
+      $copyACL = true;
     }
 
-    return parent::save();
+    parent::save();
+
+    if ($copyACL)
+      ACL::copyNode($this->parent_id, $this->id);
   }
 
   public function getFormTitle()
