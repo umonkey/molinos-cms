@@ -33,7 +33,7 @@ class TaxonomyAdmin
   {
     if ($node instanceof TagNode)
       return;
-    elseif (!$node->checkPermission(ACL:::UPDATE))
+    elseif (!$node->checkPermission(ACL::UPDATE))
       return;
 
     $result = array();

@@ -208,7 +208,7 @@ class NodeApiModule extends RPCHandler
   {
     $ctx->db->beginTransaction();
     foreach (self::getNodes($ctx) as $node)
-      $node->knock(ACL::DELETE->erase();
+      $node->knock(ACL::DELETE)->erase();
     $ctx->db->commit();
   }
 
@@ -310,7 +310,7 @@ class NodeApiModule extends RPCHandler
   {
     $ctx->db->beginTransaction();
     foreach (self::getNodes($ctx) as $node)
-      $node->knock(ACL::DELETE->delete()->save();
+      $node->knock(ACL::DELETE)->delete()->save();
     $ctx->db->commit();
 
     return $ctx->getRedirect();

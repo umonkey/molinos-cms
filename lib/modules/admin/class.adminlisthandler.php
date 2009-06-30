@@ -358,7 +358,7 @@ class AdminListHandler implements iAdminList
     $user = Context::last()->user;
 
     $result = array_intersect($types,
-      $user->getAccess(ACL::CREATE | ACL::UPDATE | ACL::DELETE | ACL:::PUBLISH)
+      $user->getAccess(ACL::CREATE | ACL::UPDATE | ACL::DELETE | ACL::PUBLISH)
       );
 
     return $result;
