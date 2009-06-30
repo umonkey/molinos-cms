@@ -14,7 +14,7 @@ class ACL
    */
   public static function getTypeAccess(array $groups)
   {
-    $key = 'acl:type:' self::getSerial() . ':' . implode(',', $groups);
+    $key = 'acl:type:' . self::getSerial() . ':' . implode(',', $groups);
     $cache = Cache::getInstance();
 
     if (!is_array($result = $cache->$key)) {
