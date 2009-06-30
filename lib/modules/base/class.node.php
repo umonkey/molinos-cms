@@ -417,19 +417,12 @@ class Node
 
     $user = Context::last()->user;
 
-    if ('user' == $this->class and $user->id == $this->id and ACL::UPDATE == $perm)
-      return true;
-
-    if (is_object($this->uid))
-      $uid = $this->uid->id;
-    elseif (is_numeric($this->uid))
-      $uid = $this->uid;
-    else
-      $uid = null;
-
-    if (null !== $uid and $uid == $user->id)
-      if ($user->hasAccess($perm | ACL::OWN, $this->class))
+    if ($this->uid)
+      if ($this->uid == $user->id and $user->hasAccess($perm | ACL::OWN, $this->class))
         return true;
+
+    if ($perm & ACL::CREATE and $user->hasAccess(ACL::CREATE | ACL::OWN, $this->class))
+      return true;
 
     return $user->hasAccess($perm, $this->class);
   }

@@ -56,9 +56,13 @@ class User
   public function getAccess($mode = ACL::READ)
   {
     $result = array();
-    foreach ($this->loadAccess() as $type => $info)
+    foreach ($map = $this->loadAccess() as $type => $info)
       if (isset($info[0]) and $info[0] & $mode)
         $result[] = $type;
+    if ($mode & ACL::CREATE)
+      foreach ($map as $type => $info)
+        if (isset($info[1]) and $info[1] & ACL::CREATE)
+          $result[] = $type;
     return $result;
   }
 
