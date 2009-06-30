@@ -1220,6 +1220,7 @@ class Node
       'right',
       'created',
       'updated',
+      'uid',
       'published',
       'deleted',
       );
@@ -1293,7 +1294,7 @@ class Node
    */
   protected function getXMLStopFields()
   {
-    return array('xml', 'left', 'right');
+    return array('xml', 'left', 'right', 'uid');
   }
 
   /**

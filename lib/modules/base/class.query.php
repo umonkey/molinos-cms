@@ -120,16 +120,6 @@ class Query
       case 'tagged':
         $this->conditions[] = "`node`.`id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` " . $this->getTagsFilter($v) . ")";
         break;
-      case 'uid':
-        $this->conditions[] = "`node`.`id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ? AND `key` = ?)";
-        $this->params[] = $v;
-        $this->params[] = $k;
-        break;
-      case '-uid':
-        $this->conditions[] = "`node`.`id` NOT IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ? AND `key` = ?)";
-        $this->params[] = $v;
-        $this->params[] = $k;
-        break;
       default:
         list($fieldName, $neg) = $this->getFieldSpec($k);
 
@@ -167,7 +157,7 @@ class Query
   public function getSelect(array $fields = null)
   {
     if (!$fields)
-      $fields = array('`node`.`id`', '`parent_id`', '`name`', '`lang`', '`class`', '`left`', '`right`', '`created`', '`updated`', '`published`', '`deleted`', '`data`');
+      $fields = array('`node`.`id`', '`parent_id`', '`name`', '`lang`', '`class`', '`left`', '`right`', '`created`', '`updated`', '`published`', '`uid`', '`deleted`', '`data`');
 
     $sql = sql::getSelect((array)$fields, $this->tables, $this->conditions);
 

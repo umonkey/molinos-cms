@@ -42,6 +42,9 @@ tables:
       required: true
       indexed: true
       default: 0
+    uid:
+      type: integer
+      indexer: true
     name:
       type: varchar
       length: 255

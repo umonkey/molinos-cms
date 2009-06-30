@@ -78,8 +78,8 @@ class UserControl extends Control
     // Сохраняем информацию.
     if ($user->id)
       $node->{$this->value} = Context::last()->user->getNode();
-    else
-      $node->{$this->value} = $value;
+    elseif ($value)
+      $node->{$this->value . ':name'} = $value;
   }
 
   /**
@@ -87,16 +87,23 @@ class UserControl extends Control
    */
   public function format($value, $em)
   {
-    if (is_object($value) and $value->id)
-      return html::em($em, array(
-        'id' => $value->id,
-        'name' => $value->getName(),
-        'email' => $value->email,
+    $html = null;
+
+    if ($user = $value) {
+      if (!is_object($user))
+        $user = Node::load($user);
+      $html = html::em($em, array(
+        'id' => $user->id,
+        'name' => $user->getName(),
+        'email' => $user->getEmail(),
         ));
-    elseif (is_string($value))
-      return html::em($em, array(
-        'name' => $value,
+    } elseif ($name = $node->{$this->value . ':name'}) {
+      $html = html::em($em, array(
+        'name' => $name,
         ));
+    }
+
+    return $html;
   }
 
   /**
@@ -104,16 +111,17 @@ class UserControl extends Control
    */
   public function preview($node)
   {
-    $value = $node->{$this->value};
-
-    if (is_object($value) and $value->id)
+    if ($user = $node->{$this->value}) {
+      if (!is_object($user))
+        $user = Node::load($user);
       $html = html::em('a', array(
-        'href' => 'admin/node/' . $value->id,
-        ), html::cdata($value->getName()));
-    elseif (is_string($value))
-      $html = html::plain($value);
-    else
+        'href' => 'admin/node/' . $user->id,
+        ), html::cdata($user->getName()));
+    } elseif ($name = $node->{$this->value . ':name'}) {
+      $html = html::plain($name);
+    } else {
       $html = t('Авторство не установлено.');
+    }
 
     return html::wrap('value', html::cdata($html));
   }
@@ -124,5 +132,38 @@ class UserControl extends Control
   public function isEditable()
   {
     return false;
+  }
+
+  /**
+   * Вывод информации об авторе во все объекты.
+   * @mcms_message ru.molinos.cms.node.xml
+   */
+  public static function on_get_node_xml(Node $node)
+  {
+    $html = null;
+
+    if ($node->uid) {
+      try {
+        $node = Node::load(array(
+          'id' => $node->uid,
+          'class' => 'user',
+          ), $node->getDB());
+        $html = html::em('uid', array(
+          'id' => $node->id,
+          'name' => $node->getName(),
+          'email' => $node->getEmail(),
+          ));
+      } catch (ObjectNotFoundException $e) {
+        $html = html::em('uid', array(
+          'name' => t('пользователь удалён'),
+          ));
+      }
+    } elseif ($name = $node->{'uid:name'}) {
+      $html = html::em('uid', array(
+        'name' => $name,
+        ));
+    }
+
+    return $html;
   }
 }
