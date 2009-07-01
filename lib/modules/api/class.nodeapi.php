@@ -55,9 +55,11 @@ class NodeAPI
         $attrs['next'] = $filter['#offset'] + $filter['#limit'];
 
       // Вычисляем диапазон.
-      $r1 = $filter['#offset'] + 1;
-      $r2 = min($attrs['total'], $filter['#offset'] + $filter['#limit']);
-      $attrs['range'] = $r1 . '-' . $r2;
+      if ($attrs['total']) {
+        $r1 = $filter['#offset'] + 1;
+        $r2 = min($attrs['total'], $filter['#offset'] + $filter['#limit']);
+        $attrs['range'] = $r1 . '-' . $r2;
+      }
     }
 
     return self::xml(html::em('nodes', $attrs, $output));
@@ -187,6 +189,8 @@ class NodeAPI
     $action = new url($form->action);
     $action->setarg('destination', $ctx->get('destination'));
     $form->action = $action->string();
+    $form->addClass('create');
+    $form->addClass('create-' . $type);
 
     return new Response($form->getXML(Control::data()), 'text/xml');
   }
