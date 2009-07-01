@@ -336,7 +336,7 @@ class AttachmentRPC extends RPCHandler
     $node = Node::load(array(
       'class' => 'file',
       'deleted' => 0,
-      'published' => 1,
+      // 'published' => 1,
       'id' => $node,
       ), $ctx->db);
 
