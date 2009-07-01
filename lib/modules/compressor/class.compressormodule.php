@@ -128,6 +128,11 @@ class CompressorModule
     if (!$compressed) {
       list($scripts, $styles) = self::getGlobal($ctx);
 
+      foreach (os::find('lib', 'modules', '*', 'scripts', '*.js') as $fileName)
+        $scripts[] = $fileName;
+      foreach (os::find('lib', 'modules', '*', 'styles', '*.css') as $fileName)
+        $styles[] = $fileName;
+
       foreach (os::find($theme, 'scripts', '*.js') as $fileName)
         $scripts[] = $fileName;
       foreach (os::find($theme, 'styles', '*.css') as $fileName)
