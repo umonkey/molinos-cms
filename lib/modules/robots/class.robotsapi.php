@@ -18,10 +18,11 @@ class RobotsAPI
       $content .= "\n";
     $content .= "User-agent: *\n"
       . "Disallow: /admin\n"
-      . "Disallow: /api\n"
-      . "Disallow: /doc\n"
-      . "Disallow: /lib\n"
-      . "Disallow: /sites\n"
+      . "Disallow: /api/\n"
+      . "Disallow: /doc/\n"
+      . "Disallow: /lib/\n"
+      . "Disallow: /sites/\n"
+      . "Disallow: /download/\n"
       ;
 
     if (file_exists($path = os::path(MCMS_SITE_FOLDER, 'robots.txt')))
