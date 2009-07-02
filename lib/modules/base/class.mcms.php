@@ -20,122 +20,11 @@
  */
 class mcms
 {
-  const MEDIA_AUDIO = 1;
-  const MEDIA_VIDEO = 2;
-  const MEDIA_IMAGE = 4;
-
   const FLUSH_NOW = 1;
 
   const VERSION_CURRENT = 1;
   const VERSION_RELEASE = 2;
   const VERSION_STABLE = 2;
-
-  public static function mediaGetPlayer(array $files, $types = null, array $custom_options = array())
-  {
-    $nodes = array();
-    $firstfile = null;
-    $havetypes = 0;
-
-    if (null === $types)
-      $types = self::MEDIA_AUDIO | self::MEDIA_VIDEO;
-
-    foreach ($files as $k => $v) {
-      $flink = null;
-
-      if ($v instanceof Node) {
-        $v = $v->getRaw();
-      } elseif (is_string($v)) {
-        $flink = $v;
-        $v = array(
-          'id' => null,
-          'filepath' => $v,
-          'filetype' => os::getFileType($v),
-          );
-      }
-
-      if (null === $flink)
-        $flink = "attachment/{$v['id']}/{$v['filename']}";
-
-      switch ($v['filetype']) {
-      case 'audio/mpeg':
-      case 'audio/x-mpegurl':
-        if ($types & self::MEDIA_AUDIO) {
-          $nodes[] = $v['id'];
-          $havetypes |= self::MEDIA_AUDIO;
-          if (null === $firstfile)
-            $firstfile = $flink;
-        }
-        break;
-      case 'video/flv':
-      case 'video/x-flv':
-        if ($types & self::MEDIA_VIDEO) {
-          $nodes[] = $v['id'];
-          $havetypes |= self::MEDIA_VIDEO;
-          if (null === $firstfile)
-            $firstfile = $flink;
-        }
-        break;
-      }
-    }
-
-    // Подходящих файлов нет, выходим.
-    if (empty($nodes))
-      return null;
-
-    // Всего один файл — используем напрямую.
-    if (count($nodes) == 1 or !class_exists('XspfModule'))
-      $playlist = '?q=' . urlencode($firstfile);
-    else
-      $playlist = '?q=playlist.rpc&nodes='. join(',', $nodes);
-
-    // Параметризация проигрывателя.
-    $options = array_merge(array(
-      'file' => mcms::path() . '/' . $playlist,
-      'showdigits' => 'true',
-      'autostart' => 'false',
-      'repeat' => 'false',
-      'shuffle' => 'false',
-      'width' => 350,
-      'height' => 100,
-      'showdownload' => 'false',
-      'displayheight' => 0,
-      ), $custom_options);
-
-    if ($havetypes & self::MEDIA_VIDEO) {
-      $dheight = ($options['width'] / 4) * 3;
-      $options['displayheight'] = $dheight;
-
-      if (count($nodes) < 2)
-        $options['height'] = 0;
-
-      $options['height'] += $dheight;
-    } elseif (count($nodes) == 1) {
-      $options['height'] = 20;
-    }
-
-    $args = array();
-
-    foreach ($options as $k => $v)
-      $args[] = $k .'='. urlencode($v);
-
-    $url = 'themes/all/flash/player.swf?'. join('&', $args);
-
-    $params = html::em('param', array(
-      'name' => 'movie',
-      'value' => $url,
-      ));
-    $params .= html::em('param', array(
-      'name' => 'wmode',
-      'value' => 'transparent',
-      ));
-
-    return html::em('object', array(
-      'type' => 'application/x-shockwave-flash',
-      'data' => $url,
-      'width' => $options['width'],
-      'height' => $options['height'],
-      ), $params);
-  }
 
   public static function config($key, $default = null)
   {
@@ -195,21 +84,6 @@ class mcms
     return trim(ob_get_clean());
   }
 
-  public static function log($op, $message, $nid = null)
-  {
-    if (class_exists('SysLogmodule'))
-      SysLogModule::log($op, $message, $nid);
-  }
-
-  // Возвращает список доступных классов и файлов, в которых они описаны.
-  // Информация о классах кэшируется в tmp/.classes.php или -- если доступен
-  // класс BebopCache -- в более быстром кэше.
-  public static function getClassMap()
-  {
-    $tmp = self::getModuleMap();
-    return $tmp['classes'];
-  }
-
   public static function pager($total, $current, $limit, $paramname = 'page', $default = 1)
   {
     $result = array();
@@ -261,23 +135,6 @@ class mcms
     return html::em('pager', $result, $list);
   }
 
-  private static function writeCrashDump($contents)
-  {
-    // Узнаем, куда же складывать дампы.
-    // Если такой директории нет, пытаемся создать.
-    $dumpdir = os::mkdir(mcms::config('dumpdir', os::path('tmp', 'crashdump')));
-
-    // Задаем файл для выгрузки дампа и проверяем на наличие,
-    // если существует - добавляем случайный мусор в название.
-    $dumpfile = os::path($dumpdir, date('Y-m-d-') . md5(serialize($_SERVER)));
-    if (file_exists($dumpfile))
-      $dumpfile .= rand();
-    $dumpfile .= '.log';
-
-    if (is_writable($dumpdir))
-      file_put_contents($dumpfile, $contents);
-  }
-
   public static function mail($from = null, $to, $subject, $text)
   {
     foreach ((array)$to as $re)
@@ -308,22 +165,6 @@ class mcms
     if (null === $time)
       $time = time();
     return date('Y-m-d H:i:s', $time - date('Z', $time));
-  }
-
-  // FIXME: оптимизировать!
-  private static function pop(array &$a, $e)
-  {
-    $repack = array();
-
-    foreach ($a as $k => $v)
-      if ($k == $e)
-        $repack[$k] = $v;
-
-    foreach ($a as $k => $v)
-      if ($k != $e)
-        $repack[$k] = $v;
-
-    $a = $repack;
   }
 
   public static function path()
@@ -463,55 +304,6 @@ class mcms
     }
 
     return $url;
-  }
-
-  public static function embed($url, $options = array(), $nothing = null)
-  {
-    $link = array();
-    $options = array_merge(array('width' => 425, 'height' => 318), $options);
-
-    if (null === $nothing)
-      $nothing = ''; // 'Для просмотра этого ролика нужен Flash.';
-
-    if (strtolower(substr($url, -4)) == '.mp3') {
-      $furl = urlencode($url);
-      $link['type'] = 'audio/mpeg';
-      $link['is_audio'] = true;
-      $link['embed'] = "<object type='application/x-shockwave-flash' data='themes/all/flash/player.swf?file={$furl}&amp;showdigits=true&amp;autostart=false&amp;repeat=false&amp;shuffle=false&amp;width=350&amp;height=20&amp;showdownload=false&amp;displayheight=0' width='350' height='20'><param name='movie' value='themes/all/flash/player.swf?file={$furl}&amp;showdigits=true&amp;autostart=false&amp;repeat=false&amp;shuffle=false&amp;width=350&amp;height=20&amp;showdownload=false&amp;displayheight=0' /><param name='wmode' value='transparent' /></object>";
-    }
-
-    return empty($link) ? null : $link;
-  }
-
-  public static function dispatch_rpc($class, Context $ctx, $default = 'default')
-  {
-  }
-
-  public static function format($text)
-  {
-    $lines = preg_split('/[\r\n]+/', $text);
-    $text = '<p>'. join('</p><p>', $lines) .'</p>';
-    return $text;
-  }
-
-  public static function mkpath(array $elements)
-  {
-    return join(DIRECTORY_SEPARATOR, $elements);
-  }
-
-  public static function renderPager(array $pager)
-  {
-    $output = '<ul class=\'pager\'>';
-
-    foreach ($pager['list'] as $page => $link)
-      $output .= html::em('li', html::em('a', array(
-        'href' => $link,
-        'class' => $link ? '' : 'active',
-        ), $page));
-
-    $output .= '</ul>';
-
-    return $output;
   }
 
   /**
