@@ -167,41 +167,6 @@ class mcms
     return date('Y-m-d H:i:s', $time - date('Z', $time));
   }
 
-  public static function path()
-  {
-    static $path = null;
-
-    if (null === $path) {
-      if (!empty($_SERVER['HTTP_HOST'])) { //скрипт запускается из под web-сервера
-        $path = empty($_GET['__rootpath'])
-          ? dirname($_SERVER['SCRIPT_NAME'])
-          : $_GET['__rootpath'];
-
-        $path = str_replace(DIRECTORY_SEPARATOR, '/', $path);
-
-        if ('/' == ($path = '/'. trim($path, '/')))
-          $path = '';
-      }
-      else { //скрипт запускается из командной строки
-        $curpath = getcwd(); // $_SERVER['PWD'];
-        $p = strpos($curpath,'/lib/');
-
-        if ($p > 0) {
-          $curpath = substr($curpath, 0, $p);
-          $path    = '/'.basename($curpath);
-
-          //хак - найдём родительский каталог для $path. Если это sites - то склеим его
-          $prefixdir = dirname($curpath);
-          $pdir2 =  basename($prefixdir);
-          if ($pdir2 == 'sites')
-            $path =  '/'.$pdir2.$path;
-        }
-      }
-    }
-
-    return $path;
-  }
-
   public static function session()
   {
     $args = func_get_args();

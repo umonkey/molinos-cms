@@ -158,12 +158,12 @@ class Session
       if (!$sent) {
         $sent = true;
 
-        $path = mcms::path() .'/';
+        // $path = '/';
         $time = time() + 60*60*24*30;
         $name = self::cookie;
 
         if (!headers_sent()) {
-          setcookie($name, empty($this->data) ? null : $this->id, $time, $path);
+          setcookie($name, empty($this->data) ? null : $this->id, $time /* , $path */);
           Logger::log("cookie set: {$name}={$this->id}", 'auth');
         }
       }

@@ -74,7 +74,8 @@ class BebopMimeMail
         if (false !== strpos($href, 'mailto:'))
           continue;
 
-        $new = 'http://'. MCMS_HOST_NAME . mcms::path() .'/'. $href;
+        $ctx = Context::last();
+        $new = $ctx->url()->getBase($ctx) . $href;
 
         $new = str_replace($href, $new, $m[0][$idx]);
         $html = str_replace($m[0][$idx], $new, $html);
