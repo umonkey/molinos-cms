@@ -109,6 +109,7 @@ class TaxonomyAPI
     $ctx->user->checkAccess(ACL::UPDATE, 'tag');
 
     $ctx->db->beginTransaction();
+    ACL::reset($ctx->db->getResultsV("id", "SELECT `id` FROM `node` WHERE `class` = 'tag'"));
     foreach ((array)$ctx->post('section') as $nid => $gid)
       ACL::set($nid, $gid, ACL::PUBLISH);
     $ctx->db->commit();
