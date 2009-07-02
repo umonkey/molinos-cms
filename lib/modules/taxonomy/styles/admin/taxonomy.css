@@ -1,17 +1,18 @@
 /* Список разделов
 ------------------------------------------------------------------------------------------------------------------- */
-ul.taxonomy { list-style:none outside; margin:1.335em 0 1.335em 10px; position:relative; }
-ul.taxonomy li { margin:0; padding-bottom:1.335em; width:100%; overflow:hidden; background:url(images/nodes-element.png) no-repeat left top;  }
+ul.taxonomy { list-style:none outside; margin:1.335em 0 1.335em 10px; }
+ul.taxonomy li { position:relative; margin:0; padding-bottom:1.335em; width:100%; overflow:hidden; background:url(images/nodes-element.png) no-repeat left top;  }
 ul.taxonomy li.last { margin:0; padding-bottom:0; background:#fff url(images/nodes-element-last.png) no-repeat left top; }
 ul.taxonomy li.with-children { background:url(images/nodes-element.png) no-repeat left top;}
 ul.taxonomy li.last.with-children { background:#fff url(images/nodes-element-last.png) no-repeat left top; }
 
 * html ul.taxonomy li { background:none !important; }
 
-ul.taxonomy li span.container { display:block; width:100%; background:#fff; }
-ul.taxonomy.expand-collapse li span.container { position:relative; left:14px; padding:0 0 0 9px; }
+ul.taxonomy li span.container { display:block; width:100%; background:#fff; overflow:hidden; }
+ul.taxonomy li span.container a.picker { float:left; }
+ul.taxonomy.expand-collapse li span.container { margin:0 0 0 14px; padding:0 0 0 9px; }
 
-ul.taxonomy li span.actions { position:absolute; margin:0 0 0 10px; opacity:.5; }
+ul.taxonomy li span.actions { float:left; margin:0 0 0 10px; opacity:.5; }
 ul.taxonomy li span.actions:hover { opacity:1; }
 ul.taxonomy li span.actions a { float:left; width:16px; height:16px; margin:0 2px; }
 ul.taxonomy li span.actions a.tag-add { background:url(images/plus-small.png) no-repeat 0 1px; }
@@ -21,7 +22,8 @@ ul.taxonomy li span.actions a.tag-edit { background:url(../../../admin/styles/ad
 
 ul.taxonomy li input { float:left; vertical-align:baseline; }
 
-ul.taxonomy li span.expand-collapse { display:none; position:absolute; margin:1px 0 0 0; width:16px; height:16px; cursor:pointer; background:url(images/toggle-collapse.png); }
+ul.taxonomy li span.expand-collapse { display:none; position:absolute; left:0; margin:1px 0 0 0; width:16px; height:16px; cursor:pointer; background:url(images/toggle-collapse.png); }
+ul.taxonomy li li span.expand-collapse { left:20px; }
 ul.taxonomy li span.expand-collapse.collapsed { background:url(images/toggle.png); }
 
 ul.taxonomy.expand-collapse li span.expand-collapse { display:block; }
