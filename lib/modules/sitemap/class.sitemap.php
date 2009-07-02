@@ -23,23 +23,9 @@ class Sitemap
     if (!empty($node->class)) {
       $conf = (array)$ctx->config->get('modules/sitemap');
 
-      if (in_array($node->class, (array)$ctx->config->get('modules/sitemap/send_types'))) {
+      if (in_array($node->class, (array)$ctx->config->get('modules/sitemap/send_types')))
         if (file_exists($path = self::get_file_path($ctx)))
           unlink($path);
-
-        if (empty($conf['no_ping'])) {
-          if (count($hosts = explode("\n", $conf['ping']))) {
-            $sm = 'http://'. MCMS_HOST_NAME . mcms::path() . '/';
-            $sm .= empty($_GET['__cleanurls'])
-              ? '?q=sitemap.xml'
-              : 'sitemap.xml';
-
-            foreach ($hosts as $host) {
-              Logger::log('pinging '. $host .' with '. $sm);
-              http::fetch('http://'. $host .'/ping?sitemap='. urlencode($sm), http::CONTENT | http::NO_CACHE);
-            }
-          }
-        }
       }
     }
   }
