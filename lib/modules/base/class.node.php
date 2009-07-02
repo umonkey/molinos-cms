@@ -477,13 +477,6 @@ class Node
     if (!$this->isNew() and isset($schema['parent_id']))
       unset($schema['parent_id']);
 
-    if (!Context::last()->user->id and !$this->id and class_exists('CaptchaControl'))
-      $schema['captcha'] = new CaptchaControl(array(
-        'value' => 'captcha',
-        'label' => t('Введите символы с картинки'),
-        'required' => true,
-        ));
-
     return $schema;
   }
 

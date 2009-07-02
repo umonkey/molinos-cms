@@ -2,9 +2,6 @@
 
 class CaptchaControl extends Control
 {
-  /**
-   * @mcms_message ru.molinos.cms.control.enum
-   */
   public static function getInfo()
   {
     return array(
@@ -71,5 +68,21 @@ class CaptchaControl extends Control
     $result = substr(base64_encode(rand()), 0, 6);
 
     return crypt::encrypt($result);
+  }
+
+  /**
+   * Добавление в форму создания документа.
+   * @mcms_message ru.molinos.cms.form.node.create
+   */
+  public static function onModifyNodeForm(Context $ctx, Node $node, Schema &$schema)
+  {
+    $types = $ctx->config->getArray('modules/captcha/types');
+
+    if (in_array($node->class, $types) and $ctx->user->id and !$this->id and class_exists('CaptchaControl'))
+      $schema['captcha'] = new CaptchaControl(array(
+        'value' => 'captcha',
+        'label' => t('Введите символы с картинки'),
+        'required' => true,
+        ));
   }
 }
