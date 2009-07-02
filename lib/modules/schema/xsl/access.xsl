@@ -10,9 +10,6 @@
       </a>
       <xsl:text>»</xsl:text>
     </h2>
-    <xsl:if test="not(@own)">
-      <p><em>Колонка с правами на собственные объекты отсутствует, т.к. в этом типе нет <a href="admin/structure/fields?type={@name}&amp;destination={$back}">поля</a> «uid».</em></p>
-    </xsl:if>
     <form method="post" action="admin/structure/access?type={@name}&amp;destination={@next}">
       <table class="classic" id="access">
         <thead>
@@ -23,9 +20,7 @@
             <th class="c" title="Изменение (update)">U</th>
             <th class="c" title="Удаление (delete)">D</th>
             <th class="c" title="Публикация (publish)">P</th>
-            <xsl:if test="@own">
-              <th class="c" title="Только на свои объекты">O</th>
-            </xsl:if>
+            <th class="c" title="Только на свои объекты">O</th>
           </tr>
         </thead>
         <tbody>
@@ -78,17 +73,15 @@
           </xsl:if>
         </input>
       </td>
-      <xsl:if test="../@own">
-        <td>
-          <xsl:if test="@gid!='none'">
-            <input type="checkbox" name="{@gid}[o]">
-              <xsl:if test="@own">
-                <xsl:attribute name="checked">checked</xsl:attribute>
-              </xsl:if>
-            </input>
-          </xsl:if>
-        </td>
-      </xsl:if>
+      <td>
+        <xsl:if test="@gid!='none'">
+          <input type="checkbox" name="{@gid}[o]">
+            <xsl:if test="@own">
+              <xsl:attribute name="checked">checked</xsl:attribute>
+            </xsl:if>
+          </input>
+        </xsl:if>
+      </td>
     </tr>
   </xsl:template>
 </xsl:stylesheet>
