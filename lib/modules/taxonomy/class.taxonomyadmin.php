@@ -78,6 +78,9 @@ class TaxonomyAdmin
    */
   public static function on_preview_tags(Node $node)
   {
+    if (!$node->checkPermission(ACL::UPDATE))
+      return;
+
     if ($data = $node->getDB()->getResultsKV("id", "name", "SELECT `id`, `name` FROM `node` WHERE `deleted` = 0 AND `class` = 'tag' AND `id` IN (SELECT `tid` FROM `node__rel` WHERE `nid` = ?)", array($node->id))) {
       $result = array();
       foreach ($data as $k => $v)
