@@ -22,6 +22,13 @@ foreach (os::find('lib/modules/*/route.ini') as $routeName) {
   }
 }
 
+foreach (os::find('lib/modules/*/module.ini') as $fileName) {
+  $ini = ini::read($fileName);
+  if (!empty($ini['messages']) and is_array($ini['messages']))
+    foreach (array_keys($ini['messages']) as $messageName)
+      $paths[] = $k = os::path('wiki', preg_replace('/[^a-z]+/', '_', $messageName) . '.wiki');
+}
+
 sort($paths);
 
 foreach (array_unique($paths) as $path) {
