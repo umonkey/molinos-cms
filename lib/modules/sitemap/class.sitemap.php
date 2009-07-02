@@ -26,7 +26,6 @@ class Sitemap
       if (in_array($node->class, (array)$ctx->config->get('modules/sitemap/send_types')))
         if (file_exists($path = self::get_file_path($ctx)))
           unlink($path);
-      }
     }
   }
 
