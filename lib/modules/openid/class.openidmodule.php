@@ -1,6 +1,6 @@
 <?php
 
-class OpenIdModule extends RPCHandler
+class OpenIdModule
 {
   /**
    * Запуск авторизации с помощью OpenID.
@@ -19,12 +19,11 @@ class OpenIdModule extends RPCHandler
     exit();
   }
 
-  public static function on_rpc(Context $ctx)
-  {
-    return parent::hookRemoteCall($ctx, __CLASS__);
-  }
-
-  protected static function rpc_get_openid(Context $ctx)
+  /**
+   * Обработка колбэков.
+   * @route GET//api/openid/return.rpc
+   */
+  public static function rpc_get_openid(Context $ctx)
   {
     $openidinfo = $ctx->get('openid');
 
@@ -107,7 +106,7 @@ class OpenIdModule extends RPCHandler
     } else {
       // Login canceled
       Logger::log('login cancelled ?!');
-      $ctx->redirect("?q=auth.rpc&action=logout");
+      $ctx->redirect("auth/logout.rpc");
     }
   }
 
@@ -123,7 +122,7 @@ class OpenIdModule extends RPCHandler
       throw new RuntimeException(t('Не удалось соединиться с провайдером OpenID, '
         .'попробуйте повторить попытку позже.'));
 
-      $r = new Redirect('?q=auth.rpc&action=logout');
+      $r = new Redirect('auth/logout.rpc');
       $r->send();
     }
 
@@ -209,7 +208,7 @@ class OpenIdModule extends RPCHandler
   {
     $ctx = Context::last();
     $url = $ctx->url()->getBase($ctx)
-      . 'openid.rpc?action=openid&id=' . urlencode($id)
+      . 'api/openid/return.rpc?id=' . urlencode($id)
       . '&sid=' . mcms::session()->id;
     if (!empty($_GET['destination']))
       $url .= '&destination='. urlencode($_GET['destination']);
