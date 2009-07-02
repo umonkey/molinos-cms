@@ -26,6 +26,8 @@ class CommentNode extends Node
    */
   public function getExtraXMLContent()
   {
+    $content = parent::getExtraXMLContent();
+
     $db = Context::last()->db;
 
     $node = $this->node
@@ -34,7 +36,9 @@ class CommentNode extends Node
 
     if ($node)
       if ($data = $db->getResults("SELECT id, class, name FROM node WHERE id = ?", array($node)))
-        return html::em('node', $data[0]);
+        $content .= html::em('node', $data[0]);
+
+    return $content;
   }
 
   public function getFormTitle()
