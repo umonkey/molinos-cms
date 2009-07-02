@@ -417,9 +417,13 @@ class Node
 
     $user = Context::last()->user;
 
-    if ($this->uid)
-      if ($this->uid == $user->id and $user->hasAccess($perm | ACL::OWN, $this->class))
+    if ($this->uid) {
+      $uid = ($this->uid instanceof Node)
+        ? $this->uid->id
+        : $this->uid;
+      if ($uid == $user->id and $user->hasAccess($perm | ACL::OWN, $this->class))
         return true;
+    }
 
     if ($perm & ACL::CREATE and $user->hasAccess(ACL::CREATE | ACL::OWN, $this->class))
       return true;

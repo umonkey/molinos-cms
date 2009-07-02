@@ -141,10 +141,13 @@ class UserControl extends Control
 
     if ($node->uid) {
       try {
-        $node = Node::load(array(
-          'id' => $node->uid,
-          'class' => 'user',
-          ), $node->getDB());
+        if ($node->uid instanceof Node)
+          $node = $node->uid;
+        else
+          $node = Node::load(array(
+            'id' => $node->uid,
+            'class' => 'user',
+            ), $node->getDB());
         $html = html::em('uid', array(
           'id' => $node->id,
           'name' => $node->getName(),
