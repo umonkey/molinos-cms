@@ -79,7 +79,11 @@ class TaxonomyAPI
     if (!$ctx->user->hasAccess(ACL::UPDATE, 'tag'))
       throw new ForbiddenException();
 
-    $result = '';
+    $data = $ctx->db->getResults("SELECT n.id, n.parent_id, n.name, (SELECT MIN(uid) FROM {node__access} WHERE nid = n.id AND p = 1) AS `publishers`, (SELECT MIN(uid) FROM {node__access} WHERE nid = n.id AND u = 1) AS `owners` FROM {node} n WHERE n.class = 'tag' AND n.deleted = 0 ORDER BY n.left");
+
+    $result = self::recurse($data, null);
+
+    return new Response(html::em('sections', $result), 'text/xml');
 
     $perms = $ctx->db->getResultsKV("nid", "gid", "SELECT a.nid AS nid, MIN(a.uid) AS gid FROM node__access a INNER JOIN node n ON n.id = a.nid INNER JOIN node g ON g.id = a.uid WHERE n.class = 'tag' AND g.class = 'group' AND a.p = 1 GROUP BY a.nid");
     $data = Node::getSortedList('tag');
@@ -100,6 +104,20 @@ class TaxonomyAPI
     return new Response($result, 'text/xml');
   }
 
+  private static function recurse(array $data, $parent_id)
+  {
+    $result = '';
+
+    foreach ($data as $row) {
+      if ((null === $parent_id and empty($row['parent_id'])) or $parent_id == $row['parent_id']) {
+        $children = self::recurse($data, $row['id']);
+        $result .= html::em('section', $row, $children);
+      }
+    }
+
+    return $result;
+  }
+
   /**
    * Изменение прав на разделы.
    * @route POST//api/taxonomy/access.rpc
@@ -108,13 +126,24 @@ class TaxonomyAPI
   {
     $ctx->user->checkAccess(ACL::UPDATE, 'tag');
 
-    $ctx->db->beginTransaction();
-    ACL::reset($ctx->db->getResultsV("id", "SELECT `id` FROM `node` WHERE `class` = 'tag'"));
-    foreach ((array)$ctx->post('section') as $nid => $gid)
-      ACL::set($nid, $gid, ACL::PUBLISH);
-    $ctx->db->commit();
+    if ($sections = (array)$ctx->post('sections')) {
+      $publishers = $ctx->post('publishers');
+      $owners = $ctx->post('owners');
 
-    return $ctx->getRedirect('admin/structure/taxonomy');
+      $ctx->db->beginTransaction();
+      ACL::resetNode($sections);
+      foreach ($sections as $nid) {
+        if ($publishers == $owners) {
+          ACL::set($nid, $owners, ACL::CREATE|ACL::READ|ACL::UPDATE|ACL::DELETE|ACL::PUBLISH);
+        } else {
+          ACL::set($nid, $publishers, ACL::PUBLISH);
+          ACL::set($nid, $owners, ACL::CREATE|ACL::READ|ACL::UPDATE|ACL::DELETE);
+        }
+      }
+      $ctx->db->commit();
+    }
+
+    return $ctx->getRedirect('admin/access/taxonomy');
   }
 
   /**
@@ -123,18 +152,20 @@ class TaxonomyAPI
    */
   public static function on_get_permitted(Context $ctx)
   {
-    $filter = array(
-      'class' => 'tag',
-      'deleted' => 0,
-      'id' => self::getPermittedSections($ctx),
-      );
+    $result = '';
 
-    if (!$ctx->user->hasAccess(ACL::PUBLISH, 'tag'))
-      $filter['published'] = 1;
+    $pub = ACL::getPermittedNodeIds(ACL::PUBLISH, 'tag');
+    $upd = ACL::getPermittedNodeIds(ACL::UPDATE, 'tag');
 
-    $result = Node::findXML($filter, $ctx->db);
+    $result = '';
+    foreach (array_unique(array_merge($pub, $upd)) as $id)
+      $result .= html::em('section', array(
+        'id' => $id,
+        'publish' => in_array($id, $pub),
+        'edit' => in_array($id, $upd),
+        ));
 
-    return new Response(html::em('nodes', $result), 'text/xml');
+    return new Response(html::em('sections', $result), 'text/xml');
   }
 
   /**

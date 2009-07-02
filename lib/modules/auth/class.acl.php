@@ -143,6 +143,16 @@ class ACL
   }
 
   /**
+   * Сбрасывает права для указанных объектов.
+   */
+  public static function resetNode(array $nodeIds)
+  {
+    $params = array();
+    Context::last()->db->exec("DELETE FROM `node__access` WHERE `nid` " . sql::in($nodeIds, $params), $params);
+    self::flush();
+  }
+
+  /**
    * Удаление прав при удалении объектов.
    * @mcms_message ru.molinos.cms.hook.node
    */
