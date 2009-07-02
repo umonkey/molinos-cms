@@ -29,6 +29,32 @@ class UserConfig
         'label' => t('Шкура для формы входа'),
         'description' => t('Используется шаблон login.xsl, если такого нет или в нём ошибка — используется встроенный.'),
         ),
+      'allow_anonymous' => array(
+        'type' => 'SetControl',
+        'label' => t('Разрешить пользователям анонимно создавать'),
+        'options' => Node::getSortedList('type', 'title', 'name'),
+        'group' => t('Информация об авторстве'),
+        'weight' => 50,
+        ),
+      'uid_weight' => array(
+        'type' => 'NumberControl',
+        'label' => t('Вес контрола'),
+        'group' => t('Информация об авторстве'),
+        'weight' => 51,
+        ),
+      'uid_label' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Подпись контрола'),
+        'default' => t('Ваше имя'),
+        'group' => t('Информация об авторстве'),
+        'weight' => 52,
+        ),
+      'uid_group' => array(
+        'type' => 'TextLineControl',
+        'label' => t('Имя группы'),
+        'group' => t('Информация об авторстве'),
+        'weight' => 53,
+        ),
       ));
   }
 

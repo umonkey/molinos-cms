@@ -13,9 +13,6 @@
 
 class UserControl extends Control
 {
-  /**
-   * @mcms_message ru.molinos.cms.control.enum
-   */
   public static function getInfo()
   {
     return array(
@@ -77,7 +74,7 @@ class UserControl extends Control
 
     // Сохраняем информацию.
     if ($user->id)
-      $node->{$this->value} = Context::last()->user->getNode();
+      $node->{$this->value} = $user->id;
     elseif ($value)
       $node->{$this->value . ':name'} = $value;
   }
@@ -158,6 +155,56 @@ class UserControl extends Control
           'name' => t('пользователь удалён'),
           ));
       }
+    } elseif ($name = $node->{'uid:name'}) {
+      $html = html::em('uid', array(
+        'name' => $name,
+        ));
+    }
+
+    return $html;
+  }
+
+  /**
+   * Добавление в форму создания документа.
+   * @mcms_message ru.molinos.cms.form.node.create
+   */
+  public static function onModifyCreateForm(Context $ctx, Node $node, Schema &$schema)
+  {
+    if ('user' != $node->class) {
+      $config = $ctx->config->getArray('modules/auth');
+      $atypes = (array)@$config['allow_anonymous'];
+
+      $schema['uid'] = new UserControl(array(
+        'value' => 'uid',
+        'label' => $label,
+        'group' => @$config['uid_group'],
+        'weight' => @$config['uid_weight'],
+        'label' => @$config['uid_label'],
+        'required' => !in_array($node->class, $atypes),
+        ));
+    }
+  }
+
+  /**
+   * Вывод информации об авторе в XML ноды.  Делать это обычным
+   * способом — методом format() — нельзя, т.к. контрол добавляется
+   * в форму только при создании документа, а при редактировании — нет,
+   * т.е. при редактировании информация об авторе из XML исчезнет.
+   *
+   * @mcms_message ru.molinos.cms.node.xml
+   */
+  public static function on_node_xml(Node $node)
+  {
+    $html = null;
+
+    if ($user = $node->uid) {
+      if (!is_object($user))
+        $user = Node::load($user);
+      $html = html::em('uid', array(
+        'id' => $user->id,
+        'name' => $user->getName(),
+        'email' => $user->getEmail(),
+        ));
     } elseif ($name = $node->{'uid:name'}) {
       $html = html::em('uid', array(
         'name' => $name,
