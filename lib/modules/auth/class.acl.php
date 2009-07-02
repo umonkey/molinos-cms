@@ -17,16 +17,18 @@ class ACL
     $key = 'acl:type:' . self::getSerial() . ':' . implode(',', $groups);
     $cache = Cache::getInstance();
 
-    if (!is_array($result = $cache->$key)) {
+    if (!empty($_GET['nocache']) or !is_array($result = $cache->$key)) {
       $params = $result = array();
       $data = Context::last()->db->getResults($sql = "SELECT `n`.`name` AS `type`, `o` AS `own`, "
-        . "MAX(`c`) * 1 + MAX(`r`) * 2 + MAX(`u`) * 4 + MAX(`d`) * 8 + MAX(`p`) * 16 AS `sum` "
+        . "MAX(`c`) * 1 + MAX(`r`) * 2 + MAX(`u`) * 4 + MAX(`d`) * 8 + MAX(`p`) * 16 + MAX(`o`) * 32 AS `sum` "
         . "FROM `node__access` `a` INNER JOIN `node` `n` ON `n`.`id` = `a`.`nid` "
         . "WHERE `a`.`uid` " . sql::in($groups, $params) . " AND `n`.`class` = 'type' AND `n`.`deleted` = 0 "
-        . "GROUP BY `nid`, `o` ORDER BY `n`.`name`, `o`", $params);
+        . "GROUP BY `nid`, `a`.`o` ORDER BY `n`.`name`", $params);
 
       foreach ($data as $row)
         $result[$row['type']][$row['own']] = $row['sum'];
+
+      // mcms::debug($groups, $result);
 
       $cache->$key = $result;
     }
@@ -45,7 +47,7 @@ class ACL
       throw new InvalidArgumentException(t('Режим доступа должен быть числовым.'));
 
     $db = Context::last()->db;
-    $db->exec("DELETE FROM `node__access` WHERE `nid` = ? AND `uid` = ? AND `o` = ?", array($nid, $uid, $mode & self::OWN ? 1 : 0));
+    $db->exec("DELETE FROM `node__access` WHERE `nid` = ? AND `uid` = ?", array($nid, $uid));
     if ($mode & ~self::OWN)
       $db->exec("INSERT INTO `node__access` (`nid`, `uid`, `c`, `r`, `u`, `d`, `p`, `o`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", array(
         intval($nid),
