@@ -532,9 +532,8 @@ class Node
         .'для редактирования этого объекта.'));
 
     $schema = $this->getFormFields();
-
     foreach ($schema as $name => $field) {
-      if ($field->label and (null === $fieldName or $fieldName == $name)) {
+      if ($field->isVisible() and (null === $fieldName or $fieldName == $name)) {
         $value = array_key_exists($name, $data)
           ? $data[$name]
           : null;
