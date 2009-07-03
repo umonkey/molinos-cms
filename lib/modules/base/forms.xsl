@@ -45,6 +45,11 @@
             <xsl:value-of select="@mode" />
           </xsl:if>
         </xsl:attribute>
+        <xsl:if test="@length">
+          <xsl:attribute name="maxlength">
+            <xsl:value-of select="@length" />
+          </xsl:attribute>
+        </xsl:if>
       </input>
     </label>
     <xsl:apply-templates select="." mode="help" />

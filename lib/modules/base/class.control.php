@@ -235,6 +235,7 @@ abstract class Control implements iFormControl
       'description' => $this->description,
       'name' => $this->value,
       'readonly' => (bool)$this->readonly,
+      'length' => intval($this->length),
       );
 
     return html::em('input', array_merge($defaults, $options), $content);
@@ -280,6 +281,8 @@ abstract class Control implements iFormControl
 
   public function set($value, &$node)
   {
+    $value = trim($value);
+
     $this->validate($value);
 
     if ('' === $value or null === $value)
@@ -299,6 +302,9 @@ abstract class Control implements iFormControl
     if (!empty($value) and !empty($this->re))
       if (!preg_match($this->re, $value))
         throw new ValidationException($this->label, t('Вы неверно заполнили поле «%field».', array('%field' => mb_strtolower($this->label))));
+
+    if ($this->length and strlen($value) > $this->length)
+      throw new ValidationException($this->label ? $this->label : $this->value);
   }
 
   /**
