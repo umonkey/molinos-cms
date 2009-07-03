@@ -130,49 +130,6 @@ class FormWidget extends Widget
 
     // Выводим список типов документов.
     return html::em('allowedTypes', html::simpleOptions($types));
-
-
-    // Если тип документа не указан, но доступен всего
-    // один тип — используем его.
-    if (!empty($options['type']) or 1 == count($types)) {
-      if (!empty($options['type']))
-        $type = $options['type'];
-      else
-        $type = array_shift(array_keys($types));
-
-      $result['mode'] = 'form';
-      $result['type'] = $type;
-      $result['form'] = self::formRender('form-create-'. $type, null, 'form-create');
-    }
-
-    // Если типов несколько, и конкретный не указан — возвращаем
-    // список, пусть пользователь выбирает.
-    else {
-      $result = array(
-        'mode' => 'list',
-        'list' => array(),
-        );
-
-      $url = new url();
-      $key = $this->getInstanceName() .'.type';
-
-      foreach ($types as $type => $v) {
-        $url->setarg($key, $type);
-
-        $schema = Schema::load($this->ctx->db, $type);
-
-        $result['types'][$type] = array(
-          'title' => $v,
-          'description' => empty($schema['description'])
-            ? '' : $schema['description'],
-          'link' => $url->string(),
-          );
-      }
-    }
-
-    mcms::debug($result);
-
-    return $result;
   }
 
   protected function onGetPending(array $options)
