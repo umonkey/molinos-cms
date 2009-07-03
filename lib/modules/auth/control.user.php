@@ -179,7 +179,7 @@ class UserControl extends Control
 
       $schema['uid'] = new UserControl(array(
         'value' => 'uid',
-        'label' => $label,
+        'label' => t('Информация о пользователе'),
         'group' => @$config['uid_group'],
         'weight' => @$config['uid_weight'],
         'label' => @$config['uid_label'],
