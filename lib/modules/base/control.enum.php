@@ -111,12 +111,14 @@ class EnumControl extends Control
   {
     $this->validate($value);
 
-    if (empty($value))
+    if (empty($value)) {
       unset($node->{$this->value});
-    elseif ($this->dictionary)
+      $node->link(array(), true, $this->value);
+    } elseif ($this->dictionary) {
       $node->{$this->value} = Node::load($value);
-    else
+    } else {
       $node->{$this->value} = $value;
+    }
   }
 
   public function getExtraSettings()

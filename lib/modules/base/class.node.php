@@ -481,6 +481,10 @@ class Node
     if (!$this->isNew() and isset($schema['parent_id']))
       unset($schema['parent_id']);
 
+    $message = 'ru.molinos.cms.form.node.' . ($this->id ? 'edit' : 'create');
+    $ctx = Context::last();
+    $ctx->registry->broadcast($message, array($ctx, $this, $schema));
+
     return $schema;
   }
 
