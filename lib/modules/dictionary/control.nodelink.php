@@ -95,10 +95,8 @@ class NodeLinkControl extends Control
   public function set($value, &$node)
   {
     $this->validate($value);
-    if ($value) {
-      $node->link((array)$value, true, $this->value);
-      $node->{$this->value} = $value;
-    }
+    $node->link((array)$value, true, $this->value);
+    $node->{$this->value} = $value;
   }
 
   public function getLinkId($data)
