@@ -19,9 +19,9 @@ class VideoControl extends URLControl
     parent::__construct($form, array('value'));
   }
 
-  public function format($value, $em)
+  public function format(Node $node, $em)
   {
-    if (is_array($value)) {
+    if (is_array($value = $node->{$this->value})) {
       $data = $value;
       $embed = $data['embed'];
       unset($data['embed']);

@@ -48,8 +48,6 @@ class NodeLinkControl extends Control
         $form['values'] = 'user.fullname';
       else
         $form['values'] = $form['dictionary'] . '.name';
-
-      unset($form['dictionary']);
     }
 
     if (empty($form['description']))
@@ -68,10 +66,16 @@ class NodeLinkControl extends Control
     if ($this->hidden)
       return $this->getHidden($data);
 
-    if ('enter' != $this->mode)
+    $map = array(
+      'select' => 'drop',
+      );
+    if (isset($map[$mode = $this->mode]))
+      $mode = $map[$mode];
+
+    if ('enter' != $mode)
       return parent::wrapXML(array(
         'type' => 'select',
-        'mode' => 'drop',
+        'mode' => $mode,
         'value' => $this->getCurrentValue($data),
         ), $this->getSelect($data));
 
@@ -91,42 +95,9 @@ class NodeLinkControl extends Control
   public function set($value, &$node)
   {
     $this->validate($value);
-
-    try {
-      if (empty($value))
-        $node->{$this->value} = null;
-      elseif (is_numeric($value))
-        $node->{$this->value} = Node::load($value);
-      else {
-        $parts = explode('.', $this->values);
-
-        if ($node instanceof Node)
-          $db = $node->getDB();
-        else
-          $db = Context::last()->db;
-
-        $n = Node::find(array(
-          'class' => $parts[0],
-          'deleted' => 0,
-          $parts[1] => $value,
-          ));
-
-        if (!empty($n))
-          $n = array_shift($n);
-        else
-          $n = Node::create(array(
-            'class' => $parts[0],
-            $parts[1] => $value,
-            'published' => 1,
-            ));
-
-        $node->{$this->value} = $n;
-      }
-    } catch (TableNotFoundException $e) {
-    } catch (ObjectNotFoundException $e) {
-      throw new PageNotFoundException(t('Объект «%name» не найден.', array(
-        '%name' => $value,
-        )));
+    if ($value) {
+      $node->link((array)$value, true, $this->value);
+      $node->{$this->value} = $value;
     }
   }
 
@@ -136,6 +107,9 @@ class NodeLinkControl extends Control
       return Node::_id($value);
   }
 
+  /**
+   * Дополнительные настройки поля.
+   */
   public function getExtraSettings()
   {
     $fields = array(
@@ -150,8 +124,19 @@ class NodeLinkControl extends Control
         'type' => 'EnumControl',
         'label' => t('Режим работы'),
         'options' => array(
-          'select' => t('выпадающий список'),
-          'enter' => t('текстовое поле'),
+          'select' => t('один — выпадающий список'),
+          'radio' => t('один — радио'),
+          'enter' => t('один — текстовое поле'),
+          'set' => t('много — галки'),
+          ),
+        'required' => true,
+        ),
+      'details' => array(
+        'type' => 'EnumControl',
+        'label' => t('Объём данных'),
+        'options' => array(
+          'less' => t('id + название'),
+          'more' => t('полный XML'),
           ),
         'required' => true,
         ),
@@ -165,16 +150,21 @@ class NodeLinkControl extends Control
    */
   protected function getSelect($data)
   {
-    $parts = explode('.', $this->values);
+    $db = Context::last()->db;
 
-    $current = $this->getCurrentValue($data);
+    $selected = $data->id
+      ? $db->getResultsV("nid", "SELECT `nid` FROM {node__rel} WHERE `tid` = ? AND `key` = ?", array($data->id, $this->value))
+      : array();
+
+    $data = $db->getResultsKV("id", "name", "SELECT `id`, `name` FROM {node} WHERE `class` = ? AND `deleted` = 0 ORDER BY `name`", array($this->dictionary));
 
     $options = '';
-    foreach (Node::getSortedList($parts[0]) as $k => $v)
+    foreach ($data as $k => $v)
       $options .= html::em('option', array(
-        'value' => $v,
-        'selected' => ($current == $v)
+        'value' => $k,
+        'selected' => in_array($k, $selected),
         ), html::plain($v));
+
     return $options;
   }
 
@@ -197,9 +187,36 @@ class NodeLinkControl extends Control
   /**
    * Вставляет ноду в родительский объект.
    */
-  public function format($value, $em)
+  public function format(Node $node, $em)
   {
-    if (is_object($value))
-      return $value->getXML($em);
+    $ids = array();
+    foreach ((array)$node->{$this->value} as $v)
+      if (empty($v))
+        ;
+      elseif (is_object($v))
+        $ids[] = $v->id;
+      elseif (is_array($v)) // как так получается?!
+        $ids[] = $v['id'];
+      else
+        $ids[] = $v;
+
+    if ('more' == $this->details)
+      $result = Node::findXML(array(
+        'class' => $this->dictionary,
+        'deleted' => 0,
+        'id' => $ids,
+        ));
+    else {
+      $params = array($this->dictionary);
+      $data = Context::last()->db->getResults("SELECT `id`, `class`, `published`, `name` FROM {node} WHERE `class` = ? AND `id` " . sql::in($ids, $params), $params);
+      $result = '';
+      foreach ($data as $row)
+        $result .= html::em('node', $row);
+    }
+
+    if (empty($result))
+      mcms::debug($ids, $node);
+
+    return html::em($em, $result);
   }
 };

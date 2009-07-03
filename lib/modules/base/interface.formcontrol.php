@@ -60,4 +60,9 @@ interface iFormControl
    * @param string $value имя контрола (его параметр value).
    */
   public function findControl($value);
+
+  /**
+   * Форматирует XML код.
+   */
+  public function format(Node $node, $elementName);
 };

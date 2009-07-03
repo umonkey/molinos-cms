@@ -76,8 +76,9 @@ class LinksControl extends TextAreaControl
       $node->{$this->value} = $result;
   }
 
-  public function format($value, $em)
+  public function format(Node $node, $em)
   {
+    $value = $node->{$this->value};
     $tmp = '';
     foreach ((array)$value as $line)
       $tmp .= html::em('link', $line);

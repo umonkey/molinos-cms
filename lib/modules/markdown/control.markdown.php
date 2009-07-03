@@ -26,8 +26,10 @@ class MarkdownControl extends TextAreaControl
     parent::__construct($form, array('value'));
   }
 
-  public function format($value, $em)
+  public function format(Node $node, $em)
   {
+    $value = $node->{$this->value};
+
     include_once os::path(dirname(__FILE__), 'markdown.php');
     $output = Markdown($value);
 

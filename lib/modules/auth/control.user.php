@@ -82,11 +82,11 @@ class UserControl extends Control
   /**
    * Возвращает XML код поля.
    */
-  public function format($value, $em)
+  public function format(Node $node, $em)
   {
     $html = null;
 
-    if ($user = $value) {
+    if ($user = $node->{$this->value}) {
       if (!is_object($user))
         $user = Node::load($user);
       $html = html::em($em, array(

@@ -32,9 +32,9 @@ class URLControl extends EmailControl
     return null;
   }
 
-  public function format($value, $em)
+  public function format(Node $node, $em)
   {
-    if (!empty($value)) {
+    if ($value = $node->{$this->value}) {
       $result = html::em($em, array(
         'host' => url::host($value),
         ), html::cdata($value));

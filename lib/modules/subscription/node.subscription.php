@@ -43,9 +43,6 @@ class SubscriptionNode extends Node
     if (!array_key_exists('sections', $conf))
       return array();
 
-    if (array_key_exists('__reset', $conf['sections']))
-      unset($conf['sections']['__reset']);
-
     return $conf['sections'];
   }
 

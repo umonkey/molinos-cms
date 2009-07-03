@@ -113,8 +113,10 @@ class AttachmentControl extends Control
     return $value;
   }
 
-  public function format($value, $em)
+  public function format(Node $node, $em)
   {
+    $value = $node->{$this->value};
+
     if (is_object($value) and 'file' == $value->class) {
       if (!($inside = $value->getVersionsXML()))
         $inside = html::cdata($this->getEmbedCode($value));

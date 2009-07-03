@@ -25,8 +25,10 @@ class GMapControl extends TextLineControl
     return null;
   }
 
-  public function format($value, $em)
+  public function format(Node $noed, $em)
   {
+    $value = $node->{$this->value};
+
     if (is_array($value) and !empty($value['lat']) and !empty($value['lon'])) {
       $ll = $value['lat'] . ',' . $value['lon'];
       $key = Context::last()->config->get('modules/googlemaps/key');

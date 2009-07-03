@@ -17,9 +17,6 @@
  */
 class EnumControl extends Control
 {
-  /**
-   * @mcms_message ru.molinos.cms.control.enum
-   */
   public static function getInfo()
   {
     return array(
@@ -142,9 +139,9 @@ class EnumControl extends Control
     return 'drop';
   }
 
-  public function format($value, $em)
+  public function format(Node $node, $em)
   {
-    if (!empty($value) and is_object($value))
+    if ($value = $node->{$this->value})
       return $value->getXML($em);
   }
 

@@ -353,9 +353,9 @@ abstract class Control implements iFormControl
   /**
    * Форматирование значения.
    */
-  public function format($value, $em)
+  public function format(Node $node, $em)
   {
-    return html::wrap($em, html::cdata($value));
+    return html::wrap($em, html::cdata($node->{$this->value}));
   }
 
   /**
@@ -363,7 +363,7 @@ abstract class Control implements iFormControl
    */
   public function preview($data)
   {
-    return $this->format($data->{$this->value}, 'value');
+    return $this->format($data, 'value');
   }
 
   /**

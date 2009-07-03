@@ -55,10 +55,10 @@ class BoolControl extends Control
     return $value ? 1 : 0;
   }
 
-  public function format($value, $em)
+  public function format(Node $node, $em)
   {
     return html::em($em, array(
-      'value' => $value,
-      ), html::cdata($value ? 'да' : 'нет'));
+      'value' => $node->{$this->value},
+      ), html::cdata($node->{$this->value} ? 'да' : 'нет'));
   }
 };

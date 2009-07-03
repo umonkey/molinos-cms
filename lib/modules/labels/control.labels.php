@@ -12,9 +12,10 @@ class LabelsControl extends ListControl
       );
   }
 
-  public function format($value, $em)
+  public function format(Node $node, $em)
   {
     $result = '';
+    $value = $node->{$this->value};
 
     if (!empty($value) and is_array($value)) {
       $params = array();

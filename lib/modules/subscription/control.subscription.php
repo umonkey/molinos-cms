@@ -48,10 +48,6 @@ class SubscriptionControl extends SetControl
 
   public function set($value, &$node)
   {
-    if (empty($value['__reset']))
-      return;
-    unset($value['__reset']);
-
     $this->validate($value);
 
     if (null === ($email = $this->findEmail($node)))

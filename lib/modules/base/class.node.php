@@ -1266,7 +1266,7 @@ class Node
         }
 
         if (isset($schema[$k])) {
-          $data['#text'] .= $schema[$k]->format($v, $k);
+          $data['#text'] .= $schema[$k]->format($this, $k);
           continue;
         }
       }
@@ -1318,6 +1318,8 @@ class Node
    */
   public function link(array $ids, $replace = true, $field = null)
   {
+    if ($replace)
+      $this->onSave("DELETE FROM {node__rel} WHERE `tid` = %ID% AND `key` = ?", array($field));
     $params = array($field);
     $this->onSave("INSERT INTO `node__rel` (`tid`, `nid`, `key`) SELECT %ID%, `id`, ? FROM `node` WHERE `id` " . sql::in($ids, $params), $params);
     return $this;

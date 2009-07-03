@@ -19,9 +19,6 @@
  */
 class SetControl extends Control
 {
-  /**
-   * @mcms_message ru.molinos.cms.control.enum
-   */
   public static function getInfo()
   {
     return array(
@@ -137,18 +134,10 @@ class SetControl extends Control
 
   public function set($value, &$node)
   {
-    if (empty($value['__reset']))
-      $value = null;
-
-    else {
-      unset($value['__reset']);
-      $this->validate($value);
-    }
-
-    $node->{$this->value} = $value;
+    $this->validate($value);
 
     if (empty($this->dictionary) or !($node instanceof Node))
-      ;
+      $node->{$this->value} = $value;
     elseif ($this->parents)
       $this->setParents($node, (array)$value);
     else
@@ -198,56 +187,5 @@ class SetControl extends Control
     return html::em('value', array(
       'html' => true,
       ), html::cdata($result));
-  }
-
-  /**
-   * Дополнительные настройки поля: справочник, объём данных.
-   */
-  public function getExtraSettings()
-  {
-    return array(
-      'dictionary' => array(
-        'type' => 'EnumControl',
-        'label' => t('Справочник'),
-        'options' => TypeNode::getDictionaries(),
-        'weight' => 4,
-        'default_label' => t('(не использовать)'),
-        'required' => true,
-        ),
-      'xmlsize' => array(
-        'type' => 'EnumControl',
-        'label' => t('Объём данных'),
-        'options' => array(
-          'short' => t('id + название'),
-          'full' => t('полный XML'),
-          ),
-        'weight' => 5,
-        'required' => true,
-        ),
-      );
-  }
-
-  /**
-   * Вывод использованных объектов в XML.
-   */
-  public function format($value, $em)
-  {
-    if (!empty($value) and is_array($value)) {
-      if ('full' == $this->xmlsize)
-        $result = Node::findXML(array(
-          'class' => $this->dictionary,
-          'deleted' => 0,
-          'id' => $value,
-          ));
-      else {
-        $params = array();
-        $data = Context::last()->db->getResults("SELECT `id`, `class`, `published`, `name` FROM `node` WHERE `id` " . sql::in($value, $params), $params);
-        $result = '';
-        foreach ($data as $row)
-          $result .= html::em('node', $row);
-      }
-      if (!empty($result))
-        return html::em($em, $result);
-    }
   }
 };

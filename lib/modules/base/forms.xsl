@@ -91,7 +91,6 @@
           </span>
         </legend>
       </xsl:if>
-      <input type="hidden" name="{@name}[__reset]" value="1" />
       <xsl:for-each select="option[@value]">
         <label>
           <input type="checkbox" name="{../@name}[]" value="{@value}">
