@@ -78,7 +78,7 @@ class CaptchaControl extends Control
   {
     $types = $ctx->config->getArray('modules/captcha/types');
 
-    if (in_array($node->class, $types) and $ctx->user->id and !$this->id and class_exists('CaptchaControl'))
+    if (in_array($node->class, $types) and !$ctx->user->id and !$node->id)
       $schema['captcha'] = new CaptchaControl(array(
         'value' => 'captcha',
         'label' => t('Введите символы с картинки'),
